@@ -32,11 +32,13 @@ wave: sim
 
 nvboard: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim NVBoard")
-	$(VERILATOR) $(VERILATOR_FLAGS) \
-		-CFLAGS "$(INCFLAGS) -include $(NVBOARD_HOME)/include/nvboard.h -DNVBOARD" \
-		-LDFLAGS "$(LDFLAGS)" \
-		-f $(VSRC_LIST) $(CSRC) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
-		-o $(abspath $(BUILD_DIR)/$(TOPNAME)_nvboard)
+	$(VERILATOR) $(VERILATOR_CFLAGS) \
+		--top-module $(TOPNAME) \
+		--Mdir $(BUILD_DIR)/obj_dir \
+		$(addprefix -LDFLAGS , $(LDFLAGS)) \
+		--exe -o $(abspath $(BUILD_DIR)/$(TOPNAME)_nvboard) \
+		-CFLAGS "-I$(NVBOARD_HOME)/include -include $(NVBOARD_HOME)/include/nvboard.h -DNVBOARD" \
+		-f $(VSRC_LIST) $(CSRC) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(BUILD_DIR)/$(TOPNAME)_nvboard
 
 clean:
