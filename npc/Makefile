@@ -32,7 +32,8 @@ wave: sim
 
 nvboard: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim NVBoard")
-	$(VERILATOR) $(VERILATOR_CFLAGS) \
+	@rm -rf $(BUILD_DIR)/obj_dir
+	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) \
 		--Mdir $(BUILD_DIR)/obj_dir \
 		$(addprefix -LDFLAGS , $(LDFLAGS)) \
