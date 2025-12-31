@@ -1,6 +1,6 @@
 TOPNAME = top
 NXDC_FILES = constr/top.nxdc
-BUILD_DIR = ./build
+BUILD_DIR = ./build#
 
 # basic
 VSRC_LIST = $(abspath ./vsrc/filelist.f)
