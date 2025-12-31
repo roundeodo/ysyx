@@ -29,12 +29,14 @@ sim:
 wave: sim
 	gtkwave wave.vcd
 
-
+SDL_CFLAGS  = $(shell sdl2-config --cflags)
+SDL_LDFLAGS = $(shell sdl2-config --libs)
 nvboard: CSRC += $(SRC_AUTO_BIND)
-nvboard: VERILATOR_FLAGS += -CFLAGS "-I$(NVBOARD_HOME)/include" \
-							-LDFLAGS "-lSDL2 -lSDL2_image"
+nvboard: VERILATOR_FLAGS += -CFLAGS \
+	"-I$(NVBOARD_HOME)/include $(SDL_CFLAGS)" \
+							-LDFLAGS "$(SDL_LDFLAGS) -lSDL2_image"
 
-nvboard: 
+nvboard: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim NVBoard")
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		-f $(VSRC_LIST) $(CSRC) $(NVBOARD_ARCHIVE) \
