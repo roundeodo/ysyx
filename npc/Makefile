@@ -47,5 +47,6 @@ clean:
 	rm -rf obj_dir wave.vcd
 
 include ../Makefile
+include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 .PHONY: sim wave nvboard clean 
