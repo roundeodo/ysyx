@@ -86,7 +86,7 @@ void Vtop___024root___eval(Vtop___024root* vlSelf) {
 #ifdef VL_DEBUG
             Vtop___024root___dump_triggers__ico(vlSelfRef.__VicoTriggered, "ico"s);
 #endif
-            VL_FATAL_MT("/home/yong/ysyx/ysyx-workbench/npc/vsrc/top.v", 1, "", "Input combinational region did not converge after 100 tries");
+            VL_FATAL_MT("vsrc/top.v", 1, "", "Input combinational region did not converge after 100 tries");
         }
         __VicoIterCount = ((IData)(1U) + __VicoIterCount);
     } while (Vtop___024root___eval_phase__ico(vlSelf));

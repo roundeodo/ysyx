@@ -41,7 +41,7 @@ VL_ATTR_COLD void Vtop___024root___eval_settle(Vtop___024root* vlSelf) {
 #ifdef VL_DEBUG
             Vtop___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("/home/yong/ysyx/ysyx-workbench/npc/vsrc/top.v", 1, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("vsrc/top.v", 1, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vtop___024root___eval_phase__stl(vlSelf));
