@@ -33,8 +33,7 @@ SDL_CFLAGS  = $(shell sdl2-config --cflags)
 SDL_LDFLAGS = $(shell sdl2-config --libs)
 nvboard: CSRC += $(SRC_AUTO_BIND)
 nvboard: VERILATOR_FLAGS += -CFLAGS \
-	"-I$(NVBOARD_HOME)/include -include $(NVBOARD_HOME) \
-	/include/nvboard.h $(SDL_CFLAGS)" \
+	"-I$(NVBOARD_HOME)/include -include $(NVBOARD_HOME)/include/nvboard.h $(SDL_CFLAGS)" \
 							-LDFLAGS "$(SDL_LDFLAGS) -lSDL2_image"
 
 nvboard: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
