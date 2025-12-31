@@ -1,6 +1,6 @@
 TOPNAME = top
 VSRC_LIST = $(abspath ./vsrc/filelist.f)
-CSRC = $(abspath ./csrc/sim_main/cpp)
+CSRC = $(abspath ./csrc/sim_main.cpp)
 
 VERILATOR = verilator
 VERILATOR_FLAGS += --cc --exe --build -j 0 -Wall
