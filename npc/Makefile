@@ -7,8 +7,10 @@ VSRC_LIST = $(abspath ./vsrc/filelist.f)
 CSRC = $(abspath ./csrc/sim_main.cpp)
 
 # nvboard
-SRC_AUTO_BIND = $(BUILD_DIR)/auto_bind.cpp
-NVBOARD_ARCHIVE = $(NVBOARD_HOME)/build/nvboard.a 
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
+SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
+
 
 # verilator 
 VERILATOR = verilator
@@ -29,24 +31,23 @@ sim:
 wave: sim
 	gtkwave wave.vcd
 
-SDL_CFLAGS  = $(shell sdl2-config --cflags)
-SDL_LDFLAGS = $(shell sdl2-config --libs)
-nvboard: CSRC += $(SRC_AUTO_BIND)
-nvboard: VERILATOR_FLAGS += -CFLAGS \
-	"-I$(NVBOARD_HOME)/include -include $(NVBOARD_HOME)/include/nvboard.h $(SDL_CFLAGS)" \
-							-LDFLAGS "$(SDL_LDFLAGS) -lSDL2_image"
 
 nvboard: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim NVBoard")
-	$(VERILATOR) $(VERILATOR_FLAGS) \
-		-f $(VSRC_LIST) $(CSRC) $(NVBOARD_ARCHIVE) \
-		-o $(abspath $(BUILD_DIR)/$(TOPNAME)_nvboard)
+	$(VERILATOR) $(VERILATOR_CFLAGS) \
+		--top-module $(TOPNAME) \
+		--Mdir $(BUILD_DIR)/obj_dir \
+		$(addprefix -CFLAGS , $(CXXFLAGS)) \
+		$(addprefix -LDFLAGS , $(LDFLAGS)) \
+		-CFLAGS "-include $(NVBOARD_HOME)/include/nvboard.h" \
+		-f $(VSRC_LIST) $(CSRC) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
+		--exe -o $(abspath $(BUILD_DIR)/$(TOPNAME)_nvboard)
 	$(BUILD_DIR)/$(TOPNAME)_nvboard
 
 clean:
-	rm -rf obj_dir wave.vcd
+	rm -rf $(BUILD_DIR) wave.vcd
 
 include ../Makefile
-include $(NVBOARD_HOME)/scripts/nvboard.mk
+
 
 .PHONY: sim wave nvboard clean 
