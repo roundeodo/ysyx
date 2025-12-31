@@ -1,6 +1,6 @@
 TOPNAME = top
-VSRC = $(shell find $(abspath ./vsrc) -name "*.v")
-CSRC = $(shell find $(abspath ./csrc) -name "*.cpp")
+VSRC_LIST = $(abspath ./vsrc/filelist.f)
+CSRC = $(abspath ./csrc/sim_main/cpp)
 
 VERILATOR = verilator
 VERILATOR_FLAGS += --cc --exe --build -j 0 -Wall
@@ -9,13 +9,13 @@ all: sim
 	
 sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRC) $(CSRC) \
+	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRC_LIST) $(CSRC) \
 		--Mdir obj_dir --exe -o $(TOPNAME)
 	./obj_dir/$(TOPNAME)
 
 wave:
 	$(call git_commit, "sim_RTL") 
-	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRC) $(CSRC) \
+	$(VERILATOR) $(VERILATOR_FLAGS) $(VSRC_LIST) $(CSRC) \
 		--Mdir obj_dir --exe -o $(TOPNAME)
 	./obj_dir/$(TOPNAME)
 	gtkwave wave.vcd
