@@ -9,7 +9,6 @@ CSRC = $(abspath ./csrc/sim_main.cpp)
 # nvboard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 
 
 # verilator 
@@ -32,20 +31,8 @@ wave: sim
 	gtkwave wave.vcd
 
 
-nvboard: $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE)
-	$(call git_commit, "sim NVBoard")
-	$(VERILATOR) $(VERILATOR_CFLAGS) \
-		--top-module $(TOPNAME) \
-		--Mdir $(BUILD_DIR)/obj_dir \
-		$(addprefix -CFLAGS , $(CXXFLAGS)) \
-		$(addprefix -LDFLAGS , $(LDFLAGS)) \
-		-CFLAGS "-include $(NVBOARD_HOME)/include/nvboard.h" \
-		-f $(VSRC_LIST) $(CSRC) $(SRC_AUTO_BIND) $(NVBOARD_ARCHIVE) \
-		--exe -o $(abspath $(BUILD_DIR)/$(TOPNAME)_nvboard)
-	$(BUILD_DIR)/$(TOPNAME)_nvboard
-
 clean:
-	rm -rf $(BUILD_DIR) wave.vcd
+	rm -rf obj_dir wave.vcd
 
 include ../Makefile
 
