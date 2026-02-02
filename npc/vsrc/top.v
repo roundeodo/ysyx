@@ -1,33 +1,27 @@
 module top (
-    input [3:0] a,
-    input [3:0] b,
-    input [2:0] opcode,
-    output [6:0] digit_tube,
-    output zero,
-    output overflow,
-    output negative,
-    output carry
+    input clk,
+    input rstn,
+    output [6:0] digit_tube_0,
+    output [6:0] digit_tube_1
   );
 
-  wire [3:0] alu_out_w;
+wire [7:0] LSFR_VALUE;
 
-  alu #(.WIDTH(4)) u_alu(
-    .opcode(opcode),
-    .alu_in_a(a),
-    .alu_in_b(b),
-    .alu_out(alu_out_w),
-    .alu_zero(zero),
-    .alu_overflow(overflow),
-    .alu_negtive(negative),
-    .alu_carry(carry) 
+  LSFR LSFR_inst(
+    .clk(clk),
+    .rstn(rstn),
+    .LSFR_out(LSFR_VALUE)
+  );
+
+  bcd7seg u_digit_tube_1(
+    .seg_in(LSFR_VALUE[3:0]),
+    .seg_out(digit_tube_1)
   );
 
   bcd7seg u_digit_tube(
-    .seg_in(alu_out_w),
-    .seg_out(digit_tube)
+    .seg_in(LSFR_VALUE[7:4]),
+    .seg_out(digit_tube_0)
   );
-
-
 
 endmodule
 
