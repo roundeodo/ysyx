@@ -2,7 +2,7 @@ module clu(
     input [3:0] p,
     input [3:0] g,
     input c0,
-    ouput [4:1] c
+    output [4:1] c
 );
     assign c[1] = g[0] | (p[0] & c[0]);
     assign c[2] = g[1] | (p[1] & g[0]) | (p[1] & p[0] & c0);
