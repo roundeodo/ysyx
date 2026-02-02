@@ -45,5 +45,9 @@ module encoder83(
         end
       endcase
     end
+    else begin
+      y = 3'b000;
+      valid = 1'b0;
+    end
   end
 endmodule
