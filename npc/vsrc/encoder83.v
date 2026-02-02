@@ -37,7 +37,7 @@ module encoder83(
         end
         8'b00000001:begin
           y = 3'b000;
-          valid = 1'b0;        
+          valid = 1'b1;        
         end
         default:begin
           y = 3'b000;
