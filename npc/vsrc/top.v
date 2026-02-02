@@ -2,7 +2,7 @@ module top (
     input [3:0] a,
     input [3:0] b,
     input [2:0] opcode,
-    output [7:0] digit_tube,
+    output [6:0] digit_tube,
     output zero,
     output overflow,
     output negative,

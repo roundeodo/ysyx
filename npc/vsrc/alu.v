@@ -32,6 +32,7 @@ module alu #(parameter WIDTH = 4)(
     assign alu_overflow = overflow_flag;
     assign alu_negtive = negtive_flag;
     assign alu_carry = cout ^ sub;
+    assign alu_zero = zero_flag;
 
     always @(*) begin
         case(opcode)
