@@ -27,8 +27,8 @@ module cla #(parameter WIDTH = 4)(
         .p(p),
         .g(g),
         .c0(cin),
-        .c(c)
+        .c(c[4:1])
     );
-    assign cout = c[4];
+    assign cout = c[WIDTH];
     
 endmodule
