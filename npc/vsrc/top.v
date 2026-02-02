@@ -14,12 +14,12 @@ wire [7:0] LSFR_VALUE;
   );
 
   bcd7seg u_digit_tube_1(
-    .seg_in(LSFR_VALUE[3:0]),
+    .seg_in(LSFR_VALUE[7:4]),
     .seg_out(digit_tube_1)
   );
 
   bcd7seg u_digit_tube(
-    .seg_in(LSFR_VALUE[7:4]),
+    .seg_in(LSFR_VALUE[3:0]),
     .seg_out(digit_tube_0)
   );
 
