@@ -28,7 +28,6 @@ module alu #(parameter WIDTH = 4)(
         .cout(cout)
     );
 
-    assign alu_out = adder_result;
     assign alu_overflow = overflow_flag;
     assign alu_negtive = negtive_flag;
     assign alu_carry = cout ^ sub;
