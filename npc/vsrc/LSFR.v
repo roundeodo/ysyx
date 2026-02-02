@@ -6,7 +6,7 @@ module LSFR(
 
     reg [7:0] LSFR_DATA;
 
-    wire feedback = LSFR_DATA[4] ^ LSFR_DATA[3] ^ LSFR_DATA[2] ^ LSFR_DATA[0]
+    wire feedback = LSFR_DATA[4] ^ LSFR_DATA[3] ^ LSFR_DATA[2] ^ LSFR_DATA[0];
 
     always @(posedge clk or negedge rstn) begin
         if(!rstn)begin
