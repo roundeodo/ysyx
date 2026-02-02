@@ -1,26 +1,33 @@
 module top (
-  input enable, 
-  input [7:0] in, 
-  output [3:0] encoder_out,
-  output [6:0] digit_tube_out
+    input [3:0] a,
+    input [3:0] b,
+    input [2:0] opcode,
+    output [7:0] digit_tube,
+    output zero,
+    output overflow,
+    output negative,
+    output carry
+  );
+
+  wire [3:0] alu_out_w;
+
+  alu #(WIDTH(4)) u_alu(
+    .opcode(opcode),
+    .alu_in_a(a),
+    .alu_in_b(b),
+    .alu_out(alu_out_w),
+    .alu_zero(zero),
+    .alu_overflow(overflow),
+    .alu_negtive(negative),
+    .alu_carry(carry) 
+  );
+
+  bcd7seg u_digit_tube(
+    .seg_in(alu_out_w),
+    .seg_out(digit_tube)
   );
 
 
-wire [3:0] encoder83_out;
-
-encoder83 encoder(
-  .x(in),
-  .en(enable),
-  .y(encoder83_out[2:0]),
-  .valid(encoder83_out[3])
-);
-
-assign encoder_out = encoder83_out;
-
-bcd7seg bcd1(
-  .seg_in({1'b0,encoder83_out[2:0]}),
-  .seg_out(digit_tube_out)
-);
 
 endmodule
 
