@@ -11,7 +11,7 @@ module top (
 
   wire [3:0] alu_out_w;
 
-  alu #(WIDTH(4)) u_alu(
+  alu #(.WIDTH(4)) u_alu(
     .opcode(opcode),
     .alu_in_a(a),
     .alu_in_b(b),
