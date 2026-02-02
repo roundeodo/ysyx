@@ -8,7 +8,7 @@ BIN_NV  = $(BUILD_DIR)/$(TOPNAME)_nvboard
 
 # verilator constr 
 VERILATOR = verilator
-VERILATOR_FLAGS += -MMD --build -cc  \
+VERILATOR_FLAGS += -MMD --build -cc -Wall  \
 				-O3 --x-assign fast --x-initial fast --noassert --trace
 
 default: sim
@@ -41,7 +41,7 @@ $(BIN_SIM): $(VSRC_LIST) $(CSRC_SIM)
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 $(BIN_NV): $(VSRC_LIST) $(CSRC_NV) $(NVBOARD_ARCHIVE)
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) 	\
 		--top-module $(TOPNAME)  		\
 		-f $(VSRC_LIST) $(CSRC_NV)	$(NVBOARD_ARCHIVE)	\
@@ -58,6 +58,10 @@ sim-wave: $(BIN_SIM)
 
 nvboard: $(BIN_NV)
 		$(BIN_NV)
+
+lint: $(VSRC_LIST)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+		$(VERILATOR) --lint-only -Wall --top-module $(TOPNAME) -f $(VSRC_LIST)
 
 clean:
 	rm -rf $(BUILD_DIR) wave.vcd

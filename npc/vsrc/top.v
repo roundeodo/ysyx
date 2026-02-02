@@ -1,21 +1,26 @@
 module top (
-    input clk,
-    input rstn,
-    output[15:0] LED);
-reg [15:0] LED_REG;
-reg [31:0] counter;
-always@(posedge clk or negedge rstn)begin
-    if(!rstn)begin
-        LED_REG <= 16'b1;
-        counter <= 32'b0;
-    end
-    else if(counter == 5000000) begin
-        counter <= 32'b0;
-        LED_REG <= {LED_REG[14:0],LED_REG[15]};
-    end
-    else begin
-        counter <= counter + 1;
-    end
-end
-assign LED = LED_REG;
+  input enable, 
+  input [7:0] in, 
+  output [3:0] encoder_out,
+  output [6:0] digit_tube_out
+  );
+
+
+wire [3:0] encoder83_out;
+
+encoder83 encoder(
+  .x(in),
+  .en(enable),
+  .y(encoder83_out[2:0]),
+  .valid(encoder83_out[3])
+);
+
+assign encoder_out = encoder83_out;
+
+bcd7seg bcd1(
+  .seg_in({1'b0,encoder83_out[2:0]}),
+  .seg_out(digit_tube_out)
+);
+
 endmodule
+
