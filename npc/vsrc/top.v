@@ -25,7 +25,7 @@ module top(
 
     vga_ctrl cga_ctrl_inst(
         .pclk(vga_clk),
-        .reset(reset),
+        .reset(rst),
         .vga_data(vga_data_24bit),
         .h_addr(h_addr),
         .v_addr(v_addr),
