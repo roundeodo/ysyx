@@ -1,15 +1,14 @@
 module vga_mem(
-    input clk,
-    input [18:0] addr,       
-    output reg [11:0] data   
+    input [9:0] h_addr,
+    input [8:0] v_addr,
+    output [23:0] vga_data
 );
-    reg [11:0] ram [307199:0];
 
-    initial begin
-        $readmemh("/home/yong/Downloads/picture.hex", ram);
-    end
+reg [23:0] vga_mem [524287:0];
 
-    always @(posedge clk) begin
-        data <= ram[addr];
-    end
+initial begin
+    $readmemh("~/ysyx/ysyx-worbench/nvboard/example/resource/picture.hex", vga_mem);
+end
+
+assign vga_data = vga_mem[{h_addr, v_addr}];
 endmodule

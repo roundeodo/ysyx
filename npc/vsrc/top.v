@@ -68,14 +68,12 @@ assign VGA_B = vga_b_reg;
         .vga_b(b_raw)
     );
 
-    wire [18:0] rom_addr;
-    assign rom_addr =  ({9'b0,v_addr} * 19'd640) + {9'b0,h_addr};
     wire [11:0] rom_data_12bit;
 
     vga_mem vga_mem_inst(
-        .clk(vga_clk),
-        .addr(rom_addr),
-        .data(rom_data_12bit)   
+        .h_addr(h_addr),
+        .v_addr(v_addr),
+        .vga_data(rom_data_12bit)   
     );
 
     assign vga_data_24bit = {rom_data_12bit[11:8],4'b0,rom_data_12bit[7:4],4'b0,rom_data_12bit[3:0],4'b0};
