@@ -19,7 +19,8 @@ module keyboard_top(
         .ps2_data(ps2_data),
         .data(raw_code),
         .ready(ready),
-        .nextdata_n(1'b0)
+        .nextdata_n(1'b0),
+        .overflow()
     );
 
     key_processor key_processor_inst(
