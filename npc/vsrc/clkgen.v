@@ -10,7 +10,7 @@ module clkgen(
 
     reg [31:0] clkcount;
 
-    always @ (posedge clkin) begin
+    always @ (posedge clkin or posedge rst) begin
         if (rst) begin
             clkcount <= 32'd0;
             // 关键：复位时不要给 clkout 固定值，或者仅给初始值，允许其受 clken 驱动
