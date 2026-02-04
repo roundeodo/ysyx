@@ -50,8 +50,8 @@ module top(
         .count(total_count)
     );
 
-    wire [7:0] d_code = is_pressing? processed_code : 8'hFF;
-    wire [7:0] d_ascii = is_pressing? ascii_code : 8'hFF;
+    wire [7:0] d_code = is_pressing? processed_code : 8'h00;
+    wire [7:0] d_ascii = is_pressing? ascii_code : 8'h00;
 
     bcd7seg digit_tube0(
         .seg_in(d_code[3:0]),
