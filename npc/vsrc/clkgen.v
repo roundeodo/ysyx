@@ -2,6 +2,7 @@ module clkgen(
     input clkin,
     input rst,
     input clken,
+    output reg rstout,
     output reg clkout
     );
     parameter clk_freq=1000;
@@ -13,11 +14,13 @@ module clkgen(
     begin
         clkcount<=0;
         clkout <= 1'b0;
+        rstout <= 1'b0;
     end
     else
     begin
     if(clken)
         begin
+            rstout <= 1'b1;
             if(clkcount == countlimit)
             begin
                 clkcount<=32'd0;

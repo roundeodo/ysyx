@@ -11,12 +11,14 @@ module top(
 );
 
     wire vga_clk;
+    wire vga_rst;
     clkgen#(
         .clk_freq(25000000)
     )clkgen_inst(
         .clkin(clk),
         .rst(rst),
         .clken(1'b1),
+        .rstout(vga_rst),
         .clkout(vga_clk)
     );
 
@@ -25,7 +27,7 @@ module top(
 
     vga_ctrl vga_ctrl_inst(
         .pclk(vga_clk),
-        .reset(rst),
+        .reset(vga_rst),
         .vga_data(vga_data_24bit),
         .h_addr(h_addr),
         .v_addr(v_addr),
