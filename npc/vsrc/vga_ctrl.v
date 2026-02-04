@@ -27,7 +27,7 @@ reg [9:0] y_cnt;
 wire h_valid;
 wire v_valid;
 
-always @(posedge pclk) begin
+always @(posedge pclk or posedge reset) begin
     if(reset == 1'b1) begin
         x_cnt <= 1;
         y_cnt <= 1;

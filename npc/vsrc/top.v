@@ -18,7 +18,6 @@ module top(
         .clkin(clk),
         .rst(rst),
         .clken(1'b1),
-        .rstout(vga_rst),
         .clkout(vga_clk)
     );
 
@@ -26,7 +25,7 @@ module top(
     wire [23:0] vga_data_24bit;
 
     vga_ctrl vga_ctrl_inst(
-        .pclk(clk),
+        .pclk(vga_clk),
         .reset(rst),
         .vga_data(vga_data_24bit),
         .h_addr(h_addr),
