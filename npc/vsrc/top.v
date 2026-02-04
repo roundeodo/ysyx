@@ -53,7 +53,6 @@ assign VGA_B = vga_b_reg;
 
     wire [9:0] h_addr,v_addr;
     wire [23:0] vga_data_24bit;
-    wire vga_valid;
 
     vga_ctrl vga_ctrl_inst(
         .pclk(vga_clk),
