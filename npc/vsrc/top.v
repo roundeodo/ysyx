@@ -6,7 +6,8 @@ module top(
     output VGA_BLANK_N,
     output [7:0] VGA_R,
     output [7:0] VGA_G,
-    output [7:0] VGA_B
+    output [7:0] VGA_B,
+    output flag
 );
 
 wire hsync_raw, vsync_raw, valid_raw;
@@ -75,7 +76,7 @@ assign VGA_B = vga_b_reg;
         .v_addr(v_addr[8:0]),
         .vga_data(rom_data_24bit)   
     );
-
+    assign flag = v_addr[9];
 
     
 endmodule
