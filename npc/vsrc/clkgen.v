@@ -11,26 +11,26 @@ module clkgen(
   always @ (posedge clkin)
     if(rst)
     begin
-        clkcount=0;
-        clkout=1'b0;
+        clkcount<=0;
+        clkout<=1'b0;
     end
     else
     begin
     if(clken)
         begin
-            clkcount=clkcount+1;
+            clkcount<=clkcount+1;
             if(clkcount>=countlimit)
             begin
-                clkcount=32'd0;
-                clkout=~clkout;
+                clkcount<=32'd0;
+                clkout<=~clkout;
             end
             else
-                clkout=clkout;
+                clkout<=clkout;
         end
       else
         begin
-            clkcount=clkcount;
-            clkout=clkout;
+            clkcount<=clkcount;
+            clkout<=clkout;
         end
     end
 endmodule

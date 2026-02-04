@@ -37,7 +37,8 @@ module top(
         .vga_b(VGA_B)
     );
     assign VGA_BLANK_N = vga_valid;
-    wire [18:0] rom_addr = v_addr*640 + h_addr;
+    wire [18:0] rom_addr;
+    assign rom_addr =  v_addr*640 + h_addr;
     wire [11:0] rom_data_12bit;
 
     vga_mem vga_mem_inst(
