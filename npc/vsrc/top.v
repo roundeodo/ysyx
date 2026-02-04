@@ -1,7 +1,6 @@
 module top(
     input clk,
     input rstn,
-    input clrn,
     input ps2_clk,
     input ps2_data,
     output [6:0] seg0,seg1,seg2,seg3,seg4,seg5,
@@ -17,7 +16,7 @@ module top(
 
     ps2_keyboard ps2_keyboard_inst(
         .clk(clk),
-        .clrn(clrn),
+        .clrn(rstn),
         .ps2_clk(ps2_clk),
         .ps2_data(ps2_data),
         .data(raw_code),
