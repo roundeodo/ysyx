@@ -12,7 +12,6 @@ module clkgen(
     if(rst)
     begin
         clkcount<=0;
-        rstout<=1'b1;
     end
     else
     begin
