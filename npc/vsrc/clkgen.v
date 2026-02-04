@@ -6,7 +6,7 @@ module clkgen(
 );
     parameter clk_freq = 25000000;
     // 计算触发翻转的阈值。对于二分频（50M -> 25M），阈值应为 0
-    parameter countlimit = (50000000 / (2 * clk_freq)) - 1;
+    parameter countlimit = (50000000 / (2 * clk_freq)) > 0 ? (50000000 / (2 * clk_freq)) - 1 : 0;
 
     reg [31:0] clkcount;
 
