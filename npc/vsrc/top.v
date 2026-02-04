@@ -42,7 +42,7 @@ module top(
 
     vga_mem vga_mem_inst(
         .clk(vga_clk),
-        .addr(rom_addr).
+        .addr(rom_addr),
         .data(rom_data_12bit)   
     );
 
