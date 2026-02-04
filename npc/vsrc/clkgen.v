@@ -21,7 +21,7 @@ module clkgen(
             if(clkcount>=countlimit)
             begin
                 clkcount<=32'd0;
-                clkout=~clkout;
+                clkout<=~clkout;
             end
             else
                 clkout<=clkout + 1;
