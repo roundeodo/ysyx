@@ -57,7 +57,7 @@ assign VGA_B = vga_b_reg;
     vga_ctrl vga_ctrl_inst(
         .pclk(vga_clk),
         .reset(rst),
-        .vga_data(vga_data_24bit),
+        .vga_data(rom_data_24bit),
         .h_addr(h_addr),
         .v_addr(v_addr),
         .hsync(hsync_raw),
@@ -68,15 +68,14 @@ assign VGA_B = vga_b_reg;
         .vga_b(b_raw)
     );
 
-    wire [11:0] rom_data_12bit;
+    wire [23:0] rom_data_24bit;
 
     vga_mem vga_mem_inst(
         .h_addr(h_addr),
         .v_addr(v_addr),
-        .vga_data(rom_data_12bit)   
+        .vga_data(rom_data_24bit)   
     );
 
-    assign vga_data_24bit = {rom_data_12bit[11:8],4'b0,rom_data_12bit[7:4],4'b0,rom_data_12bit[3:0],4'b0};
 
     
 endmodule
