@@ -8,7 +8,7 @@ module clkgen(
     parameter countlimit=50000000/2/clk_freq; //自动计算计数次数
 
   reg[31:0] clkcount;
-  always @ (posedge clkin)
+  always @ (posedge clkin or posedge rst)
     if(rst)
     begin
         clkcount<=0;
