@@ -9,6 +9,38 @@ module top(
     output [7:0] VGA_B
 );
 
+wire hsync_raw, vsync_raw, valid_raw;
+wire [7:0] r_raw, g_raw, b_raw;
+
+reg vga_hsync_reg, vga_vsync_reg, vga_valid_reg;
+reg [7:0] vga_r_reg, vga_g_reg, vga_b_reg;
+
+always @(posedge vga_clk) begin
+    if (rst) begin
+        vga_hsync_reg <= 1'b1;
+        vga_vsync_reg <= 1'b1;
+        vga_valid_reg <= 1'b0;
+        vga_r_reg <= 8'h0;
+        vga_g_reg <= 8'h0;
+        vga_b_reg <= 8'h0;
+    end else begin
+        // 将控制信号延迟一拍，与 ROM 输出的数据对齐
+        vga_hsync_reg <= hsync_raw;
+        vga_vsync_reg <= vsync_raw;
+        vga_valid_reg <= valid_raw;
+        vga_r_reg <= r_raw;
+        vga_g_reg <= g_raw;
+        vga_b_reg <= b_raw;
+    end
+end
+
+assign VGA_HSYNC = vga_hsync_reg;
+assign VGA_VSYNC = vga_vsync_reg;
+assign VGA_BLANK_N = vga_valid_reg;
+assign VGA_R = vga_r_reg;
+assign VGA_G = vga_g_reg;
+assign VGA_B = vga_b_reg;
+
     wire vga_clk;
     clkgen#(
         .clk_freq(25000000)
@@ -23,18 +55,18 @@ module top(
     wire [23:0] vga_data_24bit;
     wire vga_valid;
 
-    vga_ctrl cga_ctrl_inst(
+    vga_ctrl vga_ctrl_inst(
         .pclk(vga_clk),
         .reset(rst),
         .vga_data(vga_data_24bit),
         .h_addr(h_addr),
         .v_addr(v_addr),
-        .hsync(VGA_HSYNC),
-        .vsync(VGA_VSYNC),
-        .valid(vga_valid),
-        .vga_r(VGA_R),
-        .vga_g(VGA_G),
-        .vga_b(VGA_B)
+        .hsync(hsync_raw),
+        .vsync(vsync_raw),
+        .valid(valid_raw),
+        .vga_r(r_raw),
+        .vga_g(g_raw),
+        .vga_b(b_raw)
     );
     assign VGA_BLANK_N = vga_valid;
     wire [18:0] rom_addr;
