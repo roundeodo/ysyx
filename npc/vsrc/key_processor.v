@@ -24,8 +24,8 @@ module key_processor(
 
     wire is_func_key = (ps2_data == 8'h12 || ps2_data == 8'h59 || ps2_data == 8'h14);
 
-    always @(posedge clk or posedge rstn) begin
-        if(rstn)begin
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn)begin
           current_state <= IDLE;
         end    
         else begin
@@ -55,8 +55,8 @@ module key_processor(
     end
 
 
-    always @(posedge clk or posedge rstn) begin
-        if(rstn)begin
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn)begin
           cur_code <= 8'b0;
           is_pressing <= 1'b0;
           count_en <= 1'b0;
@@ -84,8 +84,8 @@ module key_processor(
         end
     end
 
-    always @(posedge clk or posedge rstn) begin
-        if(rstn)begin
+    always @(posedge clk or negedge rstn) begin
+        if(!rstn)begin
           shift_is_pressing <= 1'b0;
           ctrl_is_pressing <= 1'b0;
         end

@@ -13,10 +13,10 @@ void single_cycle() {
 }
 
 void reset(int n) {
-  top->rstn = 1;
+  top->rstn = 0;
   while (n-- > 0)
     single_cycle();
-  top->rstn = 0;
+  top->rstn = 1;
 }
 
 int main(int argc, char **argv) {
