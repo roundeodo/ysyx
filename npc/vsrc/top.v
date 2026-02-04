@@ -10,21 +10,21 @@ module top(
     output flag
 );
 
-    // wire vga_clk;
-    // clkgen#(
-    //     .clk_freq(25000000)
-    // )clkgen_inst(
-    //     .clkin(clk),
-    //     .rst(rst),
-    //     .clken(1'b1),
-    //     .clkout(vga_clk)
-    // );
+    wire vga_clk;
+    clkgen#(
+        .clk_freq(25000000)
+    )clkgen_inst(
+        .clkin(clk),
+        .rst(rst),
+        .clken(1'b1),
+        .clkout(vga_clk)
+    );
 
     wire [9:0] h_addr,v_addr;
     wire [23:0] vga_data_24bit;
 
     vga_ctrl vga_ctrl_inst(
-        .pclk(clk),
+        .pclk(vga_clk),
         .reset(rst),
         .vga_data(vga_data_24bit),
         .h_addr(h_addr),
