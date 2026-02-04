@@ -12,6 +12,7 @@ module keyboard_top(
     wire [7:0] ascii_code;
     wire [7:0] total_count;
     wire ready, is_pressing,count_en,shift_f,ctrl_f;
+    wire overflow_f;
     ps2_keyboard ps2_keyboard_inst(
         .clk(clk),
         .clrn(rstn),
@@ -20,7 +21,7 @@ module keyboard_top(
         .data(raw_code),
         .ready(ready),
         .nextdata_n(1'b0),
-        .overflow()
+        .overflow(overflow_f)
     );
 
     key_processor key_processor_inst(
