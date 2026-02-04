@@ -22,9 +22,8 @@ module top(
 
     wire [9:0] h_addr,v_addr;
     wire [23:0] vga_data_24bit;
-    wire vga_valid;
 
-    vga_ctrl cga_ctrl_inst(
+    vga_ctrl vga_ctrl_inst(
         .pclk(clk),
         .reset(rst),
         .vga_data(vga_data_24bit),
@@ -32,12 +31,11 @@ module top(
         .v_addr(v_addr),
         .hsync(VGA_HSYNC),
         .vsync(VGA_VSYNC),
-        .valid(vga_valid),
+        .valid(VGA_BLANK_N),
         .vga_r(VGA_R),
         .vga_g(VGA_G),
         .vga_b(VGA_B)
     );
-    assign VGA_BLANK_N = vga_valid;
 
     vga_mem vga_mem_inst(
         .h_addr(h_addr),
