@@ -11,7 +11,6 @@ module top(
 );
 
     wire vga_clk;
-    wire vga_rst;
     clkgen#(
         .clk_freq(25000000)
     )clkgen_inst(
