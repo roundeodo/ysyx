@@ -72,7 +72,7 @@ assign VGA_B = vga_b_reg;
 
     vga_mem vga_mem_inst(
         .h_addr(h_addr),
-        .v_addr(v_addr),
+        .v_addr(v_addr[8:0]),
         .vga_data(rom_data_24bit)   
     );
 
