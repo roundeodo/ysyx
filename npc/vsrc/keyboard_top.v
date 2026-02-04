@@ -52,32 +52,32 @@ module keyboard_top(
     wire [7:0] d_code = is_pressing? processed_code : 8'hFF;
     wire [7:0] d_ascii = is_pressing? ascii_code : 8'hFF;
 
-    bcd7seg seg0(
+    bcd7seg digit_tube0(
         .seg_in(d_code[3:0]),
         .seg_out(seg0)
     );
 
-    bcd7seg seg1(
+    bcd7seg digit_tube1(
         .seg_in(d_code[7:4]),
         .seg_out(seg1)
     );
 
-    bcd7seg seg2(
+    bcd7seg digit_tube2(
         .seg_in(d_ascii[3:0]),
         .seg_out(seg2)
     );
 
-    bcd7seg seg3(
+    bcd7seg digit_tube3(
         .seg_in(d_ascii[7:4]),
         .seg_out(seg3)
     );
 
-    bcd7seg seg4(
+    bcd7seg digit_tube4(
         .seg_in(total_count[3:0]),
         .seg_out(seg4)
     );
 
-    bcd7seg seg5(
+    bcd7seg digit_tube5(
         .seg_in(total_count[7:4]),
         .seg_out(seg5)
     );
