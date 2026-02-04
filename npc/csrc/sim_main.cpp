@@ -1,26 +1,26 @@
-#include "Vkeyboard_top.h"
+#include "Vtop.h"
 #include <nvboard.h>
 
-Vkeyboard_top *keyboard_top = new Vkeyboard_top;
+Vtop *top = new Vtop;
 
-void nvboard_bind_all_pins(Vkeyboard_top *keyboard_top);
+void nvboard_bind_all_pins(Vtop *top);
 
 void single_cycle() {
-  keyboard_top->clk = 0;
-  keyboard_top->eval();
-  keyboard_top->clk = 1;
-  keyboard_top->eval();
+  top->clk = 0;
+  top->eval();
+  top->clk = 1;
+  top->eval();
 }
 
 void reset(int n) {
-  keyboard_top->rstn = 0;
+  top->rstn = 0;
   while (n-- > 0)
     single_cycle();
-  keyboard_top->rstn = 1;
+  top->rstn = 1;
 }
 
 int main(int argc, char **argv) {
-  nvboard_bind_all_pins(keyboard_top);
+  nvboard_bind_all_pins(top);
 
   nvboard_init();
 
@@ -32,6 +32,6 @@ int main(int argc, char **argv) {
     single_cycle();
   }
 
-  delete keyboard_top;
+  delete top;
   return 0;
 }
