@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
     nvboard_update();
     single_cycle();
-    if (main_time > 1000000)
+    if (main_time > 10000000)
       break; // 示例：跑够一定时间自动停止
   }
 
