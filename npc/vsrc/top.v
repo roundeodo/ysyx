@@ -4,7 +4,8 @@ module top(
     input ps2_clk,
     input ps2_data,
     output [6:0] seg0,seg1,seg2,seg3,seg4,seg5,
-    output [1:0] leds
+    output [1:0] leds,
+    output overflow_f
 );
 
     wire [7:0] raw_code;
@@ -12,7 +13,7 @@ module top(
     wire [7:0] ascii_code;
     wire [7:0] total_count;
     wire ready, is_pressing,count_en,shift_f,ctrl_f;
-    wire overflow_f;
+
     ps2_keyboard ps2_keyboard_inst(
         .clk(clk),
         .clrn(rstn),

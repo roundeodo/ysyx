@@ -14,4 +14,5 @@ module press_counter(
           press_count <= press_count + 1;
         end
     end
+    assign count = press_count;
 endmodule
