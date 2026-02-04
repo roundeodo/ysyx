@@ -1,86 +1,52 @@
 module top(
     input clk,
-    input rstn,
-    input ps2_clk,
-    input ps2_data,
-    output [6:0] seg0,seg1,seg2,seg3,seg4,seg5,
-    output [1:0] leds,
-    output overflow_f
+    input rst,
+    output VGA_HSYNC,
+    output VGA_VSYNC,
+    output VGA_BLANK_N,
+    output [7:0] VGA_R,
+    output [7:0] VGA_G,
+    output [7:0] VGA_B
 );
 
-    wire [7:0] raw_code;
-    wire [7:0] processed_code;
-    wire [7:0] ascii_code;
-    wire [7:0] total_count;
-    wire ready, is_pressing,count_en,shift_f,ctrl_f;
-
-    ps2_keyboard ps2_keyboard_inst(
-        .clk(clk),
-        .clrn(rstn),
-        .ps2_clk(ps2_clk),
-        .ps2_data(ps2_data),
-        .data(raw_code),
-        .ready(ready),
-        .nextdata_n(1'b0),
-        .overflow(overflow_f)
+    wire vga_clk;
+    clkgen#(
+        .clk_freq(25000000)
+    )clkgen_inst(
+        .clkin(clk),
+        .rst(rst),
+        .clken(1'b1),
+        .clkout(vga_clk)
     );
 
-    key_processor key_processor_inst(
-        .clk(clk),
-        .rstn(rstn),
-        .ps2_data(raw_code),
-        .ps2_ready(ready),
-        .cur_code(processed_code),
-        .is_pressing(is_pressing),
-        .shift_flag(shift_f),
-        .ctrl_flag(ctrl_f),
-        .count_en(count_en)
+    wire [9:0] h_addr,v_addr;
+    wire [23:0] vga_data_24bit;
+    wire vga_valid;
+
+    vga_ctrl cga_ctrl_inst(
+        .pclk(vga_clk),
+        .reset(reset),
+        .vga_data(vga_data_24bit),
+        .h_addr(h_addr),
+        .v_addr(v_addr),
+        .hsync(VGA_HSYNC),
+        .vsync(VGA_VSYNC),
+        .valid(vga_valid),
+        .vga_r(VGA_R),
+        .vga_g(VGA_G),
+        .vga_b(VGA_B)
+    );
+    assign VGA_BLANK_N = vga_valid;
+    wire [18:0] rom_addr = v_addr*640 + h_addr;
+    wire [11:0] rom_data_12bit;
+
+    vga_mem vga_mem_inst(
+        .clk(vga_clk),
+        .addr(rom_addr).
+        .data(rom_data_12bit)   
     );
 
-    scan2ascii scan2ascii_inst(
-        .scan_code(processed_code),
-        .shift_en(shift_f),
-        .ascii_code(ascii_code)     
-    );
+    assign vga_data_24bit = {rom_data_12bit[11:8],4'b0,rom_data_12bit[7:4],4'b0,rom_data_12bit[3:0],4'b0};
 
-    press_counter press_counter_inst(
-        .clk(clk),
-        .rstn(rstn),
-        .en(count_en),
-        .count(total_count)
-    );
-
-    wire [7:0] d_code = is_pressing? processed_code : 8'h00;
-    wire [7:0] d_ascii = is_pressing? ascii_code : 8'h00;
-
-    bcd7seg digit_tube0(
-        .seg_in(d_code[3:0]),
-        .seg_out(seg0)
-    );
-
-    bcd7seg digit_tube1(
-        .seg_in(d_code[7:4]),
-        .seg_out(seg1)
-    );
-
-    bcd7seg digit_tube2(
-        .seg_in(d_ascii[3:0]),
-        .seg_out(seg2)
-    );
-
-    bcd7seg digit_tube3(
-        .seg_in(d_ascii[7:4]),
-        .seg_out(seg3)
-    );
-
-    bcd7seg digit_tube4(
-        .seg_in(total_count[3:0]),
-        .seg_out(seg4)
-    );
-
-    bcd7seg digit_tube5(
-        .seg_in(total_count[7:4]),
-        .seg_out(seg5)
-    );
-assign leds = {ctrl_f,shift_f};
+    
 endmodule
