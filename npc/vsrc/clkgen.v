@@ -13,14 +13,13 @@ module clkgen(
     if(rst)
     begin
         clkcount<=0;
-        clkout <= 1'b0;
-        rstout <= 1'b0;
+        rstout<=1'b1;
     end
     else
     begin
     if(clken)
+    rstout <= 1'b0;
         begin
-            rstout <= 1'b1;
             if(clkcount == countlimit)
             begin
                 clkcount<=32'd0;
