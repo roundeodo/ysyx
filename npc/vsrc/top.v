@@ -68,7 +68,7 @@ assign VGA_B = vga_b_reg;
         .vga_g(g_raw),
         .vga_b(b_raw)
     );
-    assign VGA_BLANK_N = vga_valid;
+
     wire [18:0] rom_addr;
     assign rom_addr =  ({9'b0,v_addr} * 19'd640) + {9'b0,h_addr};
     wire [11:0] rom_data_12bit;
