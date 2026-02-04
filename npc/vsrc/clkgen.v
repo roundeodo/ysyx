@@ -23,7 +23,7 @@ module clkgen(
                 clkout<=~clkout;
             end
             else
-                clkout<=clkout + 1;
+                clkcount <= clkcount + 1;
         end
     end
 endmodule
