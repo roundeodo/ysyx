@@ -51,8 +51,8 @@ assign VGA_B = vga_b_reg;
         .clkout(vga_clk)
     );
 
-    wire [9:0] h_addr,v_addr;
-    wire [23:0] vga_data_24bit;
+    wire [9:0] h_addr;
+    wire [8:0] v_addr;
 
     vga_ctrl vga_ctrl_inst(
         .pclk(vga_clk),
@@ -72,7 +72,7 @@ assign VGA_B = vga_b_reg;
 
     vga_mem vga_mem_inst(
         .h_addr(h_addr),
-        .v_addr(v_addr[8:0]),
+        .v_addr(v_addr),
         .vga_data(rom_data_24bit)   
     );
 
