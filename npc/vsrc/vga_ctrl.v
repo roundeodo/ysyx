@@ -29,7 +29,7 @@ module vga_ctrl(
   wire         h_valid;
   wire         v_valid;
 
-  always @(posedge reset or posedge pclk) //行像素计数
+  always @(posedge pclk) //行像素计数
       if (reset == 1'b1)
         x_cnt <= 1;
       else
