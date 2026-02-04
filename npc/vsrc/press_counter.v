@@ -5,7 +5,7 @@ module press_counter(
     output [7:0]count
 );
     reg [7:0] press_count;
-    always @(posedge clk or negedge rstn) begin
+    always @(posedge clk) begin
         if(!rstn)begin
           press_count <= 8'b0;
         end
