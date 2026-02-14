@@ -25,5 +25,5 @@ module sCPU_PC(
         end
     end
 
-    assign PC_out = (PC_Q == 4'b0111) ? 4'b0111 : PC_Q;
+    assign PC_out = (PC_4 == 4'b1000) ? 4'b0111 : PC_Q;
 endmodule
