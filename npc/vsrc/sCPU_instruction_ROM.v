@@ -15,7 +15,7 @@ module sCPU_instruction_ROM(
 
     genvar i;
     generate
-        for (i = 8; i < 16; i = i + 1) begin
+        for (i = 0; i < 8; i = i + 1) begin
             assign rom_array[i] = 8'h00;
         end
     endgenerate
