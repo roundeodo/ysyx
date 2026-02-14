@@ -1,4 +1,5 @@
 #include "Vtop.h"
+#include "Vtop___024root.h"
 #include <nvboard.h>
 #include <verilated.h>
 #include <verilated_vcd_c.h> // 必须引入波形追踪头文件
@@ -40,7 +41,7 @@ int main(int argc, char **argv) {
   nvboard_init();
 
   reset(10);
-  uint32_t current_pc = top->rootp->top__DOT__PC_address;
+  uint32_t current_pc = top->rootp->PC_address;
   while (1) {
 
     nvboard_update();
