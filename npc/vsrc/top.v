@@ -2,8 +2,10 @@ module top(
     input clk,
     input rstn,
     output [6:0] digit_tube_0,
-    output [6:0] digit_tube_1
+    output [6:0] digit_tube_1,
+    output FU_1
 );
+    assign FU_1 = function_selection_bus[1];
     wire jump_flag;
     wire [3:0] jump_address;
     wire [3:0] PC_address /* verilator public */;
@@ -59,9 +61,9 @@ module top(
     );
 
     wire [3:0] calculated_address;
-    wire not_compared_result;
+    wire result_compare_flag;
     assign result_compare_flag = (&(RF_READ_RS1 ~^ RF_READ_RS2));
-    assign calculated_address = {4'b0,RF_READ_RS1} + {4'b0,RF_READ_RS2};
+    assign calculated_address = RF_READ_RS1 + RF_READ_RS2;
     assign RF_WRITE_DATA = function_selection_bus[2]? {4'b0,Immediate_number} : {4'b0,calculated_address};
     assign jump_flag = function_selection_bus[3] & result_compare_flag;
 
