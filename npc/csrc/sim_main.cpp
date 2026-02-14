@@ -22,10 +22,10 @@ void single_cycle() {
 }
 
 void reset(int n) {
-  top->rst = 1;
+  top->rst = 0;
   while (n-- > 0)
     single_cycle();
-  top->rst = 0;
+  top->rst = 1;
 }
 
 int main(int argc, char **argv) {
@@ -40,13 +40,12 @@ int main(int argc, char **argv) {
   nvboard_init();
 
   reset(10);
-
+  uint32_t current_pc = top->PC_address;
   while (1) {
 
     nvboard_update();
     single_cycle();
-    if (main_time > 10000000)
-      break; // 示例：跑够一定时间自动停止
+    printf("[Sim] Cycle: %ld | PC: 0x%02X", main_time / 2);
   }
 
   delete top;
