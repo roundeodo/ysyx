@@ -60,8 +60,8 @@ module top(
 
     wire [3:0] calculated_address;
     wire not_compared_result;
-    assign result_compare_flag = (&(RS1_OUT ~^ RS2_OUT));
-    assign calculated_address = RS2_OUT + RS1_OUT;
+    assign result_compare_flag = (&(RF_READ_RS1 ~^ RF_READ_RS2));
+    assign calculated_address = RF_READ_RS1 + RF_READ_RS2;
     assign RF_WRITE_DATA = function_selection_bus[2]? Immediate_number : calculated_address;
     assign jump_flag = function_selection_bus[3] & result_compare_flag;
 
