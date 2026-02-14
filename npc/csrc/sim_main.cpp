@@ -22,10 +22,10 @@ void single_cycle() {
 }
 
 void reset(int n) {
-  top->rst = 0;
+  top->rstn = 0;
   while (n-- > 0)
     single_cycle();
-  top->rst = 1;
+  top->rstn = 1;
 }
 
 int main(int argc, char **argv) {
@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
 
     nvboard_update();
     single_cycle();
-    printf("[Sim] Cycle: %ld | PC: 0x%02X", main_time / 2);
+    printf("[Sim] Cycle: %ld | PC: 0x%02X", main_time / 2, current_pc);
   }
 
   delete top;
