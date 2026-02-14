@@ -43,9 +43,9 @@ module top(
     assign RF_WRITE_EN = function_selection_bus[0] | function_selection_bus[2];
 
 
-    wire [7:0] RF_READ_RS1; /* verilator public */
-    wire [7:0] RF_READ_RS2; /* verilator public */
-    wire [7:0] RF_WRITE_DATA; /* verilator public */
+    wire [7:0] RF_READ_RS1 /* verilator public */; 
+    wire [7:0] RF_READ_RS2 /* verilator public */; 
+    wire [7:0] RF_WRITE_DATA /* verilator public */; 
     sCPU_RF RF_inst(
         .RS1(RS1_address),
         .RS2(RS2_address),
