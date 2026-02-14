@@ -6,7 +6,7 @@ module top(
 );
     wire jump_flag;
     wire [3:0] jump_address;
-    wire [3:0] PC_address; /* verilator public */
+    wire [3:0] PC_address /* verilator public */;
     sCPU_PC pc_inst(
         .en(1'b1),
         .rstn(rstn),
