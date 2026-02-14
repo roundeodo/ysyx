@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
   nvboard_init();
 
   reset(10);
-  uint32_t current_pc = top->PC_address;
+  uint32_t current_pc = top->rootp->top__DOT__PC_address;
   while (1) {
 
     nvboard_update();
