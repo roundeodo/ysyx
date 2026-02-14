@@ -41,12 +41,10 @@ int main(int argc, char **argv) {
   nvboard_init();
 
   reset(10);
-  uint32_t current_pc = top->rootp->PC_address;
   while (1) {
 
     nvboard_update();
     single_cycle();
-    printf("[Sim] Cycle: %ld | PC: 0x%02X", main_time / 2, current_pc);
   }
 
   delete top;
