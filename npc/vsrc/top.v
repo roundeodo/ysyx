@@ -1,8 +1,8 @@
 module top(
     input clk,
     input rstn,
-    output [7:0] digit_tube_0,
-    output [7:0] digit_tube_1
+    output [6:0] digit_tube_0,
+    output [6:0] digit_tube_1
 );
     wire jump_flag;
     wire [3:0] jump_address;
@@ -61,18 +61,18 @@ module top(
     wire [3:0] calculated_address;
     wire not_compared_result;
     assign result_compare_flag = (&(RF_READ_RS1 ~^ RF_READ_RS2));
-    assign calculated_address = RF_READ_RS1 + RF_READ_RS2;
+    assign calculated_address = {4'b0,RF_READ_RS1} + {4'b0,RF_READ_RS2};
     assign RF_WRITE_DATA = function_selection_bus[2]? {4'b0,Immediate_number} : {4'b0,calculated_address};
     assign jump_flag = function_selection_bus[3] & result_compare_flag;
 
 
     bcd7seg digit_tube_0_inst(
-        .seg_in(RS2_OUT[7:4]),
+        .seg_in(RF_READ_RS2[7:4]),
         .seg_out(digit_tube_0)
     );
 
     bcd7seg digit_tube_1_inst(
-        .seg_in(RS2_OUT[3:0]),
+        .seg_in(RF_READ_RS2[3:0]),
         .seg_out(digit_tube_1)
     );
 
