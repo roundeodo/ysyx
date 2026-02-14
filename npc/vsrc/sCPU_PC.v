@@ -19,11 +19,14 @@ module sCPU_PC(
             if (jump) begin
                 PC_Q <= PC_jump;
             end
-            else begin
+            else if(PC_4!=4'b1000) begin
                 PC_Q <= PC_4;
+            end
+            else begin
+                PC_Q <= 4'b0111;
             end
         end
     end
 
-    assign PC_out = (PC_4 == 4'b1000) ? 4'b0111 : PC_Q;
+    assign PC_out = PC_Q;
 endmodule
