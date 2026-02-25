@@ -55,32 +55,32 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
-// static int cmd_si(char *args){
-//   uint64_t n = 0;
-//   if (args == NULL)
-//   {
-//     n = 1;
-//   }
-//   else{
-//     int ret = sscanf(args, "%lu", &n);
-//     if(ret != 1){
-//       printf("invalid argument '%s'. Usage: si [N]\n", args);
-//       return 0;
-//     }
-//   }
-//   cpu_exec(n);
-//   return 0;
-// }
+static int cmd_si(char *args){
+  uint64_t n = 0;
+  if (args == NULL)
+  {
+    n = 1;
+  }
+  else{
+    int ret = sscanf(args, "%lu", &n);
+    if(ret != 1){
+      printf("invalid argument '%s'. Usage: si [N]\n", args);
+      return 0;
+    }
+  }
+  cpu_exec(n);
+  return 0;
+}
 
-// static int cmd_info(char *args){
-//   if(*args == 'r'){
-//     isa_reg_display();
-//   }
-//   else if(*args == 'w'){
+static int cmd_info(char *args){
+  if(*args == 'r'){
+    isa_reg_display();
+  }
+  else if(*args == 'w'){
 
-//   }
-//   return 0;
-// }
+  }
+  return 0;
+}
 
 // static int cmd_x(char *args);
 
@@ -102,9 +102,9 @@ static struct
     {"c"   , "Continue the execution of the program"           , cmd_c},
     {"q"   , "Exit NEMU"                                       , cmd_q},
 
-    // /* TODO: Add more commands */
-    // {"si [N]"      , "execute N instsructions and pause"                                                  , cmd_si},
-    // {"info SUBCMD" , "show the information of sub command"                                                , cmd_info},
+    /* TODO: Add more commands */
+    {"si [N]"      , "execute N instsructions and pause"                                                  , cmd_si},
+    {"info SUBCMD" , "show the information of sub command"                                                , cmd_info},
     // {"x N EXPR"    , "calculate the value of EXPR for the initial memory address and output N 4-byte data", cmd_x},
     // {"p EXPR"      , "calculate the value of EXPR"                                                        , cmd_p},
     // {"w EXPR"      , "set the watch point at EXPR and pause the program when the value of EXPR is changed", cmd_w},
