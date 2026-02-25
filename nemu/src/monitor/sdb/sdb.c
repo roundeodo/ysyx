@@ -54,18 +54,61 @@ static int cmd_q(char *args) {
 
 static int cmd_help(char *args);
 
-static struct {
+// static int cmd_si(char *args){
+//   uint64_t n = 0;
+//   if (args == NULL)
+//   {
+//     n = 1;
+//   }
+//   else{
+//     int ret = sscanf(args, "%lu", &n);
+//     if(ret != 1){
+//       printf("invalid argument '%s'. Usage: si [N]\n", args);
+//       return 0;
+//     }
+//   }
+//   cpu_exec(n);
+//   return 0;
+// }
+
+// static int cmd_info(char *args){
+//   if(*args == 'r'){
+//     isa_reg_display();
+//   }
+//   else if(*args == 'w'){
+
+//   }
+//   return 0;
+// }
+
+// static int cmd_x(char *args);
+
+// static int cmd_p(char *args);
+
+// static int cmd_w(char *args);
+
+// static int cmd_d(char *args);
+
+
+
+static struct
+{
   const char *name;
   const char *description;
   int (*handler) (char *);
-} cmd_table [] = {
-  { "help", "Display information about all supported commands", cmd_help },
-  { "c", "Continue the execution of the program", cmd_c },
-  { "q", "Exit NEMU", cmd_q },
+} cmd_table[] = {
+    {"help", "Display information about all supported commands", cmd_help},
+    {"c"   , "Continue the execution of the program"           , cmd_c},
+    {"q"   , "Exit NEMU"                                       , cmd_q},
 
-  /* TODO: Add more commands */
-
-};
+    // /* TODO: Add more commands */
+    // {"si [N]"      , "execute N instsructions and pause"                                                  , cmd_si},
+    // {"info SUBCMD" , "show the information of sub command"                                                , cmd_info},
+    // {"x N EXPR"    , "calculate the value of EXPR for the initial memory address and output N 4-byte data", cmd_x},
+    // {"p EXPR"      , "calculate the value of EXPR"                                                        , cmd_p},
+    // {"w EXPR"      , "set the watch point at EXPR and pause the program when the value of EXPR is changed", cmd_w},
+    // {"d N"         , "delete NO.N watch point"                                                            ,cmd_d}
+  };
 
 #define NR_CMD ARRLEN(cmd_table)
 
@@ -92,6 +135,9 @@ static int cmd_help(char *args) {
   return 0;
 }
 
+
+
+
 void sdb_set_batch_mode() {
   is_batch_mode = true;
 }
@@ -106,13 +152,14 @@ void sdb_mainloop() {
     char *str_end = str + strlen(str);
 
     /* extract the first token as the command */
-    char *cmd = strtok(str, " ");
+    char *cmd = strtok(str, " ");  //strtok is used to find the first non-" " string  and the first *delaim will be replaced by '\0'
     if (cmd == NULL) { continue; }
 
     /* treat the remaining string as the arguments,
      * which may need further parsing
      */
-    char *args = cmd + strlen(cmd) + 1;
+    char *args = cmd + strlen(cmd) + 1; //cmd is now pointing at the start point of slice  strlen(cmd) is the length of the slice
+    // +1 means args is pointing at the start of next slice
     if (args >= str_end) {
       args = NULL;
     }
