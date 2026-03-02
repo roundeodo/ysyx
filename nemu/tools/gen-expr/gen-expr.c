@@ -68,7 +68,7 @@ void gen_rand_op(){
 
 
 void gen_rand_expr(){
-  if(strlen(buf)>500 || generation_depth >5){
+  if(strlen(buf)>500 || generation_depth >2){
     gen_num();
     return;
   }
