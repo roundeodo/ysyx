@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
     }
   }
   fclose(fp);
-  
+  nemu_state.state = NEMU_QUIT;
 
   return is_exit_status_bad();
 }
