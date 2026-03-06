@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
       assert(0);
     }
     test_count++;
-    if(test_count % 500 == 0){
+    if(test_count % 499 == 0){
       printf("all test have been passed\n");
     }
   }
