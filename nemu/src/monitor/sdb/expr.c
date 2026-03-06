@@ -49,7 +49,7 @@ static struct rule {
   {"\\-", '-'},         // minus
   {"\\*", '*'},         // multiple
   {"\\/", '/'},         // divide
-  {"0x[0-9a-fA-F]+", TK_HEX},   // hex number
+  {"0x[0-9a-fA-F]+u?", TK_HEX},   // hex number
   {"[0-9]+u?", TK_NUMBER},// number
   {"\\(", '('},         // left parentheses
   {"\\)", ')'},         // right parentheses
