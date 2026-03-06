@@ -19,13 +19,19 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <memory/vaddr.h>
 
 enum {
   TK_NOTYPE = 256, TK_EQ,
 
   /* TODO: Add more token types */
   TK_NUMBER,
-  TK_NEG
+  TK_NEG,
+  TK_HEX,
+  TK_DEREF,
+  TK_AND,
+  TK_NEQ,
+  TK_REG
 };
 
 static struct rule {
@@ -43,9 +49,13 @@ static struct rule {
   {"\\-", '-'},         // minus
   {"\\*", '*'},         // multiple
   {"\\/", '/'},         // divide
+  {"0x[0-9a-fA-F]+", TK_HEX},   // hex number
   {"[0-9]+u?", TK_NUMBER},// number
   {"\\(", '('},         // left parentheses
   {"\\)", ')'},         // right parentheses
+  {"\\$[a-z0-9]+", TK_REG},    // register
+  {"!=", TK_NEQ},              // not equal
+  {"&&", TK_AND}              // and
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -104,6 +114,8 @@ static bool make_token(char *e) {
         switch (rules[i].token_type) {
           case TK_NOTYPE:
             break;
+          case TK_REG:
+          case TK_HEX:
           case TK_NUMBER:
             if(nr_token >= 32){
               printf("Error: there are too many tokens(max 32)\n");
@@ -125,6 +137,8 @@ static bool make_token(char *e) {
           case '(':
           case ')':
           case TK_EQ:
+          case TK_NEQ:
+          case TK_AND:
             if(nr_token >= 32){
               printf("Error: there are too many tokens(max 32)\n");
               return false;  
@@ -176,6 +190,9 @@ static bool check_parentheses(int p, int q){
 
 static int get_priorities(int type){
   switch(type){
+    case TK_AND:
+      return 0;
+    case TK_NEQ:
     case TK_EQ:
       return 1;
     case '+':
@@ -185,6 +202,7 @@ static int get_priorities(int type){
     case '/':
       return 3;
     case TK_NEG:
+    case TK_DEREF:
       return 4;
     default:
       return 100;
@@ -204,70 +222,117 @@ int find_main_op(int p, int q){
       level--;
     }
 
-    if((level == 0) && (tokens[i].type != TK_NOTYPE) && (tokens[i].type != TK_NUMBER) && (tokens[i].type != '(') && (tokens[i].type != ')')){
+    if((level == 0) && (tokens[i].type != TK_NOTYPE) && (tokens[i].type != TK_NUMBER) && (tokens[i].type != TK_HEX) && (tokens[i].type != TK_REG) && (tokens[i].type != TK_NEG) && (tokens[i].type != TK_DEREF) && (tokens[i].type != '(') && (tokens[i].type != ')')){
       if(get_priorities(tokens[i].type) <= main_op_priority){
         main_op_priority = get_priorities(tokens[i].type);
         main_op_position = i;
       }
     }
   }
-  assert(main_op_position != -1);
   return main_op_position;
 }
 
-word_t eval(int p, int q) {
+word_t eval(int p, int q, bool* success) {
   if (p > q)
   {
     /* Bad expression */
-    printf("Error: bad expression(start pointer is after end pointer)\n");
-    assert(0);
+    printf("Error: bad expression(missing of expression inside () ?)\n");
+    *success = false;
+    return 0;
   }
   else if (p == q) {
     /* Single token.
-     * For now this token should be a number.
-     * Return the value of the number.
+     * can deal with hex-number/reg-name/dec-number
+     * Return the value of the number/reg
      */
     word_t detected_number = 0;
-    sscanf(tokens[p].str, "%u", &detected_number);
+    bool reg_success;
+    switch (tokens[p].type) { 
+    case TK_REG:
+      detected_number = isa_reg_str2val(tokens[p].str+1, &reg_success);
+      if(!reg_success){
+        printf("Error: invalid register name '%s'\n", tokens[p].str);
+        *success = false;
+        return 0;
+      }
+      break;
+    case TK_HEX:
+      sscanf(tokens[p].str, "%x", &detected_number);
+      break;
+    case TK_NUMBER:
+      sscanf(tokens[p].str, "%u", &detected_number);
+      break;
+
+    default:
+      *success = false;
+      return 0;
+      break;
+    }
     return detected_number;
   }
   else if (check_parentheses(p, q) == true) {
     /* The expression is surrounded by a matched pair of parentheses.
      * If that is the case, just throw away the parentheses.
      */
-    return eval(p + 1, q - 1);
+    return eval(p + 1, q - 1,success);
   }
   else {
     int op = find_main_op(p,q);
+    if(op == -1){  
+      if(tokens[p].type == TK_NEG){
+        return -eval(p + 1, q,success);
+      }
 
-    if(tokens[op].type == TK_NEG){
-      return -eval(op + 1, q);
+      else if(tokens[p].type == TK_DEREF){
+        vaddr_t address = eval(p + 1, q, success);
+        if(!(*success)){
+          return 0;
+        }
+        return vaddr_read(address, 4);
+      }
+      else{
+        printf("Error: invalid expression syntax at position %d\n", p);
+        *success = false;
+        return 0;
+      }
     }
 
-    word_t val1 = eval(p, op - 1);
-    word_t val2 = eval(op + 1, q);
-
-    switch (tokens[op].type) {
-      case '+': 
-        return val1 + val2;
-      case '-':
-        return val1 - val2; /* ... */
-      case '*': /* ... */
-        return val1 * val2;
-      case '/': 
-        if(val2 == 0){
-          printf("Error: Division by zero\n");
-          assert(0);
-        } /* ... */
-        return val1 / val2;
-      case TK_EQ:
-        return val1 == val2;
-      default:
-        assert(0);
-      }
+    word_t val1 = eval(p, op - 1, success);
+    if(!(*success))
+      return 0;
+    if(tokens[op].type == TK_AND && val1 == 0){
+      return 0;
+    }
+    word_t val2 = eval(op + 1, q, success);
+    if(!(*success))
+      return 0;
+    switch (tokens[op].type)
+    {
+    case '+':
+      return val1 + val2;
+    case '-':
+      return val1 - val2; /* ... */
+    case '*':             /* ... */
+      return val1 * val2;
+    case '/':
+      if (val2 == 0)
+      {
+        printf("Error: Division by zero\n");
+        *success = false;
+        return 0;
+      } /* ... */
+      return val1 / val2;
+    case TK_EQ:
+      return val1 == val2;
+    case TK_NEQ:
+      return val1 != val2;
+    case TK_AND:
+      return val1 && val2;
+    default:
+      assert(0);
+    }
   }
 }
-
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -277,14 +342,13 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   for (int i = 0; i < nr_token; i++){
-    if(tokens[i].type == '-'){
-      if(i == 0||(tokens[i-1].type != TK_NUMBER && tokens[i-1].type != ')')){
+      if((tokens[i].type == '-') && (i == 0||(tokens[i-1].type != TK_REG && tokens[i-1].type != TK_HEX && tokens[i-1].type != TK_NUMBER && tokens[i-1].type != ')'))){
         tokens[i].type = TK_NEG;
       }
-    }
+      else if((tokens[i].type == '*')&&(i == 0||(tokens[i-1].type != TK_REG && tokens[i-1].type != TK_HEX && tokens[i-1].type != TK_NUMBER && tokens[i-1].type != ')'))){
+        tokens[i].type = TK_DEREF;
+      }
   }
-
-    *success = true;
-  return eval(0, nr_token - 1);
-
+  *success = true;
+  return eval(0, nr_token - 1, success);
 }

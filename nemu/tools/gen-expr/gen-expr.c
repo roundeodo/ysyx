@@ -37,8 +37,13 @@ int choose(int n){
 }
 
 void gen_num(){
-  char number[16];
-  sprintf(number, "%uu", rand()%100);
+  char number[32];
+  if(choose(2) == 0){
+    sprintf(number, "%uu", rand()%100);
+  }
+  else{
+    sprintf(number, "0x%xu", rand() % 100);
+  }
   strcat(buf, number);
 }
 
@@ -61,14 +66,16 @@ void gen_rand_spaces(int n){
 }
 
 void gen_rand_op(){
-  char op_list[4] = {'+', '-', '*', '/'};
-  char op[2] = {op_list[choose(4)], '\0'};
-  strcat(buf, op);
+  char *op_list[] = {"+ ", "- ", "* ", "/ ", "&& ", "!= ", "== "};
+  int op_index = choose(7);
+  strcat(buf, op_list[op_index]);
 }
 
 
 void gen_rand_expr(){
   if(strlen(buf)>500 || generation_depth >2){
+    if(choose(5) == 0)
+      strcat(buf, "- ");
     gen_num();
     return;
   }
@@ -79,10 +86,14 @@ void gen_rand_expr(){
   {
   case 0:
     gen_rand_spaces(10);
+    if(choose(5) == 0)
+      strcat(buf, "- ");
     gen_num();
     gen_rand_spaces(10);
     break;
   case 1:
+    if(choose(5) == 0)
+      strcat(buf, "- ");
     gen('(');
     gen_rand_expr();
     gen(')');
