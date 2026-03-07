@@ -194,9 +194,9 @@ static struct
     {"si"       , "execute N instsructions and pause"                                                  , cmd_si},
     {"info"     , "show the information of sub command"                                                , cmd_info},
     {"x"        , "calculate the value of EXPR for the initial memory address and output N 4-byte data", cmd_x},
-    {"p EXPR"      , "calculate the value of EXPR"                                                        , cmd_p},
-    {"w EXPR"      , "set the watch point at EXPR and pause the program when the value of EXPR is changed", cmd_w},
-    {"d N"         , "delete NO.N watch point"                                                            ,cmd_d}
+    {"p"        , "calculate the value of EXPR"                                                        , cmd_p},
+    {"w"        , "set the watch point at EXPR and pause the program when the value of EXPR is changed", cmd_w},
+    {"d"        , "delete NO.N watch point"                                                            , cmd_d}
   };
 
 #define NR_CMD ARRLEN(cmd_table)
