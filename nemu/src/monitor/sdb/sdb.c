@@ -19,6 +19,7 @@
 #include <readline/history.h>
 #include "sdb.h"
 #include <memory/vaddr.h>
+#include "watchpoint.h"
 
 static int is_batch_mode = false;
 
@@ -74,11 +75,14 @@ static int cmd_si(char *args){
 }
 
 static int cmd_info(char *args){
+  if(args == NULL){
+    printf("Error: lack of instruction\n");
+  }
   if(*args == 'r'){
     isa_reg_display();
   }
   else if(*args == 'w'){
-
+    watchpoint_list();
   }
   return 0;
 }
@@ -94,33 +98,87 @@ static int cmd_x(char *args){
     printf("Error: Invalid number N\n");
     return 0;
   }
-  char *arg_expr = strtok(NULL, " ");
-  if(arg_expr == NULL){
-    printf("Error: Missing the initial address\n");
+  char *arg_expr = args + strlen(arg_n) + 1;
+  while(*arg_expr == ' ')
+    arg_expr++;
+  if (*arg_expr == '\0')
+  {
+    printf("Error: Missing the initial address expression\n");
     return 0;
   }
-  
-  uint32_t initial_address;
-  if(sscanf(arg_expr, "%x", &initial_address) != 1){
-    printf("Error: invalid expression\n");
+  bool success = false;
+  word_t transferred_address = expr(arg_expr, &success);
+  if(!success){
+    printf("Error: invalid expression '%s'.\n", arg_expr);
     return 0;
   }
-
-  for (int i = 0; i < n; i++){
-    vaddr_t addr = initial_address + i*4;
+  for (int i = 0; i < n; i++)
+  {
+    vaddr_t addr = transferred_address + i*4;
     word_t data = vaddr_read(addr, 4);
     printf("0x%08x: 0x%08x\n", addr, data);
   }
   return 0;
 }
 
-// static int cmd_p(char *args);
+static int cmd_p(char *args){
+  if(args == NULL){
+    printf("Error: missing expression\n");
+    return 0;
+  }
+  bool success;
+  word_t result = expr(args, &success);
+  if(success){
+    printf("%u (0x%08x)\n", result, result);
+  }
+  else{
+    printf("Error: invalid expression '%s'.\n", args);
+  }
+  return 0;
+}
 
-// static int cmd_w(char *args);
+static int cmd_w(char *args){
+  if(args == NULL){
+    printf("Error: missing expression\n");
+    return 0;
+  }
+  bool success;
+  word_t result = expr(args, &success);
+  if(success){
+    WP *user_watchpoint = new_wp();
+    strncpy(user_watchpoint->user_expression, args, sizeof(user_watchpoint->user_expression) - 1);
+    user_watchpoint->user_expression[sizeof(user_watchpoint->user_expression) - 1] = '\0';
+    user_watchpoint->old_value = result;
+    printf("Set watchpoint #%d: %s, initial value = %u (0x%08x)\n", user_watchpoint->NO, user_watchpoint->user_expression, result, result);
+  }
+  else{
+    printf("Error: bad expression\n");
+  }
+  return 0;
+}
 
-// static int cmd_d(char *args);
-
-
+static int cmd_d(char *args){
+  if(args == NULL){
+    printf("Error: missing watchpoint number\n");
+    return 0;
+  }
+  int watchpoint_number;
+  if(sscanf(args, "%u", &watchpoint_number) != 1){
+    printf("Error: invalid watchpoint number\n");
+    return 0;
+  }
+  if(watchpoint_number < 0 || watchpoint_number > 31){
+    printf("Error: watchpoint number %d is out of range(0-31)\n", watchpoint_number);
+    return 0;
+  }
+  if(delete_wp_by_number(watchpoint_number)){
+    printf("Watchpoint %d deleted\n", watchpoint_number);
+  }
+  else{
+    printf("Error: watchpoint %d is not set, can't be deleted\n", watchpoint_number);
+  }
+  return 0;
+}
 
 static struct
 {
@@ -136,9 +194,9 @@ static struct
     {"si"       , "execute N instsructions and pause"                                                  , cmd_si},
     {"info"     , "show the information of sub command"                                                , cmd_info},
     {"x"        , "calculate the value of EXPR for the initial memory address and output N 4-byte data", cmd_x},
-    // {"p EXPR"      , "calculate the value of EXPR"                                                        , cmd_p},
-    // {"w EXPR"      , "set the watch point at EXPR and pause the program when the value of EXPR is changed", cmd_w},
-    // {"d N"         , "delete NO.N watch point"                                                            ,cmd_d}
+    {"p EXPR"      , "calculate the value of EXPR"                                                        , cmd_p},
+    {"w EXPR"      , "set the watch point at EXPR and pause the program when the value of EXPR is changed", cmd_w},
+    {"d N"         , "delete NO.N watch point"                                                            ,cmd_d}
   };
 
 #define NR_CMD ARRLEN(cmd_table)
