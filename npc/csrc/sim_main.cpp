@@ -2,12 +2,12 @@
 #include "Vtop___024root.h"
 #include <nvboard.h>
 #include <verilated.h>
-#include <verilated_vcd_c.h> // 必须引入波形追踪头文件
+#include <verilated_vcd_c.h> // wave tracing head
 
 Vtop *top = new Vtop;
 
-VerilatedVcdC *tfp = nullptr; // 波形文件指针
-vluint64_t main_time = 0;     // 仿真时间步长计数器
+VerilatedVcdC *tfp = nullptr; // wave file pointer
+vluint64_t main_time = 0;     //
 
 void nvboard_bind_all_pins(Vtop *top);
 
@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
   nvboard_bind_all_pins(top);
 
   top->trace(tfp, 99);
-  tfp->open("waveform.vcd"); // 生成的文件名
+  tfp->open("waveform.vcd");
 
   nvboard_init();
 
