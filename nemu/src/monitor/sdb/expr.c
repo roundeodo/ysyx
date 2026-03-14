@@ -170,8 +170,8 @@ static bool check_parentheses(int p, int q){
     return false;
   }
   int level = 0;
-  for(int i = p; i<=q; i++){
-    if(tokens[i].type == '(')
+  for(int i = p; i<=q; i++){ // check if the parentheses obey the law first
+    if(tokens[i].type == '(') // level should be zero at the end of loop but should be larger than 0 always during the loop
       level++;
     else if(tokens[i].type == ')')
       level--;
@@ -221,7 +221,7 @@ int find_main_op(int p, int q){
     else if(tokens[i].type == ')'){
       level--;
     }
-
+    // the op inside paranthese has higher priority than outside. we need to ensure we are doing this to the expression outside parantheses
     if((level == 0) && (tokens[i].type != TK_NOTYPE) && (tokens[i].type != TK_NUMBER) && (tokens[i].type != TK_HEX) && (tokens[i].type != TK_REG) && (tokens[i].type != TK_NEG) && (tokens[i].type != TK_DEREF) && (tokens[i].type != '(') && (tokens[i].type != ')')){
       if(get_priorities(tokens[i].type) <= main_op_priority){
         main_op_priority = get_priorities(tokens[i].type);

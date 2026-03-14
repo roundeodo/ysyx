@@ -1,81 +1,86 @@
 module top(
     input clk,
     input rstn,
-    output [6:0] digit_tube_0,
-    output [6:0] digit_tube_1,
-    output FU_1
+    input ps2_clk,
+    input ps2_data,
+    output [6:0] seg0,seg1,seg2,seg3,seg4,seg5,
+    output [1:0] leds,
+    output overflow_f
 );
-    assign FU_1 = function_selection_bus[1];
-    wire jump_flag;
-    wire [3:0] jump_address;
-    wire [3:0] PC_address /* verilator public */;
-    sCPU_PC pc_inst(
-        .en(1'b1),
-        .rstn(rstn),
+
+    wire [7:0] raw_code;
+    wire [7:0] processed_code;
+    wire [7:0] ascii_code;
+    wire [7:0] total_count;
+    wire ready, is_pressing,count_en,shift_f,ctrl_f;
+
+    ps2_keyboard ps2_keyboard_inst(
         .clk(clk),
-        .jump(jump_flag),
-        .PC_jump(jump_address),
-        .PC_out(PC_address)
+        .clrn(rstn),
+        .ps2_clk(ps2_clk),
+        .ps2_data(ps2_data),
+        .data(raw_code),
+        .ready(ready),
+        .nextdata_n(1'b0),
+        .overflow(overflow_f)
     );
 
-    wire [7:0] selected_instruction;
-    sCPU_instruction_ROM instruction_rom_inst(
-        .PC(PC_address),
-        .instruction(selected_instruction)
-    );
-
-
-    wire [3:0] function_selection_bus;
-    wire [1:0] RD_address;
-    wire [1:0] RS1_address;
-    wire [1:0] RS2_address;
-    wire [3:0] Immediate_number;
-
-    sCPU_decoder decoder_inst(
-        .instruction(selected_instruction),
-        .FU_BUS(function_selection_bus),
-        .RD(RD_address),
-        .RS1(RS1_address),
-        .RS2(RS2_address),
-        .IMM(Immediate_number),
-        .JUMP_ADDR(jump_address)
-    );
-
-    wire RF_WRITE_EN;
-    assign RF_WRITE_EN = function_selection_bus[0] | function_selection_bus[2];
-
-
-    wire [7:0] RF_READ_RS1 /* verilator public */; 
-    wire [7:0] RF_READ_RS2 /* verilator public */; 
-    wire [7:0] RF_WRITE_DATA /* verilator public */; 
-    sCPU_RF RF_inst(
-        .RS1(RS1_address),
-        .RS2(RS2_address),
-        .RD(RD_address),
-        .DATA(RF_WRITE_DATA),
-        .EN(RF_WRITE_EN),
-        .rstn(rstn),
+    key_processor key_processor_inst(
         .clk(clk),
-        .RS1_OUT(RF_READ_RS1),
-        .RS2_OUT(RF_READ_RS2)
+        .rstn(rstn),
+        .ps2_data(raw_code),
+        .ps2_ready(ready),
+        .cur_code(processed_code),
+        .is_pressing(is_pressing),
+        .shift_flag(shift_f),
+        .ctrl_flag(ctrl_f),
+        .count_en(count_en)
     );
 
-    wire [7:0] calculated_address;
-    wire result_compare_flag;
-    assign result_compare_flag = ~(&(RF_READ_RS1 ~^ RF_READ_RS2));
-    assign calculated_address = RF_READ_RS1 + RF_READ_RS2;
-    assign RF_WRITE_DATA = function_selection_bus[2]? {4'b0,Immediate_number} : calculated_address;
-    assign jump_flag = function_selection_bus[3] & result_compare_flag;
-
-
-    bcd7seg digit_tube_0_inst(
-        .seg_in(RF_READ_RS2[7:4]),
-        .seg_out(digit_tube_0)
+    scan2ascii scan2ascii_inst(
+        .scan_code(processed_code),
+        .shift_en(shift_f),
+        .ascii_code(ascii_code)     
     );
 
-    bcd7seg digit_tube_1_inst(
-        .seg_in(RF_READ_RS2[3:0]),
-        .seg_out(digit_tube_1)
+    press_counter press_counter_inst(
+        .clk(clk),
+        .rstn(rstn),
+        .en(count_en),
+        .count(total_count)
     );
 
+    wire [7:0] d_code = is_pressing? processed_code : 8'h00;
+    wire [7:0] d_ascii = is_pressing? ascii_code : 8'h00;
+
+    bcd7seg digit_tube0(
+        .seg_in(d_code[3:0]),
+        .seg_out(seg0)
+    );
+
+    bcd7seg digit_tube1(
+        .seg_in(d_code[7:4]),
+        .seg_out(seg1)
+    );
+
+    bcd7seg digit_tube2(
+        .seg_in(d_ascii[3:0]),
+        .seg_out(seg2)
+    );
+
+    bcd7seg digit_tube3(
+        .seg_in(d_ascii[7:4]),
+        .seg_out(seg3)
+    );
+
+    bcd7seg digit_tube4(
+        .seg_in(total_count[3:0]),
+        .seg_out(seg4)
+    );
+
+    bcd7seg digit_tube5(
+        .seg_in(total_count[7:4]),
+        .seg_out(seg5)
+    );
+assign leds = {ctrl_f,shift_f};
 endmodule
