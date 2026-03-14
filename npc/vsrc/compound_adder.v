@@ -8,17 +8,17 @@ module compound_adder#(parameter WIDTH = 4)(
     output cout,
     output [WIDTH - 1:0]result
 );
-    wire [WIDTH - 1:0] t_no_Cin;
+    wire [WIDTH - 1:0] b_ones_complement;
 
-    assign t_no_Cin = b ^{WIDTH{sub}};
+    assign b_ones_complement = b ^{WIDTH{sub}};
     cla #(.WIDTH(WIDTH)) cla_adder(
         .a(a),
-        .b(t_no_Cin),
+        .b(b_ones_complement),
         .cin(sub),
         .s(result),
         .cout(cout)
     );
     assign negtive_flag = result[WIDTH-1];
     assign zero_flag = ~(|result);
-    assign overflow_flag = (a[WIDTH-1] == t_no_Cin[WIDTH-1]) && (result[WIDTH-1] != a[WIDTH-1]);
+    assign overflow_flag = (a[WIDTH-1] == b_ones_complement[WIDTH-1]) && (result[WIDTH-1] != a[WIDTH-1]);
 endmodule

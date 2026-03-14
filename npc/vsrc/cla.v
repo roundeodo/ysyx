@@ -12,7 +12,7 @@ module cla #(parameter WIDTH = 4)(
     genvar i;
     generate
         for(i = 0; i < WIDTH; i = i + 1)begin
-          pfa u_pfa(
+          pfa u_pfa( //partial full adder
             .a(a[i]),
             .b(b[i]),
             .cin(c[i]),
@@ -23,7 +23,7 @@ module cla #(parameter WIDTH = 4)(
         end
     endgenerate
 
-    clu u_clu(
+    clu u_clu( //carry lookahead unit
         .p(p),
         .g(g),
         .c0(cin),
