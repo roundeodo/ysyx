@@ -62,3 +62,8 @@ else
 # Include rules to build NEMU
 include $(NEMU_HOME)/scripts/native.mk
 endif
+
+.PHONY: count
+count:
+	@echo "counting increased number of line in PA1"
+	@git diff pa0 | grep "^+" | grep -v "^+++" | wc -l
