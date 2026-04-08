@@ -64,6 +64,7 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
           int d = va_arg(ap, int);
           int len = i2s(p, (long)d, 10);
           p = p + len;
+          break;
         }
         case '%':{
           *p = '%';
