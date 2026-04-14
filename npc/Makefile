@@ -58,7 +58,7 @@ sim: $(BIN_SIM)
 
 sim-wave: $(BIN_SIM)
 		$(BIN_SIM)
-		gtkwave wave.vcd
+		gtkwave waveform.vcd
 
 nvboard: $(BIN_NV)
 		$(BIN_NV)
