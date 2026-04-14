@@ -1,5 +1,6 @@
 #include "Vtop.h"
 #include "Vtop___024root.h"
+#include "mem.h"
 #include <nvboard.h>
 #include <verilated.h>
 #include <verilated_vcd_c.h> // wave tracing head
@@ -10,6 +11,13 @@ VerilatedVcdC *tfp = nullptr; // wave file pointer
 vluint64_t main_time = 0;     //
 
 void nvboard_bind_all_pins(Vtop *top);
+
+bool sim_halted = false;
+
+extern "C" void ebreak_halt() {
+  std::cout << "[NPC_TRAP] ebreak instruction detected" << std::endl;
+  sim_halted = true;
+}
 
 void single_cycle() {
   top->clk = 0;
@@ -38,16 +46,26 @@ int main(int argc, char **argv) {
   top->trace(tfp, 99);
   tfp->open("waveform.vcd");
 
+  // if (argc > 1) {
+  //   load_bin(argv[1]);
+  //   std::cout << "NPC:load image" << argv[1] << std::endl;
+  // } else {
+  //   std::cout << "NPC: No image, MEM is empty" << std::endl;
+  // }
+  const char *path = "/home/yong/ysyx/logisim-bin/sum.bin";
+  load_bin(path);
+
   nvboard_init();
 
   reset(10);
-  while (1) {
+  while (!sim_halted && !Verilated::gotFinish()) {
 
-    nvboard_update();
+    // nvboard_update();
     single_cycle();
   }
 
   delete top;
   tfp->close();
+  // nvboard_quit();
   return 0;
 }
