@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
   // nvboard_init();
 
   reset(10);
-  while (!sim_halted && !Verilated::gotFinish() && main_time < 10000) {
+  while (!sim_halted && !Verilated::gotFinish()) {
 
     // nvboard_update();
     single_cycle();
