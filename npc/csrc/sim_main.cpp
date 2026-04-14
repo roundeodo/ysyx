@@ -17,7 +17,7 @@ bool sim_halted = false;
 
 extern "C" void ebreak_halt() {
   uint32_t a0_val = top->rootp->top__DOT__U_RF__DOT__rf[10];
-  uint32_t pc_val = top->rootp->top__DOT__U_RF__DOT__pc_reg_Q;
+  uint32_t pc_val = top->rootp->top__DOT__U_IFU__DOT__pc_reg_Q;
   if (a0_val == 0) {
     printf("\033[1;32mNPC: HIT GOOD TRAP\033[0m at pc = 0x%08x\n", pc_val);
   } else {
