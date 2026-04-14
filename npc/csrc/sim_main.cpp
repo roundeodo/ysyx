@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
   Verilated::traceEverOn(true);
   tfp = new VerilatedVcdC;
-  nvboard_bind_all_pins(top);
+  // nvboard_bind_all_pins(top);
 
   top->trace(tfp, 99);
   tfp->open("waveform.vcd");
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
   const char *path = "/home/yong/ysyx/logisim-bin/sum.bin";
   load_bin(path);
 
-  nvboard_init();
+  // nvboard_init();
 
   reset(10);
   while (!sim_halted && !Verilated::gotFinish()) {
