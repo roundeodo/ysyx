@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
   // nvboard_init();
 
   reset(10);
-  uint64_t limit = 1000000;
+  uint64_t limit = 1000000000;
   while (!sim_halted && !Verilated::gotFinish() && main_time < limit) {
     single_cycle();
   }
