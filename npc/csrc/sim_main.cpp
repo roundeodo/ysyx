@@ -55,7 +55,13 @@ int main(int argc, char **argv) {
   // }
   const char *path = "/home/yong/ysyx/logisim-bin/sum.bin";
   load_bin(path);
+  uint32_t halt_offset = 0x224;
 
+  if (offset < MEM_SIZE) {
+    *(uint32_t *)(pmem + offset) = 0x00100073;
+    printf("NPC: Injected ebreak at [Offset: 0x%x] (Physical: 0x%08x)\n",
+           halt_offset, 0x80000000 + halt_offset);
+  }
   // nvboard_init();
 
   reset(10);
