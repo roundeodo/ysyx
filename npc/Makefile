@@ -19,7 +19,7 @@ VERILATOR_FLAGS += -MMD --build -cc -Wall  \
 $(shell mkdir -p $(BUILD_DIR))
 
 # project source
-VSRC_LIST = $(abspath ./vsrc/$(PROJECT)/filelist.f)
+VSRC_LIST = $(abspath ./vsrc/riscv32/filelist.f)
 CSRC_SIM = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
 
@@ -60,6 +60,10 @@ sim-wave: $(BIN_SIM)
 		$(BIN_SIM)
 		gtkwave waveform.vcd
 
+sim-am: $(BIN_SIM)
+		@echo "NPC: Running AM program $(IMG)..."
+		$(BIN_SIM) $(IMG)
+
 nvboard: $(BIN_NV)
 		$(BIN_NV)
 
@@ -93,26 +97,7 @@ help:
 	@echo "  make sim PROJECT=riscv32"
 	@echo "  make nvboard PROJECT=experiment"
 
-PHONY: help
-help:
-	@echo "Usage:"
-	@echo "  make [Target] PROJECT=[Folder]"
-	@echo ""
-	@echo "Targets:"
-	@echo "  sim        Compile and run simulation (GTKWave disabled)"
-	@echo "  sim-wave   Compile, run simulation, and open GTKWave"
-	@echo "  nvboard    Compile and run with NVBoard (FPGA-like GUI)"
-	@echo "  lint       Run Verilator lint check to find RTL bugs"
-	@echo "  clean      Remove build directory and temporary files"
-	@echo ""
-	@echo "Parameters:"
-	@echo "  PROJECT    Specific sub-folder in vsrc/ (default: $(PROJECT))"
-	@echo ""
-	@echo "Examples:"
-	@echo "  make sim PROJECT=riscv32"
-	@echo "  make nvboard PROJECT=experiment"
 
-# 修改默认行为：直接输入 make 会显示用法
 default: help
 
 .PHONY: default sim sim-wave nvboard clean 

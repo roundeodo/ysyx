@@ -13,9 +13,11 @@ static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); /
 
 void putch(char ch) {
 }
-
+// a0 is x10, which is used for transimit value(especially exit code)
 void halt(int code) {
-  while (1);
+  asm volatile("mv a0, %0;ebreak" ::"r"(code));
+  while (1)
+    ;
 }
 
 void _trm_init() {
