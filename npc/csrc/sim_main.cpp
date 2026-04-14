@@ -1,6 +1,7 @@
 #include "Vtop.h"
 #include "Vtop___024root.h"
 #include "mem.h"
+#include <iostream>
 #include <nvboard.h>
 #include <verilated.h>
 #include <verilated_vcd_c.h> // wave tracing head
