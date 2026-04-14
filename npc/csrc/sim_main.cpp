@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
   }
   if (main_time >= limit) {
     printf("\033[1;31mNPC: Simulation Timeout!\033[0m\n");
+    return -1;
   }
 
   delete top;

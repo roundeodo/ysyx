@@ -27,7 +27,7 @@ extern "C" {
 
 int pmem_read(int raddr) {
   uint32_t aligned_addr = raddr & ~0x3u;
-  uint32_t offset = aligned_addr - 0x00000000;
+  uint32_t offset = aligned_addr - 0x80000000;
   if (offset >= MEM_SIZE) {
     return 0;
   }
@@ -36,7 +36,7 @@ int pmem_read(int raddr) {
 
 void pmem_write(int waddr, int wdata, char wmask) {
   uint32_t aligned_addr = waddr & ~0x3u; // reset bit 1 and 0 for aligning
-  uint32_t offset = aligned_addr - 0x00000000;
+  uint32_t offset = aligned_addr - 0x80000000;
   if (offset >= MEM_SIZE) {
     return;
   }
