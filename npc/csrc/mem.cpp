@@ -27,7 +27,7 @@ extern "C" {
 
 int pmem_read(int raddr) {
   uint32_t aligned_addr = raddr & ~0x3u;
-  uint32_t offset = aligned_addr - 0x80000000;
+  uint32_t offset = aligned_addr - 0x00000000;
   if (offset >= MEM_SIZE) {
     return 0;
   }

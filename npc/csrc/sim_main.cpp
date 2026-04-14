@@ -60,12 +60,12 @@ int main(int argc, char **argv) {
   if (halt_offset < MEM_SIZE) {
     *(uint32_t *)(pmem + halt_offset) = 0x00100073;
     printf("NPC: Injected ebreak at [Offset: 0x%x] (Physical: 0x%08x)\n",
-           halt_offset, 0x80000000 + halt_offset);
+           halt_offset, 0x00000000 + halt_offset);
   }
   // nvboard_init();
 
   reset(10);
-  while (!sim_halted && !Verilated::gotFinish() && main_time < 10000) {
+  while (!sim_halted && !Verilated::gotFinish()) {
 
     // nvboard_update();
     single_cycle();
