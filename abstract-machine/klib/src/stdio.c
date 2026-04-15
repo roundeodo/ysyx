@@ -143,6 +143,24 @@ switch (*f) {
           total_len++;
           break;
         }
+        case 'p': {
+            void *ptr = va_arg(ap, void *);
+            unsigned long val = (unsigned long)ptr;
+        
+            if (n > 0 && total_len < n - 1) out[total_len] = '0';
+            total_len++;
+            if (n > 0 && total_len < n - 1) out[total_len] = 'x';
+            total_len++;
+        
+            char tmp[32];
+            int len = i2s(tmp, (long)val, 16);
+        
+            for (int i = 0; i < len; i++) {
+                if (n > 0 && total_len < n - 1) out[total_len] = tmp[i];
+                total_len++;
+            }
+            break;
+        }
         default: {
           if (n > 0 && total_len < n - 1) out[total_len] = '%';
           total_len++;
