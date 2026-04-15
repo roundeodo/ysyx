@@ -37,13 +37,13 @@ void *malloc(size_t size) {
   // Therefore do not call panic() here, else it will yield a dead recursion:
   //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
-  static uintptr_t current_addr = 0;
+  static uintptr_t current_addr = 0; // has to be static so that it's a manageable variable
   if(current_addr == 0){
     current_addr = (uintptr_t)heap.start;
   }
 
   // alignment
-  current_addr = (current_addr + 7) & ~7;
+  current_addr = (current_addr + 7) & ~7; //align to 8
   void *ret = (void *)current_addr;
   current_addr += size;
   if(current_addr > (uintptr_t)heap.end){
