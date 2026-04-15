@@ -81,10 +81,30 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
       f++;
     } else {
       f++; 
-      switch (*f) {
+      // for decoding value after %
+      int pad_zero = 0;
+      int width = 0;
+      if (*f == '0') {
+        pad_zero = 1;
+        f++;
+      }
+      while (*f >= '0' && *f <= '9') {
+        width = width * 10 + (*f - '0');
+        f++;
+      }
+switch (*f) {
         case 's': {
           char *s = va_arg(ap, char *);
           if (s == NULL) s = "(null)";
+          size_t s_len = 0;
+          const char *p = s;
+          while (*p++) s_len++;
+
+          while (width > (int)s_len) {
+            if (n > 0 && total_len < n - 1) out[total_len] = ' ';
+            total_len++;
+            width--;
+          }
           while (*s != '\0') {
             if (n > 0 && total_len < n - 1) out[total_len] = *s;
             total_len++;
@@ -92,21 +112,27 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
           }
           break;
         }
-        case 'd': {
-          long d = (long)va_arg(ap, int);
-          char tmp[32];
-          int len = i2s(tmp, d, 10); 
-          for (int i = 0; i < len; i++) {
-            if (n > 0 && total_len < n - 1) out[total_len] = tmp[i];
+        case 'd':
+        case 'x': {
+          long val;
+          int base = (*f == 'd') ? 10 : 16;
+          if (*f == 'd') val = (long)va_arg(ap, int);
+          else val = (unsigned long)va_arg(ap, unsigned int);
+
+          char tmp[64];
+          int actual_len = i2s(tmp, val, base);
+          
+          int pad_len = width - actual_len;
+          char pad_char = pad_zero ? '0' : ' ';
+          
+          if (val < 0 && base == 10 && pad_zero) {
+          }
+
+          for (int i = 0; i < pad_len; i++) {
+            if (n > 0 && total_len < n - 1) out[total_len] = pad_char;
             total_len++;
           }
-          break;
-        }
-        case 'x': { 
-          unsigned long x = va_arg(ap, unsigned int);
-          char tmp[32];
-          int len = i2s(tmp, (long)x, 16);
-          for (int i = 0; i < len; i++) {
+          for (int i = 0; i < actual_len; i++) {
             if (n > 0 && total_len < n - 1) out[total_len] = tmp[i];
             total_len++;
           }
@@ -120,8 +146,10 @@ int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
         default: {
           if (n > 0 && total_len < n - 1) out[total_len] = '%';
           total_len++;
-          if (n > 0 && total_len < n - 1) out[total_len] = *f;
-          total_len++;
+          if (*f != '\0') {
+            if (n > 0 && total_len < n - 1) out[total_len] = *f;
+            total_len++;
+          }
           break;
         }
       }
