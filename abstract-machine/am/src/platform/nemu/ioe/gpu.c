@@ -22,7 +22,8 @@ void __am_gpu_config(AM_GPU_CONFIG_T *cfg) {
 }
 
 void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) { // ctl is GPU_WIDTH / N  which is a piece of the whole screen
-  if(ctl->sync != false){
+  int screen_w = io_read(AM_GPU_CONFIG).width; // whole screen
+  if(ctl->pixels != NULL){
     int x = ctl->x;
     int y = ctl->y;
     int w = ctl->w;
@@ -30,7 +31,7 @@ void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *ctl) { // ctl is GPU_WIDTH / N  which is a
     uint32_t *pixels = ctl->pixels;
     uint32_t *fb = (uint32_t *)(uintptr_t)FB_ADDR; // +1 = +4byte
 
-    int screen_w = io_read(AM_GPU_CONFIG).width; // whole screen
+
     for (int i = 0; i < h; i++){
       for (int j = 0; j < w; j++){
         fb[(y + i) * screen_w + (x + j)] = pixels[i * w + j]; // bypass the whole row
