@@ -29,7 +29,7 @@ ARCHS = $(basename $(notdir $(shell ls $(AM_HOME)/scripts/*.mk)))  # not dir -- 
 ifeq ($(filter $(ARCHS), $(ARCH)), ) # check if ARCH input by user is inside list "ARCHS"
   $(error Expected $$ARCH in {$(ARCHS)}, Got "$(ARCH)")
 endif
-
+ 
 ### Extract instruction set architecture (`ISA`) and platform from `$ARCH`. Example: `ARCH=x86_64-qemu -> ISA=x86_64; PLATFORM=qemu`
 ARCH_SPLIT = $(subst -, ,$(ARCH))
 ISA        = $(word 1,$(ARCH_SPLIT))
