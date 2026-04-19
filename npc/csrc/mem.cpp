@@ -33,13 +33,15 @@ extern "C" {
 
 int pmem_read(int raddr) {
   static uint64_t start_time = 0;
+  static uint64_t rtc_latch = 0;
   if (start_time == 0)
     start_time = get_time_mus();
   if (raddr == 0xa0000048) {
-    return (uint32_t)(get_time_mus() - start_time);
+    rtc_latch = get_time_mus() - start_time;
+    return (uint32_t)rtc_latch;
   }
   if (raddr == 0xa000004c) {
-    return (uint32_t)((get_time_mus() - start_time) >> 32);
+    return (uint32_t)(rtc_latch >> 32);
   }
 
   uint32_t aligned_addr = raddr & ~0x3u;
