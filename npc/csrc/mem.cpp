@@ -1,7 +1,7 @@
 #include "mem.h"
 #include <cstdio>
 #include <cstdlib>
-
+#include <sys/time.h>
 uint8_t pmem[MEM_SIZE];
 
 void load_bin(const char *path) {
@@ -23,6 +23,12 @@ void load_bin(const char *path) {
   fclose(fp);
 }
 
+uint64_t get_time_mus() {
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  return now.tv_sec * 1000000 + now.tv_usec;
+}
+
 extern "C" {
 
 int pmem_read(int raddr) {
@@ -31,6 +37,16 @@ int pmem_read(int raddr) {
   if (offset >= MEM_SIZE) {
     return 0;
   }
+  static uint64_t start_time = 0;
+  if (start_time == 0)
+    start_time = get_time_mus();
+  if (raddr == 0xa0000048) {
+    return (uint32_t)(get_time_mus() - start_time);
+  }
+  if (raddr == 0xa000004c) {
+    return (uint32_t)((get_time_mus() - start_time) >> 32);
+  }
+
   return *(uint32_t *)(pmem + offset);
 }
 
@@ -38,6 +54,11 @@ void pmem_write(int waddr, int wdata, char wmask) {
   uint32_t aligned_addr = waddr & ~0x3u; // reset bit 1 and 0 for aligning
   uint32_t offset = aligned_addr - 0x80000000;
   if (offset >= MEM_SIZE) {
+    return;
+  }
+  if (waddr == 0x10000000) {
+    putchar(wdata & 0xff);
+    fflush(stdout);
     return;
   }
   if (wmask & 0b0001)
