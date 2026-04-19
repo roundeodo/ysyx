@@ -7,7 +7,7 @@
 #include <verilated_vcd_c.h> // wave tracing head
 
 Vtop *top = new Vtop;
-
+bool enable_trace = false;
 VerilatedVcdC *tfp = nullptr; // wave file pointer
 vluint64_t main_time = 0;     //
 
@@ -31,11 +31,11 @@ extern "C" void ebreak_halt() {
 void single_cycle() {
   top->clk = 0;
   top->eval();
-  if (tfp)
+  if (tfp && enable_trace)
     tfp->dump(main_time++);
   top->clk = 1;
   top->eval();
-  if (tfp)
+  if (tfp && enable_trace)
     tfp->dump(main_time++);
 }
 
@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
   tfp = new VerilatedVcdC;
+  enable_trace = false;
   // nvboard_bind_all_pins(top);
 
   top->trace(tfp, 99);
