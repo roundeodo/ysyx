@@ -32,11 +32,6 @@ uint64_t get_time_mus() {
 extern "C" {
 
 int pmem_read(int raddr) {
-  uint32_t aligned_addr = raddr & ~0x3u;
-  uint32_t offset = aligned_addr - 0x80000000;
-  if (offset >= MEM_SIZE) {
-    return 0;
-  }
   static uint64_t start_time = 0;
   if (start_time == 0)
     start_time = get_time_mus();
@@ -47,20 +42,27 @@ int pmem_read(int raddr) {
     return (uint32_t)((get_time_mus() - start_time) >> 32);
   }
 
+  uint32_t aligned_addr = raddr & ~0x3u;
+  uint32_t offset = aligned_addr - 0x80000000;
+  if (offset >= MEM_SIZE) {
+    return 0;
+  }
   return *(uint32_t *)(pmem + offset);
 }
 
 void pmem_write(int waddr, int wdata, char wmask) {
-  uint32_t aligned_addr = waddr & ~0x3u; // reset bit 1 and 0 for aligning
-  uint32_t offset = aligned_addr - 0x80000000;
-  if (offset >= MEM_SIZE) {
-    return;
-  }
   if (waddr == 0x10000000) {
     putchar(wdata & 0xff);
     fflush(stdout);
     return;
   }
+
+  uint32_t aligned_addr = waddr & ~0x3u; // reset bit 1 and 0 for aligning
+  uint32_t offset = aligned_addr - 0x80000000;
+  if (offset >= MEM_SIZE) {
+    return;
+  }
+
   if (wmask & 0b0001)
     pmem[offset + 0] = (wdata >> 0) & 0xff;
   if (wmask & 0b0010)
