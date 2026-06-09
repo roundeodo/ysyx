@@ -196,6 +196,52 @@ void init_ftrace(const char *elf_file){
   free(shdrs);
   fclose(fp);
 }
+
+static const char *find_func_by_addr(vaddr_t addr){
+  for (int i = 0; i < func_count; i++){
+    uint32_t start = ftable[i].start;
+    uint32_t end = ftable[i].end;
+
+    if(start == end){
+      if(addr == start){
+        return ftable[i].name;
+      }
+    }
+    else{
+      if(addr >= start && addr < end){
+        return ftable[i].name;
+      }
+    }
+  }
+  return "???";
+}
+
+// print indent based on the depth
+static void print_ftrace_indent(void){
+  for (int i = 0; i < ftrace_depth; i++){
+    printf(" ");
+  }
+}
+
+// record function call
+void ftrace_call(vaddr_t pc, vaddr_t target){
+  const char *func_name = find_func_by_addr(target);
+  printf("0x%08x: ", pc);
+  print_ftrace_indent();
+  printf("call [%s@0x%08x]\n", func_name, target);
+
+  ftrace_depth++;
+}
+
+void ftrace_ret(vaddr_t pc){
+  if(ftrace_depth > 0){
+    ftrace_depth--;
+  }
+  const char *func_name = find_func_by_addr(pc);
+  printf("0x%08x: ", pc);
+  print_ftrace_indent();
+  printf("ret [%s]\n", func_name);
+}
 #endif
 
 
