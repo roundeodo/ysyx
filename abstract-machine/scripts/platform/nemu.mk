@@ -31,6 +31,10 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
+	@echo "NEMU_HOME = $(NEMU_HOME)"
+	@echo "NEMUFLAGS = $(NEMUFLAGS)"
+	@echo "IMAGE     = $(IMAGE)"
+	@echo "CMD       = $(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS=\"$(NEMUFLAGS)\" IMG=$(IMAGE).bin"
 	$(MAKE) -C $(NEMU_HOME) ISA=$(ISA) run ARGS="$(NEMUFLAGS)" IMG=$(IMAGE).bin
 
 gdb: insert-arg
