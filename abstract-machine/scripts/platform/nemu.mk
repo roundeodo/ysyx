@@ -14,6 +14,9 @@ LDFLAGS   += --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
 NEMUFLAGS += -l $(shell dirname $(IMAGE).elf)/nemu-log.txt
 NEMUFLAGS += -b #batch mode(default)
+ifeq ($(shell grep -q '^CONFIG_FTRACE=y' $(NEMU_HOME)/.confg 2>/dev/null && echo y),y)
+NEMUFLAGS += -e $(IMAGE).elf
+endif
 
 MAINARGS_MAX_LEN = 64
 MAINARGS_PLACEHOLDER = the_insert-arg_rule_in_Makefile_will_insert_mainargs_here
