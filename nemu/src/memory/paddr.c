@@ -51,14 +51,59 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
-  if (likely(in_pmem(addr))) return pmem_read(addr, len);
-  IFDEF(CONFIG_DEVICE, return mmio_read(addr, len));
+  if (likely(in_pmem(addr))) {
+    word_t ret = pmem_read(addr, len);
+
+    #ifdef CONFIG_MTRACE
+        if (MTRACE_COND) {
+          printf("mtrace: read  addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n",
+              addr, len, ret);
+        }
+    #endif
+
+    return ret;
+  }
+
+  #ifdef CONFIG_DEVICE
+    word_t ret = mmio_read(addr, len);
+  
+  #ifdef CONFIG_MTRACE
+    if (MTRACE_COND) {
+      printf("mtrace: mmio read  addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n",
+          addr, len, ret);
+    }
+  #endif
+  
+    return ret;
+  #endif
+
   out_of_bound(addr);
   return 0;
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
-  if (likely(in_pmem(addr))) { pmem_write(addr, len, data); return; }
-  IFDEF(CONFIG_DEVICE, mmio_write(addr, len, data); return);
+  if (likely(in_pmem(addr))) {
+    #ifdef CONFIG_MTRACE
+        if (MTRACE_COND) {
+          printf("mtrace: write addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n", addr, len, data);
+        }
+    #endif
+
+    pmem_write(addr, len, data);
+    return;
+  }
+
+
+  #ifdef CONFIG_DEVICE
+    #ifdef CONFIG_MTRACE
+      if (MTRACE_COND)
+      {
+        printf("mtrace: write addr = " FMT_PADDR ", len = %d, data = " FMT_WORD "\n", addr, len, data);
+      }
+    #endif
+    mmio_write(addr, len, data);
+    return;
+  #endif
+
   out_of_bound(addr);
 }
