@@ -18,7 +18,27 @@
 #include "../local-include/reg.h"
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  return false;
+  int nr_gpr = sizeof(cpu.gpr) / sizeof(cpu.gpr[0]);
+  for (int i = 0; i < nr_gpr; i++){
+    if(cpu.gpr[i] != ref_r->gpr[i]){
+      printf("DiffTest register mismatch after executing instruction at pc = " FMT_WORD "\n", pc);
+      printf(" reg[%d] mismatch\n", i);
+      printf(" DUT = " FMT_WORD "\n", cpu.gpr[i]);
+      printf(" REF = " FMT_WORD "\n", ref_r->gpr[i]);
+
+      return false;
+    }
+  }
+  
+  // we should compare pc + 4, but the pc here is the address of the instruction that is currently executing
+  if(cpu.pc != ref_r->pc){
+    printf("DiffTest pc mismatch after executing instruction at pc = " FMT_WORD "\n", pc);
+    printf(" DUT pc = " FMT_WORD "\n", cpu.pc);
+    printf(" REF pc = " FMT_WORD "\n", ref_r->pc);
+
+    return false;
+  }
+  return true;
 }
 
 void isa_difftest_attach() {
