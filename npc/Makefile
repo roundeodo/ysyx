@@ -1,6 +1,10 @@
 # path
+
+PROJECT ?= .
+# make sim PROJECT=XXX
 TOPNAME = top
 INC_PATH ?=
+INC_PATH += $(abspath ./include)
 BUILD_DIR = ./build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN_SIM = $(BUILD_DIR)/$(TOPNAME)_sim
@@ -11,12 +15,11 @@ VERILATOR = verilator
 VERILATOR_FLAGS += -MMD --build -cc -Wall  \
 				-O3 --x-assign fast --x-initial fast --noassert --trace
 
-default: sim
 #make a build direction
 $(shell mkdir -p $(BUILD_DIR))
 
 # project source
-VSRC_LIST = $(abspath ./vsrc/filelist.f)
+VSRC_LIST = $(abspath ./vsrc/riscv32/filelist.f)
 CSRC_SIM = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cc" -or -name "*.cpp")
 
 
@@ -28,6 +31,9 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 CSRC_NV += $(SRC_AUTO_BIND)
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
+INCFLAGS = $(addprefix -I, $(INC_PATH))
+CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+
 # make sim
 $(BIN_SIM): $(VSRC_LIST) $(CSRC_SIM)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -38,8 +44,6 @@ $(BIN_SIM): $(VSRC_LIST) $(CSRC_SIM)
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN_SIM))
 
 #make nvboard
-INCFLAGS = $(addprefix -I, $(INC_PATH))
-CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 $(BIN_NV): $(VSRC_LIST) $(CSRC_NV) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) 	\
@@ -54,7 +58,11 @@ sim: $(BIN_SIM)
 
 sim-wave: $(BIN_SIM)
 		$(BIN_SIM)
-		gtkwave wave.vcd
+		gtkwave waveform.vcd
+
+sim-am: $(BIN_SIM)
+		@echo "NPC: Running AM program $(IMG)..."
+		$(BIN_SIM) $(IMG)
 
 nvboard: $(BIN_NV)
 		$(BIN_NV)
@@ -68,4 +76,28 @@ clean:
 
 include ../Makefile
 -include $(wildcard $(OBJ_DIR)/*.d)
+
+
+.PHONY: help
+help:
+	@echo "Usage:"
+	@echo "  make [Target] PROJECT=[Folder]"
+	@echo ""
+	@echo "Targets:"
+	@echo "  sim        Compile and run simulation (GTKWave disabled)"
+	@echo "  sim-wave   Compile, run simulation, and open GTKWave"
+	@echo "  nvboard    Compile and run with NVBoard (FPGA-like GUI)"
+	@echo "  lint       Run Verilator lint check to find RTL bugs"
+	@echo "  clean      Remove build directory and temporary files"
+	@echo ""
+	@echo "Parameters:"
+	@echo "  PROJECT    Specific sub-folder in vsrc/ (default: $(PROJECT))"
+	@echo ""
+	@echo "Examples:"
+	@echo "  make sim PROJECT=riscv32"
+	@echo "  make nvboard PROJECT=experiment"
+
+
+default: help
+
 .PHONY: default sim sim-wave nvboard clean 
