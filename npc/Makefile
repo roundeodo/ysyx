@@ -6,7 +6,7 @@ TOPNAME = top
 INC_PATH ?=
 INC_PATH += $(abspath ./include)
 
-CAPSTONE_HOME ?= $(abspath ../nemue/tools/capstone/repo)
+CAPSTONE_HOME ?= $(abspath ../nemu/tools/capstone/repo)
 CAPSTONE_INC  ?= $(CAPSTONE_HOME)/include
 CAPSTONE_LIB  ?= $(CAPSTONE_HOME)
 
@@ -94,9 +94,7 @@ sim-am: $(BIN_SIM)
 	$(BIN_SIM) $(IMG)
 
 sim-itrace: $(BIN_SIM)
-
 	@echo "NPC: Running AM program with itrace $(IMG)..."
-
 	$(BIN_SIM) --itrace $(IMG)
 
 sim-wave: $(BIN_SIM)
@@ -155,4 +153,4 @@ help:
 
 default: help
 
-.PHONY: default sim sim-am sim-itrace sim-wave nvboard lint clean help
+.PHONY: default sim sim-am sim-itrace sim-debug sim-wave nvboard lint clean help
