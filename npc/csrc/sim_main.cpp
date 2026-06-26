@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
 
   init_wp_pool();
 
-  trace_init();
+  trace_init(enable_itrace);
   if (img_path != nullptr) {
     load_bin(img_path);
     std::cout << "NPC: load image" << img_path << std::endl;
