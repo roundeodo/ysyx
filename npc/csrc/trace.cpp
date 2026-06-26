@@ -1,6 +1,6 @@
 #include "trace.h"
 
-#include <capstone/capstone.h>
+#include <capstone.h>
 
 #include <stdint.h>
 #include <stdio.h>
