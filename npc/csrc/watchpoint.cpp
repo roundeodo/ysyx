@@ -104,7 +104,7 @@ void display_watchpoints() {
 }
 
 // check watchpoints
-bool check_watchppoints() {
+bool check_watchpoints() {
   bool triggered = false;
 
   for (WP *wp = head; wp != nullptr; wp = wp->next) {
