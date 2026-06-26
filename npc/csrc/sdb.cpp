@@ -54,7 +54,7 @@ static void cmd_info(std::istringstream &iss) {
   if (arg == "r") {
     npc_dump_regs();
   } else if (arg == "w") {
-    display_watchpoint();
+    display_watchpoints();
   } else {
     std::cout << "Usage: info r | info w\n";
   }

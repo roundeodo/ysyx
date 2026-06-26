@@ -8,6 +8,6 @@ void new_wp(const char *expr_str);
 
 void free_wp(int no);
 
-void display_watchpoint();
+void display_watchpoints();
 
 bool check_watchpoints();
