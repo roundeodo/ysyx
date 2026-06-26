@@ -29,6 +29,71 @@ uint64_t get_time_mus() {
   return now.tv_sec * 1000000 + now.tv_usec;
 }
 
+// transfer physical address to host address
+static uint8_t *guest_to_host(uint32_t paddr) {
+  if (paddr < RESET_VECTOR || paddr >= RESET_VECTOR + MEM_SIZE)
+    return nullptr;
+
+  return pmem + (paddr - RESET_VECTOR);
+}
+
+uint32_t paddr_read(uint32_t addr, int len) {
+  static uint64_t start_time = 0;
+  static uint64_t rtc_latch = 0;
+
+  if (start_time == 0)
+    start_time = get_time_mus();
+
+  // rtc low 32 bits
+  if (addr == 0xa0000048) {
+    rtc_latch = get_time_mus() - start_time;
+    return (uint32_t)rtc_latch;
+  }
+  // rtc high 32 bits
+  if (addr == 0xa000004c)
+    return (uint32_t)(rtc_latch >> 32);
+
+  uint8_t *host_addr = guest_to_host(addr);
+  if (host_addr == nullptr) {
+    fprintf(stderr, "Error: paddr_read out of bound, addr = 0x%08x, len = %d\n",
+            addr, len);
+    return 0;
+  }
+
+  // normal read
+  uint32_t ret = 0;
+  for (int i = 0; i < len; i++) {
+    ret |= ((uint32_t)host_addr[i] << (8 * i));
+  }
+  return ret;
+}
+
+void paddr_write(uint32_t addr, int len, uint32_t data) {
+  if (addr == 0x10000000) {
+    putchar(data & 0xff);
+    fflush(stdout);
+    return;
+  }
+  if (!len == 1 || len == 2 || len == 4) {
+    fprintf(stderr, "Error: unsupported paddr_write len = %d\n", len);
+    exit(1);
+  }
+
+  uint8_t *host_addr = guest_to_host(addr);
+
+  if (host_addr == nullptr) {
+    fprintf(stderr,
+            "Error: paddr_write out of bound, addr = 0x%08x, len = %d\n", addr,
+            len);
+    return;
+  }
+
+  // normal write
+  for (int i = 0; i < len; i++) {
+    host_addr[i] = (data >> (8 * i)) & 0xff;
+  }
+}
+
 extern "C" {
 
 int pmem_read(int raddr) {
