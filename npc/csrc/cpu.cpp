@@ -6,6 +6,8 @@
 #include "Vtop__Dpi.h"
 #include "Vtop___024root.h"
 
+#include "svdpi.h"
+
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 
@@ -35,18 +37,37 @@ static uint64_t guest_inst_count = 0;
 
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
 
-// ============================================================
+static svScope top_dpi_scope = nullptr;
+
 // NPC state
-// ============================================================
 
 enum NPCState { NPC_STOP, NPC_RUNNING, NPC_END, NPC_ABORT };
 
 static NPCState npc_state = NPC_STOP;
 
-// ============================================================
-// Execute one clock cycle
-// ============================================================
+// dpi
+static void init_dpi_scope() {
+  top_dpi_scope = svGetScopeFromName("Top.top");
 
+  if (top_dpi_scope == nullptr)
+    top_dpi_scope = svGetScopeFromName("TOP");
+  if (top_dpi_scope == nullptr) {
+    printf("Error: cannot find DPI scope for top module\n");
+    printf("Try checking generated obj_dir/Vtop__Dpi.cpp or Vtop__Syms.cpp for "
+           "scope name\n");
+    exit(1);
+  }
+
+  svSetScope(top_dpi_scope);
+}
+
+static inline void set_dpi_scope() {
+  if (top_dpi_scope != nullptr) {
+    svSetScope(top_dpi_scope);
+  }
+}
+
+// Execute one clock cycle
 static void single_cycle() {
   top->clk = 0;
   top->eval();
@@ -107,6 +128,8 @@ void cpu_init(int argc, char **argv, bool enable_nvboard, bool enable_trace) {
   top->rstn = 0;
   top->eval();
 
+  init_dpi_scope();
+
   if (trace_enabled) {
     tfp = new VerilatedVcdC;
     top->trace(tfp, 99);
@@ -150,10 +173,16 @@ void cpu_reset(int n) {
 
 // Read PC
 
-uint32_t npc_get_pc() { return (uint32_t)npc_get_pc_dpi(); }
+uint32_t npc_get_pc() {
+  set_dpi_scope();
+  return (uint32_t)npc_get_pc_dpi();
+}
 
 // Read inst
-uint32_t npc_get_inst() { return (uint32_t)npc_get_inst_dpi(); }
+uint32_t npc_get_inst() {
+  set_dpi_scope();
+  (uint32_t) npc_get_inst_dpi();
+}
 
 // Read GPR
 
