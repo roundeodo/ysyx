@@ -1,6 +1,7 @@
 #include "cpu.h"
 #include "mem.h"
 #include "sdb.h"
+#include "trace.h"
 #include "watchpoint.h"
 
 #include <cstring>
@@ -10,6 +11,7 @@ int main(int argc, char **argv) {
 
   bool enable_nvboard = false;
   bool enable_trace = false;
+  bool enable_itrace = false;
   const char *img_path = nullptr;
   // ============================================================
   // Parse command line arguments
@@ -26,6 +28,8 @@ int main(int argc, char **argv) {
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--trace") == 0) {
       enable_trace = true;
+    } else if (strcmp(argv[i], "--itrace") == 0) {
+      enable_itrace = true;
     } else if (strcmp(argv[i], "--nvboard") == 0) {
       enable_nvboard = true;
     } else {
@@ -37,6 +41,7 @@ int main(int argc, char **argv) {
 
   init_wp_pool();
 
+  trace_init();
   if (img_path != nullptr) {
     load_bin(img_path);
     std::cout << "NPC: load image" << img_path << std::endl;
@@ -48,6 +53,7 @@ int main(int argc, char **argv) {
 
   sdb_mainloop();
 
+  trace_cleanup();
   cpu_cleanup();
 
   return 0;

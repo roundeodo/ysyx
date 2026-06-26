@@ -1,7 +1,9 @@
 #include "cpu.h"
+#include "trace.h"
 #include "watchpoint.h"
 
 #include "Vtop.h"
+#include "Vtop__Dpi.h"
 #include "Vtop___024root.h"
 
 #include <verilated.h>
@@ -146,15 +148,14 @@ void cpu_reset(int n) {
   npc_state = NPC_STOP;
 }
 
-// ============================================================
 // Read PC
-// ============================================================
 
-uint32_t npc_get_pc() { return top->rootp->top__DOT__U_IFU__DOT__pc_reg_Q; }
+uint32_t npc_get_pc() { return (uint32_t)npc_get_pc_dpi(); }
 
-// ============================================================
+// Read inst
+uint32_t npc_get_inst() { return (uint32_t)npc_get_inst_dpi(); }
+
 // Read GPR
-// ============================================================
 
 uint32_t npc_get_gpr(int idx) {
   if (idx == 0) {
@@ -228,9 +229,7 @@ bool npc_reg_str2val(const char *name, uint32_t *val) {
   return false;
 }
 
-// ============================================================
 // Execute n instructions
-// ============================================================
 
 void cpu_exec(uint64_t n) {
   if (npc_state == NPC_END) {
@@ -256,6 +255,11 @@ void cpu_exec(uint64_t n) {
       npc_state = NPC_ABORT;
       break;
     }
+
+    uint32_t pc = npc_get_pc();
+    uint32_t inst = npc_get_inst();
+
+    trace_inst(pc, inst);
 
     single_cycle();
     guest_inst_count++;

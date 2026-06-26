@@ -19,6 +19,9 @@ bool npc_is_halted();
 // read pc
 uint32_t npc_get_pc();
 
+// read inst
+uint32_t npc_get_inst();
+
 // read gpr
 uint32_t npc_get_gpr(int idx);
 
