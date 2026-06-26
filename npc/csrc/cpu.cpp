@@ -181,7 +181,7 @@ uint32_t npc_get_pc() {
 // Read inst
 uint32_t npc_get_inst() {
   set_dpi_scope();
-  (uint32_t) npc_get_inst_dpi();
+  return (uint32_t)npc_get_inst_dpi();
 }
 
 // Read GPR
