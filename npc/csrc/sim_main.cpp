@@ -12,6 +12,7 @@ int main(int argc, char **argv) {
   bool enable_nvboard = false;
   bool enable_trace = false;
   bool enable_itrace = false;
+  bool enable_mtrace = false;
   const char *img_path = nullptr;
   // ============================================================
   // Parse command line arguments
@@ -30,6 +31,8 @@ int main(int argc, char **argv) {
       enable_trace = true;
     } else if (strcmp(argv[i], "--itrace") == 0) {
       enable_itrace = true;
+    } else if (strcmp(argv[i], "--mtrace") == 0) {
+      enable_mtrace = true;
     } else if (strcmp(argv[i], "--nvboard") == 0) {
       enable_nvboard = true;
     } else {
@@ -41,7 +44,7 @@ int main(int argc, char **argv) {
 
   init_wp_pool();
 
-  trace_init(enable_itrace);
+  trace_init(enable_itrace, enable_mtrace);
   if (img_path != nullptr) {
     load_bin(img_path);
     std::cout << "NPC: load image" << img_path << std::endl;

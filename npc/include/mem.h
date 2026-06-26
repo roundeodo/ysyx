@@ -15,4 +15,5 @@ void paddr_write(uint32_t addr, int len, uint32_t data);
 
 extern "C" int pmem_read(int raddr);
 extern "C" void pmem_write(int waddr, int wdata, char wmask);
+extern "C" int pmem_read_data(int raddr, int len);
 #endif

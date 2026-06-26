@@ -1,4 +1,5 @@
 #include "mem.h"
+#include "trace.h"
 #include <cstdio>
 #include <cstdlib>
 #include <sys/time.h>
@@ -118,6 +119,7 @@ int pmem_read(int raddr) {
 }
 
 void pmem_write(int waddr, int wdata, char wmask) {
+  trace_mem_write((uint32_t)waddr, 1, (uint32_t)(wdata & 0xff));
   if (waddr == 0x10000000) {
     putchar(wdata & 0xff);
     fflush(stdout);
@@ -130,6 +132,26 @@ void pmem_write(int waddr, int wdata, char wmask) {
     return;
   }
 
+  int len = 0;
+  uint32_t trace_data = 0;
+  int shift = -1;
+
+  for (int i = 0; i < 4; i++) {
+    if ((wmask >> i) & 0x1) {
+      if (shift == -1) {
+        shift = i;
+      }
+
+      uint8_t byte = (wdata >> (8 * i)) & 0xff;
+      trace_data |= ((uint32_t)byte) << (8 * len);
+      len++;
+    }
+  }
+
+  if (len > 0) {
+    trace_mem_write((uint32_t)waddr, len, trace_data);
+  }
+
   if (wmask & 0b0001)
     pmem[offset + 0] = (wdata >> 0) & 0xff;
   if (wmask & 0b0010)
@@ -138,5 +160,17 @@ void pmem_write(int waddr, int wdata, char wmask) {
     pmem[offset + 2] = (wdata >> 16) & 0xff;
   if (wmask & 0b1000)
     pmem[offset + 3] = (wdata >> 24) & 0xff;
+}
+
+int pmem_read_data(int raddr, int len) {
+  uint32_t aligned_addr = ((uint32_t)raddr) & ~0x3u;
+
+  uint32_t raw_word = paddr_read(aligned_addr, 4);
+
+  uint32_t data = paddr_read((uint32_t)raddr, len);
+
+  trace_mem_read((uint32_t)raddr, len, data);
+
+  return (int)raw_word;
 }
 }

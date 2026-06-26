@@ -97,14 +97,22 @@ sim-itrace: $(BIN_SIM)
 	@echo "NPC: Running AM program with itrace $(IMG)..."
 	$(BIN_SIM) --itrace $(IMG)
 
+sim-mtrace: $(BIN_SIM)
+	@echo "NPC: Running AM program with mtrace $(IMG)..."
+	$(BIN_SIM) --mtrace $(IMG)
+
+sim-trace: $(BIN_SIM)
+	@echo "NPC: Running AM program with itrace + mtrace $(IMG)..."
+	$(BIN_SIM) --itrace --mtrace $(IMG)
+
 sim-wave: $(BIN_SIM)
 	@echo "NPC: Running AM program with waveform $(IMG)..."
 	$(BIN_SIM) --trace $(IMG)
 	gtkwave waveform.vcd
 
 sim-debug: $(BIN_SIM)
-	@echo "NPC: Running AM program with waveform and itrace $(IMG)..."
-	$(BIN_SIM) --trace --itrace $(IMG)
+	@echo "NPC: Running AM program with waveform + itrace + mtrace $(IMG)..."
+	$(BIN_SIM) --trace --itrace --mtrace $(IMG)
 	gtkwave waveform.vcd
 
 nvboard: $(BIN_NV)
@@ -136,6 +144,7 @@ help:
 	@echo "  sim-am     Compile and run AM program with IMG=xxx.bin"
 	@echo "  sim-wave   Compile, run with --trace, and open GTKWave"
 	@echo "  sim-itrace Compile and run with itrace"
+	@echo "  sim-mtrace Compile and run with mtrace"
 	@echo "  sim-debug  Compile and run with waveform + itrace"
 	@echo "  nvboard    Compile and run with NVBoard"
 	@echo "  lint       Run Verilator lint check"
@@ -148,9 +157,10 @@ help:
 	@echo "  make nvboard PROJECT=riscv32 IMG=path/to/program.bin"
 	@echo "  make sim PROJECT=experiment"
 	@echo "  make sim-itrace PROJECT=riscv32 IMG=path/to/program.bin"
+	@echo "  make sim-mtrace PROJECT=riscv32 IMG=path/to/program.bin"
 	@echo "  make sim-debug PROJECT=riscv32 IMG=path/to/program.bin"
 
 
 default: help
 
-.PHONY: default sim sim-am sim-itrace sim-debug sim-wave nvboard lint clean help
+.PHONY: default sim sim-am sim-itrace sim-mtrace sim-debug sim-wave nvboard lint clean help

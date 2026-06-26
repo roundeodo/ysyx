@@ -7,6 +7,7 @@
 #include <string.h>
 
 static bool itrace_enabled = false;
+static bool mtrace_enabled = false;
 
 static csh cs_handle;
 static bool capstone_ready = false;
@@ -61,8 +62,9 @@ static void disassemble_inst(uint32_t pc, uint32_t inst, char *buf,
 
 // trace module initialization
 
-void trace_init(bool enable_itrace) {
+void trace_init(bool enable_itrace, bool enable_mtrace) {
   itrace_enabled = enable_itrace;
+  mtrace_enabled = enable_mtrace;
   itrace_count = 0;
 
   cs_err err = cs_open(CS_ARCH_RISCV, CS_MODE_RISCV32, &cs_handle);
@@ -79,6 +81,10 @@ void trace_init(bool enable_itrace) {
 
   if (itrace_enabled) {
     printf("itrace: enabled with Capstone\n");
+  }
+
+  if (mtrace_enabled) {
+    printf("mtrace: enabled\n");
   }
 }
 
@@ -126,4 +132,20 @@ void trace_print_ringbuf() {
     printf("  0x%08x: %08x  %s\n", itrace_ringbuf[idx].pc,
            itrace_ringbuf[idx].inst, itrace_ringbuf[idx].disasm);
   }
+}
+
+void trace_mem_read(uint32_t addr, int len, uint32_t data) {
+  if (!mtrace_enabled) {
+    return;
+  }
+
+  printf("mtrace: READ  addr=0x%08x len=%d data=0x%08x\n", addr, len, data);
+}
+
+void trace_mem_write(uint32_t addr, int len, uint32_t data) {
+  if (!mtrace_enabled) {
+    return;
+  }
+
+  printf("mtrace: WRITE addr=0x%08x len=%d data=0x%08x\n", addr, len, data);
 }
