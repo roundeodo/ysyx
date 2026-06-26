@@ -37,34 +37,25 @@ static uint64_t guest_inst_count = 0;
 
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
 
-static svScope top_dpi_scope = nullptr;
-
 // NPC state
 
 enum NPCState { NPC_STOP, NPC_RUNNING, NPC_END, NPC_ABORT };
 
 static NPCState npc_state = NPC_STOP;
 
-// dpi
-static void init_dpi_scope() {
-  top_dpi_scope = svGetScopeFromName("Top.top");
+// dpi scope
+static svScope top_dpi_scope = nullptr;
 
-  if (top_dpi_scope == nullptr)
-    top_dpi_scope = svGetScopeFromName("TOP");
+extern "C" void npc_set_dpi_scope() { top_dpi_scope = svGetScope(); }
+
+static inline void set_dpi_scope() {
   if (top_dpi_scope == nullptr) {
-    printf("Error: cannot find DPI scope for top module\n");
-    printf("Try checking generated obj_dir/Vtop__Dpi.cpp or Vtop__Syms.cpp for "
-           "scope name\n");
+    printf("Error: DPI scope has not been set.\n");
+    printf("Check whether top.sv has initial begin npc_set_dpi_scope(); end\n");
     exit(1);
   }
 
   svSetScope(top_dpi_scope);
-}
-
-static inline void set_dpi_scope() {
-  if (top_dpi_scope != nullptr) {
-    svSetScope(top_dpi_scope);
-  }
 }
 
 // Execute one clock cycle
@@ -128,7 +119,11 @@ void cpu_init(int argc, char **argv, bool enable_nvboard, bool enable_trace) {
   top->rstn = 0;
   top->eval();
 
-  init_dpi_scope();
+  if (top_dpi_scope == nullptr) {
+    printf("Error: DPI scope was not initialized after first eval.\n");
+    printf("Check top.sv initial block and npc_set_dpi_scope import.\n");
+    exit(1);
+  }
 
   if (trace_enabled) {
     tfp = new VerilatedVcdC;
