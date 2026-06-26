@@ -6,6 +6,12 @@ TOPNAME = top
 INC_PATH ?=
 INC_PATH += $(abspath ./include)
 
+CAPSTONE_HOME ?= $(abspath ../nemue/tools/capstone/repo)
+CAPSTONE_INC  ?= $(CAPSTONE_HOME)/include
+CAPSTONE_LIB  ?= $(CAPSTONE_HOME)
+
+INC_PATH += $(CAPSTONE_INC)
+
 BUILD_DIR = ./build/$(PROJECT)
 
 OBJ_DIR_SIM = $(BUILD_DIR)/obj_dir_sim
@@ -48,7 +54,7 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 # common C++ flags
 CXXFLAGS_COMMON := $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
-LDFLAGS_COMMON := -lcapstone
+LDFLAGS_COMMON := -L$(CAPSTONE_LIB) -Wl,-rpath=$(CAPSTONE_LIB) -lcapstone
 
 # normal sim does not enable NVBoard
 CXXFLAGS_SIM := $(CXXFLAGS_COMMON)
