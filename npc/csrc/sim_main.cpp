@@ -7,6 +7,7 @@
 #include "watchpoint.h"
 
 #include <cstring>
+#include <stdint.h>
 #include <iostream>
 #include <string>
 
@@ -18,6 +19,7 @@ int main(int argc, char **argv) {
   bool enable_mtrace = false;
   bool enable_ftrace = false;
   bool enable_difftest = false;
+  bool batch_mode = false;
 
   const char *img_path = nullptr;
   const char *elf_path = nullptr;
@@ -37,6 +39,8 @@ int main(int argc, char **argv) {
   for (int i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--trace") == 0) {
       enable_trace = true;
+    } else if (strcmp(argv[i], "--batch") == 0) {
+      batch_mode = true;
     } else if (strcmp(argv[i], "--itrace") == 0) {
       enable_itrace = true;
     } else if (strcmp(argv[i], "--mtrace") == 0) {
@@ -85,7 +89,11 @@ int main(int argc, char **argv) {
 
   difftest_init(enable_difftest, diff_so_file, get_img_size());
 
-  sdb_mainloop();
+  if (batch_mode) {
+    cpu_exec(UINT64_MAX);
+  } else {
+    sdb_mainloop();
+  }
 
   trace_cleanup();
   ftrace_cleanup();

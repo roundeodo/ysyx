@@ -26,6 +26,7 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
+	# sim-am passes --batch to NPC, so AM run executes to halt() without SDB input.
 	$(MAKE) -C $(NPC_HOME) sim-am IMG=$(IMAGE).bin
 
 .PHONY: insert-arg
