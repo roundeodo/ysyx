@@ -30,26 +30,27 @@ static bool in_file_range(size_t offset, size_t size, size_t file_size) {
 }
 
 static const FuncSymbol *find_func(uint32_t addr) {
-  const FuncSymbol *best = nullptr;
-
-  for (const auto &f : func_symbols) {
-    if (f.size != 0) {
-      if (addr >= f.start && addr < f.start + f.size) {
-        return &f;
-      }
+  for (size_t i = 0; i < func_symbols.size(); i++) {
+    const FuncSymbol &f = func_symbols[i];
+    if (addr < f.start) {
       continue;
     }
 
-    if (addr == f.start) {
-      return &f;
+    uint64_t end = 0;
+    if (f.size != 0) {
+      end = static_cast<uint64_t>(f.start) + f.size;
+    } else if (i + 1 < func_symbols.size()) {
+      end = func_symbols[i + 1].start;
+    } else {
+      end = static_cast<uint64_t>(f.start) + 1;
     }
 
-    if (addr > f.start && (best == nullptr || f.start > best->start)) {
-      best = &f;
+    if (addr < end) {
+      return &f;
     }
   }
 
-  return best;
+  return nullptr;
 }
 
 static const char *func_name_or_addr(const FuncSymbol *func, uint32_t addr,
