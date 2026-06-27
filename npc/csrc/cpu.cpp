@@ -289,35 +289,11 @@ void cpu_exec(uint64_t n) {
     single_cycle();
     guest_inst_count++;
 
-    // TODO[C2-FTRACE-COMMIT-0]: feed committed control-flow info to ftrace
-    //   这里就是 ftrace 运行时接入位置。
-    //
-    //   当前单周期 NPC 可以认为 single_cycle() 后这条指令已经执行完成，
-    //   next_pc 可以用 npc_get_pc() 读取。
-    //
-    //   目标代码：
-    //     uint32_t next_pc = npc_get_pc();
-    //     ftrace_update(pc, inst, next_pc);
-    //
-    //   放在这里的原因：
-    //     trace_inst(pc, inst) 在 single_cycle() 之前记录当前指令，用于 itrace。
-    //     ftrace 需要知道 call/ret 执行后的跳转目标，所以必须在 single_cycle()
-    //     之后读取 next_pc。
-    //
-    //   当前单周期假设：
-    //     single_cycle() 执行完后，pc 已经更新到下一条指令地址。
-    //
-    //   后续流水线/OoO：
-    //     这里不能继续按 single_cycle 记录。
-    //     应该从 commit/retire 端口拿：
-    //       commit_valid
-    //       commit_pc
-    //       commit_inst
-    //       commit_next_pc
-    //
-    //   高性能 CPU 关联：
-    //     未来流水线/乱序 CPU 不能在 fetch/decode 阶段调用 ftrace。
-    //     ftrace 必须接 commit/retire 的 pc/inst/next_pc，否则会记录被 flush 的指令。
+    // ftrace observes committed control-flow. In this single-cycle NPC,
+    // single_cycle() completion is the commit point; a future pipeline/OoO core
+    // should feed this from commit/retire ports instead of fetch/decode.
+    uint32_t next_pc = npc_get_pc();
+    ftrace_update(pc, inst, next_pc);
 
     if (npc_state == NPC_END || npc_state == NPC_ABORT) {
       break;

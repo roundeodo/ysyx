@@ -103,21 +103,7 @@ sim-mtrace: $(BIN_SIM)
 
 sim-ftrace: $(BIN_SIM)
 	@echo "NPC: Running AM program with ftrace IMG=$(IMG) ELF=$(ELF)..."
-	# TODO[C2-FTRACE-MAKE-0]: pass an ELF file with symbol table here
-	#   ftrace 需要解析函数符号，所以需要 ELF，不是裸 bin。
-	#
-	#   使用方式建议：
-	#     make sim-ftrace PROJECT=riscv32 IMG=xxx.bin ELF=xxx.elf
-	#
-	#   你后续要补：
-	#     1. 如果 ELF 为空，直接报错，不要运行：
-	#          test -n "$(ELF)" || (echo "ELF is required for ftrace"; exit 1)
-	#
-	#     2. 可以新增 sim-debug-ftrace：
-	#          --trace --itrace --mtrace --ftrace --elf $(ELF) $(IMG)
-	#
-	#     3. AM 程序通常会同时产出 .elf 和 .bin。
-	#        IMG 用 .bin，ELF 用 .elf。
+	@test -n "$(ELF)" || (echo "ELF is required for ftrace"; exit 1)
 	$(BIN_SIM) --ftrace --elf $(ELF) $(IMG)
 
 sim-trace: $(BIN_SIM)
@@ -164,6 +150,7 @@ help:
 	@echo "  sim-wave   Compile, run with --trace, and open GTKWave"
 	@echo "  sim-itrace Compile and run with itrace"
 	@echo "  sim-mtrace Compile and run with mtrace"
+	@echo "  sim-ftrace Compile and run with ftrace, requires ELF=xxx.elf"
 	@echo "  sim-debug  Compile and run with waveform + itrace"
 	@echo "  nvboard    Compile and run with NVBoard"
 	@echo "  lint       Run Verilator lint check"
@@ -177,9 +164,10 @@ help:
 	@echo "  make sim PROJECT=experiment"
 	@echo "  make sim-itrace PROJECT=riscv32 IMG=path/to/program.bin"
 	@echo "  make sim-mtrace PROJECT=riscv32 IMG=path/to/program.bin"
+	@echo "  make sim-ftrace PROJECT=riscv32 IMG=path/to/program.bin ELF=path/to/program.elf"
 	@echo "  make sim-debug PROJECT=riscv32 IMG=path/to/program.bin"
 
 
 default: help
 
-.PHONY: default sim sim-am sim-itrace sim-mtrace sim-debug sim-wave nvboard lint clean help
+.PHONY: default sim sim-am sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave nvboard lint clean help

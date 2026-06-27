@@ -39,43 +39,21 @@ int main(int argc, char **argv) {
     } else if (strcmp(argv[i], "--ftrace") == 0) {
       enable_ftrace = true;
     } else if (strcmp(argv[i], "--elf") == 0) {
-      // TODO[C2-FTRACE-ARGS-0]: validate --elf argument here
-      //   这里就是 ftrace 命令行参数要补的位置。
-      //
-      //   参数设计：
-      //     --ftrace              打开 ftrace
-      //     --elf program.elf     指定带符号表的 ELF 文件
-      //     最后一个非 option 参数仍然是要加载到 pmem 的 bin 镜像。
-      //
-      //   为什么需要同时有 bin 和 ELF：
-      //     bin 是真正加载到 NPC memory 执行的内容。
-      //     ELF 用来读取 .symtab/.strtab，给 ftrace 查函数名。
-      //
-      //   你后续要补：
-      //     1. 如果 i + 1 >= argc：
-      //          printf("Usage: --elf <program.elf>\n");
-      //          return 1;
-      //
-      //     2. 如果 argv[i + 1] 以 "--" 开头，说明用户没给路径：
-      //          printf("Usage: --elf <program.elf>\n");
-      //          return 1;
-      //
-      //     3. 循环结束后检查：
-      //          if (enable_ftrace && elf_path == nullptr) {
-      //            printf("ftrace requires --elf <program.elf>\n");
-      //            return 1;
-      //          }
-      //
-      //     4. 不要把 ELF 当成 img_path。
-      //        当前代码用 ++i 跳过 ELF 路径，这个方向是对的。
-      if (i + 1 < argc) {
-        elf_path = argv[++i];
+      if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
+        std::cout << "Usage: --elf <program.elf>" << std::endl;
+        return 1;
       }
+      elf_path = argv[++i];
     } else if (strcmp(argv[i], "--nvboard") == 0) {
       enable_nvboard = true;
     } else {
       img_path = argv[i];
     }
+  }
+
+  if (enable_ftrace && elf_path == nullptr) {
+    std::cout << "ftrace requires --elf <program.elf>" << std::endl;
+    return 1;
   }
 
   cpu_init(argc, argv, enable_nvboard, enable_trace);
