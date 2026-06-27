@@ -31,6 +31,7 @@ $(shell mkdir -p $(BUILD_DIR))
 # RTL project source
 VSRC_DIR  = $(abspath ./vsrc/$(PROJECT))
 VSRC_LIST = $(VSRC_DIR)/filelist.f
+VSRC_DEPS = $(shell sed 's|$${NPC_HOME}|$(abspath .)|g' $(VSRC_LIST))
 
 # normal simulation C/C++ sources
 CSRC_SIM = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))
@@ -64,7 +65,7 @@ CXXFLAGS_NV := $(CXXFLAGS_COMMON) -DCONFIG_NVBOARD
 
 
 # make sim
-$(BIN_SIM): $(VSRC_LIST) $(CSRC_SIM)
+$(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(CSRC_SIM)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) \
@@ -75,7 +76,7 @@ $(BIN_SIM): $(VSRC_LIST) $(CSRC_SIM)
 
 
 # make nvboard
-$(BIN_NV): $(VSRC_LIST) $(CSRC_NV) $(NVBOARD_ARCHIVE)
+$(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(CSRC_NV) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) \
