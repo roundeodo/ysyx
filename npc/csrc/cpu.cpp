@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "difftest.h"
 #include "ftrace.h"
 #include "trace.h"
 #include "watchpoint.h"
@@ -294,7 +295,7 @@ void cpu_exec(uint64_t n) {
     // should feed this from commit/retire ports instead of fetch/decode.
     uint32_t next_pc = npc_get_pc();
     ftrace_update(pc, inst, next_pc);
-
+    difftest_step(pc, next_pc);
     if (npc_state == NPC_END || npc_state == NPC_ABORT) {
       break;
     }

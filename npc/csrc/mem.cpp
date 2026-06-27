@@ -5,6 +5,8 @@
 #include <sys/time.h>
 uint8_t pmem[MEM_SIZE];
 
+static long img_size = 0;
+
 void load_bin(const char *path) {
   if (path == nullptr) {
     return;
@@ -17,12 +19,15 @@ void load_bin(const char *path) {
   }
   fseek(fp, 0, SEEK_END);
   long size = ftell(fp);
+  img_size = size;
   fseek(fp, 0, SEEK_SET);
   if (fread(pmem, 1, size, fp) != size) {
     fprintf(stderr, "Error reading bin file\n");
   }
   fclose(fp);
 }
+
+long get_img_size() { return img_size; }
 
 uint64_t get_time_mus() {
   struct timeval now;

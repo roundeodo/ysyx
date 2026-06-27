@@ -54,7 +54,7 @@ INCFLAGS = $(addprefix -I, $(INC_PATH))
 
 # common C++ flags
 CXXFLAGS_COMMON := $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
-LDFLAGS_COMMON := -L$(CAPSTONE_LIB) -Wl,-rpath=$(CAPSTONE_LIB) -lcapstone
+LDFLAGS_COMMON := -L$(CAPSTONE_LIB) -Wl,-rpath=$(CAPSTONE_LIB) -lcapstone -ldl
 
 # normal sim does not enable NVBoard
 CXXFLAGS_SIM := $(CXXFLAGS_COMMON)
@@ -109,6 +109,11 @@ sim-ftrace: $(BIN_SIM)
 sim-trace: $(BIN_SIM)
 	@echo "NPC: Running AM program with itrace + mtrace $(IMG)..."
 	$(BIN_SIM) --itrace --mtrace $(IMG)
+
+sim-difftest:$(BIN_SIM)
+	@echo "NPC: Running AM program with DiffTest IMG=$(IMG) REF=$(REF)..."
+	@test -n "$(REF)" || (echo "REF is required for DiffTest", exit 1)
+	$(BIN_SIM) --diff$(REF)$(IMG)
 
 sim-wave: $(BIN_SIM)
 	@echo "NPC: Running AM program with waveform $(IMG)..."
@@ -166,8 +171,10 @@ help:
 	@echo "  make sim-mtrace PROJECT=riscv32 IMG=path/to/program.bin"
 	@echo "  make sim-ftrace PROJECT=riscv32 IMG=path/to/program.bin ELF=path/to/program.elf"
 	@echo "  make sim-debug PROJECT=riscv32 IMG=path/to/program.bin"
+	@echo "  sim-difftest Compile and run with DiffTest, requires REF=xxx-so"
+	@echo "  make sim-difftest PROJECT=riscv32 IMG=path/to/program.bin REF=path/to/riscv32-nemu-interpreter-so"
 
 
 default: help
 
-.PHONY: default sim sim-am sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave nvboard lint clean help
+.PHONY: default sim sim-am sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave sim-difftest nvboard lint clean help

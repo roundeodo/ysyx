@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "difftest.h"
 #include "ftrace.h"
 #include "mem.h"
 #include "sdb.h"
@@ -7,6 +8,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <string>
 
 int main(int argc, char **argv) {
 
@@ -15,8 +17,11 @@ int main(int argc, char **argv) {
   bool enable_itrace = false;
   bool enable_mtrace = false;
   bool enable_ftrace = false;
+  bool enable_difftest = false;
+
   const char *img_path = nullptr;
   const char *elf_path = nullptr;
+  const char *diff_so_file = nullptr;
   // ============================================================
   // Parse command line arguments
   //
@@ -38,6 +43,13 @@ int main(int argc, char **argv) {
       enable_mtrace = true;
     } else if (strcmp(argv[i], "--ftrace") == 0) {
       enable_ftrace = true;
+    } else if (strcmp(argv[i], "--diff") == 0) {
+      if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
+        std::cout << "Usage: --diff <ref-so>" << std::endl;
+        return 1;
+      }
+      enable_difftest = true;
+      diff_so_file = argv[++i];
     } else if (strcmp(argv[i], "--elf") == 0) {
       if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
         std::cout << "Usage: --elf <program.elf>" << std::endl;
@@ -71,11 +83,13 @@ int main(int argc, char **argv) {
 
   cpu_reset(10);
 
+  difftest_init(enable_difftest, diff_so_file, get_img_size());
+
   sdb_mainloop();
 
   trace_cleanup();
   ftrace_cleanup();
+  difftest_cleanup();
   cpu_cleanup();
-
   return 0;
 }
