@@ -17,8 +17,9 @@
 
 static bool ftrace_enabled = false;
 
-// TODO[C2-FTRACE-SYMBOL-0]: define function-symbol storage here
+// TODO[C2-FTRACE-SYMBOL-0]: define file-scope function-symbol state here
 //   这里就是要放函数符号表数据结构的位置。
+//   注意：这些定义必须放在 ftrace_init() 外面，不能写成 ftrace_init() 的局部变量。
 //
 //   建议：
 //     struct FuncSymbol {
@@ -30,12 +31,23 @@ static bool ftrace_enabled = false;
 //     static std::vector<FuncSymbol> func_symbols;
 //     static int call_depth = 0;
 //
+//   文件级 static 的原因：
+//     ftrace_init()    负责解析 ELF 并填充 func_symbols。
+//     ftrace_update()  每条指令执行后查 func_symbols，并更新 call_depth。
+//     ftrace_cleanup() 负责清空 func_symbols，并把 call_depth 复位。
+//
+//   如果写在 ftrace_init() 里面：
+//     ftrace_update() 看不到符号表；
+//     call_depth 每次初始化都会丢失；
+//     cleanup 也无法释放/清理状态。
+//
 //   为什么放在这里：
 //     ftrace_init() 负责填表，ftrace_update() 负责查表，二者都要访问。
 //     这类软件状态不应该放到 RTL，也不应该从 CPU 执行循环里临时创建。
 
 // TODO[C2-FTRACE-FIND-0]: add find_func(addr) helper here
 //   这里就是查函数名 helper 的位置。
+//   注意：这个 helper 也必须放在 ftrace_init() 外面，因为 ftrace_update() 要调用它。
 //
 //   目标函数：
 //     static const FuncSymbol *find_func(uint32_t addr)
@@ -142,6 +154,7 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
 
   // TODO[C2-FTRACE-ELF-4]: iterate symbols and save STT_FUNC entries here
   //   这里就是遍历 ELF 符号表、保存函数符号的位置。
+  //   注意：保存目标是文件顶部的 static func_symbols，不是在本函数里新建局部表。
   //
   //   建议写法：
   //     int sym_count = symtab->sh_size / sizeof(Elf32_Sym);
