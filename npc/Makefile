@@ -110,10 +110,10 @@ sim-trace: $(BIN_SIM)
 	@echo "NPC: Running AM program with itrace + mtrace $(IMG)..."
 	$(BIN_SIM) --itrace --mtrace $(IMG)
 
-sim-difftest:$(BIN_SIM)
+sim-difftest: $(BIN_SIM)
 	@echo "NPC: Running AM program with DiffTest IMG=$(IMG) REF=$(REF)..."
-	@test -n "$(REF)" || (echo "REF is required for DiffTest", exit 1)
-	$(BIN_SIM) --diff$(REF)$(IMG)
+	@test -n "$(REF)" || (echo "REF is required for DiffTest"; exit 1)
+	$(BIN_SIM) --diff $(REF) $(IMG)
 
 sim-wave: $(BIN_SIM)
 	@echo "NPC: Running AM program with waveform $(IMG)..."

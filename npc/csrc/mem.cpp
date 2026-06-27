@@ -80,7 +80,7 @@ void paddr_write(uint32_t addr, int len, uint32_t data) {
     fflush(stdout);
     return;
   }
-  if (!len == 1 || len == 2 || len == 4) {
+  if (len != 1 && len != 2 && len != 4) {
     fprintf(stderr, "Error: unsupported paddr_write len = %d\n", len);
     exit(1);
   }

@@ -20,6 +20,9 @@
 #include <string.h>
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
+  // REF 是 NEMU，DUT 是 NPC。
+  // DIFFTEST_TO_REF: 把 NPC 里的内存镜像复制到 NEMU 内存。
+  // DIFFTEST_TO_DUT: 把 NEMU 内存复制回调用者，当前 NPC 最小实现一般用不到。
   if(direction == DIFFTEST_TO_REF){
     memcpy(guest_to_host(addr), buf, n);
   }
@@ -29,6 +32,9 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 }
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
+  // 这里直接按 DIFFTEST_REG_SIZE 拷贝 CPU_state。
+  // 所以 NPC 侧的 DiffTestRegs 布局必须和 NEMU 的 CPU_state 一致：
+  // RV32E 是 gpr[16] + pc；RV32I 是 gpr[32] + pc。
   if(direction == DIFFTEST_TO_REF){
     memcpy(&cpu, dut, DIFFTEST_REG_SIZE);
   }
@@ -38,6 +44,8 @@ __EXPORT void difftest_regcpy(void *dut, bool direction) {
 }
 
 __EXPORT void difftest_exec(uint64_t n) {
+  // 让 REF=NEMU 按自己的解释器执行 n 条指令。
+  // NPC 每 commit 一条指令，就让 NEMU exec(1)，然后比较寄存器和 pc。
   cpu_exec(n);
 }
 
