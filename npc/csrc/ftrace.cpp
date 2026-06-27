@@ -12,6 +12,7 @@
 //     #include <algorithm>   // std::sort
 //
 //   当前先不加这些头文件，因为骨架还没有实际使用它们。
+//   在这里继续添加 include。
 #include <stdint.h>
 #include <stdio.h>
 
@@ -44,6 +45,7 @@ static bool ftrace_enabled = false;
 //   为什么放在这里：
 //     ftrace_init() 负责填表，ftrace_update() 负责查表，二者都要访问。
 //     这类软件状态不应该放到 RTL，也不应该从 CPU 执行循环里临时创建。
+//   在这里定义 FuncSymbol / func_symbols / call_depth。
 
 // TODO[C2-FTRACE-FIND-0]: add find_func(addr) helper here
 //   这里就是查函数名 helper 的位置。
@@ -63,6 +65,7 @@ static bool ftrace_enabled = false;
 //     return nullptr;
 //
 //   后续如果符号很多，可以用排序后的二分查找；当前阶段线性扫描足够。
+//   在这里定义 find_func()。
 
 void ftrace_init(bool enable_ftrace, const char *elf_path) {
   ftrace_enabled = enable_ftrace;
@@ -81,7 +84,7 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //
   //   注意：
   //     ftrace 是调试功能。参数不完整时可以关闭 ftrace，不要影响普通 sim。
-  (void)elf_path;
+  //   在这里写 enable/elf_path 检查。
 
   // TODO[C2-FTRACE-ELF-0]: read whole ELF file into memory here
   //   这里就是打开 ELF、读取文件内容的位置。
@@ -104,6 +107,7 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //
   //   用 std::vector<uint8_t> 的好处：
   //     自动管理内存，ftrace_init() 出错 return 时不会泄漏。
+  //   在这里写 fopen/fseek/ftell/fread/fclose，把 ELF 文件读入 vector。
 
   // TODO[C2-FTRACE-ELF-1]: validate ELF header here
   //   这里就是检查 ELF header 的位置。
@@ -118,6 +122,7 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //       eh->e_machine == EM_RISCV
   //
   //     不满足就关闭 ftrace。这里不要 exit，ftrace 是调试功能，不应该影响普通 sim。
+  //   在这里写 Elf32_Ehdr 指针和 ELF header 检查。
 
   // TODO[C2-FTRACE-ELF-2]: locate section header table here
   //   这里就是定位 section header table 的位置。
@@ -131,6 +136,7 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //   注意：
   //     所有 elf.data() + offset 之前都要先检查 offset/size 没越界。
   //     这是软件里最常见的 bug 来源。
+  //   在这里写 section header table 边界检查和 shdrs 指针。
 
   // TODO[C2-FTRACE-ELF-3]: find .symtab and its linked string table here
   //   这里就是找符号表和字符串表的位置。
@@ -151,6 +157,7 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //     symtab->sh_link < eh->e_shnum
   //     symtab->sh_offset + symtab->sh_size <= file_size
   //     strtab->sh_offset + strtab->sh_size <= file_size
+  //   在这里写遍历 shdrs，找到 symtab/strtab 的代码。
 
   // TODO[C2-FTRACE-ELF-4]: iterate symbols and save STT_FUNC entries here
   //   这里就是遍历 ELF 符号表、保存函数符号的位置。
@@ -178,6 +185,7 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //     name 不能为空字符串
   //
   //   STT_FUNC 是函数符号。普通 object/data symbol 不应该进入 ftrace 函数表。
+  //   在这里写遍历 Elf32_Sym，并 push 到文件顶部 func_symbols 的代码。
 
   // TODO[C2-FTRACE-ELF-5]: sort function symbols and print summary here
   //   这里就是符号表解析完成后的收尾位置。
@@ -194,6 +202,8 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //   高性能 CPU 关联：
   //     ftrace 属于 commit/retire 侧的调试观测能力。现在单周期可以在每条指令后判断，
   //     未来流水线或乱序 CPU 必须在 commit 阶段做，不能在 fetch/decode 阶段做。
+  //   在这里写 sort 和 printf summary。
+  (void)elf_path;
 }
 
 void ftrace_cleanup() {
@@ -210,6 +220,7 @@ void ftrace_cleanup() {
   //
   //   软件侧注意点：
   //     cleanup 要允许重复调用，不要因为 vector 已经为空就出错。
+  //   在这里写 func_symbols.clear() / call_depth = 0 / ftrace_enabled = false。
 }
 
 void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
@@ -227,6 +238,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
   //     int32_t  imm_i  = (int32_t)inst >> 20;
   //
   //   这里不需要完整 decode，只需要判断 call/ret 所需字段。
+  //   在这里写 opcode/rd/rs1/imm_i 提取。
 
   // TODO[C2-FTRACE-DECODE-1]: define call/return opcode constants here
   //   这里就是定义本地 opcode 常量的位置。
@@ -234,6 +246,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
   //   目标代码：
   //     constexpr uint32_t OPCODE_JAL  = 0x6f;
   //     constexpr uint32_t OPCODE_JALR = 0x67;
+  //   在这里写 OPCODE_JAL / OPCODE_JALR 常量。
   //
   // TODO[C2-FTRACE-DECODE-2]: detect call instruction here
   //   这里就是判断 call 的位置。
@@ -252,6 +265,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
   //
   //   说明：
   //     RISC-V ABI 常用 x1 做 ra；x5 是 alternate link register。
+  //   在这里写 link_rd 和 is_call 判断。
 
   // TODO[C2-FTRACE-DECODE-3]: detect return instruction here
   //   这里就是判断 ret 的位置。
@@ -269,6 +283,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
   //       bool is_ret = (inst == 0x00008067);
   //
   //     建议用字段判断，后面更容易扩展。
+  //   在这里写 is_ret 判断。
   //
   // TODO[C2-FTRACE-DECODE-4]: use next_pc as call/return target here
   //   这里就是确定 target 地址的位置。
@@ -282,6 +297,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
   //
   //     不建议在 ftrace.cpp 里重新解析 jal/jalr immediate，因为 RTL 已经算过目标。
   //     调试工具应该复用执行后的 next_pc，减少软件模型和 RTL 算法不一致的风险。
+  //   在这里定义 target_pc，通常就是 next_pc。
   //
   // TODO[C2-FTRACE-PRINT-0]: lookup function name and print trace here
   //   这里就是查函数名并打印 call/ret 的位置。
@@ -297,6 +313,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
   //
   //     如果找不到函数名，也要打印地址：
   //       0x80000010: call [0x80000100]
+  //   在这里调用 find_func(pc)/find_func(next_pc)，并 printf call/ret。
   //
   // TODO[C2-FTRACE-PRINT-1]: update and use call depth here
   //   这里就是维护调用深度缩进的位置。
@@ -308,6 +325,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
   //
   //     ret:
   //       先 if (call_depth > 0) call_depth--，再按新的深度打印。
+  //   在这里维护 call_depth，并按深度输出缩进。
   //
   // TODO[C2-FTRACE-DECODE-5]: ignore non-call/non-return instructions here
   //   这里就是过滤普通指令的位置。
@@ -317,6 +335,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
   //   高性能 CPU 关联：
   //     ftrace 的输入应该来自“已提交指令”的 pc/inst/next_pc。
   //     乱序 CPU 里分支预测路径上的 call/ret 不能进入 ftrace，否则会记录被 squash 的指令。
+  //   在这里写 if (!is_call && !is_ret) return;。
   (void)pc;
   (void)inst;
   (void)next_pc;
