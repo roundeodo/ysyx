@@ -1,6 +1,6 @@
 #include "ftrace.h"
 
-// TODO[C2-FTRACE-INCLUDE-0]: add headers needed by ELF parsing and symbol storage here.
+// TODO[C2-FTRACE-INCLUDE-0]: add these includes here, not inside any function.
 // #include <elf.h>       // Elf32_Ehdr / Elf32_Shdr / Elf32_Sym / ELF32_ST_TYPE
 // #include <string.h>    // memcmp
 // #include <vector>      // std::vector, recommended
@@ -11,18 +11,28 @@
 
 static bool ftrace_enabled = false;
 
-// TODO[C2-FTRACE-SYMBOL-0]: define file-scope function-symbol state here.
+// TODO[C2-FTRACE-SYMBOL-0]: define the function-symbol record type here, above ftrace_init().
 // struct FuncSymbol {
 //   uint32_t start;
 //   uint32_t size;
 //   std::string name;
 // };
+
+// TODO[C2-FTRACE-SYMBOL-1]: define file-scope ftrace state here, above ftrace_init().
 // static std::vector<FuncSymbol> func_symbols;
 // static int call_depth = 0;
 // Note: this must stay outside ftrace_init(), because init fills it, update reads it,
 // and cleanup clears it. This is commit-side debug state, not RTL architectural state.
 
-// TODO[C2-FTRACE-FIND-0]: add find_func(addr) helper here.
+// TODO[C2-FTRACE-UTIL-0]: add a small helper to disable ftrace on init errors here, above ftrace_init().
+// static void disable_ftrace() {
+//   ftrace_enabled = false;
+//   call_depth = 0;
+//   func_symbols.clear();
+// }
+// This keeps ftrace_init() readable. It is software debug state cleanup, not CPU behavior.
+
+// TODO[C2-FTRACE-FIND-0]: add find_func(addr) helper here, above ftrace_init().
 // static const FuncSymbol *find_func(uint32_t addr) {
 //   for (const auto &f : func_symbols) {
 //     if (f.size == 0) {
@@ -38,52 +48,83 @@ static bool ftrace_enabled = false;
 void ftrace_init(bool enable_ftrace, const char *elf_path) {
   ftrace_enabled = enable_ftrace;
 
-  // TODO[C2-FTRACE-INIT-0]: handle enable switch and missing ELF path here.
+  // TODO[C2-FTRACE-INIT-0]: return immediately when ftrace is disabled here.
   // if (!enable_ftrace) return;
+
+  // TODO[C2-FTRACE-INIT-1]: reject missing ELF path here.
   // if (elf_path == nullptr) {
   //   printf("ftrace: --ftrace requires --elf <program.elf>\n");
-  //   ftrace_enabled = false;
+  //   disable_ftrace();
   //   return;
   // }
   // ftrace is debug-only. Bad ftrace args should disable ftrace, not kill normal sim.
 
-  // TODO[C2-FTRACE-ELF-0]: read whole ELF file into memory here.
+  // TODO[C2-FTRACE-ELF-0]: open ELF file here.
   // FILE *fp = fopen(elf_path, "rb");
-  // if (fp == nullptr) { perror("ftrace: fopen ELF"); ftrace_enabled = false; return; }
+  // if (fp == nullptr) {
+  //   perror("ftrace: fopen ELF");
+  //   disable_ftrace();
+  //   return;
+  // }
+
+  // TODO[C2-FTRACE-ELF-1]: get ELF file size here.
   // fseek(fp, 0, SEEK_END);
   // long file_size = ftell(fp);
   // fseek(fp, 0, SEEK_SET);
-  // if (file_size <= 0) { fclose(fp); ftrace_enabled = false; return; }
-  // std::vector<uint8_t> elf(file_size);
-  // if (fread(elf.data(), 1, file_size, fp) != (size_t)file_size) {
+  // if (file_size <= 0) {
   //   fclose(fp);
-  //   ftrace_enabled = false;
+  //   disable_ftrace();
   //   return;
   // }
+
+  // TODO[C2-FTRACE-ELF-2]: allocate an ELF byte buffer here.
+  // std::vector<uint8_t> elf(file_size);
+
+  // TODO[C2-FTRACE-ELF-3]: read ELF bytes into the buffer here.
+  // if (fread(elf.data(), 1, file_size, fp) != (size_t)file_size) {
+  //   fclose(fp);
+  //   disable_ftrace();
+  //   return;
+  // }
+
+  // TODO[C2-FTRACE-ELF-4]: close the ELF file after the full read here.
   // fclose(fp);
 
-  // TODO[C2-FTRACE-ELF-1]: validate ELF header here.
-  // if ((size_t)file_size < sizeof(Elf32_Ehdr)) { ftrace_enabled = false; return; }
+  // TODO[C2-FTRACE-EHDR-0]: check that the file is large enough for Elf32_Ehdr here.
+  // if ((size_t)file_size < sizeof(Elf32_Ehdr)) {
+  //   disable_ftrace();
+  //   return;
+  // }
+
+  // TODO[C2-FTRACE-EHDR-1]: create the ELF header pointer here.
   // Elf32_Ehdr *eh = reinterpret_cast<Elf32_Ehdr *>(elf.data());
+
+  // TODO[C2-FTRACE-EHDR-2]: validate ELF magic/class/machine here.
   // if (memcmp(eh->e_ident, ELFMAG, SELFMAG) != 0 ||
   //     eh->e_ident[EI_CLASS] != ELFCLASS32 ||
   //     eh->e_machine != EM_RISCV) {
-  //   ftrace_enabled = false;
+  //   disable_ftrace();
   //   return;
   // }
 
-  // TODO[C2-FTRACE-ELF-2]: locate section header table here.
+  // TODO[C2-FTRACE-SHDR-0]: calculate section header table byte size here.
   // size_t shdr_bytes = (size_t)eh->e_shnum * sizeof(Elf32_Shdr);
+
+  // TODO[C2-FTRACE-SHDR-1]: check section header table bounds here.
   // if ((size_t)eh->e_shoff + shdr_bytes > (size_t)file_size) {
-  //   ftrace_enabled = false;
+  //   disable_ftrace();
   //   return;
   // }
+
+  // TODO[C2-FTRACE-SHDR-2]: create the section header table pointer here.
   // Elf32_Shdr *shdrs = reinterpret_cast<Elf32_Shdr *>(elf.data() + eh->e_shoff);
   // Always check offset/size before using elf.data() + offset.
 
-  // TODO[C2-FTRACE-ELF-3]: find .symtab and its linked string table here.
+  // TODO[C2-FTRACE-SYMTAB-0]: declare symtab/strtab pointers here.
   // const Elf32_Shdr *symtab = nullptr;
   // const Elf32_Shdr *strtab = nullptr;
+
+  // TODO[C2-FTRACE-SYMTAB-1]: scan section headers to find SHT_SYMTAB here.
   // for (uint16_t i = 0; i < eh->e_shnum; i++) {
   //   if (shdrs[i].sh_type == SHT_SYMTAB) {
   //     symtab = &shdrs[i];
@@ -91,23 +132,36 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //     break;
   //   }
   // }
-  // if (symtab == nullptr || strtab == nullptr) { ftrace_enabled = false; return; }
+
+  // TODO[C2-FTRACE-SYMTAB-2]: reject missing symtab/strtab here.
+  // if (symtab == nullptr || strtab == nullptr) {
+  //   disable_ftrace();
+  //   return;
+  // }
+
+  // TODO[C2-FTRACE-SYMTAB-3]: check symtab/strtab file bounds here.
   // if ((size_t)symtab->sh_offset + symtab->sh_size > (size_t)file_size ||
   //     (size_t)strtab->sh_offset + strtab->sh_size > (size_t)file_size) {
-  //   ftrace_enabled = false;
+  //   disable_ftrace();
   //   return;
   // }
   // symtab->sh_link points to the symbol-name string table. Do not search by ".strtab" name.
 
-  // TODO[C2-FTRACE-ELF-4]: iterate symbols and save STT_FUNC entries here.
+  // TODO[C2-FTRACE-FUNC-0]: derive symbol count and table pointers here.
   // int sym_count = symtab->sh_size / sizeof(Elf32_Sym);
   // Elf32_Sym *syms = reinterpret_cast<Elf32_Sym *>(elf.data() + symtab->sh_offset);
   // const char *strs = reinterpret_cast<const char *>(elf.data() + strtab->sh_offset);
+
+  // TODO[C2-FTRACE-FUNC-1]: iterate ELF symbols here.
   // for (int i = 0; i < sym_count; i++) {
   //   const Elf32_Sym &sym = syms[i];
+
+  // TODO[C2-FTRACE-FUNC-2]: filter non-function or invalid symbols inside the loop here.
   //   if (ELF32_ST_TYPE(sym.st_info) != STT_FUNC) continue;
   //   if (sym.st_name == 0 || sym.st_name >= strtab->sh_size) continue;
   //   if (sym.st_value == 0) continue;
+
+  // TODO[C2-FTRACE-FUNC-3]: push one valid function symbol inside the loop here.
   //   FuncSymbol f;
   //   f.start = sym.st_value;
   //   f.size  = sym.st_size;
@@ -115,11 +169,13 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
   //   if (!f.name.empty()) func_symbols.push_back(f);
   // }
 
-  // TODO[C2-FTRACE-ELF-5]: sort function symbols and print summary here.
+  // TODO[C2-FTRACE-FINISH-0]: sort function symbols here.
   // std::sort(func_symbols.begin(), func_symbols.end(),
   //           [](const FuncSymbol &a, const FuncSymbol &b) {
   //             return a.start < b.start;
   //           });
+
+  // TODO[C2-FTRACE-FINISH-1]: print ftrace symbol-load summary here.
   // printf("ftrace: loaded %zu function symbols from %s\n", func_symbols.size(), elf_path);
   // High-performance CPU note: ftrace must consume committed pc/inst/next_pc.
   // In a future OoO CPU, fetch/decode-path call/ret must not enter ftrace before commit.
