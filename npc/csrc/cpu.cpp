@@ -295,9 +295,25 @@ void cpu_exec(uint64_t n) {
     //   当前单周期 NPC 可以认为 single_cycle() 后这条指令已经执行完成，
     //   next_pc 可以用 npc_get_pc() 读取。
     //
-    //   目标：
+    //   目标代码：
     //     uint32_t next_pc = npc_get_pc();
     //     ftrace_update(pc, inst, next_pc);
+    //
+    //   放在这里的原因：
+    //     trace_inst(pc, inst) 在 single_cycle() 之前记录当前指令，用于 itrace。
+    //     ftrace 需要知道 call/ret 执行后的跳转目标，所以必须在 single_cycle()
+    //     之后读取 next_pc。
+    //
+    //   当前单周期假设：
+    //     single_cycle() 执行完后，pc 已经更新到下一条指令地址。
+    //
+    //   后续流水线/OoO：
+    //     这里不能继续按 single_cycle 记录。
+    //     应该从 commit/retire 端口拿：
+    //       commit_valid
+    //       commit_pc
+    //       commit_inst
+    //       commit_next_pc
     //
     //   高性能 CPU 关联：
     //     未来流水线/乱序 CPU 不能在 fetch/decode 阶段调用 ftrace。

@@ -42,11 +42,32 @@ int main(int argc, char **argv) {
       // TODO[C2-FTRACE-ARGS-0]: validate --elf argument here
       //   这里就是 ftrace 命令行参数要补的位置。
       //
-      //   当前先只取下一个 argv 作为 ELF 路径。
+      //   参数设计：
+      //     --ftrace              打开 ftrace
+      //     --elf program.elf     指定带符号表的 ELF 文件
+      //     最后一个非 option 参数仍然是要加载到 pmem 的 bin 镜像。
+      //
+      //   为什么需要同时有 bin 和 ELF：
+      //     bin 是真正加载到 NPC memory 执行的内容。
+      //     ELF 用来读取 .symtab/.strtab，给 ftrace 查函数名。
+      //
       //   你后续要补：
-      //     1. 如果 i + 1 >= argc，打印 usage 并退出。
-      //     2. 如果用户开了 --ftrace 但没给 --elf，提示 ftrace 需要 ELF。
-      //     3. IMG 仍然是 bin，ELF 只给 ftrace 解析符号表，不直接 load 到 pmem。
+      //     1. 如果 i + 1 >= argc：
+      //          printf("Usage: --elf <program.elf>\n");
+      //          return 1;
+      //
+      //     2. 如果 argv[i + 1] 以 "--" 开头，说明用户没给路径：
+      //          printf("Usage: --elf <program.elf>\n");
+      //          return 1;
+      //
+      //     3. 循环结束后检查：
+      //          if (enable_ftrace && elf_path == nullptr) {
+      //            printf("ftrace requires --elf <program.elf>\n");
+      //            return 1;
+      //          }
+      //
+      //     4. 不要把 ELF 当成 img_path。
+      //        当前代码用 ++i 跳过 ELF 路径，这个方向是对的。
       if (i + 1 < argc) {
         elf_path = argv[++i];
       }
