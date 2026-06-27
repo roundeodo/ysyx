@@ -134,6 +134,7 @@ void trace_print_ringbuf() {
   }
 }
 
+// mtrace
 void trace_mem_read(uint32_t addr, int len, uint32_t data) {
   if (!mtrace_enabled) {
     return;
