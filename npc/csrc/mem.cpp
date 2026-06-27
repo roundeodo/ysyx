@@ -119,7 +119,6 @@ int pmem_read(int raddr) {
 }
 
 void pmem_write(int waddr, int wdata, char wmask) {
-  trace_mem_write((uint32_t)waddr, 1, (uint32_t)(wdata & 0xff));
   if (waddr == 0x10000000) {
     putchar(wdata & 0xff);
     fflush(stdout);

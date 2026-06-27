@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "ftrace.h"
 #include "trace.h"
 #include "watchpoint.h"
 
@@ -287,6 +288,20 @@ void cpu_exec(uint64_t n) {
 
     single_cycle();
     guest_inst_count++;
+
+    // TODO[C2-FTRACE-COMMIT-0]: feed committed control-flow info to ftrace
+    //   这里就是 ftrace 运行时接入位置。
+    //
+    //   当前单周期 NPC 可以认为 single_cycle() 后这条指令已经执行完成，
+    //   next_pc 可以用 npc_get_pc() 读取。
+    //
+    //   目标：
+    //     uint32_t next_pc = npc_get_pc();
+    //     ftrace_update(pc, inst, next_pc);
+    //
+    //   高性能 CPU 关联：
+    //     未来流水线/乱序 CPU 不能在 fetch/decode 阶段调用 ftrace。
+    //     ftrace 必须接 commit/retire 的 pc/inst/next_pc，否则会记录被 flush 的指令。
 
     if (npc_state == NPC_END || npc_state == NPC_ABORT) {
       break;

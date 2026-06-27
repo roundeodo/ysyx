@@ -101,6 +101,14 @@ sim-mtrace: $(BIN_SIM)
 	@echo "NPC: Running AM program with mtrace $(IMG)..."
 	$(BIN_SIM) --mtrace $(IMG)
 
+sim-ftrace: $(BIN_SIM)
+	@echo "NPC: Running AM program with ftrace IMG=$(IMG) ELF=$(ELF)..."
+	# TODO[C2-FTRACE-MAKE-0]: pass an ELF file with symbol table here
+	#   ftrace 需要解析函数符号，所以需要 ELF，不是裸 bin。
+	#   使用方式建议：
+	#     make sim-ftrace PROJECT=riscv32 IMG=xxx.bin ELF=xxx.elf
+	$(BIN_SIM) --ftrace --elf $(ELF) $(IMG)
+
 sim-trace: $(BIN_SIM)
 	@echo "NPC: Running AM program with itrace + mtrace $(IMG)..."
 	$(BIN_SIM) --itrace --mtrace $(IMG)
