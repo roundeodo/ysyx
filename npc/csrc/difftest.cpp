@@ -19,6 +19,7 @@ struct DiffTestRegs {
 };
 
 static bool difftest_enabled = false;
+static void *ref_so_handle = nullptr;
 
 // 下面这些函数指针不是普通函数定义，而是“动态链接库里的函数入口地址”。
 // dlopen() 打开 NEMU 生成的 .so 后，dlsym() 会按名字查找这些符号，
@@ -64,6 +65,11 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
   if (!enable)
     return;
 
+  if (img_size <= 0) {
+    printf("DiffTest requires a loaded program image\n");
+    exit(1);
+  }
+
   if (ref_so_file == nullptr) {
     printf("DiffTest requires --diff <ref-so>\n");
     exit(1);
@@ -76,6 +82,7 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
     printf("dlopen failed: %s\n", dlerror());
     exit(1);
   }
+  ref_so_handle = handle;
 
   // dlsym() 按函数名从动态库中取函数地址。
   // C/C++ 不允许 void* 自动转成函数指针，所以这里需要显式类型转换。
@@ -128,4 +135,13 @@ void difftest_step(uint32_t pc, uint32_t next_pc) {
   (void)next_pc;
 }
 
-void difftest_cleanup() { difftest_enabled = false; }
+void difftest_cleanup() {
+  difftest_enabled = false;
+
+  // 关闭通过 dlopen() 打开的动态库句柄。
+  // 当前仿真进程马上退出时不关也通常没事，但显式释放更清楚。
+  if (ref_so_handle != nullptr) {
+    dlclose(ref_so_handle);
+    ref_so_handle = nullptr;
+  }
+}

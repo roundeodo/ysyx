@@ -54,6 +54,9 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 }
 
 __EXPORT void difftest_init(int port) {
+  // 当前 NEMU REF 不使用 port。
+  // (void)port 的含义是显式标记“这个参数目前有意不用”，避免编译器报警。
+  (void)port;
   void init_mem();
   init_mem();
   /* Perform ISA dependent initialization. */
