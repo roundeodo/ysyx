@@ -9,11 +9,14 @@
 
 struct Context {
   // note: traps is used for storing previous data
-  uintptr_t gpr[NR_REGS];
+  union 
+  {
+    uintptr_t gpr[NR_REGS];
+    void *pdir;
+  };
   uintptr_t mcause;
   uintptr_t mstatus;
   uintptr_t mepc;
-  void *pdir;
 };
 
 #ifdef __riscv_e
