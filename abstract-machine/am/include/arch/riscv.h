@@ -8,8 +8,11 @@
 #endif
 
 struct Context {
-  // TODO: fix the order of these members to match trap.S
-  uintptr_t mepc, mcause, gpr[NR_REGS], mstatus;
+  // note: traps is used for storing previous data
+  uintptr_t gpr[NR_REGS];
+  uintptr_t mcause;
+  uintptr_t mstatus;
+  uintptr_t mepc;
   void *pdir;
 };
 
