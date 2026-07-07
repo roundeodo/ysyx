@@ -97,6 +97,18 @@ static word_t *csr_decode(word_t csr){
   }
 }
 
+static void etrace_mret(vaddr_t pc) {
+#ifdef CONFIG_ETRACE
+  if (ETRACE_COND) {
+    log_write("etrace: mret pc=" FMT_WORD
+              ", mepc=" FMT_WORD
+              ", mstatus=" FMT_WORD
+              ", mcause=" FMT_WORD "\n",
+              pc, cpu.mepc, cpu.mstatus, cpu.mcause);
+  }
+#endif
+}
+
 static int decode_exec(Decode *s) {
   s->dnpc = s->snpc;
 
@@ -188,7 +200,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw, I, word_t csr_addr = BITS(s->isa.inst, 31, 20); word_t *csr = csr_decode(csr_addr); word_t old = *csr; *csr = src1; if (rd != 0) { R(rd) = old; });
   INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs, I, word_t csr_addr = BITS(s->isa.inst, 31, 20); word_t *csr = csr_decode(csr_addr); word_t old = *csr; if (BITS(s->isa.inst, 19, 15) != 0) { *csr = old | src1; } if (rd != 0) { R(rd) = old; });
   INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall, N, s->dnpc = isa_raise_intr(11, s->pc));
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret,  N, s->dnpc = cpu.mepc); 
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret,  N, etrace_mret(s->pc); s->dnpc = cpu.mepc);
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak, N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));

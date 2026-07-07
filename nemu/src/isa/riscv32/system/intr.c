@@ -16,9 +16,21 @@
 #include <isa.h>
 
 word_t isa_raise_intr(word_t NO, vaddr_t epc) {
+  word_t tvec = cpu.mtvec & ~0x3;
+
+#ifdef CONFIG_ETRACE
+  if (ETRACE_COND) {
+    log_write("etrace: raise exception NO=" FMT_WORD
+              ", epc=" FMT_WORD
+              ", mtvec=" FMT_WORD
+              ", mstatus=" FMT_WORD "\n",
+              NO, epc, tvec, cpu.mstatus);
+  }
+#endif
+
   cpu.mcause = NO;
   cpu.mepc = epc;
-  return cpu.mtvec & ~0x3;
+  return tvec;
 }
 
 word_t isa_query_intr() {
