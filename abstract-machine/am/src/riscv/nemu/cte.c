@@ -16,6 +16,7 @@ Context* __am_irq_handle(Context *c) {
           ev.event = EVENT_SYSCALL;
         }
         c->mepc += 4;
+        printf("mcause=%x mepc=%x GPR1=%x\n", c->mcause, c->mepc, c->GPR1);
         break;
 
       default: ev.event = EVENT_ERROR; break;
