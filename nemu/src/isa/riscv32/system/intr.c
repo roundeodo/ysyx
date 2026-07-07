@@ -20,11 +20,11 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 
 #ifdef CONFIG_ETRACE
   if (ETRACE_COND) {
-    log_write("etrace: raise exception NO=" FMT_WORD
-              ", epc=" FMT_WORD
-              ", mtvec=" FMT_WORD
-              ", mstatus=" FMT_WORD "\n",
-              NO, epc, tvec, cpu.mstatus);
+    printf("etrace: raise exception NO=" FMT_WORD
+           ", epc=" FMT_WORD
+           ", mtvec=" FMT_WORD
+           ", mstatus=" FMT_WORD "\n",
+           NO, epc, tvec, cpu.mstatus);
   }
 #endif
 

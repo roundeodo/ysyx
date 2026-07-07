@@ -100,11 +100,11 @@ static word_t *csr_decode(word_t csr){
 static void etrace_mret(vaddr_t pc) {
 #ifdef CONFIG_ETRACE
   if (ETRACE_COND) {
-    log_write("etrace: mret pc=" FMT_WORD
-              ", mepc=" FMT_WORD
-              ", mstatus=" FMT_WORD
-              ", mcause=" FMT_WORD "\n",
-              pc, cpu.mepc, cpu.mstatus, cpu.mcause);
+    printf("etrace: mret pc=" FMT_WORD
+           ", mepc=" FMT_WORD
+           ", mstatus=" FMT_WORD
+           ", mcause=" FMT_WORD "\n",
+           pc, cpu.mepc, cpu.mstatus, cpu.mcause);
   }
 #endif
 }
