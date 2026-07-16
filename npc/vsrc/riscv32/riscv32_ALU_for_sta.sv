@@ -1,9 +1,9 @@
 // This module is only for yosys-sta experiments.
-// Keep the real CPU EXU in riscv32_EXU.sv unchanged: it uses package types and
+// Keep the real CPU EXU in riscv32_exu.sv unchanged: it uses package types and
 // result bundles, which are better for future pipeline / OoO extension but are
 // not fully accepted by the simple yosys SystemVerilog frontend used here.
 //
-// ALU op encoding matches riscv32_pkg::alu_op_t:
+// ALU op encoding matches riscv32_pkg::alu_op_e:
 //   4'b0000 ALU_ADD
 //   4'b0001 ALU_SUB
 //   4'b0010 ALU_SLL

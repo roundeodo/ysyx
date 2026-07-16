@@ -226,48 +226,6 @@ package riscv32_pkg;
     PRIV_MODE_M = 2'b11
   } priv_mode_e;
 
-  // P0 single-cycle semantic types
-  // These types keep the current runnable checkpoint explicit. They are not
-  // valid/ready pipeline channels and must not gain ROB, PRF, or LSQ metadata.
-  typedef enum logic [2:0] {
-    IMM_NONE = 3'd0,
-    IMM_I    = 3'd1,
-    IMM_S    = 3'd2,
-    IMM_B    = 3'd3,
-    IMM_U    = 3'd4,
-    IMM_J    = 3'd5
-  } imm_sel_t;
-
-  typedef enum logic [1:0] {
-    ALU_SRC1_RS1  = 2'd0,
-    ALU_SRC1_ZERO = 2'd1,
-    ALU_SRC1_PC   = 2'd2
-  } alu_src1_sel_t;
-
-  typedef enum logic {
-    ALU_SRC2_RS2 = 1'b0,
-    ALU_SRC2_IMM = 1'b1
-  } alu_src2_sel_t;
-
-  typedef enum logic [1:0] {
-    WB_ALU_RES = 2'd0,
-    WB_MEM_RES = 2'd1,
-    WB_PC4     = 2'd2,
-    WB_CSR     = 2'd3
-  } wb_sel_t;
-
-  // The current modules use _t enum names. These aliases preserve the P0
-  // checkpoint while the canonical enum naming remains _e.
-  typedef alu_op_e alu_op_t;
-  typedef branch_cond_e branch_op_t;
-  typedef mem_cmd_e mem_cmd_t;
-  typedef mem_size_e mem_size_t;
-  typedef csr_op_e csr_op_t;
-  typedef exception_cause_e exception_cause_t;
-
-  localparam exception_cause_t EXC_NONE = EXC_INSTR_ADDR_MISALIGNED;
-  localparam exception_cause_t EXC_ILLEGAL_INST = EXC_ILLEGAL_INSTRUCTION;
-
   // Decode control groups
   // decoded_uop_t carries all groups for regular lane wiring. Dedicated issue
   // payloads below remove unrelated groups before timing-critical backend paths.
@@ -496,63 +454,40 @@ package riscv32_pkg;
     logic [XLEN-2:0] trap_cause_code;
     logic [XLEN-1:0] trap_tval;
     priv_mode_e      privilege;
+    system_op_e      system_op;
   } commit_t;
 
-  // P0 single-cycle payloads
-  // TODO(HP-P0-DECODE-PAYLOAD): 完成单周期内部 bundle 改造时，用 decoded_uop_t 替换
-  // 紧随本 TODO 的 decode_ctrl_t；必须在同一次修改中更新 IDU、top 和 EXU，并跑完整回归。
+  // P0 single-cycle execution payloads
+  // Channel valid/ready is intentionally separate from every payload. P0 keeps
+  // one combinational instruction path; P4 may register the same boundaries.
   typedef struct packed {
-    logic             valid;
-    imm_sel_t         imm_sel;
-    alu_src1_sel_t    alu_src1_sel;
-    alu_src2_sel_t    alu_src2_sel;
-    alu_op_t          alu_op;
-    branch_op_t       branch_op;
-    logic             branch_en;
-    logic             jal_en;
-    logic             jalr_en;
-    mem_cmd_t         mem_cmd;
-    mem_size_t        mem_size;
-    logic             mem_unsigned;
-    wb_sel_t          wb_sel;
-    logic             reg_wen;
-    logic             ebreak_en;
-    logic             illegal_instr;
-    exception_cause_t exception_cause;
-    csr_op_t          csr_op;
-    logic             csr_ren;
-    logic             csr_wren;
-    logic             ecall_en;
-    logic             mret_en;
-  } decode_ctrl_t;
+    decoded_uop_t    uop;
+    logic [XLEN-1:0] rs1_value;
+    logic [XLEN-1:0] rs2_value;
+    logic [XLEN-1:0] csr_rdata;
+    logic            csr_illegal;
+  } execute_packet_t;
 
-  // TODO(HP-P0-EXEC-PAYLOAD): 单周期 decoded_uop_t 接通后，把 EXU 输出重构为只描述
-  // 当前指令执行结果的 execute_result_t，再同步更新 LSU/top；不要提前加入流水线握手。
   typedef struct packed {
-    logic            valid;
-    logic [XLEN-1:0] alu_res;
-    logic [XLEN-1:0] pc_plus_4;
+    decoded_uop_t    uop;
+    logic [XLEN-1:0] result;
+    logic [XLEN-1:0] next_pc;
+    logic [XLEN-1:0] csr_wdata;
+    logic [XLEN-1:0] memory_addr;
+    logic [XLEN-1:0] memory_wdata;
     logic            redirect_valid;
-    logic [XLEN-1:0] redirect_pc;
-    logic [XLEN-1:0] store_data;
-    arch_reg_idx_t   rd_addr;
-    mem_cmd_t        mem_cmd;
-    mem_size_t       mem_size;
-    logic            mem_unsigned;
-    wb_sel_t         wb_sel;
-    logic            reg_wen;
-  } ex_result_t;
+    redirect_req_t   redirect;
+  } execute_result_t;
 
-  // TODO(HP-P0-LSU-PAYLOAD): P1 memory adapter 接口稳定后，把 lsu_result_t 合并到
-  // width-1 commit payload；在 P0 保留它只是为了维持当前单周期回归。
   typedef struct packed {
-    logic            valid;
-    logic [XLEN-1:0] alu_res;
-    logic [XLEN-1:0] mem_rdata;
-    logic [XLEN-1:0] pc_plus_4;
-    arch_reg_idx_t   rd_addr;
-    wb_sel_t         wb_sel;
-    logic            reg_wen;
-  } lsu_result_t;
+    decoded_uop_t          uop;
+    logic [XLEN-1:0]       result;
+    logic [XLEN-1:0]       next_pc;
+    logic [XLEN-1:0]       csr_wdata;
+    logic [XLEN-1:0]       memory_addr;
+    logic [XLEN-1:0]       memory_rdata;
+    logic [XLEN-1:0]       memory_wdata;
+    logic [BYTE_LANES-1:0] memory_wmask;
+  } writeback_result_t;
 
 endpackage
