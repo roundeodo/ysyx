@@ -30,6 +30,7 @@ package riscv32_pkg;
   parameter int unsigned PREDICTOR_META_W = 32;
 
   localparam int unsigned ARCH_REG_IDX_W = (ARCH_REG_NUM > 1) ? $clog2(ARCH_REG_NUM) : 1;
+  localparam int unsigned ISA_REG_ADDR_W = ARCH_REG_IDX_W;
   localparam int unsigned PHYS_REG_IDX_W = (PHYS_REG_NUM > 1) ? $clog2(PHYS_REG_NUM) : 1;
   localparam int unsigned ROB_IDX_W = (ROB_ENTRIES > 1) ? $clog2(ROB_ENTRIES) : 1;
   localparam int unsigned LQ_IDX_W = (LQ_ENTRIES > 1) ? $clog2(LQ_ENTRIES) : 1;
@@ -98,19 +99,6 @@ package riscv32_pkg;
   localparam logic [11:0] FUNCT12_EBREAK = 12'h001;
   localparam logic [11:0] FUNCT12_MRET   = 12'h302;
 
-  // Machine-mode CSR addresses used by the current privileged implementation.
-  localparam logic [11:0] CSR_MSTATUS   = 12'h300;
-  localparam logic [11:0] CSR_MIE       = 12'h304;
-  localparam logic [11:0] CSR_MTVEC     = 12'h305;
-  localparam logic [11:0] CSR_MSCRATCH  = 12'h340;
-  localparam logic [11:0] CSR_MEPC      = 12'h341;
-  localparam logic [11:0] CSR_MCAUSE    = 12'h342;
-  localparam logic [11:0] CSR_MTVAL     = 12'h343;
-  localparam logic [11:0] CSR_MIP       = 12'h344;
-  localparam logic [11:0] CSR_MCYCLE    = 12'hb00;
-  localparam logic [11:0] CSR_MCYCLEH   = 12'hb80;
-  localparam logic [11:0] CSR_MVENDORID = 12'hf11;
-  localparam logic [11:0] CSR_MARCHID   = 12'hf12;
   /* verilator lint_on UNUSEDPARAM */
 
   // Canonical index types
