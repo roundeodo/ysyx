@@ -1,0 +1,11 @@
+${NPC_HOME}/vsrc/riscv32/riscv32_pkg.sv
+${NPC_HOME}/vsrc/riscv32/top.sv
+${NPC_HOME}/vsrc/riscv32/RegisterFile.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_CSR.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_Decoder.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_EXU.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_IDU.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_RDU.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_IFU.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_LSU.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_WBU.sv
