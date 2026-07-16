@@ -1,3 +1,6 @@
+// DESIGN AUTHORITY: ${NPC_HOME}/vsrc/riscv32/ARCHITECTURE_PLAN.md
+// Module boundaries, canonical types, and roadmap changes must follow that plan.
+// If an existing HP-* TODO conflicts with the plan, update the TODO before writing RTL.
 ${NPC_HOME}/vsrc/riscv32/riscv32_pkg.sv
 // TODO(HP-NAME-1): 新增或重构模块时统一采用以下 SystemVerilog 命名规范：
 // RTL 语法风格以 lowRISC/Ibex 的 SystemVerilog 约定为主；uop/rename/issue/ROB/commit

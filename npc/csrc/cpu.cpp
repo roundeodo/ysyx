@@ -38,6 +38,14 @@ static uint64_t main_time = 0;
 static uint64_t guest_inst_count = 0;
 
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
+static constexpr int ARCH_GPR_COUNT = 32;
+
+// RV32I ABI register names. SDB accepts both these names and the x0-x31 numeric names.
+static const char *const reg_names[ARCH_GPR_COUNT] = {
+    "zero", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
+    "s0",   "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
+    "a6",   "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
+    "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
 
 // NPC state
 
@@ -188,11 +196,11 @@ uint32_t npc_get_gpr(int idx) {
     return 0;
   }
 
-  if (idx < 0 || idx >= 16) {
+  if (idx < 0 || idx >= ARCH_GPR_COUNT) {
     return 0;
   }
 
-  return top->rootp->top__DOT__U_RF__DOT__rf[idx];
+  return top->rootp->top__DOT__u_arch_regfile__DOT__rf[idx];
 }
 
 // ============================================================
@@ -200,13 +208,9 @@ uint32_t npc_get_gpr(int idx) {
 // ============================================================
 
 void npc_dump_regs() {
-  const char *reg_names[16] = {"zero", "ra", "sp", "gp", "tp", "t0",
-                               "t1",   "t2", "s0", "s1", "a0", "a1",
-                               "a2",   "a3", "a4", "a5"};
-
   printf("pc  = 0x%08x\n", npc_get_pc());
 
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < ARCH_GPR_COUNT; i++) {
     printf("x%-2d %-5s = 0x%08x\n", i, reg_names[i], npc_get_gpr(i));
   }
 }
@@ -225,11 +229,7 @@ bool npc_reg_str2val(const char *name, uint32_t *val) {
     return true;
   }
 
-  const char *reg_names[16] = {"zero", "ra", "sp", "gp", "tp", "t0",
-                               "t1",   "t2", "s0", "s1", "a0", "a1",
-                               "a2",   "a3", "a4", "a5"};
-
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < ARCH_GPR_COUNT; i++) {
     if (strcmp(name, reg_names[i]) == 0) {
       *val = npc_get_gpr(i);
       return true;
@@ -241,12 +241,12 @@ bool npc_reg_str2val(const char *name, uint32_t *val) {
     return true;
   }
 
-  // x0 ~ x15
+  // x0 ~ x31
   if (name[0] == 'x') {
     char *end = nullptr;
     long idx = strtol(name + 1, &end, 10);
 
-    if (*end == '\0' && idx >= 0 && idx < 16) {
+    if (*end == '\0' && idx >= 0 && idx < ARCH_GPR_COUNT) {
       *val = npc_get_gpr((int)idx);
       return true;
     }

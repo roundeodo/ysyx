@@ -9,16 +9,14 @@ package riscv32_pkg;
   // ====== 
   parameter int XLEN = 32;
 
-  // RISC-V 指令编码中的 rd/rs1/rs2 字段永远是 5 bit。
-  // 即使 RV32E 只有 x0~x15，指令里寄存器字段仍然是 5 bit。
+  // RV32I 有 x0-x31，rd/rs1/rs2 字段和 architectural register index 都是 5 bit。
   parameter int ISA_REG_ADDR_W = 5;
 
   /* verilator lint_off UNUSEDPARAM */
-  // RV32E 实际实现的架构寄存器数量是 16。
-  // 如果 RegisterFile 内部数组只实现 16 个寄存器，内部索引最低 4 bit 就够。
-  // 但是模块端口仍建议保留 5 bit，这样可以检测 x16~x31 非法使用。
-  parameter int ARCH_REG_NUM = 16;
-  parameter int ARCH_REG_IDX_W = 4;
+  // 本核只实现标准 RV32I，不保留 RV32E 配置；架构寄存器固定为 x0-x31。
+  // 后续乱序核仍保持 5-bit architectural index，再由 rename map 映射到更宽的 physical index。
+  parameter int ARCH_REG_NUM = 32;
+  parameter int ARCH_REG_IDX_W = 5;
 
   // reset vector
   parameter logic [XLEN-1:0] RESET_VECTOR = 32'h8000_0000;
@@ -317,10 +315,13 @@ package riscv32_pkg;
   // 直接在本 TODO 下方编写，建议字段：pc、instruction，以及未来需要的预测 metadata。
   // 当前先保留 pc/instruction 即可；不要把 fetch_valid 放进 struct。
   //
-  // typedef struct packed {
-  //   logic [XLEN-1:0] pc;
-  //   logic [31:0]     instruction;
-  // } fetch_packet_t;
+  typedef struct packed {
+    logic [XLEN-1:0]  pc;
+    logic [31:0]      instruction;
+    logic             exception_valid;
+    exception_cause_t exception_cause;
+    logic [XLEN-1:0]  exception_tval;
+  } fetch_entry_t;
 
   // TODO(HP-PKG-2): 在这里定义 decoded_uop_t，并最终用它替代 decode_ctrl_t。
   // 这是 IDU -> Rename/Dispatch 的内部指令表示，必须把“控制”和“所属指令”绑定起来。

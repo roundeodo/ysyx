@@ -23,7 +23,10 @@ module riscv32_idu
     //register related
     input logic [ISA_REG_ADDR_W-1:0] i_idu_rd_addr,
     input logic [ISA_REG_ADDR_W-1:0] i_idu_rs1_addr,
+    /* verilator lint_off UNUSEDSIGNAL */
+    // Legacy ctrl-only interface does not carry rs2 yet. HP-IDU-1/4 will move it into decoded_uop_t.
     input logic [ISA_REG_ADDR_W-1:0] i_idu_rs2_addr,
+    /* verilator lint_on UNUSEDSIGNAL */
 
     // to top/EXU/LSU/WBU/future pipeline register
     output decode_ctrl_t o_idu_ctrl
@@ -33,21 +36,39 @@ module riscv32_idu
   // i_idu_opcode/i_idu_funct_*/i_idu_*_addr 引用替换成这些局部信号。
   // 字段位置：opcode[6:0]、rd[11:7]、funct3[14:12]、rs1[19:15]、
   // rs2[24:20]、funct7[31:25]、funct12[31:20]。
-  // 保留完整 5-bit rs/rd，用 IDU 的 is_rv32e_reg() 检查 x16-x31。
+  // 保留完整 5-bit rs/rd；RV32I 的 x0-x31 都是合法架构寄存器。
+  // 可直接按下面骨架补全：
+  // logic [31:0] instruction;
+  // logic [6:0]  opcode, funct7;
+  // logic [2:0]  funct3;
+  // logic [11:0] funct12;
+  // logic [4:0]  rd_addr, rs1_addr, rs2_addr;
+  // assign instruction = fetch_packet_i.instruction;
+  // assign opcode      = instruction[6:0];
+  // assign rd_addr     = instruction[11:7];
+  // assign funct3      = instruction[14:12];
+  // assign rs1_addr    = instruction[19:15];
+  // assign rs2_addr    = instruction[24:20];
+  // assign funct7      = instruction[31:25];
+  // assign funct12     = instruction[31:20];
 
   // TODO(HP-IDU-3): 紧接着在这里生成 imm_I/S/B/U/J，并根据当前译码选择最终 imm。
   // 最终只写入 decoded_uop_o.imm，不要把五种 immediate 继续输出给 top。
-  // B/J immediate 的 bit 拼接和符号扩展可从已删除 IDU 的 git diff 中找回；
-  // 完成后 top.sv 的 w_imm_* 与 immediate mux 应全部删除。
+  // 可直接按下面公式生成；B/J 最低位由指令编码隐含为 0：
+  // logic [31:0] imm_i, imm_s, imm_b, imm_u, imm_j;
+  // assign imm_i = {{20{instruction[31]}}, instruction[31:20]};
+  // assign imm_s = {{20{instruction[31]}}, instruction[31:25], instruction[11:7]};
+  // assign imm_b = {{19{instruction[31]}}, instruction[31], instruction[7],
+  //                 instruction[30:25], instruction[11:8], 1'b0};
+  // assign imm_u = {instruction[31:12], 12'b0};
+  // assign imm_j = {{11{instruction[31]}}, instruction[31], instruction[19:12],
+  //                 instruction[20], instruction[30:21], 1'b0};
+  // 在 decoded_uop_o 默认清零后，根据 imm_sel 把其中一个值写入 decoded_uop_o.imm；完成后
+  // 删除 top.sv 的 w_imm_* 和 immediate mux。
 
   // IDU uses decode_ctrl_t as the single decoded-control output.
   // Later CSR/trap support should keep illegal/exception metadata centralized in
   // decode and let the commit/trap boundary handle precise architectural effects.
-
-  // check if register address is valid (because only 16 regs in RV32E  reg_addr[4] == 1 -> x16-x31  illegal)
-  function automatic logic is_rv32e_reg(input logic [ISA_REG_ADDR_W-1:0] reg_addr);
-    is_rv32e_reg = (reg_addr[ISA_REG_ADDR_W-1] == 1'b0);
-  endfunction
 
   // ======
   // Main decode logic
@@ -116,25 +137,14 @@ module riscv32_idu
     unique case (i_idu_opcode)
       // R-type
       // add/sub/sll/slkt/sltu/xor/srl/sra/or/and
-      // use  rd, rs1, rs2
-      // in RV32E, those should be x0-x15
+      // use rd, rs1, rs2; RV32I accepts x0-x31 for every register operand.
       OPCODE_R_TYPE: begin
         o_idu_ctrl.reg_wen      = 1'b1;
         o_idu_ctrl.wb_sel       = WB_ALU_RES;
         o_idu_ctrl.alu_src1_sel = ALU_SRC1_RS1;
         o_idu_ctrl.alu_src2_sel = ALU_SRC2_RS2;
 
-        if (!is_rv32e_reg(
-                i_idu_rd_addr
-            ) || !is_rv32e_reg(
-                i_idu_rs1_addr
-            ) || !is_rv32e_reg(
-                i_idu_rs2_addr
-            )) begin
-          o_idu_ctrl.illegal_instr   = 1'b1;
-          o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-        end else begin
-          unique case (i_idu_funct_3)
+        unique case (i_idu_funct_3)
             FUNCT3_ADD_SUB: begin
               if (i_idu_funct_7 == FUNCT7_BASE) begin
                 o_idu_ctrl.alu_op = ALU_ADD;
@@ -215,8 +225,7 @@ module riscv32_idu
               o_idu_ctrl.illegal_instr   = 1'b1;
               o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
             end
-          endcase
-        end
+        endcase
       end
 
       // ==========================================================
@@ -239,11 +248,7 @@ module riscv32_idu
         o_idu_ctrl.alu_src1_sel = ALU_SRC1_RS1;
         o_idu_ctrl.alu_src2_sel = ALU_SRC2_IMM;
 
-        if (!is_rv32e_reg(i_idu_rd_addr) || !is_rv32e_reg(i_idu_rs1_addr)) begin
-          o_idu_ctrl.illegal_instr   = 1'b1;
-          o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-        end else begin
-          unique case (i_idu_funct_3)
+        unique case (i_idu_funct_3)
             FUNCT3_ADD_SUB: begin
               // addi
               o_idu_ctrl.alu_op = ALU_ADD;
@@ -300,8 +305,7 @@ module riscv32_idu
               o_idu_ctrl.illegal_instr   = 1'b1;
               o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
             end
-          endcase
-        end
+        endcase
       end
 
       // ==========================================================
@@ -324,10 +328,6 @@ module riscv32_idu
         o_idu_ctrl.alu_src2_sel = ALU_SRC2_IMM;
         o_idu_ctrl.alu_op       = ALU_ADD;
 
-        if (!is_rv32e_reg(i_idu_rd_addr)) begin
-          o_idu_ctrl.illegal_instr   = 1'b1;
-          o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-        end
       end
 
 
@@ -348,10 +348,6 @@ module riscv32_idu
         o_idu_ctrl.alu_src2_sel = ALU_SRC2_IMM;
         o_idu_ctrl.alu_op       = ALU_ADD;
 
-        if (!is_rv32e_reg(i_idu_rd_addr)) begin
-          o_idu_ctrl.illegal_instr   = 1'b1;
-          o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-        end
       end
 
 
@@ -374,10 +370,6 @@ module riscv32_idu
         o_idu_ctrl.alu_op       = ALU_ADD;
         o_idu_ctrl.jal_en       = 1'b1;
 
-        if (!is_rv32e_reg(i_idu_rd_addr)) begin
-          o_idu_ctrl.illegal_instr   = 1'b1;
-          o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-        end
       end
 
 
@@ -403,11 +395,7 @@ module riscv32_idu
         o_idu_ctrl.alu_op       = ALU_ADD;
         o_idu_ctrl.jalr_en      = 1'b1;
 
-        if (!is_rv32e_reg(
-                i_idu_rd_addr
-            ) || !is_rv32e_reg(
-                i_idu_rs1_addr
-            ) || i_idu_funct_3 != 3'b000) begin
+        if (i_idu_funct_3 != 3'b000) begin
           o_idu_ctrl.illegal_instr   = 1'b1;
           o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
         end
@@ -436,11 +424,7 @@ module riscv32_idu
         o_idu_ctrl.alu_src2_sel = ALU_SRC2_IMM;
         o_idu_ctrl.alu_op       = ALU_ADD;
 
-        if (!is_rv32e_reg(i_idu_rs1_addr) || !is_rv32e_reg(i_idu_rs2_addr)) begin
-          o_idu_ctrl.illegal_instr   = 1'b1;
-          o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-        end else begin
-          unique case (i_idu_funct_3)
+        unique case (i_idu_funct_3)
             FUNCT3_BEQ:  o_idu_ctrl.branch_op = BR_BEQ;
             FUNCT3_BNE:  o_idu_ctrl.branch_op = BR_BNE;
             FUNCT3_BLT:  o_idu_ctrl.branch_op = BR_BLT;
@@ -452,8 +436,7 @@ module riscv32_idu
               o_idu_ctrl.illegal_instr   = 1'b1;
               o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
             end
-          endcase
-        end
+        endcase
       end
 
 
@@ -478,11 +461,7 @@ module riscv32_idu
         o_idu_ctrl.alu_op       = ALU_ADD;
         o_idu_ctrl.mem_cmd      = MEM_CMD_LOAD;
 
-        if (!is_rv32e_reg(i_idu_rd_addr) || !is_rv32e_reg(i_idu_rs1_addr)) begin
-          o_idu_ctrl.illegal_instr   = 1'b1;
-          o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-        end else begin
-          unique case (i_idu_funct_3)
+        unique case (i_idu_funct_3)
             FUNCT3_LB: begin
               o_idu_ctrl.mem_size     = MEM_SIZE_BYTE;
               o_idu_ctrl.mem_unsigned = 1'b0;
@@ -512,8 +491,7 @@ module riscv32_idu
               o_idu_ctrl.illegal_instr   = 1'b1;
               o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
             end
-          endcase
-        end
+        endcase
       end
 
 
@@ -536,11 +514,7 @@ module riscv32_idu
         o_idu_ctrl.alu_op       = ALU_ADD;
         o_idu_ctrl.mem_cmd      = MEM_CMD_STORE;
 
-        if (!is_rv32e_reg(i_idu_rs1_addr) || !is_rv32e_reg(i_idu_rs2_addr)) begin
-          o_idu_ctrl.illegal_instr   = 1'b1;
-          o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-        end else begin
-          unique case (i_idu_funct_3)
+        unique case (i_idu_funct_3)
             FUNCT3_SB: begin
               o_idu_ctrl.mem_size = MEM_SIZE_BYTE;
             end
@@ -557,8 +531,7 @@ module riscv32_idu
               o_idu_ctrl.illegal_instr   = 1'b1;
               o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
             end
-          endcase
-        end
+        endcase
       end
 
 
@@ -606,42 +579,27 @@ module riscv32_idu
           end
 
           3'b001: begin  // CSRRW, pseudo csrw when rd == x0
-            if (!is_rv32e_reg(i_idu_rd_addr) || !is_rv32e_reg(i_idu_rs1_addr)) begin
-              o_idu_ctrl.illegal_instr   = 1'b1;
-              o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-            end else begin
-              o_idu_ctrl.csr_op   = CSR_OP_RW;
-              o_idu_ctrl.csr_ren  = (i_idu_rd_addr != 5'd0);
-              o_idu_ctrl.csr_wren = 1'b1;
-              o_idu_ctrl.reg_wen  = (i_idu_rd_addr != 5'd0);
-              o_idu_ctrl.wb_sel   = WB_CSR;
-            end
+            o_idu_ctrl.csr_op   = CSR_OP_RW;
+            o_idu_ctrl.csr_ren  = (i_idu_rd_addr != 5'd0);
+            o_idu_ctrl.csr_wren = 1'b1;
+            o_idu_ctrl.reg_wen  = (i_idu_rd_addr != 5'd0);
+            o_idu_ctrl.wb_sel   = WB_CSR;
           end
 
           3'b010: begin  // CSRRS, pseudo csrr when rs1 == x0
-            if (!is_rv32e_reg(i_idu_rd_addr) || !is_rv32e_reg(i_idu_rs1_addr)) begin
-              o_idu_ctrl.illegal_instr   = 1'b1;
-              o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-            end else begin
-              o_idu_ctrl.csr_op   = CSR_OP_RS;
-              o_idu_ctrl.csr_ren  = 1'b1;
-              o_idu_ctrl.csr_wren = (i_idu_rs1_addr != 5'd0);
-              o_idu_ctrl.reg_wen  = (i_idu_rd_addr != 5'd0);
-              o_idu_ctrl.wb_sel   = WB_CSR;
-            end
+            o_idu_ctrl.csr_op   = CSR_OP_RS;
+            o_idu_ctrl.csr_ren  = 1'b1;
+            o_idu_ctrl.csr_wren = (i_idu_rs1_addr != 5'd0);
+            o_idu_ctrl.reg_wen  = (i_idu_rd_addr != 5'd0);
+            o_idu_ctrl.wb_sel   = WB_CSR;
           end
 
           3'b011: begin  // CSRRC
-            if (!is_rv32e_reg(i_idu_rd_addr) || !is_rv32e_reg(i_idu_rs1_addr)) begin
-              o_idu_ctrl.illegal_instr   = 1'b1;
-              o_idu_ctrl.exception_cause = EXC_ILLEGAL_INST;
-            end else begin
-              o_idu_ctrl.csr_op   = CSR_OP_RC;
-              o_idu_ctrl.csr_ren  = 1'b1;
-              o_idu_ctrl.csr_wren = (i_idu_rs1_addr != 5'd0);
-              o_idu_ctrl.reg_wen  = (i_idu_rd_addr != 5'd0);
-              o_idu_ctrl.wb_sel   = WB_CSR;
-            end
+            o_idu_ctrl.csr_op   = CSR_OP_RC;
+            o_idu_ctrl.csr_ren  = 1'b1;
+            o_idu_ctrl.csr_wren = (i_idu_rs1_addr != 5'd0);
+            o_idu_ctrl.reg_wen  = (i_idu_rd_addr != 5'd0);
+            o_idu_ctrl.wb_sel   = WB_CSR;
           end
 
           default: begin

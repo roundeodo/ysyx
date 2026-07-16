@@ -27,8 +27,7 @@ module RegisterFile #(
   // RegisterFile design boundary
   // ==========================================================================
   //
-  // 当前 RegisterFile 是 architectural register file。
-  // RV32E 的 architectural register 只有 x0-x15，但 RISC-V 指令字段仍然是 5 bit。
+  // 当前 RegisterFile 是 RV32I architectural register file，实现 x0-x31。
   //
   // 高性能 CPU 关联：
   //   未来乱序 CPU 会把 architectural register namespace 和 physical register file 分开：
@@ -37,17 +36,10 @@ module RegisterFile #(
   //
   //   当前阶段先不要实现 rename/ROB/PRF，但必须保持 architectural register 语义正确。
   //
-  // RV32E register-count boundary:
-  //   当前 ADDR_WIDTH=5 会例化 32 个寄存器。
-  //   功能上可以跑，但 RV32E 最小实现更合理的边界是：
-  //
-  //     端口仍然接收 5-bit ISA register specifier
-  //     内部只实现 ARCH_REG_NUM = 16 个 architectural register
-  //
-  //   注意：
-  //     x16-x31 是否非法不应该由 RegisterFile 判断，因为 RF 不知道 opcode。
-  //     I-type 的 instruction[24:20] 可能是 immediate/shamt，不一定是 rs2。
-  //     非法寄存器检查应该由 IDU 根据 opcode 产生 illegal metadata。
+  // RV32I register-count boundary:
+  //   ADDR_WIDTH=5 例化 32 个架构寄存器，所有 5-bit register specifier 都合法。
+  //   后续不要用缩小 ARF 的方式实现高性能设计；rename 阶段应保持 32 项逻辑命名空间，
+  //   并通过 RAT 映射到数量更多、索引更宽的 physical register file。
   //
   // x0 hardwired-zero rule:
   //   当前写端口已经屏蔽 waddr == 0，读端口也对 raddr == 0 返回 0。
@@ -73,7 +65,7 @@ module RegisterFile #(
   //     free list
   //     ROB commit map
   //
-  //   先保证 architectural x0-x15 行为正确。等单周期和顺序流水线稳定后，再引入 rename。
+  //   先保证 architectural x0-x31 行为正确。等单周期和顺序流水线稳定后，再引入 rename。
 
   // TODO(HP-RF-2): 创建 PhysicalRegisterFile 时重新设计端口数量，而不是复制当前 2R1W 接口。
   // 读端口数由 issue width 和执行单元决定，写端口数由 completion bandwidth 决定；同时需要

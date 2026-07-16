@@ -11,10 +11,9 @@
 enum { DIFFTEST_TO_DUT, DIFFTEST_TO_REF };
 
 // 这个结构体必须和 NEMU REF 侧 difftest_regcpy() 看到的 CPU_state 布局一致。
-// 你当前 NPC 是 RV32E，所以只比较 x0-x15 和 pc。
-// 如果以后切换到 RV32I/RV32IM，需要同步改成 gpr[32]，并保证 NEMU 也不是 RVE。
+// 当前 NPC 只支持 RV32I，因此固定比较 x0-x31 和 pc；NEMU 必须关闭 CONFIG_RVE。
 struct DiffTestRegs {
-  uint32_t gpr[16];
+  uint32_t gpr[32];
   uint32_t pc;
 };
 
@@ -34,7 +33,7 @@ static void (*ref_difftest_raise_intr)(uint64_t NO) = nullptr;
 static void fill_dut_regs(DiffTestRegs *r) {
   // 从 Verilator 模型中读取 NPC 当前 architectural state。
   // DiffTest 比较的是体系结构状态，不比较 EXU/LSU 内部临时信号。
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 32; i++) {
     r->gpr[i] = npc_get_gpr(i);
   }
   r->pc = npc_get_pc();
@@ -44,7 +43,7 @@ static bool checkregs(const DiffTestRegs *ref, const DiffTestRegs *dut,
                       uint32_t pc) {
   // ref 是 NEMU 执行同一条指令后的状态。
   // dut 是 NPC 执行同一条指令后的状态。
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 32; i++) {
     if (ref->gpr[i] != dut->gpr[i]) {
       printf("DiffTest mismatch after pc=0x%08x\n", pc);
       printf(" x%d: DUT=0x%08x REF=0x%08x\n", i, dut->gpr[i], ref->gpr[i]);
