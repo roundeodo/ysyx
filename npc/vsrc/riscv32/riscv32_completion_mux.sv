@@ -1,7 +1,9 @@
 module riscv32_completion_mux
   import riscv32_pkg::*;
 (
+    /* verilator lint_off UNUSEDSIGNAL */
     input  execute_result_t direct_result_i,
+    /* verilator lint_on UNUSEDSIGNAL */
     input  logic            direct_valid_i,
     output logic            direct_ready_o,
 

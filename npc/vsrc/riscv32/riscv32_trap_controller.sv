@@ -1,10 +1,12 @@
 module riscv32_trap_controller
   import riscv32_pkg::*;
 (
+    /* verilator lint_off UNUSEDSIGNAL */
     input commit_t commit_i,
     input logic    commit_valid_i,
 
     input logic [XLEN-1:0] mtvec_i,
+    /* verilator lint_on UNUSEDSIGNAL */
     input logic [XLEN-1:0] mepc_i,
 
     output logic            trap_valid_o,

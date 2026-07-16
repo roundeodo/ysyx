@@ -6,7 +6,9 @@ module riscv32_ifu
     input logic clk_i,
     input logic rst_ni,
 
+    /* verilator lint_off UNUSEDSIGNAL */
     input redirect_req_t redirect_i,
+    /* verilator lint_on UNUSEDSIGNAL */
     input logic          redirect_valid_i,
 
     output fetch_entry_t fetch_entry_o,

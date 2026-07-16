@@ -3,7 +3,9 @@ module riscv32_lsu
 (
     input logic clk_i,
 
+    /* verilator lint_off UNUSEDSIGNAL */
     input  execute_result_t memory_result_i,
+    /* verilator lint_on UNUSEDSIGNAL */
     input  logic            memory_valid_i,
     output logic            memory_ready_o,
 

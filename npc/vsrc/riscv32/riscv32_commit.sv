@@ -38,7 +38,7 @@ module riscv32_commit
     commit_o.memory_wmask = writeback_result_i.memory_wmask;
     commit_o.trap_taken = writeback_result_i.uop.exception_valid;
     commit_o.trap_is_interrupt = 1'b0;
-    commit_o.trap_cause_code = writeback_result_i.uop.exception_cause;
+    commit_o.trap_cause_code = {{(XLEN - 6) {1'b0}}, writeback_result_i.uop.exception_cause};
     commit_o.trap_tval = writeback_result_i.uop.exception_tval;
     commit_o.privilege = PRIV_MODE_M;
     commit_o.system_op = writeback_result_i.uop.system_op;
