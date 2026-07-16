@@ -40,9 +40,40 @@ module top
   logic [4:0] w_rs1_addr;
   logic [4:0] w_rs2_addr;
   logic [31:0] w_imm_I, w_imm_S, w_imm_U;
-  logic        [          11:0] w_funct_12;
-  logic        [          31:0] w_imm_B;
-  logic        [          31:0] w_imm_J;
+  logic [11:0] w_funct_12;
+  logic [31:0] w_imm_B;
+  logic [31:0] w_imm_J;
+
+  // P0 baseline field extraction. Keep this combinational so the restored CPU
+  // remains single-cycle. The first typed-bundle refactor moves this whole block
+  // into IDU and then deletes these top-level scatter wires.
+  assign w_opcode = w_instruction[6:0];
+  assign w_rd_addr = w_instruction[11:7];
+  assign w_funct_3 = w_instruction[14:12];
+  assign w_rs1_addr = w_instruction[19:15];
+  assign w_rs2_addr = w_instruction[24:20];
+  assign w_funct_7 = w_instruction[31:25];
+  assign w_funct_12 = w_instruction[31:20];
+
+  assign w_imm_I = {{20{w_instruction[31]}}, w_instruction[31:20]};
+  assign w_imm_S = {{20{w_instruction[31]}}, w_instruction[31:25], w_instruction[11:7]};
+  assign w_imm_B = {
+    {19{w_instruction[31]}},
+    w_instruction[31],
+    w_instruction[7],
+    w_instruction[30:25],
+    w_instruction[11:8],
+    1'b0
+  };
+  assign w_imm_U = {w_instruction[31:12], 12'b0};
+  assign w_imm_J = {
+    {11{w_instruction[31]}},
+    w_instruction[31],
+    w_instruction[19:12],
+    w_instruction[20],
+    w_instruction[30:21],
+    1'b0
+  };
 
   // RF to EXU
   logic        [DATA_WIDTH-1:0] w_rs1_data;
@@ -79,8 +110,8 @@ module top
   assign unused_csr_status = w_csr_illegal;
   /* verilator lint_on UNUSEDSIGNAL */
 
-  logic                         w_redirect_valid;
-  logic        [          31:0] w_redirect_pc;
+  logic        w_redirect_valid;
+  logic [31:0] w_redirect_pc;
 
 
   // TODO(HP-TOP-3): 完成 HP-IDU-3 后删除整个 immediate mux。

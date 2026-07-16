@@ -267,8 +267,6 @@ package riscv32_pkg;
 
   localparam exception_cause_t EXC_NONE = EXC_INSTR_ADDR_MISALIGNED;
   localparam exception_cause_t EXC_ILLEGAL_INST = EXC_ILLEGAL_INSTRUCTION;
-  localparam exception_cause_t EXC_LOAD_MISALIGN = EXC_LOAD_ADDR_MISALIGNED;
-  localparam exception_cause_t EXC_STORE_MISALIGN = EXC_STORE_ADDR_MISALIGNED;
 
   // Decode control groups
   // decoded_uop_t carries all groups for regular lane wiring. Dedicated issue
