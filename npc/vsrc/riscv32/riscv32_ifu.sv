@@ -25,6 +25,13 @@ module riscv32_ifu
     //
     // P1 的目标只是让 riscv32_ifu 不再知道 DPI。请求地址仍由 pc_q 产生，响应中的
     // instruction/exception 再被组装为 fetch_entry_t。txn_id 在单事务阶段固定为 '0。
+    output imem_req_t  imem_req_o,
+    output logic       imem_req_valid_o,
+    input  logic       imem_req_ready_i,
+    input  imem_resp_t imem_resp_t,
+    input  logic       imem_resp_valid_i,
+    output logic       imem_resp_ready_o,
+
     output fetch_entry_t fetch_entry_o,
     output logic         fetch_valid_o,
     input  logic         fetch_ready_i

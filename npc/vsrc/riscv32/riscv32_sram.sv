@@ -1,4 +1,6 @@
-// Synthesizable data memory used after the P2 bus protocol is stable.
+// Synthesizable fixed-latency data memory used after the P2 bus protocol is stable.
+// This is a memory slave, not a data cache. A future riscv32_dcache will add tags,
+// valid/dirty state, refill, eviction, miss handling, and memory-order integration.
 module riscv32_sram
   import riscv32_pkg::*;
 #(
@@ -28,5 +30,7 @@ module riscv32_sram
   // TODO(P2-SRAM-VERIFY): 为同址 masked write、byte/half/word load、未对齐访问、越界
   // 访问和 response backpressure 编写 directed test。之后再加入随机 memory latency。
   // 256 words 只用于教程中的 1 KiB STA 对比；正式 SoC SRAM 容量应由集成层设置。
+  // 若当前只做手册要求的组合读 STA 对比，应实现 experiments/riscv32_sta_ram.sv，
+  // 不要把本模块的一拍 SimpleBus 语义改回组合读。
 
 endmodule

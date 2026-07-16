@@ -1,4 +1,11 @@
 // Simulation-only memory adapter. Do not add this file to a synthesis filelist.
+//
+// This module and the register-array memories under experiments/ solve different
+// problems:
+//   - riscv32_sim_mem keeps the C++ image, MMIO, trace, and DiffTest memory backend
+//     available while adding realistic request/response timing around DPI calls;
+//   - experiments/riscv32_sta_rom.sv and riscv32_sta_ram.sv replace DPI entirely
+//     only for the ysyx single-cycle synthesis/STA comparison.
 module riscv32_sim_mem
   import riscv32_pkg::*;
 (
@@ -25,6 +32,8 @@ module riscv32_sim_mem
   //   pmem_read_data(addr, len)        -> aligned raw data word；
   //   pmem_write(addr, wdata, wmask)   -> masked store/MMIO side effect。
   // DPI 允许存在于本 simulation adapter，但禁止出现在 riscv32_core/IFU/LSU 中。
+  // 这与手册的 SimpleBus 示例一致：pmem_read/pmem_write 仍可作为仿真 memory 的
+  // 数据和设备后端，只是调用被移动到 memory slave，并通过时序逻辑产生读延迟。
 
   // TODO(P1-SIM-MEM-COMB): 先在这里实现零等待组合 adapter，保持 P0 行为：
   //   1. response payload 由当前 request payload 和 DPI read 组合生成；
@@ -36,7 +45,16 @@ module riscv32_sim_mem
   //   5. response 的 txn_id 原样返回，当前阶段 exception 字段先置零。
   // 完成后先跑 P0 全回归。此步骤只改变模块边界，不改变 memory latency。
 
-  // TODO(P2-SIM-MEM-LATENCY): P1 全回归后，用每个端口各自的一项 pending/response
+  // TODO(P2A-SIM-MEM-FIXED-LATENCY): P1 全回归后，先实现手册中的固定一拍版本：
+  //   - req_ready 暂时恒为 1；
+  //   - 在 posedge 对有效请求调用 DPI，并把结果写入 response register；
+  //   - resp_valid 是上一拍 req fire 的延迟版本；
+  //   - IFU/LSU 根据 resp_valid 判断当前响应是否有效。
+  // 这一小步对应手册中的同步 ROM/SRAM 时序，先通过波形确认 request(N) 对应
+  // response(N+1)，再继续实现下面的任意延迟协议。
+
+  // TODO(P2B-SIM-MEM-VARIABLE-LATENCY): P2A 回归后，用每个端口各自的一项
+  // pending/response
   // 寄存器替换上面的组合 adapter，模拟同步 memory 的一拍响应：
   //   - req fire 时锁存 request，并暂时撤销 req_ready；
   //   - 下一拍产生 resp_valid 和响应 payload；

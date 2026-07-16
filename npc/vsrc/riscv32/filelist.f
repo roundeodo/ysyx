@@ -22,6 +22,12 @@ ${NPC_HOME}/vsrc/riscv32/top.sv
 //   LSU/direct completion -> commit: writeback_result_t
 // Channel valid/ready is separate from payload; P0 contains no stage register.
 
+// TODO(P0-STA-MEMORY): 手册要求的单周期主频实验使用下面两个独立文件，但它们
+// 只能加入 yosys-sta 的实验 RTL_FILES，绝不能取消注释加入正式 NPC filelist：
+//   experiments/riscv32_sta_rom.sv - IFU 只读、组合返回；
+//   experiments/riscv32_sta_ram.sv - LSU 可读写、组合读、posedge masked write。
+// 两者各 256x32b。完成 STA 记录后，正式功能仿真继续使用 riscv32_sim_mem。
+
 // TODO(P1-FILELIST): 完成 riscv32_sim_mem 的组合 adapter、IFU/LSU memory ports 和
 // top 连接后，在本 TODO 下方加入 riscv32_sim_mem.sv。随后拆出 riscv32_core.sv 和
 // riscv32_sim_debug.sv，再把它们也加入这里。P1 只移动 DPI 边界，不增加等待状态。

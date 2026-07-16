@@ -28,6 +28,12 @@ module riscv32_lsu
     //   output logic      dmem_resp_ready_o
     //
     // mem_req_t 中已经有 cmd/size/addr/wdata/wmask，不要再增加散线版本；txn_id 在 P1/P2
+    output mem_req_t dmem_req_o,
+    output logic dmem_req_valid_o,
+    input logic dmem_req_ready_i,
+    input mem_resp_t dmem_resp_i,
+    input logic dmem_resp_valid_i,
+    output logic dmem_resp_ready_o
     // 单 outstanding 阶段固定为 '0。valid/ready 仍然单独传递。
 );
 

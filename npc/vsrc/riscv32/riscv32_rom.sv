@@ -1,4 +1,6 @@
-// Synthesizable instruction memory used after the P2 bus protocol is stable.
+// Synthesizable fixed-latency instruction memory used after the P2 bus protocol is stable.
+// This is a memory slave, not an instruction cache. A future riscv32_icache will sit
+// between IFU and lower memory and will contain writable refill/tag state internally.
 module riscv32_rom
   import riscv32_pkg::*;
 #(
@@ -28,5 +30,7 @@ module riscv32_rom
   // INIT_FILE + $readmemh。当前 C++ load_bin() 只会填充 mem.cpp 的 pmem，不会自动填充
   // 本 RTL 阵列；不要在没有 image bridge 的情况下直接用它运行 AM 二进制。
   // 教程指定的 256 words 仅用于 1 KiB STA 实验。正式 SoC memory 容量必须参数化。
+  // 若当前只做手册要求的组合读 STA 对比，应实现 experiments/riscv32_sta_rom.sv，
+  // 不要把本模块的一拍 SimpleBus 语义改回组合读。
 
 endmodule
