@@ -22,13 +22,19 @@ ${NPC_HOME}/vsrc/riscv32/top.sv
 //   LSU/direct completion -> commit: writeback_result_t
 // Channel valid/ready is separate from payload; P0 contains no stage register.
 
-// NOTE(P1): P0 全回归通过后加入：
-//   riscv32_core.sv, riscv32_sim_mem.sv, riscv32_sim_debug.sv。
-// 先保持组合 memory adapter，只把 DPI 移出 core；不要同时引入总线等待状态。
+// TODO(P1-FILELIST): 完成 riscv32_sim_mem 的组合 adapter、IFU/LSU memory ports 和
+// top 连接后，在本 TODO 下方加入 riscv32_sim_mem.sv。随后拆出 riscv32_core.sv 和
+// riscv32_sim_debug.sv，再把它们也加入这里。P1 只移动 DPI 边界，不增加等待状态。
+// ${NPC_HOME}/vsrc/riscv32/riscv32_sim_mem.sv
+// ${NPC_HOME}/vsrc/riscv32/riscv32_core.sv
+// ${NPC_HOME}/vsrc/riscv32/riscv32_sim_debug.sv
 
-// NOTE(P2): P1 全回归通过后加入简单总线与真实 memory：
-//   riscv32_simple_bus_arbiter.sv, riscv32_sram.sv, riscv32_rom.sv。
-// 此时允许单条指令因 memory stall 跨多个周期，但仍然禁止多条指令同时在途。
+// TODO(P2-FILELIST): P1 全回归通过，并完成 IFU/LSU 本地事务状态后，在本 TODO
+// 下方加入可综合 ROM/SRAM。先分别做 Harvard 端口；需要共享 slave 时再加入
+// riscv32_simple_bus_arbiter.sv。P2 允许单条指令跨周期，但仍禁止多条指令同时在途。
+// ${NPC_HOME}/vsrc/riscv32/riscv32_rom.sv
+// ${NPC_HOME}/vsrc/riscv32/riscv32_sram.sv
+// ${NPC_HOME}/vsrc/riscv32/riscv32_simple_bus_arbiter.sv
 
 // NOTE(P3): P2 协议测试通过后加入标准总线/SoC 模块：
 //   riscv32_bus_adapter.sv, riscv32_soc.sv, timer/UART/interconnect modules。

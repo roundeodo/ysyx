@@ -8,6 +8,11 @@ module top
   localparam int unsigned EXECUTE_REDIRECT = 0;
   localparam int unsigned COMMIT_REDIRECT = 1;
 
+  // TODO(P1-TOP-MEM-WIRES): 在这里声明两组独立的 instruction/data memory channel：
+  //   imem_req_t/imem_resp_t + 各自 req_valid/req_ready/resp_valid/resp_ready；
+  //   mem_req_t/mem_resp_t   + 各自 req_valid/req_ready/resp_valid/resp_ready。
+  // IFU 和 LSU 不应共享一组散线。Harvard 双通道允许未来 I-cache/D-cache 独立等待，
+  // 到 P3 再由 core 外部的 interconnect/arbiter 映射到共享 SoC 总线。
   fetch_entry_t                                  fetch_entry;
   logic                                          fetch_valid;
   logic                                          fetch_ready;
@@ -73,6 +78,8 @@ module top
       .rst_ni          (rstn),
       .redirect_i      (selected_redirect),
       .redirect_valid_i(selected_redirect_valid),
+      // TODO(P1-TOP-IFU-MEM): riscv32_ifu 增加 memory 端口后，在这里连接上面声明的
+      // imem request/response 六个信号。不要把 pmem_read 或地址解码逻辑放进 top。
       .fetch_entry_o   (fetch_entry),
       .fetch_valid_o   (fetch_valid),
       .fetch_ready_i   (fetch_ready)
@@ -133,13 +140,24 @@ module top
 
   riscv32_lsu u_lsu (
       .clk_i             (clk),
+      // TODO(P2-TOP-LSU-RESET): LSU 有状态后在这里连接 .rst_ni(rstn)。
       .memory_result_i   (memory_execute_result),
       .memory_valid_i    (memory_execute_valid),
       .memory_ready_o    (memory_execute_ready),
       .writeback_result_o(memory_writeback_result),
       .writeback_valid_o (memory_writeback_valid),
       .writeback_ready_i (memory_writeback_ready)
+      // TODO(P1-TOP-LSU-MEM): riscv32_lsu 增加 memory 端口后，在这里连接 dmem
+      // request/response 六个信号。添加第一个连接前给上一行补逗号。
   );
+
+  // TODO(P1-TOP-SIM-MEM): 在本位置实例化 riscv32_sim_mem，同时连接 imem 与 dmem
+  // channel。P1 先实现组合零等待 adapter，用它证明“DPI 移出 core”没有改变功能。
+  // P2 再把同一个 adapter 改成一拍/随机延迟响应，并可在此替换成 riscv32_rom +
+  // riscv32_sram。core 端口与 IFU/LSU 不应因 memory 实现变化而再次修改。
+  //
+  // 注意：教程中的两个 256x32 register-array memory 是 STA 对比实验，仅各 1 KiB；
+  // 它们不能承载当前 AM/RT-Thread 镜像，也不应成为正式 top 的固定容量。
 
   riscv32_completion_mux u_completion_mux (
       .direct_result_i  (direct_result),
@@ -191,8 +209,10 @@ module top
       .redirect_valid_o(selected_redirect_valid)
   );
 
-  // P0 simulation boundary. NOTE(P1): move these DPI hooks into
-  // riscv32_sim_debug after riscv32_core is split from this top module.
+  // TODO(P1-TOP-CORE-SPLIT): memory channel 回归通过后，把第 62-192 行的可综合 CPU
+  // 结构移动到 riscv32_core.sv。riscv32_core 只暴露 clock/reset、imem/dmem channel
+  // 和 commit/debug event；top 只实例化 core、riscv32_sim_mem 与 riscv32_sim_debug。
+  // 下面的 DPI debug hooks 移入 riscv32_sim_debug，不能进入 riscv32_core。
   import "DPI-C" context function void npc_set_dpi_scope();
   import "DPI-C" context function void ebreak_halt();
 

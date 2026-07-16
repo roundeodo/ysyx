@@ -16,32 +16,32 @@ module riscv32_commit
   assign commit_valid_o    = writeback_valid_i && writeback_ready_o;
 
   always_comb begin
-    commit_o = '0;
-    commit_o.pc = writeback_result_i.uop.pc;
-    commit_o.instruction = writeback_result_i.uop.instruction;
-    commit_o.next_pc = writeback_result_i.next_pc;
+    commit_o                   = '0;
+    commit_o.pc                = writeback_result_i.uop.pc;
+    commit_o.instruction       = writeback_result_i.uop.instruction;
+    commit_o.next_pc           = writeback_result_i.next_pc;
     commit_o.gpr_write         = writeback_result_i.uop.writes_rd &&
                                  !writeback_result_i.uop.exception_valid;
-    commit_o.gpr_addr = writeback_result_i.uop.rd;
-    commit_o.gpr_wdata = writeback_result_i.result;
+    commit_o.gpr_addr          = writeback_result_i.uop.rd;
+    commit_o.gpr_wdata         = writeback_result_i.result;
     commit_o.csr_write         = writeback_result_i.uop.csr_ctrl.write_enable &&
                                  !writeback_result_i.uop.exception_valid;
-    commit_o.csr_addr = writeback_result_i.uop.csr_ctrl.addr;
-    commit_o.csr_wdata = writeback_result_i.csr_wdata;
+    commit_o.csr_addr          = writeback_result_i.uop.csr_ctrl.addr;
+    commit_o.csr_wdata         = writeback_result_i.csr_wdata;
     commit_o.memory_access     = (writeback_result_i.uop.mem_ctrl.cmd != MEM_CMD_NONE) &&
                                  !writeback_result_i.uop.exception_valid;
-    commit_o.memory_cmd = writeback_result_i.uop.mem_ctrl.cmd;
-    commit_o.memory_size = writeback_result_i.uop.mem_ctrl.size;
-    commit_o.memory_addr = writeback_result_i.memory_addr;
-    commit_o.memory_rdata = writeback_result_i.memory_rdata;
-    commit_o.memory_wdata = writeback_result_i.memory_wdata;
-    commit_o.memory_wmask = writeback_result_i.memory_wmask;
-    commit_o.trap_taken = writeback_result_i.uop.exception_valid;
+    commit_o.memory_cmd        = writeback_result_i.uop.mem_ctrl.cmd;
+    commit_o.memory_size       = writeback_result_i.uop.mem_ctrl.size;
+    commit_o.memory_addr       = writeback_result_i.memory_addr;
+    commit_o.memory_rdata      = writeback_result_i.memory_rdata;
+    commit_o.memory_wdata      = writeback_result_i.memory_wdata;
+    commit_o.memory_wmask      = writeback_result_i.memory_wmask;
+    commit_o.trap_taken        = writeback_result_i.uop.exception_valid;
     commit_o.trap_is_interrupt = 1'b0;
-    commit_o.trap_cause_code = {{(XLEN - 6) {1'b0}}, writeback_result_i.uop.exception_cause};
-    commit_o.trap_tval = writeback_result_i.uop.exception_tval;
-    commit_o.privilege = PRIV_MODE_M;
-    commit_o.system_op = writeback_result_i.uop.system_op;
+    commit_o.trap_cause_code   = {{(XLEN - 6) {1'b0}}, writeback_result_i.uop.exception_cause};
+    commit_o.trap_tval         = writeback_result_i.uop.exception_tval;
+    commit_o.privilege         = PRIV_MODE_M;
+    commit_o.system_op         = writeback_result_i.uop.system_op;
   end
 
   assign rf_wdata_o = commit_o.gpr_wdata;

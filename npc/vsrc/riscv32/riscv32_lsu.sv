@@ -2,6 +2,9 @@ module riscv32_lsu
   import riscv32_pkg::*;
 (
     input logic clk_i,
+    // TODO(P2-LSU-RESET): LSU 加入跨周期事务状态时，在这里增加 rst_ni。
+    // P1 组合适配器阶段可以暂时不使用 reset；P2 的 state_q/request_q/result_q 必须复位。
+    // input logic rst_ni,
 
     /* verilator lint_off UNUSEDSIGNAL */
     input  execute_result_t memory_result_i,
@@ -12,9 +15,26 @@ module riscv32_lsu
     output writeback_result_t writeback_result_o,
     output logic              writeback_valid_o,
     input  logic              writeback_ready_i
+
+    // TODO(P1-LSU-PORT): 在 writeback 端口之后加入下列数据存储器请求/响应端口。
+    // LSU 负责形成访问语义；riscv32_sim_mem/未来 D-cache 负责真正读写 memory。
+    // 添加第一个端口前，记得给上面的 writeback_ready_i 补逗号。
+    //
+    //   output mem_req_t  dmem_req_o,
+    //   output logic      dmem_req_valid_o,
+    //   input  logic      dmem_req_ready_i,
+    //   input  mem_resp_t dmem_resp_i,
+    //   input  logic      dmem_resp_valid_i,
+    //   output logic      dmem_resp_ready_o
+    //
+    // mem_req_t 中已经有 cmd/size/addr/wdata/wmask，不要再增加散线版本；txn_id 在 P1/P2
+    // 单 outstanding 阶段固定为 '0。valid/ready 仍然单独传递。
 );
-  // NOTE(P1): move both DPI calls into riscv32_sim_mem and expose a typed dmem
-  // request/response channel. LSU memory semantics remain unchanged by that move.
+
+  // TODO(P1-LSU-DPI): memory 端口连通后，在这里删除两个 DPI import。把当前已经算好的
+  // memory_addr、store_wdata、store_wmask、cmd 和 size 装入 dmem_req_o；load 原始数据改读
+  // dmem_resp_i.rdata。pmem_write 的副作用必须移动到 riscv32_sim_mem，并且只允许在
+  // dmem_req_valid_i && dmem_req_ready_o 时发生一次，不能因下游 stall 重复写。
   import "DPI-C" function int pmem_read_data(
     input int raddr,
     input int len
@@ -25,6 +45,18 @@ module riscv32_lsu
     input byte wmask
   );
 
+  // TODO(P2-LSU-STATE): P1 全回归后，在这里加入 LSU 自己的一事务状态机和保持寄存器：
+  //   LSU_ACCEPT     : memory_ready_o=1，fire 时锁存 memory_result_i 到 request_q；
+  //   LSU_SEND_REQ   : 保持 dmem_req_o/valid，直到 dmem_req_ready_i；
+  //   LSU_WAIT_RESP  : 等待 load/store completion response；
+  //   LSU_HOLD_RESULT: 保持 writeback_result_o/valid，直到 completion mux ready。
+  // 建议定义 state_q/state_d、execute_result_t request_q/request_d、
+  // writeback_result_t result_q/result_d，以及 dmem_req_fire/dmem_resp_fire/writeback_fire。
+  // misaligned 或上游已带 exception 的请求不访问 memory，直接构造异常 result 并进入
+  // HOLD_RESULT。状态必须局部放在 LSU；未来它会被 load queue/store queue/MSHR 扩展。
+  //
+  // 进入 P2 后，下面所有地址、size、store data 和 uop 引用都应来自 request_q，不能继续
+  // 读取 memory_result_i；上游在 memory_ready_o=0 时可以保存或更换自己的组合输入。
   logic [           1:0] addr_offset;
   logic                  is_load;
   logic                  is_store;
@@ -41,6 +73,13 @@ module riscv32_lsu
   logic [      XLEN-1:0] store_wdata;
   logic [BYTE_LANES-1:0] store_wmask;
 
+  // TODO(P1-LSU-REQ): 删除 DPI 后，在这里生成 dmem_req_o，并重写 ready/valid：
+  //   - dmem_req_valid_o 仅对合法且无既有异常的 load/store 拉高；
+  //   - request payload 在 valid=1、ready=0 时必须稳定；
+  //   - 对 P1 零等待 adapter，memory fire、dmem request fire、response fire 和
+  //     writeback fire 应描述同一次事务；
+  //   - 对本地 misaligned exception，不发送 dmem request，但仍产生一次 writeback。
+  // 不要让 dmem_req_valid_o 依赖 dmem_req_ready_i。P2 用 request_q+状态机自然满足稳定性。
   assign addr_offset       = memory_result_i.memory_addr[1:0];
   assign is_load           = memory_result_i.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
   assign is_store          = memory_result_i.uop.mem_ctrl.cmd == MEM_CMD_STORE;
@@ -81,12 +120,17 @@ module riscv32_lsu
     endcase
   end
 
+  // TODO(P1-LSU-STORE): dmem 通道完成后删除整个 always_ff。store 是否真正修改 memory
+  // 属于 memory slave/adapter；LSU 只能发出一次带 wdata/wmask 的请求。
   always_ff @(posedge clk_i) begin
     if (memory_fire && is_store && !misaligned && !memory_result_i.uop.exception_valid) begin
       pmem_write(memory_result_i.memory_addr, store_wdata, byte'(store_wmask));
     end
   end
 
+  // TODO(P1-LSU-LOAD): 删除 pmem_read_data 调用。raw_rdata 应来自有效的
+  // dmem_resp_i.rdata；P2 中应先锁存 response，再使用 request_q 中的 offset/size 完成
+  // byte/half/word 选择和符号扩展。收到 store response 时 rdata 字段无意义。
   always_comb begin
     raw_rdata = '0;
     if (memory_valid_i && is_load && !misaligned && !memory_result_i.uop.exception_valid) begin
@@ -105,6 +149,10 @@ module riscv32_lsu
     half_rdata = addr_offset[1] ? raw_rdata[31:16] : raw_rdata[15:0];
   end
 
+  // TODO(P2-LSU-RESULT): 状态机加入后，在这里用 request_q + 已保存的 mem_resp 构造
+  // result_d，并让模块输出来自 result_q。HOLD_RESULT 遇到 writeback_ready_i=0 时，
+  // writeback_result_o 和 writeback_valid_o 必须保持稳定。只有 response fire 或本地异常
+  // 才能生成一个结果，防止 load/store 被重复完成。
   always_comb begin
     unique case (memory_result_i.uop.mem_ctrl.size)
       MEM_SIZE_BYTE: begin
