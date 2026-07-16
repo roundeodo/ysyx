@@ -53,9 +53,8 @@ module riscv32_sim_mem
   // 这一小步对应手册中的同步 ROM/SRAM 时序，先通过波形确认 request(N) 对应
   // response(N+1)，再继续实现下面的任意延迟协议。
 
-  // TODO(P2B-SIM-MEM-VARIABLE-LATENCY): P2A 回归后，用每个端口各自的一项
-  // pending/response
-  // 寄存器替换上面的组合 adapter，模拟同步 memory 的一拍响应：
+  // TODO(P2B-SIM-MEM-VARIABLE-LATENCY): P2A 回归后，在每个端口的一项
+  // pending/response register 基础上扩展任意响应延迟：
   //   - req fire 时锁存 request，并暂时撤销 req_ready；
   //   - 下一拍产生 resp_valid 和响应 payload；
   //   - resp_valid=1 且 resp_ready=0 时必须保持 payload/valid 不变；

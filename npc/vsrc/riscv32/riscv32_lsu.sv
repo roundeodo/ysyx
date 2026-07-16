@@ -14,27 +14,15 @@ module riscv32_lsu
 
     output writeback_result_t writeback_result_o,
     output logic              writeback_valid_o,
-    input  logic              writeback_ready_i
+    input  logic              writeback_ready_i,
 
-    // TODO(P1-LSU-PORT): 在 writeback 端口之后加入下列数据存储器请求/响应端口。
-    // LSU 负责形成访问语义；riscv32_sim_mem/未来 D-cache 负责真正读写 memory。
-    // 添加第一个端口前，记得给上面的 writeback_ready_i 补逗号。
-    //
-    //   output mem_req_t  dmem_req_o,
-    //   output logic      dmem_req_valid_o,
-    //   input  logic      dmem_req_ready_i,
-    //   input  mem_resp_t dmem_resp_i,
-    //   input  logic      dmem_resp_valid_i,
-    //   output logic      dmem_resp_ready_o
-    //
-    // mem_req_t 中已经有 cmd/size/addr/wdata/wmask，不要再增加散线版本；txn_id 在 P1/P2
-    output mem_req_t dmem_req_o,
-    output logic dmem_req_valid_o,
-    input logic dmem_req_ready_i,
-    input mem_resp_t dmem_resp_i,
-    input logic dmem_resp_valid_i,
-    output logic dmem_resp_ready_o
-    // 单 outstanding 阶段固定为 '0。valid/ready 仍然单独传递。
+    // LSU owns memory access semantics; the memory slave owns storage side effects.
+    output mem_req_t  dmem_req_o,
+    output logic      dmem_req_valid_o,
+    input  logic      dmem_req_ready_i,
+    input  mem_resp_t dmem_resp_i,
+    input  logic      dmem_resp_valid_i,
+    output logic      dmem_resp_ready_o
 );
 
   // TODO(P1-LSU-DPI): memory 端口连通后，在这里删除两个 DPI import。把当前已经算好的

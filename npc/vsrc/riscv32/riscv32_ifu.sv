@@ -11,24 +11,12 @@ module riscv32_ifu
     /* verilator lint_on UNUSEDSIGNAL */
     input logic          redirect_valid_i,
 
-    // TODO(P1-IFU-PORT): 在这里加入指令存储器的请求/响应通道，然后再保留下面的
-    // fetch 通道。valid/ready 必须与 payload 分离；IFU 是请求生产者和响应消费者。
-    // P1 先连接零等待的 riscv32_sim_mem，不要在这一步加入状态机。
-    //
-    // 建议直接在本 TODO 下方加入以下端口：
-    //   output imem_req_t  imem_req_o,
-    //   output logic       imem_req_valid_o,
-    //   input  logic       imem_req_ready_i,
-    //   input  imem_resp_t imem_resp_i,
-    //   input  logic       imem_resp_valid_i,
-    //   output logic       imem_resp_ready_o,
-    //
-    // P1 的目标只是让 riscv32_ifu 不再知道 DPI。请求地址仍由 pc_q 产生，响应中的
-    // instruction/exception 再被组装为 fetch_entry_t。txn_id 在单事务阶段固定为 '0。
+    // IFU is the instruction-request producer and instruction-response consumer.
+    // Channel valid/ready remains separate from the payload.
     output imem_req_t  imem_req_o,
     output logic       imem_req_valid_o,
     input  logic       imem_req_ready_i,
-    input  imem_resp_t imem_resp_t,
+    input  imem_resp_t imem_resp_i,
     input  logic       imem_resp_valid_i,
     output logic       imem_resp_ready_o,
 
