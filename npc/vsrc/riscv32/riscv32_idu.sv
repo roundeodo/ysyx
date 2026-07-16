@@ -319,7 +319,8 @@ module riscv32_idu
       default: decoded_uop_o.exception_valid = 1'b1;
     endcase
 
-    if (decoded_uop_o.exception_valid && (decoded_uop_o.system_op != SYS_ECALL)) begin
+    if (decoded_uop_o.exception_valid && !fetch_entry_i.exception_valid &&
+        (decoded_uop_o.system_op != SYS_ECALL)) begin
       decoded_uop_o.exception_cause = EXC_ILLEGAL_INSTRUCTION;
       decoded_uop_o.exception_tval  = instruction;
     end
