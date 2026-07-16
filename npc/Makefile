@@ -31,7 +31,10 @@ $(shell mkdir -p $(BUILD_DIR))
 # RTL project source
 VSRC_DIR  = $(abspath ./vsrc/$(PROJECT))
 VSRC_LIST = $(VSRC_DIR)/filelist.f
-VSRC_DEPS = $(shell sed 's|$${NPC_HOME}|$(abspath .)|g' $(VSRC_LIST))
+# filelist.f is also documentation for staged RTL TODOs. Only source entries
+# participate in Make dependencies; Verilator still reads the complete filelist.
+VSRC_DEPS = $(shell sed -e 's|$${NPC_HOME}|$(abspath .)|g' \
+	-e '/^[[:space:]]*\/\//d' -e '/^[[:space:]]*$$/d' $(VSRC_LIST))
 
 # normal simulation C/C++ sources
 CSRC_SIM = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))

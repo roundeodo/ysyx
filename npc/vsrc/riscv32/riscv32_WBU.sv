@@ -4,6 +4,9 @@ module riscv32_WBU
     parameter DATA_WIDTH = 32,
     parameter ADDR_WIDTH = 5
 ) (
+    // TODO(HP-WBU-1): 不要继续扩展当前 WBU 接口。
+    // 先创建 riscv32_completion_arbiter 和 riscv32_commit：前者接收各执行单元 completion 并写 PRF/ROB，
+    // 后者只提交 ROB 头部。top 完成迁移后删除整个 riscv32_WBU.sv 和 filelist 条目。
     // data from LSU
     // WBU consumes LSU completion/result record directly.
     // writeback/bypass/ROB writeback 都应该消费 result record，而不是 top 拆线。
@@ -35,7 +38,7 @@ module riscv32_WBU
   // 不应该写：
   //   store / branch / fence / ebreak / illegal instruction
   //
-  // 这些应该由 Decoder 的 reg_wen 决定，WBU 不要自己 decode opcode。
+  // 这些应该由 IDU 的 reg_wen 决定，WBU 不要自己 decode opcode。
   //
   // x0 保护：
   //   RegisterFile 必须屏蔽 x0 写入。
@@ -54,9 +57,12 @@ module riscv32_WBU
   //   branch/jump 判断
   //   illegal instruction 判断
   //
-  // load formatting 属于 LSU，control legality 属于 Decoder，redirect 属于 EXU/IFU。
+  // load formatting 属于 LSU，control legality 属于 IDU，redirect 属于 EXU/IFU。
   // WBU 只选择写回数据并驱动 RF 写端口。
 
+  // TODO(HP-WBU-2): 将下面 writeback-data mux 移出中央 WBU。
+  // 每个执行单元的 completion 应直接携带最终 result：ALU result、formatted load data、PC+4
+  // 或 CSR old value；riscv32_completion_arbiter 不应根据 wb_sel 再理解指令类别。
   always_comb begin
     case (i_wbu_lsu_result.wb_sel)
       WB_ALU_RES: o_wbu_wdata = i_wbu_lsu_result.alu_res;
@@ -69,6 +75,10 @@ module riscv32_WBU
 
   // 当前单周期没有 commit 阶段，但 WBU 已经是 architectural state update 边界。
   // 以后乱序 CPU 会把这个语义移动到 commit/retire。
+  // TODO(HP-WBU-3): 用两个明确阶段替换下面 RF 写端口：
+  //   execute writeback: completion fire 时写 physical register 并 wakeup；
+  //   commit: ROB 头部更新 committed rename map、处理 store/CSR/exception。
+  // 在尚未实现 rename/ROB 时，可先建立一项 in-order riscv32_commit 驱动当前 RegisterFile。
   assign o_wbu_waddr = i_wbu_lsu_result.rd_addr;
   assign o_wbu_wen   = i_wbu_lsu_result.valid && i_wbu_lsu_result.reg_wen && (i_wbu_lsu_result.rd_addr != '0);
 

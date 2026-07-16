@@ -9,6 +9,9 @@ module riscv32_IFU #(
     input logic                  i_if_redirect_valid,
     input logic [DATA_WIDTH-1:0] i_if_redirect_pc,
 
+    // TODO(HP-IFU-1): 用 fetch response channel 替换下面两个散线输出。
+    // 推荐端口：fetch_valid_o、fetch_ready_i、fetch_packet_o(fetch_packet_t)。
+    // 当 valid=1 且 ready=0 时，PC 和 instruction 必须保持不变；只有 fire 时才能推进队列。
     output logic [DATA_WIDTH-1:0] o_if_pc,
     output logic [DATA_WIDTH-1:0] o_if_instruction
 );
@@ -49,12 +52,22 @@ module riscv32_IFU #(
   //   当前 trace/DPI 读到的是“当前执行指令”。进入流水线后，trace/DiffTest
   //   应迁移到 commit/retire 阶段，不能继续直接拿 IF PC 当提交 PC。
 
+  // TODO(HP-IFU-5): 在这里逐步加入 riscv32_branch_predictor/BTB/RAS 和 riscv32_fetch_queue 边界。
+  // predictor 给出 predicted_next_pc 和 prediction metadata；riscv32_fetch_queue 保存 packet，并在 redirect
+  // 时按 epoch/flush 清除错误路径。不要让 IDU、riscv32_branch_unit 或 RDU 直接修改内部 predictor state。
   logic [DATA_WIDTH-1:0] pc_reg_Q;
   logic [DATA_WIDTH-1:0] pc_reg_D;
+
+  // TODO(HP-IFU-2): 把下面 DPI import 从 IFU 删除，改成 instruction-memory request/response。
+  // Core 侧接口至少需要：imem_req_valid/ready/address 和 imem_resp_valid/ready/data/error。
+  // pmem_read() 应迁移到 riscv32_sim_mem；以后替换为 I-cache 时 IFU 不需要再修改。
   import "DPI-C" function int pmem_read(input int raddr);
 
   // PC mux 只处理正常顺序取指和 redirect。
   // reset 优先级保持在 always_ff 里，不要和 redirect 混在组合 mux 里。
+  // TODO(HP-IFU-3): 加入取指阻塞语义后重写 PC enable。
+  // 优先级应为 reset > redirect > successful fetch/fire > hold；I-cache miss 或下游不 ready
+  // 时保持 pc_reg_Q，不能无条件 pc+4。redirect 还必须清除旧 fetch response/riscv32_fetch_queue 项。
   assign pc_reg_D = i_if_redirect_valid ? i_if_redirect_pc : (pc_reg_Q + 32'd4);
   always_ff @(posedge clk) begin
     if (!rstn) begin
@@ -65,6 +78,7 @@ module riscv32_IFU #(
   end
 
   assign o_if_pc          = pc_reg_Q;
+  // TODO(HP-IFU-4): 完成 HP-IFU-2 后，用 imem_resp_data 形成 fetch_packet_t，删除此组合 DPI 读。
   assign o_if_instruction = pmem_read(o_if_pc);
 
 endmodule

@@ -1,3 +1,6 @@
+// TODO(HP-CSR-0): 完成 commit-only 改造后，将文件和模块重命名为 riscv32_csr_file。
+// 该名称明确本模块只保存并访问 CSR architectural state；CSR 指令运算放在 riscv32_csr_exec，
+// trap/interrupt 选择与 redirect request 生成放在 riscv32_trap_ctrl，避免重新形成集中式控制器。
 module riscv32_CSR
   import riscv32_pkg::*;
 #(
@@ -7,6 +10,10 @@ module riscv32_CSR
     input logic clk,
     input logic rst,
 
+    // TODO(HP-CSR-1): 把 CSR execute/read 与 architectural commit write 分成两组端口。
+    // Execute 端口读取 old value、计算 new value、检查权限并形成 completion；Commit 端口携带
+    // csr_commit_valid_i/csr_commit_i，只有 ROB 头部授权才能修改下面的 CSR state。
+    // trap/mret 也应来自 riscv32_trap_ctrl 的 commit request，不能直接来自当前 IDU。
     input logic                     i_csr_ren,
     input logic                     i_csr_wren,
     input logic    [ADDR_WIDTH-1:0] i_csr_addr,
@@ -49,6 +56,9 @@ module riscv32_CSR
   logic [31:0] mip;
 
   logic [DATA_WIDTH-1:0] csr_wdata;
+  // TODO(HP-CSR-2): 将下面 CSR RMW 逻辑定义为“候选新值”计算，不要在 execute 时直接写寄存器。
+  // CSR completion 应同时携带 old_value（写回 rd）和 new_value（等待 commit）；对于 CSRRS/
+  // CSRRC 的 rs1=x0，必须保持无写副作用。加入 CSR immediate 指令时 source 来自 zimm 而非 RF。
   //operation
   always_comb begin
     case (i_csr_op)
@@ -81,6 +91,9 @@ module riscv32_CSR
         CSR_MCYCLE:  o_csr_rdata = mcycle[31:0];
         CSR_MCYCLEH: o_csr_rdata = mcycle[63:32];
 
+        // TODO(HP-CSR-3): 将非法 CSR 地址/权限错误并入当前 uop 的 exception metadata。
+        // 不要在 top 中用 unused_csr_status 吞掉它；completion 应携带 illegal-instruction cause，
+        // ROB 提交时由 riscv32_trap_ctrl 写 mepc/mcause 并 redirect 到 mtvec。
         default: begin
           o_csr_rdata   = 32'b0;
           o_csr_illegal = 1'b1;
@@ -89,6 +102,9 @@ module riscv32_CSR
     end
   end
 
+  // TODO(HP-CSR-4): 将下面状态更新改成 commit-only。
+  // 优先级建议明确为 reset > committed trap > committed mret > committed CSR write > counters。
+  // 被 flush、尚未到 ROB 头部或发生更早异常的 CSR uop 绝不能修改 architectural CSR。
   //write
   always_ff @(posedge clk) begin
     if (rst) begin
@@ -102,6 +118,9 @@ module riscv32_CSR
       mip      <= 32'b0;
     end else begin
       mcycle <= mcycle + 1;
+      // TODO(HP-CSR-5): 补齐 trap/mret 对 mstatus 的体系结构更新，并为中断留下统一入口。
+      // trap 至少保存 mepc/mcause，并更新 MIE/MPIE/MPP；mret 执行相反恢复。
+      // timer interrupt 的 pending/enable 判断属于 riscv32_trap_ctrl，CSRFile 只保存 mstatus/mie/mip。
       if (i_trap_valid) begin
         mepc   <= i_trap_mepc;
         mcause <= i_trap_mcause;

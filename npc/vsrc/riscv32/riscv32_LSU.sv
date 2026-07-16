@@ -3,6 +3,10 @@ module riscv32_LSU
 #(
     parameter DATA_WIDTH = 32
 ) (
+    // TODO(HP-LSU-1): 用 memory issue channel 替换 i_lsu_ex_result。
+    // LSU 只能接收 fu_type==FU_LSU 的 memory uop/riscv32_agu result，不能继续作为全部指令的通路。
+    // 请求至少携带 addr、store_data、cmd、size、unsigned、physical_rd、rob_idx、lq/sq_idx。
+    // 端口使用 valid/ready/bits，load miss 或队列满时必须能反压 riscv32_issue_queue。
     // from EXU
     // LSU 消费 EXU 产生的结构化 memory uop/result。
     // 未来接 LSQ、store buffer、D-cache 时，top 不应该手工拆散这些字段。
@@ -53,6 +57,10 @@ module riscv32_LSU
   // IFU 取指仍然应该调用 pmem_read，不走这里。
   // ============================================================
 
+  // TODO(HP-LSU-2): 删除下面两个 DPI import，把它们迁移到 riscv32_sim_mem。
+  // LSU 输出 dmem_req_valid_o/dmem_req_ready_i/dmem_req_o，并接收
+  // dmem_resp_valid_i/dmem_resp_ready_o/dmem_resp_i。
+  // 这样同一个 Core 可以连接 DPI memory、D-cache 或 SoC 总线而无需修改 LSU。
   import "DPI-C" function int pmem_read_data(
     input int raddr,
     input int len
@@ -86,6 +94,9 @@ module riscv32_LSU
   assign size_half = (i_lsu_ex_result.mem_size == MEM_SIZE_HALF);
   assign size_word = (i_lsu_ex_result.mem_size == MEM_SIZE_WORD);
 
+  // TODO(HP-LSU-3): 不要只用 misalign 信号静默禁止访存。
+  // load_misalign/store_misalign 必须生成 completion.exception_valid、exception_cause 和 badaddr，
+  // 由 ROB 在提交时触发精确异常；异常 memory uop 不得发送 dmem request。
   assign load_misalign = is_load && ((size_half && addr_offset[0]) || (size_word && |addr_offset));
   assign store_misalign = is_store && ((size_half && addr_offset[0]) || (size_word && |addr_offset));
 
@@ -201,6 +212,9 @@ module riscv32_LSU
 
   logic [DATA_WIDTH-1:0] raw_rdata;
 
+  // TODO(HP-LSU-4): 完成 HP-LSU-2 后删除下面整个组合 DPI access block。
+  // 在这里改成 request 生成和 response 接收状态机/流水级：store 只有到 riscv32_commit 授权后
+  // 才能真正写内存；推测执行的 load 可以提前读，但必须支持 miss、replay 和 flush 丢弃。
   always_comb begin
     raw_rdata = 32'b0;
 
@@ -286,6 +300,9 @@ module riscv32_LSU
   // LSU 输出的 completion record 是 WBU、bypass、ROB completion 的共同输入。
   // 当前单周期直接送 WBU；未来乱序实现中，load/store 完成后应写入 ROB/PRF
   // 或触发 replay/exception metadata 更新。
+  // TODO(HP-LSU-5): 用 LSU completion channel 替换下面 o_lsu_result 打包块。
+  // load response 格式化完成后输出最终 result；store 输出地址/数据已就绪状态给 ROB/SQ，
+  // 不直接写 architectural RF。completion 必须携带 rob_idx/physical_rd/exception/replay。
   always_comb begin
     o_lsu_result           = '0;
     o_lsu_result.valid     = i_lsu_ex_result.valid;

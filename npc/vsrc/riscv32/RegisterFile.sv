@@ -1,3 +1,9 @@
+// TODO(HP-RF-0): 当前顺序核阶段将文件和模块重命名为 riscv32_arch_regfile。
+// “RegisterFile”无法区分 architectural register file 与未来 physical register file；进入 rename
+// 阶段后保留 riscv32_phys_regfile，不要让两个不同语义的模块继续共享泛化名称。
+// TODO(HP-RF-1): 当前模块是 ArchitecturalRegisterFile，不是未来乱序核的 PRF。
+// 完成 in-order riscv32_commit 后先把写端口改成 commit 驱动；进入 rename 阶段时另外创建
+// RAT、RRAT/committed map、FreeList 和 PhysicalRegisterFile，不要把这些职责塞进本模块。
 module RegisterFile #(
     parameter ADDR_WIDTH = 5,
     parameter DATA_WIDTH = 32
@@ -41,7 +47,7 @@ module RegisterFile #(
   //   注意：
   //     x16-x31 是否非法不应该由 RegisterFile 判断，因为 RF 不知道 opcode。
   //     I-type 的 instruction[24:20] 可能是 immediate/shamt，不一定是 rs2。
-  //     非法寄存器检查应该由 Decoder 根据 opcode 产生 illegal metadata。
+  //     非法寄存器检查应该由 IDU 根据 opcode 产生 illegal metadata。
   //
   // x0 hardwired-zero rule:
   //   当前写端口已经屏蔽 waddr == 0，读端口也对 raddr == 0 返回 0。
@@ -69,8 +75,13 @@ module RegisterFile #(
   //
   //   先保证 architectural x0-x15 行为正确。等单周期和顺序流水线稳定后，再引入 rename。
 
+  // TODO(HP-RF-2): 创建 PhysicalRegisterFile 时重新设计端口数量，而不是复制当前 2R1W 接口。
+  // 读端口数由 issue width 和执行单元决定，写端口数由 completion bandwidth 决定；同时需要
+  // ready bits、wakeup/bypass 冲突规则和多写端口仲裁。当前 rf 只保留到 rename 接入完成。
   logic [DATA_WIDTH-1:0] rf[2**ADDR_WIDTH-1:0];
 
+  // TODO(HP-RF-3): 在当前顺序核阶段，把 i_RF_wen 明确接到 riscv32_commit 的 commit_reg_wen。
+  // 这样即使暂时没有 ROB，也能保证异常指令和被 flush 指令不会提前修改架构寄存器。
   always_ff @(posedge clk) begin
     if (i_RF_wen && (i_RF_waddr != {ADDR_WIDTH{1'b0}})) begin
       rf[i_RF_waddr] <= i_RF_wdata;
