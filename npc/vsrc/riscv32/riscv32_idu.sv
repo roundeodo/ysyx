@@ -6,12 +6,13 @@
 module riscv32_idu
   import riscv32_pkg::*;
 (
-    // TODO(HP-IDU-1): 旧 field-extractor IDU 已删除并合并到本文件；先完成这里，恢复编译。
+    // TODO(HP-IDU-P0-1): P0 首先完成单周期 typed bundle，不改变执行周期数。
     // 用一个 fetch_entry_t 输入替换下面全部 raw-field 输入，并把输出改成 decoded_uop_t。
     // 推荐端口形式：
     //   input  fetch_entry_t  fetch_entry_i,
     //   output decoded_uop_t  decoded_uop_o
     // 当前 i_idu_* 端口只作为迁移参照；新端口接通后将它们全部删除。
+    // fetch_entry_i 到 decoded_uop_o 仍是纯组合路径；不要加入 valid/ready 或 stage register。
     // Legacy raw-field ports: migrate their extraction into this IDU, then delete all of them.
     input logic [6:0] i_idu_opcode,
     input logic [2:0] i_idu_funct_3,

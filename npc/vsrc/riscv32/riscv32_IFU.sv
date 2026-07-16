@@ -9,9 +9,9 @@ module riscv32_IFU #(
     input logic                  i_if_redirect_valid,
     input logic [DATA_WIDTH-1:0] i_if_redirect_pc,
 
-    // TODO(HP-IFU-1): 用 fetch response channel 替换下面两个散线输出。
-    // 推荐端口：fetch_valid_o、fetch_ready_i、fetch_entry_o(fetch_entry_t)。
-    // 当 valid=1 且 ready=0 时，PC 和 instruction 必须保持不变；只有 fire 时才能推进队列。
+    // TODO(HP-IFU-P0-BUNDLE): 在保持单周期组合取指的前提下，用一个 fetch_entry_t
+    // 替换下面两个散线输出；直接填写 pc/instruction，其余 metadata 先清零。
+    // P0 不增加 valid/ready、stall 或流水寄存器；这些只在 P2/P4 引入等待和流水线时加入。
     output logic [DATA_WIDTH-1:0] o_if_pc,
     output logic [DATA_WIDTH-1:0] o_if_instruction
 );

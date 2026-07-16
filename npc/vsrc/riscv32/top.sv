@@ -24,9 +24,9 @@ module top
   assign unused_ctrl_metadata = ^{w_decode_ctrl.valid, w_decode_ctrl.illegal_instr, w_decode_ctrl.exception_cause};
   /* verilator lint_on UNUSEDSIGNAL */
 
-  // TODO(HP-TOP-2): 用 fetch_entry_t + 独立 valid/ready 替换下面 IFU/IDU 散线。
-  // 第一阶段可先声明 `fetch_entry_t fetch_entry;`，把 IFU 的 pc/instruction 打包后
-  // 直接送 IDU；加入流水寄存器时再增加 fetch_valid/fetch_ready。
+  // TODO(HP-TOP-P0-2): 用 fetch_entry_t 替换下面 IFU/IDU 散线。
+  // P0 只把 IFU 的 pc/instruction 组合打包后直接送 IDU，不增加 valid/ready 或寄存器；
+  // P2 出现 memory stall、P4 建立流水线时再加入握手和保持语义。
   // IDU 接通后删除 w_opcode、w_funct_*、w_imm_*、w_rd/rs*_addr 这些顶层散线。
   // IFU to IDU
   logic [DATA_WIDTH-1:0] w_pc;
@@ -182,10 +182,9 @@ module top
       .o_idu_ctrl(w_decode_ctrl)
   );
 
-  // TODO(HP-TOP-4B): IDU 输出 decoded_uop_t 后，在这里建立后端入口，而不是继续直连 RF->EXU。
-  // 推荐实现顺序：先加一项 Decode/Execute 寄存器和 valid/ready；再替换为 riscv32_rename and riscv32_dispatch；
-  // 随后加入 RAT/FreeList/ROB allocation 和按 fu_type 分发的 riscv32_issue_queue。
-  // 多发射时这些端口改成数组 [ISSUE_WIDTH-1:0]，不要复制多套 top 散线。
+  // TODO(HP-TOP-P0-4B): IDU 输出 decoded_uop_t 后，P0 直接组合连接 RF 和 EXU。
+  // 不在这里加入 Decode/Execute 寄存器；P4 才加入流水寄存器和 bypass/hazard，
+  // P6 才由 rename/dispatch/issue queue 取代架构寄存器直读。
   RegisterFile #(
       .DATA_WIDTH(DATA_WIDTH),
       .ADDR_WIDTH(ADDR_WIDTH)
@@ -227,9 +226,9 @@ module top
       .o_csr_illegal(w_csr_illegal)
   );
 
-  // TODO(HP-TOP-6): 用 execute request channel 替换 EXU 的散线端口。
-  // 当前先由 decoded_uop + RF operands 形成 execute_req_t；未来该请求由 riscv32_issue_queue 发出。
-  // 接口必须使用 ex_req_valid/ex_req_ready/ex_req_bits，不能把固定为 1 的 valid 塞进 payload。
+  // TODO(HP-TOP-P0-6): P0 用 decoded_uop_t + RF operands 组合驱动 EXU，先消除散线，
+  // 但不加入 execute valid/ready。P4 的流水线接口再增加握手，P6 才由 issue queue
+  // 产生各执行单元的窄 request payload。
   riscv32_EXU #(
       .DATA_WIDTH(DATA_WIDTH),
       .ADDR_WIDTH(ADDR_WIDTH)
