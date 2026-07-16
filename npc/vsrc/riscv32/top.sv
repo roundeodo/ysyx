@@ -24,8 +24,8 @@ module top
   assign unused_ctrl_metadata = ^{w_decode_ctrl.valid, w_decode_ctrl.illegal_instr, w_decode_ctrl.exception_cause};
   /* verilator lint_on UNUSEDSIGNAL */
 
-  // TODO(HP-TOP-2): 用 fetch_packet_t + 独立 valid/ready 替换下面 IFU/IDU 散线。
-  // 第一阶段可先声明 `fetch_packet_t fetch_packet;`，把 IFU 的 pc/instruction 打包后
+  // TODO(HP-TOP-2): 用 fetch_entry_t + 独立 valid/ready 替换下面 IFU/IDU 散线。
+  // 第一阶段可先声明 `fetch_entry_t fetch_entry;`，把 IFU 的 pc/instruction 打包后
   // 直接送 IDU；加入流水寄存器时再增加 fetch_valid/fetch_ready。
   // IDU 接通后删除 w_opcode、w_funct_*、w_imm_*、w_rd/rs*_addr 这些顶层散线。
   // IFU to IDU

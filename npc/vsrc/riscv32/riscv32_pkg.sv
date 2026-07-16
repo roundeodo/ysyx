@@ -1,47 +1,62 @@
-// contain some shared struct and variables for all modules
+// Shared architectural constants, semantic enums, and inter-module payload types.
+// This package is the only authority for core-wide contracts. Channel valid/ready
+// signals and module-local state are intentionally kept outside these payloads.
 package riscv32_pkg;
-  // TODO(HP-NAME-2): 在 HP-PKG 类型迁移完成后统一 typedef 后缀。
-  // packed struct/一般类型使用 _t；enum 类型使用 _e，例如 fu_type_e、mem_cmd_e。
-  // 当前已有 enum 的 _t 后缀先不要零散改名，等 decoded_uop_t 接通后一次性机械迁移并 lint，
-  // 避免同一阶段同时存在 mem_cmd_t/mem_cmd_e 两套名字。
-  // ======
-  // basic architecture parameter
-  // ====== 
-  parameter int XLEN = 32;
 
-  // RV32I 有 x0-x31，rd/rs1/rs2 字段和 architectural register index 都是 5 bit。
-  parameter int ISA_REG_ADDR_W = 5;
+  // Architecture and microarchitecture configuration
+  parameter int unsigned XLEN = 32;
+  parameter int unsigned ARCH_REG_NUM = 32;
 
+  // Width parameters remain 1 until the matching multi-lane hazards are verified.
+  // Raising a width must not change payload semantics or module ownership.
   /* verilator lint_off UNUSEDPARAM */
-  // 本核只实现标准 RV32I，不保留 RV32E 配置；架构寄存器固定为 x0-x31。
-  // 后续乱序核仍保持 5-bit architectural index，再由 rename map 映射到更宽的 physical index。
-  parameter int ARCH_REG_NUM = 32;
-  parameter int ARCH_REG_IDX_W = 5;
-
-  // reset vector
-  parameter logic [XLEN-1:0] RESET_VECTOR = 32'h8000_0000;
+  parameter int unsigned FETCH_WIDTH = 1;
+  parameter int unsigned DECODE_WIDTH = 1;
+  parameter int unsigned RENAME_WIDTH = 1;
+  parameter int unsigned DISPATCH_WIDTH = 1;
+  parameter int unsigned COMMIT_WIDTH = 1;
+  parameter int unsigned INT_ISSUE_WIDTH = 1;
+  parameter int unsigned MEM_ISSUE_WIDTH = 1;
   /* verilator lint_on UNUSEDPARAM */
 
-  // ======
-  // RISCV opcode definitions
-  // ======
-  localparam logic [6:0] OPCODE_LOAD     = 7'b0000011;  // lb/lh/lw/lbu/lhu
-  localparam logic [6:0] OPCODE_MISC_MEM = 7'b0001111;  // fence
-  localparam logic [6:0] OPCODE_I_TYPE   = 7'b0010011;  // addi/slti/.../srai
-  localparam logic [6:0] OPCODE_AUIPC    = 7'b0010111;  // auipc
-  localparam logic [6:0] OPCODE_STORE    = 7'b0100011;  // sb/sh/sw
-  localparam logic [6:0] OPCODE_R_TYPE   = 7'b0110011;  // add/sub/sll/...
-  localparam logic [6:0] OPCODE_LUI      = 7'b0110111;  // lui
-  localparam logic [6:0] OPCODE_BRANCH   = 7'b1100011;  // beq/bne/blt/...
-  localparam logic [6:0] OPCODE_JALR     = 7'b1100111;  // jalr
-  localparam logic [6:0] OPCODE_JAL      = 7'b1101111;  // jal
-  localparam logic [6:0] OPCODE_SYSTEM   = 7'b1110011;  // ecall/ebreak/csr
+  // Backend capacities are centralized here so rename, ROB, issue, and recovery
+  // cannot silently use incompatible index widths.
+  parameter int unsigned PHYS_REG_NUM = 64;
+  parameter int unsigned ROB_ENTRIES = 32;
+  parameter int unsigned LQ_ENTRIES = 16;
+  parameter int unsigned SQ_ENTRIES = 16;
+  parameter int unsigned MEM_TXN_ENTRIES = 16;
+  parameter int unsigned FRONTEND_TAG_COUNT = 16;
+  parameter int unsigned PREDICTOR_META_W = 32;
 
-  // ======
-  // funct3 definitions
-  // ======
+  localparam int unsigned ARCH_REG_IDX_W = (ARCH_REG_NUM > 1) ? $clog2(ARCH_REG_NUM) : 1;
+  localparam int unsigned PHYS_REG_IDX_W = (PHYS_REG_NUM > 1) ? $clog2(PHYS_REG_NUM) : 1;
+  localparam int unsigned ROB_IDX_W = (ROB_ENTRIES > 1) ? $clog2(ROB_ENTRIES) : 1;
+  localparam int unsigned LQ_IDX_W = (LQ_ENTRIES > 1) ? $clog2(LQ_ENTRIES) : 1;
+  localparam int unsigned SQ_IDX_W = (SQ_ENTRIES > 1) ? $clog2(SQ_ENTRIES) : 1;
+  localparam int unsigned MEM_TXN_IDX_W = (MEM_TXN_ENTRIES > 1) ? $clog2(MEM_TXN_ENTRIES) : 1;
+  localparam int unsigned FRONTEND_TAG_W = (FRONTEND_TAG_COUNT > 1) ? $clog2(
+      FRONTEND_TAG_COUNT
+  ) : 1;
+  localparam int unsigned BYTE_LANES = XLEN / 8;
 
-  // Branch funct3
+  /* verilator lint_off UNUSEDPARAM */
+  parameter logic [XLEN-1:0] RESET_VECTOR = 32'h8000_0000;
+
+  // ISA encoding constants
+  // Only IDU/decode lanes may translate these encodings into semantic operations.
+  localparam logic [6:0] OPCODE_LOAD     = 7'b0000011;
+  localparam logic [6:0] OPCODE_MISC_MEM = 7'b0001111;
+  localparam logic [6:0] OPCODE_I_TYPE   = 7'b0010011;
+  localparam logic [6:0] OPCODE_AUIPC    = 7'b0010111;
+  localparam logic [6:0] OPCODE_STORE    = 7'b0100011;
+  localparam logic [6:0] OPCODE_R_TYPE   = 7'b0110011;
+  localparam logic [6:0] OPCODE_LUI      = 7'b0110111;
+  localparam logic [6:0] OPCODE_BRANCH   = 7'b1100011;
+  localparam logic [6:0] OPCODE_JALR     = 7'b1100111;
+  localparam logic [6:0] OPCODE_JAL      = 7'b1101111;
+  localparam logic [6:0] OPCODE_SYSTEM   = 7'b1110011;
+
   localparam logic [2:0] FUNCT3_BEQ  = 3'b000;
   localparam logic [2:0] FUNCT3_BNE  = 3'b001;
   localparam logic [2:0] FUNCT3_BLT  = 3'b100;
@@ -49,19 +64,16 @@ package riscv32_pkg;
   localparam logic [2:0] FUNCT3_BLTU = 3'b110;
   localparam logic [2:0] FUNCT3_BGEU = 3'b111;
 
-  // Load funct3
   localparam logic [2:0] FUNCT3_LB  = 3'b000;
   localparam logic [2:0] FUNCT3_LH  = 3'b001;
   localparam logic [2:0] FUNCT3_LW  = 3'b010;
   localparam logic [2:0] FUNCT3_LBU = 3'b100;
   localparam logic [2:0] FUNCT3_LHU = 3'b101;
 
-  // Store funct3
   localparam logic [2:0] FUNCT3_SB = 3'b000;
   localparam logic [2:0] FUNCT3_SH = 3'b001;
   localparam logic [2:0] FUNCT3_SW = 3'b010;
 
-  // ALU funct3
   localparam logic [2:0] FUNCT3_ADD_SUB = 3'b000;
   localparam logic [2:0] FUNCT3_SLL     = 3'b001;
   localparam logic [2:0] FUNCT3_SLT     = 3'b010;
@@ -71,64 +83,177 @@ package riscv32_pkg;
   localparam logic [2:0] FUNCT3_OR      = 3'b110;
   localparam logic [2:0] FUNCT3_AND     = 3'b111;
 
-  // ======
-  // funct7 definitions
-  // ======
-
   localparam logic [6:0] FUNCT7_BASE = 7'b0000000;
-  localparam logic [6:0] FUNCT7_ALT  = 7'b0100000;  // sub/sra/srai
+  localparam logic [6:0] FUNCT7_ALT  = 7'b0100000;
 
-  // ======
-  // system funct12 definitions
-  // ecall  = 0x000
-  // ebreak = 0x001
-  //
-  // 当前 NPC 只需要 ebreak 来结束仿真。
-  // 后续如果支持异常/CSR，需要继续扩展这里。
-  // ======
-  /* verilator lint_off UNUSEDPARAM */
-  localparam logic [11:0] FUNCT12_ECALL = 12'h000;
-  localparam logic [11:0] FUNCT12_MRET  = 12'h302;
-  /* verilator lint_on UNUSEDPARAM */
+  localparam logic [2:0] FUNCT3_SYSTEM_PRIV = 3'b000;
+  localparam logic [2:0] FUNCT3_CSRRW       = 3'b001;
+  localparam logic [2:0] FUNCT3_CSRRS       = 3'b010;
+  localparam logic [2:0] FUNCT3_CSRRC       = 3'b011;
+  localparam logic [2:0] FUNCT3_CSRRWI      = 3'b101;
+  localparam logic [2:0] FUNCT3_CSRRSI      = 3'b110;
+  localparam logic [2:0] FUNCT3_CSRRCI      = 3'b111;
+
+  localparam logic [11:0] FUNCT12_ECALL  = 12'h000;
   localparam logic [11:0] FUNCT12_EBREAK = 12'h001;
+  localparam logic [11:0] FUNCT12_MRET   = 12'h302;
 
-  // ======
-  // immediate select
-  //
-  // IDU 输出 imm_sel，后续由 IDU/top 根据 imm_sel 选择最终 immediate。
-  //
-  // 为什么要这么做：
-  //   不希望 top.sv 里面再根据 opcode 重复写 immediate mux。
-  //
-  // 未来流水线：
-  //   Decode 阶段可以直接生成 selected_imm，
-  //   或者把 imm_sel 跟随指令送入 ID/EX pipeline register。
-  // ======
+  // Machine-mode CSR addresses used by the current privileged implementation.
+  localparam logic [11:0] CSR_MSTATUS   = 12'h300;
+  localparam logic [11:0] CSR_MIE       = 12'h304;
+  localparam logic [11:0] CSR_MTVEC     = 12'h305;
+  localparam logic [11:0] CSR_MSCRATCH  = 12'h340;
+  localparam logic [11:0] CSR_MEPC      = 12'h341;
+  localparam logic [11:0] CSR_MCAUSE    = 12'h342;
+  localparam logic [11:0] CSR_MTVAL     = 12'h343;
+  localparam logic [11:0] CSR_MIP       = 12'h344;
+  localparam logic [11:0] CSR_MCYCLE    = 12'hb00;
+  localparam logic [11:0] CSR_MCYCLEH   = 12'hb80;
+  localparam logic [11:0] CSR_MVENDORID = 12'hf11;
+  localparam logic [11:0] CSR_MARCHID   = 12'hf12;
+  /* verilator lint_on UNUSEDPARAM */
+
+  // Canonical index types
+  typedef logic [ARCH_REG_IDX_W-1:0] arch_reg_idx_t;
+  typedef logic [PHYS_REG_IDX_W-1:0] phys_reg_idx_t;
+  typedef logic [ROB_IDX_W-1:0] rob_idx_t;
+  typedef logic [LQ_IDX_W-1:0] lq_idx_t;
+  typedef logic [SQ_IDX_W-1:0] sq_idx_t;
+  typedef logic [MEM_TXN_IDX_W-1:0] mem_txn_id_t;
+  typedef logic [FRONTEND_TAG_W-1:0] frontend_tag_t;
+
+  // Semantic operation enums
+  // Zero is side-effect-free wherever possible so payload = '0 is a safe default.
   typedef enum logic [2:0] {
-    IMM_NONE = 3'b000,
-    IMM_I    = 3'b001,
-    IMM_S    = 3'b010,
-    IMM_B    = 3'b011,
-    IMM_U    = 3'b100,
-    IMM_J    = 3'b101
+    FU_NONE   = 3'd0,
+    FU_INT    = 3'd1,
+    FU_BRANCH = 3'd2,
+    FU_LSU    = 3'd3,
+    FU_CSR    = 3'd4,
+    FU_SYSTEM = 3'd5,
+    FU_MULDIV = 3'd6
+  } fu_type_e;
+
+  typedef enum logic [1:0] {
+    OPA_ZERO = 2'd0,
+    OPA_RS1  = 2'd1,
+    OPA_PC   = 2'd2
+  } operand_a_sel_e;
+
+  typedef enum logic [1:0] {
+    OPB_ZERO = 2'd0,
+    OPB_RS2  = 2'd1,
+    OPB_IMM  = 2'd2
+  } operand_b_sel_e;
+
+  typedef enum logic [3:0] {
+    ALU_ADD  = 4'd0,
+    ALU_SUB  = 4'd1,
+    ALU_SLL  = 4'd2,
+    ALU_SLT  = 4'd3,
+    ALU_SLTU = 4'd4,
+    ALU_XOR  = 4'd5,
+    ALU_SRL  = 4'd6,
+    ALU_SRA  = 4'd7,
+    ALU_OR   = 4'd8,
+    ALU_AND  = 4'd9
+  } alu_op_e;
+
+  typedef enum logic [1:0] {
+    CF_NONE   = 2'd0,
+    CF_BRANCH = 2'd1,
+    CF_JAL    = 2'd2,
+    CF_JALR   = 2'd3
+  } control_flow_op_e;
+
+  typedef enum logic [2:0] {
+    BR_NONE = 3'd0,
+    BR_BEQ  = 3'd1,
+    BR_BNE  = 3'd2,
+    BR_BLT  = 3'd3,
+    BR_BGE  = 3'd4,
+    BR_BLTU = 3'd5,
+    BR_BGEU = 3'd6
+  } branch_cond_e;
+
+  typedef enum logic [1:0] {
+    MEM_CMD_NONE  = 2'd0,
+    MEM_CMD_LOAD  = 2'd1,
+    MEM_CMD_STORE = 2'd2
+  } mem_cmd_e;
+
+  typedef enum logic [1:0] {
+    MEM_SIZE_BYTE = 2'd0,
+    MEM_SIZE_HALF = 2'd1,
+    MEM_SIZE_WORD = 2'd2
+  } mem_size_e;
+
+  typedef enum logic [1:0] {
+    CSR_OP_NONE = 2'd0,
+    CSR_OP_RW   = 2'd1,
+    CSR_OP_RS   = 2'd2,
+    CSR_OP_RC   = 2'd3
+  } csr_op_e;
+
+  typedef enum logic [2:0] {
+    SYS_NONE    = 3'd0,
+    SYS_ECALL   = 3'd1,
+    SYS_EBREAK  = 3'd2,
+    SYS_MRET    = 3'd3,
+    SYS_FENCE   = 3'd4,
+    SYS_FENCE_I = 3'd5
+  } system_op_e;
+
+  typedef enum logic [4:0] {
+    EXC_INSTR_ADDR_MISALIGNED = 5'd0,
+    EXC_INSTR_ACCESS_FAULT    = 5'd1,
+    EXC_ILLEGAL_INSTRUCTION   = 5'd2,
+    EXC_BREAKPOINT            = 5'd3,
+    EXC_LOAD_ADDR_MISALIGNED  = 5'd4,
+    EXC_LOAD_ACCESS_FAULT     = 5'd5,
+    EXC_STORE_ADDR_MISALIGNED = 5'd6,
+    EXC_STORE_ACCESS_FAULT    = 5'd7,
+    EXC_ECALL_U               = 5'd8,
+    EXC_ECALL_M               = 5'd11
+  } exception_cause_e;
+
+  typedef enum logic [3:0] {
+    IRQ_MACHINE_SOFTWARE = 4'd3,
+    IRQ_MACHINE_TIMER    = 4'd7,
+    IRQ_MACHINE_EXTERNAL = 4'd11
+  } interrupt_cause_e;
+
+  typedef enum logic [2:0] {
+    REDIRECT_NONE              = 3'd0,
+    REDIRECT_BRANCH_MISPREDICT = 3'd1,
+    REDIRECT_TRAP              = 3'd2,
+    REDIRECT_MRET              = 3'd3,
+    REDIRECT_MEMORY_REPLAY     = 3'd4,
+    REDIRECT_DEBUG             = 3'd5
+  } redirect_reason_e;
+
+  typedef enum logic [1:0] {
+    PRIV_MODE_U = 2'b00,
+    PRIV_MODE_S = 2'b01,
+    PRIV_MODE_M = 2'b11
+  } priv_mode_e;
+
+  // P0 single-cycle semantic types
+  // These types keep the current runnable checkpoint explicit. They are not
+  // valid/ready pipeline channels and must not gain ROB, PRF, or LSQ metadata.
+  typedef enum logic [2:0] {
+    IMM_NONE = 3'd0,
+    IMM_I    = 3'd1,
+    IMM_S    = 3'd2,
+    IMM_B    = 3'd3,
+    IMM_U    = 3'd4,
+    IMM_J    = 3'd5
   } imm_sel_t;
 
-  // ======
-  // ALU source select
-  // 当前单周期 CPU 仍然可以复用主 ALU 计算：
-  //   普通 ALU 结果
-  //   load/store 地址
-  //   auipc 结果
-  //   jal/branch target
-  //
-  // 未来高性能 CPU：
-  //   branch target / jal target 可能会使用独立加法器，
-  //   以减少主 ALU mux 规模和关键路径压力。
-  // ======
   typedef enum logic [1:0] {
-    ALU_SRC1_RS1  = 2'b00,
-    ALU_SRC1_ZERO = 2'b01,
-    ALU_SRC1_PC   = 2'b10
+    ALU_SRC1_RS1  = 2'd0,
+    ALU_SRC1_ZERO = 2'd1,
+    ALU_SRC1_PC   = 2'd2
   } alu_src1_sel_t;
 
   typedef enum logic {
@@ -136,230 +261,260 @@ package riscv32_pkg;
     ALU_SRC2_IMM = 1'b1
   } alu_src2_sel_t;
 
-  // ======
-  // ALU operation
-  //
-  // 高性能设计思想：
-  //   Decode 阶段把 RISC-V 指令翻译成内部 alu_op。
-  //   EXU 只执行 ALU_ADD / ALU_SUB / ALU_SLT 等内部操作，
-  //   不再重复理解 opcode/funct3/funct7。
-  //
-  // 这就是从 ISA instruction 到 internal operation / micro-op 的第一步。
-  // ======
-  typedef enum logic [3:0] {
-    ALU_ADD  = 4'b0000,
-    ALU_SUB  = 4'b0001,
-    ALU_SLL  = 4'b0010,
-    ALU_SLT  = 4'b0011,
-    ALU_SLTU = 4'b0100,
-    ALU_XOR  = 4'b0101,
-    ALU_SRL  = 4'b0110,
-    ALU_SRA  = 4'b0111,
-    ALU_OR   = 4'b1000,
-    ALU_AND  = 4'b1001
-  } alu_op_t;
-
-  //======
-  // Branch operation
-  // branch_en 表示“这是 branch 指令”。
-  // branch_op 表示具体 branch 条件。
-  //
-  // 未来高性能 CPU：
-  //   branch_op 会和 branch metadata 一起进入分支预测、执行、
-  //   mispredict recovery、flush/redirect 逻辑。
-  // ======
-  typedef enum logic [2:0] {
-    BR_NONE = 3'b000,
-    BR_BEQ  = 3'b001,
-    BR_BNE  = 3'b010,
-    BR_BLT  = 3'b011,
-    BR_BGE  = 3'b100,
-    BR_BLTU = 3'b101,
-    BR_BGEU = 3'b110
-  } branch_op_t;
-
-  // ======
-  // writeback select
-  // WBU 不应该知道当前指令是 lw 还是 jal。
-  // WBU 只应该根据 wb_sel 选择写回数据来源。
-  // ======
   typedef enum logic [1:0] {
-    WB_ALU_RES = 2'b00,
-    WB_MEM_RES = 2'b01,
-    WB_PC4     = 2'b10,
-    WB_CSR     = 2'b11
+    WB_ALU_RES = 2'd0,
+    WB_MEM_RES = 2'd1,
+    WB_PC4     = 2'd2,
+    WB_CSR     = 2'd3
   } wb_sel_t;
 
-  // ======
-  // Memory access size
-  // ======
-  typedef enum logic [1:0] {
-    MEM_SIZE_BYTE = 2'b00,
-    MEM_SIZE_HALF = 2'b01,
-    MEM_SIZE_WORD = 2'b10
-  } mem_size_t;
+  // The current modules use _t enum names. These aliases preserve the P0
+  // checkpoint while the canonical enum naming remains _e.
+  typedef alu_op_e alu_op_t;
+  typedef branch_cond_e branch_op_t;
+  typedef mem_cmd_e mem_cmd_t;
+  typedef mem_size_e mem_size_t;
+  typedef csr_op_e csr_op_t;
+  typedef exception_cause_e exception_cause_t;
 
-  // ======
-  // memory command
-  // 当前 IDU 仍然可以输出 mem_ren / mem_wen。
-  //
-  // 但是从长期 SoC/高性能 CPU 设计看，LSU 更适合输出统一 memory request：
-  //   mem_valid
-  //   mem_cmd
-  //   mem_addr
-  //   mem_wdata
-  //   mem_wmask
-  //
-  // 这里先定义 mem_cmd_t，为未来把 DPI memory 替换成 cache/bus 接口做准备。
-  // ======
+  localparam exception_cause_t EXC_NONE = EXC_INSTR_ADDR_MISALIGNED;
+  localparam exception_cause_t EXC_ILLEGAL_INST = EXC_ILLEGAL_INSTRUCTION;
+  localparam exception_cause_t EXC_LOAD_MISALIGN = EXC_LOAD_ADDR_MISALIGNED;
+  localparam exception_cause_t EXC_STORE_MISALIGN = EXC_STORE_ADDR_MISALIGNED;
 
-  typedef enum logic [1:0] {
-    MEM_CMD_NONE  = 2'b00,
-    MEM_CMD_LOAD  = 2'b01,
-    MEM_CMD_STORE = 2'b10
-  } mem_cmd_t;
-
-  // ======
-  // exception
-  // 当前 stage 不一定马上实现异常系统。
-  // 但是从 CPU/SoC 设计角度，illegal instruction 不能永远静默成 nop。
-  //
-  // 后续支持 CSR/trap 时，可以扩展这里。
-  // ======
-  typedef enum logic [3:0] {
-    EXC_NONE           = 4'd0,
-    EXC_ILLEGAL_INST   = 4'd2,
-    EXC_BREAKPOINT     = 4'd3,
-    EXC_LOAD_MISALIGN  = 4'd4,
-    EXC_STORE_MISALIGN = 4'd6,
-    EXC_ECALL_M        = 4'd11
-  } exception_cause_t;
-
-  // TODO(HP-PKG-4): 在这里定义 LSU 与 D-cache/仿真内存适配器之间的请求/响应 payload。
-  // 直接在本 TODO 下方加入 mem_req_t 和 mem_resp_t；不要把 valid/ready 放进 struct，
-  // valid/ready 是 channel 协议，payload 只保存一次事务的数据。
-  // 建议字段：
-  //   mem_req_t  : cmd, size, addr, wdata, wmask, mem_unsigned
-  //   mem_resp_t : rdata, exception_valid, exception_cause, badaddr
-  // 进入乱序阶段后再增加 rob_idx、lq_idx、sq_idx 和 transaction_id。
-  //
-  // typedef struct packed {
-  //   mem_cmd_t           cmd;
-  //   mem_size_t          size;
-  //   logic [XLEN-1:0]    addr;
-  //   logic [XLEN-1:0]    wdata;
-  //   logic [XLEN/8-1:0]  wmask;
-  //   logic                mem_unsigned;
-  // } mem_req_t;
-
-  // TODO(HP-PKG-5): 在这里定义统一 redirect payload，供 riscv32_branch_unit、riscv32_trap_ctrl、mret 和 debug 使用。
-  // 建议先定义 redirect_reason_e，再定义 redirect_req_t：target_pc、reason、来源标识。
-  // 未来乱序实现必须继续加入 rob_idx/age，用于选择最老的有效恢复请求；不要只按端口顺序仲裁。
-  // valid 仍放在 redirect channel 外部，不要塞进 redirect_req_t。
-
-  // EXU result bundle
-  //
-  // 这是 EXU 对后级的结构化结果契约。当前可以直接用于 EXU->LSU/top，
-  // 未来也可以作为 EX/MEM pipeline register、bypass source、ROB writeback
-  // record 的基础字段集合。
+  // Decode control groups
+  // decoded_uop_t carries all groups for regular lane wiring. Dedicated issue
+  // payloads below remove unrelated groups before timing-critical backend paths.
   typedef struct packed {
-    // TODO(HP-PKG-3A): ex_result_t.valid 目前固定为 1，不是真正的握手。
-    // 完成 execute channel 后删除这个字段，改用独立 ex_resp_valid/ex_resp_ready。
-    logic                      valid;
-    logic [XLEN-1:0]           alu_res;
-    logic [XLEN-1:0]           pc_plus_4;
-    logic                      redirect_valid;
-    logic [XLEN-1:0]           redirect_pc;
-    logic [XLEN-1:0]           store_data;
-    logic [ISA_REG_ADDR_W-1:0] rd_addr;
-    mem_cmd_t                  mem_cmd;
-    mem_size_t                 mem_size;
-    logic                      mem_unsigned;
-    wb_sel_t                   wb_sel;
-    logic                      reg_wen;
-  } ex_result_t;
+    alu_op_e        op;
+    operand_a_sel_e operand_a_sel;
+    operand_b_sel_e operand_b_sel;
+  } int_uop_ctrl_t;
 
-  // LSU result bundle
-  //
-  // LSU -> WBU 也使用结构化 completion record，不退回散线。
-  // 当前 C2 只需要这些字段供 WBU 选择写回数据；后续高性能 LSU 可继续扩展
-  // exception_valid、exception_cause、badaddr、replay、rob_idx、physical_rd、
-  // load_queue_idx、store_queue_idx 等字段。
-  //
-  // 高性能 CPU 关联：
-  //   load miss、memory replay、store/load ordering violation 都需要 LSU 产生
-  //   结构化 completion record。WBU/ROB/bypass 不应该从散线拼执行结果。
   typedef struct packed {
-    // TODO(HP-PKG-3B): lsu_result_t 不应成为所有指令都必须经过的统一后级记录。
-    // 新增 completion_t，至少包含 result、destination、reg_wen、exception metadata；
-    // ALU、riscv32_branch_unit、LSU、CSR 单元分别产生 completion，LSU 只产生 memory uop 的 completion。
-    // 完成所有消费者迁移后删除 lsu_result_t，而不是继续扩展这个串行接口。
-    logic                      valid;
-    logic [XLEN-1:0]           alu_res;
-    logic [XLEN-1:0]           mem_rdata;
-    logic [XLEN-1:0]           pc_plus_4;
-    logic [ISA_REG_ADDR_W-1:0] rd_addr;
-    wb_sel_t                   wb_sel;
-    logic                      reg_wen;
-  } lsu_result_t;
+    control_flow_op_e op;
+    branch_cond_e     condition;
+  } branch_uop_ctrl_t;
 
-  // CSR related
-  typedef enum logic [1:0] {
-    CSR_OP_NONE = 2'b00,
-    CSR_OP_RW   = 2'b01,
-    CSR_OP_RS   = 2'b10,
-    CSR_OP_RC   = 2'b11
-  } csr_op_t;
-
-  // TODO(HP-PKG-1): 在这里定义 fetch_packet_t，作为 IFU/riscv32_fetch_queue -> IDU 的 payload。
-  // 直接在本 TODO 下方编写，建议字段：pc、instruction，以及未来需要的预测 metadata。
-  // 当前先保留 pc/instruction 即可；不要把 fetch_valid 放进 struct。
-  //
   typedef struct packed {
-    logic [XLEN-1:0]  pc;
-    logic [31:0]      instruction;
-    logic             exception_valid;
-    exception_cause_t exception_cause;
-    logic [XLEN-1:0]  exception_tval;
+    mem_cmd_e  cmd;
+    mem_size_e size;
+    logic      unsigned_load;
+  } mem_uop_ctrl_t;
+
+  typedef struct packed {
+    csr_op_e     op;
+    logic [11:0] addr;
+    logic        read_enable;
+    logic        write_enable;
+    logic        use_imm;
+  } csr_uop_ctrl_t;
+
+  // Frontend payloads
+  // predictor_meta is opaque outside the predictor and branch-recovery path.
+  typedef struct packed {
+    logic                        predicted_taken;
+    logic [XLEN-1:0]             predicted_target;
+    logic [PREDICTOR_META_W-1:0] predictor_meta;
+  } branch_prediction_t;
+
+  typedef struct packed {
+    logic [XLEN-1:0]    pc;
+    logic [31:0]        instruction;
+    frontend_tag_t      frontend_tag;
+    branch_prediction_t prediction;
+    logic               exception_valid;
+    exception_cause_e   exception_cause;
+    logic [XLEN-1:0]    exception_tval;
   } fetch_entry_t;
 
-  // TODO(HP-PKG-2): 在这里定义 decoded_uop_t，并最终用它替代 decode_ctrl_t。
-  // 这是 IDU -> Rename/Dispatch 的内部指令表示，必须把“控制”和“所属指令”绑定起来。
-  // 先定义 fu_type_e：FU_INT、FU_BRANCH、FU_LSU、FU_CSR、FU_SYSTEM。
-  // 第一版 decoded_uop_t 建议包含：
-  //   pc, instruction, rs1_addr, rs2_addr, rd_addr
-  //   use_rs1, use_rs2, imm, fu_type
-  //   alu_op, branch_op, mem_cmd, mem_size, mem_unsigned
-  //   wb_sel, reg_wen, csr_op, csr_addr
-  //   ecall/mret/ebreak 和 exception_valid/exception_cause
-  // 其中 use_rs1/use_rs2 对未来 rename 很关键，不能通过 opcode 在后端重新推断。
-  // 不要在 decoded_uop_t 中放 valid/ready；通道信号应独立存在。
-  // 完成 IDU、top、EXU、CSR 的迁移后，再删除下面的 decode_ctrl_t。
+  // Decode and rename payloads
+  // IDU is the only module that translates opcode/funct fields. All unused
+  // control groups must be zeroed before the payload leaves IDU.
+  typedef struct packed {
+    logic [XLEN-1:0]    pc;
+    logic [31:0]        instruction;
+    frontend_tag_t      frontend_tag;
+    branch_prediction_t prediction;
 
-  // TODO(HP-PKG-3C): 紧接 decoded_uop_t 定义 execute_req_t 和 completion_t。
-  // execute_req_t 是 riscv32_issue_queue -> execution unit 的 payload，包含 src1_value、src2_value、
-  // imm/pc、operation、physical_rd、rob_idx；不要继续把完整 ISA opcode 送到执行单元。
-  // completion_t 是 execution unit -> PRF/ROB 的 payload，包含 result、physical_rd、rob_idx、
-  // reg_wen、exception_valid/cause/badaddr，并按 riscv32_branch_unit/LSU 需要增加 recovery/replay metadata。
-  // 当前尚未有 physical register/ROB 时，可先用 architectural rd 和占位 tag 过渡。
+    arch_reg_idx_t rs1;
+    arch_reg_idx_t rs2;
+    arch_reg_idx_t rd;
+    logic          uses_rs1;
+    logic          uses_rs2;
+    logic          writes_rd;
 
+    fu_type_e         fu_type;
+    logic [XLEN-1:0]  imm;
+    int_uop_ctrl_t    int_ctrl;
+    branch_uop_ctrl_t branch_ctrl;
+    mem_uop_ctrl_t    mem_ctrl;
+    csr_uop_ctrl_t    csr_ctrl;
+    system_op_e       system_op;
+    logic             serializing;
 
-  // ======
-  // decode control bundle
-  // 这是给未来流水线/乱序设计准备的控制信息集合。
-  //
-  // 当前阶段：
-  //   IDU 已经直接输出 decode_ctrl_t ctrl；
-  //   top/EXU/LSU/WBU 应该消费这个 bundle 的字段，而不是重新 decode opcode。
-  //
-  // 未来阶段：
-  //   ID/EX pipeline register 可以直接保存这个 bundle；
-  //   Rename/Dispatch 阶段也可以基于这个 bundle 生成更像 micro-op 的信息。
-  //
-  // 这体现的是高性能 CPU 的核心思想：
-  //   ISA 指令在 Decode 阶段被翻译成内部控制信息；
-  //   后端执行单元只消费内部控制信息，而不是重复解析 ISA。
-  // ======
+    logic             exception_valid;
+    exception_cause_e exception_cause;
+    logic [XLEN-1:0]  exception_tval;
+  } decoded_uop_t;
+
+  typedef struct packed {
+    decoded_uop_t  uop;
+    phys_reg_idx_t psrc1;
+    phys_reg_idx_t psrc2;
+    phys_reg_idx_t pdst;
+    phys_reg_idx_t stale_pdst;
+    rob_idx_t      rob_idx;
+  } renamed_uop_t;
+
+  // Redirect and execution payloads
+  // rob_idx identifies instruction age. flush_inclusive distinguishes recovery
+  // that keeps the source instruction from recovery that removes it as well.
+  typedef struct packed {
+    logic [XLEN-1:0]  target_pc;
+    logic [XLEN-1:0]  source_pc;
+    rob_idx_t         rob_idx;
+    logic             rob_idx_valid;
+    logic             flush_inclusive;
+    redirect_reason_e reason;
+  } redirect_req_t;
+
+  typedef struct packed {
+    alu_op_e         op;
+    logic [XLEN-1:0] operand_a;
+    logic [XLEN-1:0] operand_b;
+    phys_reg_idx_t   pdst;
+    rob_idx_t        rob_idx;
+    logic            writes_preg;
+  } int_execute_req_t;
+
+  typedef struct packed {
+    control_flow_op_e   op;
+    branch_cond_e       condition;
+    logic [XLEN-1:0]    pc;
+    logic [XLEN-1:0]    imm;
+    logic [XLEN-1:0]    src1_value;
+    logic [XLEN-1:0]    src2_value;
+    phys_reg_idx_t      pdst;
+    rob_idx_t           rob_idx;
+    logic               writes_preg;
+    frontend_tag_t      frontend_tag;
+    branch_prediction_t prediction;
+  } branch_execute_req_t;
+
+  typedef struct packed {
+    mem_uop_ctrl_t   mem_ctrl;
+    logic [XLEN-1:0] base_value;
+    logic [XLEN-1:0] offset;
+    logic [XLEN-1:0] store_data;
+    phys_reg_idx_t   pdst;
+    rob_idx_t        rob_idx;
+    lq_idx_t         lq_idx;
+    sq_idx_t         sq_idx;
+    logic            lq_idx_valid;
+    logic            sq_idx_valid;
+    logic            writes_preg;
+  } lsu_execute_req_t;
+
+  typedef struct packed {
+    csr_op_e         op;
+    logic [11:0]     addr;
+    logic [XLEN-1:0] operand;
+    logic [XLEN-1:0] old_value;
+    phys_reg_idx_t   pdst;
+    rob_idx_t        rob_idx;
+    logic            read_enable;
+    logic            write_enable;
+    logic            writes_preg;
+  } csr_execute_req_t;
+
+  // Every execution unit returns the same completion shape. This unifies PRF
+  // writeback, wakeup, and ROB completion without making completion equal commit.
+  typedef struct packed {
+    rob_idx_t        rob_idx;
+    logic            writes_preg;
+    phys_reg_idx_t   pdst;
+    logic [XLEN-1:0] result;
+
+    logic            csr_write;
+    logic [11:0]     csr_addr;
+    logic [XLEN-1:0] csr_wdata;
+
+    logic             exception_valid;
+    exception_cause_e exception_cause;
+    logic [XLEN-1:0]  exception_tval;
+
+    logic          redirect_valid;
+    redirect_req_t redirect;
+    logic          replay;
+  } completion_t;
+
+  // Cache and memory-adapter payloads
+  // Transaction IDs identify responses without exposing ROB/LSQ internals to cache.
+  typedef struct packed {
+    mem_txn_id_t     txn_id;
+    logic [XLEN-1:0] addr;
+  } imem_req_t;
+
+  typedef struct packed {
+    mem_txn_id_t      txn_id;
+    logic [31:0]      instruction;
+    logic             exception_valid;
+    exception_cause_e exception_cause;
+    logic [XLEN-1:0]  exception_tval;
+  } imem_resp_t;
+
+  typedef struct packed {
+    mem_txn_id_t           txn_id;
+    mem_cmd_e              cmd;
+    mem_size_e             size;
+    logic [XLEN-1:0]       addr;
+    logic [XLEN-1:0]       wdata;
+    logic [BYTE_LANES-1:0] wmask;
+  } mem_req_t;
+
+  typedef struct packed {
+    mem_txn_id_t      txn_id;
+    logic [XLEN-1:0]  rdata;
+    logic             exception_valid;
+    exception_cause_e exception_cause;
+    logic [XLEN-1:0]  exception_tval;
+  } mem_resp_t;
+
+  // Commit payload
+  // This is the only architectural event consumed by trace, DiffTest, and debug.
+  // One commit_t describes one retired instruction; lane valid remains separate.
+  typedef struct packed {
+    logic [XLEN-1:0] pc;
+    logic [31:0]     instruction;
+    logic [XLEN-1:0] next_pc;
+
+    logic            gpr_write;
+    arch_reg_idx_t   gpr_addr;
+    logic [XLEN-1:0] gpr_wdata;
+
+    logic            csr_write;
+    logic [11:0]     csr_addr;
+    logic [XLEN-1:0] csr_wdata;
+
+    logic                  memory_access;
+    mem_cmd_e              memory_cmd;
+    mem_size_e             memory_size;
+    logic [XLEN-1:0]       memory_addr;
+    logic [XLEN-1:0]       memory_rdata;
+    logic [XLEN-1:0]       memory_wdata;
+    logic [BYTE_LANES-1:0] memory_wmask;
+
+    logic            trap_taken;
+    logic            trap_is_interrupt;
+    logic [XLEN-2:0] trap_cause_code;
+    logic [XLEN-1:0] trap_tval;
+    priv_mode_e      privilege;
+  } commit_t;
+
+  // P0 single-cycle payloads
+  // TODO(HP-P0-DECODE-PAYLOAD): 完成单周期内部 bundle 改造时，用 decoded_uop_t 替换
+  // 紧随本 TODO 的 decode_ctrl_t；必须在同一次修改中更新 IDU、top 和 EXU，并跑完整回归。
   typedef struct packed {
     logic             valid;
     imm_sel_t         imm_sel;
@@ -385,5 +540,33 @@ package riscv32_pkg;
     logic             mret_en;
   } decode_ctrl_t;
 
+  // TODO(HP-P0-EXEC-PAYLOAD): 单周期 decoded_uop_t 接通后，把 EXU 输出重构为只描述
+  // 当前指令执行结果的 execute_result_t，再同步更新 LSU/top；不要提前加入流水线握手。
+  typedef struct packed {
+    logic            valid;
+    logic [XLEN-1:0] alu_res;
+    logic [XLEN-1:0] pc_plus_4;
+    logic            redirect_valid;
+    logic [XLEN-1:0] redirect_pc;
+    logic [XLEN-1:0] store_data;
+    arch_reg_idx_t   rd_addr;
+    mem_cmd_t        mem_cmd;
+    mem_size_t       mem_size;
+    logic            mem_unsigned;
+    wb_sel_t         wb_sel;
+    logic            reg_wen;
+  } ex_result_t;
+
+  // TODO(HP-P0-LSU-PAYLOAD): P1 memory adapter 接口稳定后，把 lsu_result_t 合并到
+  // width-1 commit payload；在 P0 保留它只是为了维持当前单周期回归。
+  typedef struct packed {
+    logic            valid;
+    logic [XLEN-1:0] alu_res;
+    logic [XLEN-1:0] mem_rdata;
+    logic [XLEN-1:0] pc_plus_4;
+    arch_reg_idx_t   rd_addr;
+    wb_sel_t         wb_sel;
+    logic            reg_wen;
+  } lsu_result_t;
 
 endpackage

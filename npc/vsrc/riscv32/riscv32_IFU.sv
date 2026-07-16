@@ -10,7 +10,7 @@ module riscv32_IFU #(
     input logic [DATA_WIDTH-1:0] i_if_redirect_pc,
 
     // TODO(HP-IFU-1): 用 fetch response channel 替换下面两个散线输出。
-    // 推荐端口：fetch_valid_o、fetch_ready_i、fetch_packet_o(fetch_packet_t)。
+    // 推荐端口：fetch_valid_o、fetch_ready_i、fetch_entry_o(fetch_entry_t)。
     // 当 valid=1 且 ready=0 时，PC 和 instruction 必须保持不变；只有 fire 时才能推进队列。
     output logic [DATA_WIDTH-1:0] o_if_pc,
     output logic [DATA_WIDTH-1:0] o_if_instruction
@@ -78,7 +78,7 @@ module riscv32_IFU #(
   end
 
   assign o_if_pc          = pc_reg_Q;
-  // TODO(HP-IFU-4): 完成 HP-IFU-2 后，用 imem_resp_data 形成 fetch_packet_t，删除此组合 DPI 读。
+  // TODO(HP-IFU-4): 完成 HP-IFU-2 后，用 imem_resp_data 形成 fetch_entry_t，删除此组合 DPI 读。
   assign o_if_instruction = pmem_read(o_if_pc);
 
 endmodule

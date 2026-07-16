@@ -7,9 +7,9 @@ module riscv32_idu
   import riscv32_pkg::*;
 (
     // TODO(HP-IDU-1): 旧 field-extractor IDU 已删除并合并到本文件；先完成这里，恢复编译。
-    // 用一个 fetch_packet_t 输入替换下面全部 raw-field 输入，并把输出改成 decoded_uop_t。
+    // 用一个 fetch_entry_t 输入替换下面全部 raw-field 输入，并把输出改成 decoded_uop_t。
     // 推荐端口形式：
-    //   input  fetch_packet_t fetch_packet_i,
+    //   input  fetch_entry_t  fetch_entry_i,
     //   output decoded_uop_t  decoded_uop_o
     // 当前 i_idu_* 端口只作为迁移参照；新端口接通后将它们全部删除。
     // Legacy raw-field ports: migrate their extraction into this IDU, then delete all of them.
@@ -31,7 +31,7 @@ module riscv32_idu
     // to top/EXU/LSU/WBU/future pipeline register
     output decode_ctrl_t o_idu_ctrl
 );
-  // TODO(HP-IDU-2): 在这里从 fetch_packet_i.instruction 提取所有 raw fields。
+  // TODO(HP-IDU-2): 在这里从 fetch_entry_i.instruction 提取所有 raw fields。
   // 直接在本 TODO 下声明 opcode/funct/rd/rs 局部信号并赋值；然后把本文件中所有
   // i_idu_opcode/i_idu_funct_*/i_idu_*_addr 引用替换成这些局部信号。
   // 字段位置：opcode[6:0]、rd[11:7]、funct3[14:12]、rs1[19:15]、
@@ -43,7 +43,7 @@ module riscv32_idu
   // logic [2:0]  funct3;
   // logic [11:0] funct12;
   // logic [4:0]  rd_addr, rs1_addr, rs2_addr;
-  // assign instruction = fetch_packet_i.instruction;
+  // assign instruction = fetch_entry_i.instruction;
   // assign opcode      = instruction[6:0];
   // assign rd_addr     = instruction[11:7];
   // assign funct3      = instruction[14:12];
