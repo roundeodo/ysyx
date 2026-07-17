@@ -481,6 +481,12 @@ module riscv32_sim_mem
   assert property (@(posedge clk_i) lsu_aw_handshake |-> !$isunknown(lsu_axi_aw_i.prot))
   else $error("LSU AWPROT contains X at handshake");
 
+  p_lsu_active_awprot_known :
+  assert property (
+    @(posedge clk_i) lsu_write_request_complete |-> !$isunknown(active_lsu_aw.prot)
+  )
+  else $error("Stored LSU AWPROT contains X when write request completes");
+
 
 
 endmodule
