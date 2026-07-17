@@ -135,9 +135,8 @@ module riscv32_sim_mem
 
         unique case (dmem_req_i.cmd)
           MEM_CMD_LOAD: begin
-            dmem_resp_q.rdata <= pmem_read_data(
-                dmem_req_i.addr, mem_size_to_bytes(dmem_req_i.size)
-            );
+            dmem_resp_q.rdata <=
+                pmem_read_data(dmem_req_i.addr, mem_size_to_bytes(dmem_req_i.size));
           end
           MEM_CMD_STORE: begin
             pmem_write(dmem_req_i.addr, dmem_req_i.wdata, byte'(dmem_req_i.wmask));

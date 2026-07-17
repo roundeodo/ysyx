@@ -2,8 +2,8 @@ module riscv32_exu
   import riscv32_pkg::*;
 (
     input  execute_packet_t execute_packet_i,
-    input  logic            execute_valid_i,
-    output logic            execute_ready_o,
+    input  logic            execute_packet_valid_i,
+    output logic            execute_packet_ready_o,
 
     output execute_result_t exu_result_o,
     output logic            exu_result_valid_o,
@@ -18,10 +18,10 @@ module riscv32_exu
   logic            [XLEN-1:0] alu_result;
   logic            [XLEN-1:0] csr_operand;
   logic            [XLEN-1:0] csr_wdata;
-  logic                       branch_condition;
+  logic                       branch_condition_met;
   logic                       branch_taken;
   logic            [XLEN-1:0] branch_target;
-  logic                       redirect_valid;
+  logic                       branch_redirect_valid;
   execute_result_t            exu_result;
 
   always_comb begin
@@ -56,15 +56,17 @@ module riscv32_exu
 
   always_comb begin
     unique case (execute_packet_i.uop.branch_ctrl.condition)
-      BR_BEQ: branch_condition = execute_packet_i.rs1_value == execute_packet_i.rs2_value;
-      BR_BNE: branch_condition = execute_packet_i.rs1_value != execute_packet_i.rs2_value;
+      BR_BEQ: branch_condition_met = execute_packet_i.rs1_value == execute_packet_i.rs2_value;
+      BR_BNE: branch_condition_met = execute_packet_i.rs1_value != execute_packet_i.rs2_value;
       BR_BLT:
-      branch_condition = $signed(execute_packet_i.rs1_value) < $signed(execute_packet_i.rs2_value);
+      branch_condition_met = $signed(execute_packet_i.rs1_value) <
+          $signed(execute_packet_i.rs2_value);
       BR_BGE:
-      branch_condition = $signed(execute_packet_i.rs1_value) >= $signed(execute_packet_i.rs2_value);
-      BR_BLTU: branch_condition = execute_packet_i.rs1_value < execute_packet_i.rs2_value;
-      BR_BGEU: branch_condition = execute_packet_i.rs1_value >= execute_packet_i.rs2_value;
-      default: branch_condition = 1'b0;
+      branch_condition_met = $signed(execute_packet_i.rs1_value) >=
+          $signed(execute_packet_i.rs2_value);
+      BR_BLTU: branch_condition_met = execute_packet_i.rs1_value < execute_packet_i.rs2_value;
+      BR_BGEU: branch_condition_met = execute_packet_i.rs1_value >= execute_packet_i.rs2_value;
+      default: branch_condition_met = 1'b0;
     endcase
   end
 
@@ -74,7 +76,7 @@ module riscv32_exu
 
     unique case (execute_packet_i.uop.branch_ctrl.op)
       CF_BRANCH: begin
-        branch_taken  = branch_condition;
+        branch_taken  = branch_condition_met;
         branch_target = execute_packet_i.uop.pc + execute_packet_i.uop.imm;
       end
       CF_JAL: begin
@@ -102,19 +104,19 @@ module riscv32_exu
     endcase
   end
 
-  assign redirect_valid = branch_taken && !execute_packet_i.uop.exception_valid;
+  assign branch_redirect_valid = branch_taken && !execute_packet_i.uop.exception_valid;
 
   always_comb begin
-    exu_result                                  = '0;
-    exu_result.uop                              = execute_packet_i.uop;
-    exu_result.result                           = alu_result;
-    exu_result.next_pc                          = execute_packet_i.uop.pc + 32'd4;
-    exu_result.csr_wdata                        = csr_wdata;
-    exu_result.redirect_valid                   = redirect_valid;
-    exu_result.redirect_req.target_pc           = branch_target;
-    exu_result.redirect_req.source_pc           = execute_packet_i.uop.pc;
-    exu_result.redirect_req.reason              = REDIRECT_BRANCH_MISPREDICT;
-    exu_result.redirect_req.flush_inclusive     = 1'b0;
+    exu_result                              = '0;
+    exu_result.uop                          = execute_packet_i.uop;
+    exu_result.result                       = alu_result;
+    exu_result.next_pc                      = execute_packet_i.uop.pc + 32'd4;
+    exu_result.csr_wdata                    = csr_wdata;
+    exu_result.redirect_valid               = branch_redirect_valid;
+    exu_result.redirect_req.target_pc       = branch_target;
+    exu_result.redirect_req.source_pc       = execute_packet_i.uop.pc;
+    exu_result.redirect_req.reason          = REDIRECT_BRANCH_MISPREDICT;
+    exu_result.redirect_req.flush_inclusive = 1'b0;
 
     if ((execute_packet_i.uop.fu_type == FU_CSR) && execute_packet_i.csr_illegal) begin
       exu_result.uop.exception_valid       = 1'b1;
@@ -124,7 +126,7 @@ module riscv32_exu
       exu_result.uop.csr_ctrl.write_enable = 1'b0;
     end
 
-    if (redirect_valid) begin
+    if (branch_redirect_valid) begin
       exu_result.next_pc = branch_target;
     end
 
@@ -143,11 +145,11 @@ module riscv32_exu
     lsu_req_o.store_data     = execute_packet_i.rs2_value;
   end
 
-  assign exu_result_o       = exu_result;
-  assign exu_result_valid_o = execute_valid_i && (execute_packet_i.uop.fu_type != FU_LSU);
-  assign lsu_req_valid_o    = execute_valid_i && (execute_packet_i.uop.fu_type == FU_LSU);
-  assign execute_ready_o = (execute_packet_i.uop.fu_type == FU_LSU) ?
-                           lsu_req_ready_i : exu_result_ready_i;
+  assign exu_result_o = exu_result;
+  assign exu_result_valid_o = execute_packet_valid_i && (execute_packet_i.uop.fu_type != FU_LSU);
+  assign lsu_req_valid_o = execute_packet_valid_i && (execute_packet_i.uop.fu_type == FU_LSU);
+  assign execute_packet_ready_o = (execute_packet_i.uop.fu_type == FU_LSU) ?
+                                  lsu_req_ready_i : exu_result_ready_i;
 
   // NOTE(P5): split this aggregate into int_alu, branch_unit, agu, and csr_exec.
   // Each unit then receives a narrow request and emits an independent completion.

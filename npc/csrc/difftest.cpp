@@ -30,17 +30,13 @@ static void (*ref_difftest_regcpy)(void *dut, bool direction) = nullptr;
 static void (*ref_difftest_exec)(uint64_t n) = nullptr;
 static void (*ref_difftest_raise_intr)(uint64_t NO) = nullptr;
 
-static void fill_dut_regs(DiffTestRegs *r) {
+static void fill_dut_regs(DiffTestRegs *r, uint32_t architectural_pc) {
   // 从 Verilator 模型中读取 NPC 当前 architectural state。
   // DiffTest 比较的是体系结构状态，不比较 EXU/LSU 内部临时信号。
   for (int i = 0; i < 32; i++) {
     r->gpr[i] = npc_get_gpr(i);
   }
-  // TODO(BUS-DIFFTEST-PC): 多周期后 npc_get_pc() 可能表示 IFU 请求/等待中的 PC，不能
-  // 直接作为退休后的 architectural PC。把本函数改为接收 commit_next_pc，或者维护
-  // 一个只在 commit 时更新的 arch_pc，再令 r->pc 使用该值。初始化阶段使用
-  // RESET_VECTOR；每次 difftest_step 使用对应 commit event 的 next_pc。
-  r->pc = npc_get_pc();
+  r->pc = architectural_pc;
 }
 
 static bool checkregs(const DiffTestRegs *ref, const DiffTestRegs *dut,
@@ -110,7 +106,7 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
   ref_difftest_memcpy(RESET_VECTOR, pmem, img_size, DIFFTEST_TO_REF);
 
   DiffTestRegs dut;
-  fill_dut_regs(&dut);
+  fill_dut_regs(&dut, RESET_VECTOR);
   ref_difftest_regcpy(&dut, DIFFTEST_TO_REF);
 
   printf("DiffTest: ON, REF=%s\n", ref_so_file);
@@ -125,17 +121,11 @@ void difftest_step(uint32_t pc, uint32_t next_pc) {
   DiffTestRegs ref;
   DiffTestRegs dut;
   ref_difftest_regcpy(&ref, DIFFTEST_TO_DUT);
-  fill_dut_regs(&dut);
+  fill_dut_regs(&dut, next_pc);
 
   if (!checkregs(&ref, &dut, pc)) {
     exit(1);
   }
-
-  // 当前最小版本没有用 next_pc。
-  // 写成 (void)next_pc 是为了明确告诉编译器：
-  //   “这个参数是有意暂时不用的，不要报 unused parameter warning。”
-  // 未来处理需要跳过 REF 的特殊指令时，next_pc 可以用来判断 REF 是否追上 DUT。
-  (void)next_pc;
 }
 
 void difftest_cleanup() {

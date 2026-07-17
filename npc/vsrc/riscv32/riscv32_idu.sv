@@ -2,12 +2,12 @@ module riscv32_idu
   import riscv32_pkg::*;
 (
     input  fetch_entry_t fetch_entry_i,
-    input  logic         fetch_valid_i,
-    output logic         fetch_ready_o,
+    input  logic         fetch_entry_valid_i,
+    output logic         fetch_entry_ready_o,
 
     output decoded_uop_t decoded_uop_o,
-    output logic         decoded_valid_o,
-    input  logic         decoded_ready_i
+    output logic         decoded_uop_valid_o,
+    input  logic         decoded_uop_ready_i
 );
   logic [31:0] instruction;
   logic [ 6:0] opcode;
@@ -53,8 +53,8 @@ module riscv32_idu
     1'b0
   };
 
-  assign fetch_ready_o = decoded_ready_i;
-  assign decoded_valid_o = fetch_valid_i;
+  assign fetch_entry_ready_o = decoded_uop_ready_i;
+  assign decoded_uop_valid_o = fetch_entry_valid_i;
 
   // IDU is the only ISA-encoding decoder. Downstream modules consume semantic
   // operations and never inspect opcode/funct fields again.

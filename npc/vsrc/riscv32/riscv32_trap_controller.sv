@@ -19,11 +19,11 @@ module riscv32_trap_controller
     output logic          redirect_req_valid_o
 );
   always_comb begin
-    trap_valid_o     = commit_valid_i && commit_i.trap_taken;
-    trap_pc_o        = commit_i.pc;
-    trap_cause_o     = {commit_i.trap_is_interrupt, commit_i.trap_cause_code};
-    trap_tval_o      = commit_i.trap_tval;
-    mret_valid_o     = commit_valid_i && !commit_i.trap_taken && (commit_i.system_op == SYS_MRET);
+    trap_valid_o         = commit_valid_i && commit_i.trap_taken;
+    trap_pc_o            = commit_i.pc;
+    trap_cause_o         = {commit_i.trap_is_interrupt, commit_i.trap_cause_code};
+    trap_tval_o          = commit_i.trap_tval;
+    mret_valid_o         = commit_valid_i && !commit_i.trap_taken && (commit_i.system_op == SYS_MRET);
     redirect_req_o       = '0;
     redirect_req_valid_o = 1'b0;
 

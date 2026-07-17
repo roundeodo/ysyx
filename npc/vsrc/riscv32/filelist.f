@@ -13,6 +13,7 @@ ${NPC_HOME}/vsrc/riscv32/riscv32_commit.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_trap_controller.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_ifu.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/top.sv
 
 // P0 typed channel conversion completed in this order:
@@ -23,10 +24,8 @@ ${NPC_HOME}/vsrc/riscv32/top.sv
 //   LSU/completion mux -> commit: writeback_result_t
 // Channel valid/ready is separate from payload; P0 contains no stage register.
 
-// TODO(BUS-FILELIST): 完成 riscv32_sim_mem 的完整握手、IFU/LSU 状态和 top 连接后，
-// 在本 TODO 下方加入 riscv32_sim_mem.sv。随后拆出 riscv32_core.sv 和
-// riscv32_sim_debug.sv，再把它们也加入这里。
-// ${NPC_HOME}/vsrc/riscv32/riscv32_sim_mem.sv
+// TODO(BUS-FILELIST): 随后拆出 riscv32_core.sv 和 riscv32_sim_debug.sv，再把它们
+// 加入这里。
 // ${NPC_HOME}/vsrc/riscv32/riscv32_core.sv
 // ${NPC_HOME}/vsrc/riscv32/riscv32_sim_debug.sv
 

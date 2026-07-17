@@ -38,7 +38,15 @@ static uint64_t main_time = 0;
 static uint64_t guest_inst_count = 0;
 
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
+static const uint64_t MAX_CYCLES_WITHOUT_COMMIT = 1000000ULL;
 static constexpr int ARCH_GPR_COUNT = 32;
+
+struct CommitEvent {
+  bool valid;
+  uint32_t pc;
+  uint32_t instruction;
+  uint32_t next_pc;
+};
 
 // RV32I ABI register names. SDB accepts both these names and the x0-x31 numeric names.
 static const char *const reg_names[ARCH_GPR_COUNT] = {
@@ -68,16 +76,18 @@ static inline void set_dpi_scope() {
   svSetScope(top_dpi_scope);
 }
 
-// TODO(BUS-CPU-COMMIT-SAMPLE): 多周期改造时，在本函数 clk=0、top->eval() 之后，
-// clk=1 之前采样 RTL 导出的 commit event。原因是 commit_valid 可能在 posedge 后因
-// 状态更新立即撤销，等 single_cycle() 返回再读取可能漏掉退休事件。
-// 建议新增 CommitEvent 结构，至少保存 valid/pc/instruction/next_pc，并让
-// single_cycle(CommitEvent *event) 在每个周期返回本拍是否退休了一条指令。
-// 波形时间仍按周期推进；只有 guest instruction count 按 commit event 推进。
 // Execute one clock cycle
-static void single_cycle() {
+static void single_cycle(CommitEvent *commit_event = nullptr) {
   top->clk = 0;
   top->eval();
+
+  if (commit_event != nullptr) {
+    set_dpi_scope();
+    commit_event->valid = npc_get_commit_valid_dpi() != 0;
+    commit_event->pc = (uint32_t)npc_get_commit_pc_dpi();
+    commit_event->instruction = (uint32_t)npc_get_commit_inst_dpi();
+    commit_event->next_pc = (uint32_t)npc_get_commit_next_pc_dpi();
+  }
 
   if (trace_enabled && tfp != nullptr) {
     tfp->dump(main_time);
@@ -261,16 +271,6 @@ bool npc_reg_str2val(const char *name, uint32_t *val) {
   return false;
 }
 
-// TODO(BUS-CPU-EXEC): 在本函数位置把“for 循环 n 次 = 执行 n 条指令”的假设删除。
-// 推荐逻辑：
-//   1. retired=0，while (retired<n && NPC仍运行) 每次只推进一个 single_cycle；
-//   2. 若本周期没有 commit，继续等待，不做 itrace/ftrace/DiffTest/watchpoint；
-//   3. 若有 commit，使用 CommitEvent.pc/instruction/next_pc 做 trace 和 DiffTest，
-//      guest_inst_count++、retired++，然后检查 watchpoint；
-//   4. 另设 cycle watchdog，避免 memory 永不响应时无限挂起；
-//   5. `si N` 的含义必须继续是执行 N 条退休指令，而不是 N 个时钟周期。
-// 这是 SimpleBus 多周期化后软件侧必须完成的修改，否则 NEMU 会在 IFU/LSU wait
-// 周期被错误地额外执行。
 // Execute n instructions
 
 void cpu_exec(uint64_t n) {
@@ -286,7 +286,10 @@ void cpu_exec(uint64_t n) {
 
   npc_state = NPC_RUNNING;
 
-  for (uint64_t i = 0; i < n; i++) {
+  uint64_t retired = 0;
+  uint64_t cycles_without_commit = 0;
+
+  while (retired < n) {
     if (Verilated::gotFinish()) {
       npc_state = NPC_END;
       break;
@@ -298,20 +301,27 @@ void cpu_exec(uint64_t n) {
       break;
     }
 
-    uint32_t pc = npc_get_pc();
-    uint32_t inst = npc_get_inst();
+    CommitEvent event{};
+    single_cycle(&event);
 
-    trace_inst(pc, inst);
+    if (!event.valid) {
+      cycles_without_commit++;
+      if (cycles_without_commit >= MAX_CYCLES_WITHOUT_COMMIT) {
+        printf("\033[1;31mNPC: no commit for %llu cycles\033[0m\n",
+               (unsigned long long)cycles_without_commit);
+        npc_state = NPC_ABORT;
+        break;
+      }
+      continue;
+    }
 
-    single_cycle();
+    cycles_without_commit = 0;
     guest_inst_count++;
+    retired++;
 
-    // ftrace observes committed control-flow. In this single-cycle NPC,
-    // single_cycle() completion is the commit point; a future pipeline/OoO core
-    // should feed this from commit/retire ports instead of fetch/decode.
-    uint32_t next_pc = npc_get_pc();
-    ftrace_update(pc, inst, next_pc);
-    difftest_step(pc, next_pc);
+    trace_inst(event.pc, event.instruction);
+    ftrace_update(event.pc, event.instruction, event.next_pc);
+    difftest_step(event.pc, event.next_pc);
     if (npc_state == NPC_END || npc_state == NPC_ABORT) {
       break;
     }

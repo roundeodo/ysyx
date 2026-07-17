@@ -12,8 +12,8 @@ module riscv32_completion_mux
     output logic              lsu_writeback_ready_o,
 
     output writeback_result_t writeback_result_o,
-    output logic              writeback_valid_o,
-    input  logic              writeback_ready_i
+    output logic              writeback_result_valid_o,
+    input  logic              writeback_result_ready_i
 );
   writeback_result_t exu_writeback;
 
@@ -26,17 +26,17 @@ module riscv32_completion_mux
   end
 
   always_comb begin
-    writeback_result_o = exu_writeback;
-    writeback_valid_o  = exu_result_valid_i;
+    writeback_result_o       = exu_writeback;
+    writeback_result_valid_o = exu_result_valid_i;
 
     if (lsu_writeback_valid_i) begin
-      writeback_result_o = lsu_writeback_i;
-      writeback_valid_o  = 1'b1;
+      writeback_result_o       = lsu_writeback_i;
+      writeback_result_valid_o = 1'b1;
     end
   end
 
-  assign lsu_writeback_ready_o = writeback_ready_i;
-  assign exu_result_ready_o    = writeback_ready_i && !lsu_writeback_valid_i;
+  assign lsu_writeback_ready_o = writeback_result_ready_i;
+  assign exu_result_ready_o    = writeback_result_ready_i && !lsu_writeback_valid_i;
 
   // P0 has one instruction in flight, so exu_result_valid_i and lsu_writeback_valid_i are
   // mutually exclusive. NOTE(P5): replace this mux with a multi-port completion

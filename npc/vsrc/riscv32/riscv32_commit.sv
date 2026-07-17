@@ -2,8 +2,8 @@ module riscv32_commit
   import riscv32_pkg::*;
 (
     input  writeback_result_t writeback_result_i,
-    input  logic              writeback_valid_i,
-    output logic              writeback_ready_o,
+    input  logic              writeback_result_valid_i,
+    output logic              writeback_result_ready_o,
 
     output commit_t commit_o,
     output logic    commit_valid_o,
@@ -12,8 +12,8 @@ module riscv32_commit
     output arch_reg_idx_t            gpr_write_addr_o,
     output logic                     gpr_write_enable_o
 );
-  assign writeback_ready_o = 1'b1;
-  assign commit_valid_o    = writeback_valid_i && writeback_ready_o;
+  assign writeback_result_ready_o = 1'b1;
+  assign commit_valid_o           = writeback_result_valid_i && writeback_result_ready_o;
 
   always_comb begin
     commit_o                   = '0;
