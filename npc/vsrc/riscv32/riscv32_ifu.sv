@@ -139,7 +139,7 @@ module riscv32_ifu
       IFU_HOLD_FETCH: begin
         // redirect同周期压低valid，避免缓冲中的错误路径指令与IDU完成握手。
         fetch_entry_o       = fetch_entry_q;
-        fetch_entry_valid_o = 1'b1 && !redirect_req_valid_i;
+        fetch_entry_valid_o = !redirect_req_valid_i;
       end
 
       default: ;
@@ -233,13 +233,9 @@ module riscv32_ifu
   end
 
   // IFU_INIT已经保证reset期间ARVALID为0。寄存器块仍是状态、请求PC和fetch缓冲的唯一写入点。
-  // TODO(AXI-IFU-ASSERT): 添加以下等价SVA检查：
-  // - ARVALID && !ARREADY |=> ARVALID && $stable({ARADDR, ARPROT})
-  // - ARVALID在握手前不能下降
-  // - 每个R握手之前必须存在一个尚未完成的AR握手
-  // 断言放在master侧用于检查IFU责任；RVALID/RDATA稳定性放在slave侧检查。
-  //
-  // Register update
+
+
+
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       state_q            <= IFU_INIT;
@@ -255,6 +251,34 @@ module riscv32_ifu
       discard_axi_resp_q <= discard_axi_resp_d;
     end
   end
+
+  // TODO(AXI-IFU-ASSERT): 添加以下等价SVA检查：
+  // - ARVALID && !ARREADY |=> ARVALID && $stable({ARADDR, ARPROT})
+  // - ARVALID在握手前不能下降
+  // - 每个R握手之前必须存在一个尚未完成的AR握手
+  // 断言放在master侧用于检查IFU责任；RVALID/RDATA稳定性放在slave侧检查。
+  //
+  // Register update
+  p_ifu_arvalid_low_during_reset :
+  assert property (@(posedge clk_i) !rst_ni |-> !ifu_axi_arvalid_o)
+  else $error("IFU ARVALID assert during reset");
+
+  p_ifu_ar_stabler_while_stall :
+  assert property(
+    @(posedge clk_i)
+    ifu_axi_arvalid_o && !ifu_axi_arready_i |=> ifu_axi_arvalid_o && $stable(
+      {ifu_axi_ar_o.addr, ifu_axi_ar_o.prot}
+  ))
+  else $error("IFU changed AR payload before handshake");
+
+  p_ifu_arvalid_only_in_send_state :
+  assert property(
+    @(posedge clk_i)disable iff(!rst_ni)
+    ifu_axi_arvalid_o |-> state_q == IFU_SEND_AR
+  )
+  else $error("IFU assert ARVALID in an invalid state");
+
+
 
   // TODO(AXI-IFU-PERF): 基线通过后再消除气泡，不要把性能优化混入第一次协议迁移。
   // 第一阶段保持1个outstanding。第二阶段可在AR前增加1-entry skid/request buffer，并让
