@@ -36,6 +36,10 @@ static void fill_dut_regs(DiffTestRegs *r) {
   for (int i = 0; i < 32; i++) {
     r->gpr[i] = npc_get_gpr(i);
   }
+  // TODO(BUS-DIFFTEST-PC): 多周期后 npc_get_pc() 可能表示 IFU 请求/等待中的 PC，不能
+  // 直接作为退休后的 architectural PC。把本函数改为接收 commit_next_pc，或者维护
+  // 一个只在 commit 时更新的 arch_pc，再令 r->pc 使用该值。初始化阶段使用
+  // RESET_VECTOR；每次 difftest_step 使用对应 commit event 的 next_pc。
   r->pc = npc_get_pc();
 }
 

@@ -5,10 +5,10 @@ module top
     input logic rstn
 );
   localparam int unsigned REDIRECT_SOURCE_COUNT = 2;
-  localparam int unsigned EXECUTE_REDIRECT = 0;
-  localparam int unsigned COMMIT_REDIRECT = 1;
+  localparam int unsigned EXU_REDIRECT_INDEX = 0;
+  localparam int unsigned COMMIT_REDIRECT_INDEX = 1;
 
-  // TODO(P1-TOP-MEM-WIRES): 在这里声明两组独立的 instruction/data memory channel：
+  // TODO(BUS-TOP-MEM-WIRES): 在这里声明两组独立的 instruction/data memory channel：
   //   imem_req_t/imem_resp_t + 各自 req_valid/req_ready/resp_valid/resp_ready；
   //   mem_req_t/mem_resp_t   + 各自 req_valid/req_ready/resp_valid/resp_ready。
   // IFU 和 LSU 不应共享一组散线。Harvard 双通道允许未来 I-cache/D-cache 独立等待，
@@ -26,17 +26,17 @@ module top
   execute_packet_t                               execute_packet;
   logic                                          execute_ready;
 
-  execute_result_t                               direct_result;
-  logic                                          direct_valid;
-  logic                                          direct_ready;
+  execute_result_t                               exu_result;
+  logic                                          exu_result_valid;
+  logic                                          exu_result_ready;
 
-  execute_result_t                               memory_execute_result;
-  logic                                          memory_execute_valid;
-  logic                                          memory_execute_ready;
+  lsu_req_t                                      lsu_req;
+  logic                                          lsu_req_valid;
+  logic                                          lsu_req_ready;
 
-  writeback_result_t                             memory_writeback_result;
-  logic                                          memory_writeback_valid;
-  logic                                          memory_writeback_ready;
+  writeback_result_t                             lsu_writeback;
+  logic                                          lsu_writeback_valid;
+  logic                                          lsu_writeback_ready;
 
   writeback_result_t                             writeback_result;
   logic                                          writeback_valid;
@@ -44,9 +44,9 @@ module top
 
   commit_t                                       commit;
   logic                                          commit_valid;
-  logic              [                 XLEN-1:0] rf_write_data;
-  arch_reg_idx_t                                 rf_write_addr;
-  logic                                          rf_write_enable;
+  logic              [                 XLEN-1:0] gpr_write_data;
+  arch_reg_idx_t                                 gpr_write_addr;
+  logic                                          gpr_write_enable;
 
   logic              [                 XLEN-1:0] csr_read_data;
   logic                                          csr_read_illegal;
@@ -59,10 +59,10 @@ module top
   logic              [                 XLEN-1:0] trap_tval;
   logic                                          mret_valid;
 
-  redirect_req_t                                 redirect_request        [REDIRECT_SOURCE_COUNT];
-  logic              [REDIRECT_SOURCE_COUNT-1:0] redirect_request_valid;
-  redirect_req_t                                 selected_redirect;
-  logic                                          selected_redirect_valid;
+  redirect_req_t                                 redirect_req        [REDIRECT_SOURCE_COUNT];
+  logic              [REDIRECT_SOURCE_COUNT-1:0] redirect_req_valid;
+  redirect_req_t                                 selected_redirect_req;
+  logic                                          selected_redirect_req_valid;
 
   always_comb begin
     execute_packet             = '0;
@@ -76,9 +76,9 @@ module top
   riscv32_ifu u_ifu (
       .clk_i           (clk),
       .rst_ni          (rstn),
-      .redirect_i      (selected_redirect),
-      .redirect_valid_i(selected_redirect_valid),
-      // TODO(P1-TOP-IFU-MEM): riscv32_ifu 增加 memory 端口后，在这里连接上面声明的
+      .redirect_req_i      (selected_redirect_req),
+      .redirect_req_valid_i(selected_redirect_req_valid),
+      // TODO(BUS-TOP-IFU-MEM): 在这里连接上面声明的 imem request/response 六个信号。
       // imem request/response 六个信号。不要把 pmem_read 或地址解码逻辑放进 top。
       .fetch_entry_o   (fetch_entry),
       .fetch_valid_o   (fetch_valid),
@@ -96,13 +96,13 @@ module top
 
   riscv32_arch_regfile u_arch_regfile (
       .clk_i         (clk),
-      .write_data_i  (rf_write_data),
-      .write_addr_i  (rf_write_addr),
-      .write_enable_i(rf_write_enable),
-      .read_addr_a_i (decoded_uop.rs1),
-      .read_data_a_o (rs1_value),
-      .read_addr_b_i (decoded_uop.rs2),
-      .read_data_b_o (rs2_value)
+      .gpr_write_data_i  (gpr_write_data),
+      .gpr_write_addr_i  (gpr_write_addr),
+      .gpr_write_enable_i(gpr_write_enable),
+      .rs1_addr_i        (decoded_uop.rs1),
+      .rs1_data_o        (rs1_value),
+      .rs2_addr_i        (decoded_uop.rs2),
+      .rs2_data_o        (rs2_value)
   );
 
   riscv32_csr_file u_csr_file (
@@ -125,50 +125,46 @@ module top
   );
 
   riscv32_exu u_exu (
-      .execute_packet_i(execute_packet),
-      .execute_valid_i (decoded_valid),
-      .execute_ready_o (execute_ready),
-      .direct_result_o (direct_result),
-      .direct_valid_o  (direct_valid),
-      .direct_ready_i  (direct_ready),
-      .memory_result_o (memory_execute_result),
-      .memory_valid_o  (memory_execute_valid),
-      .memory_ready_i  (memory_execute_ready)
+      .execute_packet_i  (execute_packet),
+      .execute_valid_i   (decoded_valid),
+      .execute_ready_o   (execute_ready),
+      .exu_result_o      (exu_result),
+      .exu_result_valid_o(exu_result_valid),
+      .exu_result_ready_i(exu_result_ready),
+      .lsu_req_o         (lsu_req),
+      .lsu_req_valid_o   (lsu_req_valid),
+      .lsu_req_ready_i   (lsu_req_ready)
   );
 
   assign decoded_ready = execute_ready;
 
   riscv32_lsu u_lsu (
       .clk_i             (clk),
-      // TODO(P2-TOP-LSU-RESET): LSU 有状态后在这里连接 .rst_ni(rstn)。
-      .memory_result_i   (memory_execute_result),
-      .memory_valid_i    (memory_execute_valid),
-      .memory_ready_o    (memory_execute_ready),
-      .writeback_result_o(memory_writeback_result),
-      .writeback_valid_o (memory_writeback_valid),
-      .writeback_ready_i (memory_writeback_ready)
-      // TODO(P1-TOP-LSU-MEM): riscv32_lsu 增加 memory 端口后，在这里连接 dmem
+      // TODO(BUS-TOP-LSU-RESET): LSU 有状态后在这里连接 .rst_ni(rstn)。
+      .lsu_req_i            (lsu_req),
+      .lsu_req_valid_i      (lsu_req_valid),
+      .lsu_req_ready_o      (lsu_req_ready),
+      .lsu_writeback_o      (lsu_writeback),
+      .lsu_writeback_valid_o(lsu_writeback_valid),
+      .lsu_writeback_ready_i(lsu_writeback_ready)
+      // TODO(BUS-TOP-LSU-MEM): 在这里连接 dmem request/response 六个信号。
       // request/response 六个信号。添加第一个连接前给上一行补逗号。
   );
 
-  // TODO(P1-TOP-SIM-MEM): 在本位置实例化 riscv32_sim_mem，同时连接 imem 与 dmem
-  // channel。P1 先实现组合零等待 adapter，用它证明“DPI 移出 core”没有改变功能。
-  // P2 再把同一个 adapter 改成一拍/随机延迟响应，并可在此替换成 riscv32_rom +
-  // riscv32_sram。core 端口与 IFU/LSU 不应因 memory 实现变化而再次修改。
-  //
-  // 注意：教程中的两个 256x32 register-array memory 是 STA 对比实验，仅各 1 KiB；
-  // 它们不能承载当前 AM/RT-Thread 镜像，也不应成为正式 top 的固定容量。
+  // TODO(BUS-TOP-SIM-MEM): 在本位置实例化 riscv32_sim_mem，同时连接 imem 与 dmem
+  // 完整握手通道。DPI 只能存在于该 simulation slave；top 不得自行调用 pmem。
+  // IFU/LSU/core 的端口不能因固定一拍、随机延迟或未来 cache/bus adapter 再次变化。
 
   riscv32_completion_mux u_completion_mux (
-      .direct_result_i  (direct_result),
-      .direct_valid_i   (direct_valid),
-      .direct_ready_o   (direct_ready),
-      .memory_result_i  (memory_writeback_result),
-      .memory_valid_i   (memory_writeback_valid),
-      .memory_ready_o   (memory_writeback_ready),
-      .writeback_result_o(writeback_result),
-      .writeback_valid_o (writeback_valid),
-      .writeback_ready_i (writeback_ready)
+      .exu_result_i          (exu_result),
+      .exu_result_valid_i    (exu_result_valid),
+      .exu_result_ready_o    (exu_result_ready),
+      .lsu_writeback_i       (lsu_writeback),
+      .lsu_writeback_valid_i (lsu_writeback_valid),
+      .lsu_writeback_ready_o (lsu_writeback_ready),
+      .writeback_result_o    (writeback_result),
+      .writeback_valid_o     (writeback_valid),
+      .writeback_ready_i     (writeback_ready)
   );
 
   riscv32_commit u_commit (
@@ -177,9 +173,9 @@ module top
       .writeback_ready_o (writeback_ready),
       .commit_o          (commit),
       .commit_valid_o    (commit_valid),
-      .rf_wdata_o        (rf_write_data),
-      .rf_waddr_o        (rf_write_addr),
-      .rf_wen_o          (rf_write_enable)
+      .gpr_write_data_o  (gpr_write_data),
+      .gpr_write_addr_o  (gpr_write_addr),
+      .gpr_write_enable_o(gpr_write_enable)
   );
 
   riscv32_trap_controller u_trap_controller (
@@ -192,21 +188,21 @@ module top
       .trap_cause_o    (trap_cause),
       .trap_tval_o     (trap_tval),
       .mret_valid_o    (mret_valid),
-      .redirect_o      (redirect_request[COMMIT_REDIRECT]),
-      .redirect_valid_o(redirect_request_valid[COMMIT_REDIRECT])
+      .redirect_req_o      (redirect_req[COMMIT_REDIRECT_INDEX]),
+      .redirect_req_valid_o(redirect_req_valid[COMMIT_REDIRECT_INDEX])
   );
 
-  assign redirect_request[EXECUTE_REDIRECT] = direct_result.redirect;
-  assign redirect_request_valid[EXECUTE_REDIRECT] = direct_valid && direct_ready &&
-                                                     direct_result.redirect_valid;
+  assign redirect_req[EXU_REDIRECT_INDEX] = exu_result.redirect_req;
+  assign redirect_req_valid[EXU_REDIRECT_INDEX] = exu_result_valid && exu_result_ready &&
+                                                   exu_result.redirect_valid;
 
   riscv32_redirect_arbiter #(
       .SOURCE_COUNT(REDIRECT_SOURCE_COUNT)
   ) u_redirect_arbiter (
-      .redirect_i      (redirect_request),
-      .redirect_valid_i(redirect_request_valid),
-      .redirect_o      (selected_redirect),
-      .redirect_valid_o(selected_redirect_valid)
+      .redirect_req_i             (redirect_req),
+      .redirect_req_valid_i       (redirect_req_valid),
+      .selected_redirect_o        (selected_redirect_req),
+      .selected_redirect_valid_o  (selected_redirect_req_valid)
   );
 
   // TODO(P1-TOP-CORE-SPLIT): memory channel 回归通过后，把第 62-192 行的可综合 CPU
@@ -222,6 +218,11 @@ module top
 
   export "DPI-C" function npc_get_pc_dpi;
   export "DPI-C" function npc_get_inst_dpi;
+
+  // TODO(BUS-TOP-COMMIT-DPI): 多周期后 fetch 并不等于执行完成。在本位置新增只读 DPI
+  // 导出，让软件能在 clk=0、posedge 之前采样 commit_valid、commit.pc、
+  // commit.instruction 和 commit.next_pc。不要从 IFU fetch_entry 推断退休事件。
+  // 建议接口：npc_get_commit_valid_dpi/pc_dpi/inst_dpi/next_pc_dpi。
 
   function int npc_get_pc_dpi();
     npc_get_pc_dpi = fetch_entry.pc;

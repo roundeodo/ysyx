@@ -8,9 +8,9 @@ module riscv32_commit
     output commit_t commit_o,
     output logic    commit_valid_o,
 
-    output logic          [XLEN-1:0] rf_wdata_o,
-    output arch_reg_idx_t            rf_waddr_o,
-    output logic                     rf_wen_o
+    output logic          [XLEN-1:0] gpr_write_data_o,
+    output arch_reg_idx_t            gpr_write_addr_o,
+    output logic                     gpr_write_enable_o
 );
   assign writeback_ready_o = 1'b1;
   assign commit_valid_o    = writeback_valid_i && writeback_ready_o;
@@ -44,9 +44,9 @@ module riscv32_commit
     commit_o.system_op         = writeback_result_i.uop.system_op;
   end
 
-  assign rf_wdata_o = commit_o.gpr_wdata;
-  assign rf_waddr_o = commit_o.gpr_addr;
-  assign rf_wen_o   = commit_valid_o && commit_o.gpr_write && (commit_o.gpr_addr != '0);
+  assign gpr_write_data_o   = commit_o.gpr_wdata;
+  assign gpr_write_addr_o   = commit_o.gpr_addr;
+  assign gpr_write_enable_o = commit_valid_o && commit_o.gpr_write && (commit_o.gpr_addr != '0);
 
   // This width-1 boundary is the architectural side-effect authority in P0.
   // NOTE(P6): a ROB will later choose the oldest completed entries and drive

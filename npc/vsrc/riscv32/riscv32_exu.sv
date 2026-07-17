@@ -5,13 +5,13 @@ module riscv32_exu
     input  logic            execute_valid_i,
     output logic            execute_ready_o,
 
-    output execute_result_t direct_result_o,
-    output logic            direct_valid_o,
-    input  logic            direct_ready_i,
+    output execute_result_t exu_result_o,
+    output logic            exu_result_valid_o,
+    input  logic            exu_result_ready_i,
 
-    output execute_result_t memory_result_o,
-    output logic            memory_valid_o,
-    input  logic            memory_ready_i
+    output lsu_req_t lsu_req_o,
+    output logic     lsu_req_valid_o,
+    input  logic     lsu_req_ready_i
 );
   logic            [XLEN-1:0] operand_a;
   logic            [XLEN-1:0] operand_b;
@@ -22,7 +22,7 @@ module riscv32_exu
   logic                       branch_taken;
   logic            [XLEN-1:0] branch_target;
   logic                       redirect_valid;
-  execute_result_t            result;
+  execute_result_t            exu_result;
 
   always_comb begin
     unique case (execute_packet_i.uop.int_ctrl.operand_a_sel)
@@ -105,45 +105,49 @@ module riscv32_exu
   assign redirect_valid = branch_taken && !execute_packet_i.uop.exception_valid;
 
   always_comb begin
-    result                          = '0;
-    result.uop                      = execute_packet_i.uop;
-    result.result                   = alu_result;
-    result.next_pc                  = execute_packet_i.uop.pc + 32'd4;
-    result.csr_wdata                = csr_wdata;
-    result.memory_addr              = alu_result;
-    result.memory_wdata             = execute_packet_i.rs2_value;
-    result.redirect_valid           = redirect_valid;
-    result.redirect.target_pc       = branch_target;
-    result.redirect.source_pc       = execute_packet_i.uop.pc;
-    result.redirect.reason          = REDIRECT_BRANCH_MISPREDICT;
-    result.redirect.flush_inclusive = 1'b0;
+    exu_result                                  = '0;
+    exu_result.uop                              = execute_packet_i.uop;
+    exu_result.result                           = alu_result;
+    exu_result.next_pc                          = execute_packet_i.uop.pc + 32'd4;
+    exu_result.csr_wdata                        = csr_wdata;
+    exu_result.redirect_valid                   = redirect_valid;
+    exu_result.redirect_req.target_pc           = branch_target;
+    exu_result.redirect_req.source_pc           = execute_packet_i.uop.pc;
+    exu_result.redirect_req.reason              = REDIRECT_BRANCH_MISPREDICT;
+    exu_result.redirect_req.flush_inclusive     = 1'b0;
 
     if ((execute_packet_i.uop.fu_type == FU_CSR) && execute_packet_i.csr_illegal) begin
-      result.uop.exception_valid       = 1'b1;
-      result.uop.exception_cause       = EXC_ILLEGAL_INSTRUCTION;
-      result.uop.exception_tval        = execute_packet_i.uop.instruction;
-      result.uop.writes_rd             = 1'b0;
-      result.uop.csr_ctrl.write_enable = 1'b0;
+      exu_result.uop.exception_valid       = 1'b1;
+      exu_result.uop.exception_cause       = EXC_ILLEGAL_INSTRUCTION;
+      exu_result.uop.exception_tval        = execute_packet_i.uop.instruction;
+      exu_result.uop.writes_rd             = 1'b0;
+      exu_result.uop.csr_ctrl.write_enable = 1'b0;
     end
 
     if (redirect_valid) begin
-      result.next_pc = branch_target;
+      exu_result.next_pc = branch_target;
     end
 
     unique case (execute_packet_i.uop.fu_type)
-      FU_BRANCH: result.result = execute_packet_i.uop.pc + 32'd4;
-      FU_CSR:    result.result = execute_packet_i.csr_rdata;
+      FU_BRANCH: exu_result.result = execute_packet_i.uop.pc + 32'd4;
+      FU_CSR:    exu_result.result = execute_packet_i.csr_rdata;
       default:   ;
     endcase
   end
 
-  assign direct_result_o = result;
-  assign memory_result_o = result;
+  always_comb begin
+    lsu_req_o                = '0;
+    lsu_req_o.uop            = exu_result.uop;
+    lsu_req_o.next_pc        = exu_result.next_pc;
+    lsu_req_o.effective_addr = alu_result;
+    lsu_req_o.store_data     = execute_packet_i.rs2_value;
+  end
 
-  assign direct_valid_o = execute_valid_i && (execute_packet_i.uop.fu_type != FU_LSU);
-  assign memory_valid_o = execute_valid_i && (execute_packet_i.uop.fu_type == FU_LSU);
+  assign exu_result_o       = exu_result;
+  assign exu_result_valid_o = execute_valid_i && (execute_packet_i.uop.fu_type != FU_LSU);
+  assign lsu_req_valid_o    = execute_valid_i && (execute_packet_i.uop.fu_type == FU_LSU);
   assign execute_ready_o = (execute_packet_i.uop.fu_type == FU_LSU) ?
-                           memory_ready_i : direct_ready_i;
+                           lsu_req_ready_i : exu_result_ready_i;
 
   // NOTE(P5): split this aggregate into int_alu, branch_unit, agu, and csr_exec.
   // Each unit then receives a narrow request and emits an independent completion.

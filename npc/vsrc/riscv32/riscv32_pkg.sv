@@ -388,7 +388,7 @@ package riscv32_pkg;
     logic [XLEN-1:0]  exception_tval;
 
     logic          redirect_valid;
-    redirect_req_t redirect;
+    redirect_req_t redirect_req;
     logic          replay;
   } completion_t;
 
@@ -472,11 +472,19 @@ package riscv32_pkg;
     logic [XLEN-1:0] result;
     logic [XLEN-1:0] next_pc;
     logic [XLEN-1:0] csr_wdata;
-    logic [XLEN-1:0] memory_addr;
-    logic [XLEN-1:0] memory_wdata;
     logic            redirect_valid;
-    redirect_req_t   redirect;
+    redirect_req_t   redirect_req;
   } execute_result_t;
+
+  // EXU-to-LSU request for the current in-order core. This is a request, not a
+  // memory result: the LSU has not issued a data-memory transaction yet.
+  // P6 replaces decoded_uop_t with ROB/LSQ identity carried by lsu_execute_req_t.
+  typedef struct packed {
+    decoded_uop_t    uop;
+    logic [XLEN-1:0] next_pc;
+    logic [XLEN-1:0] effective_addr;
+    logic [XLEN-1:0] store_data;
+  } lsu_req_t;
 
   typedef struct packed {
     decoded_uop_t          uop;

@@ -3,22 +3,22 @@ module riscv32_redirect_arbiter
 #(
     parameter int unsigned SOURCE_COUNT = 2
 ) (
-    input redirect_req_t                    redirect_i      [SOURCE_COUNT],
-    input logic          [SOURCE_COUNT-1:0] redirect_valid_i,
+    input redirect_req_t                    redirect_req_i       [SOURCE_COUNT],
+    input logic          [SOURCE_COUNT-1:0] redirect_req_valid_i,
 
-    output redirect_req_t redirect_o,
-    output logic          redirect_valid_o
+    output redirect_req_t selected_redirect_o,
+    output logic          selected_redirect_valid_o
 );
   // Higher array indices have higher priority. P0 connects execute recovery at
   // index 0 and committed trap/mret at index 1, so architectural redirects win.
   always_comb begin
-    redirect_o       = '0;
-    redirect_valid_o = 1'b0;
+    selected_redirect_o       = '0;
+    selected_redirect_valid_o = 1'b0;
 
     for (int unsigned source = 0; source < SOURCE_COUNT; source++) begin
-      if (redirect_valid_i[source]) begin
-        redirect_o       = redirect_i[source];
-        redirect_valid_o = 1'b1;
+      if (redirect_req_valid_i[source]) begin
+        selected_redirect_o       = redirect_req_i[source];
+        selected_redirect_valid_o = 1'b1;
       end
     end
   end

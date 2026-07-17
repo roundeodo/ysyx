@@ -18,11 +18,11 @@ module riscv32_idu
   logic [ 6:0] funct7;
   logic [11:0] funct12;
 
-  logic [31:0] imm_i;
-  logic [31:0] imm_s;
-  logic [31:0] imm_b;
-  logic [31:0] imm_u;
-  logic [31:0] imm_j;
+  logic [31:0] i_type_imm;
+  logic [31:0] s_type_imm;
+  logic [31:0] b_type_imm;
+  logic [31:0] u_type_imm;
+  logic [31:0] j_type_imm;
 
   assign instruction = fetch_entry_i.instruction;
   assign opcode = instruction[6:0];
@@ -33,9 +33,9 @@ module riscv32_idu
   assign funct7 = instruction[31:25];
   assign funct12 = instruction[31:20];
 
-  assign imm_i = {{20{instruction[31]}}, instruction[31:20]};
-  assign imm_s = {{20{instruction[31]}}, instruction[31:25], instruction[11:7]};
-  assign imm_b = {
+  assign i_type_imm = {{20{instruction[31]}}, instruction[31:20]};
+  assign s_type_imm = {{20{instruction[31]}}, instruction[31:25], instruction[11:7]};
+  assign b_type_imm = {
     {19{instruction[31]}},
     instruction[31],
     instruction[7],
@@ -43,8 +43,8 @@ module riscv32_idu
     instruction[11:8],
     1'b0
   };
-  assign imm_u = {instruction[31:12], 12'b0};
-  assign imm_j = {
+  assign u_type_imm = {instruction[31:12], 12'b0};
+  assign j_type_imm = {
     {11{instruction[31]}},
     instruction[31],
     instruction[19:12],
@@ -133,7 +133,7 @@ module riscv32_idu
         decoded_uop_o.fu_type                = FU_INT;
         decoded_uop_o.uses_rs1               = 1'b1;
         decoded_uop_o.writes_rd              = (rd_addr != '0);
-        decoded_uop_o.imm                    = imm_i;
+        decoded_uop_o.imm                    = i_type_imm;
         decoded_uop_o.int_ctrl.operand_a_sel = OPA_RS1;
         decoded_uop_o.int_ctrl.operand_b_sel = OPB_IMM;
 
@@ -164,7 +164,7 @@ module riscv32_idu
       OPCODE_LUI: begin
         decoded_uop_o.fu_type                = FU_INT;
         decoded_uop_o.writes_rd              = (rd_addr != '0);
-        decoded_uop_o.imm                    = imm_u;
+        decoded_uop_o.imm                    = u_type_imm;
         decoded_uop_o.int_ctrl.operand_a_sel = OPA_ZERO;
         decoded_uop_o.int_ctrl.operand_b_sel = OPB_IMM;
       end
@@ -172,7 +172,7 @@ module riscv32_idu
       OPCODE_AUIPC: begin
         decoded_uop_o.fu_type                = FU_INT;
         decoded_uop_o.writes_rd              = (rd_addr != '0);
-        decoded_uop_o.imm                    = imm_u;
+        decoded_uop_o.imm                    = u_type_imm;
         decoded_uop_o.int_ctrl.operand_a_sel = OPA_PC;
         decoded_uop_o.int_ctrl.operand_b_sel = OPB_IMM;
       end
@@ -180,7 +180,7 @@ module riscv32_idu
       OPCODE_JAL: begin
         decoded_uop_o.fu_type        = FU_BRANCH;
         decoded_uop_o.writes_rd      = (rd_addr != '0);
-        decoded_uop_o.imm            = imm_j;
+        decoded_uop_o.imm            = j_type_imm;
         decoded_uop_o.branch_ctrl.op = CF_JAL;
       end
 
@@ -188,7 +188,7 @@ module riscv32_idu
         decoded_uop_o.fu_type        = FU_BRANCH;
         decoded_uop_o.uses_rs1       = 1'b1;
         decoded_uop_o.writes_rd      = (rd_addr != '0);
-        decoded_uop_o.imm            = imm_i;
+        decoded_uop_o.imm            = i_type_imm;
         decoded_uop_o.branch_ctrl.op = CF_JALR;
         if (funct3 != 3'b000) decoded_uop_o.exception_valid = 1'b1;
       end
@@ -197,7 +197,7 @@ module riscv32_idu
         decoded_uop_o.fu_type        = FU_BRANCH;
         decoded_uop_o.uses_rs1       = 1'b1;
         decoded_uop_o.uses_rs2       = 1'b1;
-        decoded_uop_o.imm            = imm_b;
+        decoded_uop_o.imm            = b_type_imm;
         decoded_uop_o.branch_ctrl.op = CF_BRANCH;
         unique case (funct3)
           FUNCT3_BEQ:  decoded_uop_o.branch_ctrl.condition = BR_BEQ;
@@ -214,7 +214,7 @@ module riscv32_idu
         decoded_uop_o.fu_type                = FU_LSU;
         decoded_uop_o.uses_rs1               = 1'b1;
         decoded_uop_o.writes_rd              = (rd_addr != '0);
-        decoded_uop_o.imm                    = imm_i;
+        decoded_uop_o.imm                    = i_type_imm;
         decoded_uop_o.int_ctrl.operand_a_sel = OPA_RS1;
         decoded_uop_o.int_ctrl.operand_b_sel = OPB_IMM;
         decoded_uop_o.mem_ctrl.cmd           = MEM_CMD_LOAD;
@@ -247,7 +247,7 @@ module riscv32_idu
         decoded_uop_o.fu_type                = FU_LSU;
         decoded_uop_o.uses_rs1               = 1'b1;
         decoded_uop_o.uses_rs2               = 1'b1;
-        decoded_uop_o.imm                    = imm_s;
+        decoded_uop_o.imm                    = s_type_imm;
         decoded_uop_o.int_ctrl.operand_a_sel = OPA_RS1;
         decoded_uop_o.int_ctrl.operand_b_sel = OPB_IMM;
         decoded_uop_o.mem_ctrl.cmd           = MEM_CMD_STORE;

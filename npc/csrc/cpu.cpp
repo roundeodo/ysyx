@@ -68,6 +68,12 @@ static inline void set_dpi_scope() {
   svSetScope(top_dpi_scope);
 }
 
+// TODO(BUS-CPU-COMMIT-SAMPLE): 多周期改造时，在本函数 clk=0、top->eval() 之后，
+// clk=1 之前采样 RTL 导出的 commit event。原因是 commit_valid 可能在 posedge 后因
+// 状态更新立即撤销，等 single_cycle() 返回再读取可能漏掉退休事件。
+// 建议新增 CommitEvent 结构，至少保存 valid/pc/instruction/next_pc，并让
+// single_cycle(CommitEvent *event) 在每个周期返回本拍是否退休了一条指令。
+// 波形时间仍按周期推进；只有 guest instruction count 按 commit event 推进。
 // Execute one clock cycle
 static void single_cycle() {
   top->clk = 0;
@@ -255,6 +261,16 @@ bool npc_reg_str2val(const char *name, uint32_t *val) {
   return false;
 }
 
+// TODO(BUS-CPU-EXEC): 在本函数位置把“for 循环 n 次 = 执行 n 条指令”的假设删除。
+// 推荐逻辑：
+//   1. retired=0，while (retired<n && NPC仍运行) 每次只推进一个 single_cycle；
+//   2. 若本周期没有 commit，继续等待，不做 itrace/ftrace/DiffTest/watchpoint；
+//   3. 若有 commit，使用 CommitEvent.pc/instruction/next_pc 做 trace 和 DiffTest，
+//      guest_inst_count++、retired++，然后检查 watchpoint；
+//   4. 另设 cycle watchdog，避免 memory 永不响应时无限挂起；
+//   5. `si N` 的含义必须继续是执行 N 条退休指令，而不是 N 个时钟周期。
+// 这是 SimpleBus 多周期化后软件侧必须完成的修改，否则 NEMU 会在 IFU/LSU wait
+// 周期被错误地额外执行。
 // Execute n instructions
 
 void cpu_exec(uint64_t n) {
