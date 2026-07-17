@@ -12,8 +12,10 @@
 module riscv32_sim_mem
   import riscv32_pkg::*;
 #(
-    parameter int unsigned IMEM_RESPONSE_LATENCY = 1,
-    parameter int unsigned DMEM_RESPONSE_LATENCY = 1
+    // TODO(AXI-MEM-PARAM-CODE): 用三类独立延迟替换当前两个参数，并同步修改top实例参数名。
+    parameter int unsigned IFU_READ_LATENCY  = 1,
+    parameter int unsigned LSU_READ_LATENCY  = 1,
+    parameter int unsigned LSU_WRITE_LATENCY = 1
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -23,19 +25,31 @@ module riscv32_sim_mem
     // lsu_axi read：输入AR payload/ARVALID，输出ARREADY；输出R payload/RVALID，输入RREADY。
     // lsu_axi write：输入AW/W payload和VALID，分别输出AWREADY/WREADY；输出B payload/BVALID，
     // 输入BREADY。AW与W端口不能合并，因为协议允许它们任意先后握手。
-    input  imem_req_t  imem_req_i,
-    input  logic       imem_req_valid_i,
-    output logic       imem_req_ready_o,
-    output imem_resp_t imem_resp_o,
-    output logic       imem_resp_valid_o,
-    input  logic       imem_resp_ready_i,
+    //
+    // TODO(AXI-MEM-PORT-CODE): 删除下面全部SimpleBus端口，换成以下slave端口：
+    input  axi_lite_addr_t ifu_axi_ar_i,
+    input  logic           ifu_axi_arvalid_i,
+    output logic           ifu_axi_arready_o,
+    output axi_lite_r_t    ifu_axi_r_o,
+    output logic           ifu_axi_rvalid_o,
+    input  logic           ifu_axi_rready_i,
 
-    input  mem_req_t  dmem_req_i,
-    input  logic      dmem_req_valid_i,
-    output logic      dmem_req_ready_o,
-    output mem_resp_t dmem_resp_o,
-    output logic      dmem_resp_valid_o,
-    input  logic      dmem_resp_ready_i
+    input  axi_lite_addr_t lsu_axi_ar_i,
+    input  logic           lsu_axi_arvalid_i,
+    output logic           lsu_axi_arready_o,
+    output axi_lite_r_t    lsu_axi_r_o,
+    output logic           lsu_axi_rvalid_o,
+    input  logic           lsu_axi_rready_i,
+
+    input  axi_lite_addr_t lsu_axi_aw_i,
+    input  logic           lsu_axi_awvalid_i,
+    output logic           lsu_axi_awready_o,
+    input  axi_lite_w_t    lsu_axi_w_i,
+    input  logic           lsu_axi_wvalid_i,
+    output logic           lsu_axi_wready_o,
+    output axi_lite_b_t    lsu_axi_b_o,
+    output logic           lsu_axi_bvalid_o,
+    input  logic           lsu_axi_bready_i
 );
 
   // DPI 允许存在于本 simulation adapter，但禁止出现在 riscv32_core/IFU/LSU 中。
@@ -60,60 +74,94 @@ module riscv32_sim_mem
   // Each port accepts one outstanding transaction. Response latency counts from the
   // request handshake cycle; latency=1 preserves the original next-cycle response.
   // The registered response payload remains stable until its response handshake.
-
-  localparam int unsigned IMEM_DELAY_W = (IMEM_RESPONSE_LATENCY > 1) ? $clog2(
-      IMEM_RESPONSE_LATENCY
+  //
+  // TODO(AXI-MEM-DECL-CODE): 删除下面旧localparam、mem_state_e及全部旧状态/响应声明，
+  // 改为以下三套独立事务状态。RESP状态自身保持VALID，不再需要单独HOLD状态：
+  //
+  localparam int unsigned IFU_DELAY_W = (IFU_READ_LATENCY > 1) ? $clog2(IFU_READ_LATENCY) : 1;
+  localparam int unsigned LSU_READ_DELAY_W = (LSU_READ_LATENCY > 1) ? $clog2(LSU_READ_LATENCY) : 1;
+  localparam int unsigned LSU_WRITE_DELAY_W = (LSU_WRITE_LATENCY > 1) ? $clog2(
+      LSU_WRITE_LATENCY
   ) : 1;
-  localparam int unsigned DMEM_DELAY_W = (DMEM_RESPONSE_LATENCY > 1) ? $clog2(
-      DMEM_RESPONSE_LATENCY
-  ) : 1;
+  //
+  typedef enum logic [1:0] {
+    READ_IDLE,
+    READ_WAIT,
+    READ_RESP
+  } read_state_e;
+  //
+  typedef enum logic [1:0] {
+    WRITE_COLLECT,
+    WRITE_WAIT,
+    WRITE_RESP
+  } write_state_e;
+  //
+  read_state_e ifu_read_state_q, ifu_read_state_d;
+  read_state_e lsu_read_state_q, lsu_read_state_d;
+  write_state_e lsu_write_state_q, lsu_write_state_d;
+  //
+  axi_lite_r_t ifu_r_q;
+  axi_lite_r_t lsu_r_q;
+  axi_lite_b_t lsu_b_q;
+  //
+  axi_lite_addr_t lsu_aw_q, lsu_aw_d;
+  axi_lite_w_t lsu_w_q, lsu_w_d;
+  axi_lite_addr_t active_lsu_aw;
+  axi_lite_w_t    active_lsu_w;
+  //
+  logic [IFU_DELAY_W-1:0] ifu_delay_q, ifu_delay_d;
+  logic [LSU_READ_DELAY_W-1:0] lsu_read_delay_q, lsu_read_delay_d;
+  logic [LSU_WRITE_DELAY_W-1:0] lsu_write_delay_q, lsu_write_delay_d;
+  //
+  logic lsu_aw_handshake_occurred_q, lsu_aw_handshake_occurred_d;
+  logic lsu_w_handshake_occurred_q, lsu_w_handshake_occurred_d;
+  //
+  logic ifu_ar_handshake, ifu_r_handshake;
+  logic lsu_ar_handshake, lsu_r_handshake;
+  logic lsu_aw_handshake, lsu_w_handshake, lsu_b_handshake;
+  logic lsu_write_request_complete;
 
   // TODO(AXI-MEM-STATE): 删除这个同时用于imem/dmem的通用SimpleBus状态定义，分别建立：
   // - imem read状态和地址寄存器；
   // - dmem read状态和地址寄存器；
-  // - dmem write收集状态、AW地址寄存器、W数据/strb寄存器、aw_seen_q和w_seen_q。
+  // - dmem write收集状态、AW/W暂存寄存器及其valid状态。
   //
   // write slave必须能处理四种情况：AW先到、W先到、同拍到、二者都长期反压。
   // AWREADY只表示有空间保存一个地址，WREADY只表示有空间保存一个数据；任何一个channel
   // 的READY都不应以另一个channel先握手为前提。BVALID只能在本事务AW和W都收到后产生。
-  typedef enum logic [1:0] {
-    MEM_IDLE,
-    MEM_WAIT_RESP,
-    MEM_RESPOND,
-    MEM_HOLD_RESP
-  } mem_state_e;
-
-  mem_state_e imem_state_q;
-  mem_state_e imem_state_d;
-  mem_state_e dmem_state_q;
-  mem_state_e dmem_state_d;
-
-  imem_resp_t imem_resp_q;
-  mem_resp_t dmem_resp_q;
-
-  logic [IMEM_DELAY_W-1:0] imem_delay_q;
-  logic [IMEM_DELAY_W-1:0] imem_delay_d;
-  logic [DMEM_DELAY_W-1:0] dmem_delay_q;
-  logic [DMEM_DELAY_W-1:0] dmem_delay_d;
-
-  logic imem_req_handshake;
-  logic dmem_req_handshake;
-  logic imem_resp_handshake;
-  logic dmem_resp_handshake;
 
   // TODO(AXI-MEM-HANDSHAKE): 将四个SimpleBus握手替换为imem AR/R以及dmem
   // AR/R/AW/W/B共7个握手事件。slave可以等待VALID再拉READY，但为获得单拍接收性能，
   // 空闲且buffer有空间时应提前拉高READY。RVALID/BVALID不得等待RREADY/BREADY才产生。
   //
+  // TODO(AXI-MEM-HANDSHAKE-CODE): 删除下面四个旧握手，写成：
+  assign ifu_ar_handshake = ifu_axi_arvalid_i && ifu_axi_arready_o;
+  assign ifu_r_handshake  = ifu_axi_rvalid_o && ifu_axi_rready_i;
+  assign lsu_ar_handshake = lsu_axi_arvalid_i && lsu_axi_arready_o;
+  assign lsu_r_handshake  = lsu_axi_rvalid_o && lsu_axi_rready_i;
+  assign lsu_aw_handshake = lsu_axi_awvalid_i && lsu_axi_awready_o;
+  assign lsu_w_handshake  = lsu_axi_wvalid_i && lsu_axi_wready_o;
+  assign lsu_b_handshake  = lsu_axi_bvalid_o && lsu_axi_bready_i;
+  //
+  always_comb begin
+    active_lsu_aw = lsu_aw_handshake ? lsu_axi_aw_i : lsu_aw_q;
+    active_lsu_w  = lsu_w_handshake ? lsu_axi_w_i : lsu_w_q;
+
+    lsu_write_request_complete =
+        (lsu_write_state_q == WRITE_COLLECT) &&
+        (lsu_aw_handshake_occurred_q || lsu_aw_handshake) &&
+        (lsu_w_handshake_occurred_q  || lsu_w_handshake);
+  end
+  //
+  // active payload优先选择本拍握手输入，否则选择之前保存的payload，覆盖AW/W任意先后到达。
   // A transfer occurs only when both sides complete the valid/ready handshake.
-  assign imem_req_handshake  = imem_req_valid_i && imem_req_ready_o;
-  assign imem_resp_handshake = imem_resp_valid_o && imem_resp_ready_i;
-  assign dmem_req_handshake  = dmem_req_valid_i && dmem_req_ready_o;
-  assign dmem_resp_handshake = dmem_resp_valid_o && dmem_resp_ready_i;
+
 
   initial begin
-    if (IMEM_RESPONSE_LATENCY == 0) $fatal(1, "IMEM_RESPONSE_LATENCY must be >= 1");
-    if (DMEM_RESPONSE_LATENCY == 0) $fatal(1, "DMEM_RESPONSE_LATENCY must be >= 1");
+    // TODO(AXI-MEM-INITIAL-CODE): 参数改名后将检查替换为：
+    if (IFU_READ_LATENCY == 0) $fatal(1, "IFU_READ_LATENCY must be >= 1");
+    if (LSU_READ_LATENCY == 0) $fatal(1, "LSU_READ_LATENCY must be >= 1");
+    if (LSU_WRITE_LATENCY == 0) $fatal(1, "LSU_WRITE_LATENCY must be >= 1");
   end
 
   // TODO(AXI-MEM-DPI-SIZE): AXI4-Lite没有AxSIZE，完成迁移后删除mem_size_to_bytes。
@@ -142,178 +190,269 @@ module riscv32_sim_mem
   // 高效版本可增加1-entry AR skid buffer，使R通道保持响应时还能预收下一地址，但第一次
   // 实现不要同时提高outstanding深度；先保证每个AR恰好对应一个R。
   //
-  // Moore output logic.
+  // TODO(AXI-MEM-IFU-READ-CODE): 删除下面三个旧imem block，替换为完整代码：
+  //
   always_comb begin
-    imem_req_ready_o  = 1'b0;
-    imem_resp_valid_o = 1'b0;
-    imem_resp_o       = imem_resp_q;
-    unique case (imem_state_q)
-      MEM_IDLE:      imem_req_ready_o = 1'b1;
-      MEM_RESPOND:   imem_resp_valid_o = 1'b1;
-      MEM_HOLD_RESP: imem_resp_valid_o = 1'b1;
-      default:       ;
-    endcase
+    ifu_axi_arready_o = 1'b0;
+    ifu_axi_r_o       = ifu_r_q;
+    ifu_axi_rvalid_o  = 1'b0;
+
+    if (rst_ni) begin
+      unique case (ifu_read_state_q)
+        READ_IDLE: ifu_axi_arready_o = 1'b1;
+        READ_RESP: ifu_axi_rvalid_o = 1'b1;
+        default:   ;
+      endcase
+    end
   end
-
-  // Next-state logic.
+  //
   always_comb begin
-    imem_state_d = imem_state_q;
-    imem_delay_d = imem_delay_q;
+    ifu_read_state_d = ifu_read_state_q;
+    ifu_delay_d      = ifu_delay_q;
 
-    unique case (imem_state_q)
-      MEM_IDLE: begin
-        if (imem_req_handshake) begin
-          if (IMEM_RESPONSE_LATENCY == 1) begin
-            imem_state_d = MEM_RESPOND;
+    unique case (ifu_read_state_q)
+      READ_IDLE: begin
+        if (ifu_ar_handshake) begin
+          if (IFU_READ_LATENCY == 1) begin
+            ifu_read_state_d = READ_RESP;
           end else begin
-            imem_delay_d = IMEM_DELAY_W'(IMEM_RESPONSE_LATENCY - 1);
-            imem_state_d = MEM_WAIT_RESP;
+            ifu_delay_d      = IFU_DELAY_W'(IFU_READ_LATENCY - 1);
+            ifu_read_state_d = READ_WAIT;
           end
         end
       end
-      MEM_WAIT_RESP: begin
-        if (imem_delay_q == IMEM_DELAY_W'(1)) begin
-          imem_delay_d = '0;
-          imem_state_d = MEM_RESPOND;
+
+      READ_WAIT: begin
+        if (ifu_delay_q == IFU_DELAY_W'(1)) begin
+          ifu_delay_d      = '0;
+          ifu_read_state_d = READ_RESP;
         end else begin
-          imem_delay_d = imem_delay_q - IMEM_DELAY_W'(1);
+          ifu_delay_d = ifu_delay_q - IFU_DELAY_W'(1);
         end
       end
-      MEM_RESPOND: begin
-        if (imem_resp_handshake) imem_state_d = MEM_IDLE;
-        else imem_state_d = MEM_HOLD_RESP;
+
+      READ_RESP: begin
+        if (ifu_r_handshake) begin
+          ifu_read_state_d = READ_IDLE;
+        end
       end
-      MEM_HOLD_RESP: begin
-        if (imem_resp_handshake) imem_state_d = MEM_IDLE;
-      end
+
       default: begin
-        imem_state_d = MEM_IDLE;
-        imem_delay_d = '0;
+        ifu_read_state_d = READ_IDLE;
+        ifu_delay_d      = '0;
       end
     endcase
   end
-
-
-  // State register and instruction-response storage.
+  //
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      imem_state_q <= MEM_IDLE;
-      imem_delay_q <= '0;
-      imem_resp_q  <= '0;
+      ifu_read_state_q <= READ_IDLE;
+      ifu_delay_q      <= '0;
+      ifu_r_q          <= '0;
     end else begin
-      imem_state_q <= imem_state_d;
-      imem_delay_q <= imem_delay_d;
-      if (imem_req_handshake) begin
-        imem_resp_q.txn_id          <= imem_req_i.txn_id;
-        imem_resp_q.instruction     <= pmem_read(imem_req_i.addr);
-        imem_resp_q.exception_valid <= 1'b0;
-        imem_resp_q.exception_cause <= exception_cause_e'('0);
-        imem_resp_q.exception_tval  <= '0;
+      ifu_read_state_q <= ifu_read_state_d;
+      ifu_delay_q      <= ifu_delay_d;
+
+      if (ifu_ar_handshake) begin
+        ifu_r_q.data <= pmem_read(int'(ifu_axi_ar_i.addr));
+        ifu_r_q.resp <= AXI_RESP_OKAY;
       end
     end
   end
+
+
 
 
   // TODO(AXI-MEM-DMEM-READ): dmem read使用独立AR/R状态，不再从cmd判断load。
   // 行为与imem read相同，但地址范围错误返回DECERR。对MMIO read要在AR事务被接受后只执行
   // 一次，不能因为RREADY低而重复产生读取副作用。
   //
-  // Moore output logic.
+  // TODO(AXI-MEM-LSU-READ-CODE): 删除下面旧dmem output/next block，替换为：
+  //
   always_comb begin
-    dmem_req_ready_o  = 1'b0;
-    dmem_resp_valid_o = 1'b0;
-    dmem_resp_o       = dmem_resp_q;
+    lsu_axi_arready_o = 1'b0;
+    lsu_axi_r_o       = lsu_r_q;
+    lsu_axi_rvalid_o  = 1'b0;
 
-    unique case (dmem_state_q)
-      MEM_IDLE:      dmem_req_ready_o = 1'b1;
-      MEM_RESPOND:   dmem_resp_valid_o = 1'b1;
-      MEM_HOLD_RESP: dmem_resp_valid_o = 1'b1;
-      default:       ;
-    endcase
+    if (rst_ni) begin
+      unique case (lsu_read_state_q)
+        READ_IDLE: lsu_axi_arready_o = 1'b1;
+        READ_RESP: lsu_axi_rvalid_o = 1'b1;
+        default:   ;
+      endcase
+    end
   end
-
-  // Next state logic
+  //
   always_comb begin
-    dmem_state_d = dmem_state_q;
-    dmem_delay_d = dmem_delay_q;
+    lsu_read_state_d = lsu_read_state_q;
+    lsu_read_delay_d = lsu_read_delay_q;
 
-    unique case (dmem_state_q)
-      MEM_IDLE: begin
-        if (dmem_req_handshake) begin
-          if (DMEM_RESPONSE_LATENCY == 1) begin
-            dmem_state_d = MEM_RESPOND;
+    unique case (lsu_read_state_q)
+      READ_IDLE: begin
+        if (lsu_ar_handshake) begin
+          if (LSU_READ_LATENCY == 1) begin
+            lsu_read_state_d = READ_RESP;
           end else begin
-            dmem_delay_d = DMEM_DELAY_W'(DMEM_RESPONSE_LATENCY - 1);
-            dmem_state_d = MEM_WAIT_RESP;
+            lsu_read_delay_d = LSU_READ_DELAY_W'(LSU_READ_LATENCY - 1);
+            lsu_read_state_d = READ_WAIT;
           end
         end
       end
-      MEM_WAIT_RESP: begin
-        if (dmem_delay_q == DMEM_DELAY_W'(1)) begin
-          dmem_delay_d = '0;
-          dmem_state_d = MEM_RESPOND;
+
+      READ_WAIT: begin
+        if (lsu_read_delay_q == LSU_READ_DELAY_W'(1)) begin
+          lsu_read_delay_d = '0;
+          lsu_read_state_d = READ_RESP;
         end else begin
-          dmem_delay_d = dmem_delay_q - DMEM_DELAY_W'(1);
+          lsu_read_delay_d = lsu_read_delay_q - LSU_READ_DELAY_W'(1);
         end
       end
-      MEM_RESPOND: begin
-        if (dmem_resp_handshake) dmem_state_d = MEM_IDLE;
-        else dmem_state_d = MEM_HOLD_RESP;
+
+      READ_RESP: begin
+        if (lsu_r_handshake) begin
+          lsu_read_state_d = READ_IDLE;
+        end
       end
-      MEM_HOLD_RESP: begin
-        if (dmem_resp_handshake) dmem_state_d = MEM_IDLE;
-      end
+
       default: begin
-        dmem_state_d = MEM_IDLE;
-        dmem_delay_d = '0;
+        lsu_read_state_d = READ_IDLE;
+        lsu_read_delay_d = '0;
       end
     endcase
   end
 
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      lsu_read_state_q <= READ_IDLE;
+      lsu_read_delay_q <= '0;
+      lsu_r_q          <= '0;
+    end else begin
+      lsu_read_state_q <= lsu_read_state_d;
+      lsu_read_delay_q <= lsu_read_delay_d;
+
+      if (lsu_ar_handshake) begin
+        lsu_r_q.data <= pmem_read_data(int'(lsu_axi_ar_i.addr), 4);
+        lsu_r_q.resp <= AXI_RESP_OKAY;
+      end
+    end
+  end
+  //
+  // len固定为4，因为AXI4-Lite接口没有AxSIZE，LSU随后根据原始effective_addr和mem_size
+  // 选择byte/halfword。RVALID保持期间不能再次调用pmem_read_data。
+
   // TODO(AXI-MEM-DMEM-WRITE): 删除下面按dmem_req_handshake执行load/store的块，改为：
-  // 1. AW握手时保存AWADDR/AWPROT并置aw_seen_q。
-  // 2. W握手时保存WDATA/WSTRB并置w_seen_q。
-  // 3. 当旧seen或本拍handshake表明两者均已收到时，只执行一次pmem_write。
+  // 1. AW握手时保存AWADDR/AWPROT并置lsu_aw_handshake_occurred_q。
+  // 2. W握手时保存WDATA/WSTRB并置lsu_w_handshake_occurred_q。
+  // 3. 当历史握手状态或本拍handshake表明两者均已收到时，只执行一次pmem_write。
   // 4. 写延迟到期后产生BRESP和BVALID；BVALID && !BREADY期间保持不变。
-  // 5. B握手后清seen并允许下一事务。
+  // 5. B握手后允许下一事务。
   //
   // 第3步必须能从寄存器或本拍握手payload中选择正确值，覆盖AW/W同拍到达和任意先后到达。
   // 不要用AWADDR当前输入配对以前保存的W，也不要在只收到一个channel时执行写入。
   // 地址decode失败返回DECERR，写保护/后端错误返回SLVERR；即使错误也必须产生B响应，防止
   // master永久等待。
   //
-  // State register and data-response storage.
+  // TODO(AXI-MEM-LSU-WRITE-CODE): 删除下面旧dmem寄存器块，替换为以下完整写通道：
+  //
+  always_comb begin
+    lsu_axi_awready_o = 1'b0;
+    lsu_axi_wready_o  = 1'b0;
+    lsu_axi_b_o       = lsu_b_q;
+    lsu_axi_bvalid_o  = 1'b0;
+
+    if (rst_ni) begin
+      unique case (lsu_write_state_q)
+        WRITE_COLLECT: begin
+          lsu_axi_awready_o = !lsu_aw_handshake_occurred_q;
+          lsu_axi_wready_o  = !lsu_w_handshake_occurred_q;
+        end
+        WRITE_RESP: begin
+          lsu_axi_bvalid_o = 1'b1;
+        end
+        default: ;
+      endcase
+    end
+  end
+  //
+  always_comb begin
+    lsu_write_state_d           = lsu_write_state_q;
+    lsu_write_delay_d           = lsu_write_delay_q;
+    lsu_aw_d                    = lsu_aw_q;
+    lsu_w_d                     = lsu_w_q;
+    lsu_aw_handshake_occurred_d = lsu_aw_handshake_occurred_q;
+    lsu_w_handshake_occurred_d  = lsu_w_handshake_occurred_q;
+
+    unique case (lsu_write_state_q)
+      WRITE_COLLECT: begin
+        if (lsu_aw_handshake) begin
+          lsu_aw_d                    = lsu_axi_aw_i;
+          lsu_aw_handshake_occurred_d = 1'b1;
+        end
+        if (lsu_w_handshake) begin
+          lsu_w_d                    = lsu_axi_w_i;
+          lsu_w_handshake_occurred_d = 1'b1;
+        end
+
+        if (lsu_write_request_complete) begin
+          if (LSU_WRITE_LATENCY == 1) begin
+            lsu_write_state_d = WRITE_RESP;
+          end else begin
+            lsu_write_delay_d = LSU_WRITE_DELAY_W'(LSU_WRITE_LATENCY - 1);
+            lsu_write_state_d = WRITE_WAIT;
+          end
+        end
+      end
+
+      WRITE_WAIT: begin
+        if (lsu_write_delay_q == LSU_WRITE_DELAY_W'(1)) begin
+          lsu_write_delay_d = '0;
+          lsu_write_state_d = WRITE_RESP;
+        end else begin
+          lsu_write_delay_d = lsu_write_delay_q - LSU_WRITE_DELAY_W'(1);
+        end
+      end
+
+      WRITE_RESP: begin
+        if (lsu_b_handshake) begin
+          lsu_aw_handshake_occurred_d = 1'b0;
+          lsu_w_handshake_occurred_d  = 1'b0;
+          lsu_write_state_d           = WRITE_COLLECT;
+        end
+      end
+
+      default: begin
+        lsu_write_state_d           = WRITE_COLLECT;
+        lsu_write_delay_d           = '0;
+        lsu_aw_handshake_occurred_d = 1'b0;
+        lsu_w_handshake_occurred_d  = 1'b0;
+      end
+    endcase
+  end
+  //
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      dmem_state_q <= MEM_IDLE;
-      dmem_delay_q <= '0;
-      dmem_resp_q  <= '0;
+      lsu_write_state_q           <= WRITE_COLLECT;
+      lsu_write_delay_q           <= '0;
+      lsu_aw_q                    <= '0;
+      lsu_w_q                     <= '0;
+      lsu_b_q                     <= '0;
+      lsu_aw_handshake_occurred_q <= 1'b0;
+      lsu_w_handshake_occurred_q  <= 1'b0;
     end else begin
-      dmem_state_q <= dmem_state_d;
-      dmem_delay_q <= dmem_delay_d;
-      if (dmem_req_handshake) begin
-        dmem_resp_q.txn_id          <= dmem_req_i.txn_id;
-        dmem_resp_q.exception_valid <= 1'b0;
-        dmem_resp_q.exception_cause <= exception_cause_e'('0);
-        dmem_resp_q.exception_tval  <= '0;
+      lsu_write_state_q           <= lsu_write_state_d;
+      lsu_write_delay_q           <= lsu_write_delay_d;
+      lsu_aw_q                    <= lsu_aw_d;
+      lsu_w_q                     <= lsu_w_d;
+      lsu_aw_handshake_occurred_q <= lsu_aw_handshake_occurred_d;
+      lsu_w_handshake_occurred_q  <= lsu_w_handshake_occurred_d;
 
-        unique case (dmem_req_i.cmd)
-          MEM_CMD_LOAD: begin
-            dmem_resp_q.rdata <=
-                pmem_read_data(dmem_req_i.addr, mem_size_to_bytes(dmem_req_i.size));
-          end
-          MEM_CMD_STORE: begin
-            pmem_write(dmem_req_i.addr, dmem_req_i.wdata, byte'(dmem_req_i.wmask));
-            dmem_resp_q.rdata <= '0;
-          end
-          default: begin
-            // MEM_CMD_NONE不访问后端，但仍生成一个响应，避免状态机停在MEM_HOLD_RESP。
-            dmem_resp_q.rdata <= '0;
-          end
-        endcase
+      if (lsu_write_request_complete) begin
+        pmem_write(int'(active_lsu_aw.addr), int'(active_lsu_w.data), byte'(active_lsu_w.strb));
+        lsu_b_q.resp <= AXI_RESP_OKAY;
       end
     end
   end
+
 
   // TODO(AXI-MEM-CONCURRENCY): 当前CPU的单条LSU操作不会同时发load和store，但IFU取指可与
   // LSU数据访问并行。仿真DPI后端允许这种逻辑并行；若以后映射到单端口SRAM，需要在本模块

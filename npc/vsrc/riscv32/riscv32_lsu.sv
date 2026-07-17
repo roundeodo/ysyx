@@ -38,9 +38,9 @@ module riscv32_lsu
   // LSU只负责形成访存请求、格式化响应和报告完成。DPI、SRAM、MMIO与未来D-cache
   // 都属于dmem通道另一侧，不能在本模块中直接访问。
 
-  // store的AW与W必须在同一状态并行尝试，但分别用aw_done_q/w_done_q记录是否已经握手。
+  // store的AW与W必须在同一状态并行尝试，但分别记录当前事务此前是否已经完成握手。
   // 不能写成“先等AW握手，再拉WVALID”，否则虽然可能工作，却损失并行性，并容易与某些
-  // 等待WVALID才给AWREADY的slave形成死锁。只有两个done都为1后才能进入WAIT_B。
+  // 等待WVALID才给AWREADY的slave形成死锁。只有两个通道都完成握手后才能进入WAIT_B。
   typedef enum logic [2:0] {
     LSU_IDLE,
     LSU_SEND_AR,
@@ -81,11 +81,11 @@ module riscv32_lsu
   logic                               w_handshake;
   logic                               b_handshake;
 
-  logic                               aw_done_q;
-  logic                               aw_done_d;
+  logic                               aw_handshake_occurred_q;
+  logic                               aw_handshake_occurred_d;
 
-  logic                               w_done_q;
-  logic                               w_done_d;
+  logic                               w_handshake_occurred_q;
+  logic                               w_handshake_occurred_d;
 
 
 
@@ -131,19 +131,16 @@ module riscv32_lsu
 
     unique case (active_lsu_req.uop.mem_ctrl.size)
       MEM_SIZE_BYTE: begin
-        // TODO: 只使能byte_offset指定的1个lane，并把store_data[7:0]移到对应lane。
         store_wmask = 4'b0001 << byte_offset;
         store_wdata = {24'b0, active_lsu_req.store_data[7:0]} << {byte_offset, 3'b000};
       end
 
       MEM_SIZE_HALF: begin
-        // TODO: 使能从byte_offset开始的2个lane，并移动store_data[15:0]。
         store_wmask = 4'b0011 << byte_offset;
         store_wdata = {16'b0, active_lsu_req.store_data[15:0]} << {byte_offset, 3'b000};
       end
 
       MEM_SIZE_WORD: begin
-        // TODO: word使用全部lane，数据不需要移动；未对齐访问稍后被FSM禁止发送。
         store_wmask = 4'b1111;
         store_wdata = active_lsu_req.store_data;
       end
@@ -304,9 +301,9 @@ module riscv32_lsu
         end
 
         LSU_SEND_AW_W: begin
-          lsu_axi_awvalid_o = !aw_done_q;
+          lsu_axi_awvalid_o = !aw_handshake_occurred_q;
           lsu_axi_aw_o      = aw_payload;
-          lsu_axi_wvalid_o  = !w_done_q;
+          lsu_axi_wvalid_o  = !w_handshake_occurred_q;
           lsu_axi_w_o       = w_payload;
         end
 
@@ -341,15 +338,15 @@ module riscv32_lsu
     state_d     = state_q;
     lsu_req_d   = lsu_req_q;
     writeback_d = writeback_q;
-    aw_done_d   = aw_done_q;
-    w_done_d    = w_done_q;
+    aw_handshake_occurred_d = aw_handshake_occurred_q;
+    w_handshake_occurred_d  = w_handshake_occurred_q;
 
     unique case (state_q)
       LSU_IDLE: begin
         if (lsu_req_handshake) begin
           lsu_req_d = lsu_req_i;
-          aw_done_d = 1'b0;
-          w_done_d  = 1'b0;
+          aw_handshake_occurred_d = 1'b0;
+          w_handshake_occurred_d  = 1'b0;
 
           if (complete_without_dmem) begin
             if (lsu_writeback_handshake) begin
@@ -365,8 +362,8 @@ module riscv32_lsu
               state_d = LSU_SEND_AR;
             end
           end else if (is_store) begin
-            aw_done_d = aw_handshake;
-            w_done_d  = w_handshake;
+            aw_handshake_occurred_d = aw_handshake;
+            w_handshake_occurred_d  = w_handshake;
             if (aw_handshake && w_handshake) begin
               state_d = LSU_WAIT_B;
             end else begin
@@ -383,10 +380,13 @@ module riscv32_lsu
       end
 
       LSU_SEND_AW_W: begin
-        if (aw_handshake) aw_done_d = 1'b1;
-        if (w_handshake) w_done_d = 1'b1;
+        if (aw_handshake) aw_handshake_occurred_d = 1'b1;
+        if (w_handshake) w_handshake_occurred_d = 1'b1;
 
-        if ((aw_done_q || aw_handshake) && (w_done_q || w_handshake)) state_d = LSU_WAIT_B;
+        if ((aw_handshake_occurred_q || aw_handshake) &&
+            (w_handshake_occurred_q  || w_handshake)) begin
+          state_d = LSU_WAIT_B;
+        end
       end
 
       LSU_WAIT_R: begin
@@ -403,8 +403,8 @@ module riscv32_lsu
 
       LSU_WAIT_B: begin
         if (b_handshake) begin
-          aw_done_d = 1'b0;
-          w_done_d  = 1'b0;
+          aw_handshake_occurred_d = 1'b0;
+          w_handshake_occurred_d  = 1'b0;
 
           if (lsu_writeback_handshake) begin
             lsu_req_d = '0;
@@ -420,8 +420,8 @@ module riscv32_lsu
         if (lsu_writeback_handshake) begin
           lsu_req_d   = '0;
           writeback_d = '0;
-          aw_done_d   = 1'b0;
-          w_done_d    = 1'b0;
+          aw_handshake_occurred_d = 1'b0;
+          w_handshake_occurred_d  = 1'b0;
           state_d     = LSU_IDLE;
         end
       end
@@ -430,8 +430,8 @@ module riscv32_lsu
         state_d     = LSU_IDLE;
         lsu_req_d   = '0;
         writeback_d = '0;
-        aw_done_d   = 1'b0;
-        w_done_d    = 1'b0;
+        aw_handshake_occurred_d = 1'b0;
+        w_handshake_occurred_d  = 1'b0;
       end
     endcase
   end
@@ -446,14 +446,14 @@ module riscv32_lsu
       state_q     <= LSU_IDLE;
       lsu_req_q   <= '0;
       writeback_q <= '0;
-      aw_done_q   <= 1'b0;
-      w_done_q    <= 1'b0;
+      aw_handshake_occurred_q <= 1'b0;
+      w_handshake_occurred_q  <= 1'b0;
     end else begin
       state_q     <= state_d;
       lsu_req_q   <= lsu_req_d;
       writeback_q <= writeback_d;
-      aw_done_q   <= aw_done_d;
-      w_done_q    <= w_done_d;
+      aw_handshake_occurred_q <= aw_handshake_occurred_d;
+      w_handshake_occurred_q  <= w_handshake_occurred_d;
     end
   end
 
