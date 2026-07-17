@@ -20,18 +20,16 @@ module riscv32_ifu
     // input  axi_lite_r_t    imem_axi_r_i,
     // input  logic           imem_axi_rvalid_i,
     // output logic           imem_axi_rready_o,
+    output axi_lite_addr_t imem_axi_ar_o,
+    output logic           imem_axi_arvalid_o,
+    input  logic           imem_axi_arready_i,
+    input  axi_lite_r_t    imem_axi_r_i,
+    input  logic           imem_axi_rvalid_i,
+    output logic           imem_axi_rready_o,
     //
     // 删除imem_req/imem_resp命名后，valid/ready方向必须按master角色检查：
     // ARVALID/ARADDR由IFU产生，ARREADY由memory产生；RVALID/RDATA/RRESP由memory产生，
     // RREADY由IFU产生。不要把RREADY误写成slave输出方向。
-    output imem_req_t  imem_req_o,
-    output logic       imem_req_valid_o,
-    input  logic       imem_req_ready_i,
-    /* verilator lint_off UNUSEDSIGNAL */
-    input  imem_resp_t imem_resp_i,
-    /* verilator lint_on UNUSEDSIGNAL */
-    input  logic       imem_resp_valid_i,
-    output logic       imem_resp_ready_o,
 
     output fetch_entry_t fetch_entry_o,
     output logic         fetch_entry_valid_o,
@@ -42,8 +40,8 @@ module riscv32_ifu
   // 功能数量不需要增加：当前只允许一个outstanding read，AR握手后必须等待对应R握手。
   // AXI4-Lite没有ID，因此删除txn_id不能靠总线字段关联PC；imem_req_pc_q继续承担关联责任。
   typedef enum logic [1:0] {
-    IFU_SEND_REQ,
-    IFU_WAIT_RESP,
+    IFU_SEND_AR,
+    IFU_WAIT_R,
     IFU_HOLD_FETCH
   } ifu_state_e;
 
@@ -76,8 +74,8 @@ module riscv32_ifu
   // r_handshake  = imem_axi_rvalid_i  && imem_axi_rready_o;
   // 状态只能在对应握手发生后推进。master不能等待ARREADY才拉高ARVALID；ARVALID一旦拉高，
   // 在握手前不能撤销，即使这期间收到redirect也只能标记discard并完成旧事务。
-  assign imem_req_handshake    = imem_req_valid_o && imem_req_ready_i;
-  assign imem_resp_handshake   = imem_resp_valid_i && imem_resp_ready_o;
+  assign imem_req_handshake    = imem_axi_arvalid_o && imem_axi_arready_i;
+  assign imem_resp_handshake   = imem_axi_rvalid_i && imem_axi_rready_o;
   assign fetch_entry_handshake = fetch_entry_valid_o && fetch_entry_ready_i;
 
   // TODO(AXI-IFU-RRESP): 将下面的SimpleBus异常字段转换改成RRESP解码。
@@ -93,12 +91,12 @@ module riscv32_ifu
   always_comb begin
     imem_resp_fetch_entry                 = '0;
     imem_resp_fetch_entry.pc              = imem_req_pc_q;
-    imem_resp_fetch_entry.instruction     = imem_resp_i.instruction;
+    imem_resp_fetch_entry.instruction     = imem_axi_r_i.data;
     imem_resp_fetch_entry.frontend_tag    = '0;
     imem_resp_fetch_entry.prediction      = '0;
-    imem_resp_fetch_entry.exception_valid = imem_resp_i.exception_valid;
-    imem_resp_fetch_entry.exception_cause = imem_resp_i.exception_cause;
-    imem_resp_fetch_entry.exception_tval  = imem_resp_i.exception_tval;
+    imem_resp_fetch_entry.exception_valid = imem_axi_r_i.resp==AXI_RESP_DECERR || imem_axi_r_i.resp==AXI_RESP_SLVERR;
+    imem_resp_fetch_entry.exception_cause = EXC_INSTR_ACCESS_FAULT;
+    imem_resp_fetch_entry.exception_tval  = imem_req_pc_q;
   end
 
   // TODO(AXI-IFU-OUTPUT): 用AR/R信号重写本输出块，但保留当前单outstanding旁路结构。
@@ -114,25 +112,24 @@ module riscv32_ifu
   // IDU not ready时IFU接收response，并在时钟沿保存到fetch_entry_q。
   // Moore output
   always_comb begin
-    imem_req_o          = '0;
-    imem_req_valid_o    = 1'b0;
-    imem_resp_ready_o   = 1'b0;
+    imem_axi_ar_o       = '0;
+    imem_axi_arvalid_o  = 1'b0;
+    imem_axi_rready_o   = 1'b0;
     fetch_entry_o       = fetch_entry_q;
     fetch_entry_valid_o = 1'b0;
 
     unique case (state_q)
-      IFU_SEND_REQ: begin
-        imem_req_valid_o  = 1'b1;
-        imem_req_o.addr   = imem_req_pc_q;
-        imem_req_o.txn_id = '0;
+      IFU_SEND_AR: begin
+        imem_axi_arvalid_o = 1'b1;
+        imem_axi_ar_o.addr = imem_req_pc_q;
       end
 
-      IFU_WAIT_RESP: begin
+      IFU_WAIT_R: begin
         // 此状态下本地响应缓冲为空，所以总能接收一个memory响应。错误路径响应也要
         // 接走以释放memory通道，但discard或redirect有效时不能交给IDU。
-        imem_resp_ready_o   = 1'b1;
+        imem_axi_rready_o   = 1'b1;
         fetch_entry_o       = imem_resp_fetch_entry;
-        fetch_entry_valid_o = imem_resp_valid_i && !discard_imem_resp_q;
+        fetch_entry_valid_o = imem_axi_rvalid_i && !discard_imem_resp_q;
       end
 
       IFU_HOLD_FETCH: begin
@@ -162,7 +159,7 @@ module riscv32_ifu
     discard_imem_resp_d = discard_imem_resp_q;
 
     unique case (state_q)
-      IFU_SEND_REQ: begin
+      IFU_SEND_AR: begin
         // valid && !ready期间不能改变request payload。redirect先记录为后续PC，
         // 当前旧请求仍完成传输，其响应回来后再丢弃。
         if (redirect_req_valid_i) begin
@@ -171,14 +168,14 @@ module riscv32_ifu
         end
 
         if (imem_req_handshake) begin
-          state_d = IFU_WAIT_RESP;
+          state_d = IFU_WAIT_R;
           if (!discard_imem_resp_q && !redirect_req_valid_i) begin
             next_pc_d = imem_req_pc_q + XLEN'(4);
           end
         end
       end
 
-      IFU_WAIT_RESP: begin
+      IFU_WAIT_R: begin
         // 已握手的memory请求无法撤回。redirect到达后保存新PC，并等待旧响应回来。
         if (redirect_req_valid_i) begin
           next_pc_d           = redirect_req_i.target_pc;
@@ -191,11 +188,11 @@ module riscv32_ifu
             imem_req_pc_d       = redirect_req_valid_i ? redirect_req_i.target_pc : next_pc_q;
             next_pc_d           = redirect_req_valid_i ? redirect_req_i.target_pc : next_pc_q;
             discard_imem_resp_d = 1'b0;
-            state_d             = IFU_SEND_REQ;
+            state_d             = IFU_SEND_AR;
           end else if (fetch_entry_handshake) begin
             // 无反压快速路径：响应当拍直接交给IDU，不进入HOLD_FETCH。
             imem_req_pc_d = next_pc_q;
-            state_d       = IFU_SEND_REQ;
+            state_d       = IFU_SEND_AR;
           end else begin
             // IDU反压：响应已被IFU接收，保存后由HOLD_FETCH持续展示。
             fetch_entry_d = imem_resp_fetch_entry;
@@ -210,15 +207,15 @@ module riscv32_ifu
           imem_req_pc_d       = redirect_req_i.target_pc;
           next_pc_d           = redirect_req_i.target_pc;
           discard_imem_resp_d = 1'b0;
-          state_d             = IFU_SEND_REQ;
+          state_d             = IFU_SEND_AR;
         end else if (fetch_entry_handshake) begin
           imem_req_pc_d = next_pc_q;
-          state_d       = IFU_SEND_REQ;
+          state_d       = IFU_SEND_AR;
         end
       end
 
       default: begin
-        state_d             = IFU_SEND_REQ;
+        state_d             = IFU_SEND_AR;
         imem_req_pc_d       = PC_START;
         next_pc_d           = PC_START;
         fetch_entry_d       = '0;
@@ -239,7 +236,7 @@ module riscv32_ifu
   // Register update
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      state_q             <= IFU_SEND_REQ;
+      state_q             <= IFU_SEND_AR;
       imem_req_pc_q       <= PC_START;
       next_pc_q           <= PC_START;
       fetch_entry_q       <= '0;

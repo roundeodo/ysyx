@@ -427,6 +427,30 @@ package riscv32_pkg;
   // 当前XLEN=32满足Lite只允许32/64-bit数据宽度的要求。增加静态检查，防止以后把XLEN改成
   // 其他宽度后接口仍被误称为AXI4-Lite。AxPROT不要留X：当前可固定为secure访问；
   // IFU设置instruction属性，LSU设置data属性，privileged位由当前RISC-V特权级策略决定。
+  typedef enum logic [1:0] {
+    AXI_RESP_OKAY   = 2'b00,
+    AXI_RESP_EXOKAY = 2'b01,
+    AXI_RESP_SLVERR = 2'b10,
+    AXI_RESP_DECERR = 2'b11
+  } axi_resp_e;
+
+  typedef struct packed {
+    logic [XLEN-1:0] addr;
+    logic [2:0]      prot;
+  } axi_lite_addr_t;
+
+  typedef struct packed {
+    logic [XLEN-1:0]       data;
+    logic [BYTE_LANES-1:0] strb;
+  } axi_lite_w_t;
+
+  typedef struct packed {axi_resp_e resp;} axi_lite_b_t;
+
+  typedef struct packed {
+    logic [XLEN-1:0] data;
+    axi_resp_e       resp;
+  } axi_lite_r_t;
+
 
   // TODO(AXI-PKG-DELETE-OLD): 下面四个SimpleBus payload只能在整个迁移最后删除。
   // 删除前执行：
