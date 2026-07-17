@@ -12,6 +12,21 @@ module riscv32_lsu
     output logic              lsu_writeback_valid_o,
     input  logic              lsu_writeback_ready_i,
 
+    // TODO(AXI-LSU-PORTS): 删除下面SimpleBus dmem request/response端口，替换为完整的
+    // AXI4-Lite read/write master五通道端口。推荐顺序为AR、R、AW、W、B：
+    // output axi_lite_addr_t dmem_axi_ar_o;  output logic dmem_axi_arvalid_o;
+    // input  logic           dmem_axi_arready_i;
+    // input  axi_lite_r_t    dmem_axi_r_i;   input logic dmem_axi_rvalid_i;
+    // output logic           dmem_axi_rready_o;
+    // output axi_lite_addr_t dmem_axi_aw_o;  output logic dmem_axi_awvalid_o;
+    // input  logic           dmem_axi_awready_i;
+    // output axi_lite_w_t    dmem_axi_w_o;   output logic dmem_axi_wvalid_o;
+    // input  logic           dmem_axi_wready_i;
+    // input  axi_lite_b_t    dmem_axi_b_i;   input logic dmem_axi_bvalid_i;
+    // output logic           dmem_axi_bready_o;
+    //
+    // AR/AW/W的VALID和payload由LSU产生，R/B的READY也由LSU产生。不要保留cmd/size作为
+    // AXI信号：Lite没有读写cmd，也没有AxSIZE；读写方向由使用AR还是AW/W表示。
     output mem_req_t  dmem_req_o,
     output logic      dmem_req_valid_o,
     input  logic      dmem_req_ready_i,
@@ -25,6 +40,13 @@ module riscv32_lsu
   // LSU只负责形成访存请求、格式化响应和报告完成。DPI、SRAM、MMIO与未来D-cache
   // 都属于dmem通道另一侧，不能在本模块中直接访问。
 
+  // TODO(AXI-LSU-STATE): 当前LSU_SEND_REQ/WAIT_RESP无法表达五个独立通道，替换为至少：
+  // LSU_IDLE、LSU_SEND_AR、LSU_WAIT_R、LSU_SEND_AW_W、LSU_WAIT_B、
+  // LSU_HOLD_WRITEBACK。状态位宽相应改为3bit。
+  //
+  // store的AW与W必须在同一状态并行尝试，但分别用aw_done_q/w_done_q记录是否已经握手。
+  // 不能写成“先等AW握手，再拉WVALID”，否则虽然可能工作，却损失并行性，并容易与某些
+  // 等待WVALID才给AWREADY的slave形成死锁。只有两个done都为1后才能进入WAIT_B。
   typedef enum logic [1:0] {
     LSU_IDLE,
     LSU_SEND_REQ,
@@ -49,6 +71,15 @@ module riscv32_lsu
 
   mem_req_t                           dmem_req_payload;
 
+  // TODO(AXI-LSU-CHANNEL-STATE): 用独立channel payload和握手状态替换dmem_req_payload：
+  // axi_lite_addr_t ar_payload/aw_payload; axi_lite_w_t w_payload;
+  // logic ar_handshake, r_handshake, aw_handshake, w_handshake, b_handshake;
+  // logic aw_done_q/aw_done_d, w_done_q/w_done_d;
+  //
+  // done位表示本store的对应channel已经交给slave。AW握手不能清掉WVALID，W握手也不能
+  // 清掉AWVALID。每次接收新store时两个done清零；各自握手时独立置1；B握手完成后清零。
+  // 基线只允许一个CPU访存，因此不需要AXI ID，也不需要地址/数据队列。
+
   logic                               lsu_req_handshake;
   logic                               dmem_req_handshake;
   logic                               dmem_resp_handshake;
@@ -68,6 +99,11 @@ module riscv32_lsu
   logic              [          15:0] selected_halfword;
   logic              [      XLEN-1:0] formatted_load_data;
 
+  // TODO(AXI-LSU-HANDSHAKE): 删除dmem_req_handshake/dmem_resp_handshake，分别定义五个
+  // AXI握手。一个load事务包含AR和R两次握手；一个store事务包含AW、W、B三次握手。
+  // AW和W握手没有先后依赖，B必须在两者都完成后才可能出现。状态转移只能使用握手，
+  // 不能看到RVALID/BVALID就提前释放lsu_req_q。
+  //
   // 每个handshake都只表示对应通道在本周期完成一次传输。
   assign lsu_req_handshake       = lsu_req_valid_i && lsu_req_ready_o;
   assign dmem_req_handshake      = dmem_req_valid_o && dmem_req_ready_i;
@@ -133,6 +169,20 @@ module riscv32_lsu
   end
 
 
+  // TODO(AXI-LSU-PAYLOAD): 完成AXI类型后删除整个BUS-LSU-REQ块，改成三个独立payload块：
+  // 1. load AR：addr按32-bit总线宽度向下对齐，prot标记data access。
+  // 2. store AW：addr同样按32-bit总线宽度向下对齐，prot标记data access。
+  // 3. store W：data=store_wdata，strb=store_wmask。
+  //
+  // AXI4-Lite所有访问使用完整数据总线宽度且没有AxSIZE。byte/half load仍读取一个32-bit
+  // aligned word，再根据lsu_req_q.effective_addr[1:0]选择lane；byte/half store依靠WSTRB
+  // 限定真正写入的lane。effective_addr原值继续保存在lsu_req_q供异常tval和trace使用，
+  // 不能因为ARADDR/AWADDR对齐而覆盖它。
+  //
+  // payload只能由已保存事务产生，并且VALID && !READY期间必须稳定。第一次迁移可取消
+  // IDLE直通AXI的快速路径，先在lsu_req握手后寄存请求；协议通过后再用1-entry skid
+  // buffer恢复零气泡接收。
+
   // TODO(BUS-LSU-REQ): 构造发给dmem的payload。
   // 块类型：独立always_comb数据打包块，不是FSM；它只形成payload，不决定valid。
   // 本块负责写：dmem_req_payload的全部字段。
@@ -169,6 +219,10 @@ module riscv32_lsu
   end
 
 
+  // TODO(AXI-LSU-LOAD-FORMAT): 把本块的数据源从dmem_resp_i.rdata改为dmem_axi_r_i.data。
+  // lane选择和符号/零扩展逻辑不因协议变化而改变，因为AXI4-Lite读返回完整32-bit数据。
+  // 仍必须使用lsu_req_q中的低地址位，不能使用已向下对齐的ARADDR。
+  //
   // TODO(BUS-LSU-LOAD-FORMAT): 从memory原始响应中选择lane并扩展到XLEN。
   // 块类型：独立always_comb数据格式化块，不是FSM。
   // 本块负责写：selected_byte、selected_halfword、formatted_load_data。
@@ -285,6 +339,14 @@ module riscv32_lsu
   end
 
 
+  // TODO(AXI-LSU-RESP-FAULT): 删除dmem_resp_i.exception_*依赖，按事务类型解码响应：
+  // - load在R握手时检查RRESP；SLVERR/DECERR产生EXC_LOAD_ACCESS_FAULT。
+  // - store在B握手时检查BRESP；SLVERR/DECERR产生EXC_STORE_ACCESS_FAULT。
+  // - exception_tval均使用lsu_req_q.effective_addr。
+  // - EXOKAY不属于AXI4-Lite，assert并按access fault防御处理。
+  // store没有RDATA，必须等B响应后才能向commit报告完成；不能在AW或W握手时提前退休。
+  // 对错误load，RDATA不具备架构意义，result/memory_rdata清零后再提交异常更容易调试。
+  //
   // TODO(BUS-LSU-DMEM-WRITEBACK): 把已握手memory事务的响应封装成完成结果。
   // 块类型：独立always_comb数据打包块，不是FSM。
   // 本块负责写：dmem_writeback整个struct。
@@ -319,6 +381,19 @@ module riscv32_lsu
 
 
 
+  // TODO(AXI-LSU-OUTPUT): 完成新状态后删除BUS-LSU-OUTPUT实现，按以下规则重写：
+  // - SEND_AR：ARVALID=1并持续展示ar_payload，直到AR握手。
+  // - WAIT_R：只要本地writeback buffer为空就RREADY=1；R握手后旁路或缓存结果。
+  // - SEND_AW_W：AWVALID=!aw_done_q，WVALID=!w_done_q；两通道同时发起、独立停止。
+  // - WAIT_B：BREADY=1；B握手后旁路或缓存store完成结果。
+  // - HOLD_WRITEBACK：只保持内部writeback，不再驱动任何AXI请求。
+  //
+  // 所有AXI输出先给安全默认值。特别禁止：
+  // - ARVALID组合依赖ARREADY，AWVALID组合依赖AWREADY，WVALID组合依赖WREADY。
+  // - BREADY组合依赖BVALID或RREADY组合依赖RVALID。
+  // - 用AWREADY控制WVALID，或用WREADY控制AWVALID。
+  // 这些依赖会违反source不得等待READY的规则，或者形成接口输入到输出组合路径。
+  //
   // TODO(BUS-LSU-OUTPUT): 根据state_q驱动四个valid/ready接口及其payload。
   // 块类型：FSM的组合输出块（Moore输出加IDLE/WAIT_RESP旁路），不更新state_q。
   // 本块负责写：lsu_req_ready_o、dmem_req_o、dmem_req_valid_o、dmem_resp_ready_o、
@@ -385,6 +460,17 @@ module riscv32_lsu
 
 
 
+  // TODO(AXI-LSU-NEXT): 用下面的事务级转移替换BUS-LSU-NEXT：
+  // - 本地异常/misaligned/NONE：保持当前no-dmem完成路径，不发任何AXI VALID。
+  // - load：接收lsu_req后进入SEND_AR；AR握手进入WAIT_R；R握手后完成或HOLD。
+  // - store：接收lsu_req后进入SEND_AW_W；每个AW/W握手设置自己的done；
+  //   当(aw_done_q || aw_handshake) && (w_done_q || w_handshake)时进入WAIT_B；
+  //   B握手后完成或HOLD。
+  //
+  // 上式必须包含“旧done或本拍handshake”，否则AW和W同拍握手时状态机会多停一拍，
+  // 或者只看到一个旧done而遗漏完成条件。进入WAIT_B之前不能假定slave已经执行写入，
+  // 架构上的store成功只由OKAY BRESP确认。
+  //
   // TODO(BUS-LSU-NEXT): 计算FSM下一状态和三个寄存器的下一值。
   // 块类型：FSM组合下一状态块；它只写state_d、lsu_req_d、writeback_d。
   // 状态转移只使用四个handshake，不允许只看到valid或ready就转移。
@@ -459,6 +545,16 @@ module riscv32_lsu
 
 
 
+  // TODO(AXI-LSU-REG-ASSERT): 在现有寄存器块中加入aw_done_q/w_done_q更新和reset。
+  // reset期间ARVALID/AWVALID/WVALID必须为0；若状态复位会组合产生VALID，必须增加reset门控
+  // 或registered valid，不能依赖仿真初值。
+  //
+  // master侧至少增加这些协议断言：
+  // - 各VALID && !READY时，下一拍VALID仍为1且对应payload保持稳定。
+  // - AW握手次数、W握手次数和B握手次数对每个store恰好各一次。
+  // - 未发AR时不能接受R，AW/W未全部完成时不能接受B。
+  // - load期间AWVALID/WVALID=0，store期间ARVALID=0。
+  //
   // TODO(BUS-LSU-REG): 在本TODO正下方写唯一的时序更新块。
   // 块类型：always_ff寄存器块；这是本模块唯一写state_q、lsu_req_q、writeback_q的位置。
   // _d全部由NEXT组合块生成，_q只在时钟沿更新，不能在OUTPUT或数据打包块中改_q。
@@ -481,6 +577,17 @@ module riscv32_lsu
 
 
 
+  // TODO(AXI-LSU-PERF-UPGRADE): 第一次实现维持单outstanding，但不要人为串行AW和W。
+  // 后续性能升级顺序：
+  // 1. lsu_req入口加1-entry skid buffer，AXI反压时仍能可靠保存payload。
+  // 2. R/B接收各加1-entry response buffer，使RREADY/BREADY尽可能常高。
+  // 3. 若允许多个outstanding Lite事务，增加按请求顺序保存元数据的load/store FIFO；
+  //    Lite没有ID，不能乱序匹配响应。
+  // 4. 若需要cache-line burst、多个ID或乱序响应，升级cache外侧为完整AXI4，不要扩展
+  //    这个Lite接口的私有字段。
+  // 5. 未来乱序CPU的store必须先经ROB commit授权进入store buffer，协议转换不能替代
+  //    精确异常和memory ordering设计。
+  //
   // NOTE(P5): replace the single transaction state with a load queue, store queue,
   // store buffer, replay path, and cache transaction tracking.
 

@@ -1,6 +1,8 @@
 module top
   import riscv32_pkg::*;
 #(
+    // TODO(AXI-TOP-LATENCY-PARAM): dmem AXI化后将DMEM参数拆成READ和WRITE两个参数，
+    // 分别传给R通道和B通道延迟模型；IMEM参数对应只读R通道。
     parameter int unsigned SIM_IMEM_RESPONSE_LATENCY = 1,
     parameter int unsigned SIM_DMEM_RESPONSE_LATENCY = 1
 ) (
@@ -11,6 +13,16 @@ module top
   localparam int unsigned EXU_REDIRECT_INDEX = 0;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 1;
 
+  // TODO(AXI-TOP-WIRES): 在pkg类型完成后删除下面SimpleBus wires，声明两套彼此独立的
+  // AXI4-Lite连接：
+  // - IFU read-only master <-> sim_mem instruction read slave：AR/R。
+  // - LSU read/write master <-> sim_mem data slave：AR/R/AW/W/B。
+  // 每个channel分别声明payload、valid和ready，不要合成一个全局req/resp握手。
+  //
+  // 当前sim_mem等价于双端口memory adapter，IFU和LSU可以并行握手。若未来只有一个物理
+  // SRAM/外部AXI master端口，应新增axi4_lite_interconnect或memory arbiter；top负责实例化，
+  // IFU/LSU内部不能互相观察对方的请求。AXI4-Lite没有ID，仲裁器必须保存响应应返回给哪个
+  // master，并在不能安全跟踪时限制outstanding数量。
   imem_req_t  imem_req;
   logic       imem_req_valid;
   logic       imem_req_ready;
@@ -85,6 +97,10 @@ module top
     execute_packet.csr_illegal = csr_read_illegal;
   end
 
+  // TODO(AXI-TOP-IFU-CONNECT): IFU端口改造完成后，将下面6条imem连接替换为AR/R连接。
+  // IFU是官方允许的read-only AXI interface，所以top无需创建或tie off IFU的AW/W/B。
+  // 若芯片顶层以后必须暴露一个完整read/write master端口，应在边界adapter中补齐未用通道，
+  // 而不是污染IFU内部接口。
   riscv32_ifu u_ifu (
       .clk_i               (clk),
       .rst_ni              (rstn),
@@ -154,6 +170,10 @@ module top
 
   assign decoded_uop_ready = execute_packet_ready;
 
+  // TODO(AXI-TOP-LSU-CONNECT): 将LSU的SimpleBus dmem连接替换为五通道AXI4-Lite连接。
+  // 连接后逐条核对方向：AR/AW/W payload+valid从LSU到memory，ready反向；R/B
+  // payload+valid从memory到LSU，ready反向。命名中保留imem/dmem前缀，避免两个AR/R
+  // 通道在波形中混淆。
   riscv32_lsu u_lsu (
       .clk_i                (clk),
       .rst_ni               (rstn),
@@ -171,6 +191,10 @@ module top
       .dmem_resp_ready_o    (dmem_resp_ready)
   );
 
+  // TODO(AXI-TOP-MEM-CONNECT): sim_mem AXI slave完成后替换下面全部req/resp连接。
+  // 建议把DMEM_RESPONSE_LATENCY拆成DMEM_READ_RESPONSE_LATENCY和
+  // DMEM_WRITE_RESPONSE_LATENCY，使R和B能独立注入延迟。默认仍为1，先保持回归行为。
+  // 参数只控制slave何时产生RVALID/BVALID，不能让VALID只脉冲一拍；下游不READY时必须保持。
   riscv32_sim_mem #(
       .IMEM_RESPONSE_LATENCY(SIM_IMEM_RESPONSE_LATENCY),
       .DMEM_RESPONSE_LATENCY(SIM_DMEM_RESPONSE_LATENCY)
