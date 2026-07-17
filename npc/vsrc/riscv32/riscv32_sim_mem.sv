@@ -2,6 +2,10 @@
 // the core can keep using the existing C++ image, MMIO, trace, and DiffTest backend.
 module riscv32_sim_mem
   import riscv32_pkg::*;
+#(
+    parameter int unsigned IMEM_RESPONSE_LATENCY = 1,
+    parameter int unsigned DMEM_RESPONSE_LATENCY = 1
+) 
 (
     input logic clk_i,
     input logic rst_ni,
@@ -35,11 +39,18 @@ module riscv32_sim_mem
     input byte wmask
   );
 
-  // Each port accepts one outstanding transaction. A response is registered on the
-  // request handshake, exposed one cycle later, and held stable under backpressure.
+  // Each port accepts one outstanding transaction. Response latency counts from the
+  // request handshake cycle; latency=1 preserves the original next-cycle response.
+  // The registered response payload remains stable until its response handshake.
+
+  localparam int unsigned IMEM_DELAY_W =
+      (IMEM_RESPONSE_LATENCY > 1) ? $clog2(IMEM_RESPONSE_LATENCY) : 1;
+  localparam int unsigned DMEM_DELAY_W =
+      (DMEM_RESPONSE_LATENCY > 1) ? $clog2(DMEM_RESPONSE_LATENCY) : 1;
 
   typedef enum logic [1:0] {
     MEM_IDLE,
+    MEM_WAIT_RESP,
     MEM_RESPOND,
     MEM_HOLD_RESP
   } mem_state_e;
@@ -52,6 +63,11 @@ module riscv32_sim_mem
   imem_resp_t imem_resp_q;
   mem_resp_t dmem_resp_q;
 
+  logic [IMEM_DELAY_W-1:0] imem_delay_q;
+  logic [IMEM_DELAY_W-1:0] imem_delay_d;
+  logic [DMEM_DELAY_W-1:0] dmem_delay_q;
+  logic [DMEM_DELAY_W-1:0] dmem_delay_d;
+
   logic imem_req_handshake;
   logic dmem_req_handshake;
   logic imem_resp_handshake;
@@ -62,6 +78,11 @@ module riscv32_sim_mem
   assign imem_resp_handshake = imem_resp_valid_o && imem_resp_ready_i;
   assign dmem_req_handshake  = dmem_req_valid_i && dmem_req_ready_o;
   assign dmem_resp_handshake = dmem_resp_valid_o && dmem_resp_ready_i;
+
+  initial begin
+    if (IMEM_RESPONSE_LATENCY == 0) $fatal(1, "IMEM_RESPONSE_LATENCY must be >= 1");
+    if (DMEM_RESPONSE_LATENCY == 0) $fatal(1, "DMEM_RESPONSE_LATENCY must be >= 1");
+  end
 
   // Convert the protocol encoding into the byte count required by the DPI backend.
   function automatic int mem_size_to_bytes(input mem_size_e size);
@@ -77,9 +98,11 @@ module riscv32_sim_mem
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       imem_state_q <= MEM_IDLE;
+      imem_delay_q <= '0;
       imem_resp_q  <= '0;
     end else begin
       imem_state_q <= imem_state_d;
+      imem_delay_q <= imem_delay_d;
       if (imem_req_handshake) begin
         imem_resp_q.txn_id          <= imem_req_i.txn_id;
         imem_resp_q.instruction     <= pmem_read(imem_req_i.addr);
@@ -93,9 +116,26 @@ module riscv32_sim_mem
   // Next-state logic.
   always_comb begin
     imem_state_d = imem_state_q;
+    imem_delay_d = imem_delay_q;
+
     unique case (imem_state_q)
       MEM_IDLE: begin
-        if (imem_req_handshake) imem_state_d = MEM_RESPOND;
+        if (imem_req_handshake) begin
+          if (IMEM_RESPONSE_LATENCY == 1) begin
+            imem_state_d = MEM_RESPOND;
+          end else begin
+            imem_delay_d = IMEM_DELAY_W'(IMEM_RESPONSE_LATENCY - 1);
+            imem_state_d = MEM_WAIT_RESP;
+          end
+        end
+      end
+      MEM_WAIT_RESP: begin
+        if (imem_delay_q == IMEM_DELAY_W'(1)) begin
+          imem_delay_d = '0;
+          imem_state_d = MEM_RESPOND;
+        end else begin
+          imem_delay_d = imem_delay_q - IMEM_DELAY_W'(1);
+        end
       end
       MEM_RESPOND: begin
         if (imem_resp_handshake) imem_state_d = MEM_IDLE;
@@ -104,7 +144,10 @@ module riscv32_sim_mem
       MEM_HOLD_RESP: begin
         if (imem_resp_handshake) imem_state_d = MEM_IDLE;
       end
-      default: imem_state_d = MEM_IDLE;
+      default: begin
+        imem_state_d = MEM_IDLE;
+        imem_delay_d = '0;
+      end
     endcase
   end
 
@@ -124,9 +167,11 @@ module riscv32_sim_mem
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       dmem_state_q <= MEM_IDLE;
+      dmem_delay_q <= '0;
       dmem_resp_q  <= '0;
     end else begin
       dmem_state_q <= dmem_state_d;
+      dmem_delay_q <= dmem_delay_d;
       if (dmem_req_handshake) begin
         dmem_resp_q.txn_id          <= dmem_req_i.txn_id;
         dmem_resp_q.exception_valid <= 1'b0;
@@ -154,10 +199,26 @@ module riscv32_sim_mem
   // Next state logic
   always_comb begin
     dmem_state_d = dmem_state_q;
+    dmem_delay_d = dmem_delay_q;
 
     unique case (dmem_state_q)
       MEM_IDLE: begin
-        if (dmem_req_handshake) dmem_state_d = MEM_RESPOND;
+        if (dmem_req_handshake) begin
+          if (DMEM_RESPONSE_LATENCY == 1) begin
+            dmem_state_d = MEM_RESPOND;
+          end else begin
+            dmem_delay_d = DMEM_DELAY_W'(DMEM_RESPONSE_LATENCY - 1);
+            dmem_state_d = MEM_WAIT_RESP;
+          end
+        end
+      end
+      MEM_WAIT_RESP: begin
+        if (dmem_delay_q == DMEM_DELAY_W'(1)) begin
+          dmem_delay_d = '0;
+          dmem_state_d = MEM_RESPOND;
+        end else begin
+          dmem_delay_d = dmem_delay_q - DMEM_DELAY_W'(1);
+        end
       end
       MEM_RESPOND: begin
         if (dmem_resp_handshake) dmem_state_d = MEM_IDLE;
@@ -166,7 +227,10 @@ module riscv32_sim_mem
       MEM_HOLD_RESP: begin
         if (dmem_resp_handshake) dmem_state_d = MEM_IDLE;
       end
-      default: dmem_state_d = MEM_IDLE;
+      default: begin
+        dmem_state_d = MEM_IDLE;
+        dmem_delay_d = '0;
+      end
     endcase
   end
 

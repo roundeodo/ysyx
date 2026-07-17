@@ -1,5 +1,9 @@
 module top
   import riscv32_pkg::*;
+#(
+    parameter int unsigned SIM_IMEM_RESPONSE_LATENCY = 1,
+    parameter int unsigned SIM_DMEM_RESPONSE_LATENCY = 1
+) 
 (
     input logic clk,
     input logic rstn
@@ -168,7 +172,10 @@ module top
       .dmem_resp_ready_o    (dmem_resp_ready)
   );
 
-  riscv32_sim_mem u_sim_mem (
+  riscv32_sim_mem #(
+      .IMEM_RESPONSE_LATENCY(SIM_IMEM_RESPONSE_LATENCY),
+      .DMEM_RESPONSE_LATENCY(SIM_DMEM_RESPONSE_LATENCY)
+  ) u_sim_mem (
       .clk_i            (clk),
       .rst_ni           (rstn),
       .imem_req_i       (imem_req),
