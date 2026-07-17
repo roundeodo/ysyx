@@ -94,13 +94,13 @@ module riscv32_ifu
         // 接走以释放memory通道，但discard或redirect有效时不能交给IDU。
         imem_resp_ready_o   = 1'b1;
         fetch_entry_o       = imem_resp_fetch_entry;
-        fetch_entry_valid_o = imem_resp_valid_i && !discard_imem_resp_q && !redirect_req_valid_i;
+        fetch_entry_valid_o = imem_resp_valid_i && !discard_imem_resp_q;
       end
 
       IFU_HOLD_FETCH: begin
         // redirect同周期压低valid，避免缓冲中的错误路径指令与IDU完成握手。
         fetch_entry_o       = fetch_entry_q;
-        fetch_entry_valid_o = !redirect_req_valid_i;
+        fetch_entry_valid_o = 1'b1;
       end
 
       default: ;

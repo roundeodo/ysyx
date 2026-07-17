@@ -262,25 +262,25 @@ module riscv32_lsu
   // 不要无条件覆盖exception：IDU/EXU已经发现的异常年龄更早，必须保留原cause和tval。
   always_comb begin
     no_dmem_writeback     = 'd0;
-    no_dmem_writeback.uop = lsu_req_i.uop;
+    no_dmem_writeback.uop = active_lsu_req.uop;
 
     no_dmem_writeback.result  = '0;
-    no_dmem_writeback.next_pc = lsu_req_i.next_pc;
+    no_dmem_writeback.next_pc = active_lsu_req.next_pc;
 
     no_dmem_writeback.csr_wdata   = '0;
-    no_dmem_writeback.memory_addr = lsu_req_i.effective_addr;
+    no_dmem_writeback.memory_addr = active_lsu_req.effective_addr;
 
     no_dmem_writeback.memory_rdata = '0;
     no_dmem_writeback.memory_wdata = is_store ? store_wdata : '0;
 
     no_dmem_writeback.memory_wmask = is_store ? store_wmask : '0;
 
-    if (!lsu_req_i.uop.exception_valid && misaligned) begin
+    if (!active_lsu_req.uop.exception_valid && misaligned) begin
       no_dmem_writeback.uop.exception_valid = 1'b1;
 
       no_dmem_writeback.uop.exception_cause = is_load? EXC_LOAD_ADDR_MISALIGNED : EXC_STORE_ADDR_MISALIGNED;
 
-      no_dmem_writeback.uop.exception_tval = lsu_req_i.effective_addr;
+      no_dmem_writeback.uop.exception_tval = active_lsu_req.effective_addr;
     end
   end
 

@@ -278,7 +278,7 @@ module top
   endfunction
 
   always_ff @(posedge clk) begin
-    if (rstn && commit_valid && (commit.system_op == SYS_EBREAK)) begin
+    if (commit_valid && (commit.system_op == SYS_EBREAK)) begin
       ebreak_halt();
     end
   end
