@@ -62,6 +62,9 @@ int main(int argc, char **argv) {
       elf_path = argv[++i];
     } else if (strcmp(argv[i], "--nvboard") == 0) {
       enable_nvboard = true;
+    } else if (argv[i][0] == '+') {
+      // Verilator plusargs are consumed by the SystemVerilog test model.
+      continue;
     } else {
       img_path = argv[i];
     }

@@ -3,7 +3,8 @@ module top
 #(
     parameter int unsigned SIM_IFU_READ_LATENCY  = 1,
     parameter int unsigned SIM_LSU_READ_LATENCY  = 1,
-    parameter int unsigned SIM_LSU_WRITE_LATENCY = 1
+    parameter int unsigned SIM_LSU_WRITE_LATENCY = 1,
+    parameter int unsigned SIM_RANDOM_LATENCY_MAX = 20
 ) (
     input logic clk,
     input logic rstn
@@ -200,7 +201,8 @@ module top
   riscv32_sim_mem #(
       .IFU_READ_LATENCY (SIM_IFU_READ_LATENCY),
       .LSU_READ_LATENCY (SIM_LSU_READ_LATENCY),
-      .LSU_WRITE_LATENCY(SIM_LSU_WRITE_LATENCY)
+      .LSU_WRITE_LATENCY(SIM_LSU_WRITE_LATENCY),
+      .RANDOM_LATENCY_MAX(SIM_RANDOM_LATENCY_MAX)
   ) u_sim_mem (
       .clk_i            (clk),
       .rst_ni           (rstn),

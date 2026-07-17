@@ -15,7 +15,8 @@ module riscv32_sim_mem
     // TODO(AXI-MEM-PARAM-CODE): 用三类独立延迟替换当前两个参数，并同步修改top实例参数名。
     parameter int unsigned IFU_READ_LATENCY  = 1,
     parameter int unsigned LSU_READ_LATENCY  = 1,
-    parameter int unsigned LSU_WRITE_LATENCY = 1
+    parameter int unsigned LSU_WRITE_LATENCY = 1,
+    parameter int unsigned RANDOM_LATENCY_MAX = 20
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -78,11 +79,17 @@ module riscv32_sim_mem
   // TODO(AXI-MEM-DECL-CODE): 删除下面旧localparam、mem_state_e及全部旧状态/响应声明，
   // 改为以下三套独立事务状态。RESP状态自身保持VALID，不再需要单独HOLD状态：
   //
-  localparam int unsigned IFU_DELAY_W = (IFU_READ_LATENCY > 1) ? $clog2(IFU_READ_LATENCY) : 1;
-  localparam int unsigned LSU_READ_DELAY_W = (LSU_READ_LATENCY > 1) ? $clog2(LSU_READ_LATENCY) : 1;
-  localparam int unsigned LSU_WRITE_DELAY_W = (LSU_WRITE_LATENCY > 1) ? $clog2(
-      LSU_WRITE_LATENCY
-  ) : 1;
+  localparam int unsigned IFU_MAX_LATENCY = (IFU_READ_LATENCY > RANDOM_LATENCY_MAX) ?
+                                               IFU_READ_LATENCY : RANDOM_LATENCY_MAX;
+  localparam int unsigned LSU_READ_MAX_LATENCY = (LSU_READ_LATENCY > RANDOM_LATENCY_MAX) ?
+                                                    LSU_READ_LATENCY : RANDOM_LATENCY_MAX;
+  localparam int unsigned LSU_WRITE_MAX_LATENCY = (LSU_WRITE_LATENCY > RANDOM_LATENCY_MAX) ?
+                                                     LSU_WRITE_LATENCY : RANDOM_LATENCY_MAX;
+  localparam int unsigned IFU_DELAY_W = (IFU_MAX_LATENCY > 1) ? $clog2(IFU_MAX_LATENCY) : 1;
+  localparam int unsigned LSU_READ_DELAY_W = (LSU_READ_MAX_LATENCY > 1) ?
+                                                $clog2(LSU_READ_MAX_LATENCY) : 1;
+  localparam int unsigned LSU_WRITE_DELAY_W = (LSU_WRITE_MAX_LATENCY > 1) ?
+                                                 $clog2(LSU_WRITE_MAX_LATENCY) : 1;
   //
   typedef enum logic [1:0] {
     READ_IDLE,
@@ -112,6 +119,14 @@ module riscv32_sim_mem
   logic [IFU_DELAY_W-1:0] ifu_delay_q, ifu_delay_d;
   logic [LSU_READ_DELAY_W-1:0] lsu_read_delay_q, lsu_read_delay_d;
   logic [LSU_WRITE_DELAY_W-1:0] lsu_write_delay_q, lsu_write_delay_d;
+  logic [15:0] ifu_lfsr_q;
+  logic [15:0] lsu_read_lfsr_q;
+  logic [15:0] lsu_write_lfsr_q;
+  logic        random_latency_enable;
+  int unsigned lfsr_seed;
+  int unsigned ifu_selected_latency;
+  int unsigned lsu_read_selected_latency;
+  int unsigned lsu_write_selected_latency;
   //
   logic lsu_aw_handshake_occurred_q, lsu_aw_handshake_occurred_d;
   logic lsu_w_handshake_occurred_q, lsu_w_handshake_occurred_d;
@@ -120,6 +135,27 @@ module riscv32_sim_mem
   logic lsu_ar_handshake, lsu_r_handshake;
   logic lsu_aw_handshake, lsu_w_handshake, lsu_b_handshake;
   logic lsu_write_request_complete;
+
+  function automatic logic [15:0] lfsr_next(input logic [15:0] value);
+    lfsr_next = {value[14:0], value[15] ^ value[13] ^ value[12] ^ value[10]};
+  endfunction
+
+  function automatic int unsigned select_latency(
+    input logic [15:0] value,
+    input int unsigned fixed_latency
+  );
+    if (random_latency_enable) begin
+      select_latency = 1 + ($unsigned(value) % RANDOM_LATENCY_MAX);
+    end else begin
+      select_latency = fixed_latency;
+    end
+  endfunction
+
+  always_comb begin
+    ifu_selected_latency      = select_latency(ifu_lfsr_q, IFU_READ_LATENCY);
+    lsu_read_selected_latency = select_latency(lsu_read_lfsr_q, LSU_READ_LATENCY);
+    lsu_write_selected_latency = select_latency(lsu_write_lfsr_q, LSU_WRITE_LATENCY);
+  end
 
   // TODO(AXI-MEM-STATE): 删除这个同时用于imem/dmem的通用SimpleBus状态定义，分别建立：
   // - imem read状态和地址寄存器；
@@ -162,6 +198,19 @@ module riscv32_sim_mem
     if (IFU_READ_LATENCY == 0) $fatal(1, "IFU_READ_LATENCY must be >= 1");
     if (LSU_READ_LATENCY == 0) $fatal(1, "LSU_READ_LATENCY must be >= 1");
     if (LSU_WRITE_LATENCY == 0) $fatal(1, "LSU_WRITE_LATENCY must be >= 1");
+    if (RANDOM_LATENCY_MAX == 0) $fatal(1, "RANDOM_LATENCY_MAX must be >= 1");
+
+    random_latency_enable = $test$plusargs("axi_random_latency");
+    if (!$value$plusargs("axi_lfsr_seed=%d", lfsr_seed)) begin
+      lfsr_seed = 16'h1;
+    end
+    if (lfsr_seed[15:0] == '0) begin
+      $fatal(1, "axi_lfsr_seed must be non-zero");
+    end
+    if (random_latency_enable) begin
+      $display("AXI sim memory random latency enabled: seed=%0d max=%0d",
+               lfsr_seed, RANDOM_LATENCY_MAX);
+    end
   end
 
   // TODO(AXI-MEM-DPI-SIZE): AXI4-Lite没有AxSIZE，完成迁移后删除mem_size_to_bytes。
@@ -199,7 +248,7 @@ module riscv32_sim_mem
 
     if (rst_ni) begin
       unique case (ifu_read_state_q)
-        READ_IDLE: ifu_axi_arready_o = 1'b1;
+        READ_IDLE: ifu_axi_arready_o = !random_latency_enable || ifu_lfsr_q[0];
         READ_RESP: ifu_axi_rvalid_o = 1'b1;
         default:   ;
       endcase
@@ -213,10 +262,10 @@ module riscv32_sim_mem
     unique case (ifu_read_state_q)
       READ_IDLE: begin
         if (ifu_ar_handshake) begin
-          if (IFU_READ_LATENCY == 1) begin
+          if (ifu_selected_latency == 1) begin
             ifu_read_state_d = READ_RESP;
           end else begin
-            ifu_delay_d      = IFU_DELAY_W'(IFU_READ_LATENCY - 1);
+            ifu_delay_d      = IFU_DELAY_W'(ifu_selected_latency - 1);
             ifu_read_state_d = READ_WAIT;
           end
         end
@@ -249,9 +298,14 @@ module riscv32_sim_mem
       ifu_read_state_q <= READ_IDLE;
       ifu_delay_q      <= '0;
       ifu_r_q          <= '0;
+      ifu_lfsr_q       <= lfsr_seed[15:0];
     end else begin
       ifu_read_state_q <= ifu_read_state_d;
       ifu_delay_q      <= ifu_delay_d;
+
+      if (random_latency_enable) begin
+        ifu_lfsr_q <= lfsr_next(ifu_lfsr_q);
+      end
 
       if (ifu_ar_handshake) begin
         ifu_r_q.data <= pmem_read(int'(ifu_axi_ar_i.addr));
@@ -276,7 +330,7 @@ module riscv32_sim_mem
 
     if (rst_ni) begin
       unique case (lsu_read_state_q)
-        READ_IDLE: lsu_axi_arready_o = 1'b1;
+        READ_IDLE: lsu_axi_arready_o = !random_latency_enable || lsu_read_lfsr_q[0];
         READ_RESP: lsu_axi_rvalid_o = 1'b1;
         default:   ;
       endcase
@@ -290,10 +344,10 @@ module riscv32_sim_mem
     unique case (lsu_read_state_q)
       READ_IDLE: begin
         if (lsu_ar_handshake) begin
-          if (LSU_READ_LATENCY == 1) begin
+          if (lsu_read_selected_latency == 1) begin
             lsu_read_state_d = READ_RESP;
           end else begin
-            lsu_read_delay_d = LSU_READ_DELAY_W'(LSU_READ_LATENCY - 1);
+            lsu_read_delay_d = LSU_READ_DELAY_W'(lsu_read_selected_latency - 1);
             lsu_read_state_d = READ_WAIT;
           end
         end
@@ -326,9 +380,14 @@ module riscv32_sim_mem
       lsu_read_state_q <= READ_IDLE;
       lsu_read_delay_q <= '0;
       lsu_r_q          <= '0;
+      lsu_read_lfsr_q  <= (lfsr_seed[15:0] ^ 16'h1d0f) | 16'h1;
     end else begin
       lsu_read_state_q <= lsu_read_state_d;
       lsu_read_delay_q <= lsu_read_delay_d;
+
+      if (random_latency_enable) begin
+        lsu_read_lfsr_q <= lfsr_next(lsu_read_lfsr_q);
+      end
 
       if (lsu_ar_handshake) begin
         lsu_r_q.data <= pmem_read_data(int'(lsu_axi_ar_i.addr), 4);
@@ -363,8 +422,10 @@ module riscv32_sim_mem
     if (rst_ni) begin
       unique case (lsu_write_state_q)
         WRITE_COLLECT: begin
-          lsu_axi_awready_o = !lsu_aw_handshake_occurred_q;
-          lsu_axi_wready_o  = !lsu_w_handshake_occurred_q;
+          lsu_axi_awready_o = !lsu_aw_handshake_occurred_q &&
+                              (!random_latency_enable || lsu_write_lfsr_q[0]);
+          lsu_axi_wready_o  = !lsu_w_handshake_occurred_q &&
+                              (!random_latency_enable || lsu_write_lfsr_q[5]);
         end
         WRITE_RESP: begin
           lsu_axi_bvalid_o = 1'b1;
@@ -394,10 +455,10 @@ module riscv32_sim_mem
         end
 
         if (lsu_write_request_complete) begin
-          if (LSU_WRITE_LATENCY == 1) begin
+          if (lsu_write_selected_latency == 1) begin
             lsu_write_state_d = WRITE_RESP;
           end else begin
-            lsu_write_delay_d = LSU_WRITE_DELAY_W'(LSU_WRITE_LATENCY - 1);
+            lsu_write_delay_d = LSU_WRITE_DELAY_W'(lsu_write_selected_latency - 1);
             lsu_write_state_d = WRITE_WAIT;
           end
         end
@@ -438,6 +499,7 @@ module riscv32_sim_mem
       lsu_b_q                     <= '0;
       lsu_aw_handshake_occurred_q <= 1'b0;
       lsu_w_handshake_occurred_q  <= 1'b0;
+      lsu_write_lfsr_q            <= (lfsr_seed[15:0] ^ 16'hb400) | 16'h1;
     end else begin
       lsu_write_state_q           <= lsu_write_state_d;
       lsu_write_delay_q           <= lsu_write_delay_d;
@@ -445,6 +507,10 @@ module riscv32_sim_mem
       lsu_w_q                     <= lsu_w_d;
       lsu_aw_handshake_occurred_q <= lsu_aw_handshake_occurred_d;
       lsu_w_handshake_occurred_q  <= lsu_w_handshake_occurred_d;
+
+      if (random_latency_enable) begin
+        lsu_write_lfsr_q <= lfsr_next(lsu_write_lfsr_q);
+      end
 
       if (lsu_write_request_complete) begin
         pmem_write(int'(active_lsu_aw.addr), int'(active_lsu_w.data), byte'(active_lsu_w.strb));
