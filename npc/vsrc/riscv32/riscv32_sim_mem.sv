@@ -5,8 +5,7 @@ module riscv32_sim_mem
 #(
     parameter int unsigned IMEM_RESPONSE_LATENCY = 1,
     parameter int unsigned DMEM_RESPONSE_LATENCY = 1
-) 
-(
+) (
     input logic clk_i,
     input logic rst_ni,
 

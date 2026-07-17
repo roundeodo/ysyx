@@ -3,8 +3,7 @@ module top
 #(
     parameter int unsigned SIM_IMEM_RESPONSE_LATENCY = 1,
     parameter int unsigned SIM_DMEM_RESPONSE_LATENCY = 1
-) 
-(
+) (
     input logic clk,
     input logic rstn
 );
