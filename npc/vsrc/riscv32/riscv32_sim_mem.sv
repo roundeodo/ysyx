@@ -145,7 +145,7 @@ module riscv32_sim_mem
     input int unsigned fixed_latency
   );
     if (random_latency_enable) begin
-      select_latency = 1 + ($unsigned(value) % RANDOM_LATENCY_MAX);
+      select_latency = 1 + (32'($unsigned(value)) % RANDOM_LATENCY_MAX);
     end else begin
       select_latency = fixed_latency;
     end
@@ -202,7 +202,7 @@ module riscv32_sim_mem
 
     random_latency_enable = $test$plusargs("axi_random_latency");
     if (!$value$plusargs("axi_lfsr_seed=%d", lfsr_seed)) begin
-      lfsr_seed = 16'h1;
+      lfsr_seed = 32'h1;
     end
     if (lfsr_seed[15:0] == '0) begin
       $fatal(1, "axi_lfsr_seed must be non-zero");
