@@ -74,7 +74,7 @@ module riscv32_csr_file
     end
   end
 
-  always_ff @(posedge clk_i) begin
+  always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       mcycle_q   <= '0;
       mstatus_q  <= '0;
