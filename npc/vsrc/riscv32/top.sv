@@ -319,7 +319,12 @@ module top
   endfunction
 
   function int npc_get_commit_next_pc_dpi();
-    npc_get_commit_next_pc_dpi = commit.next_pc;
+    if (selected_redirect_req_valid && commit_valid &&
+        (selected_redirect_req.source_pc == commit.pc)) begin
+      npc_get_commit_next_pc_dpi = selected_redirect_req.target_pc;
+    end else begin
+      npc_get_commit_next_pc_dpi = commit.next_pc;
+    end
   endfunction
 
   function int npc_get_gpr_dpi(input int index);
