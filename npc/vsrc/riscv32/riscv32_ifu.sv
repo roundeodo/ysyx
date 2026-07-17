@@ -129,8 +129,9 @@ module riscv32_ifu
       end
 
       IFU_WAIT_R: begin
-        // 此状态下本地响应缓冲为空，所以总能接收一个memory响应。错误路径响应也要
-        // 接走以释放memory通道，但discard或redirect有效时不能交给IDU。
+        // 此状态下本地响应缓冲为空，所以总能接收一个memory响应。已经由discard位确认
+        // 属于错误路径的响应不能交给IDU；redirect不能直接组合门控valid，因为它可能由
+        // 当前fetch在同一周期产生。
         ifu_axi_rready_o    = 1'b1;
         fetch_entry_o       = axi_resp_fetch_entry;
         fetch_entry_valid_o = ifu_axi_rvalid_i && !discard_axi_resp_q;
