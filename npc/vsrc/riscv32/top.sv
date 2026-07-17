@@ -252,6 +252,7 @@ module top
   export "DPI-C" function npc_get_commit_pc_dpi;
   export "DPI-C" function npc_get_commit_inst_dpi;
   export "DPI-C" function npc_get_commit_next_pc_dpi;
+  export "DPI-C" function npc_get_gpr_dpi;
 
   function int npc_get_pc_dpi();
     npc_get_pc_dpi = fetch_entry.pc;
@@ -275,6 +276,14 @@ module top
 
   function int npc_get_commit_next_pc_dpi();
     npc_get_commit_next_pc_dpi = commit.next_pc;
+  endfunction
+
+  function int npc_get_gpr_dpi(input int index);
+    if ((index <= 0) || (index >= ARCH_REG_NUM)) begin
+      npc_get_gpr_dpi = '0;
+    end else begin
+      npc_get_gpr_dpi = u_arch_regfile.gpr_q[index];
+    end
   endfunction
 
   always_ff @(posedge clk) begin

@@ -216,7 +216,8 @@ uint32_t npc_get_gpr(int idx) {
     return 0;
   }
 
-  return top->rootp->top__DOT__u_arch_regfile__DOT__rf[idx];
+  set_dpi_scope();
+  return (uint32_t)npc_get_gpr_dpi(idx);
 }
 
 // ============================================================
