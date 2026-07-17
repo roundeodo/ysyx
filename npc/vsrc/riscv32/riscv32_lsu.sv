@@ -14,27 +14,38 @@ module riscv32_lsu
 
     // TODO(AXI-LSU-PORTS): 删除下面SimpleBus dmem request/response端口，替换为完整的
     // AXI4-Lite read/write master五通道端口。推荐顺序为AR、R、AW、W、B：
-    // output axi_lite_addr_t dmem_axi_ar_o;  output logic dmem_axi_arvalid_o;
-    // input  logic           dmem_axi_arready_i;
-    // input  axi_lite_r_t    dmem_axi_r_i;   input logic dmem_axi_rvalid_i;
-    // output logic           dmem_axi_rready_o;
-    // output axi_lite_addr_t dmem_axi_aw_o;  output logic dmem_axi_awvalid_o;
-    // input  logic           dmem_axi_awready_i;
-    // output axi_lite_w_t    dmem_axi_w_o;   output logic dmem_axi_wvalid_o;
-    // input  logic           dmem_axi_wready_i;
-    // input  axi_lite_b_t    dmem_axi_b_i;   input logic dmem_axi_bvalid_i;
-    // output logic           dmem_axi_bready_o;
+    // output axi_lite_addr_t lsu_axi_ar_o;  output logic lsu_axi_arvalid_o;
+    // input  logic           lsu_axi_arready_i;
+    // input  axi_lite_r_t    lsu_axi_r_i;   input logic lsu_axi_rvalid_i;
+    // output logic           lsu_axi_rready_o;
+    // output axi_lite_addr_t lsu_axi_aw_o;  output logic lsu_axi_awvalid_o;
+    // input  logic           lsu_axi_awready_i;
+    // output axi_lite_w_t    lsu_axi_w_o;   output logic lsu_axi_wvalid_o;
+    // input  logic           lsu_axi_wready_i;
+    // input  axi_lite_b_t    lsu_axi_b_i;   input logic lsu_axi_bvalid_i;
+    // output logic           lsu_axi_bready_o;
     //
+    output axi_lite_addr_t lsu_axi_ar_o,
+    output logic           lsu_axi_arvalid_o,
+    input  logic           lsu_axi_arready_i,
+
+    input  axi_lite_r_t lsu_axi_r_i,
+    input  logic        lsu_axi_rvalid_i,
+    output logic        lsu_axi_rready_o,
+
+    output axi_lite_addr_t lsu_axi_aw_o,
+    output logic           lsu_axi_awvalid_o,
+    input  logic           lsu_axi_awready_i,
+
+    output axi_lite_w_t lsu_axi_w_o,
+    output logic        lsu_axi_wvalid_o,
+    input  logic        lsu_axi_wready_i,
+
+    input  axi_lite_b_t lsu_axi_b_i,
+    input  logic        lsu_axi_bvalid_i,
+    output logic        lsu_axi_bready_o
     // AR/AW/W的VALID和payload由LSU产生，R/B的READY也由LSU产生。不要保留cmd/size作为
     // AXI信号：Lite没有读写cmd，也没有AxSIZE；读写方向由使用AR还是AW/W表示。
-    output mem_req_t  dmem_req_o,
-    output logic      dmem_req_valid_o,
-    input  logic      dmem_req_ready_i,
-    /* verilator lint_off UNUSEDSIGNAL */
-    input  mem_resp_t dmem_resp_i,
-    /* verilator lint_on UNUSEDSIGNAL */
-    input  logic      dmem_resp_valid_i,
-    output logic      dmem_resp_ready_o
 );
 
   // LSU只负责形成访存请求、格式化响应和报告完成。DPI、SRAM、MMIO与未来D-cache
@@ -47,10 +58,12 @@ module riscv32_lsu
   // store的AW与W必须在同一状态并行尝试，但分别用aw_done_q/w_done_q记录是否已经握手。
   // 不能写成“先等AW握手，再拉WVALID”，否则虽然可能工作，却损失并行性，并容易与某些
   // 等待WVALID才给AWREADY的slave形成死锁。只有两个done都为1后才能进入WAIT_B。
-  typedef enum logic [1:0] {
+  typedef enum logic [2:0] {
     LSU_IDLE,
-    LSU_SEND_REQ,
-    LSU_WAIT_RESP,
+    LSU_SEND_AR,
+    LSU_WAIT_R,
+    LSU_SEND_AW,
+    LSU_WAIT_B,
     LSU_HOLD_WRITEBACK
   } lsu_state_e;
 
@@ -80,10 +93,23 @@ module riscv32_lsu
   // 清掉AWVALID。每次接收新store时两个done清零；各自握手时独立置1；B握手完成后清零。
   // 基线只允许一个CPU访存，因此不需要AXI ID，也不需要地址/数据队列。
 
-  logic                               lsu_req_handshake;
-  logic                               dmem_req_handshake;
-  logic                               dmem_resp_handshake;
-  logic                               lsu_writeback_handshake;
+  axi_lite_addr_t                     ar_payload;
+  axi_lite_addr_t                     aw_payload;
+
+  axi_lite_w_t                        w_payload;
+  logic                               ar_hanshake;
+  logic                               r_handshake;
+  logic                               aw_hanshake;
+  logic                               w_handshake;
+  logic                               b_handshake;
+
+  logic                               aw_done_q;
+  logic                               aw_done_d;
+
+  logic                               w_done_q;
+  logic                               w_done_d;
+
+
 
   logic                               is_load;
   logic                               is_store;
@@ -219,7 +245,7 @@ module riscv32_lsu
   end
 
 
-  // TODO(AXI-LSU-LOAD-FORMAT): 把本块的数据源从dmem_resp_i.rdata改为dmem_axi_r_i.data。
+  // TODO(AXI-LSU-LOAD-FORMAT): 把本块的数据源从dmem_resp_i.rdata改为lsu_axi_r_i.data。
   // lane选择和符号/零扩展逻辑不因协议变化而改变，因为AXI4-Lite读返回完整32-bit数据。
   // 仍必须使用lsu_req_q中的低地址位，不能使用已向下对齐的ARADDR。
   //

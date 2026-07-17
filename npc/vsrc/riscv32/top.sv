@@ -17,6 +17,7 @@ module top
   // AXI4-Lite连接：
   // - IFU read-only master <-> sim_mem instruction read slave：AR/R。
   // - LSU read/write master <-> sim_mem data slave：AR/R/AW/W/B。
+  // 两套link分别统一使用ifu_axi_*和lsu_axi_*前缀；不要再按目的端命名成imem_axi/dmem_axi。
   // 每个channel分别声明payload、valid和ready，不要合成一个全局req/resp握手。
   //
   // 当前sim_mem等价于双端口memory adapter，IFU和LSU可以并行握手。若未来只有一个物理

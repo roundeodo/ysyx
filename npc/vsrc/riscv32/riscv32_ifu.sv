@@ -14,18 +14,18 @@ module riscv32_ifu
     // TODO(AXI-IFU-PORTS): 将下面6个SimpleBus端口替换为AXI4-Lite只读master的AR/R端口。
     // ARM IHI 0022H A9.2.2明确允许read-only interface只包含AR和R，不需要伪造AW/W/B。
     // 建议端口骨架：
-    // output axi_lite_addr_t imem_axi_ar_o,
-    // output logic           imem_axi_arvalid_o,
-    // input  logic           imem_axi_arready_i,
-    // input  axi_lite_r_t    imem_axi_r_i,
-    // input  logic           imem_axi_rvalid_i,
-    // output logic           imem_axi_rready_o,
-    output axi_lite_addr_t imem_axi_ar_o,
-    output logic           imem_axi_arvalid_o,
-    input  logic           imem_axi_arready_i,
-    input  axi_lite_r_t    imem_axi_r_i,
-    input  logic           imem_axi_rvalid_i,
-    output logic           imem_axi_rready_o,
+    // output axi_lite_addr_t ifu_axi_ar_o,
+    // output logic           ifu_axi_arvalid_o,
+    // input  logic           ifu_axi_arready_i,
+    // input  axi_lite_r_t    ifu_axi_r_i,
+    // input  logic           ifu_axi_rvalid_i,
+    // output logic           ifu_axi_rready_o,
+    output axi_lite_addr_t ifu_axi_ar_o,
+    output logic           ifu_axi_arvalid_o,
+    input  logic           ifu_axi_arready_i,
+    input  axi_lite_r_t    ifu_axi_r_i,
+    input  logic           ifu_axi_rvalid_i,
+    output logic           ifu_axi_rready_o,
     //
     // 删除imem_req/imem_resp命名后，valid/ready方向必须按master角色检查：
     // ARVALID/ARADDR由IFU产生，ARREADY由memory产生；RVALID/RDATA/RRESP由memory产生，
@@ -36,10 +36,11 @@ module riscv32_ifu
     input  logic         fetch_entry_ready_i
 );
 
-  // TODO(AXI-IFU-STATE): 把状态名改为IFU_SEND_AR、IFU_WAIT_R和IFU_HOLD_FETCH。
-  // 功能数量不需要增加：当前只允许一个outstanding read，AR握手后必须等待对应R握手。
-  // AXI4-Lite没有ID，因此删除txn_id不能靠总线字段关联PC；imem_req_pc_q继续承担关联责任。
+  // IFU_INIT保证复位期间ARVALID为0；正常取指循环不会返回该状态。
+  // 当前只允许一个outstanding read，AR握手后必须等待对应R握手。
+  // AXI4-Lite没有ID，因此删除txn_id不能靠总线字段关联PC；fetch_req_pc_q继续承担关联责任。
   typedef enum logic [1:0] {
+    IFU_INIT,
     IFU_SEND_AR,
     IFU_WAIT_R,
     IFU_HOLD_FETCH
@@ -48,9 +49,9 @@ module riscv32_ifu
   ifu_state_e state_q;
   ifu_state_e state_d;
 
-  // imem_req_pc_q在请求阻塞和等待响应期间保持不变，用于关联响应与取指PC。
-  logic [XLEN-1:0] imem_req_pc_q;
-  logic [XLEN-1:0] imem_req_pc_d;
+  // fetch_req_pc_q在请求阻塞和等待响应期间保持不变，用于关联响应与取指PC。
+  logic [XLEN-1:0] fetch_req_pc_q;
+  logic [XLEN-1:0] fetch_req_pc_d;
   // next_pc_q保存当前事务结束后的顺序PC，redirect到达时保存redirect target。
   logic [XLEN-1:0] next_pc_q;
   logic [XLEN-1:0] next_pc_d;
@@ -59,49 +60,49 @@ module riscv32_ifu
   // 无反压时，响应在IFU_WAIT_RESP中直接旁路到IDU，不额外增加一拍。
   fetch_entry_t fetch_entry_q;
   fetch_entry_t fetch_entry_d;
-  fetch_entry_t imem_resp_fetch_entry;
+  fetch_entry_t axi_resp_fetch_entry;
 
   // 已经发出的请求无法取消时，记录其响应属于错误路径。
-  logic discard_imem_resp_q;
-  logic discard_imem_resp_d;
+  logic discard_axi_resp_q;
+  logic discard_axi_resp_d;
 
-  logic imem_req_handshake;
-  logic imem_resp_handshake;
+  logic ifu_axi_ar_handshake;
+  logic ifu_axi_r_handshake;
   logic fetch_entry_handshake;
 
   // TODO(AXI-IFU-HANDSHAKE): 用AR/R握手替换下面两个imem握手：
-  // ar_handshake = imem_axi_arvalid_o && imem_axi_arready_i;
-  // r_handshake  = imem_axi_rvalid_i  && imem_axi_rready_o;
+  // ar_handshake = ifu_axi_arvalid_o && ifu_axi_arready_i;
+  // r_handshake  = ifu_axi_rvalid_i  && ifu_axi_rready_o;
   // 状态只能在对应握手发生后推进。master不能等待ARREADY才拉高ARVALID；ARVALID一旦拉高，
   // 在握手前不能撤销，即使这期间收到redirect也只能标记discard并完成旧事务。
-  assign imem_req_handshake    = imem_axi_arvalid_o && imem_axi_arready_i;
-  assign imem_resp_handshake   = imem_axi_rvalid_i && imem_axi_rready_o;
+  assign ifu_axi_ar_handshake  = ifu_axi_arvalid_o && ifu_axi_arready_i;
+  assign ifu_axi_r_handshake   = ifu_axi_rvalid_i && ifu_axi_rready_o;
   assign fetch_entry_handshake = fetch_entry_valid_o && fetch_entry_ready_i;
 
   // TODO(AXI-IFU-RRESP): 将下面的SimpleBus异常字段转换改成RRESP解码。
   // AXI R通道只有RDATA和RRESP，不提供exception_cause/tval：
   // - AXI_RESP_OKAY：instruction=RDATA，exception_valid=0。
   // - AXI_RESP_SLVERR或AXI_RESP_DECERR：exception_valid=1，
-  //   exception_cause=EXC_INSTR_ACCESS_FAULT，exception_tval=imem_req_pc_q。
+  //   exception_cause=EXC_INSTR_ACCESS_FAULT，exception_tval=fetch_req_pc_q。
   // - AXI_RESP_EXOKAY在Lite中不合法；仿真中assert，功能上按access fault防御处理。
   // 即使RRESP报错，本次R传输仍必须完成握手；错误作为有效fetch送到有序commit边界。
   //
   // 取指异常仍作为有效fetch向后传递。只有到达有序commit边界后，trap controller
   // 才能更新CSR并产生redirect，从而保持精确异常语义。
   always_comb begin
-    imem_resp_fetch_entry                 = '0;
-    imem_resp_fetch_entry.pc              = imem_req_pc_q;
-    imem_resp_fetch_entry.instruction     = imem_axi_r_i.data;
-    imem_resp_fetch_entry.frontend_tag    = '0;
-    imem_resp_fetch_entry.prediction      = '0;
-    imem_resp_fetch_entry.exception_valid = imem_axi_r_i.resp==AXI_RESP_DECERR || imem_axi_r_i.resp==AXI_RESP_SLVERR;
-    imem_resp_fetch_entry.exception_cause = EXC_INSTR_ACCESS_FAULT;
-    imem_resp_fetch_entry.exception_tval  = imem_req_pc_q;
+    axi_resp_fetch_entry                 = '0;
+    axi_resp_fetch_entry.pc              = fetch_req_pc_q;
+    axi_resp_fetch_entry.instruction     = ifu_axi_r_i.data;
+    axi_resp_fetch_entry.frontend_tag    = '0;
+    axi_resp_fetch_entry.prediction      = '0;
+    axi_resp_fetch_entry.exception_valid = ifu_axi_r_i.resp != AXI_RESP_OKAY;
+    axi_resp_fetch_entry.exception_cause = EXC_INSTR_ACCESS_FAULT;
+    axi_resp_fetch_entry.exception_tval  = fetch_req_pc_q;
   end
 
   // TODO(AXI-IFU-OUTPUT): 用AR/R信号重写本输出块，但保留当前单outstanding旁路结构。
   // IFU_SEND_AR中无条件基于已保存PC拉高ARVALID，不能组合依赖ARREADY；ARADDR和ARPROT在
-  // ARVALID && !ARREADY期间必须稳定。建议ARADDR={imem_req_pc_q[XLEN-1:2], 2'b00}；
+  // ARVALID && !ARREADY期间必须稳定。建议ARADDR={fetch_req_pc_q[XLEN-1:2], 2'b00}；
   // 当前只取32-bit指令，正常PC本来就应word aligned。ARPROT至少明确instruction属性。
   //
   // IFU_WAIT_R中可以让RREADY=1，因为本地fetch_entry_q能吸收一个受IDU反压的响应。
@@ -112,30 +113,33 @@ module riscv32_ifu
   // IDU not ready时IFU接收response，并在时钟沿保存到fetch_entry_q。
   // Moore output
   always_comb begin
-    imem_axi_ar_o       = '0;
-    imem_axi_arvalid_o  = 1'b0;
-    imem_axi_rready_o   = 1'b0;
+    ifu_axi_arvalid_o   = 1'b0;
+    ifu_axi_rready_o    = 1'b0;
     fetch_entry_o       = fetch_entry_q;
     fetch_entry_valid_o = 1'b0;
+    ifu_axi_ar_o.addr   = '0;
+    ifu_axi_ar_o.prot   = 3'b101;
 
     unique case (state_q)
+      IFU_INIT: ;
+
       IFU_SEND_AR: begin
-        imem_axi_arvalid_o = 1'b1;
-        imem_axi_ar_o.addr = imem_req_pc_q;
+        ifu_axi_arvalid_o = 1'b1;
+        ifu_axi_ar_o.addr = fetch_req_pc_q;
       end
 
       IFU_WAIT_R: begin
         // 此状态下本地响应缓冲为空，所以总能接收一个memory响应。错误路径响应也要
         // 接走以释放memory通道，但discard或redirect有效时不能交给IDU。
-        imem_axi_rready_o   = 1'b1;
-        fetch_entry_o       = imem_resp_fetch_entry;
-        fetch_entry_valid_o = imem_axi_rvalid_i && !discard_imem_resp_q;
+        ifu_axi_rready_o    = 1'b1;
+        fetch_entry_o       = axi_resp_fetch_entry;
+        fetch_entry_valid_o = ifu_axi_rvalid_i && !discard_axi_resp_q && !redirect_req_valid_i;
       end
 
       IFU_HOLD_FETCH: begin
         // redirect同周期压低valid，避免缓冲中的错误路径指令与IDU完成握手。
         fetch_entry_o       = fetch_entry_q;
-        fetch_entry_valid_o = 1'b1;
+        fetch_entry_valid_o = 1'b1 && !redirect_req_valid_i;
       end
 
       default: ;
@@ -152,25 +156,29 @@ module riscv32_ifu
   //
   // next state
   always_comb begin
-    state_d             = state_q;
-    imem_req_pc_d       = imem_req_pc_q;
-    next_pc_d           = next_pc_q;
-    fetch_entry_d       = fetch_entry_q;
-    discard_imem_resp_d = discard_imem_resp_q;
+    state_d            = state_q;
+    fetch_req_pc_d     = fetch_req_pc_q;
+    next_pc_d          = next_pc_q;
+    fetch_entry_d      = fetch_entry_q;
+    discard_axi_resp_d = discard_axi_resp_q;
 
     unique case (state_q)
+      IFU_INIT: begin
+        state_d = IFU_SEND_AR;
+      end
+
       IFU_SEND_AR: begin
         // valid && !ready期间不能改变request payload。redirect先记录为后续PC，
         // 当前旧请求仍完成传输，其响应回来后再丢弃。
         if (redirect_req_valid_i) begin
-          next_pc_d           = redirect_req_i.target_pc;
-          discard_imem_resp_d = 1'b1;
+          next_pc_d          = redirect_req_i.target_pc;
+          discard_axi_resp_d = 1'b1;
         end
 
-        if (imem_req_handshake) begin
+        if (ifu_axi_ar_handshake) begin
           state_d = IFU_WAIT_R;
-          if (!discard_imem_resp_q && !redirect_req_valid_i) begin
-            next_pc_d = imem_req_pc_q + XLEN'(4);
+          if (!discard_axi_resp_q && !redirect_req_valid_i) begin
+            next_pc_d = fetch_req_pc_q + XLEN'(4);
           end
         end
       end
@@ -178,24 +186,24 @@ module riscv32_ifu
       IFU_WAIT_R: begin
         // 已握手的memory请求无法撤回。redirect到达后保存新PC，并等待旧响应回来。
         if (redirect_req_valid_i) begin
-          next_pc_d           = redirect_req_i.target_pc;
-          discard_imem_resp_d = 1'b1;
+          next_pc_d          = redirect_req_i.target_pc;
+          discard_axi_resp_d = 1'b1;
         end
 
-        if (imem_resp_handshake) begin
-          if (discard_imem_resp_q || redirect_req_valid_i) begin
+        if (ifu_axi_r_handshake) begin
+          if (discard_axi_resp_q || redirect_req_valid_i) begin
             // 消耗错误路径响应，但不构造fetch。
-            imem_req_pc_d       = redirect_req_valid_i ? redirect_req_i.target_pc : next_pc_q;
-            next_pc_d           = redirect_req_valid_i ? redirect_req_i.target_pc : next_pc_q;
-            discard_imem_resp_d = 1'b0;
-            state_d             = IFU_SEND_AR;
+            fetch_req_pc_d     = redirect_req_valid_i ? redirect_req_i.target_pc : next_pc_q;
+            next_pc_d          = redirect_req_valid_i ? redirect_req_i.target_pc : next_pc_q;
+            discard_axi_resp_d = 1'b0;
+            state_d            = IFU_SEND_AR;
           end else if (fetch_entry_handshake) begin
             // 无反压快速路径：响应当拍直接交给IDU，不进入HOLD_FETCH。
-            imem_req_pc_d = next_pc_q;
-            state_d       = IFU_SEND_AR;
+            fetch_req_pc_d = next_pc_q;
+            state_d        = IFU_SEND_AR;
           end else begin
             // IDU反压：响应已被IFU接收，保存后由HOLD_FETCH持续展示。
-            fetch_entry_d = imem_resp_fetch_entry;
+            fetch_entry_d = axi_resp_fetch_entry;
             state_d       = IFU_HOLD_FETCH;
           end
         end
@@ -204,30 +212,28 @@ module riscv32_ifu
       IFU_HOLD_FETCH: begin
         if (redirect_req_valid_i) begin
           // 缓冲中的fetch尚未交给IDU，可以直接丢弃。
-          imem_req_pc_d       = redirect_req_i.target_pc;
-          next_pc_d           = redirect_req_i.target_pc;
-          discard_imem_resp_d = 1'b0;
-          state_d             = IFU_SEND_AR;
+          fetch_req_pc_d     = redirect_req_i.target_pc;
+          next_pc_d          = redirect_req_i.target_pc;
+          discard_axi_resp_d = 1'b0;
+          state_d            = IFU_SEND_AR;
         end else if (fetch_entry_handshake) begin
-          imem_req_pc_d = next_pc_q;
-          state_d       = IFU_SEND_AR;
+          fetch_req_pc_d = next_pc_q;
+          state_d        = IFU_SEND_AR;
         end
       end
 
       default: begin
-        state_d             = IFU_SEND_AR;
-        imem_req_pc_d       = PC_START;
-        next_pc_d           = PC_START;
-        fetch_entry_d       = '0;
-        discard_imem_resp_d = 1'b0;
+        state_d            = IFU_INIT;
+        fetch_req_pc_d     = PC_START;
+        next_pc_d          = PC_START;
+        fetch_entry_d      = '0;
+        discard_axi_resp_d = 1'b0;
       end
     endcase
   end
 
-  // TODO(AXI-IFU-REG-ASSERT): 寄存器块仍是状态、请求PC和fetch缓冲的唯一写入点。
-  // reset期间必须保证ARVALID为0；由于当前state reset到SEND_REQ会在reset组合拉高valid，
-  // 改AXI时不能仅依靠state编码，需用rst_ni门控或增加reset后的registered-valid状态。
-  // 同时添加以下等价SVA检查：
+  // IFU_INIT已经保证reset期间ARVALID为0。寄存器块仍是状态、请求PC和fetch缓冲的唯一写入点。
+  // TODO(AXI-IFU-ASSERT): 添加以下等价SVA检查：
   // - ARVALID && !ARREADY |=> ARVALID && $stable({ARADDR, ARPROT})
   // - ARVALID在握手前不能下降
   // - 每个R握手之前必须存在一个尚未完成的AR握手
@@ -236,17 +242,17 @@ module riscv32_ifu
   // Register update
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      state_q             <= IFU_SEND_AR;
-      imem_req_pc_q       <= PC_START;
-      next_pc_q           <= PC_START;
-      fetch_entry_q       <= '0;
-      discard_imem_resp_q <= 1'b0;
+      state_q            <= IFU_INIT;
+      fetch_req_pc_q     <= PC_START;
+      next_pc_q          <= PC_START;
+      fetch_entry_q      <= '0;
+      discard_axi_resp_q <= 1'b0;
     end else begin
-      state_q             <= state_d;
-      imem_req_pc_q       <= imem_req_pc_d;
-      next_pc_q           <= next_pc_d;
-      fetch_entry_q       <= fetch_entry_d;
-      discard_imem_resp_q <= discard_imem_resp_d;
+      state_q            <= state_d;
+      fetch_req_pc_q     <= fetch_req_pc_d;
+      next_pc_q          <= next_pc_d;
+      fetch_entry_q      <= fetch_entry_d;
+      discard_axi_resp_q <= discard_axi_resp_d;
     end
   end
 

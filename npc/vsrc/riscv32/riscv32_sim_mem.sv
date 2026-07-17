@@ -19,9 +19,9 @@ module riscv32_sim_mem
     input logic rst_ni,
 
     // TODO(AXI-MEM-PORTS): 删除下面SimpleBus端口并按slave方向声明AXI端口。
-    // imem：输入AR payload/ARVALID，输出ARREADY；输出R payload/RVALID，输入RREADY。
-    // dmem read：输入AR payload/ARVALID，输出ARREADY；输出R payload/RVALID，输入RREADY。
-    // dmem write：输入AW/W payload和VALID，分别输出AWREADY/WREADY；输出B payload/BVALID，
+    // ifu_axi：输入AR payload/ARVALID，输出ARREADY；输出R payload/RVALID，输入RREADY。
+    // lsu_axi read：输入AR payload/ARVALID，输出ARREADY；输出R payload/RVALID，输入RREADY。
+    // lsu_axi write：输入AW/W payload和VALID，分别输出AWREADY/WREADY；输出B payload/BVALID，
     // 输入BREADY。AW与W端口不能合并，因为协议允许它们任意先后握手。
     input  imem_req_t  imem_req_i,
     input  logic       imem_req_valid_i,
