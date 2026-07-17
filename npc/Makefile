@@ -23,7 +23,7 @@ BIN_NV  = $(BUILD_DIR)/$(TOPNAME)_nvboard
 # verilator config
 VERILATOR = verilator
 VERILATOR_FLAGS += -MMD --build -cc -Wall \
-				-O3 --x-assign fast --x-initial fast --noassert --trace
+				-O3 --x-assign fast --x-initial fast --trace
 
 # make build directory
 $(shell mkdir -p $(BUILD_DIR))

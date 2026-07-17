@@ -276,7 +276,7 @@ module riscv32_ifu
 
   p_ifu_arvalid_only_in_send_state :
   assert property(
-    @(posedge clk_i)disable iff(!rst_ni)
+    @(posedge clk_i)
     ifu_axi_arvalid_o |-> state_q == IFU_SEND_AR
   )
   else $error("IFU assert ARVALID in an invalid state");

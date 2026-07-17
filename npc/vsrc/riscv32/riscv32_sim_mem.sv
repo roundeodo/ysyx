@@ -469,6 +469,18 @@ module riscv32_sim_mem
   // - AW/W可按任意顺序握手，且一次事务不能重复接收第二个AW或W。
   // - READY/VALID逻辑不存在AXI输入到AXI输出的组合路径。
 
+  p_ifu_arprot_known :
+  assert property (@(posedge clk_i) ifu_ar_handshake |-> !$isunknown(ifu_axi_ar_i.prot))
+  else $error("IFU ARPROT contains X at handshake");
+
+  p_lsu_arprot_known :
+  assert property (@(posedge clk_i) lsu_ar_handshake |-> !$isunknown(lsu_axi_ar_i.prot))
+  else $error("LSU ARPROT contains X at handshake");
+
+  p_lsu_awprot_known :
+  assert property (@(posedge clk_i) lsu_aw_handshake |-> !$isunknown(lsu_axi_aw_i.prot))
+  else $error("LSU AWPROT contains X at handshake");
+
 
 
 endmodule
