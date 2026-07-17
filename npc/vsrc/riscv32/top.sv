@@ -157,7 +157,7 @@ module top
 
   riscv32_exu u_exu (
       .execute_packet_i      (execute_packet),
-      .execute_packet_valid_i(decoded_uop_valid),
+      .execute_packet_valid_i(decoded_uop_valid && lsu_req_ready),
       .execute_packet_ready_o(execute_packet_ready),
       .exu_result_o          (exu_result),
       .exu_result_valid_o    (exu_result_valid),
@@ -167,7 +167,9 @@ module top
       .lsu_req_ready_i       (lsu_req_ready)
   );
 
-  assign decoded_uop_ready = execute_packet_ready;
+  // The current core retires in order and has no ROB. While an LSU request is
+  // outstanding, hold any younger decoded instruction at the IFU/IDU boundary.
+  assign decoded_uop_ready = execute_packet_ready && lsu_req_ready;
 
   riscv32_lsu u_lsu (
       .clk_i                (clk),
