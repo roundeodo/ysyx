@@ -1,10 +1,9 @@
 module top
   import riscv32_pkg::*;
 #(
-    // TODO(AXI-TOP-LATENCY-PARAM): dmem AXI化后将DMEM参数拆成READ和WRITE两个参数，
-    // 分别传给R通道和B通道延迟模型；IMEM参数对应只读R通道。
-    parameter int unsigned SIM_IMEM_RESPONSE_LATENCY = 1,
-    parameter int unsigned SIM_DMEM_RESPONSE_LATENCY = 1
+    parameter int unsigned SIM_IFU_READ_LATENCY  = 1,
+    parameter int unsigned SIM_LSU_READ_LATENCY  = 1,
+    parameter int unsigned SIM_LSU_WRITE_LATENCY = 1
 ) (
     input logic clk,
     input logic rstn
@@ -13,30 +12,33 @@ module top
   localparam int unsigned EXU_REDIRECT_INDEX = 0;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 1;
 
-  // TODO(AXI-TOP-WIRES): 在pkg类型完成后删除下面SimpleBus wires，声明两套彼此独立的
-  // AXI4-Lite连接：
-  // - IFU read-only master <-> sim_mem instruction read slave：AR/R。
-  // - LSU read/write master <-> sim_mem data slave：AR/R/AW/W/B。
-  // 两套link分别统一使用ifu_axi_*和lsu_axi_*前缀；不要再按目的端命名成imem_axi/dmem_axi。
-  // 每个channel分别声明payload、valid和ready，不要合成一个全局req/resp握手。
-  //
   // 当前sim_mem等价于双端口memory adapter，IFU和LSU可以并行握手。若未来只有一个物理
   // SRAM/外部AXI master端口，应新增axi4_lite_interconnect或memory arbiter；top负责实例化，
   // IFU/LSU内部不能互相观察对方的请求。AXI4-Lite没有ID，仲裁器必须保存响应应返回给哪个
   // master，并在不能安全跟踪时限制outstanding数量。
-  imem_req_t  imem_req;
-  logic       imem_req_valid;
-  logic       imem_req_ready;
-  imem_resp_t imem_resp;
-  logic       imem_resp_valid;
-  logic       imem_resp_ready;
+  axi_lite_addr_t ifu_axi_ar;
+  logic           ifu_axi_arvalid;
+  logic           ifu_axi_arready;
+  axi_lite_r_t    ifu_axi_r;
+  logic           ifu_axi_rvalid;
+  logic           ifu_axi_rready;
 
-  mem_req_t  dmem_req;
-  logic      dmem_req_valid;
-  logic      dmem_req_ready;
-  mem_resp_t dmem_resp;
-  logic      dmem_resp_valid;
-  logic      dmem_resp_ready;
+  axi_lite_addr_t lsu_axi_ar;
+  logic           lsu_axi_arvalid;
+  logic           lsu_axi_arready;
+  axi_lite_r_t    lsu_axi_r;
+  logic           lsu_axi_rvalid;
+  logic           lsu_axi_rready;
+
+  axi_lite_addr_t lsu_axi_aw;
+  logic           lsu_axi_awvalid;
+  logic           lsu_axi_awready;
+  axi_lite_w_t    lsu_axi_w;
+  logic           lsu_axi_wvalid;
+  logic           lsu_axi_wready;
+  axi_lite_b_t    lsu_axi_b;
+  logic           lsu_axi_bvalid;
+  logic           lsu_axi_bready;
 
   fetch_entry_t fetch_entry;
   logic fetch_entry_valid;
@@ -98,21 +100,17 @@ module top
     execute_packet.csr_illegal = csr_read_illegal;
   end
 
-  // TODO(AXI-TOP-IFU-CONNECT): IFU端口改造完成后，将下面6条imem连接替换为AR/R连接。
-  // IFU是官方允许的read-only AXI interface，所以top无需创建或tie off IFU的AW/W/B。
-  // 若芯片顶层以后必须暴露一个完整read/write master端口，应在边界adapter中补齐未用通道，
-  // 而不是污染IFU内部接口。
   riscv32_ifu u_ifu (
       .clk_i               (clk),
       .rst_ni              (rstn),
       .redirect_req_i      (selected_redirect_req),
       .redirect_req_valid_i(selected_redirect_req_valid),
-      .imem_req_o           (imem_req),
-      .imem_req_valid_o     (imem_req_valid),
-      .imem_req_ready_i     (imem_req_ready),
-      .imem_resp_i          (imem_resp),
-      .imem_resp_valid_i    (imem_resp_valid),
-      .imem_resp_ready_o    (imem_resp_ready),
+      .ifu_axi_ar_o         (ifu_axi_ar),
+      .ifu_axi_arvalid_o    (ifu_axi_arvalid),
+      .ifu_axi_arready_i    (ifu_axi_arready),
+      .ifu_axi_r_i          (ifu_axi_r),
+      .ifu_axi_rvalid_i     (ifu_axi_rvalid),
+      .ifu_axi_rready_o     (ifu_axi_rready),
       .fetch_entry_o       (fetch_entry),
       .fetch_entry_valid_o (fetch_entry_valid),
       .fetch_entry_ready_i (fetch_entry_ready)
@@ -171,10 +169,6 @@ module top
 
   assign decoded_uop_ready = execute_packet_ready;
 
-  // TODO(AXI-TOP-LSU-CONNECT): 将LSU的SimpleBus dmem连接替换为五通道AXI4-Lite连接。
-  // 连接后逐条核对方向：AR/AW/W payload+valid从LSU到memory，ready反向；R/B
-  // payload+valid从memory到LSU，ready反向。命名中保留imem/dmem前缀，避免两个AR/R
-  // 通道在波形中混淆。
   riscv32_lsu u_lsu (
       .clk_i                (clk),
       .rst_ni               (rstn),
@@ -184,36 +178,51 @@ module top
       .lsu_writeback_o      (lsu_writeback),
       .lsu_writeback_valid_o(lsu_writeback_valid),
       .lsu_writeback_ready_i(lsu_writeback_ready),
-      .dmem_req_o           (dmem_req),
-      .dmem_req_valid_o     (dmem_req_valid),
-      .dmem_req_ready_i     (dmem_req_ready),
-      .dmem_resp_i          (dmem_resp),
-      .dmem_resp_valid_i    (dmem_resp_valid),
-      .dmem_resp_ready_o    (dmem_resp_ready)
+      .lsu_axi_ar_o         (lsu_axi_ar),
+      .lsu_axi_arvalid_o    (lsu_axi_arvalid),
+      .lsu_axi_arready_i    (lsu_axi_arready),
+      .lsu_axi_r_i          (lsu_axi_r),
+      .lsu_axi_rvalid_i     (lsu_axi_rvalid),
+      .lsu_axi_rready_o     (lsu_axi_rready),
+      .lsu_axi_aw_o         (lsu_axi_aw),
+      .lsu_axi_awvalid_o    (lsu_axi_awvalid),
+      .lsu_axi_awready_i    (lsu_axi_awready),
+      .lsu_axi_w_o          (lsu_axi_w),
+      .lsu_axi_wvalid_o     (lsu_axi_wvalid),
+      .lsu_axi_wready_i     (lsu_axi_wready),
+      .lsu_axi_b_i          (lsu_axi_b),
+      .lsu_axi_bvalid_i     (lsu_axi_bvalid),
+      .lsu_axi_bready_o     (lsu_axi_bready)
   );
 
-  // TODO(AXI-TOP-MEM-CONNECT): sim_mem AXI slave完成后替换下面全部req/resp连接。
-  // 建议把DMEM_RESPONSE_LATENCY拆成DMEM_READ_RESPONSE_LATENCY和
-  // DMEM_WRITE_RESPONSE_LATENCY，使R和B能独立注入延迟。默认仍为1，先保持回归行为。
-  // 参数只控制slave何时产生RVALID/BVALID，不能让VALID只脉冲一拍；下游不READY时必须保持。
   riscv32_sim_mem #(
-      .IMEM_RESPONSE_LATENCY(SIM_IMEM_RESPONSE_LATENCY),
-      .DMEM_RESPONSE_LATENCY(SIM_DMEM_RESPONSE_LATENCY)
+      .IFU_READ_LATENCY (SIM_IFU_READ_LATENCY),
+      .LSU_READ_LATENCY (SIM_LSU_READ_LATENCY),
+      .LSU_WRITE_LATENCY(SIM_LSU_WRITE_LATENCY)
   ) u_sim_mem (
       .clk_i            (clk),
       .rst_ni           (rstn),
-      .imem_req_i       (imem_req),
-      .imem_req_valid_i (imem_req_valid),
-      .imem_req_ready_o (imem_req_ready),
-      .imem_resp_o      (imem_resp),
-      .imem_resp_valid_o(imem_resp_valid),
-      .imem_resp_ready_i(imem_resp_ready),
-      .dmem_req_i       (dmem_req),
-      .dmem_req_valid_i (dmem_req_valid),
-      .dmem_req_ready_o (dmem_req_ready),
-      .dmem_resp_o      (dmem_resp),
-      .dmem_resp_valid_o(dmem_resp_valid),
-      .dmem_resp_ready_i(dmem_resp_ready)
+      .ifu_axi_ar_i     (ifu_axi_ar),
+      .ifu_axi_arvalid_i(ifu_axi_arvalid),
+      .ifu_axi_arready_o(ifu_axi_arready),
+      .ifu_axi_r_o      (ifu_axi_r),
+      .ifu_axi_rvalid_o (ifu_axi_rvalid),
+      .ifu_axi_rready_i (ifu_axi_rready),
+      .lsu_axi_ar_i     (lsu_axi_ar),
+      .lsu_axi_arvalid_i(lsu_axi_arvalid),
+      .lsu_axi_arready_o(lsu_axi_arready),
+      .lsu_axi_r_o      (lsu_axi_r),
+      .lsu_axi_rvalid_o (lsu_axi_rvalid),
+      .lsu_axi_rready_i (lsu_axi_rready),
+      .lsu_axi_aw_i     (lsu_axi_aw),
+      .lsu_axi_awvalid_i(lsu_axi_awvalid),
+      .lsu_axi_awready_o(lsu_axi_awready),
+      .lsu_axi_w_i      (lsu_axi_w),
+      .lsu_axi_wvalid_i (lsu_axi_wvalid),
+      .lsu_axi_wready_o (lsu_axi_wready),
+      .lsu_axi_b_o      (lsu_axi_b),
+      .lsu_axi_bvalid_o (lsu_axi_bvalid),
+      .lsu_axi_bready_i (lsu_axi_bready)
   );
 
   riscv32_completion_mux u_completion_mux (
