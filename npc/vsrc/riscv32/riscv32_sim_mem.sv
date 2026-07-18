@@ -353,12 +353,6 @@ module riscv32_sim_mem
   // The read and write AXI channels can complete concurrently. Same-address,
   // same-cycle read/write behavior is intentionally backend-defined at this phase.
 
-  // TODO(AXI-MEM-ASSERT): Add slave-side protocol assertions immediately below:
-  // - RVALID/BVALID and their payloads remain stable while the receiver stalls.
-  // - Every R follows exactly one AR; every B follows exactly one AW and one W.
-  // - AW and W may handshake in either order but cannot be accepted twice.
-  // - ARPROT/AWPROT contain no X at a handshake.
-
   p_mem_arprot_known :
   assert property (@(posedge clk_i) read_addr_handshake |-> !$isunknown(mem_axi_ar_i.prot))
   else $error("Memory ARPROT contains X at handshake");
@@ -372,5 +366,43 @@ module riscv32_sim_mem
     @(posedge clk_i) write_request_complete |-> !$isunknown(completed_write_addr.prot)
   )
   else $error("Stored memory AWPROT contains X when write request completes");
+
+  p_read_response_stable_while_stalled :
+  assert property (
+    @(posedge clk_i) disable iff (!rst_ni)
+      mem_axi_rvalid_o && !mem_axi_rready_i
+      |=> mem_axi_rvalid_o && $stable(mem_axi_r_o)
+  ) else $error("Memory R channel changed while stalled");
+
+  p_write_response_stable_while_stalled :
+  assert property (
+    @(posedge clk_i) disable iff (!rst_ni)
+      mem_axi_bvalid_o && !mem_axi_bready_i
+      |=> mem_axi_bvalid_o && $stable(mem_axi_b_o)
+  ) else $error("Memory B channel changed while stalled");
+
+  p_read_response_requires_request :
+  assert property (
+    @(posedge clk_i) disable iff (!rst_ni)
+      mem_axi_rvalid_o |-> read_state_q == READ_RESP
+  ) else $error("Memory RVALID asserted without a completed AR request");
+
+  p_write_response_requires_request :
+  assert property (
+    @(posedge clk_i) disable iff (!rst_ni)
+      mem_axi_bvalid_o |-> write_state_q == WRITE_RESP
+  ) else $error("Memory BVALID asserted without completed AW and W requests");
+
+  p_write_address_not_accepted_twice :
+  assert property (
+    @(posedge clk_i) disable iff (!rst_ni)
+      write_addr_received_q |-> !mem_axi_awready_o
+  ) else $error("Memory accepted a second AW for one write transaction");
+
+  p_write_data_not_accepted_twice :
+  assert property (
+    @(posedge clk_i) disable iff (!rst_ni)
+      write_data_received_q |-> !mem_axi_wready_o
+  ) else $error("Memory accepted a second W for one write transaction");
 
 endmodule
