@@ -13,7 +13,9 @@ ${NPC_HOME}/vsrc/riscv32/riscv32_commit.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_trap_controller.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_ifu.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_core.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_axi_lite_arbiter.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_npc_axi_lite.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/top.sv
 
@@ -25,10 +27,8 @@ ${NPC_HOME}/vsrc/riscv32/top.sv
 //   LSU/completion mux -> commit: writeback_result_t
 // Channel valid/ready is separate from payload; P0 contains no stage register.
 
-// TODO(BUS-FILELIST): 随后拆出 riscv32_core.sv 和 riscv32_sim_debug.sv，再把它们
-// 加入这里。
-// ${NPC_HOME}/vsrc/riscv32/riscv32_core.sv
-// ${NPC_HOME}/vsrc/riscv32/riscv32_sim_debug.sv
+// Simulation-only DPI debug remains in top at this checkpoint. It will move to
+// riscv32_sim_debug when the SoC shell introduces multiple simulation adapters.
 
 // NOTE(P3): P2 协议测试通过后加入标准总线/SoC 模块：
 //   riscv32_bus_adapter.sv, riscv32_soc.sv, timer/UART/interconnect modules。
