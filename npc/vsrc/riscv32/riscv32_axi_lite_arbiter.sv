@@ -237,42 +237,44 @@ module riscv32_axi_lite_arbiter
 
   p_only_one_read_requester_handshakes :
   assert property (
-    @(posedge clk_i) disable iff (!rst_ni)
+    @(posedge clk_i)
       !((ifu_axi_arvalid_i && ifu_axi_arready_o) &&
         (lsu_axi_arvalid_i && lsu_axi_arready_o))
   ) else $error("IFU and LSU AR handshakes occurred together");
 
   p_locked_read_requester_stable :
   assert property (
-    @(posedge clk_i) disable iff (!rst_ni)
+    @(posedge clk_i)
       (read_state_q inside {READ_SEND_ADDRESS, READ_WAIT_RESPONSE})
       |=> $stable(active_read_requester_q)
   ) else $error("Active read requester changed during an outstanding transaction");
 
   p_memory_ar_stable_while_stalled :
   assert property (
-    @(posedge clk_i) disable iff (!rst_ni)
+    @(posedge clk_i)
       mem_axi_arvalid_o && !mem_axi_arready_i
       |=> mem_axi_arvalid_o && $stable(mem_axi_ar_o)
   ) else $error("Memory AR channel changed while stalled");
 
   p_read_response_has_outstanding_request :
   assert property (
-    @(posedge clk_i) disable iff (!rst_ni)
+    @(posedge clk_i)
       mem_axi_rvalid_i |-> read_state_q == READ_WAIT_RESPONSE
   ) else $error("Memory returned R without an outstanding arbitrated read");
 
   p_read_response_has_single_destination :
   assert property (
-    @(posedge clk_i) disable iff (!rst_ni)
+    @(posedge clk_i)
       !(ifu_axi_rvalid_o && lsu_axi_rvalid_o)
   ) else $error("Memory R response was routed to both requesters");
 
-  p_reset_clears_output_valids :
-  assert property (
-    @(posedge clk_i) !rst_ni |->
-      !(mem_axi_arvalid_o || mem_axi_awvalid_o || mem_axi_wvalid_o ||
-        ifu_axi_rvalid_o || lsu_axi_rvalid_o || lsu_axi_bvalid_o)
-  ) else $error("AXI arbiter output VALID asserted during reset");
+  always_comb begin
+    if (!rst_ni) begin
+      p_reset_clears_output_valids :
+      assert (!(mem_axi_arvalid_o || mem_axi_awvalid_o || mem_axi_wvalid_o ||
+                ifu_axi_rvalid_o || lsu_axi_rvalid_o || lsu_axi_bvalid_o))
+      else $error("AXI arbiter output VALID asserted during reset");
+    end
+  end
 
 endmodule
