@@ -13,10 +13,8 @@ module top
   localparam int unsigned EXU_REDIRECT_INDEX = 0;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 1;
 
-  // 当前sim_mem等价于双端口memory adapter，IFU和LSU可以并行握手。若未来只有一个物理
-  // SRAM/外部AXI master端口，应新增axi4_lite_interconnect或memory arbiter；top负责实例化，
-  // IFU/LSU内部不能互相观察对方的请求。AXI4-Lite没有ID，仲裁器必须保存响应应返回给哪个
-  // master，并在不能安全跟踪时限制outstanding数量。
+  // IFU and LSU remain independent AXI masters. The read arbiter owns contention,
+  // fairness, and response routing; the simulation memory exposes one slave port.
   axi_lite_addr_t ifu_axi_ar;
   logic           ifu_axi_arvalid;
   logic           ifu_axi_arready;
@@ -40,6 +38,23 @@ module top
   axi_lite_b_t    lsu_axi_b;
   logic           lsu_axi_bvalid;
   logic           lsu_axi_bready;
+
+  axi_lite_addr_t mem_axi_ar;
+  logic           mem_axi_arvalid;
+  logic           mem_axi_arready;
+  axi_lite_r_t    mem_axi_r;
+  logic           mem_axi_rvalid;
+  logic           mem_axi_rready;
+
+  axi_lite_addr_t mem_axi_aw;
+  logic           mem_axi_awvalid;
+  logic           mem_axi_awready;
+  axi_lite_w_t    mem_axi_w;
+  logic           mem_axi_wvalid;
+  logic           mem_axi_wready;
+  axi_lite_b_t    mem_axi_b;
+  logic           mem_axi_bvalid;
+  logic           mem_axi_bready;
 
   fetch_entry_t fetch_entry;
   logic fetch_entry_valid;
@@ -198,12 +213,7 @@ module top
       .lsu_axi_bready_o     (lsu_axi_bready)
   );
 
-  riscv32_sim_mem #(
-      .IFU_READ_LATENCY (SIM_IFU_READ_LATENCY),
-      .LSU_READ_LATENCY (SIM_LSU_READ_LATENCY),
-      .LSU_WRITE_LATENCY(SIM_LSU_WRITE_LATENCY),
-      .RANDOM_LATENCY_MAX(SIM_RANDOM_LATENCY_MAX)
-  ) u_sim_mem (
+  riscv32_axi_lite_arbiter u_axi_lite_arbiter (
       .clk_i            (clk),
       .rst_ni           (rstn),
       .ifu_axi_ar_i     (ifu_axi_ar),
@@ -226,7 +236,47 @@ module top
       .lsu_axi_wready_o (lsu_axi_wready),
       .lsu_axi_b_o      (lsu_axi_b),
       .lsu_axi_bvalid_o (lsu_axi_bvalid),
-      .lsu_axi_bready_i (lsu_axi_bready)
+      .lsu_axi_bready_i (lsu_axi_bready),
+      .mem_axi_ar_o     (mem_axi_ar),
+      .mem_axi_arvalid_o(mem_axi_arvalid),
+      .mem_axi_arready_i(mem_axi_arready),
+      .mem_axi_r_i      (mem_axi_r),
+      .mem_axi_rvalid_i (mem_axi_rvalid),
+      .mem_axi_rready_o (mem_axi_rready),
+      .mem_axi_aw_o     (mem_axi_aw),
+      .mem_axi_awvalid_o(mem_axi_awvalid),
+      .mem_axi_awready_i(mem_axi_awready),
+      .mem_axi_w_o      (mem_axi_w),
+      .mem_axi_wvalid_o (mem_axi_wvalid),
+      .mem_axi_wready_i (mem_axi_wready),
+      .mem_axi_b_i      (mem_axi_b),
+      .mem_axi_bvalid_i (mem_axi_bvalid),
+      .mem_axi_bready_o (mem_axi_bready)
+  );
+
+  riscv32_sim_mem #(
+      .IFU_READ_LATENCY (SIM_IFU_READ_LATENCY),
+      .LSU_READ_LATENCY (SIM_LSU_READ_LATENCY),
+      .LSU_WRITE_LATENCY(SIM_LSU_WRITE_LATENCY),
+      .RANDOM_LATENCY_MAX(SIM_RANDOM_LATENCY_MAX)
+  ) u_sim_mem (
+      .clk_i            (clk),
+      .rst_ni           (rstn),
+      .mem_axi_ar_i     (mem_axi_ar),
+      .mem_axi_arvalid_i(mem_axi_arvalid),
+      .mem_axi_arready_o(mem_axi_arready),
+      .mem_axi_r_o      (mem_axi_r),
+      .mem_axi_rvalid_o (mem_axi_rvalid),
+      .mem_axi_rready_i (mem_axi_rready),
+      .mem_axi_aw_i     (mem_axi_aw),
+      .mem_axi_awvalid_i(mem_axi_awvalid),
+      .mem_axi_awready_o(mem_axi_awready),
+      .mem_axi_w_i      (mem_axi_w),
+      .mem_axi_wvalid_i (mem_axi_wvalid),
+      .mem_axi_wready_o (mem_axi_wready),
+      .mem_axi_b_o      (mem_axi_b),
+      .mem_axi_bvalid_o (mem_axi_bvalid),
+      .mem_axi_bready_i (mem_axi_bready)
   );
 
   riscv32_completion_mux u_completion_mux (

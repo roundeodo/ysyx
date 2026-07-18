@@ -52,8 +52,10 @@ module riscv32_axi_lite_arbiter
     output logic           mem_axi_bready_o
 );
 
-  // The selected requester must be registered before AR is sent. This guarantees
-  // that ARADDR/ARPROT and the selected master remain stable while memory stalls AR.
+  // READ_ARBITRATE provides a zero-extra-cycle AR fast path. If memory stalls that
+  // path, the requester is registered and READ_SEND_ADDRESS retains the route until
+  // the AR handshake completes. AXI requires the selected master to retain ARVALID
+  // and its payload while ARREADY is low.
   typedef enum logic [1:0] {
     READ_ARBITRATE,
     READ_SEND_ADDRESS,
@@ -81,39 +83,34 @@ module riscv32_axi_lite_arbiter
   read_requester_e selected_read_requester;
   logic            selected_read_request_valid;
 
-  logic mem_ar_handshake;
-  logic mem_r_handshake;
+  logic            mem_ar_handshake;
+  logic            mem_r_handshake;
 
   assign mem_ar_handshake = mem_axi_arvalid_o && mem_axi_arready_i;
   assign mem_r_handshake  = mem_axi_rvalid_i && mem_axi_rready_o;
 
-  // Requester selection. This block does not drive any AXI channel. It decides
-  // which requester will be registered when the arbiter is free.
+  // Requester selection. This block does not depend on memory ready, so the AR fast
+  // path cannot create a ready-to-valid combinational loop.
   always_comb begin
     selected_read_requester     = READ_REQUESTER_IFU;
     selected_read_request_valid = 1'b0;
 
-    // TODO(AXI-ARB-SELECT): 在本TODO正下方完成round-robin请求方选择。
-    // 这里完全不使用mem_axi_arready_i，也不产生任何handshake，只检查两个master的
-    // ARVALID。建议按以下顺序写if/else if：
-    // 1. IFU和LSU同时请求：selected_read_request_valid=1；如果上次服务IFU，这次选LSU，
-    //    否则选IFU。可以用三目运算符，也可以再写一个if。
-    // 2. 只有IFU请求：valid=1，requester=READ_REQUESTER_IFU。
-    // 3. 只有LSU请求：valid=1，requester=READ_REQUESTER_LSU。
-    // 4. 都没有请求：保持上面的默认值，不能凭空启动事务。
-    // 参考结构：
-    // if (ifu_axi_arvalid_i && lsu_axi_arvalid_i) begin
-    //   selected_read_request_valid = ...;
-    //   selected_read_request = (last_served_requester_q == READ_REQUESTER_IFU) ? ... : ...;
-    // end else if (ifu_axi_arvalid_i) begin
-    //   ...
-    // end else if (lsu_axi_arvalid_i) begin
-    //   ...
-    // end
+    if (ifu_axi_arvalid_i && lsu_axi_arvalid_i) begin
+      selected_read_request_valid = 1'b1;
+      selected_read_requester     =
+        (last_served_requester_q == READ_REQUESTER_IFU)
+          ? READ_REQUESTER_LSU : READ_REQUESTER_IFU;
+    end else if (ifu_axi_arvalid_i) begin
+      selected_read_request_valid = 1'b1;
+      selected_read_requester     = READ_REQUESTER_IFU;
+    end else if (lsu_axi_arvalid_i) begin
+      selected_read_request_valid = 1'b1;
+      selected_read_requester     = READ_REQUESTER_LSU;
+    end
   end
 
-  // Read-channel routing. Arbitration, AR forwarding, and R forwarding happen
-  // in different states so a stalled channel can never change its requester.
+  // Read-channel routing. Arbitration can forward AR immediately. After a stalled
+  // fast-path attempt, active_read_requester_q keeps the selected route stable.
   always_comb begin
     ifu_axi_arready_o = 1'b0;
     ifu_axi_r_o       = '0;
@@ -127,70 +124,61 @@ module riscv32_axi_lite_arbiter
     mem_axi_arvalid_o = 1'b0;
     mem_axi_rready_o  = 1'b0;
 
-    // TODO(AXI-ARB-READ-ROUTE): 在本TODO正下方完成READ_SEND_ADDRESS和
-    // READ_WAIT_RESPONSE的通道路由。READ_ARBITRATE只做选择，不发送AXI请求。
-    //
-    // READ_SEND_ADDRESS：active_read_requester_q已经由寄存器锁定。
-    // - 若是IFU：mem AR payload=ifu AR payload；mem ARVALID=ifu ARVALID；
-    //   ifu ARREADY=mem ARREADY。LSU ARREADY继续保持默认0。
-    // - 若是LSU：进行对应的三项连接，IFU ARREADY保持0。
-    // - 不需要写if(handshake)。VALID/payload/READY直接连接，握手仅用于状态转移。
-    //
-    // READ_WAIT_RESPONSE：根据active_read_requester_q把memory响应送回原请求方。
-    // - 若是IFU：ifu R payload=mem R payload；ifu RVALID=mem RVALID；
-    //   mem RREADY=ifu RREADY。LSU RVALID保持0。
-    // - 若是LSU：进行对应的三项连接，IFU RVALID保持0。
-    // - 禁止用mem_r_handshake产生RVALID；RVALID必须独立于RREADY。
-    //
-    // 可直接采用以下case框架：
-    // unique case (read_state_q)
-    //   READ_SEND_ADDRESS: begin
-    //     if (active_read_requester_q == READ_REQUESTER_IFU) begin
-    //       mem_axi_ar_o      = ...;
-    //       mem_axi_arvalid_o = ...;
-    //       ifu_axi_arready_o = ...;
-    //     end else begin
-    //       ...LSU对应连接...
-    //     end
-    //   end
-    //   READ_WAIT_RESPONSE: begin
-    //     if (active_read_requester_q == READ_REQUESTER_IFU) begin
-    //       ifu_axi_r_o      = ...;
-    //       ifu_axi_rvalid_o = ...;
-    //       mem_axi_rready_o = ...;
-    //     end else begin
-    //       ...LSU对应连接...
-    //     end
-    //   end
-    //   default: ;
-    // endcase
+    unique case (read_state_q)
+      READ_ARBITRATE: begin
+        if (selected_read_request_valid) begin
+          if (selected_read_requester == READ_REQUESTER_IFU) begin
+            mem_axi_arvalid_o = ifu_axi_arvalid_i;
+            ifu_axi_arready_o = mem_axi_arready_i;
+            mem_axi_ar_o      = ifu_axi_ar_i;
+          end else begin
+            mem_axi_arvalid_o = lsu_axi_arvalid_i;
+            lsu_axi_arready_o = mem_axi_arready_i;
+            mem_axi_ar_o      = lsu_axi_ar_i;
+          end
+        end
+      end
+
+      READ_SEND_ADDRESS: begin
+        if (active_read_requester_q == READ_REQUESTER_IFU) begin
+          mem_axi_arvalid_o = ifu_axi_arvalid_i;
+          ifu_axi_arready_o = mem_axi_arready_i;
+          mem_axi_ar_o      = ifu_axi_ar_i;
+        end else begin
+          mem_axi_arvalid_o = lsu_axi_arvalid_i;
+          lsu_axi_arready_o = mem_axi_arready_i;
+          mem_axi_ar_o      = lsu_axi_ar_i;
+        end
+      end
+      READ_WAIT_RESPONSE: begin
+        if (active_read_requester_q == READ_REQUESTER_IFU) begin
+          ifu_axi_rvalid_o = mem_axi_rvalid_i;
+          mem_axi_rready_o = ifu_axi_rready_i;
+          ifu_axi_r_o      = mem_axi_r_i;
+        end else begin
+          lsu_axi_rvalid_o = mem_axi_rvalid_i;
+          mem_axi_rready_o = lsu_axi_rready_i;
+          lsu_axi_r_o      = mem_axi_r_i;
+        end
+      end
+      default: ;
+    endcase
   end
 
   // The current IFU has no write channel, so LSU write traffic requires no
   // arbitration. Keep AW, W, and B as three independent direct connections.
   always_comb begin
-    lsu_axi_awready_o = 1'b0;
-    lsu_axi_wready_o  = 1'b0;
-    lsu_axi_b_o       = '0;
-    lsu_axi_bvalid_o  = 1'b0;
+    lsu_axi_awready_o = mem_axi_awready_i;
+    lsu_axi_wready_o  = mem_axi_wready_i;
+    lsu_axi_b_o       = mem_axi_b_i;
+    lsu_axi_bvalid_o  = mem_axi_bvalid_i;
 
-    mem_axi_aw_o      = '0;
-    mem_axi_awvalid_o = 1'b0;
-    mem_axi_w_o       = '0;
-    mem_axi_wvalid_o  = 1'b0;
-    mem_axi_bready_o  = 1'b0;
+    mem_axi_aw_o      = lsu_axi_aw_i;
+    mem_axi_awvalid_o = lsu_axi_awvalid_i;
+    mem_axi_w_o       = lsu_axi_w_i;
+    mem_axi_wvalid_o  = lsu_axi_wvalid_i;
+    mem_axi_bready_o  = lsu_axi_bready_i;
 
-    // TODO(AXI-ARB-WRITE-ROUTE): 在本TODO正下方连接LSU与memory的AW/W/B通道。
-    // 这里不需要case，也不需要状态机，逐项写9条直接赋值：
-    // mem_axi_aw_o      = lsu_axi_aw_i;
-    // mem_axi_awvalid_o = lsu_axi_awvalid_i;
-    // lsu_axi_awready_o = mem_axi_awready_i;
-    // mem_axi_w_o       = ...;
-    // mem_axi_wvalid_o  = ...;
-    // lsu_axi_wready_o  = ...;
-    // lsu_axi_b_o       = ...;
-    // lsu_axi_bvalid_o  = ...;
-    // mem_axi_bready_o  = ...;
     // AW与W是独立通道，不要增加“二者同时有效/同时ready”这样的附加条件。
   end
 
@@ -200,53 +188,52 @@ module riscv32_axi_lite_arbiter
     active_read_requester_d = active_read_requester_q;
     last_served_requester_d = last_served_requester_q;
 
-    // TODO(AXI-ARB-READ-NEXT): 在本TODO正下方完成读仲裁状态转移。
-    // 用unique case (read_state_q)实现：
-    //
-    // READ_ARBITRATE：
-    // - 如果selected_read_request_valid=1，把selected_read_requester写入
-    //   active_read_requester_d，然后进入READ_SEND_ADDRESS。
-    // - 此时还没有AR握手，所以不要更新last_served_requester_d。
-    //
-    // READ_SEND_ADDRESS：
-    // - active_read_requester_d保持默认值，不再重新仲裁。
-    // - mem_ar_handshake发生时，说明地址请求真正被memory接收：把
-    //   active_read_requester_q写入last_served_requester_d，并进入READ_WAIT_RESPONSE。
-    //
-    // READ_WAIT_RESPONSE：
-    // - mem_r_handshake发生后，本次读事务彻底结束，返回READ_ARBITRATE。
-    // - 没握手时保持当前状态和requester，保证R反压期间路由不变。
-    //
-    // default：恢复READ_ARBITRATE；两个requester的_d都赋READ_REQUESTER_IFU，避免X扩散。
-    // 参考框架：
-    // unique case (read_state_q)
-    //   READ_ARBITRATE: begin
-    //     if (selected_read_request_valid) begin ... end
-    //   end
-    //   READ_SEND_ADDRESS: begin
-    //     if (mem_ar_handshake) begin ... end
-    //   end
-    //   READ_WAIT_RESPONSE: begin
-    //     if (mem_r_handshake) begin ... end
-    //   end
-    //   default: begin ... end
-    // endcase
+    unique case (read_state_q)
+      READ_ARBITRATE: begin
+        if (selected_read_request_valid) begin
+          // Lock the selected route in case the fast-path AR transfer stalls.
+          active_read_requester_d = selected_read_requester;
+          if (mem_ar_handshake) begin
+            read_state_d            = READ_WAIT_RESPONSE;
+            last_served_requester_d = selected_read_requester;
+          end else begin
+            read_state_d = READ_SEND_ADDRESS;
+          end
+        end
+      end
+
+      READ_SEND_ADDRESS: begin
+        if (mem_ar_handshake) begin
+          read_state_d            = READ_WAIT_RESPONSE;
+          last_served_requester_d = active_read_requester_q;
+        end
+      end
+
+      READ_WAIT_RESPONSE: begin
+        if (mem_r_handshake) begin
+          read_state_d = READ_ARBITRATE;
+        end
+      end
+
+      default: begin
+        read_state_d            = READ_ARBITRATE;
+        active_read_requester_d = READ_REQUESTER_IFU;
+        last_served_requester_d = READ_REQUESTER_IFU;
+      end
+    endcase
   end
 
-  // TODO(AXI-ARB-REGS): 在本TODO正下方写唯一的时序寄存器块。
-  // 使用always_ff @(posedge clk_i or negedge rst_ni)。复位时：
-  // - read_state_q <= READ_ARBITRATE；
-  // - active_read_requester_q <= READ_REQUESTER_IFU；
-  // - last_served_requester_q <= READ_REQUESTER_IFU；这样复位后两者同时请求时先服务LSU。
-  // 非复位时分别执行q<=d。三个_q寄存器只能在这个always_ff中赋值。
-  // 完整结构：
-  // always_ff @(posedge clk_i or negedge rst_ni) begin
-  //   if (!rst_ni) begin
-  //     ...三个复位赋值...
-  //   end else begin
-  //     ...三个q<=d...
-  //   end
-  // end
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      read_state_q            <= READ_ARBITRATE;
+      active_read_requester_q <= READ_REQUESTER_IFU;
+      last_served_requester_q <= READ_REQUESTER_IFU;
+    end else begin
+      read_state_q            <= read_state_d;
+      active_read_requester_q <= active_read_requester_d;
+      last_served_requester_q <= last_served_requester_d;
+    end
+  end
 
   // TODO(AXI-ARB-ASSERT): 功能完成并接入top后，在本TODO正下方增加协议断言。
   // 最少检查：

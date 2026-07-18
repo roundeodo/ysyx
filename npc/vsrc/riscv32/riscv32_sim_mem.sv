@@ -1,42 +1,34 @@
-// Simulation-only AXI4-Lite memory slave. IFU read, LSU read, and LSU write use
-// independent single-outstanding state machines and share the existing DPI backend.
+// Simulation-only single-port AXI4-Lite memory slave. DPI is confined to this
+// adapter; the CPU core and the AXI interconnect remain synthesizable.
 module riscv32_sim_mem
   import riscv32_pkg::*;
 #(
-    parameter int unsigned IFU_READ_LATENCY  = 1,
-    parameter int unsigned LSU_READ_LATENCY  = 1,
-    parameter int unsigned LSU_WRITE_LATENCY = 1,
+    parameter int unsigned IFU_READ_LATENCY   = 1,
+    parameter int unsigned LSU_READ_LATENCY   = 1,
+    parameter int unsigned LSU_WRITE_LATENCY  = 1,
     parameter int unsigned RANDOM_LATENCY_MAX = 20
 ) (
     input logic clk_i,
     input logic rst_ni,
 
-    input  axi_lite_addr_t ifu_axi_ar_i,
-    input  logic           ifu_axi_arvalid_i,
-    output logic           ifu_axi_arready_o,
-    output axi_lite_r_t    ifu_axi_r_o,
-    output logic           ifu_axi_rvalid_o,
-    input  logic           ifu_axi_rready_i,
+    input  axi_lite_addr_t mem_axi_ar_i,
+    input  logic           mem_axi_arvalid_i,
+    output logic           mem_axi_arready_o,
+    output axi_lite_r_t    mem_axi_r_o,
+    output logic           mem_axi_rvalid_o,
+    input  logic           mem_axi_rready_i,
 
-    input  axi_lite_addr_t lsu_axi_ar_i,
-    input  logic           lsu_axi_arvalid_i,
-    output logic           lsu_axi_arready_o,
-    output axi_lite_r_t    lsu_axi_r_o,
-    output logic           lsu_axi_rvalid_o,
-    input  logic           lsu_axi_rready_i,
-
-    input  axi_lite_addr_t lsu_axi_aw_i,
-    input  logic           lsu_axi_awvalid_i,
-    output logic           lsu_axi_awready_o,
-    input  axi_lite_w_t    lsu_axi_w_i,
-    input  logic           lsu_axi_wvalid_i,
-    output logic           lsu_axi_wready_o,
-    output axi_lite_b_t    lsu_axi_b_o,
-    output logic           lsu_axi_bvalid_o,
-    input  logic           lsu_axi_bready_i
+    input  axi_lite_addr_t mem_axi_aw_i,
+    input  logic           mem_axi_awvalid_i,
+    output logic           mem_axi_awready_o,
+    input  axi_lite_w_t    mem_axi_w_i,
+    input  logic           mem_axi_wvalid_i,
+    output logic           mem_axi_wready_o,
+    output axi_lite_b_t    mem_axi_b_o,
+    output logic           mem_axi_bvalid_o,
+    input  logic           mem_axi_bready_i
 );
 
-  // DPI remains in this simulation adapter and does not enter the CPU core.
   import "DPI-C" function int pmem_read(input int raddr);
   import "DPI-C" function int pmem_read_data(
     input int raddr,
@@ -48,57 +40,67 @@ module riscv32_sim_mem
     input byte wmask
   );
 
-  // Each port accepts one outstanding transaction. Response latency counts from the
-  // request handshake cycle; latency=1 preserves the original next-cycle response.
-  // The registered response payload remains stable until its response handshake.
-  localparam int unsigned IFU_MAX_LATENCY = (IFU_READ_LATENCY > RANDOM_LATENCY_MAX) ?
-                                               IFU_READ_LATENCY : RANDOM_LATENCY_MAX;
-  localparam int unsigned LSU_READ_MAX_LATENCY = (LSU_READ_LATENCY > RANDOM_LATENCY_MAX) ?
-                                                    LSU_READ_LATENCY : RANDOM_LATENCY_MAX;
-  localparam int unsigned LSU_WRITE_MAX_LATENCY = (LSU_WRITE_LATENCY > RANDOM_LATENCY_MAX) ?
-                                                     LSU_WRITE_LATENCY : RANDOM_LATENCY_MAX;
-  localparam int unsigned IFU_DELAY_W = (IFU_MAX_LATENCY > 1) ? $clog2(IFU_MAX_LATENCY) : 1;
-  localparam int unsigned LSU_READ_DELAY_W = (LSU_READ_MAX_LATENCY > 1) ?
-                                                $clog2(LSU_READ_MAX_LATENCY) : 1;
-  localparam int unsigned LSU_WRITE_DELAY_W = (LSU_WRITE_MAX_LATENCY > 1) ?
-                                                 $clog2(LSU_WRITE_MAX_LATENCY) : 1;
+  localparam int unsigned READ_FIXED_MAX =
+      (IFU_READ_LATENCY > LSU_READ_LATENCY) ? IFU_READ_LATENCY : LSU_READ_LATENCY;
+  localparam int unsigned READ_MAX_LATENCY =
+      (READ_FIXED_MAX > RANDOM_LATENCY_MAX) ? READ_FIXED_MAX : RANDOM_LATENCY_MAX;
+  localparam int unsigned WRITE_MAX_LATENCY =
+      (LSU_WRITE_LATENCY > RANDOM_LATENCY_MAX) ? LSU_WRITE_LATENCY : RANDOM_LATENCY_MAX;
+  localparam int unsigned READ_DELAY_W =
+      (READ_MAX_LATENCY > 1) ? $clog2(READ_MAX_LATENCY) : 1;
+  localparam int unsigned WRITE_DELAY_W =
+      (WRITE_MAX_LATENCY > 1) ? $clog2(WRITE_MAX_LATENCY) : 1;
+
   typedef enum logic [1:0] {
     READ_IDLE,
     READ_WAIT,
     READ_RESP
   } read_state_e;
+
   typedef enum logic [1:0] {
     WRITE_COLLECT,
     WRITE_WAIT,
     WRITE_RESP
   } write_state_e;
-  read_state_e ifu_read_state_q, ifu_read_state_d;
-  read_state_e lsu_read_state_q, lsu_read_state_d;
-  write_state_e lsu_write_state_q, lsu_write_state_d;
-  axi_lite_r_t ifu_r_q;
-  axi_lite_r_t lsu_r_q;
-  axi_lite_b_t lsu_b_q;
-  axi_lite_addr_t lsu_aw_q, lsu_aw_d;
-  axi_lite_w_t lsu_w_q, lsu_w_d;
-  axi_lite_addr_t active_lsu_aw;
-  axi_lite_w_t    active_lsu_w;
-  logic [IFU_DELAY_W-1:0] ifu_delay_q, ifu_delay_d;
-  logic [LSU_READ_DELAY_W-1:0] lsu_read_delay_q, lsu_read_delay_d;
-  logic [LSU_WRITE_DELAY_W-1:0] lsu_write_delay_q, lsu_write_delay_d;
-  logic [15:0] ifu_lfsr_q;
-  logic [15:0] lsu_read_lfsr_q;
-  logic [15:0] lsu_write_lfsr_q;
+
+  read_state_e  read_state_q;
+  read_state_e  read_state_d;
+  write_state_e write_state_q;
+  write_state_e write_state_d;
+
+  axi_lite_r_t read_response_q;
+  axi_lite_b_t write_response_q;
+
+  axi_lite_addr_t write_addr_q;
+  axi_lite_addr_t write_addr_d;
+  axi_lite_w_t    write_data_q;
+  axi_lite_w_t    write_data_d;
+  axi_lite_addr_t completed_write_addr;
+  axi_lite_w_t    completed_write_data;
+
+  logic [READ_DELAY_W-1:0]  read_delay_q;
+  logic [READ_DELAY_W-1:0]  read_delay_d;
+  logic [WRITE_DELAY_W-1:0] write_delay_q;
+  logic [WRITE_DELAY_W-1:0] write_delay_d;
+
+  logic [15:0] read_lfsr_q;
+  logic [15:0] write_lfsr_q;
   logic        random_latency_enable;
   int unsigned lfsr_seed;
-  int unsigned ifu_selected_latency;
-  int unsigned lsu_read_selected_latency;
-  int unsigned lsu_write_selected_latency;
-  logic lsu_aw_handshake_occurred_q, lsu_aw_handshake_occurred_d;
-  logic lsu_w_handshake_occurred_q, lsu_w_handshake_occurred_d;
-  logic ifu_ar_handshake, ifu_r_handshake;
-  logic lsu_ar_handshake, lsu_r_handshake;
-  logic lsu_aw_handshake, lsu_w_handshake, lsu_b_handshake;
-  logic lsu_write_request_complete;
+  int unsigned read_selected_latency;
+  int unsigned write_selected_latency;
+
+  logic write_addr_received_q;
+  logic write_addr_received_d;
+  logic write_data_received_q;
+  logic write_data_received_d;
+
+  logic read_addr_handshake;
+  logic read_data_handshake;
+  logic write_addr_handshake;
+  logic write_data_handshake;
+  logic write_resp_handshake;
+  logic write_request_complete;
 
   function automatic logic [15:0] lfsr_next(input logic [15:0] value);
     lfsr_next = {value[14:0], value[15] ^ value[13] ^ value[12] ^ value[10]};
@@ -116,27 +118,28 @@ module riscv32_sim_mem
   endfunction
 
   always_comb begin
-    ifu_selected_latency      = select_latency(ifu_lfsr_q, IFU_READ_LATENCY);
-    lsu_read_selected_latency = select_latency(lsu_read_lfsr_q, LSU_READ_LATENCY);
-    lsu_write_selected_latency = select_latency(lsu_write_lfsr_q, LSU_WRITE_LATENCY);
+    read_selected_latency = select_latency(
+        read_lfsr_q,
+        mem_axi_ar_i.prot[2] ? IFU_READ_LATENCY : LSU_READ_LATENCY
+    );
+    write_selected_latency = select_latency(write_lfsr_q, LSU_WRITE_LATENCY);
   end
 
-  assign ifu_ar_handshake = ifu_axi_arvalid_i && ifu_axi_arready_o;
-  assign ifu_r_handshake  = ifu_axi_rvalid_o && ifu_axi_rready_i;
-  assign lsu_ar_handshake = lsu_axi_arvalid_i && lsu_axi_arready_o;
-  assign lsu_r_handshake  = lsu_axi_rvalid_o && lsu_axi_rready_i;
-  assign lsu_aw_handshake = lsu_axi_awvalid_i && lsu_axi_awready_o;
-  assign lsu_w_handshake  = lsu_axi_wvalid_i && lsu_axi_wready_o;
-  assign lsu_b_handshake  = lsu_axi_bvalid_o && lsu_axi_bready_i;
+  assign read_addr_handshake  = mem_axi_arvalid_i && mem_axi_arready_o;
+  assign read_data_handshake  = mem_axi_rvalid_o && mem_axi_rready_i;
+  assign write_addr_handshake = mem_axi_awvalid_i && mem_axi_awready_o;
+  assign write_data_handshake = mem_axi_wvalid_i && mem_axi_wready_o;
+  assign write_resp_handshake = mem_axi_bvalid_o && mem_axi_bready_i;
+
   always_comb begin
-    active_lsu_aw = lsu_aw_handshake ? lsu_axi_aw_i : lsu_aw_q;
-    active_lsu_w  = lsu_w_handshake ? lsu_axi_w_i : lsu_w_q;
-
-    lsu_write_request_complete =
-        (lsu_write_state_q == WRITE_COLLECT) &&
-        (lsu_aw_handshake_occurred_q || lsu_aw_handshake) &&
-        (lsu_w_handshake_occurred_q  || lsu_w_handshake);
+    completed_write_addr = write_addr_handshake ? mem_axi_aw_i : write_addr_q;
+    completed_write_data = write_data_handshake ? mem_axi_w_i : write_data_q;
+    write_request_complete =
+        (write_state_q == WRITE_COLLECT) &&
+        (write_addr_received_q || write_addr_handshake) &&
+        (write_data_received_q || write_data_handshake);
   end
+
   initial begin
     if (IFU_READ_LATENCY == 0) $fatal(1, "IFU_READ_LATENCY must be >= 1");
     if (LSU_READ_LATENCY == 0) $fatal(1, "LSU_READ_LATENCY must be >= 1");
@@ -156,288 +159,218 @@ module riscv32_sim_mem
     end
   end
 
+  // One read transaction may be outstanding. ARPROT[2] distinguishes instruction
+  // fetches from data reads for trace behavior and fixed-latency selection.
   always_comb begin
-    ifu_axi_arready_o = 1'b0;
-    ifu_axi_r_o       = ifu_r_q;
-    ifu_axi_rvalid_o  = 1'b0;
+    mem_axi_arready_o = 1'b0;
+    mem_axi_r_o       = read_response_q;
+    mem_axi_rvalid_o  = 1'b0;
 
     if (rst_ni) begin
-      unique case (ifu_read_state_q)
-        READ_IDLE: ifu_axi_arready_o = !random_latency_enable || ifu_lfsr_q[0];
-        READ_RESP: ifu_axi_rvalid_o = 1'b1;
+      unique case (read_state_q)
+        READ_IDLE: mem_axi_arready_o = !random_latency_enable || read_lfsr_q[0];
+        READ_RESP: mem_axi_rvalid_o  = 1'b1;
         default:   ;
       endcase
     end
   end
-  always_comb begin
-    ifu_read_state_d = ifu_read_state_q;
-    ifu_delay_d      = ifu_delay_q;
 
-    unique case (ifu_read_state_q)
+  always_comb begin
+    read_state_d = read_state_q;
+    read_delay_d = read_delay_q;
+
+    unique case (read_state_q)
       READ_IDLE: begin
-        if (ifu_ar_handshake) begin
-          if (ifu_selected_latency == 1) begin
-            ifu_read_state_d = READ_RESP;
+        if (read_addr_handshake) begin
+          if (read_selected_latency == 1) begin
+            read_state_d = READ_RESP;
           end else begin
-            ifu_delay_d      = IFU_DELAY_W'(ifu_selected_latency - 1);
-            ifu_read_state_d = READ_WAIT;
+            read_delay_d = READ_DELAY_W'(read_selected_latency - 1);
+            read_state_d = READ_WAIT;
           end
         end
       end
 
       READ_WAIT: begin
-        if (ifu_delay_q == IFU_DELAY_W'(1)) begin
-          ifu_delay_d      = '0;
-          ifu_read_state_d = READ_RESP;
+        if (read_delay_q == READ_DELAY_W'(1)) begin
+          read_delay_d = '0;
+          read_state_d = READ_RESP;
         end else begin
-          ifu_delay_d = ifu_delay_q - IFU_DELAY_W'(1);
+          read_delay_d = read_delay_q - READ_DELAY_W'(1);
         end
       end
 
       READ_RESP: begin
-        if (ifu_r_handshake) begin
-          ifu_read_state_d = READ_IDLE;
+        if (read_data_handshake) begin
+          read_state_d = READ_IDLE;
         end
       end
 
       default: begin
-        ifu_read_state_d = READ_IDLE;
-        ifu_delay_d      = '0;
-      end
-    endcase
-  end
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      ifu_read_state_q <= READ_IDLE;
-      ifu_delay_q      <= '0;
-      ifu_r_q          <= '0;
-      ifu_lfsr_q       <= lfsr_seed[15:0];
-    end else begin
-      ifu_read_state_q <= ifu_read_state_d;
-      ifu_delay_q      <= ifu_delay_d;
-
-      if (random_latency_enable) begin
-        ifu_lfsr_q <= lfsr_next(ifu_lfsr_q);
-      end
-
-      if (ifu_ar_handshake) begin
-        ifu_r_q.data <= pmem_read(int'(ifu_axi_ar_i.addr));
-        ifu_r_q.resp <= AXI_RESP_OKAY;
-      end
-    end
-  end
-  always_comb begin
-    lsu_axi_arready_o = 1'b0;
-    lsu_axi_r_o       = lsu_r_q;
-    lsu_axi_rvalid_o  = 1'b0;
-
-    if (rst_ni) begin
-      unique case (lsu_read_state_q)
-        READ_IDLE: lsu_axi_arready_o = !random_latency_enable || lsu_read_lfsr_q[0];
-        READ_RESP: lsu_axi_rvalid_o = 1'b1;
-        default:   ;
-      endcase
-    end
-  end
-  always_comb begin
-    lsu_read_state_d = lsu_read_state_q;
-    lsu_read_delay_d = lsu_read_delay_q;
-
-    unique case (lsu_read_state_q)
-      READ_IDLE: begin
-        if (lsu_ar_handshake) begin
-          if (lsu_read_selected_latency == 1) begin
-            lsu_read_state_d = READ_RESP;
-          end else begin
-            lsu_read_delay_d = LSU_READ_DELAY_W'(lsu_read_selected_latency - 1);
-            lsu_read_state_d = READ_WAIT;
-          end
-        end
-      end
-
-      READ_WAIT: begin
-        if (lsu_read_delay_q == LSU_READ_DELAY_W'(1)) begin
-          lsu_read_delay_d = '0;
-          lsu_read_state_d = READ_RESP;
-        end else begin
-          lsu_read_delay_d = lsu_read_delay_q - LSU_READ_DELAY_W'(1);
-        end
-      end
-
-      READ_RESP: begin
-        if (lsu_r_handshake) begin
-          lsu_read_state_d = READ_IDLE;
-        end
-      end
-
-      default: begin
-        lsu_read_state_d = READ_IDLE;
-        lsu_read_delay_d = '0;
+        read_state_d = READ_IDLE;
+        read_delay_d = '0;
       end
     endcase
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      lsu_read_state_q <= READ_IDLE;
-      lsu_read_delay_q <= '0;
-      lsu_r_q          <= '0;
-      lsu_read_lfsr_q  <= (lfsr_seed[15:0] ^ 16'h1d0f) | 16'h1;
+      read_state_q    <= READ_IDLE;
+      read_delay_q    <= '0;
+      read_response_q <= '0;
+      read_lfsr_q     <= lfsr_seed[15:0];
     end else begin
-      lsu_read_state_q <= lsu_read_state_d;
-      lsu_read_delay_q <= lsu_read_delay_d;
+      read_state_q <= read_state_d;
+      read_delay_q <= read_delay_d;
 
       if (random_latency_enable) begin
-        lsu_read_lfsr_q <= lfsr_next(lsu_read_lfsr_q);
+        read_lfsr_q <= lfsr_next(read_lfsr_q);
       end
 
-      if (lsu_ar_handshake) begin
-        lsu_r_q.data <= pmem_read_data(int'(lsu_axi_ar_i.addr), 4);
-        lsu_r_q.resp <= AXI_RESP_OKAY;
+      if (read_addr_handshake) begin
+        if (mem_axi_ar_i.prot[2]) begin
+          read_response_q.data <= pmem_read(int'(mem_axi_ar_i.addr));
+        end else begin
+          // AXI4-Lite has no AxSIZE. LSU reads one aligned word and selects the
+          // requested byte or halfword after receiving RDATA.
+          read_response_q.data <= pmem_read_data(int'(mem_axi_ar_i.addr), 4);
+        end
+        read_response_q.resp <= AXI_RESP_OKAY;
       end
     end
   end
-  // len固定为4，因为AXI4-Lite接口没有AxSIZE，LSU随后根据原始effective_addr和mem_size
-  // 选择byte/halfword。RVALID保持期间不能再次调用pmem_read_data。
 
-  // AW and W are accepted independently. The saved channel value is paired with
-  // a same-cycle handshake value so either channel can arrive first.
+  // AW and W are independent AXI channels and may arrive in either order. Their
+  // payloads are retained until both have handshaken and exactly one write is issued.
   always_comb begin
-    lsu_axi_awready_o = 1'b0;
-    lsu_axi_wready_o  = 1'b0;
-    lsu_axi_b_o       = lsu_b_q;
-    lsu_axi_bvalid_o  = 1'b0;
+    mem_axi_awready_o = 1'b0;
+    mem_axi_wready_o  = 1'b0;
+    mem_axi_b_o       = write_response_q;
+    mem_axi_bvalid_o  = 1'b0;
 
     if (rst_ni) begin
-      unique case (lsu_write_state_q)
+      unique case (write_state_q)
         WRITE_COLLECT: begin
-          lsu_axi_awready_o = !lsu_aw_handshake_occurred_q &&
-                              (!random_latency_enable || lsu_write_lfsr_q[0]);
-          lsu_axi_wready_o  = !lsu_w_handshake_occurred_q &&
-                              (!random_latency_enable || lsu_write_lfsr_q[5]);
+          mem_axi_awready_o = !write_addr_received_q &&
+                              (!random_latency_enable || write_lfsr_q[0]);
+          mem_axi_wready_o  = !write_data_received_q &&
+                              (!random_latency_enable || write_lfsr_q[5]);
         end
-        WRITE_RESP: begin
-          lsu_axi_bvalid_o = 1'b1;
-        end
-        default: ;
+        WRITE_RESP: mem_axi_bvalid_o = 1'b1;
+        default:    ;
       endcase
     end
   end
+
   always_comb begin
-    lsu_write_state_d           = lsu_write_state_q;
-    lsu_write_delay_d           = lsu_write_delay_q;
-    lsu_aw_d                    = lsu_aw_q;
-    lsu_w_d                     = lsu_w_q;
-    lsu_aw_handshake_occurred_d = lsu_aw_handshake_occurred_q;
-    lsu_w_handshake_occurred_d  = lsu_w_handshake_occurred_q;
+    write_state_d         = write_state_q;
+    write_delay_d         = write_delay_q;
+    write_addr_d          = write_addr_q;
+    write_data_d          = write_data_q;
+    write_addr_received_d = write_addr_received_q;
+    write_data_received_d = write_data_received_q;
 
-    unique case (lsu_write_state_q)
+    unique case (write_state_q)
       WRITE_COLLECT: begin
-        if (lsu_aw_handshake) begin
-          lsu_aw_d                    = lsu_axi_aw_i;
-          lsu_aw_handshake_occurred_d = 1'b1;
+        if (write_addr_handshake) begin
+          write_addr_d          = mem_axi_aw_i;
+          write_addr_received_d = 1'b1;
         end
-        if (lsu_w_handshake) begin
-          lsu_w_d                    = lsu_axi_w_i;
-          lsu_w_handshake_occurred_d = 1'b1;
+        if (write_data_handshake) begin
+          write_data_d          = mem_axi_w_i;
+          write_data_received_d = 1'b1;
         end
 
-        if (lsu_write_request_complete) begin
-          if (lsu_write_selected_latency == 1) begin
-            lsu_write_state_d = WRITE_RESP;
+        if (write_request_complete) begin
+          if (write_selected_latency == 1) begin
+            write_state_d = WRITE_RESP;
           end else begin
-            lsu_write_delay_d = LSU_WRITE_DELAY_W'(lsu_write_selected_latency - 1);
-            lsu_write_state_d = WRITE_WAIT;
+            write_delay_d = WRITE_DELAY_W'(write_selected_latency - 1);
+            write_state_d = WRITE_WAIT;
           end
         end
       end
 
       WRITE_WAIT: begin
-        if (lsu_write_delay_q == LSU_WRITE_DELAY_W'(1)) begin
-          lsu_write_delay_d = '0;
-          lsu_write_state_d = WRITE_RESP;
+        if (write_delay_q == WRITE_DELAY_W'(1)) begin
+          write_delay_d = '0;
+          write_state_d = WRITE_RESP;
         end else begin
-          lsu_write_delay_d = lsu_write_delay_q - LSU_WRITE_DELAY_W'(1);
+          write_delay_d = write_delay_q - WRITE_DELAY_W'(1);
         end
       end
 
       WRITE_RESP: begin
-        if (lsu_b_handshake) begin
-          lsu_aw_handshake_occurred_d = 1'b0;
-          lsu_w_handshake_occurred_d  = 1'b0;
-          lsu_write_state_d           = WRITE_COLLECT;
+        if (write_resp_handshake) begin
+          write_addr_received_d = 1'b0;
+          write_data_received_d = 1'b0;
+          write_state_d         = WRITE_COLLECT;
         end
       end
 
       default: begin
-        lsu_write_state_d           = WRITE_COLLECT;
-        lsu_write_delay_d           = '0;
-        lsu_aw_handshake_occurred_d = 1'b0;
-        lsu_w_handshake_occurred_d  = 1'b0;
+        write_state_d         = WRITE_COLLECT;
+        write_delay_d         = '0;
+        write_addr_received_d = 1'b0;
+        write_data_received_d = 1'b0;
       end
     endcase
   end
+
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      lsu_write_state_q           <= WRITE_COLLECT;
-      lsu_write_delay_q           <= '0;
-      lsu_aw_q                    <= '0;
-      lsu_w_q                     <= '0;
-      lsu_b_q                     <= '0;
-      lsu_aw_handshake_occurred_q <= 1'b0;
-      lsu_w_handshake_occurred_q  <= 1'b0;
-      lsu_write_lfsr_q            <= (lfsr_seed[15:0] ^ 16'hb400) | 16'h1;
+      write_state_q         <= WRITE_COLLECT;
+      write_delay_q         <= '0;
+      write_addr_q          <= '0;
+      write_data_q          <= '0;
+      write_response_q      <= '0;
+      write_addr_received_q <= 1'b0;
+      write_data_received_q <= 1'b0;
+      write_lfsr_q          <= (lfsr_seed[15:0] ^ 16'hb400) | 16'h1;
     end else begin
-      lsu_write_state_q           <= lsu_write_state_d;
-      lsu_write_delay_q           <= lsu_write_delay_d;
-      lsu_aw_q                    <= lsu_aw_d;
-      lsu_w_q                     <= lsu_w_d;
-      lsu_aw_handshake_occurred_q <= lsu_aw_handshake_occurred_d;
-      lsu_w_handshake_occurred_q  <= lsu_w_handshake_occurred_d;
+      write_state_q         <= write_state_d;
+      write_delay_q         <= write_delay_d;
+      write_addr_q          <= write_addr_d;
+      write_data_q          <= write_data_d;
+      write_addr_received_q <= write_addr_received_d;
+      write_data_received_q <= write_data_received_d;
 
       if (random_latency_enable) begin
-        lsu_write_lfsr_q <= lfsr_next(lsu_write_lfsr_q);
+        write_lfsr_q <= lfsr_next(write_lfsr_q);
       end
 
-      if (lsu_write_request_complete) begin
-        pmem_write(int'(active_lsu_aw.addr), int'(active_lsu_w.data), byte'(active_lsu_w.strb));
-        lsu_b_q.resp <= AXI_RESP_OKAY;
+      if (write_request_complete) begin
+        pmem_write(
+            int'(completed_write_addr.addr),
+            int'(completed_write_data.data),
+            byte'(completed_write_data.strb)
+        );
+        write_response_q.resp <= AXI_RESP_OKAY;
       end
     end
   end
-  // TODO(AXI-MEM-CONCURRENCY): 当前CPU的单条LSU操作不会同时发load和store，但IFU取指可与
-  // LSU数据访问并行。仿真DPI后端允许这种逻辑并行；若以后映射到单端口SRAM，需要在本模块
-  // 内或独立adapter中仲裁实际backend access，同时保持已经接受的AXI事务不会丢失。
-  //
-  // 同地址同周期读写的返回值由具体memory实现决定，不能假设所有SRAM/FPGA BRAM一致。
-  // 若系统需要确定行为，应在backend仲裁中明确read-first、write-first或禁止并发，并通过
-  // assertion检查。该策略不属于AXI握手协议本身。
-  //
-  // TODO(AXI-MEM-ASSERT): slave侧加入协议断言：
-  // - reset期间RVALID/BVALID为0。
-  // - RVALID && !RREADY时RDATA/RRESP稳定；BVALID && !BREADY时BRESP稳定。
-  // - 每个R之前恰好有一个AR；每个B之前恰好有一个AW和一个W。
-  // - AW/W可按任意顺序握手，且一次事务不能重复接收第二个AW或W。
-  // - READY/VALID逻辑不存在AXI输入到AXI输出的组合路径。
 
-  p_ifu_arprot_known :
-  assert property (@(posedge clk_i) ifu_ar_handshake |-> !$isunknown(ifu_axi_ar_i.prot))
-  else $error("IFU ARPROT contains X at handshake");
+  // The read and write AXI channels can complete concurrently. Same-address,
+  // same-cycle read/write behavior is intentionally backend-defined at this phase.
 
-  p_lsu_arprot_known :
-  assert property (@(posedge clk_i) lsu_ar_handshake |-> !$isunknown(lsu_axi_ar_i.prot))
-  else $error("LSU ARPROT contains X at handshake");
+  // TODO(AXI-MEM-ASSERT): Add slave-side protocol assertions immediately below:
+  // - RVALID/BVALID and their payloads remain stable while the receiver stalls.
+  // - Every R follows exactly one AR; every B follows exactly one AW and one W.
+  // - AW and W may handshake in either order but cannot be accepted twice.
+  // - ARPROT/AWPROT contain no X at a handshake.
 
-  p_lsu_awprot_known :
-  assert property (@(posedge clk_i) lsu_aw_handshake |-> !$isunknown(lsu_axi_aw_i.prot))
-  else $error("LSU AWPROT contains X at handshake");
+  p_mem_arprot_known :
+  assert property (@(posedge clk_i) read_addr_handshake |-> !$isunknown(mem_axi_ar_i.prot))
+  else $error("Memory ARPROT contains X at handshake");
 
-  p_lsu_active_awprot_known :
+  p_mem_awprot_known :
+  assert property (@(posedge clk_i) write_addr_handshake |-> !$isunknown(mem_axi_aw_i.prot))
+  else $error("Memory AWPROT contains X at handshake");
+
+  p_completed_awprot_known :
   assert property (
-    @(posedge clk_i) lsu_write_request_complete |-> !$isunknown(active_lsu_aw.prot)
+    @(posedge clk_i) write_request_complete |-> !$isunknown(completed_write_addr.prot)
   )
-  else $error("Stored LSU AWPROT contains X when write request completes");
-
-
+  else $error("Stored memory AWPROT contains X when write request completes");
 
 endmodule
