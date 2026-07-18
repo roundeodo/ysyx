@@ -13,6 +13,7 @@ ${NPC_HOME}/vsrc/riscv32/riscv32_commit.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_trap_controller.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_ifu.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_axi_lite_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/top.sv
 
