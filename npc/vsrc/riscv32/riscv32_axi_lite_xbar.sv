@@ -96,10 +96,10 @@ module riscv32_axi_lite_xbar
   axi_lite_addr_t                   buffered_write_addr_d;
   axi_lite_w_t                      buffered_write_data_q;
   axi_lite_w_t                      buffered_write_data_d;
-  logic                             write_addr_buffer_valid_q;
-  logic                             write_addr_buffer_valid_d;
-  logic                             write_data_buffer_valid_q;
-  logic                             write_data_buffer_valid_d;
+  logic                             buffered_write_addr_present_q;
+  logic                             buffered_write_addr_present_d;
+  logic                             buffered_write_data_present_q;
+  logic                             buffered_write_data_present_d;
 
   logic                             selected_slave_aw_handshake_occurred_q;
   logic                             selected_slave_aw_handshake_occurred_d;
@@ -243,8 +243,8 @@ module riscv32_axi_lite_xbar
 
     unique case (write_state_q)
       WRITE_COLLECT_AW_W: begin
-        npc_axi_awready_o = !write_addr_buffer_valid_q;
-        npc_axi_wready_o  = !write_data_buffer_valid_q;
+        npc_axi_awready_o = !buffered_write_addr_present_q;
+        npc_axi_wready_o  = !buffered_write_data_present_q;
       end
 
       WRITE_FORWARD_AW_W: begin
@@ -276,8 +276,8 @@ module riscv32_axi_lite_xbar
     write_selected_slave_index_d           = write_selected_slave_index_q;
     buffered_write_addr_d                  = buffered_write_addr_q;
     buffered_write_data_d                  = buffered_write_data_q;
-    write_addr_buffer_valid_d              = write_addr_buffer_valid_q;
-    write_data_buffer_valid_d              = write_data_buffer_valid_q;
+    buffered_write_addr_present_d          = buffered_write_addr_present_q;
+    buffered_write_data_present_d          = buffered_write_data_present_q;
     selected_slave_aw_handshake_occurred_d = selected_slave_aw_handshake_occurred_q;
     selected_slave_w_handshake_occurred_d  = selected_slave_w_handshake_occurred_q;
 
@@ -285,16 +285,16 @@ module riscv32_axi_lite_xbar
       WRITE_COLLECT_AW_W: begin
         if (npc_aw_handshake) begin
           buffered_write_addr_d     = npc_axi_aw_i;
-          write_addr_buffer_valid_d = 1'b1;
+          buffered_write_addr_present_d = 1'b1;
         end
 
         if (npc_w_handshake) begin
           buffered_write_data_d     = npc_axi_w_i;
-          write_data_buffer_valid_d = 1'b1;
+          buffered_write_data_present_d = 1'b1;
         end
 
-        if ((write_addr_buffer_valid_q || npc_aw_handshake) &&
-            (write_data_buffer_valid_q || npc_w_handshake)) begin
+        if ((buffered_write_addr_present_q || npc_aw_handshake) &&
+            (buffered_write_data_present_q || npc_w_handshake)) begin
           selected_slave_aw_handshake_occurred_d = 1'b0;
           selected_slave_w_handshake_occurred_d  = 1'b0;
 
@@ -324,8 +324,8 @@ module riscv32_axi_lite_xbar
       WRITE_WAIT_B, WRITE_RETURN_DECERR: begin
         if (npc_b_handshake) begin
           write_state_d                          = WRITE_COLLECT_AW_W;
-          write_addr_buffer_valid_d              = 1'b0;
-          write_data_buffer_valid_d              = 1'b0;
+          buffered_write_addr_present_d          = 1'b0;
+          buffered_write_data_present_d          = 1'b0;
           selected_slave_aw_handshake_occurred_d = 1'b0;
           selected_slave_w_handshake_occurred_d  = 1'b0;
         end
@@ -333,8 +333,8 @@ module riscv32_axi_lite_xbar
 
       default: begin
         write_state_d                          = WRITE_COLLECT_AW_W;
-        write_addr_buffer_valid_d              = 1'b0;
-        write_data_buffer_valid_d              = 1'b0;
+        buffered_write_addr_present_d          = 1'b0;
+        buffered_write_data_present_d          = 1'b0;
         selected_slave_aw_handshake_occurred_d = 1'b0;
         selected_slave_w_handshake_occurred_d  = 1'b0;
       end
@@ -351,8 +351,8 @@ module riscv32_axi_lite_xbar
       write_selected_slave_index_q           <= '0;
       buffered_write_addr_q                  <= '0;
       buffered_write_data_q                  <= '0;
-      write_addr_buffer_valid_q              <= 1'b0;
-      write_data_buffer_valid_q              <= 1'b0;
+      buffered_write_addr_present_q          <= 1'b0;
+      buffered_write_data_present_q          <= 1'b0;
       selected_slave_aw_handshake_occurred_q <= 1'b0;
       selected_slave_w_handshake_occurred_q  <= 1'b0;
     end else begin
@@ -362,8 +362,8 @@ module riscv32_axi_lite_xbar
       write_selected_slave_index_q           <= write_selected_slave_index_d;
       buffered_write_addr_q                  <= buffered_write_addr_d;
       buffered_write_data_q                  <= buffered_write_data_d;
-      write_addr_buffer_valid_q              <= write_addr_buffer_valid_d;
-      write_data_buffer_valid_q              <= write_data_buffer_valid_d;
+      buffered_write_addr_present_q          <= buffered_write_addr_present_d;
+      buffered_write_data_present_q          <= buffered_write_data_present_d;
       selected_slave_aw_handshake_occurred_q <= selected_slave_aw_handshake_occurred_d;
       selected_slave_w_handshake_occurred_q  <= selected_slave_w_handshake_occurred_d;
     end
@@ -383,7 +383,7 @@ module riscv32_axi_lite_xbar
   p_write_slave_selection_not_overlapping :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     write_state_q == WRITE_COLLECT_AW_W &&
-    (write_addr_buffer_valid_q || npc_aw_handshake)
+    (buffered_write_addr_present_q || npc_aw_handshake)
     |-> $onehot0(write_slave_select_vector)
   ) else $error("Write address selected overlapping AXI-Lite slave regions");
 
