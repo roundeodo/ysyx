@@ -15,6 +15,7 @@ ${NPC_HOME}/vsrc/riscv32/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_ifu.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_core.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_axi_lite_arbiter.sv
+${NPC_HOME}/vsrc/riscv32/riscv32_axi_lite_xbar.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_npc_axi_lite.sv
 ${NPC_HOME}/vsrc/riscv32/riscv32_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/top.sv
