@@ -413,6 +413,11 @@ module riscv32_axi_lite_xbar
     assert (SLAVE_COUNT > 0) else $fatal(1, "AXI-Lite xbar requires at least one slave");
   end
 
+  // The design uses an asynchronous reset; SVA disable conditions sample the
+  // same reset at clock events. Verilator reports that intentional combination
+  // as SYNCASYNCNET even though no synchronous reset logic is inferred here.
+  /* verilator lint_off SYNCASYNCNET */
+
   p_read_slave_selection_not_overlapping :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     read_state_q == READ_ACCEPT_AR && npc_axi_arvalid_i
@@ -490,6 +495,8 @@ module riscv32_axi_lite_xbar
       ) else $error("One AXI-Lite channel selected slaves %0d and %0d together", i, j);
     end
   end
+
+  /* verilator lint_on SYNCASYNCNET */
 
   // The write fast path is intentionally fall-through rather than purely
   // combinational forwarding: AW and W bypass empty local buffers, but either

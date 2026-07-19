@@ -77,11 +77,18 @@ module riscv32_axi_lite_uart_sim
   logic           uart_w_handshake;
   logic           uart_b_handshake;
 
+  // This simulation UART does not implement AXI protection domains. Consume
+  // both channel attributes explicitly so ignored protocol metadata is visible.
+  /* verilator lint_off UNUSEDSIGNAL */
+  logic           ignored_axi_prot_bits;
+  /* verilator lint_on UNUSEDSIGNAL */
+
   assign uart_ar_handshake = uart_axi_arvalid_i && uart_axi_arready_o;
   assign uart_r_handshake  = uart_axi_rvalid_o && uart_axi_rready_i;
   assign uart_aw_handshake = uart_axi_awvalid_i && uart_axi_awready_o;
   assign uart_w_handshake  = uart_axi_wvalid_i && uart_axi_wready_o;
   assign uart_b_handshake  = uart_axi_bvalid_o && uart_axi_bready_i;
+  assign ignored_axi_prot_bits = ^{uart_axi_ar_i.prot, write_addr_payload.prot};
 
   always_comb begin
     write_addr_payload = uart_aw_handshake ? uart_axi_aw_i : buffered_write_addr_q;
