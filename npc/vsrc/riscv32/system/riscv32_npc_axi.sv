@@ -10,6 +10,9 @@ module riscv32_npc_axi
     output axi_addr_t master_axi_ar_o,
     output logic      master_axi_arvalid_o,
     input  logic      master_axi_arready_i,
+    // This restricted master has one outstanding, single-beat transaction, so
+    // the returning RID/RLAST and BID do not participate in routing yet.
+    /* verilator lint_off UNUSEDSIGNAL */
     input  axi_r_t    master_axi_r_i,
     input  logic      master_axi_rvalid_i,
     output logic      master_axi_rready_o,
@@ -21,6 +24,7 @@ module riscv32_npc_axi
     output logic      master_axi_wvalid_o,
     input  logic      master_axi_wready_i,
     input  axi_b_t    master_axi_b_i,
+    /* verilator lint_on UNUSEDSIGNAL */
     input  logic      master_axi_bvalid_i,
     output logic      master_axi_bready_o
 );
