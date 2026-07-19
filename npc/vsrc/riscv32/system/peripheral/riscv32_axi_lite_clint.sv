@@ -115,9 +115,12 @@ module riscv32_axi_lite_clint
   logic            [63:0] mtime_read_snapshot_d;
   logic                   mtime_read_snapshot_present_q;
   logic                   mtime_read_snapshot_present_d;
+  logic                   unused_clint_axi_ar_prot;
 
   assign clint_ar_handshake = clint_axi_arvalid_i && clint_axi_arready_o;
   assign clint_r_handshake  = clint_axi_rvalid_o && clint_axi_rready_i;
+  // This machine-mode-only CLINT checkpoint accepts every AXI protection class.
+  assign unused_clint_axi_ar_prot = ^clint_axi_ar_i.prot;
 
   // Drive read-channel outputs only from registered state. In particular, the
   // registered R payload remains stable while RVALID is blocked by RREADY.
