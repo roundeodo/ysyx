@@ -4,9 +4,17 @@
 #include "trace.h"
 #include "watchpoint.h"
 
-#include "Vtop.h"
-#include "Vtop__Dpi.h"
-#include "Vtop___024root.h"
+#ifndef TOP_CLASS
+#define TOP_CLASS Vtop
+#define TOP_HEADER "Vtop.h"
+#define TOP_DPI_HEADER "Vtop__Dpi.h"
+#define TOP_CLOCK clk
+#define TOP_RESET rstn
+#define TOP_RESET_ACTIVE_LEVEL 0
+#endif
+
+#include TOP_HEADER
+#include TOP_DPI_HEADER
 
 #include "svdpi.h"
 
@@ -21,14 +29,14 @@
 #ifdef CONFIG_NVBOARD
 #include <nvboard.h>
 
-void nvboard_bind_all_pins(Vtop *top);
+void nvboard_bind_all_pins(TOP_CLASS *top);
 #endif
 
 // ============================================================
 // Global simulation objects
 // ============================================================
 
-static Vtop *top = nullptr;
+static TOP_CLASS *top = nullptr;
 static VerilatedVcdC *tfp = nullptr;
 
 static bool trace_enabled = false;
@@ -78,7 +86,7 @@ static inline void set_dpi_scope() {
 
 // Execute one clock cycle
 static void single_cycle(CommitEvent *commit_event = nullptr) {
-  top->clk = 0;
+  top->TOP_CLOCK = 0;
   top->eval();
 
   if (commit_event != nullptr) {
@@ -101,7 +109,7 @@ static void single_cycle(CommitEvent *commit_event = nullptr) {
 
   main_time++;
 
-  top->clk = 1;
+  top->TOP_CLOCK = 1;
   top->eval();
 
   if (trace_enabled && tfp != nullptr) {
@@ -139,10 +147,10 @@ void cpu_init(int argc, char **argv, bool enable_nvboard, bool enable_trace) {
     Verilated::traceEverOn(true);
   }
 
-  top = new Vtop;
+  top = new TOP_CLASS;
 
-  top->clk = 0;
-  top->rstn = 0;
+  top->TOP_CLOCK = 0;
+  top->TOP_RESET = TOP_RESET_ACTIVE_LEVEL;
   top->eval();
 
   if (top_dpi_scope == nullptr) {
@@ -174,13 +182,13 @@ void cpu_init(int argc, char **argv, bool enable_nvboard, bool enable_trace) {
 // ============================================================
 
 void cpu_reset(int n) {
-  top->rstn = 0;
+  top->TOP_RESET = TOP_RESET_ACTIVE_LEVEL;
 
   while (n-- > 0) {
     single_cycle();
   }
 
-  top->rstn = 1;
+  top->TOP_RESET = !TOP_RESET_ACTIVE_LEVEL;
   top->eval();
 
 #ifdef CONFIG_NVBOARD

@@ -1,5 +1,6 @@
 #include "mem.h"
 #include "trace.h"
+#include <cassert>
 #include <fcntl.h>
 #include <cstdio>
 #include <cstdlib>
@@ -144,6 +145,18 @@ void paddr_write(uint32_t addr, int len, uint32_t data) {
 }
 
 extern "C" {
+
+void flash_read(int32_t addr, int32_t *data) {
+  (void)addr;
+  (void)data;
+  assert(false && "flash_read is not implemented by the NPC simulator");
+}
+
+void mrom_read(int32_t addr, int32_t *data) {
+  (void)addr;
+  (void)data;
+  assert(false && "mrom_read is not implemented by the NPC simulator");
+}
 
 int pmem_read(int raddr) {
   static uint64_t start_time = 0;

@@ -151,4 +151,74 @@ module riscv32_npc_axi
       .master_axi_bready_o (io_master_bready)
   );
 
+`ifdef VERILATOR
+  // Simulation observability belongs at the CPU integration boundary because
+  // ysyxSoCFull, rather than sim/top.sv, is now the Verilator top module.
+  import "DPI-C" context function void npc_set_dpi_scope();
+  import "DPI-C" context function void ebreak_halt();
+
+  initial begin
+    npc_set_dpi_scope();
+  end
+
+  export "DPI-C" function npc_get_pc_dpi;
+  export "DPI-C" function npc_get_inst_dpi;
+  export "DPI-C" function npc_get_commit_valid_dpi;
+  export "DPI-C" function npc_get_commit_pc_dpi;
+  export "DPI-C" function npc_get_commit_inst_dpi;
+  export "DPI-C" function npc_get_commit_next_pc_dpi;
+  export "DPI-C" function npc_get_gpr_dpi;
+
+  function int npc_get_pc_dpi();
+    npc_get_pc_dpi = u_npc_axi_core_boundary.u_core.fetch_entry.pc;
+  endfunction
+
+  function int npc_get_inst_dpi();
+    npc_get_inst_dpi = u_npc_axi_core_boundary.u_core.fetch_entry.instruction;
+  endfunction
+
+  function int npc_get_commit_valid_dpi();
+    npc_get_commit_valid_dpi =
+        int'(u_npc_axi_core_boundary.u_core.commit_valid);
+  endfunction
+
+  function int npc_get_commit_pc_dpi();
+    npc_get_commit_pc_dpi = u_npc_axi_core_boundary.u_core.commit.pc;
+  endfunction
+
+  function int npc_get_commit_inst_dpi();
+    npc_get_commit_inst_dpi =
+        u_npc_axi_core_boundary.u_core.commit.instruction;
+  endfunction
+
+  function int npc_get_commit_next_pc_dpi();
+    if (u_npc_axi_core_boundary.u_core.selected_redirect_req_valid &&
+        u_npc_axi_core_boundary.u_core.commit_valid &&
+        (u_npc_axi_core_boundary.u_core.selected_redirect_req.source_pc ==
+         u_npc_axi_core_boundary.u_core.commit.pc)) begin
+      npc_get_commit_next_pc_dpi =
+          u_npc_axi_core_boundary.u_core.selected_redirect_req.target_pc;
+    end else begin
+      npc_get_commit_next_pc_dpi =
+          u_npc_axi_core_boundary.u_core.commit.next_pc;
+    end
+  endfunction
+
+  function int npc_get_gpr_dpi(input int index);
+    if ((index <= 0) || (index >= ARCH_REG_NUM)) begin
+      npc_get_gpr_dpi = '0;
+    end else begin
+      npc_get_gpr_dpi =
+          u_npc_axi_core_boundary.u_core.u_arch_regfile.gpr_q[index];
+    end
+  endfunction
+
+  always_ff @(posedge clock) begin
+    if (u_npc_axi_core_boundary.u_core.commit_valid &&
+        (u_npc_axi_core_boundary.u_core.commit.system_op == SYS_EBREAK)) begin
+      ebreak_halt();
+    end
+  end
+`endif
+
 endmodule

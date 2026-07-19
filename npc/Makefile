@@ -68,7 +68,13 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 # include flags
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 # common C++ flags
-CXXFLAGS_COMMON := $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+CXXFLAGS_COMMON := $(INCFLAGS) \
+	-DTOP_CLASS=V$(TOPNAME) \
+	-DTOP_HEADER="\"V$(TOPNAME).h\"" \
+	-DTOP_DPI_HEADER="\"V$(TOPNAME)__Dpi.h\"" \
+	-DTOP_CLOCK=clock \
+	-DTOP_RESET=reset \
+	-DTOP_RESET_ACTIVE_LEVEL=1
 LDFLAGS_COMMON := -L$(CAPSTONE_LIB) -Wl,-rpath=$(CAPSTONE_LIB) -lcapstone -ldl
 
 # normal sim does not enable NVBoard
