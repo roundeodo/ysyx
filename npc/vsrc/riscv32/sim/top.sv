@@ -69,7 +69,7 @@ module top
   axi_lite_w_t    xbar_axi_w;
   axi_lite_b_t    xbar_axi_b;
 
-  riscv32_npc_axi u_npc_axi (
+  riscv32_npc_axi_core_boundary u_npc_axi (
       .clk_i            (clk),
       .rst_ni           (rstn),
       .master_axi_ar_o     (npc_axi_ar),

@@ -1,185 +1,154 @@
-// Synthesizable NPC integration boundary used by SoC integration and STA.
-// The core and arbiter use AXI4-Lite internally. This boundary expands each
-// internal transaction into one full-AXI, single-beat transaction.
+// ysyxSoC CPU boundary. The external port names and widths must match
+// ysyxSoC/spec/cpu-interface.md exactly; structured payloads remain internal.
 module riscv32_npc_axi
   import riscv32_pkg::*;
 (
-    input logic clk_i,
-    input logic rst_ni,
+    input  logic        clock,
+    input  logic        reset,
 
-    output axi_addr_t master_axi_ar_o,
-    output logic      master_axi_arvalid_o,
-    input  logic      master_axi_arready_i,
-    // This restricted master has one outstanding, single-beat transaction, so
-    // the returning RID/RLAST and BID do not participate in routing yet.
+    // External interrupts are not consumed by the current single-cycle core.
     /* verilator lint_off UNUSEDSIGNAL */
-    input  axi_r_t    master_axi_r_i,
-    input  logic      master_axi_rvalid_i,
-    output logic      master_axi_rready_o,
+    input  logic        io_interrupt,
 
-    output axi_addr_t master_axi_aw_o,
-    output logic      master_axi_awvalid_o,
-    input  logic      master_axi_awready_i,
-    output axi_w_t    master_axi_w_o,
-    output logic      master_axi_wvalid_o,
-    input  logic      master_axi_wready_i,
-    input  axi_b_t    master_axi_b_i,
+    input  logic        io_master_awready,
+    output logic        io_master_awvalid,
+    output logic [31:0] io_master_awaddr,
+    output logic [3:0]  io_master_awid,
+    output logic [7:0]  io_master_awlen,
+    output logic [2:0]  io_master_awsize,
+    output logic [1:0]  io_master_awburst,
+
+    input  logic        io_master_wready,
+    output logic        io_master_wvalid,
+    output logic [31:0] io_master_wdata,
+    output logic [3:0]  io_master_wstrb,
+    output logic        io_master_wlast,
+
+    output logic        io_master_bready,
+    input  logic        io_master_bvalid,
+    input  logic [1:0]  io_master_bresp,
+    input  logic [3:0]  io_master_bid,
+
+    input  logic        io_master_arready,
+    output logic        io_master_arvalid,
+    output logic [31:0] io_master_araddr,
+    output logic [3:0]  io_master_arid,
+    output logic [7:0]  io_master_arlen,
+    output logic [2:0]  io_master_arsize,
+    output logic [1:0]  io_master_arburst,
+
+    output logic        io_master_rready,
+    input  logic        io_master_rvalid,
+    input  logic [1:0]  io_master_rresp,
+    input  logic [31:0] io_master_rdata,
+    input  logic        io_master_rlast,
+    input  logic [3:0]  io_master_rid,
+
+    output logic        io_slave_awready,
+    input  logic        io_slave_awvalid,
+    input  logic [31:0] io_slave_awaddr,
+    input  logic [3:0]  io_slave_awid,
+    input  logic [7:0]  io_slave_awlen,
+    input  logic [2:0]  io_slave_awsize,
+    input  logic [1:0]  io_slave_awburst,
+
+    output logic        io_slave_wready,
+    input  logic        io_slave_wvalid,
+    input  logic [31:0] io_slave_wdata,
+    input  logic [3:0]  io_slave_wstrb,
+    input  logic        io_slave_wlast,
+
+    input  logic        io_slave_bready,
+    output logic        io_slave_bvalid,
+    output logic [1:0]  io_slave_bresp,
+    output logic [3:0]  io_slave_bid,
+
+    output logic        io_slave_arready,
+    input  logic        io_slave_arvalid,
+    input  logic [31:0] io_slave_araddr,
+    input  logic [3:0]  io_slave_arid,
+    input  logic [7:0]  io_slave_arlen,
+    input  logic [2:0]  io_slave_arsize,
+    input  logic [1:0]  io_slave_arburst,
+
+    input  logic        io_slave_rready,
+    output logic        io_slave_rvalid,
+    output logic [1:0]  io_slave_rresp,
+    output logic [31:0] io_slave_rdata,
+    output logic        io_slave_rlast,
+    output logic [3:0]  io_slave_rid
     /* verilator lint_on UNUSEDSIGNAL */
-    input  logic      master_axi_bvalid_i,
-    output logic      master_axi_bready_o
 );
-  axi_lite_addr_t ifu_axi_ar;
-  logic           ifu_axi_arvalid;
-  logic           ifu_axi_arready;
-  axi_lite_r_t    ifu_axi_r;
-  logic           ifu_axi_rvalid;
-  logic           ifu_axi_rready;
 
-  axi_lite_addr_t lsu_axi_ar;
-  logic           lsu_axi_arvalid;
-  logic           lsu_axi_arready;
-  axi_lite_r_t    lsu_axi_r;
-  logic           lsu_axi_rvalid;
-  logic           lsu_axi_rready;
+  axi_addr_t master_axi_aw;
+  axi_w_t    master_axi_w;
+  axi_b_t    master_axi_b;
+  axi_addr_t master_axi_ar;
+  axi_r_t    master_axi_r;
 
-  axi_lite_addr_t lsu_axi_aw;
-  logic           lsu_axi_awvalid;
-  logic           lsu_axi_awready;
-  axi_lite_w_t    lsu_axi_w;
-  logic           lsu_axi_wvalid;
-  logic           lsu_axi_wready;
-  axi_lite_b_t    lsu_axi_b;
-  logic           lsu_axi_bvalid;
-  logic           lsu_axi_bready;
-
-  // AxPROT is an AXI4-Lite attribute used inside the core but is not present in
-  // the current SoC-facing axi_addr_t definition.
-  /* verilator lint_off UNUSEDSIGNAL */
-  axi_lite_addr_t shared_axi_ar;
-  logic           shared_axi_arvalid;
-  logic           shared_axi_arready;
-  axi_lite_r_t    shared_axi_r;
-  logic           shared_axi_rvalid;
-  logic           shared_axi_rready;
-
-  axi_lite_addr_t shared_axi_aw;
-  /* verilator lint_on UNUSEDSIGNAL */
-  logic           shared_axi_awvalid;
-  logic           shared_axi_awready;
-  axi_lite_w_t    shared_axi_w;
-  logic           shared_axi_wvalid;
-  logic           shared_axi_wready;
-  axi_lite_b_t    shared_axi_b;
-  logic           shared_axi_bvalid;
-  logic           shared_axi_bready;
-
-  // The current core issues one transaction at a time. Full AXI therefore uses
-  // ID 0, one 32-bit beat, and INCR burst semantics at this boundary.
+  // Flatten the structured master request payloads for the ysyxSoC boundary.
   always_comb begin
-    master_axi_ar_o = '{
-      addr  : shared_axi_ar.addr,
-      id    : 4'b0,
-      len   : 8'b0,
-      size  : 3'd2,
-      burst : 2'b01
-    };
-    master_axi_aw_o = '{
-      addr  : shared_axi_aw.addr,
-      id    : 4'b0,
-      len   : 8'b0,
-      size  : 3'd2,
-      burst : 2'b01
-    };
-    master_axi_w_o = '{
-      data : shared_axi_w.data,
-      strb : shared_axi_w.strb,
-      last : 1'b1
-    };
+    io_master_awaddr  = master_axi_aw.addr;
+    io_master_awid    = master_axi_aw.id;
+    io_master_awlen   = master_axi_aw.len;
+    io_master_awsize  = master_axi_aw.size;
+    io_master_awburst = master_axi_aw.burst;
 
-    shared_axi_r = '{
-      data : master_axi_r_i.data,
-      resp : master_axi_r_i.resp
+    io_master_wdata   = master_axi_w.data;
+    io_master_wstrb   = master_axi_w.strb;
+    io_master_wlast   = master_axi_w.last;
+
+    io_master_araddr  = master_axi_ar.addr;
+    io_master_arid    = master_axi_ar.id;
+    io_master_arlen   = master_axi_ar.len;
+    io_master_arsize  = master_axi_ar.size;
+    io_master_arburst = master_axi_ar.burst;
+
+    master_axi_b = '{
+      resp : axi_resp_e'(io_master_bresp),
+      id   : io_master_bid
     };
-    shared_axi_b = '{resp: master_axi_b_i.resp};
+    master_axi_r = '{
+      resp : axi_resp_e'(io_master_rresp),
+      data : io_master_rdata,
+      last : io_master_rlast,
+      id   : io_master_rid
+    };
   end
 
-  assign master_axi_arvalid_o = shared_axi_arvalid;
-  assign shared_axi_arready   = master_axi_arready_i;
-  assign shared_axi_rvalid    = master_axi_rvalid_i;
-  assign master_axi_rready_o  = shared_axi_rready;
+  // The current NPC has no memory-side AXI slave functionality.
+  always_comb begin
+    io_slave_awready = 1'b0;
+    io_slave_wready  = 1'b0;
+    io_slave_bvalid  = 1'b0;
+    io_slave_bresp   = 2'b0;
+    io_slave_bid     = 4'b0;
+    io_slave_arready = 1'b0;
+    io_slave_rvalid  = 1'b0;
+    io_slave_rresp   = 2'b0;
+    io_slave_rdata   = 32'b0;
+    io_slave_rlast   = 1'b0;
+    io_slave_rid     = 4'b0;
+  end
 
-  assign master_axi_awvalid_o = shared_axi_awvalid;
-  assign shared_axi_awready   = master_axi_awready_i;
-  assign master_axi_wvalid_o  = shared_axi_wvalid;
-  assign shared_axi_wready    = master_axi_wready_i;
-  assign shared_axi_bvalid    = master_axi_bvalid_i;
-  assign master_axi_bready_o  = shared_axi_bready;
-
-  riscv32_core u_core (
-      .clk_i            (clk_i),
-      .rst_ni           (rst_ni),
-      .ifu_axi_ar_o     (ifu_axi_ar),
-      .ifu_axi_arvalid_o(ifu_axi_arvalid),
-      .ifu_axi_arready_i(ifu_axi_arready),
-      .ifu_axi_r_i      (ifu_axi_r),
-      .ifu_axi_rvalid_i (ifu_axi_rvalid),
-      .ifu_axi_rready_o (ifu_axi_rready),
-      .lsu_axi_ar_o     (lsu_axi_ar),
-      .lsu_axi_arvalid_o(lsu_axi_arvalid),
-      .lsu_axi_arready_i(lsu_axi_arready),
-      .lsu_axi_r_i      (lsu_axi_r),
-      .lsu_axi_rvalid_i (lsu_axi_rvalid),
-      .lsu_axi_rready_o (lsu_axi_rready),
-      .lsu_axi_aw_o     (lsu_axi_aw),
-      .lsu_axi_awvalid_o(lsu_axi_awvalid),
-      .lsu_axi_awready_i(lsu_axi_awready),
-      .lsu_axi_w_o      (lsu_axi_w),
-      .lsu_axi_wvalid_o (lsu_axi_wvalid),
-      .lsu_axi_wready_i (lsu_axi_wready),
-      .lsu_axi_b_i      (lsu_axi_b),
-      .lsu_axi_bvalid_i (lsu_axi_bvalid),
-      .lsu_axi_bready_o (lsu_axi_bready)
-  );
-
-  riscv32_axi_lite_arbiter u_axi_lite_arbiter (
-      .clk_i            (clk_i),
-      .rst_ni           (rst_ni),
-      .ifu_axi_ar_i     (ifu_axi_ar),
-      .ifu_axi_arvalid_i(ifu_axi_arvalid),
-      .ifu_axi_arready_o(ifu_axi_arready),
-      .ifu_axi_r_o      (ifu_axi_r),
-      .ifu_axi_rvalid_o (ifu_axi_rvalid),
-      .ifu_axi_rready_i (ifu_axi_rready),
-      .lsu_axi_ar_i     (lsu_axi_ar),
-      .lsu_axi_arvalid_i(lsu_axi_arvalid),
-      .lsu_axi_arready_o(lsu_axi_arready),
-      .lsu_axi_r_o      (lsu_axi_r),
-      .lsu_axi_rvalid_o (lsu_axi_rvalid),
-      .lsu_axi_rready_i (lsu_axi_rready),
-      .lsu_axi_aw_i     (lsu_axi_aw),
-      .lsu_axi_awvalid_i(lsu_axi_awvalid),
-      .lsu_axi_awready_o(lsu_axi_awready),
-      .lsu_axi_w_i      (lsu_axi_w),
-      .lsu_axi_wvalid_i (lsu_axi_wvalid),
-      .lsu_axi_wready_o (lsu_axi_wready),
-      .lsu_axi_b_o      (lsu_axi_b),
-      .lsu_axi_bvalid_o (lsu_axi_bvalid),
-      .lsu_axi_bready_i (lsu_axi_bready),
-      .mem_axi_ar_o     (shared_axi_ar),
-      .mem_axi_arvalid_o(shared_axi_arvalid),
-      .mem_axi_arready_i(shared_axi_arready),
-      .mem_axi_r_i      (shared_axi_r),
-      .mem_axi_rvalid_i (shared_axi_rvalid),
-      .mem_axi_rready_o (shared_axi_rready),
-      .mem_axi_aw_o     (shared_axi_aw),
-      .mem_axi_awvalid_o(shared_axi_awvalid),
-      .mem_axi_awready_i(shared_axi_awready),
-      .mem_axi_w_o      (shared_axi_w),
-      .mem_axi_wvalid_o (shared_axi_wvalid),
-      .mem_axi_wready_i (shared_axi_wready),
-      .mem_axi_b_i      (shared_axi_b),
-      .mem_axi_bvalid_i (shared_axi_bvalid),
-      .mem_axi_bready_o (shared_axi_bready)
+  riscv32_npc_axi_core_boundary u_npc_axi_core_boundary (
+      .clk_i               (clock),
+      .rst_ni              (~reset),
+      .master_axi_ar_o     (master_axi_ar),
+      .master_axi_arvalid_o(io_master_arvalid),
+      .master_axi_arready_i(io_master_arready),
+      .master_axi_r_i      (master_axi_r),
+      .master_axi_rvalid_i (io_master_rvalid),
+      .master_axi_rready_o (io_master_rready),
+      .master_axi_aw_o     (master_axi_aw),
+      .master_axi_awvalid_o(io_master_awvalid),
+      .master_axi_awready_i(io_master_awready),
+      .master_axi_w_o      (master_axi_w),
+      .master_axi_wvalid_o (io_master_wvalid),
+      .master_axi_wready_i (io_master_wready),
+      .master_axi_b_i      (master_axi_b),
+      .master_axi_bvalid_i (io_master_bvalid),
+      .master_axi_bready_o (io_master_bready)
   );
 
 endmodule
