@@ -83,15 +83,14 @@ module riscv32_axi_lite_xbar
 
   logic           [SLAVE_COUNT-1:0] read_slave_select_vector;
   logic           [SLAVE_COUNT-1:0] write_slave_select_vector;
-  logic           [       XLEN-1:0] write_slave_select_addr;
   logic                             read_slave_selection_present;
   logic                             write_slave_selection_present;
   slave_index_t                     read_slave_select_index;
   slave_index_t                     write_slave_select_index;
 
-  // AW and W are independent AXI channels. Capture them independently before
-  // forwarding the baseline write transaction. This deliberately prioritizes
-  // protocol correctness; a measured write fast path can be added later.
+  // AW and W are independent AXI channels. Each channel uses a one-entry
+  // fall-through buffer: an empty buffer permits same-cycle forwarding, while
+  // a stalled downstream channel causes the accepted payload to be retained.
   axi_lite_addr_t                   buffered_write_addr_q;
   axi_lite_addr_t                   buffered_write_addr_d;
   axi_lite_w_t                      buffered_write_data_q;
@@ -100,6 +99,11 @@ module riscv32_axi_lite_xbar
   logic                             buffered_write_addr_present_d;
   logic                             buffered_write_data_present_q;
   logic                             buffered_write_data_present_d;
+
+  axi_lite_addr_t                   write_transaction_addr;
+  axi_lite_w_t                      write_transaction_data;
+  logic                             write_transaction_addr_present;
+  logic                             write_transaction_data_present;
 
   logic                             selected_slave_aw_handshake_occurred_q;
   logic                             selected_slave_aw_handshake_occurred_d;
@@ -111,8 +115,8 @@ module riscv32_axi_lite_xbar
   logic                             npc_aw_handshake;
   logic                             npc_w_handshake;
   logic                             npc_b_handshake;
-  logic                             selected_slave_aw_handshake;
-  logic                             selected_slave_w_handshake;
+  logic                             slave_aw_handshake;
+  logic                             slave_w_handshake;
 
   assign npc_ar_handshake = npc_axi_arvalid_i && npc_axi_arready_o;
   assign npc_r_handshake  = npc_axi_rvalid_o && npc_axi_rready_i;
@@ -142,25 +146,33 @@ module riscv32_axi_lite_xbar
     end
   endfunction
 
-  // Read selection uses the current AR address. Write selection uses a newly
-  // accepted AW address immediately; otherwise it uses the buffered AW address.
-  // This preserves the current write target before buffered_write_addr_q updates
-  // at the next clock edge.
-  assign write_slave_select_addr =
-      npc_aw_handshake ? npc_axi_aw_i.addr : buffered_write_addr_q.addr;
+  // A buffered payload takes priority over the corresponding upstream channel.
+  // When no payload is buffered, the upstream payload falls through directly to
+  // the selected slave and is also captured if downstream applies backpressure.
+  assign write_transaction_addr =
+      buffered_write_addr_present_q ? buffered_write_addr_q : npc_axi_aw_i;
+  assign write_transaction_data =
+      buffered_write_data_present_q ? buffered_write_data_q : npc_axi_w_i;
+  assign write_transaction_addr_present =
+      buffered_write_addr_present_q || npc_axi_awvalid_i;
+  assign write_transaction_data_present =
+      buffered_write_data_present_q || npc_axi_wvalid_i;
+
   assign read_slave_select_vector = select_slaves_by_addr(npc_axi_ar_i.addr);
-  assign write_slave_select_vector = select_slaves_by_addr(write_slave_select_addr);
+  assign write_slave_select_vector = select_slaves_by_addr(write_transaction_addr.addr);
   assign read_slave_selection_present = |read_slave_select_vector;
   assign write_slave_selection_present = |write_slave_select_vector;
   assign read_slave_select_index = slave_select_vector_to_index(read_slave_select_vector);
   assign write_slave_select_index = slave_select_vector_to_index(write_slave_select_vector);
 
-  assign selected_slave_aw_handshake =
-      slave_axi_awvalid_o[write_selected_slave_index_q] &&
-      slave_axi_awready_i[write_selected_slave_index_q];
-  assign selected_slave_w_handshake =
-      slave_axi_wvalid_o[write_selected_slave_index_q] &&
-      slave_axi_wready_i[write_selected_slave_index_q];
+  always_comb begin
+    slave_aw_handshake = 1'b0;
+    slave_w_handshake  = 1'b0;
+    for (int unsigned i = 0; i < SLAVE_COUNT; i++) begin
+      slave_aw_handshake |= slave_axi_awvalid_o[i] && slave_axi_awready_i[i];
+      slave_w_handshake  |= slave_axi_wvalid_o[i] && slave_axi_wready_i[i];
+    end
+  end
 
   // Mapped AR requests use a combinational fast path to the selected slave.
   // Requests without a selected slave are accepted locally and receive DECERR.
@@ -225,8 +237,9 @@ module riscv32_axi_lite_xbar
     endcase
   end
 
-  // AW and W are collected independently, then forwarded independently to the
-  // selected slave. A channel stops asserting VALID after its own handshake.
+  // AW and W use independent fall-through paths. Each channel can reach the
+  // selected slave in its arrival cycle and is retained when either endpoint
+  // applies backpressure.
   always_comb begin
     npc_axi_awready_o = 1'b0;
     npc_axi_wready_o  = 1'b0;
@@ -245,6 +258,19 @@ module riscv32_axi_lite_xbar
       WRITE_COLLECT_AW_W: begin
         npc_axi_awready_o = !buffered_write_addr_present_q;
         npc_axi_wready_o  = !buffered_write_data_present_q;
+
+        if (write_transaction_addr_present && write_slave_selection_present) begin
+          if (!selected_slave_aw_handshake_occurred_q) begin
+            slave_axi_aw_o[write_slave_select_index]      = write_transaction_addr;
+            slave_axi_awvalid_o[write_slave_select_index] = 1'b1;
+          end
+
+          if (write_transaction_data_present &&
+              !selected_slave_w_handshake_occurred_q) begin
+            slave_axi_w_o[write_slave_select_index]      = write_transaction_data;
+            slave_axi_wvalid_o[write_slave_select_index] = 1'b1;
+          end
+        end
       end
 
       WRITE_FORWARD_AW_W: begin
@@ -269,7 +295,7 @@ module riscv32_axi_lite_xbar
     endcase
   end
 
-  // Buffer validity is retained through the B response so forwarded payloads
+  // Buffered-payload presence is retained through the B response so payloads
   // remain stable under downstream backpressure.
   always_comb begin
     write_state_d                          = write_state_q;
@@ -293,14 +319,27 @@ module riscv32_axi_lite_xbar
           buffered_write_data_present_d = 1'b1;
         end
 
+        if (write_transaction_addr_present && write_slave_selection_present) begin
+          write_selected_slave_index_d = write_slave_select_index;
+        end
+
+        if (slave_aw_handshake) begin
+          selected_slave_aw_handshake_occurred_d = 1'b1;
+        end
+        if (slave_w_handshake) begin
+          selected_slave_w_handshake_occurred_d = 1'b1;
+        end
+
         if ((buffered_write_addr_present_q || npc_aw_handshake) &&
             (buffered_write_data_present_q || npc_w_handshake)) begin
-          selected_slave_aw_handshake_occurred_d = 1'b0;
-          selected_slave_w_handshake_occurred_d  = 1'b0;
-
           if (write_slave_selection_present) begin
             write_selected_slave_index_d = write_slave_select_index;
-            write_state_d                = WRITE_FORWARD_AW_W;
+            if ((selected_slave_aw_handshake_occurred_q || slave_aw_handshake) &&
+                (selected_slave_w_handshake_occurred_q || slave_w_handshake)) begin
+              write_state_d = WRITE_WAIT_B;
+            end else begin
+              write_state_d = WRITE_FORWARD_AW_W;
+            end
           end else begin
             write_state_d = WRITE_RETURN_DECERR;
           end
@@ -308,15 +347,15 @@ module riscv32_axi_lite_xbar
       end
 
       WRITE_FORWARD_AW_W: begin
-        if (selected_slave_aw_handshake) begin
+        if (slave_aw_handshake) begin
           selected_slave_aw_handshake_occurred_d = 1'b1;
         end
-        if (selected_slave_w_handshake) begin
+        if (slave_w_handshake) begin
           selected_slave_w_handshake_occurred_d = 1'b1;
         end
 
-        if ((selected_slave_aw_handshake_occurred_q || selected_slave_aw_handshake) &&
-            (selected_slave_w_handshake_occurred_q || selected_slave_w_handshake)) begin
+        if ((selected_slave_aw_handshake_occurred_q || slave_aw_handshake) &&
+            (selected_slave_w_handshake_occurred_q || slave_w_handshake)) begin
           write_state_d = WRITE_WAIT_B;
         end
       end
@@ -452,11 +491,8 @@ module riscv32_axi_lite_xbar
     end
   end
 
-  // NOTE(XBAR-WRITE-FAST-PATH): Do not implement this until the buffered
-  // baseline passes AW-before-W, W-before-AW, simultaneous AW/W, DECERR, and
-  // random-backpressure tests. A later fast path may directly forward mapped
-  // AW/W from WRITE_COLLECT_AW_W, but it must preserve independent channel
-  // handshakes and fall back to the buffers on either stalled channel. Compare
-  // latency and STA before accepting that optimization.
+  // The write fast path is intentionally fall-through rather than purely
+  // combinational forwarding: AW and W bypass empty local buffers, but either
+  // channel is retained independently when its downstream ready is low.
 
 endmodule
