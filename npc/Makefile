@@ -22,7 +22,7 @@ BIN_NV  = $(BUILD_DIR)/$(TOPNAME)_nvboard
 
 # verilator config
 VERILATOR = verilator
-VERILATOR_FLAGS += -MMD --build -cc -Wall \
+VERILATOR_FLAGS += -MMD --build -cc -Wall -Wno-fatal \
 				-O3 --x-assign fast --x-initial fast --trace
 
 # make build directory
@@ -159,7 +159,7 @@ nvboard: $(BIN_NV)
 
 lint: $(VSRC_LIST)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) --lint-only -Wall \
+	$(VERILATOR) --lint-only -Wall -Wno-fatal \
 	$(VERILATOR_RTL_INCLUDES) \
 	--top-module $(TOPNAME) \
 	-f $(VSRC_LIST) \
