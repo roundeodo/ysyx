@@ -1,7 +1,7 @@
 # path
 
 PROJECT ?= riscv32
-TOPNAME = top
+TOPNAME = ysyxSoCFull
 
 INC_PATH ?=
 INC_PATH += $(abspath ./include)
@@ -37,15 +37,19 @@ VSRC_LIST ?= $(VSRC_DIR)/filelist/filelist.f
 VSRC_DEPS = $(shell sed -e 's|$${NPC_HOME}|$(abspath .)|g' \
 	-e '/^[[:space:]]*\/\//d' -e '/^[[:space:]]*$$/d' $(VSRC_LIST))
 
-# Periferal
+# SOC
 YSYXSOC_HOME := $(abspath ../ysyxSoC)
 YSYXSOC_PERIP_DIR := $(YSYXSOC_HOME)/perip
+YSYXSOC_FULL_V := $(YSYXSOC_HOME)/build/ysyxSoCFull.v
 # Select all available file
-YSYXSOC_VSRCS := $(shell find $(YSYXSOC_PERIP_DIR) -type f -name "*.v")
+YSYXSOC_VSRCS := $(shell find $(YSYXSOC_PERIP_DIR) -type f -name "*.v" | sort)
+YSYXSOC_VSRCS += $(YSYXSOC_FULL_V)
 # verilog `include search path
 VERILATOR_RTL_INCLUDES := \
 	-I$(YSYXSOC_PERIP_DIR)/uart16550/rtl \
 	-I$(YSYXSOC_PERIP_DIR)/spi/rtl
+
+
 
 # normal simulation C/C++ sources
 CSRC_SIM = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))
