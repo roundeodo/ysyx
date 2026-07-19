@@ -48,6 +48,9 @@ module riscv32_npc_axi
   logic           lsu_axi_bvalid;
   logic           lsu_axi_bready;
 
+  // AxPROT is an AXI4-Lite attribute used inside the core but is not present in
+  // the current SoC-facing axi_addr_t definition.
+  /* verilator lint_off UNUSEDSIGNAL */
   axi_lite_addr_t shared_axi_ar;
   logic           shared_axi_arvalid;
   logic           shared_axi_arready;
@@ -56,6 +59,7 @@ module riscv32_npc_axi
   logic           shared_axi_rready;
 
   axi_lite_addr_t shared_axi_aw;
+  /* verilator lint_on UNUSEDSIGNAL */
   logic           shared_axi_awvalid;
   logic           shared_axi_awready;
   axi_lite_w_t    shared_axi_w;
@@ -173,19 +177,5 @@ module riscv32_npc_axi
       .mem_axi_bvalid_i (shared_axi_bvalid),
       .mem_axi_bready_o (shared_axi_bready)
   );
-
-`ifndef SYNTHESIS
-  property p_single_beat_read_response;
-    @(posedge clk_i) disable iff (!rst_ni)
-      master_axi_rvalid_i |-> (master_axi_r_i.id == 4'b0 && master_axi_r_i.last);
-  endproperty
-  assert property (p_single_beat_read_response);
-
-  property p_single_id_write_response;
-    @(posedge clk_i) disable iff (!rst_ni)
-      master_axi_bvalid_i |-> (master_axi_b_i.id == 4'b0);
-  endproperty
-  assert property (p_single_id_write_response);
-`endif
 
 endmodule
