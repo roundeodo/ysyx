@@ -18,7 +18,7 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_core.sv
 
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi_lite_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi_lite_xbar.sv
-${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi_lite.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi.sv
 ${NPC_HOME}/vsrc/riscv32/system/peripheral/riscv32_axi_lite_clint.sv
 
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi_lite_uart_sim.sv
@@ -36,9 +36,9 @@ ${NPC_HOME}/vsrc/riscv32/sim/top.sv
 // Simulation-only DPI debug remains in top at this checkpoint. It will move to
 // riscv32_sim_debug when the SoC shell introduces multiple simulation adapters.
 
-// P3B checkpoint: IFU/LSU arbitration, address routing, and simulation UART
-// are integrated. The DPI platform slave temporarily contains PMEM and RTC;
-// later SoC checkpoints replace it with separately mapped SRAM and timer IP.
+// P3B checkpoint: IFU/LSU arbitration, address routing, simulation UART, and
+// CLINT mtime are integrated. The remaining DPI platform slave contains PMEM;
+// a later SoC checkpoint replaces it with synthesizable SRAM integration.
 
 // NOTE(P4): SoC 检查点稳定后加入 stage registers、forwarding、hazard 和 flush；
 // 复用 P0 已定义的 valid/ready 通道，不改变 payload 的功能所有权。
