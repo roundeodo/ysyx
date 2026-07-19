@@ -86,7 +86,9 @@ $(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_SIM)
 		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON)) \
 		--Mdir $(OBJ_DIR_SIM) \
 		--exe \
-		-o $(abspath $(BIN_SIM))
+		-o $(abspath $(BIN_SIM)) \
+		--timescale "1ns/1ns" \
+		--no-ttiming
 
 
 # make nvboard
@@ -103,7 +105,9 @@ $(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHI
 		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON) $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR_NV) \
 		--exe \
-		-o $(abspath $(BIN_NV))
+		-o $(abspath $(BIN_NV)) \
+		--timescale "1ns/1ns" \
+		--no-ttiming
 
 
 sim: $(BIN_SIM)
