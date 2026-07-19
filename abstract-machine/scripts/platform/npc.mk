@@ -3,6 +3,7 @@ AM_SRCS := riscv/npc/start.S \
            riscv/npc/ioe.c \
            riscv/npc/timer.c \
            riscv/npc/input.c \
+           riscv/npc/uart.c \
            riscv/npc/cte.c \
            riscv/npc/trap.S \
            platform/dummy/vme.c \
@@ -26,6 +27,7 @@ image: image-dep
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
-	echo "TODO: add command here to run simulation"
+	# sim-am passes --batch to NPC, so AM run executes to halt() without SDB input.
+	$(MAKE) -C $(NPC_HOME) sim-am IMG=$(IMAGE).bin
 
 .PHONY: insert-arg

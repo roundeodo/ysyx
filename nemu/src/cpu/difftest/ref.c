@@ -17,17 +17,36 @@
 #include <cpu/cpu.h>
 #include <difftest-def.h>
 #include <memory/paddr.h>
+#include <string.h>
 
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
-  assert(0);
+  // REF 是 NEMU，DUT 是 NPC。
+  // DIFFTEST_TO_REF: 把 NPC 里的内存镜像复制到 NEMU 内存。
+  // DIFFTEST_TO_DUT: 把 NEMU 内存复制回调用者，当前 NPC 最小实现一般用不到。
+  if(direction == DIFFTEST_TO_REF){
+    memcpy(guest_to_host(addr), buf, n);
+  }
+  else{
+    memcpy(buf, guest_to_host(addr), n);
+  }
 }
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
-  assert(0);
+  // 这里直接按 DIFFTEST_REG_SIZE 拷贝 CPU_state。
+  // 所以 NPC 侧的 DiffTestRegs 布局必须和 NEMU 的 CPU_state 一致。
+  // 当前 NPC 使用 RV32I：这里必须以 CONFIG_RVE=n 构建，布局为 gpr[32] + pc。
+  if(direction == DIFFTEST_TO_REF){
+    memcpy(&cpu, dut, DIFFTEST_REG_SIZE);
+  }
+  else{
+    memcpy(dut, &cpu, DIFFTEST_REG_SIZE);
+  }
 }
 
 __EXPORT void difftest_exec(uint64_t n) {
-  assert(0);
+  // 让 REF=NEMU 按自己的解释器执行 n 条指令。
+  // NPC 每 commit 一条指令，就让 NEMU exec(1)，然后比较寄存器和 pc。
+  cpu_exec(n);
 }
 
 __EXPORT void difftest_raise_intr(word_t NO) {
@@ -35,6 +54,9 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 }
 
 __EXPORT void difftest_init(int port) {
+  // 当前 NEMU REF 不使用 port。
+  // (void)port 的含义是显式标记“这个参数目前有意不用”，避免编译器报警。
+  (void)port;
   void init_mem();
   init_mem();
   /* Perform ISA dependent initialization. */

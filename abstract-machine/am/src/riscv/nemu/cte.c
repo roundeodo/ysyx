@@ -8,6 +8,17 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
+     case 11:
+        if(c->GPR1 == (uintptr_t)-1){
+          ev.event = EVENT_YIELD;
+        }
+        else{
+          ev.event = EVENT_SYSCALL;
+        }
+        c->mepc += 4;
+        
+        break;
+
       default: ev.event = EVENT_ERROR; break;
     }
 
@@ -22,7 +33,7 @@ extern void __am_asm_trap(void);
 
 bool cte_init(Context*(*handler)(Event, Context*)) {
   // initialize exception entry
-  asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));
+  asm volatile("csrw mtvec, %0" : : "r"(__am_asm_trap));//write the address of am_asm_trap into mtvec CSR
 
   // register event handler
   user_handler = handler;
@@ -31,7 +42,14 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  Context *c = (Context *)kstack.end - 1;
+  memset(c, 0, sizeof(Context));
+
+  c->mepc = (uintptr_t)entry;
+  c->mstatus = 0x1800;
+  c->gpr[10] = (uintptr_t)arg;
+
+  return c;
 }
 
 void yield() {

@@ -26,6 +26,18 @@
  */
 #define MAX_INST_TO_PRINT 10
 
+#ifdef CONFIG_IRINGBUF
+  #define IRING_SIZE 16
+  #define IBUF_LEN 128
+
+  typedef struct {
+    char log[IBUF_LEN];
+  } ItraceNode;
+  static ItraceNode iring_buf[IRING_SIZE];
+  static int iring_ptr = 0;
+  static int iring_count = 0;
+#endif
+
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
@@ -49,7 +61,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->snpc = pc;
   isa_exec_once(s);
   cpu.pc = s->dnpc;
-#ifdef CONFIG_ITRACE
+#if defined(CONFIG_ITRACE) || defined(CONFIG_IRINGBUF)
   char *p = s->logbuf;
   p += snprintf(p, sizeof(s->logbuf), FMT_WORD ":", s->pc);
   int ilen = s->snpc - s->pc;
@@ -72,6 +84,15 @@ static void exec_once(Decode *s, vaddr_t pc) {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, s->logbuf + sizeof(s->logbuf) - p,
       MUXDEF(CONFIG_ISA_x86, s->snpc, s->pc), (uint8_t *)&s->isa.inst, ilen);
+  
+  #ifdef CONFIG_IRINGBUF
+    strncpy(iring_buf[iring_ptr].log, s->logbuf, IBUF_LEN);
+    iring_buf[iring_ptr].log[IBUF_LEN - 1] = '\0';
+    iring_ptr = (iring_ptr + 1) % IRING_SIZE;
+    if(iring_count < IRING_SIZE)
+      iring_count++;
+  #endif
+
 #endif
 }
 
@@ -95,8 +116,24 @@ static void statistic() {
   else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
+void display_iringbuf(void){
+  #ifdef CONFIG_IRINGBUF
+    printf("Recent instructions:\n");
+
+    int start = (iring_ptr - iring_count + IRING_SIZE) % IRING_SIZE;
+    for (int i = 0; i < iring_count;i++){
+      int idx = (start + i) % IRING_SIZE;
+      printf("%s %s\n", (i == (iring_count - 1)) ? "-->" : "  ", iring_buf[idx].log);
+    }
+#endif
+}
+
 void assert_fail_msg() {
   isa_reg_display();
+
+  #ifdef CONFIG_IRINGBUF
+    display_iringbuf();
+  #endif
   statistic();
 }
 
@@ -126,6 +163,13 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
+      
+      #ifdef CONFIG_IRINGBUF
+        if(nemu_state.state == NEMU_ABORT || nemu_state.halt_ret != 0){
+          display_iringbuf();
+        }
+      #endif
+
       // fall through
     case NEMU_QUIT: statistic();
   }

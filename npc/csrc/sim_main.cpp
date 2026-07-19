@@ -1,90 +1,106 @@
-#include "Vtop.h"
-#include "Vtop___024root.h"
+#include "cpu.h"
+#include "difftest.h"
+#include "ftrace.h"
 #include "mem.h"
+#include "sdb.h"
+#include "trace.h"
+#include "watchpoint.h"
+
+#include <cstring>
+#include <stdint.h>
 #include <iostream>
-#include <nvboard.h>
-#include <verilated.h>
-#include <verilated_vcd_c.h> // wave tracing head
-
-Vtop *top = new Vtop;
-bool enable_trace = false;
-VerilatedVcdC *tfp = nullptr; // wave file pointer
-vluint64_t main_time = 0;     //
-
-void nvboard_bind_all_pins(Vtop *top);
-
-bool sim_halted = false;
-
-extern "C" void ebreak_halt() {
-  uint32_t a0_val = top->rootp->top__DOT__U_RF__DOT__rf[10];
-  uint32_t pc_val = top->rootp->top__DOT__U_IFU__DOT__pc_reg_Q;
-  if (a0_val == 0) {
-    printf("\033[1;32mNPC: HIT GOOD TRAP\033[0m at pc = 0x%08x\n", pc_val);
-  } else {
-    printf(
-        "\033[1;31mNPC: HIT BAD TRAP (exit code: %d)\033[0m at pc = 0x%08x\n",
-        a0_val, pc_val);
-  }
-  sim_halted = true;
-}
-
-void single_cycle() {
-  top->clk = 0;
-  top->eval();
-  if (tfp && enable_trace)
-    tfp->dump(main_time++);
-  top->clk = 1;
-  top->eval();
-  if (tfp && enable_trace)
-    tfp->dump(main_time++);
-}
-
-void reset(int n) {
-  top->rstn = 0;
-  while (n-- > 0)
-    single_cycle();
-  top->rstn = 1;
-}
+#include <string>
 
 int main(int argc, char **argv) {
-  Verilated::commandArgs(argc, argv);
-  Verilated::traceEverOn(true);
-  tfp = new VerilatedVcdC;
-  enable_trace = false;
-  // nvboard_bind_all_pins(top);
 
-  top->trace(tfp, 99);
-  tfp->open("waveform.vcd");
+  bool enable_nvboard = false;
+  bool enable_trace = false;
+  bool enable_itrace = false;
+  bool enable_mtrace = false;
+  bool enable_ftrace = false;
+  bool enable_difftest = false;
+  bool batch_mode = false;
 
-  if (argc > 1) {
-    load_bin(argv[1]);
-    std::cout << "NPC:load image" << argv[1] << std::endl;
+  const char *img_path = nullptr;
+  const char *elf_path = nullptr;
+  const char *diff_so_file = nullptr;
+  // ============================================================
+  // Parse command line arguments
+  //
+  // Supported examples:
+  //   ./top_sim
+  //   ./top_sim program.bin
+  //   ./top_sim --trace program.bin
+  //   ./top_nvboard --nvboard program.bin
+  //   ./top_nvboard --trace --nvboard program.bin
+  //
+  // Any argument that is not an option is treated as image path.
+  // ============================================================
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--trace") == 0) {
+      enable_trace = true;
+    } else if (strcmp(argv[i], "--batch") == 0) {
+      batch_mode = true;
+    } else if (strcmp(argv[i], "--itrace") == 0) {
+      enable_itrace = true;
+    } else if (strcmp(argv[i], "--mtrace") == 0) {
+      enable_mtrace = true;
+    } else if (strcmp(argv[i], "--ftrace") == 0) {
+      enable_ftrace = true;
+    } else if (strcmp(argv[i], "--diff") == 0) {
+      if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
+        std::cout << "Usage: --diff <ref-so>" << std::endl;
+        return 1;
+      }
+      enable_difftest = true;
+      diff_so_file = argv[++i];
+    } else if (strcmp(argv[i], "--elf") == 0) {
+      if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
+        std::cout << "Usage: --elf <program.elf>" << std::endl;
+        return 1;
+      }
+      elf_path = argv[++i];
+    } else if (strcmp(argv[i], "--nvboard") == 0) {
+      enable_nvboard = true;
+    } else if (argv[i][0] == '+') {
+      // Verilator plusargs are consumed by the SystemVerilog test model.
+      continue;
+    } else {
+      img_path = argv[i];
+    }
+  }
+
+  if (enable_ftrace && elf_path == nullptr) {
+    std::cout << "ftrace requires --elf <program.elf>" << std::endl;
+    return 1;
+  }
+
+  cpu_init(argc, argv, enable_nvboard, enable_trace);
+
+  init_wp_pool();
+
+  trace_init(enable_itrace, enable_mtrace);
+  ftrace_init(enable_ftrace, elf_path);
+  if (img_path != nullptr) {
+    load_bin(img_path);
+    std::cout << "NPC: load image" << img_path << std::endl;
   } else {
     std::cout << "NPC: No image, MEM is empty" << std::endl;
   }
-  // const char *path = NULL;
-  // load_bin(path);
-  // uint32_t halt_offset = 0x224;
 
-  // if (halt_offset < MEM_SIZE) {
-  //   *(uint32_t *)(pmem + halt_offset) = 0x00100073;
-  //   printf("NPC: Injected ebreak at [Offset: 0x%x] (Physical: 0x%08x)\n",
-  //          halt_offset, 0x80000000 + halt_offset);
-  // }
-  // nvboard_init();
+  cpu_reset(10);
 
-  reset(10);
-  uint64_t limit = 1000000000;
-  while (!sim_halted && !Verilated::gotFinish() && main_time < limit) {
-    single_cycle();
-  }
-  if (main_time >= limit) {
-    printf("\033[1;31mNPC: Simulation Timeout!\033[0m\n");
-    return -1;
+  difftest_init(enable_difftest, diff_so_file, get_img_size());
+
+  if (batch_mode) {
+    cpu_exec(UINT64_MAX);
+  } else {
+    sdb_mainloop();
   }
 
-  delete top;
-  tfp->close();
-  // nvboard_quit();
+  trace_cleanup();
+  ftrace_cleanup();
+  difftest_cleanup();
+  cpu_cleanup();
   return 0;
 }

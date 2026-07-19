@@ -15,6 +15,27 @@
 
 #include <isa.h>
 #include <memory/paddr.h>
+#include <elf.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef CONFIG_FTRACE
+
+typedef struct 
+{
+  /* data */
+  char name[64];
+  uint32_t start; // start address
+  uint32_t end;   // end address
+} FuncSymbol;
+static FuncSymbol *ftable = NULL;
+static int func_count = 0;
+int ftrace_depth = 0;
+
+#endif
+
+
+
 
 void init_rand();
 void init_log(const char *log_file);
@@ -44,6 +65,12 @@ static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static int difftest_port = 1234;
 
+#ifdef CONFIG_FTRACE
+
+static char *elf_file = NULL;
+
+#endif
+
 static long load_img() {
   if (img_file == NULL) {
     Log("No image is given. Use the default build-in image.");
@@ -66,29 +93,194 @@ static long load_img() {
   return size;
 }
 
+#ifdef CONFIG_FTRACE
+static void read_elf_data(void *ptr, size_t size, size_t nmemb, FILE *fp){
+  size_t ret = fread(ptr, size, nmemb, fp);
+  assert(ret == nmemb);
+}
+
+void init_ftrace(const char *elf_file){
+  if(elf_file == NULL){
+    printf("Error: elf file unavailable\n");
+    return;
+  }
+  // read ELF file
+  FILE *fp = fopen(elf_file, "rb");
+  Assert(fp, "Error: elf file '%s' cannot be opened", elf_file);
+
+  // read ELF header
+  Elf32_Ehdr ehdr;
+  read_elf_data(&ehdr, sizeof(Elf32_Ehdr), 1, fp);
+  Assert(ehdr.e_ident[EI_MAG0] == ELFMAG0 && ehdr.e_ident[EI_MAG1] == ELFMAG1 && ehdr.e_ident[EI_MAG2] == ELFMAG2 && ehdr.e_ident[EI_MAG3] == ELFMAG3, "Error:'%s' is not an ELF file", elf_file);
+  Assert(ehdr.e_ident[EI_CLASS] == ELFCLASS32, "Error: Only ELF32 is supported now");
+  Assert(ehdr.e_shentsize == sizeof(Elf32_Shdr), "Error: section header size illegal");
+  // read section header table
+  Elf32_Shdr *shdrs = malloc(ehdr.e_shentsize * ehdr.e_shnum);
+  assert(shdrs);
+  fseek(fp, ehdr.e_shoff, SEEK_SET); // seek_set is the start of the file, use it as base addr here
+  read_elf_data(shdrs, ehdr.e_shentsize, ehdr.e_shnum, fp);
+
+  // read shstrtab
+  Elf32_Shdr *shstr_shdr = &shdrs[ehdr.e_shstrndx];
+  char *shstrtab = malloc(shstr_shdr->sh_size);
+  assert(shstrtab);
+  fseek(fp, shstr_shdr->sh_offset, SEEK_SET);
+  read_elf_data(shstrtab, shstr_shdr->sh_size, 1, fp);
+
+  // find the .symtab section header
+  // section name = shstrtab + shdrs[i].name    name -- offset
+  Elf32_Shdr *symtab_shdr = NULL;
+  for (int i = 0; i < ehdr.e_shnum; i++){
+    const char *sec_name = shstrtab + shdrs[i].sh_name; // sh_name is the offset of section name in str table
+    if(strcmp(sec_name,".symtab") == 0){
+      symtab_shdr = &shdrs[i];
+      break;
+    }
+  }
+  
+  if(symtab_shdr == NULL){
+    printf("Error: No .symtab found in ELF file '%s'\n", elf_file);
+    free(shstrtab);
+    free(shdrs);
+    fclose(fp);
+    return;
+  }
+  
+  //check if symbol table entry is legal
+  Assert(symtab_shdr->sh_entsize == sizeof(Elf32_Sym), "Error: symbol entry size illegal");
+  
+  // find str table corresponding to symbol table
+  Elf32_Shdr *strtab_shdr = &shdrs[symtab_shdr->sh_link]; // sh_link point at strtab
+  Elf32_Sym *syms = malloc(symtab_shdr->sh_size);
+  assert(syms);
+  fseek(fp, symtab_shdr->sh_offset, SEEK_SET);
+  read_elf_data(syms, symtab_shdr->sh_size, 1, fp); // read the entire symbol table
+
+  // read .strtab
+  char *strtab = malloc(strtab_shdr->sh_size);
+  assert(strtab);
+  fseek(fp, strtab_shdr->sh_offset, SEEK_SET);
+  read_elf_data(strtab, strtab_shdr->sh_size, 1, fp);
+  int nr_sym = symtab_shdr->sh_size / symtab_shdr->sh_entsize;
+  ftable = malloc(sizeof(FuncSymbol) * nr_sym);
+  assert(ftable);
+  func_count = 0;
+
+  // traversal symbol for selecting
+  for (int i = 0; i < nr_sym;i++){
+    Elf32_Sym *sym = &syms[i]; // one symbol extracted from symbol table
+    if(ELF32_ST_TYPE(sym->st_info) != STT_FUNC){
+      continue;
+    }
+    if(sym->st_name == 0){ // jump if there is no name
+      continue;
+    }
+    const char *name = strtab + sym->st_name;
+
+    snprintf(ftable[func_count].name, sizeof(ftable[func_count].name), "%s", name); // to the address of name for extracting a string and save it into the first address
+    ftable[func_count].start = sym->st_value;
+    ftable[func_count].end = sym->st_value + sym->st_size;
+    func_count++;
+  }
+
+  // check extraction result
+  printf("ftrace: load %d function symbols from %s\n", func_count, elf_file);
+  for (int i = 0; i < func_count; i++){
+    printf("ftrace symbol: start = 0x%08x, end = 0x%08x, name = %s\n", ftable[i].start, ftable[i].end, ftable[i].name);
+  }
+
+  // temporary memory free
+  free(strtab);
+  free(syms);
+  free(shstrtab);
+  free(shdrs);
+  fclose(fp);
+}
+
+static const char *find_func_by_addr(vaddr_t addr){
+  for (int i = 0; i < func_count; i++){
+    uint32_t start = ftable[i].start;
+    uint32_t end = ftable[i].end;
+
+    if(start == end){
+      if(addr == start){
+        return ftable[i].name;
+      }
+    }
+    else{
+      if(addr >= start && addr < end){
+        return ftable[i].name;
+      }
+    }
+  }
+  return "???";
+}
+
+// print indent based on the depth
+static void print_ftrace_indent(void){
+  for (int i = 0; i < ftrace_depth; i++){
+    printf(" ");
+  }
+}
+
+// record function call
+void ftrace_call(vaddr_t pc, vaddr_t target){
+  const char *func_name = find_func_by_addr(target);
+  printf("0x%08x: ", pc);
+  print_ftrace_indent();
+  printf("call [%s@0x%08x]\n", func_name, target);
+
+  ftrace_depth++;
+}
+
+void ftrace_ret(vaddr_t pc){
+  if(ftrace_depth > 0){
+    ftrace_depth--;
+  }
+  const char *func_name = find_func_by_addr(pc);
+  printf("0x%08x: ", pc);
+  print_ftrace_indent();
+  printf("ret [%s]\n", func_name);
+}
+#endif
+
+
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
     {"batch"    , no_argument      , NULL, 'b'},
     {"log"      , required_argument, NULL, 'l'},
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
+    #ifdef CONFIG_FTRACE
+    {"elf"      , required_argument, NULL, 'e'},
+    #endif
     {"help"     , no_argument      , NULL, 'h'},
     {0          , 0                , NULL,  0 },
   };
   int o;
-  while ( (o = getopt_long(argc, argv, "-bhl:d:p:", table, NULL)) != -1) {
+  while ( (o = getopt_long(argc, argv, "-bhl:d:p:e:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': sscanf(optarg, "%d", &difftest_port); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
-      case 1: img_file = optarg; return 0;
+      #ifdef CONFIG_FTRACE
+      case 'e':
+        elf_file = optarg;
+        break;
+      #endif
+      case 1:
+        img_file = optarg;
+        return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
         printf("\t-b,--batch              run with batch mode\n");
         printf("\t-l,--log=FILE           output log to FILE\n");
         printf("\t-d,--diff=REF_SO        run DiffTest with reference REF_SO\n");
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
+        #ifdef CONFIG_FTRACE
+        printf("\t-e,--elf=FILE           load ELF file for ftrace\n");
+        #endif
         printf("\n");
         exit(0);
     }
@@ -107,6 +299,11 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Open the log file. */
   init_log(log_file);
+  
+  #ifdef CONFIG_FTRACE
+  /* Parse ELF file and load function symbols for ftrace */
+  init_ftrace(elf_file);
+  #endif
 
   /* Initialize memory. */
   init_mem();
@@ -126,7 +323,9 @@ void init_monitor(int argc, char *argv[]) {
   /* Initialize the simple debugger. */
   init_sdb();
 
-  IFDEF(CONFIG_ITRACE, init_disasm());
+#if defined(CONFIG_ITRACE) || defined(CONFIG_IQUEUE) || defined(CONFIG_IRINGBUF)
+    init_disasm();
+#endif
 
   /* Display welcome message. */
   welcome();

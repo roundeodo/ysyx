@@ -29,12 +29,28 @@ int atoi(const char* nptr) {
   return x;
 }
 
+extern Area heap;
+
+// manage memory  need to record how much u have dispatched and what u gonna dispatch
 void *malloc(size_t size) {
   // On native, malloc() will be called during initializaion of C runtime.
   // Therefore do not call panic() here, else it will yield a dead recursion:
   //   panic() -> putchar() -> (glibc) -> malloc() -> panic()
 #if !(defined(__ISA_NATIVE__) && defined(__NATIVE_USE_KLIB__))
-  panic("Not implemented");
+  static uintptr_t current_addr = 0; // has to be static so that it's a manageable variable
+  if(current_addr == 0){
+    current_addr = (uintptr_t)heap.start;
+  }
+
+  // alignment
+  current_addr = (current_addr + 7) & ~7; //align to 8
+  void *ret = (void *)current_addr;
+  current_addr += size;
+  if(current_addr > (uintptr_t)heap.end){
+    panic("out of memory in klib malloc");
+  }
+  return ret;
+
 #endif
   return NULL;
 }
