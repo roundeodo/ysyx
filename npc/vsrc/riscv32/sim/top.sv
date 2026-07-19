@@ -12,18 +12,18 @@ module top
     input logic clk,
     input logic rstn
 );
-  localparam int unsigned AXI_SLAVE_COUNT  = 2;
-  localparam int unsigned UART_SLAVE_INDEX = 0;
+  localparam int unsigned AXI_SLAVE_COUNT         = 3;
+  localparam int unsigned UART_SLAVE_INDEX        = 0;
   localparam int unsigned DPI_PLATFORM_SLAVE_INDEX = 1;
+  localparam int unsigned CLINT_SLAVE_INDEX       = 2;
 
   localparam logic [XLEN-1:0] AXI_SLAVE_BASE_ADDR_ARRAY[AXI_SLAVE_COUNT] =
-      '{32'h1000_0000, 32'h8000_0000};
+      '{32'h1000_0000, 32'h8000_0000, 32'ha000_0000};
   localparam logic [XLEN-1:0] AXI_SLAVE_ADDR_MASK_ARRAY[AXI_SLAVE_COUNT] =
-      '{32'hffff_f000, 32'hc000_0000};
+      '{32'hffff_f000, 32'hf800_0000, 32'hffff_0000};
 
-  // The transitional DPI platform region contains PMEM and legacy simulation
-  // devices such as the RTC at 0xa000_0048. Future SoC checkpoints replace it
-  // with separately mapped SRAM and timer slaves.
+  // The DPI platform region now covers only the 128 MiB PMEM window. CLINT owns
+  // the 0xa000_0000 timer window, avoiding overlapping xbar address matches.
 
   axi_lite_addr_t slave_axi_ar_array     [AXI_SLAVE_COUNT];
   logic           slave_axi_arvalid_array[AXI_SLAVE_COUNT];
@@ -161,6 +161,26 @@ module top
       .mem_axi_b_o      (slave_axi_b_array[DPI_PLATFORM_SLAVE_INDEX]),
       .mem_axi_bvalid_o (slave_axi_bvalid_array[DPI_PLATFORM_SLAVE_INDEX]),
       .mem_axi_bready_i (slave_axi_bready_array[DPI_PLATFORM_SLAVE_INDEX])
+  );
+
+  riscv32_axi_lite_clint u_clint (
+      .clk_i              (clk),
+      .rst_ni             (rstn),
+      .clint_axi_ar_i     (slave_axi_ar_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_arvalid_i(slave_axi_arvalid_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_arready_o(slave_axi_arready_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_r_o      (slave_axi_r_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_rvalid_o (slave_axi_rvalid_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_rready_i (slave_axi_rready_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_aw_i     (slave_axi_aw_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_awvalid_i(slave_axi_awvalid_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_awready_o(slave_axi_awready_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_w_i      (slave_axi_w_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_wvalid_i (slave_axi_wvalid_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_wready_o (slave_axi_wready_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_b_o      (slave_axi_b_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_bvalid_o (slave_axi_bvalid_array[CLINT_SLAVE_INDEX]),
+      .clint_axi_bready_i (slave_axi_bready_array[CLINT_SLAVE_INDEX])
   );
 
   import "DPI-C" context function void npc_set_dpi_scope();
