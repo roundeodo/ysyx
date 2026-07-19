@@ -92,7 +92,7 @@ $(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_SIM)
 		--exe \
 		-o $(abspath $(BIN_SIM)) \
 		--timescale "1ns/1ns" \
-		--no-ttiming
+		--no-timing
 
 
 # make nvboard
@@ -111,7 +111,7 @@ $(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHI
 		--exe \
 		-o $(abspath $(BIN_NV)) \
 		--timescale "1ns/1ns" \
-		--no-ttiming
+		--no-timing
 
 
 sim: $(BIN_SIM)
