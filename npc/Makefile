@@ -29,12 +29,24 @@ VERILATOR_FLAGS += -MMD --build -cc -Wall \
 $(shell mkdir -p $(BUILD_DIR))
 
 # RTL project source
+
+# NPC
 VSRC_DIR  = $(abspath ./vsrc/$(PROJECT))
 VSRC_LIST ?= $(VSRC_DIR)/filelist/filelist.f
 # The simulation filelist is also documentation for staged RTL TODOs. Only source entries
 # participate in Make dependencies; Verilator still reads the complete filelist.
 VSRC_DEPS = $(shell sed -e 's|$${NPC_HOME}|$(abspath .)|g' \
 	-e '/^[[:space:]]*\/\//d' -e '/^[[:space:]]*$$/d' $(VSRC_LIST))
+
+# Periferal
+YSYXSOC_HOME := $(abspath ../ysyxSoC)
+YSYXSOC_PERIP_DIR := $(YSYXSOC_HOME)/perip
+# Select all available file
+YSYXSOC_VSRCS := $(shell find $(YSYXSOC_PERIP_DIR) -type f -name "*.v")
+# verilog `include search path
+VERILATOR_RTL_INCLUDES := \
+	-I$(YSYXSOC_PERIP_DIR)/uart16550/rtl \
+	-I$(YSYXSOC_PERIP_DIR)/spi/rtl
 
 # normal simulation C/C++ sources
 CSRC_SIM = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))
@@ -68,22 +80,22 @@ CXXFLAGS_NV := $(CXXFLAGS_COMMON) -DCONFIG_NVBOARD
 
 
 # make sim
-$(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(CSRC_SIM)
+$(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_SIM)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) \
-		-f $(VSRC_LIST) $(CSRC_SIM) \
+		-f $(VSRC_LIST) $(YSYXSOC_VSRCS) $(CSRC_SIM) \
 		$(addprefix -CFLAGS , $(CXXFLAGS_SIM)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON)) \
 		--Mdir $(OBJ_DIR_SIM) --exe -o $(abspath $(BIN_SIM))
 
 
 # make nvboard
-$(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(CSRC_NV) $(NVBOARD_ARCHIVE)
+$(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		--top-module $(TOPNAME) \
-		-f $(VSRC_LIST) $(CSRC_NV) $(NVBOARD_ARCHIVE) \
+		-f $(VSRC_LIST) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS_NV)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON) $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR_NV) --exe -o $(abspath $(BIN_NV))
@@ -135,7 +147,9 @@ nvboard: $(BIN_NV)
 
 lint: $(VSRC_LIST)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) --lint-only -Wall --top-module $(TOPNAME) -f $(VSRC_LIST)
+	$(VERILATOR) --lint-only -Wall \
+	--top-module $(TOPNAME) \
+	-f $(VSRC_LIST) $(YSYXSOC_VSRCS)
 
 
 clean:
