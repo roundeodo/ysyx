@@ -14,12 +14,16 @@ module top
 );
   localparam int unsigned AXI_SLAVE_COUNT  = 2;
   localparam int unsigned UART_SLAVE_INDEX = 0;
-  localparam int unsigned MEM_SLAVE_INDEX  = 1;
+  localparam int unsigned DPI_PLATFORM_SLAVE_INDEX = 1;
 
   localparam logic [XLEN-1:0] AXI_SLAVE_BASE_ADDR_ARRAY[AXI_SLAVE_COUNT] =
       '{32'h1000_0000, 32'h8000_0000};
   localparam logic [XLEN-1:0] AXI_SLAVE_ADDR_MASK_ARRAY[AXI_SLAVE_COUNT] =
-      '{32'hffff_f000, 32'hff00_0000};
+      '{32'hffff_f000, 32'hc000_0000};
+
+  // The transitional DPI platform region contains PMEM and legacy simulation
+  // devices such as the RTC at 0xa000_0048. Future SoC checkpoints replace it
+  // with separately mapped SRAM and timer slaves.
 
   axi_lite_addr_t slave_axi_ar_array     [AXI_SLAVE_COUNT];
   logic           slave_axi_arvalid_array[AXI_SLAVE_COUNT];
@@ -142,21 +146,21 @@ module top
   ) u_sim_mem (
       .clk_i            (clk),
       .rst_ni           (rstn),
-      .mem_axi_ar_i     (slave_axi_ar_array[MEM_SLAVE_INDEX]),
-      .mem_axi_arvalid_i(slave_axi_arvalid_array[MEM_SLAVE_INDEX]),
-      .mem_axi_arready_o(slave_axi_arready_array[MEM_SLAVE_INDEX]),
-      .mem_axi_r_o      (slave_axi_r_array[MEM_SLAVE_INDEX]),
-      .mem_axi_rvalid_o (slave_axi_rvalid_array[MEM_SLAVE_INDEX]),
-      .mem_axi_rready_i (slave_axi_rready_array[MEM_SLAVE_INDEX]),
-      .mem_axi_aw_i     (slave_axi_aw_array[MEM_SLAVE_INDEX]),
-      .mem_axi_awvalid_i(slave_axi_awvalid_array[MEM_SLAVE_INDEX]),
-      .mem_axi_awready_o(slave_axi_awready_array[MEM_SLAVE_INDEX]),
-      .mem_axi_w_i      (slave_axi_w_array[MEM_SLAVE_INDEX]),
-      .mem_axi_wvalid_i (slave_axi_wvalid_array[MEM_SLAVE_INDEX]),
-      .mem_axi_wready_o (slave_axi_wready_array[MEM_SLAVE_INDEX]),
-      .mem_axi_b_o      (slave_axi_b_array[MEM_SLAVE_INDEX]),
-      .mem_axi_bvalid_o (slave_axi_bvalid_array[MEM_SLAVE_INDEX]),
-      .mem_axi_bready_i (slave_axi_bready_array[MEM_SLAVE_INDEX])
+      .mem_axi_ar_i     (slave_axi_ar_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_arvalid_i(slave_axi_arvalid_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_arready_o(slave_axi_arready_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_r_o      (slave_axi_r_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_rvalid_o (slave_axi_rvalid_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_rready_i (slave_axi_rready_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_aw_i     (slave_axi_aw_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_awvalid_i(slave_axi_awvalid_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_awready_o(slave_axi_awready_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_w_i      (slave_axi_w_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_wvalid_i (slave_axi_wvalid_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_wready_o (slave_axi_wready_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_b_o      (slave_axi_b_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_bvalid_o (slave_axi_bvalid_array[DPI_PLATFORM_SLAVE_INDEX]),
+      .mem_axi_bready_i (slave_axi_bready_array[DPI_PLATFORM_SLAVE_INDEX])
   );
 
   import "DPI-C" context function void npc_set_dpi_scope();
