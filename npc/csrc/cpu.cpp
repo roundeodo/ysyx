@@ -4,17 +4,8 @@
 #include "trace.h"
 #include "watchpoint.h"
 
-#ifndef TOP_CLASS
-#define TOP_CLASS Vtop
-#define TOP_HEADER "Vtop.h"
-#define TOP_DPI_HEADER "Vtop__Dpi.h"
-#define TOP_CLOCK clk
-#define TOP_RESET rstn
-#define TOP_RESET_ACTIVE_LEVEL 0
-#endif
-
-#include TOP_HEADER
-#include TOP_DPI_HEADER
+#include "VysyxSoCFull.h"
+#include "VysyxSoCFull__Dpi.h"
 
 #include "svdpi.h"
 
