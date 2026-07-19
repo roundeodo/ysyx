@@ -2,24 +2,27 @@
 // D018 requires a runnable checkpoint after every migration step. The entries
 // below are the active P0 single-cycle NPC, not the final OoO source layout.
 
-${NPC_HOME}/vsrc/riscv32/riscv32_pkg.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_arch_regfile.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_csr_file.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_idu.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_exu.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_lsu.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_completion_mux.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_commit.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_trap_controller.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_redirect_arbiter.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_ifu.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_core.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_axi_lite_arbiter.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_axi_lite_xbar.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_axi_lite_uart_sim.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_npc_axi_lite.sv
-${NPC_HOME}/vsrc/riscv32/riscv32_sim_mem.sv
-${NPC_HOME}/vsrc/riscv32/top.sv
+${NPC_HOME}/vsrc/riscv32/common/riscv32_pkg.sv
+
+${NPC_HOME}/vsrc/riscv32/core/riscv32_arch_regfile.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_csr_file.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_idu.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_exu.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_lsu.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_completion_mux.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_commit.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_trap_controller.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_redirect_arbiter.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_ifu.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_core.sv
+
+${NPC_HOME}/vsrc/riscv32/system/riscv32_axi_lite_arbiter.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_axi_lite_xbar.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi_lite.sv
+
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi_lite_uart_sim.sv
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_mem.sv
+${NPC_HOME}/vsrc/riscv32/sim/top.sv
 
 // P0 typed channel conversion completed in this order:
 //   IFU -> IDU: fetch_entry_t
