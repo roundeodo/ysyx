@@ -29,7 +29,6 @@ VERILATOR_FLAGS += -MMD --build -cc -Wall \
 $(shell mkdir -p $(BUILD_DIR))
 
 # RTL project source
-
 # NPC
 VSRC_DIR  = $(abspath ./vsrc/$(PROJECT))
 VSRC_LIST ?= $(VSRC_DIR)/filelist/filelist.f
@@ -57,24 +56,19 @@ CSRC_NV = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" 
 # NVBoard auto bind source
 NXDC_FILES = constr/top.nxdc
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
-
 CSRC_NV += $(SRC_AUTO_BIND)
-
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # include flags
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-
 # common C++ flags
 CXXFLAGS_COMMON := $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 LDFLAGS_COMMON := -L$(CAPSTONE_LIB) -Wl,-rpath=$(CAPSTONE_LIB) -lcapstone -ldl
 
 # normal sim does not enable NVBoard
 CXXFLAGS_SIM := $(CXXFLAGS_COMMON)
-
 # nvboard build enables CONFIG_NVBOARD
 CXXFLAGS_NV := $(CXXFLAGS_COMMON) -DCONFIG_NVBOARD
 
@@ -83,22 +77,33 @@ CXXFLAGS_NV := $(CXXFLAGS_COMMON) -DCONFIG_NVBOARD
 $(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_SIM)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
+		$(VERILATOR_RTL_INCLUDES) \
 		--top-module $(TOPNAME) \
-		-f $(VSRC_LIST) $(YSYXSOC_VSRCS) $(CSRC_SIM) \
+		-f $(VSRC_LIST) \
+		$(YSYXSOC_VSRCS) \
+		$(CSRC_SIM) \
 		$(addprefix -CFLAGS , $(CXXFLAGS_SIM)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON)) \
-		--Mdir $(OBJ_DIR_SIM) --exe -o $(abspath $(BIN_SIM))
+		--Mdir $(OBJ_DIR_SIM) \
+		--exe \
+		-o $(abspath $(BIN_SIM))
 
 
 # make nvboard
 $(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
+		$(VERILATOR_RTL_INCLUDES) \
 		--top-module $(TOPNAME) \
-		-f $(VSRC_LIST) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHIVE) \
+		-f $(VSRC_LIST) \
+		$(YSYXSOC_VSRCS) \
+		$(CSRC_NV) \
+		$(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS_NV)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON) $(LDFLAGS)) \
-		--Mdir $(OBJ_DIR_NV) --exe -o $(abspath $(BIN_NV))
+		--Mdir $(OBJ_DIR_NV) \
+		--exe \
+		-o $(abspath $(BIN_NV))
 
 
 sim: $(BIN_SIM)
@@ -144,13 +149,13 @@ sim-debug: $(BIN_SIM)
 nvboard: $(BIN_NV)
 	$(BIN_NV) --nvboard $(IMG)
 
-
 lint: $(VSRC_LIST)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) --lint-only -Wall \
+	$(VERILATOR_RTL_INCLUDES) \
 	--top-module $(TOPNAME) \
-	-f $(VSRC_LIST) $(YSYXSOC_VSRCS)
-
+	-f $(VSRC_LIST) \
+	$(YSYXSOC_VSRCS)
 
 clean:
 	rm -rf ./build wave.vcd waveform.vcd
