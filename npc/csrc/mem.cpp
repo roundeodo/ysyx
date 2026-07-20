@@ -11,6 +11,8 @@ uint8_t pmem[MEM_SIZE];
 
 static long img_size = 0;
 static constexpr uint32_t SERIAL_PORT = 0x10000000;
+static constexpr uint32_t MROM_BASE = 0x20000000;
+static constexpr uint32_t MROM_SIZE = 0x00001000;
 static struct termios saved_termios;
 static bool terminal_modified = false;
 
@@ -153,11 +155,22 @@ void flash_read(int32_t addr, int32_t *data) {
 }
 
 void mrom_read(int32_t addr, int32_t *data) {
-  (void)addr;
-  // Minimal ysyxSoC MROM access test: every word contains an EBREAK
-  // instruction (0x00100073). After reset, the NPC fetches this instruction
-  // from 0x2000_0000 and terminates through the normal commit-time halt path.
-  *data = static_cast<int32_t>(0x00100073u);
+  const uint32_t read_addr = static_cast<uint32_t>(addr) & ~0x3u;
+
+  if (read_addr < MROM_BASE || read_addr >= MROM_BASE + MROM_SIZE) {
+    *data = 0;
+    return;
+  }
+
+  const uint32_t image_offset = read_addr - MROM_BASE;
+  uint32_t read_data = 0;
+  for (uint32_t byte_index = 0; byte_index < 4; byte_index++) {
+    if (image_offset + byte_index < static_cast<uint32_t>(img_size)) {
+      read_data |= static_cast<uint32_t>(pmem[image_offset + byte_index])
+                   << (8 * byte_index);
+    }
+  }
+  *data = static_cast<int32_t>(read_data);
 }
 
 int pmem_read(int raddr) {
