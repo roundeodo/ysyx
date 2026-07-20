@@ -8,7 +8,7 @@ void _start(void) {
       (volatile uint8_t *)(UART_BASE_ADDR + UART_TX_OFFSET);
 
   *uart_tx = 'A';
-  *uart_tx = '\n';
+  // *uart_tx = '\n';
 
   while (1) {
   }
