@@ -1,7 +1,7 @@
 #include <am.h>
 
-#define RTC_ADDR_LO 0xa0000048
-#define RTC_ADDR_HI 0xa000004c
+#define RTC_ADDR_LO 0x02000048
+#define RTC_ADDR_HI 0x0200004c
 
 void __am_timer_init() {
 }

@@ -95,12 +95,12 @@ uint32_t paddr_read(uint32_t addr, int len) {
   }
 
   // rtc low 32 bits
-  if (addr == 0xa0000048) {
+  if (addr == 0x02000048) {
     rtc_latch = get_time_mus() - start_time;
     return (uint32_t)rtc_latch;
   }
   // rtc high 32 bits
-  if (addr == 0xa000004c)
+  if (addr == 0x0200004c)
     return (uint32_t)(rtc_latch >> 32);
 
   uint8_t *host_addr = guest_to_host(addr);
@@ -166,11 +166,11 @@ int pmem_read(int raddr) {
   if ((uint32_t)raddr == SERIAL_PORT) {
     return serial_getchar_nonblock();
   }
-  if (raddr == 0xa0000048) {
+  if (raddr == 0x02000048) {
     rtc_latch = get_time_mus() - start_time;
     return (uint32_t)rtc_latch;
   }
-  if (raddr == 0xa000004c) {
+  if (raddr == 0x0200004c) {
     return (uint32_t)(rtc_latch >> 32);
   }
 

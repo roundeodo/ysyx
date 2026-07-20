@@ -9,7 +9,10 @@ module riscv32_axi_lite_xbar
 #(
     parameter int unsigned SLAVE_COUNT = 2,
     parameter logic [XLEN-1:0] SLAVE_BASE_ADDR[SLAVE_COUNT] = '{32'h1000_0000, 32'h8000_0000},
-    parameter logic [XLEN-1:0] SLAVE_ADDR_MASK[SLAVE_COUNT] = '{32'hffff_f000, 32'hff00_0000}
+    parameter logic [XLEN-1:0] SLAVE_ADDR_MASK[SLAVE_COUNT] = '{32'hffff_f000, 32'hff00_0000},
+    parameter logic SLAVE_ADDR_SELECT_ENABLE[SLAVE_COUNT] = '{default: 1'b1},
+    parameter bit DEFAULT_SLAVE_ENABLE = 1'b0,
+    parameter int unsigned DEFAULT_SLAVE_INDEX = 0
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -130,7 +133,11 @@ module riscv32_axi_lite_xbar
     select_slaves_by_addr = '0;
     for (int unsigned i = 0; i < SLAVE_COUNT; i++) begin
       select_slaves_by_addr[i] =
+          SLAVE_ADDR_SELECT_ENABLE[i] &&
           ((addr & SLAVE_ADDR_MASK[i]) == (SLAVE_BASE_ADDR[i] & SLAVE_ADDR_MASK[i]));
+    end
+    if (DEFAULT_SLAVE_ENABLE && !(|select_slaves_by_addr)) begin
+      select_slaves_by_addr[DEFAULT_SLAVE_INDEX] = 1'b1;
     end
   endfunction
 
@@ -411,6 +418,9 @@ module riscv32_axi_lite_xbar
   initial begin
     p_slave_count_positive :
     assert (SLAVE_COUNT > 0) else $fatal(1, "AXI-Lite xbar requires at least one slave");
+    p_default_slave_index_in_range :
+    assert (!DEFAULT_SLAVE_ENABLE || (DEFAULT_SLAVE_INDEX < SLAVE_COUNT))
+      else $fatal(1, "AXI-Lite xbar default slave index is out of range");
   end
 
   // The design uses an asynchronous reset; SVA disable conditions sample the

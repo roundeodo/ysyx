@@ -28,6 +28,19 @@ module riscv32_npc_axi_core_boundary
     input  logic      master_axi_bvalid_i,
     output logic      master_axi_bready_o
 );
+  localparam int unsigned AXI_ROUTE_DESTINATION_COUNT = 2;
+  localparam int unsigned CLINT_DESTINATION_INDEX      = 0;
+  localparam int unsigned SOC_DESTINATION_INDEX        = 1;
+
+  localparam logic [XLEN-1:0] AXI_ROUTE_BASE_ADDR_ARRAY[AXI_ROUTE_DESTINATION_COUNT] =
+      '{32'h0200_0000, 32'h0000_0000};
+  localparam logic [XLEN-1:0] AXI_ROUTE_ADDR_MASK_ARRAY[AXI_ROUTE_DESTINATION_COUNT] =
+      '{32'hffff_0000, 32'h0000_0000};
+  // Only CLINT participates in address comparison. Every address outside the
+  // CLINT window is sent to the SoC-facing destination by the default route.
+  localparam logic AXI_ROUTE_ADDR_SELECT_ENABLE_ARRAY[AXI_ROUTE_DESTINATION_COUNT] =
+      '{1'b1, 1'b0};
+
   axi_lite_addr_t ifu_axi_ar;
   logic           ifu_axi_arvalid;
   logic           ifu_axi_arready;
@@ -55,65 +68,82 @@ module riscv32_npc_axi_core_boundary
   // AxPROT is an AXI4-Lite attribute used inside the core but is not present in
   // the current SoC-facing axi_addr_t definition.
   /* verilator lint_off UNUSEDSIGNAL */
-  axi_lite_addr_t shared_axi_ar;
-  logic           shared_axi_arvalid;
-  logic           shared_axi_arready;
-  axi_lite_r_t    shared_axi_r;
-  logic           shared_axi_rvalid;
-  logic           shared_axi_rready;
+  axi_lite_addr_t arbiter_axi_ar;
+  logic           arbiter_axi_arvalid;
+  logic           arbiter_axi_arready;
+  axi_lite_r_t    arbiter_axi_r;
+  logic           arbiter_axi_rvalid;
+  logic           arbiter_axi_rready;
 
-  axi_lite_addr_t shared_axi_aw;
+  axi_lite_addr_t arbiter_axi_aw;
   /* verilator lint_on UNUSEDSIGNAL */
-  logic           shared_axi_awvalid;
-  logic           shared_axi_awready;
-  axi_lite_w_t    shared_axi_w;
-  logic           shared_axi_wvalid;
-  logic           shared_axi_wready;
-  axi_lite_b_t    shared_axi_b;
-  logic           shared_axi_bvalid;
-  logic           shared_axi_bready;
+  logic           arbiter_axi_awvalid;
+  logic           arbiter_axi_awready;
+  axi_lite_w_t    arbiter_axi_w;
+  logic           arbiter_axi_wvalid;
+  logic           arbiter_axi_wready;
+  axi_lite_b_t    arbiter_axi_b;
+  logic           arbiter_axi_bvalid;
+  logic           arbiter_axi_bready;
+
+  axi_lite_addr_t destination_axi_ar_array     [AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_arvalid_array[AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_arready_array[AXI_ROUTE_DESTINATION_COUNT];
+  axi_lite_r_t    destination_axi_r_array      [AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_rvalid_array [AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_rready_array [AXI_ROUTE_DESTINATION_COUNT];
+
+  axi_lite_addr_t destination_axi_aw_array     [AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_awvalid_array[AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_awready_array[AXI_ROUTE_DESTINATION_COUNT];
+  axi_lite_w_t    destination_axi_w_array      [AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_wvalid_array [AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_wready_array [AXI_ROUTE_DESTINATION_COUNT];
+  axi_lite_b_t    destination_axi_b_array      [AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_bvalid_array [AXI_ROUTE_DESTINATION_COUNT];
+  logic           destination_axi_bready_array [AXI_ROUTE_DESTINATION_COUNT];
 
   // The current core issues one transaction at a time. Full AXI therefore uses
   // ID 0, one 32-bit beat, and INCR burst semantics at this boundary.
   always_comb begin
     master_axi_ar_o = '{
-      addr  : shared_axi_ar.addr,
+      addr  : destination_axi_ar_array[SOC_DESTINATION_INDEX].addr,
       id    : 4'b0,
       len   : 8'b0,
       size  : 3'd2,
       burst : 2'b01
     };
     master_axi_aw_o = '{
-      addr  : shared_axi_aw.addr,
+      addr  : destination_axi_aw_array[SOC_DESTINATION_INDEX].addr,
       id    : 4'b0,
       len   : 8'b0,
       size  : 3'd2,
       burst : 2'b01
     };
     master_axi_w_o = '{
-      data : shared_axi_w.data,
-      strb : shared_axi_w.strb,
+      data : destination_axi_w_array[SOC_DESTINATION_INDEX].data,
+      strb : destination_axi_w_array[SOC_DESTINATION_INDEX].strb,
       last : 1'b1
     };
 
-    shared_axi_r = '{
+    destination_axi_r_array[SOC_DESTINATION_INDEX] = '{
       data : master_axi_r_i.data,
       resp : master_axi_r_i.resp
     };
-    shared_axi_b = '{resp: master_axi_b_i.resp};
+    destination_axi_b_array[SOC_DESTINATION_INDEX] = '{resp: master_axi_b_i.resp};
   end
 
-  assign master_axi_arvalid_o = shared_axi_arvalid;
-  assign shared_axi_arready   = master_axi_arready_i;
-  assign shared_axi_rvalid    = master_axi_rvalid_i;
-  assign master_axi_rready_o  = shared_axi_rready;
+  assign master_axi_arvalid_o = destination_axi_arvalid_array[SOC_DESTINATION_INDEX];
+  assign destination_axi_arready_array[SOC_DESTINATION_INDEX] = master_axi_arready_i;
+  assign destination_axi_rvalid_array[SOC_DESTINATION_INDEX]  = master_axi_rvalid_i;
+  assign master_axi_rready_o = destination_axi_rready_array[SOC_DESTINATION_INDEX];
 
-  assign master_axi_awvalid_o = shared_axi_awvalid;
-  assign shared_axi_awready   = master_axi_awready_i;
-  assign master_axi_wvalid_o  = shared_axi_wvalid;
-  assign shared_axi_wready    = master_axi_wready_i;
-  assign shared_axi_bvalid    = master_axi_bvalid_i;
-  assign master_axi_bready_o  = shared_axi_bready;
+  assign master_axi_awvalid_o = destination_axi_awvalid_array[SOC_DESTINATION_INDEX];
+  assign destination_axi_awready_array[SOC_DESTINATION_INDEX] = master_axi_awready_i;
+  assign master_axi_wvalid_o = destination_axi_wvalid_array[SOC_DESTINATION_INDEX];
+  assign destination_axi_wready_array[SOC_DESTINATION_INDEX] = master_axi_wready_i;
+  assign destination_axi_bvalid_array[SOC_DESTINATION_INDEX] = master_axi_bvalid_i;
+  assign master_axi_bready_o = destination_axi_bready_array[SOC_DESTINATION_INDEX];
 
   riscv32_core u_core (
       .clk_i            (clk_i),
@@ -165,21 +195,89 @@ module riscv32_npc_axi_core_boundary
       .lsu_axi_b_o      (lsu_axi_b),
       .lsu_axi_bvalid_o (lsu_axi_bvalid),
       .lsu_axi_bready_i (lsu_axi_bready),
-      .mem_axi_ar_o     (shared_axi_ar),
-      .mem_axi_arvalid_o(shared_axi_arvalid),
-      .mem_axi_arready_i(shared_axi_arready),
-      .mem_axi_r_i      (shared_axi_r),
-      .mem_axi_rvalid_i (shared_axi_rvalid),
-      .mem_axi_rready_o (shared_axi_rready),
-      .mem_axi_aw_o     (shared_axi_aw),
-      .mem_axi_awvalid_o(shared_axi_awvalid),
-      .mem_axi_awready_i(shared_axi_awready),
-      .mem_axi_w_o      (shared_axi_w),
-      .mem_axi_wvalid_o (shared_axi_wvalid),
-      .mem_axi_wready_i (shared_axi_wready),
-      .mem_axi_b_i      (shared_axi_b),
-      .mem_axi_bvalid_i (shared_axi_bvalid),
-      .mem_axi_bready_o (shared_axi_bready)
+      .mem_axi_ar_o     (arbiter_axi_ar),
+      .mem_axi_arvalid_o(arbiter_axi_arvalid),
+      .mem_axi_arready_i(arbiter_axi_arready),
+      .mem_axi_r_i      (arbiter_axi_r),
+      .mem_axi_rvalid_i (arbiter_axi_rvalid),
+      .mem_axi_rready_o (arbiter_axi_rready),
+      .mem_axi_aw_o     (arbiter_axi_aw),
+      .mem_axi_awvalid_o(arbiter_axi_awvalid),
+      .mem_axi_awready_i(arbiter_axi_awready),
+      .mem_axi_w_o      (arbiter_axi_w),
+      .mem_axi_wvalid_o (arbiter_axi_wvalid),
+      .mem_axi_wready_i (arbiter_axi_wready),
+      .mem_axi_b_i      (arbiter_axi_b),
+      .mem_axi_bvalid_i (arbiter_axi_bvalid),
+      .mem_axi_bready_o (arbiter_axi_bready)
+  );
+
+  // Keep the architectural CLINT inside the CPU boundary. The xbar performs
+  // address selection and preserves the route until the corresponding AXI
+  // response completes. Its empty-path forwarding keeps the existing
+  // combinational fast bypass for both CLINT and SoC requests.
+  riscv32_axi_lite_xbar #(
+      .SLAVE_COUNT            (AXI_ROUTE_DESTINATION_COUNT),
+      .SLAVE_BASE_ADDR        (AXI_ROUTE_BASE_ADDR_ARRAY),
+      .SLAVE_ADDR_MASK        (AXI_ROUTE_ADDR_MASK_ARRAY),
+      .SLAVE_ADDR_SELECT_ENABLE(AXI_ROUTE_ADDR_SELECT_ENABLE_ARRAY),
+      .DEFAULT_SLAVE_ENABLE   (1'b1),
+      .DEFAULT_SLAVE_INDEX    (SOC_DESTINATION_INDEX)
+  ) u_axi_lite_address_router (
+      .clk_i              (clk_i),
+      .rst_ni             (rst_ni),
+      .npc_axi_ar_i       (arbiter_axi_ar),
+      .npc_axi_arvalid_i  (arbiter_axi_arvalid),
+      .npc_axi_arready_o  (arbiter_axi_arready),
+      .npc_axi_r_o        (arbiter_axi_r),
+      .npc_axi_rvalid_o   (arbiter_axi_rvalid),
+      .npc_axi_rready_i   (arbiter_axi_rready),
+      .npc_axi_aw_i       (arbiter_axi_aw),
+      .npc_axi_awvalid_i  (arbiter_axi_awvalid),
+      .npc_axi_awready_o  (arbiter_axi_awready),
+      .npc_axi_w_i        (arbiter_axi_w),
+      .npc_axi_wvalid_i   (arbiter_axi_wvalid),
+      .npc_axi_wready_o   (arbiter_axi_wready),
+      .npc_axi_b_o        (arbiter_axi_b),
+      .npc_axi_bvalid_o   (arbiter_axi_bvalid),
+      .npc_axi_bready_i   (arbiter_axi_bready),
+      .slave_axi_ar_o     (destination_axi_ar_array),
+      .slave_axi_arvalid_o(destination_axi_arvalid_array),
+      .slave_axi_arready_i(destination_axi_arready_array),
+      .slave_axi_r_i      (destination_axi_r_array),
+      .slave_axi_rvalid_i (destination_axi_rvalid_array),
+      .slave_axi_rready_o (destination_axi_rready_array),
+      .slave_axi_aw_o     (destination_axi_aw_array),
+      .slave_axi_awvalid_o(destination_axi_awvalid_array),
+      .slave_axi_awready_i(destination_axi_awready_array),
+      .slave_axi_w_o      (destination_axi_w_array),
+      .slave_axi_wvalid_o (destination_axi_wvalid_array),
+      .slave_axi_wready_i (destination_axi_wready_array),
+      .slave_axi_b_i      (destination_axi_b_array),
+      .slave_axi_bvalid_i (destination_axi_bvalid_array),
+      .slave_axi_bready_o (destination_axi_bready_array)
+  );
+
+  riscv32_axi_lite_clint #(
+      .CLINT_BASE_ADDR(AXI_ROUTE_BASE_ADDR_ARRAY[CLINT_DESTINATION_INDEX])
+  ) u_axi_lite_clint (
+      .clk_i                (clk_i),
+      .rst_ni               (rst_ni),
+      .clint_axi_ar_i       (destination_axi_ar_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_arvalid_i  (destination_axi_arvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_arready_o  (destination_axi_arready_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_r_o        (destination_axi_r_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_rvalid_o   (destination_axi_rvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_rready_i   (destination_axi_rready_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_aw_i       (destination_axi_aw_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_awvalid_i  (destination_axi_awvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_awready_o  (destination_axi_awready_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_w_i        (destination_axi_w_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_wvalid_i   (destination_axi_wvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_wready_o   (destination_axi_wready_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_b_o        (destination_axi_b_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_bvalid_o   (destination_axi_bvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_bready_i   (destination_axi_bready_array[CLINT_DESTINATION_INDEX])
   );
 
 endmodule
