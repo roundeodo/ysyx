@@ -20,6 +20,9 @@ OBJ_DIR_NV  = $(BUILD_DIR)/obj_dir_nv
 BIN_SIM = $(BUILD_DIR)/$(TOPNAME)_sim
 BIN_NV  = $(BUILD_DIR)/$(TOPNAME)_nvboard
 
+MROM_UART_TEST_DIR = ./tests/mrom-uart
+MROM_UART_TEST_BIN = $(abspath $(MROM_UART_TEST_DIR)/build/char-test.bin)
+
 # verilator config
 VERILATOR = verilator
 VERILATOR_FLAGS += -MMD --build -cc -Wall -Wno-fatal \
@@ -126,6 +129,13 @@ sim-am: $(BIN_SIM)
 	@echo "NPC: Running AM program $(IMG)..."
 	$(BIN_SIM) --batch $(IMG)
 
+mrom-uart:
+	$(MAKE) -C $(MROM_UART_TEST_DIR)
+
+sim-mrom-uart: $(BIN_SIM) mrom-uart
+	@echo "NPC: Running MROM UART test $(MROM_UART_TEST_BIN)..."
+	$(BIN_SIM) --batch $(MROM_UART_TEST_BIN)
+
 sim-itrace: $(BIN_SIM)
 	@echo "NPC: Running AM program with itrace $(IMG)..."
 	$(BIN_SIM) --itrace $(IMG)
@@ -212,4 +222,4 @@ help:
 
 default: help
 
-.PHONY: default sim sim-am sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave sim-difftest nvboard lint clean help
+.PHONY: default sim sim-am mrom-uart sim-mrom-uart sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave sim-difftest nvboard lint clean help

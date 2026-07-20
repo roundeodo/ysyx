@@ -18,9 +18,13 @@
 
 #include <common.h>
 
-#define PMEM_LEFT  ((paddr_t)CONFIG_MBASE)
-#define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
+#define PMEM_LEFT    ((paddr_t)CONFIG_MBASE)
+#define PMEM_RIGHT   ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
+
+#define SRAM_LEFT  ((paddr_t)0x0f000000)
+#define SRAM_SIZE  ((paddr_t)0x00002000)
+#define SRAM_RIGHT (SRAM_LEFT + SRAM_SIZE - 1)
 
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
@@ -33,5 +37,17 @@ static inline bool in_pmem(paddr_t addr) {
 
 word_t paddr_read(paddr_t addr, int len);
 void paddr_write(paddr_t addr, int len, word_t data);
+
+static inline bool in_sram(paddr_t addr){
+  #ifdef CONFIG_YSYXSOC_MEMORY
+  return addr - SRAM_LEFT < SRAM_SIZE;
+  #else
+  return false;
+  #endif
+}
+
+static inline bool in_memory(paddr_t addr){
+  return in_pmem(addr) || in_sram(addr);
+}
 
 #endif
