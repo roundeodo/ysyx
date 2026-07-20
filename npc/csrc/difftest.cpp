@@ -69,6 +69,12 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
     exit(1);
   }
 
+  if (img_size > static_cast<long>(MROM_SIZE)) {
+    printf("DiffTest MROM image is too large: %ld bytes, capacity=%u bytes\n",
+           img_size, MROM_SIZE);
+    exit(1);
+  }
+
   if (ref_so_file == nullptr) {
     printf("DiffTest requires --diff <ref-so>\n");
     exit(1);
@@ -101,15 +107,21 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
     exit(1);
   }
 
-  // 初始化 REF，然后把 DUT 的内存镜像和初始寄存器状态同步给 REF。
+  // NEMU 初始化后，将DUT使用的程序镜像复制到NEMU的MROM。
+  // SRAM不需要在这里复制：DUT和REF随后都会执行同一段start.S，分别完成
+  // .data从MROM到SRAM的搬运和.bss清零。
   ref_difftest_init(0);
-  ref_difftest_memcpy(RESET_VECTOR, pmem, img_size, DIFFTEST_TO_REF);
+  const size_t mrom_image_size = static_cast<size_t>(img_size);
+  ref_difftest_memcpy(MROM_BASE, pmem, mrom_image_size, DIFFTEST_TO_REF);
 
-  DiffTestRegs dut;
-  fill_dut_regs(&dut, RESET_VECTOR);
+  // DiffTest从复位后的第一条指令开始。寄存器值取自已经复位的DUT，
+  // architectural_pc使用ysyxSoC的MROM复位入口，而不是旧NPC的pmem基址。
+  DiffTestRegs dut = {};
+  fill_dut_regs(&dut, YSYXSOC_RESET_VECTOR);
   ref_difftest_regcpy(&dut, DIFFTEST_TO_REF);
 
-  printf("DiffTest: ON, REF=%s\n", ref_so_file);
+  printf("DiffTest: ON, REF=%s, MROM=[0x%08x, +%zu bytes], reset_pc=0x%08x\n",
+         ref_so_file, MROM_BASE, mrom_image_size, YSYXSOC_RESET_VECTOR);
 }
 
 void difftest_step(uint32_t pc, uint32_t next_pc) {

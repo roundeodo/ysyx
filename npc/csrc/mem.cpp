@@ -1,9 +1,9 @@
 #include "mem.h"
 #include "trace.h"
 #include <cassert>
-#include <fcntl.h>
 #include <cstdio>
 #include <cstdlib>
+#include <fcntl.h>
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
@@ -11,8 +11,6 @@ uint8_t pmem[MEM_SIZE];
 
 static long img_size = 0;
 static constexpr uint32_t SERIAL_PORT = 0x10000000;
-static constexpr uint32_t MROM_BASE = 0x20000000;
-static constexpr uint32_t MROM_SIZE = 0x00001000;
 static struct termios saved_termios;
 static bool terminal_modified = false;
 
@@ -46,10 +44,10 @@ uint64_t get_time_mus() {
 
 // transfer physical address to host address
 static uint8_t *guest_to_host(uint32_t paddr) {
-  if (paddr < RESET_VECTOR || paddr >= RESET_VECTOR + MEM_SIZE)
+  if (paddr < LEGACY_PMEM_BASE || paddr >= LEGACY_PMEM_BASE + MEM_SIZE)
     return nullptr;
 
-  return pmem + (paddr - RESET_VECTOR);
+  return pmem + (paddr - LEGACY_PMEM_BASE);
 }
 
 static void serial_restore_terminal() {
@@ -190,7 +188,7 @@ int pmem_read(int raddr) {
   }
 
   uint32_t aligned_addr = raddr & ~0x3u;
-  uint32_t offset = aligned_addr - 0x80000000;
+  uint32_t offset = aligned_addr - LEGACY_PMEM_BASE;
   if (offset >= MEM_SIZE) {
     return 0;
   }
@@ -205,7 +203,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   }
 
   uint32_t aligned_addr = waddr & ~0x3u; // reset bit 1 and 0 for aligning
-  uint32_t offset = aligned_addr - 0x80000000;
+  uint32_t offset = aligned_addr - LEGACY_PMEM_BASE;
   if (offset >= MEM_SIZE) {
     return;
   }
