@@ -154,8 +154,10 @@ void flash_read(int32_t addr, int32_t *data) {
 
 void mrom_read(int32_t addr, int32_t *data) {
   (void)addr;
-  (void)data;
-  assert(false && "mrom_read is not implemented by the NPC simulator");
+  // Minimal ysyxSoC MROM access test: every word contains an EBREAK
+  // instruction (0x00100073). After reset, the NPC fetches this instruction
+  // from 0x2000_0000 and terminates through the normal commit-time halt path.
+  *data = static_cast<int32_t>(0x00100073u);
 }
 
 int pmem_read(int raddr) {
