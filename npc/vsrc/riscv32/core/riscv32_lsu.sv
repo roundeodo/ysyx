@@ -148,9 +148,8 @@ module riscv32_lsu
   end
 
 
-  // AXI4-Lite has no AxSIZE. Read a full aligned word and select load lanes locally;
-  // use WSTRB to restrict byte and halfword stores.
-  localparam int unsigned AXI_ADDR_LSB = $clog2(BYTE_LANES);
+  // AXI4-Lite has no AxSIZE. Preserve the byte address so a byte-addressed MMIO
+  // slave can select its register; WSTRB and WDATA select the written byte lanes.
 
   always_comb begin
     ar_payload      = '0;

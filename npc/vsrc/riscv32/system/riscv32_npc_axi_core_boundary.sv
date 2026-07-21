@@ -103,21 +103,46 @@ module riscv32_npc_axi_core_boundary
   logic           destination_axi_bvalid_array [AXI_ROUTE_DESTINATION_COUNT];
   logic           destination_axi_bready_array [AXI_ROUTE_DESTINATION_COUNT];
 
+  localparam logic [XLEN-1:0] SOC_UART_BASE_ADDR = 32'h1000_0000;
+  localparam logic [XLEN-1:0] SOC_UART_ADDR_MASK = 32'hffff_f000;
+
+  logic [2:0] soc_read_transfer_size;
+  logic [2:0] soc_write_transfer_size;
+
+  // The core-side bus is AXI4-Lite and therefore carries no AxSIZE. At the
+  // ysyxSoC full-AXI boundary, recover write size from WSTRB. Read size cannot
+  // be recovered from a Lite read payload, so byte-addressed UART accesses are
+  // identified from the SoC address map; normal instruction/data memory reads
+  // remain 32-bit transfers.
+  always_comb begin
+    soc_read_transfer_size = 3'd2;
+    if ((destination_axi_ar_array[SOC_DESTINATION_INDEX].addr & SOC_UART_ADDR_MASK) ==
+        SOC_UART_BASE_ADDR) begin
+      soc_read_transfer_size = 3'd0;
+    end
+
+    unique case (destination_axi_w_array[SOC_DESTINATION_INDEX].strb)
+      4'b0001, 4'b0010, 4'b0100, 4'b1000: soc_write_transfer_size = 3'd0;
+      4'b0011, 4'b1100:                   soc_write_transfer_size = 3'd1;
+      default:                            soc_write_transfer_size = 3'd2;
+    endcase
+  end
+
   // The current core issues one transaction at a time. Full AXI therefore uses
-  // ID 0, one 32-bit beat, and INCR burst semantics at this boundary.
+  // ID 0, one beat, and INCR burst semantics at this boundary.
   always_comb begin
     master_axi_ar_o = '{
       addr  : destination_axi_ar_array[SOC_DESTINATION_INDEX].addr,
       id    : 4'b0,
       len   : 8'b0,
-      size  : 3'd2,
+      size  : soc_read_transfer_size,
       burst : 2'b01
     };
     master_axi_aw_o = '{
       addr  : destination_axi_aw_array[SOC_DESTINATION_INDEX].addr,
       id    : 4'b0,
       len   : 8'b0,
-      size  : 3'd2,
+      size  : soc_write_transfer_size,
       burst : 2'b01
     };
     master_axi_w_o = '{
