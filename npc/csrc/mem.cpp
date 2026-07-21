@@ -3,16 +3,46 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fcntl.h>
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
+
 uint8_t pmem[MEM_SIZE];
+// W25Q128 has 128Mbit
+static constexpr uint32_t FLASH_SIZE = 16u * 1024u * 1024u;
+static constexpr uint32_t FLASH_BASE = 0x30000000u;
+
+static uint8_t flash_mem[FLASH_SIZE];
+static bool falsh_initialized = false;
 
 static long img_size = 0;
 static constexpr uint32_t SERIAL_PORT = 0x10000000;
 static struct termios saved_termios;
 static bool terminal_modified = false;
+
+static void flash_store32(uint32_t offset, uint32_t value) {
+  if (offset > FLASH_SIZE - sizeof(uint32_t)) {
+    fprintf(stderr, "Error: flash_store32 out of bound, offset = 0x%08x\n",
+            offset);
+    exit(1);
+  }
+  flash_mem[offset + 0] = static_cast<uint8_t>((value >> 0) & 0xffu);
+  flash_mem[offset + 1] = static_cast<uint8_t>((value >> 8) & 0xffu);
+  flash_mem[offset + 2] = static_cast<uint8_t>((value >> 16) & 0xffu);
+  flash_mem[offset + 3] = static_cast<uint8_t>((value >> 24) & 0xffu);
+}
+
+void init_flash() {
+  memset(flash_mem, 0xff, sizeof(flash_mem));
+
+  flash_store32(0x0000u, 0x12345678u);
+  flash_store32(0x0004u, 0xdeadbeefu);
+  flash_store32(0x0100u, 0xabcdef01u);
+
+  falsh_initialized = true;
+}
 
 void load_bin(const char *path) {
   if (path == nullptr) {
@@ -147,9 +177,28 @@ void paddr_write(uint32_t addr, int len, uint32_t data) {
 extern "C" {
 
 void flash_read(int32_t addr, int32_t *data) {
-  (void)addr;
-  (void)data;
-  assert(false && "flash_read is not implemented by the NPC simulator");
+  if (data == nullptr) {
+    fprintf(stderr, "Error: flash_read received null data pointer\n");
+    abort();
+  }
+
+  if (!falsh_initialized) {
+    init_flash();
+  }
+
+  const uint32_t offset = static_cast<uint32_t>(addr);
+
+  if ((offset & 0x3u) != 0 || offset > FLASH_SIZE - sizeof(uint32_t)) {
+    fprintf(stderr, "Error: invalid flash read offset = 0x%08x\n", offset);
+    abort();
+  }
+
+  const uint32_t value = (static_cast<uint32_t>(flash_mem[offset + 0])) |
+                         (static_cast<uint32_t>(flash_mem[offset + 1]) << 8) |
+                         (static_cast<uint32_t>(flash_mem[offset + 2]) << 16) |
+                         (static_cast<uint32_t>(flash_mem[offset + 3]) << 24);
+
+  *data = static_cast<int32_t>(value);
 }
 
 void mrom_read(int32_t addr, int32_t *data) {
