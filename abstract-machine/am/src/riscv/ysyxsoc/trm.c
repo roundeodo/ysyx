@@ -1,7 +1,6 @@
 #include <am.h>
 #include <klib-macros.h>
-
-#define UART_BASE 0x10000000u
+#include <uart.h>
 
 extern char _heap_start;
 extern char _heap_end;
@@ -10,8 +9,8 @@ int main(const char *args);
 
 Area heap = RANGE(&_heap_start, &_heap_end);
 
-void putch(char ch){
-    *(volatile uint8_t *)UART_BASE = (uint8_t)ch;
+void putch(char ch) {
+  uart_putc(ch);
 }
 
 void halt(int code){
@@ -21,6 +20,7 @@ void halt(int code){
 }
 
 void _trm_init(void){
+    uart_init();
     int result = main("");
     halt(result);
 }
