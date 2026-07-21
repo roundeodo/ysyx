@@ -15,7 +15,7 @@ static constexpr uint32_t FLASH_SIZE = 16u * 1024u * 1024u;
 static constexpr uint32_t FLASH_BASE = 0x30000000u;
 
 static uint8_t flash_mem[FLASH_SIZE];
-static bool falsh_initialized = false;
+static bool flash_initialized = false;
 
 static long img_size = 0;
 static constexpr uint32_t SERIAL_PORT = 0x10000000;
@@ -41,7 +41,44 @@ void init_flash() {
   flash_store32(0x0004u, 0xdeadbeefu);
   flash_store32(0x0100u, 0xabcdef01u);
 
-  falsh_initialized = true;
+  flash_initialized = true;
+}
+
+void load_flash_bin(const char *path) {
+  if (path == nullptr) {
+    return;
+  }
+
+  FILE *file = fopen(path, "rb");
+  if (file == nullptr) {
+    perror("Error opening flash image");
+    exit(1);
+  }
+
+  fseek(file, 0, SEEK_END);
+  const long image_size = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  if (image_size < 0 || static_cast<uint64_t>(image_size) > FLASH_SIZE) {
+    fprintf(stderr, "Flash image is too large\n");
+    fclose(file);
+    exit(1);
+  }
+
+  memset(flash_mem, 0xff, sizeof(flash_mem));
+
+  const size_t loaded_size =
+      fread(flash_mem, 1, static_cast<size_t>(image_size), file);
+
+  fclose(file);
+
+  if (loaded_size != static_cast<size_t>(image_size)) {
+    fprintf(stderr, "Failed to load complete flash image\n");
+    exit(1);
+  }
+
+  flash_initialized = true;
+  printf("NPC: loaded %ld bytes into flash\n", image_size);
 }
 
 void load_bin(const char *path) {
@@ -182,7 +219,7 @@ void flash_read(int32_t addr, int32_t *data) {
     abort();
   }
 
-  if (!falsh_initialized) {
+  if (!flash_initialized) {
     init_flash();
   }
 

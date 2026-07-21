@@ -15,6 +15,8 @@
 extern uint8_t pmem[];
 
 void load_bin(const char *path);
+void load_flash_bin(const char *path);
+
 long get_img_size();
 
 uint32_t paddr_read(uint32_t addr, int len);

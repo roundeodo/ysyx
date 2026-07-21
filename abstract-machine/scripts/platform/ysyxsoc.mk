@@ -1,8 +1,9 @@
 AM_SRCS := riscv/ysyxsoc/start.S \
-		           riscv/ysyxsoc/trm.c \
-		           riscv/ysyxsoc/uart.c \
-				   riscv/ysyxsoc/spi.c  \
-		           platform/dummy/ioe.c \
+			           riscv/ysyxsoc/trm.c \
+			           riscv/ysyxsoc/uart.c \
+			           riscv/ysyxsoc/spi.c \
+			           riscv/ysyxsoc/flash.c \
+			           platform/dummy/ioe.c \
 	           platform/dummy/cte.c \
 	           platform/dummy/vme.c \
 	           platform/dummy/mpe.c

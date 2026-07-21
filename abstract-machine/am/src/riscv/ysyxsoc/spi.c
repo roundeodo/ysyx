@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <spi.h>
 
 /* SPI master 在 CPU 地址空间中的 MMIO 基地址。 */
 #define SPI_BASE 0x10001000u
@@ -41,6 +41,47 @@
 
 /* CHAR_LEN 位于 CTRL[6:0]。 */
 #define SPI_CTRL_CHAR_LEN_MASK 0x7fu
+
+#define SPI_SLAVE_COUNT        8u
+#define SPI_MAX_TRANSFER_BITS 64u
+
+static void spi_wait_done(void);
+
+uint64_t spi_transfer64(const spi_transfer_config_t *config,
+                        uint64_t                     transmit_data) {
+  if (config == 0 || config->slave_select_index >= SPI_SLAVE_COUNT ||
+      config->transfer_bit_count == 0u ||
+      config->transfer_bit_count > SPI_MAX_TRANSFER_BITS) {
+    return 0;
+  }
+
+  /* 必须在GO=0时写入发送数据和所有配置寄存器。 */
+  SPI_TXRX0   = (uint32_t)transmit_data;
+  SPI_TXRX1   = (uint32_t)(transmit_data >> 32);
+  SPI_TXRX2   = 0u;
+  SPI_TXRX3   = 0u;
+  SPI_DIVIDER = config->clock_divider;
+  SPI_SS      = 1u << config->slave_select_index;
+
+  uint32_t control = config->transfer_bit_count & SPI_CTRL_CHAR_LEN_MASK;
+  control |= SPI_CTRL_ASS;
+
+  if (config->least_significant_bit_first) {
+    control |= SPI_CTRL_LSB;
+  }
+  if (config->transmit_change_edge == SPI_CLOCK_EDGE_FALLING) {
+    control |= SPI_CTRL_TX_NEGEDGE;
+  }
+  if (config->receive_sample_edge == SPI_CLOCK_EDGE_FALLING) {
+    control |= SPI_CTRL_RX_NEGEDGE;
+  }
+
+  SPI_CTRL = control;
+  SPI_CTRL = control | SPI_CTRL_GO;
+  spi_wait_done();
+
+  return ((uint64_t)SPI_TXRX1 << 32) | SPI_TXRX0;
+}
 
 /* bitrev 连接在 slave-select 7 上。 */
 #define BITREV_SLAVE_SELECT (1u << 7)
