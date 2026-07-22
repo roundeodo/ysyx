@@ -20,16 +20,9 @@ OBJ_DIR_NV  = $(BUILD_DIR)/obj_dir_nv
 BIN_SIM = $(BUILD_DIR)/$(TOPNAME)_sim
 BIN_NV  = $(BUILD_DIR)/$(TOPNAME)_nvboard
 
-MROM_UART_TEST_DIR = ./tests/mrom-uart
-MROM_UART_TEST_BIN = $(abspath $(MROM_UART_TEST_DIR)/build/char-test.bin)
-
-FLASH_BOOT_PAYLOAD_DIR := ./tests/flash-boot-payload
-FLASH_BOOT_PAYLOAD_BIN := $(abspath $(FLASH_BOOT_PAYLOAD_DIR)/build/char-test.bin)
-
-FLASH_XIP_PAYLOAD_DIR := ./tests/flash-xip-payload
-FLASH_XIP_PAYLOAD_BIN := $(abspath $(FLASH_XIP_PAYLOAD_DIR)/build/flash-xip-payload.bin)
-
-FLASH_IMG ?= $(FLASH_BOOT_PAYLOAD_BIN)
+IMG ?=
+FLASH_IMG ?=
+SIM_ARGS ?= --batch
 
 # verilator config
 VERILATOR = verilator
@@ -132,38 +125,16 @@ $(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHI
 sim: $(BIN_SIM)
 	$(BIN_SIM)
 
+sim-image: $(BIN_SIM)
+	@test -n "$(strip $(IMG)$(FLASH_IMG))" || \
+		(echo "IMG or FLASH_IMG is required"; exit 1)
+	@echo "NPC: MROM image  = $(IMG)"
+	@echo "NPC: Flash image = $(FLASH_IMG)"
+	$(BIN_SIM) $(SIM_ARGS) \
+		$(if $(FLASH_IMG),--flash $(FLASH_IMG)) \
+		$(IMG)
 
-sim-am: $(BIN_SIM)
-	@echo "NPC: Running AM program $(IMG)..."
-	$(BIN_SIM) --batch $(IMG)
-
-mrom-uart:
-	$(MAKE) -C $(MROM_UART_TEST_DIR)
-
-sim-mrom-uart: $(BIN_SIM) mrom-uart
-	@echo "NPC: Running MROM UART test $(MROM_UART_TEST_BIN)..."
-	$(BIN_SIM) --batch $(MROM_UART_TEST_BIN)
-
-flash-boot-payload:
-	$(MAKE) -C $(FLASH_BOOT_PAYLOAD_DIR)
-
-sim-flash-boot: $(BIN_SIM) flash-boot-payload
-	@test -n "$(IMG)" || (echo "IMG is required"; exit 1)
-	@test -n "$(FLASH_IMG)" || (echo "FLASH_IMG is required"; exit 1)
-	@echo "NPC: Running MROM bootloader $(IMG)..."
-	@echo "NPC: Preloading Flash payload $(FLASH_IMG)..."
-	$(BIN_SIM) --batch --flash $(FLASH_IMG) $(IMG)
-
-
-flash-xip-payload:
-	$(MAKE) -C $(FLASH_XIP_PAYLOAD_DIR)
-
-sim-flash-xip: $(BIN_SIM) flash-xip-payload
-	@test -n "$(IMG)" || (echo "IMG is required"; exit 1)
-	@echo "NPC: Running MROM-side XIP jump test $(IMG)..."
-	@echo "NPC: Preloading XIP payload $(FLASH_XIP_PAYLOAD_BIN)..."
-	$(BIN_SIM) --batch --flash $(FLASH_XIP_PAYLOAD_BIN) $(IMG)
-
+sim-am: sim-image
 
 sim-itrace: $(BIN_SIM)
 	@echo "NPC: Running AM program with itrace $(IMG)..."
@@ -221,11 +192,12 @@ include ../Makefile
 .PHONY: help
 help:
 	@echo "Usage:"
-	@echo "  make [Target] PROJECT=[Folder] IMG=[bin]"
+	@echo "  make [Target] PROJECT=[Folder] IMG=[bin] FLASH_IMG=[bin]"
 	@echo ""
 	@echo "Targets:"
 	@echo "  sim        Compile and run simulation without image"
-	@echo "  sim-am     Compile and run AM program with IMG=xxx.bin"
+	@echo "  sim-image  Run with an optional MROM image and/or Flash image"
+	@echo "  sim-am     Compatibility alias of sim-image"
 	@echo "  sim-wave   Compile, run with --trace, and open GTKWave"
 	@echo "  sim-itrace Compile and run with itrace"
 	@echo "  sim-mtrace Compile and run with mtrace"
@@ -237,7 +209,9 @@ help:
 	@echo ""
 	@echo "Examples:"
 	@echo "  make sim PROJECT=riscv32"
-	@echo "  make sim-am PROJECT=riscv32 IMG=path/to/program.bin"
+	@echo "  make sim-image PROJECT=riscv32 IMG=path/to/mrom.bin"
+	@echo "  make sim-image PROJECT=riscv32 FLASH_IMG=path/to/flash.bin"
+	@echo "  make sim-image PROJECT=riscv32 IMG=path/to/boot.bin FLASH_IMG=path/to/payload.bin"
 	@echo "  make sim-wave PROJECT=riscv32 IMG=path/to/program.bin"
 	@echo "  make nvboard PROJECT=riscv32 IMG=path/to/program.bin"
 	@echo "  make sim PROJECT=experiment"
@@ -251,4 +225,5 @@ help:
 
 default: help
 
-.PHONY: default sim sim-am mrom-uart sim-mrom-uart flash-boot-payload sim-flash-boot flash-xip-payload sim-flash-xip sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave sim-difftest nvboard lint clean help
+.PHONY: default sim sim-image sim-am sim-itrace sim-mtrace sim-ftrace \
+	sim-debug sim-wave sim-difftest nvboard lint clean help

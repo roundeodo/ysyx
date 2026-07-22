@@ -1,19 +1,20 @@
 ENTRY(_start)
 
 MEMORY {
-    mrom(rx)  : ORIGIN = 0x20000000, LENGTH = 4K
-    sram(rwx) : ORIGIN = 0x0f000000, LENGTH = 8K
+    flash (rx)  : ORIGIN = 0x30000000, LENGTH = 16M
+    sram  (rwx) : ORIGIN = 0x0f000000, LENGTH = 8K
 }
 
 SECTIONS {
-    .text : {
+    .text : ALIGN(4) {
         KEEP(*(entry))
         *(.text*)
-    } > mrom
+    } > flash
 
-    .rodata : {
+    .rodata : ALIGN(4) {
         *(.rodata*)
-    } > mrom
+        *(.srodata*)
+    } > flash
 
     .data : ALIGN(4) {
         _data_start = .;
@@ -21,7 +22,7 @@ SECTIONS {
         *(.sdata*)
         . = ALIGN(4);
         _data_end = .;
-    } > sram AT> mrom
+    } > sram AT> flash
 
     _data_load_start = LOADADDR(.data);
 
@@ -39,5 +40,7 @@ SECTIONS {
     _heap_end      = _stack_pointer - 0x1000;
 
     ASSERT(_heap_start <= _heap_end, "SRAM overflow")
-    ASSERT(LOADADDR(.data) + SIZEOF(.data) <= ORIGIN(mrom) + LENGTH(mrom), "MROM overflow")
+    ASSERT(LOADADDR(.data) + SIZEOF(.data)
+           <= ORIGIN(flash) + LENGTH(flash),
+           "Flash image overflow")
 }

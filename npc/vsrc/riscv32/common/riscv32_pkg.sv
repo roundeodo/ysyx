@@ -41,7 +41,7 @@ package riscv32_pkg;
   localparam int unsigned BYTE_LANES = XLEN / 8;
 
   /* verilator lint_off UNUSEDPARAM */
-  parameter logic [XLEN-1:0] RESET_VECTOR = 32'h2000_0000;
+  parameter logic [XLEN-1:0] RESET_VECTOR = 32'h3000_0000;
 
   // ISA encoding constants
   // Only IDU/decode lanes may translate these encodings into semantic operations.
