@@ -6,7 +6,7 @@ _start:
     la sp, _stack_pointer
     mv s0, zero
 
-    # copy initialized .data from Flash load address to SRAM runtime address
+    # copy initialized .data from Flash load address to PSRAM runtime address
     la t0, _data_load_start
     la t1, _data_start
     la t2, _data_end

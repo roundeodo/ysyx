@@ -2,6 +2,7 @@ include $(AM_HOME)/scripts/isa/riscv.mk
 include $(AM_HOME)/scripts/platform/ysyxsoc.mk
 
 COMMON_CFLAGS += -march=rv32i_zicsr -mabi=ilp32
+CFLAGS        += -DMAINARGS=\"$(mainargs)\"
 LDFLAGS       += -melf32lriscv
 
 AM_SRCS += riscv/npc/libgcc/div.S \

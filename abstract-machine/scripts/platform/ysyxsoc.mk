@@ -1,4 +1,7 @@
-AM_SRCS := riscv/ysyxsoc/start.S \
+YSYXSOC_START_SOURCE  ?= riscv/ysyxsoc/start.S
+YSYXSOC_LINKER_SCRIPT ?= $(AM_HOME)/scripts/ysyxsoc.ld
+
+AM_SRCS := $(YSYXSOC_START_SOURCE) \
 			           riscv/ysyxsoc/trm.c \
 			           riscv/ysyxsoc/ioe.c \
 			           riscv/ysyxsoc/timer.c \
@@ -12,7 +15,7 @@ AM_SRCS := riscv/ysyxsoc/start.S \
 INC_PATH += $(AM_HOME)/am/src/riscv/ysyxsoc/include
 
 CFLAGS    += -fdata-sections -ffunction-sections
-LDSCRIPTS += $(AM_HOME)/scripts/ysyxsoc.ld
+LDSCRIPTS += $(YSYXSOC_LINKER_SCRIPT)
 LDFLAGS   += --gc-sections -e _start
 
 image: image-dep
