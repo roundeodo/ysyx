@@ -25,6 +25,10 @@ MROM_UART_TEST_BIN = $(abspath $(MROM_UART_TEST_DIR)/build/char-test.bin)
 
 FLASH_BOOT_PAYLOAD_DIR := ./tests/flash-boot-payload
 FLASH_BOOT_PAYLOAD_BIN := $(abspath $(FLASH_BOOT_PAYLOAD_DIR)/build/char-test.bin)
+
+FLASH_XIP_PAYLOAD_DIR := ./tests/flash-xip-payload
+FLASH_XIP_PAYLOAD_BIN := $(abspath $(FLASH_XIP_PAYLOAD_DIR)/build/flash-xip-payload.bin)
+
 FLASH_IMG ?= $(FLASH_BOOT_PAYLOAD_BIN)
 
 # verilator config
@@ -150,6 +154,17 @@ sim-flash-boot: $(BIN_SIM) flash-boot-payload
 	@echo "NPC: Preloading Flash payload $(FLASH_IMG)..."
 	$(BIN_SIM) --batch --flash $(FLASH_IMG) $(IMG)
 
+
+flash-xip-payload:
+	$(MAKE) -C $(FLASH_XIP_PAYLOAD_DIR)
+
+sim-flash-xip: $(BIN_SIM) flash-xip-payload
+	@test -n "$(IMG)" || (echo "IMG is required"; exit 1)
+	@echo "NPC: Running MROM-side XIP jump test $(IMG)..."
+	@echo "NPC: Preloading XIP payload $(FLASH_XIP_PAYLOAD_BIN)..."
+	$(BIN_SIM) --batch --flash $(FLASH_XIP_PAYLOAD_BIN) $(IMG)
+
+
 sim-itrace: $(BIN_SIM)
 	@echo "NPC: Running AM program with itrace $(IMG)..."
 	$(BIN_SIM) --itrace $(IMG)
@@ -236,4 +251,4 @@ help:
 
 default: help
 
-.PHONY: default sim sim-am mrom-uart sim-mrom-uart flash-boot-payload sim-flash-boot sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave sim-difftest nvboard lint clean help
+.PHONY: default sim sim-am mrom-uart sim-mrom-uart flash-boot-payload sim-flash-boot flash-xip-payload sim-flash-xip sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave sim-difftest nvboard lint clean help
