@@ -1,17 +1,85 @@
 #include "mem.h"
 #include "trace.h"
-#include <fcntl.h>
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
+#include <fcntl.h>
 #include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
+
 uint8_t pmem[MEM_SIZE];
+// W25Q128 has 128Mbit
+static constexpr uint32_t FLASH_SIZE = 16u * 1024u * 1024u;
+static constexpr uint32_t FLASH_BASE = 0x30000000u;
+
+static uint8_t flash_mem[FLASH_SIZE];
+static bool flash_initialized = false;
 
 static long img_size = 0;
 static constexpr uint32_t SERIAL_PORT = 0x10000000;
 static struct termios saved_termios;
 static bool terminal_modified = false;
+
+static void flash_store32(uint32_t offset, uint32_t value) {
+  if (offset > FLASH_SIZE - sizeof(uint32_t)) {
+    fprintf(stderr, "Error: flash_store32 out of bound, offset = 0x%08x\n",
+            offset);
+    exit(1);
+  }
+  flash_mem[offset + 0] = static_cast<uint8_t>((value >> 0) & 0xffu);
+  flash_mem[offset + 1] = static_cast<uint8_t>((value >> 8) & 0xffu);
+  flash_mem[offset + 2] = static_cast<uint8_t>((value >> 16) & 0xffu);
+  flash_mem[offset + 3] = static_cast<uint8_t>((value >> 24) & 0xffu);
+}
+
+void init_flash() {
+  memset(flash_mem, 0xff, sizeof(flash_mem));
+
+  flash_store32(0x0000u, 0x12345678u);
+  flash_store32(0x0004u, 0xdeadbeefu);
+  flash_store32(0x0100u, 0xabcdef01u);
+
+  flash_initialized = true;
+}
+
+void load_flash_bin(const char *path) {
+  if (path == nullptr) {
+    return;
+  }
+
+  FILE *file = fopen(path, "rb");
+  if (file == nullptr) {
+    perror("Error opening flash image");
+    exit(1);
+  }
+
+  fseek(file, 0, SEEK_END);
+  const long image_size = ftell(file);
+  fseek(file, 0, SEEK_SET);
+
+  if (image_size < 0 || static_cast<uint64_t>(image_size) > FLASH_SIZE) {
+    fprintf(stderr, "Flash image is too large\n");
+    fclose(file);
+    exit(1);
+  }
+
+  memset(flash_mem, 0xff, sizeof(flash_mem));
+
+  const size_t loaded_size =
+      fread(flash_mem, 1, static_cast<size_t>(image_size), file);
+
+  fclose(file);
+
+  if (loaded_size != static_cast<size_t>(image_size)) {
+    fprintf(stderr, "Failed to load complete flash image\n");
+    exit(1);
+  }
+
+  flash_initialized = true;
+  printf("NPC: loaded %ld bytes into flash\n", image_size);
+}
 
 void load_bin(const char *path) {
   if (path == nullptr) {
@@ -43,10 +111,10 @@ uint64_t get_time_mus() {
 
 // transfer physical address to host address
 static uint8_t *guest_to_host(uint32_t paddr) {
-  if (paddr < RESET_VECTOR || paddr >= RESET_VECTOR + MEM_SIZE)
+  if (paddr < LEGACY_PMEM_BASE || paddr >= LEGACY_PMEM_BASE + MEM_SIZE)
     return nullptr;
 
-  return pmem + (paddr - RESET_VECTOR);
+  return pmem + (paddr - LEGACY_PMEM_BASE);
 }
 
 static void serial_restore_terminal() {
@@ -94,12 +162,12 @@ uint32_t paddr_read(uint32_t addr, int len) {
   }
 
   // rtc low 32 bits
-  if (addr == 0xa0000048) {
+  if (addr == 0x02000048) {
     rtc_latch = get_time_mus() - start_time;
     return (uint32_t)rtc_latch;
   }
   // rtc high 32 bits
-  if (addr == 0xa000004c)
+  if (addr == 0x0200004c)
     return (uint32_t)(rtc_latch >> 32);
 
   uint8_t *host_addr = guest_to_host(addr);
@@ -145,6 +213,50 @@ void paddr_write(uint32_t addr, int len, uint32_t data) {
 
 extern "C" {
 
+void flash_read(int32_t addr, int32_t *data) {
+  if (data == nullptr) {
+    fprintf(stderr, "Error: flash_read received null data pointer\n");
+    abort();
+  }
+
+  if (!flash_initialized) {
+    init_flash();
+  }
+
+  const uint32_t offset = static_cast<uint32_t>(addr);
+
+  if ((offset & 0x3u) != 0 || offset > FLASH_SIZE - sizeof(uint32_t)) {
+    fprintf(stderr, "Error: invalid flash read offset = 0x%08x\n", offset);
+    abort();
+  }
+
+  const uint32_t value = (static_cast<uint32_t>(flash_mem[offset + 0])) |
+                         (static_cast<uint32_t>(flash_mem[offset + 1]) << 8) |
+                         (static_cast<uint32_t>(flash_mem[offset + 2]) << 16) |
+                         (static_cast<uint32_t>(flash_mem[offset + 3]) << 24);
+
+  *data = static_cast<int32_t>(value);
+}
+
+void mrom_read(int32_t addr, int32_t *data) {
+  const uint32_t read_addr = static_cast<uint32_t>(addr) & ~0x3u;
+
+  if (read_addr < MROM_BASE || read_addr >= MROM_BASE + MROM_SIZE) {
+    *data = 0;
+    return;
+  }
+
+  const uint32_t image_offset = read_addr - MROM_BASE;
+  uint32_t read_data = 0;
+  for (uint32_t byte_index = 0; byte_index < 4; byte_index++) {
+    if (image_offset + byte_index < static_cast<uint32_t>(img_size)) {
+      read_data |= static_cast<uint32_t>(pmem[image_offset + byte_index])
+                   << (8 * byte_index);
+    }
+  }
+  *data = static_cast<int32_t>(read_data);
+}
+
 int pmem_read(int raddr) {
   static uint64_t start_time = 0;
   static uint64_t rtc_latch = 0;
@@ -153,16 +265,16 @@ int pmem_read(int raddr) {
   if ((uint32_t)raddr == SERIAL_PORT) {
     return serial_getchar_nonblock();
   }
-  if (raddr == 0xa0000048) {
+  if (raddr == 0x02000048) {
     rtc_latch = get_time_mus() - start_time;
     return (uint32_t)rtc_latch;
   }
-  if (raddr == 0xa000004c) {
+  if (raddr == 0x0200004c) {
     return (uint32_t)(rtc_latch >> 32);
   }
 
   uint32_t aligned_addr = raddr & ~0x3u;
-  uint32_t offset = aligned_addr - 0x80000000;
+  uint32_t offset = aligned_addr - LEGACY_PMEM_BASE;
   if (offset >= MEM_SIZE) {
     return 0;
   }
@@ -177,7 +289,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   }
 
   uint32_t aligned_addr = waddr & ~0x3u; // reset bit 1 and 0 for aligning
-  uint32_t offset = aligned_addr - 0x80000000;
+  uint32_t offset = aligned_addr - LEGACY_PMEM_BASE;
   if (offset >= MEM_SIZE) {
     return;
   }

@@ -148,19 +148,18 @@ module riscv32_lsu
   end
 
 
-  // AXI4-Lite has no AxSIZE. Read a full aligned word and select load lanes locally;
-  // use WSTRB to restrict byte and halfword stores.
-  localparam int unsigned AXI_ADDR_LSB = $clog2(BYTE_LANES);
+  // AXI4-Lite has no AxSIZE. Preserve the byte address so a byte-addressed MMIO
+  // slave can select its register; WSTRB and WDATA select the written byte lanes.
 
   always_comb begin
     ar_payload      = '0;
-    ar_payload.addr = {active_lsu_req.effective_addr[XLEN-1:AXI_ADDR_LSB], {AXI_ADDR_LSB{1'b0}}};
+    ar_payload.addr = active_lsu_req.effective_addr;
     ar_payload.prot = 3'b001;
   end
 
   always_comb begin
     aw_payload      = '0;
-    aw_payload.addr = {active_lsu_req.effective_addr[XLEN-1:AXI_ADDR_LSB], {AXI_ADDR_LSB{1'b0}}};
+    aw_payload.addr = active_lsu_req.effective_addr;
     aw_payload.prot = 3'b001;
   end
 
@@ -335,16 +334,16 @@ module riscv32_lsu
 
   // Track each independent AXI channel and retain responses under writeback backpressure.
   always_comb begin
-    state_d     = state_q;
-    lsu_req_d   = lsu_req_q;
-    writeback_d = writeback_q;
+    state_d                 = state_q;
+    lsu_req_d               = lsu_req_q;
+    writeback_d             = writeback_q;
     aw_handshake_occurred_d = aw_handshake_occurred_q;
     w_handshake_occurred_d  = w_handshake_occurred_q;
 
     unique case (state_q)
       LSU_IDLE: begin
         if (lsu_req_handshake) begin
-          lsu_req_d = lsu_req_i;
+          lsu_req_d               = lsu_req_i;
           aw_handshake_occurred_d = 1'b0;
           w_handshake_occurred_d  = 1'b0;
 
@@ -418,18 +417,18 @@ module riscv32_lsu
 
       LSU_HOLD_WRITEBACK: begin
         if (lsu_writeback_handshake) begin
-          lsu_req_d   = '0;
-          writeback_d = '0;
+          lsu_req_d               = '0;
+          writeback_d             = '0;
           aw_handshake_occurred_d = 1'b0;
           w_handshake_occurred_d  = 1'b0;
-          state_d     = LSU_IDLE;
+          state_d                 = LSU_IDLE;
         end
       end
 
       default: begin
-        state_d     = LSU_IDLE;
-        lsu_req_d   = '0;
-        writeback_d = '0;
+        state_d                 = LSU_IDLE;
+        lsu_req_d               = '0;
+        writeback_d             = '0;
         aw_handshake_occurred_d = 1'b0;
         w_handshake_occurred_d  = 1'b0;
       end
@@ -443,15 +442,15 @@ module riscv32_lsu
   // - load期间AWVALID/WVALID=0，store期间ARVALID=0。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      state_q     <= LSU_IDLE;
-      lsu_req_q   <= '0;
-      writeback_q <= '0;
+      state_q                 <= LSU_IDLE;
+      lsu_req_q               <= '0;
+      writeback_q             <= '0;
       aw_handshake_occurred_q <= 1'b0;
       w_handshake_occurred_q  <= 1'b0;
     end else begin
-      state_q     <= state_d;
-      lsu_req_q   <= lsu_req_d;
-      writeback_q <= writeback_d;
+      state_q                 <= state_d;
+      lsu_req_q               <= lsu_req_d;
+      writeback_q             <= writeback_d;
       aw_handshake_occurred_q <= aw_handshake_occurred_d;
       w_handshake_occurred_q  <= w_handshake_occurred_d;
     end

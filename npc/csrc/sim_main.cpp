@@ -7,8 +7,8 @@
 #include "watchpoint.h"
 
 #include <cstring>
-#include <stdint.h>
 #include <iostream>
+#include <stdint.h>
 #include <string>
 
 int main(int argc, char **argv) {
@@ -24,6 +24,8 @@ int main(int argc, char **argv) {
   const char *img_path = nullptr;
   const char *elf_path = nullptr;
   const char *diff_so_file = nullptr;
+  const char *flash_img_path = nullptr;
+
   // ============================================================
   // Parse command line arguments
   //
@@ -60,6 +62,13 @@ int main(int argc, char **argv) {
         return 1;
       }
       elf_path = argv[++i];
+
+    } else if (strcmp(argv[i], "--flash") == 0) {
+      if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
+        std::cout << "Usage: --flash <flash-bin>" << std::endl;
+        return 1;
+      }
+      flash_img_path = argv[++i];
     } else if (strcmp(argv[i], "--nvboard") == 0) {
       enable_nvboard = true;
     } else if (argv[i][0] == '+') {
@@ -85,7 +94,11 @@ int main(int argc, char **argv) {
     load_bin(img_path);
     std::cout << "NPC: load image" << img_path << std::endl;
   } else {
-    std::cout << "NPC: No image, MEM is empty" << std::endl;
+    std::cout << "NPC: No MROM image supplied" << std::endl;
+  }
+
+  if (flash_img_path != nullptr) {
+    load_flash_bin(flash_img_path);
   }
 
   cpu_reset(10);

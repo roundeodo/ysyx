@@ -1,7 +1,7 @@
 # path
 
 PROJECT ?= riscv32
-TOPNAME = top
+TOPNAME = ysyxSoCFull
 
 INC_PATH ?=
 INC_PATH += $(abspath ./include)
@@ -20,21 +20,40 @@ OBJ_DIR_NV  = $(BUILD_DIR)/obj_dir_nv
 BIN_SIM = $(BUILD_DIR)/$(TOPNAME)_sim
 BIN_NV  = $(BUILD_DIR)/$(TOPNAME)_nvboard
 
+IMG ?=
+FLASH_IMG ?=
+SIM_ARGS ?= --batch
+
 # verilator config
 VERILATOR = verilator
-VERILATOR_FLAGS += -MMD --build -cc -Wall \
-				-O3 --x-assign fast --x-initial fast --trace
+VERILATOR_FLAGS += -MMD --build -cc -Wall -Wno-fatal \
+					-O3 --x-assign fast --x-initial fast --trace --autoflush
 
 # make build directory
 $(shell mkdir -p $(BUILD_DIR))
 
 # RTL project source
+# NPC
 VSRC_DIR  = $(abspath ./vsrc/$(PROJECT))
 VSRC_LIST ?= $(VSRC_DIR)/filelist/filelist.f
 # The simulation filelist is also documentation for staged RTL TODOs. Only source entries
 # participate in Make dependencies; Verilator still reads the complete filelist.
 VSRC_DEPS = $(shell sed -e 's|$${NPC_HOME}|$(abspath .)|g' \
 	-e '/^[[:space:]]*\/\//d' -e '/^[[:space:]]*$$/d' $(VSRC_LIST))
+
+# SOC
+YSYXSOC_HOME := $(abspath ../ysyxSoC)
+YSYXSOC_PERIP_DIR := $(YSYXSOC_HOME)/perip
+YSYXSOC_FULL_V := $(YSYXSOC_HOME)/build/ysyxSoCFull.v
+# Select all available file
+YSYXSOC_VSRCS := $(shell find $(YSYXSOC_PERIP_DIR) -type f -name "*.v" | sort)
+YSYXSOC_VSRCS += $(YSYXSOC_FULL_V)
+# verilog `include search path
+VERILATOR_RTL_INCLUDES := \
+	-I$(YSYXSOC_PERIP_DIR)/uart16550/rtl \
+	-I$(YSYXSOC_PERIP_DIR)/spi/rtl
+
+
 
 # normal simulation C/C++ sources
 CSRC_SIM = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))
@@ -45,57 +64,77 @@ CSRC_NV = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" 
 # NVBoard auto bind source
 NXDC_FILES = constr/top.nxdc
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-
 $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
-
 CSRC_NV += $(SRC_AUTO_BIND)
-
 include $(NVBOARD_HOME)/scripts/nvboard.mk
 
 # include flags
 INCFLAGS = $(addprefix -I, $(INC_PATH))
-
 # common C++ flags
-CXXFLAGS_COMMON := $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
+CXXFLAGS_COMMON := $(INCFLAGS) \
+	-DTOP_CLASS=V$(TOPNAME) \
+	-DTOP_CLOCK=clock \
+	-DTOP_RESET=reset \
+	-DTOP_RESET_ACTIVE_LEVEL=1
 LDFLAGS_COMMON := -L$(CAPSTONE_LIB) -Wl,-rpath=$(CAPSTONE_LIB) -lcapstone -ldl
 
 # normal sim does not enable NVBoard
 CXXFLAGS_SIM := $(CXXFLAGS_COMMON)
-
 # nvboard build enables CONFIG_NVBOARD
 CXXFLAGS_NV := $(CXXFLAGS_COMMON) -DCONFIG_NVBOARD
 
 
 # make sim
-$(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(CSRC_SIM)
+$(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_SIM)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
+		$(VERILATOR_RTL_INCLUDES) \
 		--top-module $(TOPNAME) \
-		-f $(VSRC_LIST) $(CSRC_SIM) \
+		-f $(VSRC_LIST) \
+		$(YSYXSOC_VSRCS) \
+		$(CSRC_SIM) \
 		$(addprefix -CFLAGS , $(CXXFLAGS_SIM)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON)) \
-		--Mdir $(OBJ_DIR_SIM) --exe -o $(abspath $(BIN_SIM))
+		--Mdir $(OBJ_DIR_SIM) \
+		--exe \
+		-o $(abspath $(BIN_SIM)) \
+		--timescale "1ns/1ns" \
+		--no-timing
 
 
 # make nvboard
-$(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(CSRC_NV) $(NVBOARD_ARCHIVE)
+$(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHIVE)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
+		$(VERILATOR_RTL_INCLUDES) \
 		--top-module $(TOPNAME) \
-		-f $(VSRC_LIST) $(CSRC_NV) $(NVBOARD_ARCHIVE) \
+		-f $(VSRC_LIST) \
+		$(YSYXSOC_VSRCS) \
+		$(CSRC_NV) \
+		$(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS_NV)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON) $(LDFLAGS)) \
-		--Mdir $(OBJ_DIR_NV) --exe -o $(abspath $(BIN_NV))
+		--Mdir $(OBJ_DIR_NV) \
+		--exe \
+		-o $(abspath $(BIN_NV)) \
+		--timescale "1ns/1ns" \
+		--no-timing
 
 
 sim: $(BIN_SIM)
 	$(BIN_SIM)
 
+sim-image: $(BIN_SIM)
+	@test -n "$(strip $(IMG)$(FLASH_IMG))" || \
+		(echo "IMG or FLASH_IMG is required"; exit 1)
+	@echo "NPC: MROM image  = $(IMG)"
+	@echo "NPC: Flash image = $(FLASH_IMG)"
+	$(BIN_SIM) $(SIM_ARGS) \
+		$(if $(FLASH_IMG),--flash $(FLASH_IMG)) \
+		$(IMG)
 
-sim-am: $(BIN_SIM)
-	@echo "NPC: Running AM program $(IMG)..."
-	$(BIN_SIM) --batch $(IMG)
+sim-am: sim-image
 
 sim-itrace: $(BIN_SIM)
 	@echo "NPC: Running AM program with itrace $(IMG)..."
@@ -132,11 +171,13 @@ sim-debug: $(BIN_SIM)
 nvboard: $(BIN_NV)
 	$(BIN_NV) --nvboard $(IMG)
 
-
 lint: $(VSRC_LIST)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) --lint-only -Wall --top-module $(TOPNAME) -f $(VSRC_LIST)
-
+	$(VERILATOR) --lint-only -Wall -Wno-fatal \
+	$(VERILATOR_RTL_INCLUDES) \
+	--top-module $(TOPNAME) \
+	-f $(VSRC_LIST) \
+	$(YSYXSOC_VSRCS)
 
 clean:
 	rm -rf ./build wave.vcd waveform.vcd
@@ -151,11 +192,12 @@ include ../Makefile
 .PHONY: help
 help:
 	@echo "Usage:"
-	@echo "  make [Target] PROJECT=[Folder] IMG=[bin]"
+	@echo "  make [Target] PROJECT=[Folder] IMG=[bin] FLASH_IMG=[bin]"
 	@echo ""
 	@echo "Targets:"
 	@echo "  sim        Compile and run simulation without image"
-	@echo "  sim-am     Compile and run AM program with IMG=xxx.bin"
+	@echo "  sim-image  Run with an optional MROM image and/or Flash image"
+	@echo "  sim-am     Compatibility alias of sim-image"
 	@echo "  sim-wave   Compile, run with --trace, and open GTKWave"
 	@echo "  sim-itrace Compile and run with itrace"
 	@echo "  sim-mtrace Compile and run with mtrace"
@@ -167,7 +209,9 @@ help:
 	@echo ""
 	@echo "Examples:"
 	@echo "  make sim PROJECT=riscv32"
-	@echo "  make sim-am PROJECT=riscv32 IMG=path/to/program.bin"
+	@echo "  make sim-image PROJECT=riscv32 IMG=path/to/mrom.bin"
+	@echo "  make sim-image PROJECT=riscv32 FLASH_IMG=path/to/flash.bin"
+	@echo "  make sim-image PROJECT=riscv32 IMG=path/to/boot.bin FLASH_IMG=path/to/payload.bin"
 	@echo "  make sim-wave PROJECT=riscv32 IMG=path/to/program.bin"
 	@echo "  make nvboard PROJECT=riscv32 IMG=path/to/program.bin"
 	@echo "  make sim PROJECT=experiment"
@@ -181,4 +225,5 @@ help:
 
 default: help
 
-.PHONY: default sim sim-am sim-itrace sim-mtrace sim-ftrace sim-debug sim-wave sim-difftest nvboard lint clean help
+.PHONY: default sim sim-image sim-am sim-itrace sim-mtrace sim-ftrace \
+	sim-debug sim-wave sim-difftest nvboard lint clean help

@@ -41,7 +41,7 @@ package riscv32_pkg;
   localparam int unsigned BYTE_LANES = XLEN / 8;
 
   /* verilator lint_off UNUSEDPARAM */
-  parameter logic [XLEN-1:0] RESET_VECTOR = 32'h8000_0000;
+  parameter logic [XLEN-1:0] RESET_VECTOR = 32'h3000_0000;
 
   // ISA encoding constants
   // Only IDU/decode lanes may translate these encodings into semantic operations.
@@ -396,34 +396,6 @@ package riscv32_pkg;
   // 参考ARM IHI 0022H B1.1：Lite只有AR/R/AW/W/B五个独立通道，没有ID、LEN、
   // SIZE、BURST、LAST。不要把valid/ready放进payload struct，因为二者方向因master/slave
   // 而异，而且每个通道必须独立握手。
-  //
-  // 建议保留的payload骨架：
-  // typedef enum logic [1:0] {
-  //   AXI_RESP_OKAY   = 2'b00,
-  //   AXI_RESP_EXOKAY = 2'b01,  // Lite不允许产生；保留编码仅便于防御性检查。
-  //   AXI_RESP_SLVERR = 2'b10,
-  //   AXI_RESP_DECERR = 2'b11
-  // } axi_resp_e;
-  //
-  // typedef struct packed {
-  //   logic [XLEN-1:0] addr;
-  //   logic [2:0]      prot;
-  // } axi_lite_addr_t;           // AR和AW可复用payload类型，但握手必须仍是两套信号。
-  //
-  // typedef struct packed {
-  //   logic [XLEN-1:0]       data;
-  //   logic [BYTE_LANES-1:0] strb;
-  // } axi_lite_w_t;
-  //
-  // typedef struct packed {
-  //   axi_resp_e resp;
-  // } axi_lite_b_t;
-  //
-  // typedef struct packed {
-  //   logic [XLEN-1:0] data;
-  //   axi_resp_e       resp;
-  // } axi_lite_r_t;
-  //
   // 当前XLEN=32满足Lite只允许32/64-bit数据宽度的要求。增加静态检查，防止以后把XLEN改成
   // 其他宽度后接口仍被误称为AXI4-Lite。AxPROT不要留X：当前可固定为secure访问；
   // IFU设置instruction属性，LSU设置data属性，privileged位由当前RISC-V特权级策略决定。
@@ -451,45 +423,36 @@ package riscv32_pkg;
     axi_resp_e       resp;
   } axi_lite_r_t;
 
-
-  // TODO(AXI-PKG-DELETE-OLD): 下面四个SimpleBus payload只能在整个迁移最后删除。
-  // 删除前执行：
-  // rg "imem_req_t|imem_resp_t|mem_req_t|mem_resp_t" npc/vsrc/riscv32
-  // 结果必须只剩本定义。AXI响应不携带txn_id、exception_cause或tval；IFU/LSU应根据
-  // RRESP/BRESP和本地保存的请求地址构造RISC-V access fault。mem_cmd_e和mem_size_e仍是
-  // CPU内部语义，不能因为删除mem_req_t就一起删除。
-
-  // Cache and memory-adapter payloads
-  // Transaction IDs identify responses without exposing ROB/LSQ internals to cache.
   typedef struct packed {
-    mem_txn_id_t     txn_id;
     logic [XLEN-1:0] addr;
-  } imem_req_t;
+    logic [3:0]      id;
+    logic [7:0]      len;
+    logic [2:0]      size;
+    logic [1:0]      burst;
+  } axi_addr_t;
 
   typedef struct packed {
-    mem_txn_id_t      txn_id;
-    logic [31:0]      instruction;
-    logic             exception_valid;
-    exception_cause_e exception_cause;
-    logic [XLEN-1:0]  exception_tval;
-  } imem_resp_t;
+    logic [XLEN-1:0]       data;
+    logic [BYTE_LANES-1:0] strb;
+    logic                  last;
+  } axi_w_t;
 
   typedef struct packed {
-    mem_txn_id_t           txn_id;
-    mem_cmd_e              cmd;
-    mem_size_e             size;
-    logic [XLEN-1:0]       addr;
-    logic [XLEN-1:0]       wdata;
-    logic [BYTE_LANES-1:0] wmask;
-  } mem_req_t;
+    axi_resp_e  resp;
+    logic [3:0] id;
+  } axi_b_t;
 
   typedef struct packed {
-    mem_txn_id_t      txn_id;
-    logic [XLEN-1:0]  rdata;
-    logic             exception_valid;
-    exception_cause_e exception_cause;
-    logic [XLEN-1:0]  exception_tval;
-  } mem_resp_t;
+    axi_resp_e       resp;
+    logic [XLEN-1:0] data;
+    logic            last;
+    logic [3:0]      id;
+  } axi_r_t;
+
+
+
+
+
 
   // Commit payload
   // This is the only architectural event consumed by trace, DiffTest, and debug.

@@ -6,7 +6,7 @@
 module riscv32_axi_lite_clint
   import riscv32_pkg::*;
 #(
-    parameter logic        [XLEN-1:0] CLINT_BASE_ADDR         = 32'ha000_0000,
+    parameter logic        [XLEN-1:0] CLINT_BASE_ADDR         = 32'h0200_0000,
     parameter int unsigned            CLINT_CLOCK_FREQ_HZ     = 100_000_000,
     parameter int unsigned            MTIME_INCREMENT_FREQ_HZ = 1_000_000
 ) (
