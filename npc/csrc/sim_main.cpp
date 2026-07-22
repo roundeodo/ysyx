@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
     load_bin(img_path);
     std::cout << "NPC: load image" << img_path << std::endl;
   } else {
-    std::cout << "NPC: No image, MEM is empty" << std::endl;
+    std::cout << "NPC: No MROM image supplied" << std::endl;
   }
 
   if (flash_img_path != nullptr) {
