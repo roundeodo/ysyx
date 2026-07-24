@@ -6,6 +6,7 @@ AM_SRCS := $(YSYXSOC_START_SOURCE) \
 			           riscv/ysyxsoc/ioe.c \
 			           riscv/ysyxsoc/timer.c \
 			           riscv/ysyxsoc/uart.c \
+					   riscv/ysyxsoc/gpio.c \
 			           riscv/ysyxsoc/spi.c \
 			           riscv/ysyxsoc/flash.c \
 	           platform/dummy/cte.c \

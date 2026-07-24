@@ -169,7 +169,11 @@ sim-debug: $(BIN_SIM)
 	gtkwave waveform.vcd
 
 nvboard: $(BIN_NV)
-	$(BIN_NV) --nvboard $(IMG)
+	@test -n "$(strip $(IMG)$(FLASH_IMG))" || \
+		(echo "IMG or FLASH_IMG is required"; exit 1)
+	$(BIN_NV) --nvboard \
+		$(if $(FLASH_IMG),--flash $(FLASH_IMG)) \
+		$(IMG)
 
 lint: $(VSRC_LIST)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
