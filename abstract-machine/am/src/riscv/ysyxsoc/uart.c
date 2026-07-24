@@ -1,9 +1,11 @@
+#include <am.h>
 #include <stdint.h>
 #include <uart.h>
 
 #define UART_BASE 0x10000000u
 
 #define UART_THR 0u
+#define UART_RBR 0u
 #define UART_DLL 0u
 #define UART_IER 1u
 #define UART_DLM 1u
@@ -12,6 +14,7 @@
 #define UART_LSR 5u
 
 #define UART_LCR_DLAB (1u << 7)
+#define UART_LSR_DATA_READY (1u << 0)
 #define UART_LSR_THRE (1u << 5)
 
 static inline void uart_write(uint32_t offset, uint8_t data) {
@@ -37,4 +40,24 @@ void uart_putc(char ch) {
   }
 
   uart_write(UART_THR, (uint8_t)ch);
+}
+
+void __am_uart_init(void) {
+  uart_init();
+}
+
+void __am_uart_config(AM_UART_CONFIG_T *config) {
+  config->present = true;
+}
+
+void __am_uart_tx(AM_UART_TX_T *tx) {
+  uart_putc(tx->data);
+}
+
+void __am_uart_rx(AM_UART_RX_T *rx) {
+  if ((uart_read(UART_LSR) & UART_LSR_DATA_READY) != 0) {
+    rx->data = (char)uart_read(UART_RBR);
+  } else {
+    rx->data = (char)0xff;
+  }
 }

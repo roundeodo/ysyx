@@ -4,6 +4,10 @@
 void __am_timer_init(void);
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc);
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime);
+void __am_uart_init(void);
+void __am_uart_config(AM_UART_CONFIG_T *config);
+void __am_uart_tx(AM_UART_TX_T *tx);
+void __am_uart_rx(AM_UART_RX_T *rx);
 
 typedef void (*io_handler_t)(void *buf);
 
@@ -21,6 +25,9 @@ static io_handler_t io_handler_table[128] = {
   [AM_TIMER_CONFIG] = (io_handler_t)__am_timer_config,
   [AM_TIMER_RTC] = (io_handler_t)__am_timer_rtc,
   [AM_TIMER_UPTIME] = (io_handler_t)__am_timer_uptime,
+  [AM_UART_CONFIG] = (io_handler_t)__am_uart_config,
+  [AM_UART_TX] = (io_handler_t)__am_uart_tx,
+  [AM_UART_RX] = (io_handler_t)__am_uart_rx,
 };
 
 bool ioe_init(void) {
@@ -31,6 +38,7 @@ bool ioe_init(void) {
   }
 
   __am_timer_init();
+  __am_uart_init();
   return true;
 }
 
