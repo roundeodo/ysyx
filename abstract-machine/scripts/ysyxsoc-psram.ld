@@ -21,17 +21,17 @@ SECTIONS {
         *(.text*)
     } > psram AT> flash
 
-    .rodata : ALIGN(4) {
+    .rodata ALIGN(4) : AT(LOADADDR(.text) + (ADDR(.rodata) - ADDR(.text))) {
         *(.rodata*)
         *(.srodata*)
-    } > psram AT> flash
+    } > psram
 
-    .data : ALIGN(4) {
+    .data ALIGN(4) : AT(LOADADDR(.text) + (ADDR(.data) - ADDR(.text))) {
         *(.data*)
         *(.sdata*)
         . = ALIGN(4);
         _psram_image_end = .;
-    } > psram AT> flash
+    } > psram
 
     _psram_image_load_start = LOADADDR(.text);
     _psram_image_load_end   = LOADADDR(.data) + SIZEOF(.data);

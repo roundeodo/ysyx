@@ -1,7 +1,7 @@
 include $(AM_HOME)/scripts/isa/riscv.mk
 
 YSYXSOC_START_SOURCE  := riscv/ysyxsoc/start-psram.S
-YSYXSOC_LINKER_SCRIPT := $(AM_HOME)/scripts/ysyxsoc-psram.ld
+YSYXSOC_LINKER_SCRIPT ?= $(AM_HOME)/scripts/ysyxsoc-psram.ld
 
 include $(AM_HOME)/scripts/platform/ysyxsoc.mk
 
