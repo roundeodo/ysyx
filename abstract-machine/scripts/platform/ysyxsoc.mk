@@ -17,6 +17,12 @@ AM_SRCS := $(YSYXSOC_START_SOURCE) \
 
 INC_PATH += $(AM_HOME)/am/src/riscv/ysyxsoc/include
 
+# MAINARGS is compiled into trm.o. Rebuild this object for every AM archive
+# invocation so changing `mainargs` cannot reuse an object with an old value.
+ifeq ($(NAME),am)
+$(DST_DIR)/src/riscv/ysyxsoc/trm.o: force
+endif
+
 CFLAGS    += -fdata-sections -ffunction-sections
 LDSCRIPTS += $(YSYXSOC_LINKER_SCRIPT)
 LDFLAGS   += --gc-sections -e _start
