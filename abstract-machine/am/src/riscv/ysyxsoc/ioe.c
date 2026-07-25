@@ -9,6 +9,10 @@ void __am_uart_config(AM_UART_CONFIG_T *config);
 void __am_uart_tx(AM_UART_TX_T *tx);
 void __am_uart_rx(AM_UART_RX_T *rx);
 void __am_input_keybrd(AM_INPUT_KEYBRD_T *keyboard_event);
+void __am_gpu_init(void);
+void __am_gpu_config(AM_GPU_CONFIG_T *config);
+void __am_gpu_status(AM_GPU_STATUS_T *status);
+void __am_gpu_fbdraw(AM_GPU_FBDRAW_T *draw_request);
 
 typedef void (*io_handler_t)(void *buf);
 
@@ -35,6 +39,9 @@ static io_handler_t io_handler_table[128] = {
   [AM_UART_RX] = (io_handler_t)__am_uart_rx,
   [AM_INPUT_CONFIG] = (io_handler_t)__am_input_config,
   [AM_INPUT_KEYBRD] = (io_handler_t)__am_input_keybrd,
+  [AM_GPU_CONFIG] = (io_handler_t)__am_gpu_config,
+  [AM_GPU_STATUS] = (io_handler_t)__am_gpu_status,
+  [AM_GPU_FBDRAW] = (io_handler_t)__am_gpu_fbdraw,
 };
 
 bool ioe_init(void) {
@@ -46,6 +53,7 @@ bool ioe_init(void) {
 
   __am_timer_init();
   __am_uart_init();
+  __am_gpu_init();
   return true;
 }
 

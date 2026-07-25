@@ -7,6 +7,7 @@ AM_SRCS := $(YSYXSOC_START_SOURCE) \
 			           riscv/ysyxsoc/timer.c \
 			           riscv/ysyxsoc/uart.c \
 			           riscv/ysyxsoc/input.c \
+			           riscv/ysyxsoc/gpu.c \
 					   riscv/ysyxsoc/gpio.c \
 			           riscv/ysyxsoc/spi.c \
 			           riscv/ysyxsoc/flash.c \
