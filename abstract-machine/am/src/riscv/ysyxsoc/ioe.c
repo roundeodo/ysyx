@@ -8,6 +8,7 @@ void __am_uart_init(void);
 void __am_uart_config(AM_UART_CONFIG_T *config);
 void __am_uart_tx(AM_UART_TX_T *tx);
 void __am_uart_rx(AM_UART_RX_T *rx);
+void __am_input_keybrd(AM_INPUT_KEYBRD_T *keyboard_event);
 
 typedef void (*io_handler_t)(void *buf);
 
@@ -17,7 +18,7 @@ static void __am_timer_config(AM_TIMER_CONFIG_T *config) {
 }
 
 static void __am_input_config(AM_INPUT_CONFIG_T *config) {
-  config->present = false;
+  config->present = true;
 }
 
 static void unsupported_io_access(void *buf) {
@@ -33,6 +34,7 @@ static io_handler_t io_handler_table[128] = {
   [AM_UART_TX] = (io_handler_t)__am_uart_tx,
   [AM_UART_RX] = (io_handler_t)__am_uart_rx,
   [AM_INPUT_CONFIG] = (io_handler_t)__am_input_config,
+  [AM_INPUT_KEYBRD] = (io_handler_t)__am_input_keybrd,
 };
 
 bool ioe_init(void) {
