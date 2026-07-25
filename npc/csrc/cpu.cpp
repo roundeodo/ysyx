@@ -103,14 +103,6 @@ static void single_cycle(CommitEvent *commit_event = nullptr) {
   top->TOP_CLOCK = 1;
   top->eval();
 
-  static int uart_tx_previous = 1;
-  if (top->externalPins_uart_tx != uart_tx_previous) {
-    std::cout << "UART_TX_EDGE half_cycle=" << main_time
-              << " value=" << static_cast<int>(top->externalPins_uart_tx)
-              << std::endl;
-    uart_tx_previous = top->externalPins_uart_tx;
-  }
-
   if (trace_enabled && tfp != nullptr) {
     tfp->dump(main_time);
   }
