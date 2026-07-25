@@ -16,6 +16,10 @@ static void __am_timer_config(AM_TIMER_CONFIG_T *config) {
   config->has_rtc = false;
 }
 
+static void __am_input_config(AM_INPUT_CONFIG_T *config) {
+  config->present = false;
+}
+
 static void unsupported_io_access(void *buf) {
   (void)buf;
   panic("access unsupported ysyxsoc IO register");
@@ -28,6 +32,7 @@ static io_handler_t io_handler_table[128] = {
   [AM_UART_CONFIG] = (io_handler_t)__am_uart_config,
   [AM_UART_TX] = (io_handler_t)__am_uart_tx,
   [AM_UART_RX] = (io_handler_t)__am_uart_rx,
+  [AM_INPUT_CONFIG] = (io_handler_t)__am_input_config,
 };
 
 bool ioe_init(void) {
