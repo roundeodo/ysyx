@@ -57,7 +57,6 @@ module riscv32_pmu
   logic [31:0] mcountinhibit_d;
   logic [31:0] mcountinhibit_q;
 
-  // TODO(PMU-3): Complete this PMU CSR read-output block.
   // csr_read_select_o means "this address belongs to PMU". It is not a read
   // handshake and does not mean that the counter changed. riscv32_csr_file uses
   // it to choose PMU data instead of reporting an illegal CSR address.
@@ -81,9 +80,37 @@ module riscv32_pmu
   always_comb begin
     csr_read_select_o = 1'b0;
     csr_read_data_o   = '0;
+
+    unique case (csr_read_addr_i)
+      CSR_MCYCLE: begin
+        csr_read_select_o = 1'b1;
+        csr_read_data_o   = mcycle_q[31:0];
+      end
+
+      CSR_MCYCLEH: begin
+        csr_read_select_o = 1'b1;
+        csr_read_data_o   = mcycle_q[63:32];
+      end
+
+      CSR_MINSTRET: begin
+        csr_read_select_o = 1'b1;
+        csr_read_data_o   = minstret_q[31:0];
+      end
+
+      CSR_MINSTRETH: begin
+        csr_read_select_o = 1'b1;
+        csr_read_data_o   = minstret_q[63:32];
+      end
+
+      CSR_MCOUNTINHIBIT: begin
+        csr_read_select_o = 1'b1;
+        csr_read_data_o   = mcountinhibit_q;
+      end
+
+      default: ;
+    endcase
   end
 
-  // TODO(PMU-4): Add one counter next-state block immediately below.
   // This block decides the values captured on the next rising edge. Begin with:
   //
   //   always_comb begin
@@ -112,8 +139,34 @@ module riscv32_pmu
   //   when writing CSR_MCOUNTINHIBIT, assign
   //     csr_write_data_i & 32'h0000_0005
   // so only CY and IR can become one. Close the always_comb after all three parts.
+  always_comb begin
+    mcycle_d        = mcycle_q;
+    minstret_d      = minstret_q;
+    mcountinhibit_d = mcountinhibit_q;
 
-  // TODO(PMU-5): Add three sequential state-update blocks immediately below.
+    // mcycle
+    if (csr_write_valid_i && (csr_write_addr_i == CSR_MCYCLE)) begin
+      mcycle_d = {mcycle_q[63:32], csr_write_data_i};
+    end else if (csr_write_valid_i && (csr_write_addr_i == CSR_MCYCLEH)) begin
+      mcycle_d = {csr_write_data_i, mcycle_q[31:0]};
+    end else if (!mcountinhibit_q[0]) begin
+      mcycle_d = mcycle_q + 64'd1;
+    end
+
+    // minstret
+    if (csr_write_valid_i && (csr_write_addr_i == CSR_MINSTRET)) begin
+      minstret_d = {minstret_q[63:32], csr_write_data_i};
+    end else if (csr_write_valid_i && (csr_write_addr_i == CSR_MINSTRETH)) begin
+      minstret_d = {csr_write_data_i, minstret_q[31:0]};
+    end else if (!mcountinhibit_q[2]) begin
+      minstret_d = minstret_q + retired_instruction_count_i;
+    end
+
+    if (csr_write_valid_i && (csr_write_addr_i == CSR_MCOUNTINHIBIT)) begin
+      mcountinhibit_d = csr_write_data_i & 32'h0000_0005;
+    end
+  end
+
   // These blocks contain no policy; they only capture the _d values chosen above.
   // Keep the register families separate so each state is adjacent to its purpose:
   //
@@ -124,6 +177,29 @@ module riscv32_pmu
   //
   // Repeat the same structure for minstret_q and mcountinhibit_q. Resetting all
   // counters to zero gives deterministic software-visible behavior after reset.
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      mcycle_q <= '0;
+    end else begin
+      mcycle_q <= mcycle_d;
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      minstret_q <= '0;
+    end else begin
+      minstret_q <= minstret_d;
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      mcountinhibit_q <= '0;
+    end else begin
+      mcountinhibit_q <= mcountinhibit_d;
+    end
+  end
 
   // TODO(PMU-6): After the fixed counters work, add assertions here.
   // Check at least:
