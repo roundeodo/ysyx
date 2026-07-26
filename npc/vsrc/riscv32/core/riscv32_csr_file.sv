@@ -13,6 +13,8 @@ module riscv32_csr_file
     input logic [    11:0] csr_write_addr_i,
     input logic [XLEN-1:0] csr_write_data_i,
 
+    input logic retired_instruction_occurred_i,
+
     input logic            trap_valid_i,
     input logic [XLEN-1:0] trap_pc_i,
     input logic [XLEN-1:0] trap_cause_i,
@@ -32,13 +34,9 @@ module riscv32_csr_file
   localparam logic [11:0] CSR_MCAUSE    = 12'h342;
   localparam logic [11:0] CSR_MTVAL     = 12'h343;
   localparam logic [11:0] CSR_MIP       = 12'h344;
-  localparam logic [11:0] CSR_MCYCLE    = 12'hB00;
-  localparam logic [11:0] CSR_MCYCLEH   = 12'hB80;
-
   localparam logic [31:0] MVENDORID_VALUE = 32'h7973_7978;
   localparam logic [31:0] MARCHID_VALUE   = 32'h0150_BE98;
 
-  logic [63:0] mcycle_q;
   logic [31:0] mstatus_q;
   logic [31:0] mie_q;
   logic [31:0] mtvec_q;
@@ -47,6 +45,23 @@ module riscv32_csr_file
   logic [31:0] mcause_q;
   logic [31:0] mtval_q;
   logic [31:0] mip_q;
+
+  logic            pmu_csr_read_select;
+  logic [XLEN-1:0] pmu_csr_read_data;
+
+  riscv32_pmu #(
+      .COMMIT_WIDTH(1)
+  ) u_pmu (
+      .clk_i                      (clk_i),
+      .rst_ni                     (rst_ni),
+      .retired_instruction_count_i(retired_instruction_occurred_i),
+      .csr_read_addr_i            (csr_read_addr_i),
+      .csr_read_select_o          (pmu_csr_read_select),
+      .csr_read_data_o            (pmu_csr_read_data),
+      .csr_write_valid_i          (csr_write_valid_i),
+      .csr_write_addr_i           (csr_write_addr_i),
+      .csr_write_data_i           (csr_write_data_i)
+  );
 
   always_comb begin
     csr_read_data_o    = '0;
@@ -64,11 +79,13 @@ module riscv32_csr_file
         CSR_MCAUSE:    csr_read_data_o = mcause_q;
         CSR_MTVAL:     csr_read_data_o = mtval_q;
         CSR_MIP:       csr_read_data_o = mip_q;
-        CSR_MCYCLE:    csr_read_data_o = mcycle_q[31:0];
-        CSR_MCYCLEH:   csr_read_data_o = mcycle_q[63:32];
         default: begin
-          csr_read_data_o    = '0;
-          csr_read_illegal_o = 1'b1;
+          if (pmu_csr_read_select) begin
+            csr_read_data_o = pmu_csr_read_data;
+          end else begin
+            csr_read_data_o    = '0;
+            csr_read_illegal_o = 1'b1;
+          end
         end
       endcase
     end
@@ -76,7 +93,6 @@ module riscv32_csr_file
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      mcycle_q   <= '0;
       mstatus_q  <= '0;
       mie_q      <= '0;
       mtvec_q    <= '0;
@@ -86,14 +102,6 @@ module riscv32_csr_file
       mtval_q    <= '0;
       mip_q      <= '0;
     end else begin
-      if (csr_write_valid_i && (csr_write_addr_i == CSR_MCYCLE)) begin
-        mcycle_q <= {mcycle_q[63:32], csr_write_data_i};
-      end else if (csr_write_valid_i && (csr_write_addr_i == CSR_MCYCLEH)) begin
-        mcycle_q <= {csr_write_data_i, mcycle_q[31:0]};
-      end else begin
-        mcycle_q <= mcycle_q + 64'd1;
-      end
-
       if (trap_valid_i) begin
         mepc_q           <= trap_pc_i;
         mcause_q         <= trap_cause_i;

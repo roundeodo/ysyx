@@ -75,6 +75,7 @@ module riscv32_core
   logic csr_read_illegal;
   logic [XLEN-1:0] csr_mtvec;
   logic [XLEN-1:0] csr_mepc;
+  logic retired_instruction_occurred;
 
   logic trap_valid;
   logic [XLEN-1:0] trap_pc;
@@ -142,6 +143,7 @@ module riscv32_core
       .csr_write_valid_i (commit_valid && commit.csr_write),
       .csr_write_addr_i  (commit.csr_addr),
       .csr_write_data_i  (commit.csr_wdata),
+      .retired_instruction_occurred_i(retired_instruction_occurred),
       .trap_valid_i      (trap_valid),
       .trap_pc_i         (trap_pc),
       .trap_cause_i      (trap_cause),
@@ -215,6 +217,11 @@ module riscv32_core
       .gpr_write_addr_o        (gpr_write_addr),
       .gpr_write_enable_o      (gpr_write_enable)
   );
+
+  // A synchronous exception reaches the commit boundary but does not retire the
+  // faulting instruction. Future multi-commit logic will replace this scalar
+  // event with the number of non-trapping instructions retired in this cycle.
+  assign retired_instruction_occurred = commit_valid && !commit.trap_taken;
 
   riscv32_trap_controller u_trap_controller (
       .commit_i            (commit),
