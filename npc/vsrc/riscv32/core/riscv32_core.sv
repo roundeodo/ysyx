@@ -229,13 +229,27 @@ module riscv32_core
   riscv32_sim_performance_monitor u_sim_performance_monitor (
       .clk_i                                  (clk_i),
       .rst_ni                                 (rst_ni),
+      .ifu_instruction_request_occurred_i     (ifu_axi_arvalid_o && ifu_axi_arready_i),
+      .ifu_instruction_request_waiting_i      (ifu_axi_arvalid_o && !ifu_axi_arready_i),
+      .ifu_instruction_response_occurred_i    (ifu_axi_rvalid_i && ifu_axi_rready_o),
+      .ifu_instruction_response_discarded_occurred_i(
+          ifu_axi_rvalid_i && ifu_axi_rready_o && !fetch_entry_valid
+      ),
       .ifu_instruction_delivery_occurred_i    (fetch_entry_valid && fetch_entry_ready),
-      .lsu_load_data_response_occurred_i      (lsu_axi_rvalid_i && lsu_axi_rready_o),
-      .exu_completion_occurred_i              (exu_result_valid && exu_result_ready),
-      .lsu_completion_occurred_i              (lsu_writeback_valid && lsu_writeback_ready),
+      .ifu_downstream_waiting_i               (fetch_entry_valid && !fetch_entry_ready),
       .instruction_decode_occurred_i          (decoded_uop_valid && decoded_uop_ready),
       .decoded_fu_type_i                      (decoded_uop.fu_type),
-      .instruction_retirement_occurred_i      (retired_instruction_occurred)
+      .decoded_memory_cmd_i                   (decoded_uop.mem_ctrl.cmd),
+      .exu_completion_occurred_i              (exu_result_valid && exu_result_ready),
+      .lsu_completion_occurred_i              (lsu_writeback_valid && lsu_writeback_ready),
+      .instruction_retirement_occurred_i      (retired_instruction_occurred),
+      .lsu_request_occurred_i                 (lsu_req_valid && lsu_req_ready),
+      .lsu_request_memory_cmd_i               (lsu_req.uop.mem_ctrl.cmd),
+      .lsu_read_address_occurred_i            (lsu_axi_arvalid_o && lsu_axi_arready_i),
+      .lsu_read_response_occurred_i           (lsu_axi_rvalid_i && lsu_axi_rready_o),
+      .lsu_write_address_occurred_i           (lsu_axi_awvalid_o && lsu_axi_awready_i),
+      .lsu_write_data_occurred_i              (lsu_axi_wvalid_o && lsu_axi_wready_i),
+      .lsu_write_response_occurred_i          (lsu_axi_bvalid_i && lsu_axi_bready_o)
   );
 `endif
 
