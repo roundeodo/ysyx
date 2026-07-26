@@ -223,6 +223,22 @@ module riscv32_core
   // event with the number of non-trapping instructions retired in this cycle.
   assign retired_instruction_occurred = commit_valid && !commit.trap_taken;
 
+`ifdef VERILATOR
+  // Simulation-only observation. Every event below is a completed valid/ready
+  // transfer, so backpressure cannot make one transaction count more than once.
+  riscv32_sim_performance_monitor u_sim_performance_monitor (
+      .clk_i                                  (clk_i),
+      .rst_ni                                 (rst_ni),
+      .ifu_instruction_fetch_occurred_i       (fetch_entry_valid && fetch_entry_ready),
+      .lsu_load_data_response_occurred_i      (lsu_axi_rvalid_i && lsu_axi_rready_o),
+      .exu_completion_occurred_i              (exu_result_valid && exu_result_ready),
+      .lsu_completion_occurred_i              (lsu_writeback_valid && lsu_writeback_ready),
+      .instruction_decode_occurred_i          (decoded_uop_valid && decoded_uop_ready),
+      .decoded_fu_type_i                      (decoded_uop.fu_type),
+      .instruction_retirement_occurred_i      (retired_instruction_occurred)
+  );
+`endif
+
   riscv32_trap_controller u_trap_controller (
       .commit_i            (commit),
       .commit_valid_i      (commit_valid),

@@ -23,6 +23,7 @@ ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi_core_boundary.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi.sv
 ${NPC_HOME}/vsrc/riscv32/system/peripheral/riscv32_axi_lite_clint.sv
 
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_performance_monitor.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi_lite_uart_sim.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/sim/top.sv
