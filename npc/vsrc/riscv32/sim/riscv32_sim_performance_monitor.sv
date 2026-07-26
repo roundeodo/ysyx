@@ -83,18 +83,28 @@ module riscv32_sim_performance_monitor
   logic [63:0] lsu_write_bus_latency_cycle_sum_q;
   logic [63:0] lsu_write_bus_elapsed_cycle_count_q;
   logic        lsu_write_response_pending_q;
-  logic        lsu_write_address_received_q;
-  logic        lsu_write_data_received_q;
+  logic        lsu_write_address_handshake_occurred_q;
+  logic        lsu_write_data_handshake_occurred_q;
 
   logic instruction_completion_occurred;
-  logic lsu_write_request_completed;
+  logic lsu_write_request_channels_handshake_occurred;
 
   assign instruction_completion_occurred = exu_completion_occurred_i ||
                                             lsu_completion_occurred_i;
 
-  assign lsu_write_request_completed =
-      (lsu_write_address_received_q || lsu_write_address_occurred_i) &&
-      (lsu_write_data_received_q || lsu_write_data_occurred_i);
+  assign lsu_write_request_channels_handshake_occurred =
+      (lsu_write_address_handshake_occurred_q || lsu_write_address_occurred_i) &&
+      (lsu_write_data_handshake_occurred_q || lsu_write_data_occurred_i);
+
+  function automatic real calculate_ratio(
+      input logic [63:0] numerator,
+      input logic [63:0] denominator
+  );
+    if (denominator == 0) begin
+      return 0.0;
+    end
+    return real'(numerator) / real'(denominator);
+  endfunction
 
   function automatic real calculate_percentage(
       input logic [63:0] event_count,
@@ -372,17 +382,17 @@ module riscv32_sim_performance_monitor
       lsu_write_bus_latency_cycle_sum_q     <= '0;
       lsu_write_bus_elapsed_cycle_count_q   <= '0;
       lsu_write_response_pending_q          <= 1'b0;
-      lsu_write_address_received_q          <= 1'b0;
-      lsu_write_data_received_q             <= 1'b0;
+      lsu_write_address_handshake_occurred_q <= 1'b0;
+      lsu_write_data_handshake_occurred_q    <= 1'b0;
     end else begin
       if (lsu_write_address_occurred_i) begin
-        lsu_write_address_received_q <= 1'b1;
+        lsu_write_address_handshake_occurred_q <= 1'b1;
       end
       if (lsu_write_data_occurred_i) begin
-        lsu_write_data_received_q <= 1'b1;
+        lsu_write_data_handshake_occurred_q <= 1'b1;
       end
 
-      if (!lsu_write_response_pending_q && lsu_write_request_completed) begin
+      if (!lsu_write_response_pending_q && lsu_write_request_channels_handshake_occurred) begin
         lsu_write_response_pending_q        <= 1'b1;
         lsu_write_bus_elapsed_cycle_count_q <= '0;
       end else if (lsu_write_response_pending_q) begin
@@ -395,8 +405,8 @@ module riscv32_sim_performance_monitor
                                              lsu_write_bus_elapsed_cycle_count_q + 64'd1;
         lsu_write_bus_elapsed_cycle_count_q <= '0;
         lsu_write_response_pending_q        <= 1'b0;
-        lsu_write_address_received_q        <= 1'b0;
-        lsu_write_data_received_q           <= 1'b0;
+        lsu_write_address_handshake_occurred_q <= 1'b0;
+        lsu_write_data_handshake_occurred_q    <= 1'b0;
       end
     end
   end
@@ -408,7 +418,7 @@ module riscv32_sim_performance_monitor
     $display("decoded instructions               : %0d", decoded_instruction_count_q);
     $display("retired instructions               : %0d", retired_instruction_count_q);
     $display("IPC                                : %.6f",
-             calculate_average_cycles(retired_instruction_count_q, active_cycle_count_q));
+             calculate_ratio(retired_instruction_count_q, active_cycle_count_q));
     $display("");
     $display("instruction class        count       ratio       average execution cycles");
     $display("integer              %10d  %8.3f%%  %12.3f", integer_instruction_count_q,
