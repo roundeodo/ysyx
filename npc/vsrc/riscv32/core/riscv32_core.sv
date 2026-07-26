@@ -229,7 +229,7 @@ module riscv32_core
   riscv32_sim_performance_monitor u_sim_performance_monitor (
       .clk_i                                  (clk_i),
       .rst_ni                                 (rst_ni),
-      .ifu_instruction_fetch_occurred_i       (fetch_entry_valid && fetch_entry_ready),
+      .ifu_instruction_delivery_occurred_i    (fetch_entry_valid && fetch_entry_ready),
       .lsu_load_data_response_occurred_i      (lsu_axi_rvalid_i && lsu_axi_rready_o),
       .exu_completion_occurred_i              (exu_result_valid && exu_result_ready),
       .lsu_completion_occurred_i              (lsu_writeback_valid && lsu_writeback_ready),
