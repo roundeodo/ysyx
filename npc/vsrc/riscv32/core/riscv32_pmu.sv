@@ -52,6 +52,11 @@ module riscv32_pmu
   logic [63:0] minstret_d;
   logic [63:0] minstret_q;
 
+  logic [63:0] retired_instruction_count_extended;
+
+  assign retired_instruction_count_extended =
+      {{(64-$bits(retired_instruction_count_i)){1'b0}}, retired_instruction_count_i};
+
   // mcountinhibit lets software stop selected counters. Only CY (bit 0) and IR
   // (bit 2) are implemented now. Other bits must always read as zero.
   logic [31:0] mcountinhibit_d;
@@ -159,7 +164,7 @@ module riscv32_pmu
     end else if (csr_write_valid_i && (csr_write_addr_i == CSR_MINSTRETH)) begin
       minstret_d = {csr_write_data_i, minstret_q[31:0]};
     end else if (!mcountinhibit_q[2]) begin
-      minstret_d = minstret_q + retired_instruction_count_i;
+      minstret_d = minstret_q + retired_instruction_count_extended;
     end
 
     if (csr_write_valid_i && (csr_write_addr_i == CSR_MCOUNTINHIBIT)) begin
