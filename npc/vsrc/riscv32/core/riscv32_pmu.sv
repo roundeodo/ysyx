@@ -1,12 +1,12 @@
 module riscv32_pmu
   import riscv32_pkg::*;
 #(
-    parameter int unsigned COMMIT_WIDTH = 1
+    parameter int unsigned RETIRE_SLOT_COUNT = 1
 ) (
     input logic clk_i,
     input logic rst_ni,
 
-    input logic [$clog2(COMMIT_WIDTH + 1)-1:0] retired_instruction_count_i,
+    input logic [$clog2(RETIRE_SLOT_COUNT + 1)-1:0] retired_instruction_count_i,
 
     input  logic [    11:0] csr_read_addr_i,
     output logic            csr_read_select_o,
@@ -62,7 +62,7 @@ module riscv32_pmu
 
   // TODO(PMU-6): After the fixed counters work, add assertions here.
   // Check at least:
-  //   - retired_instruction_count_i never exceeds COMMIT_WIDTH;
+  //   - retired_instruction_count_i never exceeds RETIRE_SLOT_COUNT;
   //   - unimplemented mcountinhibit bits remain zero;
   //   - PMU never drives csr_read_select_o for an unimplemented address.
   // These assertions observe PMU behavior only and must not feed back into the

@@ -50,7 +50,7 @@ module riscv32_csr_file
   logic [XLEN-1:0] pmu_csr_read_data;
 
   riscv32_pmu #(
-      .COMMIT_WIDTH(1)
+      .RETIRE_SLOT_COUNT(1)
   ) u_pmu (
       .clk_i                      (clk_i),
       .rst_ni                     (rst_ni),
