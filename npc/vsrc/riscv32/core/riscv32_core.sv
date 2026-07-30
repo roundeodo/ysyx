@@ -2,7 +2,9 @@
 // arbitration are intentionally outside this module.
 module riscv32_core
   import riscv32_pkg::*;
-(
+#(
+    parameter logic [XLEN-1:0] RESET_PC = RESET_VECTOR
+) (
     input logic clk_i,
     input logic rst_ni,
 
@@ -35,6 +37,23 @@ module riscv32_core
   localparam int unsigned REDIRECT_SOURCE_COUNT = 2;
   localparam int unsigned EXU_REDIRECT_INDEX = 0;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 1;
+
+  // TODO(ICACHE-CORE-1): 完成I-cache各子模块后，在本TODO正下方声明IFU本地通道、
+  // invalidate通道和事件通道。不要复用外部AXI信号表示cache lookup，因为两者的事务
+  // 语义不同。建议声明：
+  //
+  //   icache_lookup_req_t  icache_lookup_req;
+  //   logic                icache_lookup_req_valid;
+  //   logic                icache_lookup_req_ready;
+  //   icache_lookup_resp_t icache_lookup_resp;
+  //   logic                icache_lookup_resp_valid;
+  //   logic                icache_lookup_resp_ready;
+  //   icache_event_t       icache_event;
+  //   logic                icache_invalidate_req;
+  //   logic                icache_invalidate_done;
+  //
+  // `icache_invalidate_req`最终来自已提交的fence.i，而不是decode阶段。只有commit之后才能
+  // 改变前端可观察状态，从而保持精确异常和未来乱序执行语义。
 
   fetch_entry_t fetch_entry;
   logic fetch_entry_valid;
@@ -97,7 +116,24 @@ module riscv32_core
     execute_packet.csr_illegal = csr_read_illegal;
   end
 
-  riscv32_ifu u_ifu (
+  // TODO(ICACHE-CORE-2): 在本TODO正下方把当前IFU直连AXI拓扑替换为：
+  //
+  //   IFU -> I-cache lookup端口 -> I-cache refill adapter -> core外部AXI端口
+  //             |
+  //             +-> fetch buffer -> IDU
+  //
+  // 具体步骤：
+  // 1. 先按ICACHE-CORE-1声明本地通道；
+  // 2. 修改u_ifu，只连接redirect、lookup通道和fetch buffer，不再连接AXI；
+  // 3. 在u_ifu后实例化u_icache，把其lower_axi_*连接到当前ifu_axi_*顶层端口；
+  // 4. 若fetch buffer作为独立模块，则u_ifu输出先进入u_fetch_buffer，再连接u_idu；
+  // 5. fence.i失效期间禁止IFU发出新lookup，失效完成后从commit给出的顺序PC重新取指；
+  // 6. 保持LSU AXI路径不变，以便I-cache出现问题时能独立回归和定位。
+  //
+  // 第一版集成完成且回归通过后，再删除当前u_ifu上的AXI连接。不要同时改D-cache。
+  riscv32_ifu #(
+      .PC_START(RESET_PC)
+  ) u_ifu (
       .clk_i               (clk_i),
       .rst_ni              (rst_ni),
       .redirect_req_i      (selected_redirect_req),
@@ -134,23 +170,23 @@ module riscv32_core
   );
 
   riscv32_csr_file u_csr_file (
-      .clk_i             (clk_i),
-      .rst_ni            (rst_ni),
-      .csr_read_enable_i (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
-      .csr_read_addr_i   (decoded_uop.csr_ctrl.addr),
-      .csr_read_data_o   (csr_read_data),
-      .csr_read_illegal_o(csr_read_illegal),
-      .csr_write_valid_i (commit_valid && commit.csr_write),
-      .csr_write_addr_i  (commit.csr_addr),
-      .csr_write_data_i  (commit.csr_wdata),
+      .clk_i                         (clk_i),
+      .rst_ni                        (rst_ni),
+      .csr_read_enable_i             (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
+      .csr_read_addr_i               (decoded_uop.csr_ctrl.addr),
+      .csr_read_data_o               (csr_read_data),
+      .csr_read_illegal_o            (csr_read_illegal),
+      .csr_write_valid_i             (commit_valid && commit.csr_write),
+      .csr_write_addr_i              (commit.csr_addr),
+      .csr_write_data_i              (commit.csr_wdata),
       .retired_instruction_occurred_i(retired_instruction_occurred),
-      .trap_valid_i      (trap_valid),
-      .trap_pc_i         (trap_pc),
-      .trap_cause_i      (trap_cause),
-      .trap_tval_i       (trap_tval),
-      .mret_valid_i      (mret_valid),
-      .mtvec_o           (csr_mtvec),
-      .mepc_o            (csr_mepc)
+      .trap_valid_i                  (trap_valid),
+      .trap_pc_i                     (trap_pc),
+      .trap_cause_i                  (trap_cause),
+      .trap_tval_i                   (trap_tval),
+      .mret_valid_i                  (mret_valid),
+      .mtvec_o                       (csr_mtvec),
+      .mepc_o                        (csr_mepc)
   );
 
   riscv32_exu u_exu (
@@ -224,32 +260,39 @@ module riscv32_core
   assign retired_instruction_occurred = commit_valid && !commit.trap_taken;
 
 `ifdef VERILATOR
+  // TODO(ICACHE-CORE-3): I-cache接入后，在本TODO正下方重新映射前端性能事件。
+  // 现有`ifu_instruction_request_*`统计的是外部AXI事务；接入cache后必须区分三层：
+  // - IFU lookup：前端请求、I-cache response、向IDU交付、stale response丢弃；
+  // - I-cache：lookup、hit、miss、uncached access、refill line完成；
+  // - lower memory：refill adapter的AXI AR/R握手和响应等待。
+  // 命中率分母使用cacheable lookup，不使用AXI请求数。lower AXI只在miss或uncached时出现。
+  // 保留三层统计，才能分别判断前端反压、cache组织和外部memory latency的性能问题。
   // Simulation-only observation. Every event below is a completed valid/ready
   // transfer, so backpressure cannot make one transaction count more than once.
   riscv32_sim_performance_monitor u_sim_performance_monitor (
-      .clk_i                                  (clk_i),
-      .rst_ni                                 (rst_ni),
-      .ifu_instruction_request_occurred_i     (ifu_axi_arvalid_o && ifu_axi_arready_i),
-      .ifu_instruction_request_waiting_i      (ifu_axi_arvalid_o && !ifu_axi_arready_i),
-      .ifu_instruction_response_occurred_i    (ifu_axi_rvalid_i && ifu_axi_rready_o),
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .ifu_instruction_request_occurred_i(ifu_axi_arvalid_o && ifu_axi_arready_i),
+      .ifu_instruction_request_waiting_i(ifu_axi_arvalid_o && !ifu_axi_arready_i),
+      .ifu_instruction_response_occurred_i(ifu_axi_rvalid_i && ifu_axi_rready_o),
       .ifu_instruction_response_discarded_occurred_i(
           ifu_axi_rvalid_i && ifu_axi_rready_o && !fetch_entry_valid
       ),
-      .ifu_instruction_delivery_occurred_i    (fetch_entry_valid && fetch_entry_ready),
-      .ifu_downstream_waiting_i               (fetch_entry_valid && !fetch_entry_ready),
-      .instruction_decode_occurred_i          (decoded_uop_valid && decoded_uop_ready),
-      .decoded_fu_type_i                      (decoded_uop.fu_type),
-      .decoded_memory_cmd_i                   (decoded_uop.mem_ctrl.cmd),
-      .exu_completion_occurred_i              (exu_result_valid && exu_result_ready),
-      .lsu_completion_occurred_i              (lsu_writeback_valid && lsu_writeback_ready),
-      .instruction_retirement_occurred_i      (retired_instruction_occurred),
-      .lsu_request_occurred_i                 (lsu_req_valid && lsu_req_ready),
-      .lsu_request_memory_cmd_i               (lsu_req.uop.mem_ctrl.cmd),
-      .lsu_read_address_occurred_i            (lsu_axi_arvalid_o && lsu_axi_arready_i),
-      .lsu_read_response_occurred_i           (lsu_axi_rvalid_i && lsu_axi_rready_o),
-      .lsu_write_address_occurred_i           (lsu_axi_awvalid_o && lsu_axi_awready_i),
-      .lsu_write_data_occurred_i              (lsu_axi_wvalid_o && lsu_axi_wready_i),
-      .lsu_write_response_occurred_i          (lsu_axi_bvalid_i && lsu_axi_bready_o)
+      .ifu_instruction_delivery_occurred_i(fetch_entry_valid && fetch_entry_ready),
+      .ifu_downstream_waiting_i(fetch_entry_valid && !fetch_entry_ready),
+      .instruction_decode_occurred_i(decoded_uop_valid && decoded_uop_ready),
+      .decoded_fu_type_i(decoded_uop.fu_type),
+      .decoded_memory_cmd_i(decoded_uop.mem_ctrl.cmd),
+      .exu_completion_occurred_i(exu_result_valid && exu_result_ready),
+      .lsu_completion_occurred_i(lsu_writeback_valid && lsu_writeback_ready),
+      .instruction_retirement_occurred_i(retired_instruction_occurred),
+      .lsu_request_occurred_i(lsu_req_valid && lsu_req_ready),
+      .lsu_request_memory_cmd_i(lsu_req.uop.mem_ctrl.cmd),
+      .lsu_read_address_occurred_i(lsu_axi_arvalid_o && lsu_axi_arready_i),
+      .lsu_read_response_occurred_i(lsu_axi_rvalid_i && lsu_axi_rready_o),
+      .lsu_write_address_occurred_i(lsu_axi_awvalid_o && lsu_axi_awready_i),
+      .lsu_write_data_occurred_i(lsu_axi_wvalid_o && lsu_axi_wready_i),
+      .lsu_write_response_occurred_i(lsu_axi_bvalid_i && lsu_axi_bready_o)
   );
 `endif
 

@@ -8,6 +8,10 @@ module riscv32_pmu
 
     input logic [$clog2(RETIRE_SLOT_COUNT + 1)-1:0] retired_instruction_count_i,
 
+    // TODO(ICACHE-PMU-1): 完成icache_event_t后，在本TODO正下方增加
+    // `input icache_event_t icache_event_i`。该结构体每个字段表示“本周期某事件发生”，
+    // 不是累计值，也不是控制请求。PMU只在时钟沿把为1的字段累加到对应64-bit计数器。
+
     input  logic [    11:0] csr_read_addr_i,
     output logic            csr_read_select_o,
     output logic [XLEN-1:0] csr_read_data_o,
@@ -61,6 +65,19 @@ module riscv32_pmu
   // (bit 2) are implemented now. Other bits must always read as zero.
   logic [31:0] mcountinhibit_d;
   logic [31:0] mcountinhibit_q;
+
+  // TODO(ICACHE-PMU-2): 在本TODO正下方声明I-cache性能计数器，每个计数器均使用_q/_d：
+  // - icache_lookup_count：被I-cache接受的cacheable lookup数量；
+  // - icache_hit_count：tag compare命中的lookup数量；
+  // - icache_miss_count：分配miss状态的lookup数量；
+  // - icache_refill_word_count：从下层成功接收的32-bit word数量；
+  // - icache_refill_line_count：完整安装到tag/data array的line数量；
+  // - icache_uncached_access_count：绕过cache但仍由其下层端口服务的请求数量；
+  // - icache_stale_response_count：redirect后被epoch过滤的response数量。
+  //
+  // `lookup_count == hit_count + miss_count`只对cacheable且无access fault的lookup成立；
+  // uncached和fault必须单独统计，不能为追求等式而重复计数。第一版可只通过仿真层读取
+  // 这些寄存器，后续再决定是否映射到mhpmcounter3..31与mhpmevent3..31。
 
   // csr_read_select_o means "this address belongs to PMU". It is not a read
   // handshake and does not mean that the counter changed. riscv32_csr_file uses
@@ -171,6 +188,20 @@ module riscv32_pmu
       mcountinhibit_d = csr_write_data_i & 32'h0000_0005;
     end
   end
+
+  // TODO(ICACHE-PMU-3): 在本TODO正下方为cache计数器写独立next-state组合块。
+  // 每个`counter_d = counter_q + 64'(event_bit)`，其中event_bit只来自icache_event_i。
+  // 不要把这些更新混入mcycle/minstret CSR写优先级块；两类状态生命周期不同，拆开后更
+  // 容易加入mcountinhibit、溢出中断或事件选择器。若多个同类事件未来每周期可发生多次，
+  // 把Boolean字段升级为count字段，而不是在PMU里猜测发射宽度。
+
+  // TODO(ICACHE-PMU-4): 在本TODO正下方按状态族分别加入always_ff。
+  // reset时所有cache计数器清零；正常周期捕获对应_d。继续遵循“相关寄存器靠近其next
+  // 逻辑”的编码习惯，不要把全部PMU寄存器塞入一个远离定义的大always_ff。
+
+  // TODO(ICACHE-PMU-5): 在本TODO正下方增加一致性断言，但只在事件可比较时检查。
+  // 例如：同一lookup不能同时hit与miss；line refill发生时本周期或此前必须存在miss；
+  // refill line数量不能超过miss数量；PMU输出不得参与cache ready或replacement选择。
 
   // These blocks contain no policy; they only capture the _d values chosen above.
   // Keep the register families separate so each state is adjacent to its purpose:

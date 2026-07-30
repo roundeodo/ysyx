@@ -253,6 +253,142 @@ package riscv32_pkg;
     logic        use_imm;
   } csr_uop_ctrl_t;
 
+  // TODO(ICACHE-PKG-1): 在本TODO正下方定义I-cache几何参数和派生宽度。
+  // 这是I-cache配置的唯一权威位置，array、miss unit和refill adapter不得各自
+  // 重复写常数。第一版冻结为8KiB、2-way、32B cache line、每次向IFU返回4B：
+  //
+  //   parameter int unsigned ICACHE_CAPACITY_BYTES = 8 * 1024;
+  //   parameter int unsigned ICACHE_WAY_COUNT      = 2;
+  //   parameter int unsigned ICACHE_LINE_BYTES     = 32;
+  //   parameter int unsigned ICACHE_FETCH_BYTES    = 4;
+  //   parameter int unsigned ICACHE_MSHR_COUNT     = 1;
+  //   parameter int unsigned FETCH_EPOCH_COUNT     = 16;
+  //
+  //   localparam int unsigned ICACHE_SET_COUNT =
+  //       ICACHE_CAPACITY_BYTES / (ICACHE_WAY_COUNT * ICACHE_LINE_BYTES);
+  //   localparam int unsigned ICACHE_WORDS_PER_LINE = ICACHE_LINE_BYTES / BYTE_LANES;
+  //   localparam int unsigned ICACHE_SET_INDEX_W =
+  //       (ICACHE_SET_COUNT > 1) ? $clog2(ICACHE_SET_COUNT) : 1;
+  //   localparam int unsigned ICACHE_WORD_INDEX_W =
+  //       (ICACHE_WORDS_PER_LINE > 1) ? $clog2(ICACHE_WORDS_PER_LINE) : 1;
+  //   localparam int unsigned ICACHE_WAY_INDEX_W =
+  //       (ICACHE_WAY_COUNT > 1) ? $clog2(ICACHE_WAY_COUNT) : 1;
+  //   localparam int unsigned ICACHE_LINE_OFFSET_W = $clog2(ICACHE_LINE_BYTES);
+  //   localparam int unsigned ICACHE_TAG_W = XLEN - ICACHE_LINE_OFFSET_W
+  //                                                 - ICACHE_SET_INDEX_W;
+  //   localparam int unsigned FETCH_EPOCH_W =
+  //       (FETCH_EPOCH_COUNT > 1) ? $clog2(FETCH_EPOCH_COUNT) : 1;
+  //
+  // 完成参数后增加initial/elaboration检查，至少拒绝以下配置：
+  // - capacity、way count、line bytes、fetch bytes不是2的幂；
+  // - capacity不能被way count * line bytes整除；
+  // - line bytes小于fetch bytes，或line bytes不能被BYTE_LANES整除；
+  // - 当前FETCH_WIDTH不是1。宽取指是后续独立设计，不允许静默改变本接口语义。
+  // 对当前配置，set=128，地址拆分应为tag[31:12]、set[11:5]、offset[4:0]。
+
+  // TODO(ICACHE-PKG-2): 在参数之后定义I-cache使用的索引和epoch类型。
+  // 建议代码如下。类型名表达存储内容，不把one-hot等编码方式写进功能名称：
+  //
+  //   typedef logic [ICACHE_SET_INDEX_W-1:0]  icache_set_index_t;
+  //   typedef logic [ICACHE_WORD_INDEX_W-1:0] icache_word_index_t;
+  //   typedef logic [ICACHE_WAY_INDEX_W-1:0]  icache_way_index_t;
+  //   typedef logic [ICACHE_TAG_W-1:0]        icache_tag_t;
+  //   typedef logic [FETCH_EPOCH_W-1:0]       fetch_epoch_t;
+  //
+  // fetch_epoch不是总线transaction ID。redirect发生时IFU递增epoch；较老epoch的
+  // 返回结果仍可完成memory握手，但不能进入fetch buffer。epoch回绕安全的前提是
+  // 同时在途的前端事务数量严格小于FETCH_EPOCH_COUNT。
+
+  // TODO(ICACHE-PKG-3): 在本TODO正下方定义PMA属性和I-cache本地通道结构体。
+  // valid/ready必须继续作为模块端口上的独立logic，不能放进这些结构体。
+  // 建议先实现以下字段，字段不使用时必须赋0：
+  //
+  //   typedef struct packed {
+  //     logic executable;
+  //     logic cacheable;
+  //     logic idempotent;
+  //   } pma_attr_t;
+  //
+  //   typedef struct packed {
+  //     logic [XLEN-1:0] fetch_addr;
+  //     frontend_tag_t   frontend_tag;
+  //     fetch_epoch_t    fetch_epoch;
+  //   } icache_lookup_req_t;
+  //
+  //   typedef struct packed {
+  //     logic [XLEN-1:0]                   fetch_addr;
+  //     logic [ICACHE_FETCH_BYTES*8-1:0]  fetch_data;
+  //     frontend_tag_t                    frontend_tag;
+  //     fetch_epoch_t                      fetch_epoch;
+  //     logic                              access_fault;
+  //   } icache_lookup_resp_t;
+  //
+  // frontend_tag是IFU分配的前端请求身份，response必须原样返回；它和fetch_epoch
+  // 分别解决“这是哪个请求”和“这个请求是否仍属于当前控制流”两个问题。
+  // lookup响应保留fetch_addr，因为IFU需要把返回数据与PC重新关联；I-cache只返回
+  // 原始取指数据，不在cache中构造fetch_entry_t，也不负责分支预测或异常提交。
+
+  // TODO(ICACHE-PKG-4): 定义cache pipeline到miss unit，以及miss unit到下层
+  // refill adapter之间的结构体。第一版只有一个MSHR，但仍保留refill transaction
+  // index，使接口能平滑扩展到多个MSHR。注意它是miss unit与refill adapter之间的
+  // 本地身份，不等同于IFU分配的frontend_tag：
+  //
+  //   typedef struct packed {
+  //     icache_lookup_req_t lookup_req;
+  //     pma_attr_t          memory_attr;
+  //     icache_set_index_t  set_index;
+  //     icache_word_index_t critical_word_index;
+  //     icache_way_index_t  replacement_way_index;
+  //     icache_tag_t        refill_tag;
+  //   } icache_miss_req_t;
+  //
+  //   localparam int unsigned ICACHE_REFILL_TRANSACTION_COUNT = ICACHE_MSHR_COUNT;
+  //   localparam int unsigned ICACHE_REFILL_TRANSACTION_INDEX_W =
+  //       (ICACHE_REFILL_TRANSACTION_COUNT > 1)
+  //           ? $clog2(ICACHE_REFILL_TRANSACTION_COUNT) : 1;
+  //   localparam int unsigned ICACHE_REFILL_WORD_COUNT_W =
+  //       $clog2(ICACHE_WORDS_PER_LINE + 1);
+  //   typedef logic [ICACHE_REFILL_TRANSACTION_INDEX_W-1:0]
+  //       icache_refill_transaction_index_t;
+  //   typedef logic [ICACHE_REFILL_WORD_COUNT_W-1:0]
+  //       icache_refill_word_count_t;
+  //
+  //   typedef struct packed {
+  //     logic [XLEN-1:0]                    line_base_addr;
+  //     icache_word_index_t                 critical_word_index;
+  //     icache_refill_word_count_t          requested_word_count;
+  //     icache_refill_transaction_index_t   transaction_index;
+  //   } icache_refill_req_t;
+  //
+  //   typedef struct packed {
+  //     logic [XLEN-1:0]                    word_data;
+  //     icache_word_index_t                 word_index;
+  //     logic                               last_word;
+  //     logic                               access_fault;
+  //     icache_refill_transaction_index_t   transaction_index;
+  //   } icache_refill_resp_t;
+  //
+  // line_base_addr低ICACHE_LINE_OFFSET_W位必须为0。cache miss令
+  // requested_word_count=ICACHE_WORDS_PER_LINE；uncached fetch令其为1。refill adapter
+  // 从critical_word_index开始按环回顺序返回word_index。last_word描述本次本地refill
+  // 结束，不表示AXI-Lite的RLAST，因为AXI4-Lite本身没有burst和RLAST。
+
+  // TODO(ICACHE-PKG-5): 定义I-cache向PMU和仿真监视器发出的单周期事件集合。
+  // 这些字段描述“本周期发生了什么”，因此使用occurred后缀；它们不得反向控制cache：
+  //
+  //   typedef struct packed {
+  //     logic lookup_occurred;
+  //     logic hit_occurred;
+  //     logic miss_occurred;
+  //     logic uncached_access_occurred;
+  //     logic refill_word_occurred;
+  //     logic refill_line_completed_occurred;
+  //     logic stale_response_discarded_occurred;
+  //   } icache_event_t;
+  //
+  // 后续扩展事件时先写清楚计数关系。例如lookup = hit + miss + uncached access；
+  // access fault是否单独计数必须在设计记录中冻结，不能让两个监视器使用不同定义。
+
   // Frontend payloads
   // predictor_meta is opaque outside the predictor and branch-recovery path.
   typedef struct packed {

@@ -4,8 +4,14 @@
 #include "trace.h"
 #include "watchpoint.h"
 
-#include "VysyxSoCFull.h"
-#include "VysyxSoCFull__Dpi.h"
+#define NPC_STRINGIFY_IMPL(token) #token
+#define NPC_STRINGIFY(token) NPC_STRINGIFY_IMPL(token)
+#define NPC_GENERATED_HEADER_IMPL(module_class) NPC_STRINGIFY(module_class.h)
+#define NPC_GENERATED_HEADER(module_class)                                     \
+  NPC_GENERATED_HEADER_IMPL(module_class)
+
+#include NPC_GENERATED_HEADER(TOP_CLASS)
+#include NPC_GENERATED_HEADER(TOP_DPI_CLASS)
 
 #include "svdpi.h"
 

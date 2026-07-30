@@ -4,22 +4,27 @@
 module top
   import riscv32_pkg::*;
 #(
-    parameter int unsigned SIM_IFU_READ_LATENCY   = 1,
-    parameter int unsigned SIM_LSU_READ_LATENCY   = 1,
-    parameter int unsigned SIM_LSU_WRITE_LATENCY  = 1,
-    parameter int unsigned SIM_RANDOM_LATENCY_MAX = 20
+    parameter int unsigned SIM_IFU_READ_LATENCY = 1,
+    parameter int unsigned SIM_LSU_READ_LATENCY = 1,
+    parameter int unsigned SIM_LSU_WRITE_LATENCY = 1,
+    parameter int unsigned SIM_RANDOM_LATENCY_MAX = 20,
+    parameter logic [XLEN-1:0] RESET_PC = 32'h8000_0000
 ) (
     input logic clk,
     input logic rstn
 );
-  localparam int unsigned AXI_SLAVE_COUNT          = 2;
-  localparam int unsigned UART_SLAVE_INDEX         = 0;
+  localparam int unsigned AXI_SLAVE_COUNT = 2;
+  localparam int unsigned UART_SLAVE_INDEX = 0;
   localparam int unsigned DPI_PLATFORM_SLAVE_INDEX = 1;
 
-  localparam logic [XLEN-1:0] AXI_SLAVE_BASE_ADDR_ARRAY[AXI_SLAVE_COUNT] =
-      '{32'h1000_0000, 32'h8000_0000};
-  localparam logic [XLEN-1:0] AXI_SLAVE_ADDR_MASK_ARRAY[AXI_SLAVE_COUNT] =
-      '{32'hffff_f000, 32'hf800_0000};
+  localparam logic [XLEN-1:0] AXI_SLAVE_BASE_ADDR_ARRAY[AXI_SLAVE_COUNT] = '{
+      32'h1000_0000,
+      32'h8000_0000
+  };
+  localparam logic [XLEN-1:0] AXI_SLAVE_ADDR_MASK_ARRAY[AXI_SLAVE_COUNT] = '{
+      32'hffff_f000,
+      32'hf800_0000
+  };
 
   // CLINT is owned by riscv32_npc_axi_core_boundary. This simulation fabric
   // therefore contains only the UART model and the DPI-backed PMEM window.
@@ -68,9 +73,11 @@ module top
   axi_lite_w_t    xbar_axi_w;
   axi_lite_b_t    xbar_axi_b;
 
-  riscv32_npc_axi_core_boundary u_npc_axi (
-      .clk_i            (clk),
-      .rst_ni           (rstn),
+  riscv32_npc_axi_core_boundary #(
+      .RESET_PC(RESET_PC)
+  ) u_npc_axi (
+      .clk_i               (clk),
+      .rst_ni              (rstn),
       .master_axi_ar_o     (npc_axi_ar),
       .master_axi_arvalid_o(npc_axi_arvalid),
       .master_axi_arready_i(npc_axi_arready),
@@ -95,12 +102,7 @@ module top
     xbar_axi_aw = '{addr: npc_axi_aw.addr, prot: 3'b000};
     xbar_axi_w  = '{data: npc_axi_w.data, strb: npc_axi_w.strb};
 
-    npc_axi_r = '{
-      resp : xbar_axi_r.resp,
-      data : xbar_axi_r.data,
-      last : 1'b1,
-      id   : 4'b0
-    };
+    npc_axi_r = '{resp : xbar_axi_r.resp, data : xbar_axi_r.data, last : 1'b1, id   : 4'b0};
     npc_axi_b = '{resp: xbar_axi_b.resp, id: 4'b0};
   end
 
@@ -243,8 +245,7 @@ module top
   endfunction
 
   always_ff @(posedge clk) begin
-    if (u_npc_axi.u_core.commit_valid &&
-        (u_npc_axi.u_core.commit.system_op == SYS_EBREAK)) begin
+    if (u_npc_axi.u_core.commit_valid && (u_npc_axi.u_core.commit.system_op == SYS_EBREAK)) begin
       ebreak_halt();
     end
   end

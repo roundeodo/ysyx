@@ -1,7 +1,32 @@
-# path
+.DEFAULT_GOAL := help
+
+# ============================================================
+# Project and build layout
+# ============================================================
 
 PROJECT ?= riscv32
-TOPNAME = ysyxSoCFull
+
+NPC_TOP_MODULE := top
+SOC_TOP_MODULE := ysyxSoCFull
+
+BUILD_DIR       := $(abspath ./build/$(PROJECT))
+NPC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_npc
+SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
+NVBOARD_OBJ_DIR := $(BUILD_DIR)/obj_dir_nvboard
+
+NPC_SIM_BINARY     := $(BUILD_DIR)/$(NPC_TOP_MODULE)_sim
+SOC_SIM_BINARY     := $(BUILD_DIR)/$(SOC_TOP_MODULE)_sim
+NVBOARD_SIM_BINARY := $(BUILD_DIR)/$(SOC_TOP_MODULE)_nvboard
+
+IMG       ?=
+FLASH_IMG ?=
+ELF       ?=
+REF       ?=
+SIM_ARGS  ?= --batch
+
+# ============================================================
+# Source files
+# ============================================================
 
 INC_PATH ?=
 INC_PATH += $(abspath ./include)
@@ -9,225 +34,308 @@ INC_PATH += $(abspath ./include)
 CAPSTONE_HOME ?= $(abspath ../nemu/tools/capstone/repo)
 CAPSTONE_INC  ?= $(CAPSTONE_HOME)/include
 CAPSTONE_LIB  ?= $(CAPSTONE_HOME)
+INC_PATH      += $(CAPSTONE_INC)
 
-INC_PATH += $(CAPSTONE_INC)
+RTL_DIR      := $(abspath ./vsrc/$(PROJECT))
+RTL_FILELIST ?= $(RTL_DIR)/filelist/filelist.f
 
-BUILD_DIR = ./build/$(PROJECT)
+# Convert the filelist into Make dependencies. Verilator still reads the
+# original filelist, including its comments and ordering.
+RTL_DEPENDENCIES := $(shell sed \
+	-e 's|$${NPC_HOME}|$(abspath .)|g' \
+	-e '/^[[:space:]]*\/\//d' \
+	-e '/^[[:space:]]*$$/d' \
+	$(RTL_FILELIST))
 
-OBJ_DIR_SIM = $(BUILD_DIR)/obj_dir_sim
-OBJ_DIR_NV  = $(BUILD_DIR)/obj_dir_nv
+SOC_HOME             := $(abspath ../ysyxSoC)
+SOC_PERIPHERAL_DIR   := $(SOC_HOME)/perip
+SOC_GENERATED_TOP    := $(SOC_HOME)/build/ysyxSoCFull.v
+SOC_VERILOG_SOURCES  := $(shell find $(SOC_PERIPHERAL_DIR) -type f -name "*.v" | sort)
+SOC_VERILOG_SOURCES  += $(SOC_GENERATED_TOP)
+SOC_RTL_INCLUDE_FLAGS := \
+	-I$(SOC_PERIPHERAL_DIR)/uart16550/rtl \
+	-I$(SOC_PERIPHERAL_DIR)/spi/rtl
 
-BIN_SIM = $(BUILD_DIR)/$(TOPNAME)_sim
-BIN_NV  = $(BUILD_DIR)/$(TOPNAME)_nvboard
+SIM_CPP_SOURCES := $(shell find $(abspath ./csrc) -type f \
+	\( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))
 
-IMG ?=
-FLASH_IMG ?=
-SIM_ARGS ?= --batch
+# ============================================================
+# Verilator and C++ configuration
+# ============================================================
 
-# verilator config
-VERILATOR = verilator
-VERILATOR_FLAGS += -MMD --build -cc -Wall -Wno-fatal \
-					-O3 --x-assign fast --x-initial fast --trace --autoflush
+VERILATOR ?= verilator
+VERILATOR_FLAGS := \
+	-MMD --build -cc -Wall -Wno-fatal \
+	-O3 --x-assign fast --x-initial fast \
+	--trace --autoflush \
+	--timescale "1ns/1ns" --no-timing
 
-# make build directory
-$(shell mkdir -p $(BUILD_DIR))
+CXX_INCLUDE_FLAGS := $(addprefix -I, $(INC_PATH))
 
-# RTL project source
-# NPC
-VSRC_DIR  = $(abspath ./vsrc/$(PROJECT))
-VSRC_LIST ?= $(VSRC_DIR)/filelist/filelist.f
-# The simulation filelist is also documentation for staged RTL TODOs. Only source entries
-# participate in Make dependencies; Verilator still reads the complete filelist.
-VSRC_DEPS = $(shell sed -e 's|$${NPC_HOME}|$(abspath .)|g' \
-	-e '/^[[:space:]]*\/\//d' -e '/^[[:space:]]*$$/d' $(VSRC_LIST))
+# The same C++ simulator drives two RTL shells. These macros describe each
+# shell's generated C++ class and reset polarity.
+NPC_CXXFLAGS := $(CXX_INCLUDE_FLAGS) \
+	-DTOP_CLASS=V$(NPC_TOP_MODULE) \
+	-DTOP_DPI_CLASS=V$(NPC_TOP_MODULE)__Dpi \
+	-DTOP_CLOCK=clk \
+	-DTOP_RESET=rstn \
+	-DTOP_RESET_ACTIVE_LEVEL=0
 
-# SOC
-YSYXSOC_HOME := $(abspath ../ysyxSoC)
-YSYXSOC_PERIP_DIR := $(YSYXSOC_HOME)/perip
-YSYXSOC_FULL_V := $(YSYXSOC_HOME)/build/ysyxSoCFull.v
-# Select all available file
-YSYXSOC_VSRCS := $(shell find $(YSYXSOC_PERIP_DIR) -type f -name "*.v" | sort)
-YSYXSOC_VSRCS += $(YSYXSOC_FULL_V)
-# verilog `include search path
-VERILATOR_RTL_INCLUDES := \
-	-I$(YSYXSOC_PERIP_DIR)/uart16550/rtl \
-	-I$(YSYXSOC_PERIP_DIR)/spi/rtl
-
-
-
-# normal simulation C/C++ sources
-CSRC_SIM = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))
-
-# NVBoard simulation C/C++ sources
-CSRC_NV = $(shell find $(abspath ./csrc) -type f \( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))
-
-# NVBoard auto bind source
-NXDC_FILES = constr/top.nxdc
-SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
-$(SRC_AUTO_BIND): $(NXDC_FILES)
-	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
-CSRC_NV += $(SRC_AUTO_BIND)
-include $(NVBOARD_HOME)/scripts/nvboard.mk
-
-# include flags
-INCFLAGS = $(addprefix -I, $(INC_PATH))
-# common C++ flags
-CXXFLAGS_COMMON := $(INCFLAGS) \
-	-DTOP_CLASS=V$(TOPNAME) \
+SOC_CXXFLAGS := $(CXX_INCLUDE_FLAGS) \
+	-DTOP_CLASS=V$(SOC_TOP_MODULE) \
+	-DTOP_DPI_CLASS=V$(SOC_TOP_MODULE)__Dpi \
 	-DTOP_CLOCK=clock \
 	-DTOP_RESET=reset \
 	-DTOP_RESET_ACTIVE_LEVEL=1
-LDFLAGS_COMMON := -L$(CAPSTONE_LIB) -Wl,-rpath=$(CAPSTONE_LIB) -lcapstone -ldl
 
-# normal sim does not enable NVBoard
-CXXFLAGS_SIM := $(CXXFLAGS_COMMON)
-# nvboard build enables CONFIG_NVBOARD
-CXXFLAGS_NV := $(CXXFLAGS_COMMON) -DCONFIG_NVBOARD
+NVBOARD_CXXFLAGS := $(SOC_CXXFLAGS) -DCONFIG_NVBOARD
 
+COMMON_LDFLAGS := \
+	-L$(CAPSTONE_LIB) \
+	-Wl,-rpath=$(CAPSTONE_LIB) \
+	-lcapstone -ldl
 
-# make sim
-$(BIN_SIM): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_SIM)
+# ============================================================
+# NVBoard integration
+# ============================================================
+
+NXDC_FILE           := constr/top.nxdc
+NVBOARD_BIND_SOURCE := $(BUILD_DIR)/auto_bind.cpp
+
+$(NVBOARD_BIND_SOURCE): $(NXDC_FILE) | $(BUILD_DIR)
+	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $< $@
+
+NVBOARD_CPP_SOURCES := $(SIM_CPP_SOURCES) $(NVBOARD_BIND_SOURCE)
+include $(NVBOARD_HOME)/scripts/nvboard.mk
+
+# ============================================================
+# Simulation builds
+# ============================================================
+
+$(BUILD_DIR):
+	mkdir -p $@
+
+# Fast functional environment: CPU + local AXI models, reset PC 0x8000_0000.
+$(NPC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
-		$(VERILATOR_RTL_INCLUDES) \
-		--top-module $(TOPNAME) \
-		-f $(VSRC_LIST) \
-		$(YSYXSOC_VSRCS) \
-		$(CSRC_SIM) \
-		$(addprefix -CFLAGS , $(CXXFLAGS_SIM)) \
-		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON)) \
-		--Mdir $(OBJ_DIR_SIM) \
+		--top-module $(NPC_TOP_MODULE) \
+		-f $(RTL_FILELIST) \
+		$(SIM_CPP_SOURCES) \
+		$(addprefix -CFLAGS ,$(NPC_CXXFLAGS)) \
+		$(addprefix -LDFLAGS ,$(COMMON_LDFLAGS)) \
+		--Mdir $(NPC_OBJ_DIR) \
 		--exe \
-		-o $(abspath $(BIN_SIM)) \
-		--timescale "1ns/1ns" \
-		--no-timing
+		-o $(NPC_SIM_BINARY)
 
+# Accurate environment: CPU integrated into ysyxSoC and its peripherals.
+$(SOC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
+		$(SOC_VERILOG_SOURCES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	$(VERILATOR) $(VERILATOR_FLAGS) \
+		$(SOC_RTL_INCLUDE_FLAGS) \
+		--top-module $(SOC_TOP_MODULE) \
+		-f $(RTL_FILELIST) \
+		$(SOC_VERILOG_SOURCES) \
+		$(SIM_CPP_SOURCES) \
+		$(addprefix -CFLAGS ,$(SOC_CXXFLAGS)) \
+		$(addprefix -LDFLAGS ,$(COMMON_LDFLAGS)) \
+		--Mdir $(SOC_OBJ_DIR) \
+		--exe \
+		-o $(SOC_SIM_BINARY)
 
-# make nvboard
-$(BIN_NV): $(VSRC_LIST) $(VSRC_DEPS) $(YSYXSOC_VSRCS) $(CSRC_NV) $(NVBOARD_ARCHIVE)
+$(NVBOARD_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
+		$(SOC_VERILOG_SOURCES) $(NVBOARD_CPP_SOURCES) $(NVBOARD_ARCHIVE) | $(BUILD_DIR)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
-		$(VERILATOR_RTL_INCLUDES) \
-		--top-module $(TOPNAME) \
-		-f $(VSRC_LIST) \
-		$(YSYXSOC_VSRCS) \
-		$(CSRC_NV) \
+		$(SOC_RTL_INCLUDE_FLAGS) \
+		--top-module $(SOC_TOP_MODULE) \
+		-f $(RTL_FILELIST) \
+		$(SOC_VERILOG_SOURCES) \
+		$(NVBOARD_CPP_SOURCES) \
 		$(NVBOARD_ARCHIVE) \
-		$(addprefix -CFLAGS , $(CXXFLAGS_NV)) \
-		$(addprefix -LDFLAGS , $(LDFLAGS_COMMON) $(LDFLAGS)) \
-		--Mdir $(OBJ_DIR_NV) \
+		$(addprefix -CFLAGS ,$(NVBOARD_CXXFLAGS)) \
+		$(addprefix -LDFLAGS ,$(COMMON_LDFLAGS) $(LDFLAGS)) \
+		--Mdir $(NVBOARD_OBJ_DIR) \
 		--exe \
-		-o $(abspath $(BIN_NV)) \
-		--timescale "1ns/1ns" \
-		--no-timing
+		-o $(NVBOARD_SIM_BINARY)
 
+.PHONY: build-npc build-soc
+build-npc: $(NPC_SIM_BINARY)
+build-soc: $(SOC_SIM_BINARY)
 
-sim: $(BIN_SIM)
-	$(BIN_SIM)
+# ============================================================
+# Simulation entry points
+# ============================================================
 
-sim-image: $(BIN_SIM)
+.PHONY: sim sim-npc sim-soc sim-am sim-image
+
+# Keep `make sim` as the current full-system default.
+sim: sim-soc
+
+sim-npc: $(NPC_SIM_BINARY)
+	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
+	@echo "NPC: standalone image = $(IMG)"
+	$(NPC_SIM_BINARY) $(SIM_ARGS) $(IMG)
+
+sim-soc: $(SOC_SIM_BINARY)
 	@test -n "$(strip $(IMG)$(FLASH_IMG))" || \
 		(echo "IMG or FLASH_IMG is required"; exit 1)
-	@echo "NPC: MROM image  = $(IMG)"
-	@echo "NPC: Flash image = $(FLASH_IMG)"
-	$(BIN_SIM) $(SIM_ARGS) \
+	@echo "NPC: SoC MROM image  = $(IMG)"
+	@echo "NPC: SoC flash image = $(FLASH_IMG)"
+	$(SOC_SIM_BINARY) $(SIM_ARGS) \
 		$(if $(FLASH_IMG),--flash $(FLASH_IMG)) \
 		$(IMG)
 
-sim-am: sim-image
+# Compatibility entry points used by Abstract Machine platform makefiles.
+sim-am: sim-npc
+sim-image: sim-soc
 
-sim-itrace: $(BIN_SIM)
-	@echo "NPC: Running AM program with itrace $(IMG)..."
-	$(BIN_SIM) --itrace $(IMG)
+.PHONY: sim-itrace sim-mtrace sim-ftrace sim-trace
+.PHONY: sim-difftest sim-wave sim-debug
 
-sim-mtrace: $(BIN_SIM)
-	@echo "NPC: Running AM program with mtrace $(IMG)..."
-	$(BIN_SIM) --mtrace $(IMG)
+sim-itrace: $(NPC_SIM_BINARY)
+	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
+	$(NPC_SIM_BINARY) --itrace $(IMG)
 
-sim-ftrace: $(BIN_SIM)
-	@echo "NPC: Running AM program with ftrace IMG=$(IMG) ELF=$(ELF)..."
-	@test -n "$(ELF)" || (echo "ELF is required for ftrace"; exit 1)
-	$(BIN_SIM) --ftrace --elf $(ELF) $(IMG)
+sim-mtrace: $(NPC_SIM_BINARY)
+	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
+	$(NPC_SIM_BINARY) --mtrace $(IMG)
 
-sim-trace: $(BIN_SIM)
-	@echo "NPC: Running AM program with itrace + mtrace $(IMG)..."
-	$(BIN_SIM) --itrace --mtrace $(IMG)
+sim-ftrace: $(NPC_SIM_BINARY)
+	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
+	@test -n "$(strip $(ELF))" || (echo "ELF is required"; exit 1)
+	$(NPC_SIM_BINARY) --ftrace --elf $(ELF) $(IMG)
 
-sim-difftest: $(BIN_SIM)
-	@echo "NPC: Running AM program with DiffTest IMG=$(IMG) REF=$(REF)..."
-	@test -n "$(REF)" || (echo "REF is required for DiffTest"; exit 1)
-	$(BIN_SIM) --batch --diff $(REF) $(IMG)
+sim-trace: $(NPC_SIM_BINARY)
+	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
+	$(NPC_SIM_BINARY) --itrace --mtrace $(IMG)
 
-sim-wave: $(BIN_SIM)
-	@echo "NPC: Running AM program with waveform $(IMG)..."
-	$(BIN_SIM) --trace $(IMG)
+sim-difftest: $(NPC_SIM_BINARY)
+	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
+	@test -n "$(strip $(REF))" || (echo "REF is required"; exit 1)
+	$(NPC_SIM_BINARY) --batch --diff $(REF) $(IMG)
+
+sim-wave: $(NPC_SIM_BINARY)
+	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
+	$(NPC_SIM_BINARY) --trace $(IMG)
 	gtkwave waveform.vcd
 
-sim-debug: $(BIN_SIM)
-	@echo "NPC: Running AM program with waveform + itrace + mtrace $(IMG)..."
-	$(BIN_SIM) --trace --itrace --mtrace $(IMG)
+sim-debug: $(NPC_SIM_BINARY)
+	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
+	$(NPC_SIM_BINARY) --trace --itrace --mtrace $(IMG)
 	gtkwave waveform.vcd
 
-nvboard: $(BIN_NV)
+.PHONY: nvboard
+nvboard: $(NVBOARD_SIM_BINARY)
 	@test -n "$(strip $(IMG)$(FLASH_IMG))" || \
 		(echo "IMG or FLASH_IMG is required"; exit 1)
-	$(BIN_NV) --nvboard \
+	$(NVBOARD_SIM_BINARY) --nvboard \
 		$(if $(FLASH_IMG),--flash $(FLASH_IMG)) \
 		$(IMG)
 
-lint: $(VSRC_LIST)
+# ============================================================
+# Reproducible performance evaluation
+# ============================================================
+
+PERF_ARCH             ?= riscv32-ysyxsoc-psram
+PERF_SCALE            ?= train
+PERF_MICROBENCH_DIR   := $(abspath ../am-kernels/benchmarks/microbench)
+PERF_MICROBENCH_IMAGE := $(PERF_MICROBENCH_DIR)/build/microbench-$(PERF_ARCH).bin
+PERF_DESCRIPTION      ?=
+PERF_FREQUENCY_MHZ    ?=
+PERF_STA_REPORT       ?=
+PERF_RESULTS_TABLE    ?= $(abspath ./result/performance/README.md)
+PERF_RECORD_SCRIPT    := $(abspath ./scripts/record_performance.py)
+
+.PHONY: perf perf-record
+perf: $(SOC_SIM_BINARY)
+	$(MAKE) -C $(PERF_MICROBENCH_DIR) ARCH=$(PERF_ARCH) clean
+	$(MAKE) -C $(PERF_MICROBENCH_DIR) \
+		ARCH=$(PERF_ARCH) \
+		mainargs=$(PERF_SCALE) \
+		image
+	@echo "NPC commit        = $$(git -C $(abspath ..) rev-parse HEAD)"
+	@echo "AM-kernels commit = $$(git -C $(PERF_MICROBENCH_DIR) rev-parse HEAD)"
+	@echo "Benchmark scale   = $(PERF_SCALE)"
+	@echo "Benchmark image   = $(PERF_MICROBENCH_IMAGE)"
+	$(SOC_SIM_BINARY) --batch --flash $(PERF_MICROBENCH_IMAGE)
+
+perf-record:
+	@test -n "$(strip $(PERF_DESCRIPTION))" || \
+		(echo "PERF_DESCRIPTION is required"; exit 1)
+	@test -n "$(strip $(PERF_FREQUENCY_MHZ)$(PERF_STA_REPORT))" || \
+		(echo "PERF_FREQUENCY_MHZ or PERF_STA_REPORT is required"; exit 1)
+	@test -z "$(strip $(PERF_FREQUENCY_MHZ))" -o -z "$(strip $(PERF_STA_REPORT))" || \
+		(echo "Set only one of PERF_FREQUENCY_MHZ and PERF_STA_REPORT"; exit 1)
+	python3 $(PERF_RECORD_SCRIPT) \
+		--npc-dir $(abspath .) \
+		--workspace-root $(abspath ..) \
+		--am-dir $(PERF_MICROBENCH_DIR) \
+		--scale $(PERF_SCALE) \
+		--description "$(PERF_DESCRIPTION)" \
+		--table $(PERF_RESULTS_TABLE) \
+		$(if $(PERF_FREQUENCY_MHZ),--frequency-mhz $(PERF_FREQUENCY_MHZ)) \
+		$(if $(PERF_STA_REPORT),--sta-report $(abspath $(PERF_STA_REPORT)))
+
+# ============================================================
+# Static checks and maintenance
+# ============================================================
+
+.PHONY: lint lint-npc lint-soc clean
+lint: lint-npc
+
+lint-npc: $(RTL_FILELIST)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) --lint-only -Wall -Wno-fatal \
-	$(VERILATOR_RTL_INCLUDES) \
-	--top-module $(TOPNAME) \
-	-f $(VSRC_LIST) \
-	$(YSYXSOC_VSRCS)
+		--top-module $(NPC_TOP_MODULE) \
+		-f $(RTL_FILELIST)
+
+lint-soc: $(RTL_FILELIST) $(SOC_VERILOG_SOURCES)
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+	$(VERILATOR) --lint-only -Wall -Wno-fatal \
+		$(SOC_RTL_INCLUDE_FLAGS) \
+		--top-module $(SOC_TOP_MODULE) \
+		-f $(RTL_FILELIST) \
+		$(SOC_VERILOG_SOURCES)
 
 clean:
 	rm -rf ./build wave.vcd waveform.vcd
 
-
+# ysyx tracing helper and workspace-level variables.
 include ../Makefile
 
--include $(wildcard $(OBJ_DIR_SIM)/*.d)
--include $(wildcard $(OBJ_DIR_NV)/*.d)
-
+-include $(wildcard $(NPC_OBJ_DIR)/*.d)
+-include $(wildcard $(SOC_OBJ_DIR)/*.d)
+-include $(wildcard $(NVBOARD_OBJ_DIR)/*.d)
 
 .PHONY: help
 help:
-	@echo "Usage:"
-	@echo "  make [Target] PROJECT=[Folder] IMG=[bin] FLASH_IMG=[bin]"
+	@echo "Usage: make <target> [PROJECT=riscv32] [IMG=...] [FLASH_IMG=...]"
 	@echo ""
-	@echo "Targets:"
-	@echo "  sim        Compile and run simulation without image"
-	@echo "  sim-image  Run with an optional MROM image and/or Flash image"
-	@echo "  sim-am     Compatibility alias of sim-image"
-	@echo "  sim-wave   Compile, run with --trace, and open GTKWave"
-	@echo "  sim-itrace Compile and run with itrace"
-	@echo "  sim-mtrace Compile and run with mtrace"
-	@echo "  sim-ftrace Compile and run with ftrace, requires ELF=xxx.elf"
-	@echo "  sim-debug  Compile and run with waveform + itrace"
-	@echo "  nvboard    Compile and run with NVBoard"
-	@echo "  lint       Run Verilator lint check"
-	@echo "  clean      Remove build directory and temporary files"
+	@echo "Build targets:"
+	@echo "  build-npc     Build the fast standalone NPC simulator"
+	@echo "  build-soc     Build the full ysyxSoC simulator"
+	@echo ""
+	@echo "Run targets:"
+	@echo "  sim-npc       Run standalone NPC; requires IMG"
+	@echo "  sim-soc       Run ysyxSoC; requires IMG and/or FLASH_IMG"
+	@echo "  sim           Alias of sim-soc"
+	@echo "  sim-am        AM compatibility alias of sim-npc"
+	@echo "  sim-image     ysyxSoC AM compatibility alias of sim-soc"
+	@echo "  nvboard       Run ysyxSoC with NVBoard"
+	@echo ""
+	@echo "Debug targets use the faster standalone NPC:"
+	@echo "  sim-itrace sim-mtrace sim-ftrace sim-trace"
+	@echo "  sim-difftest sim-wave sim-debug"
+	@echo ""
+	@echo "Evaluation targets:"
+	@echo "  perf          Run MicroBench on ysyxSoC"
+	@echo "  perf-record   Run and append a reproducible performance record"
+	@echo "  lint-npc      Lint the standalone NPC"
+	@echo "  lint-soc      Lint the full ysyxSoC integration"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make sim PROJECT=riscv32"
-	@echo "  make sim-image PROJECT=riscv32 IMG=path/to/mrom.bin"
-	@echo "  make sim-image PROJECT=riscv32 FLASH_IMG=path/to/flash.bin"
-	@echo "  make sim-image PROJECT=riscv32 IMG=path/to/boot.bin FLASH_IMG=path/to/payload.bin"
-	@echo "  make sim-wave PROJECT=riscv32 IMG=path/to/program.bin"
-	@echo "  make nvboard PROJECT=riscv32 IMG=path/to/program.bin"
-	@echo "  make sim PROJECT=experiment"
-	@echo "  make sim-itrace PROJECT=riscv32 IMG=path/to/program.bin"
-	@echo "  make sim-mtrace PROJECT=riscv32 IMG=path/to/program.bin"
-	@echo "  make sim-ftrace PROJECT=riscv32 IMG=path/to/program.bin ELF=path/to/program.elf"
-	@echo "  make sim-debug PROJECT=riscv32 IMG=path/to/program.bin"
-	@echo "  sim-difftest Compile and run with DiffTest, requires REF=xxx-so"
-	@echo "  make sim-difftest PROJECT=riscv32 IMG=path/to/program.bin REF=path/to/riscv32-nemu-interpreter-so"
-
-
-default: help
-
-.PHONY: default sim sim-image sim-am sim-itrace sim-mtrace sim-ftrace \
-	sim-debug sim-wave sim-difftest nvboard lint clean help
+	@echo "  make sim-npc IMG=path/to/riscv32-npc.bin"
+	@echo "  make sim-soc FLASH_IMG=path/to/riscv32-ysyxsoc.bin"
+	@echo "  make sim-npc SIM_ARGS= IMG=path/to/riscv32-npc.bin"

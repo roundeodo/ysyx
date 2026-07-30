@@ -17,6 +17,12 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_ifu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_core.sv
 
+// NOTE(P5A): core/frontend/ contains educational I-cache TODO skeletons.
+// Keep them out of this active checkpoint until package types and each child module
+// compile and pass their local tests. Add them in dependency order:
+//   pma -> tag/data arrays -> refill adapter -> miss unit -> icache -> fetch buffer.
+// The currently verified P3B standalone/SoC paths must remain runnable during migration.
+
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi_lite_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi_lite_xbar.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi_core_boundary.sv

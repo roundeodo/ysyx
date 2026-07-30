@@ -11,15 +11,19 @@ module riscv32_ifu
     /* verilator lint_on UNUSEDSIGNAL */
     input logic          redirect_req_valid_i,
 
-    // TODO(AXI-IFU-PORTS): 将下面6个SimpleBus端口替换为AXI4-Lite只读master的AR/R端口。
-    // ARM IHI 0022H A9.2.2明确允许read-only interface只包含AR和R，不需要伪造AW/W/B。
-    // 建议端口骨架：
-    // output axi_lite_addr_t ifu_axi_ar_o,
-    // output logic           ifu_axi_arvalid_o,
-    // input  logic           ifu_axi_arready_i,
-    // input  axi_lite_r_t    ifu_axi_r_i,
-    // input  logic           ifu_axi_rvalid_i,
-    // output logic           ifu_axi_rready_o,
+    // TODO(ICACHE-IFU-1): 完成riscv32_pkg中的I-cache类型后，在本TODO正下方把AXI端口
+    // 替换为IFU到I-cache的typed valid/ready通道。IFU不应知道cache line、way、refill
+    // 或AXI字段；它只描述“取哪个PC”和“返回了哪条指令”。建议接口骨架：
+    //
+    //   output icache_lookup_req_t  icache_lookup_req_o,
+    //   output logic                icache_lookup_req_valid_o,
+    //   input  logic                icache_lookup_req_ready_i,
+    //   input  icache_lookup_resp_t icache_lookup_resp_i,
+    //   input  logic                icache_lookup_resp_valid_i,
+    //   output logic                icache_lookup_resp_ready_o,
+    //
+    // 迁移时先保留下面AXI端口和原实现作为可运行参考，待core完成I-cache实例化后再一次性
+    // 删除。valid/ready必须独立于payload；valid在握手前保持，ready表示本周期能够接收。
     output axi_lite_addr_t ifu_axi_ar_o,
     output logic           ifu_axi_arvalid_o,
     input  logic           ifu_axi_arready_i,
@@ -62,6 +66,19 @@ module riscv32_ifu
   fetch_entry_t fetch_entry_d;
   fetch_entry_t axi_resp_fetch_entry;
 
+  // TODO(ICACHE-IFU-2): 在本TODO正下方用fetch epoch替代单个discard位。
+  // `fetch_epoch_q`表示当前允许交付的控制流世代，redirect发生时递增；每个lookup request
+  // 保存发出时的epoch，response回来后只有`response.epoch == fetch_epoch_q`才允许进入
+  // fetch buffer。旧epoch响应仍要完成cache侧握手，但只产生stale-response事件，不交给IDU。
+  // 建议第一版使用1 bit，因为blocking I-cache只有一个未完成miss；未来允许多个outstanding
+  // request时扩为参数化宽度，并为每个请求保存epoch。比较必须在response真正握手时完成。
+  //
+  // 推荐寄存器骨架：
+  //   fetch_epoch_t fetch_epoch_q, fetch_epoch_d;
+  //   fetch_epoch_t lookup_epoch_q, lookup_epoch_d;
+  //   logic         stale_lookup_resp;
+  //
+  // 下面的discard位是当前AXI直连实现，I-cache通道接通后再删除。
   // 已经发出的请求无法取消时，记录其响应属于错误路径。
   logic discard_axi_resp_q;
   logic discard_axi_resp_d;
@@ -70,17 +87,13 @@ module riscv32_ifu
   logic ifu_axi_r_handshake;
   logic fetch_entry_handshake;
 
-  // TODO(AXI-IFU-HANDSHAKE): 用AR/R握手替换下面两个imem握手：
-  // ar_handshake = ifu_axi_arvalid_o && ifu_axi_arready_i;
-  // r_handshake  = ifu_axi_rvalid_i  && ifu_axi_rready_o;
-  // 状态只能在对应握手发生后推进。master不能等待ARREADY才拉高ARVALID；ARVALID一旦拉高，
-  // 在握手前不能撤销，即使这期间收到redirect也只能标记discard并完成旧事务。
+  // 当前AXI直连路径的请求、响应和下游交付握手。
   assign ifu_axi_ar_handshake  = ifu_axi_arvalid_o && ifu_axi_arready_i;
   assign ifu_axi_r_handshake   = ifu_axi_rvalid_i && ifu_axi_rready_o;
   assign fetch_entry_handshake = fetch_entry_valid_o && fetch_entry_ready_i;
 
-  // TODO(AXI-IFU-RRESP): 将下面的SimpleBus异常字段转换改成RRESP解码。
-  // AXI R通道只有RDATA和RRESP，不提供exception_cause/tval：
+  // 当前AXI RRESP到取指异常的转换。I-cache接入后，该转换下移到refill adapter，
+  // IFU直接消费icache_lookup_resp_t中的异常字段。AXI R通道只有RDATA和RRESP：
   // - AXI_RESP_OKAY：instruction=RDATA，exception_valid=0。
   // - AXI_RESP_SLVERR或AXI_RESP_DECERR：exception_valid=1，
   //   exception_cause=EXC_INSTR_ACCESS_FAULT，exception_tval=fetch_req_pc_q。
@@ -100,17 +113,9 @@ module riscv32_ifu
     axi_resp_fetch_entry.exception_tval  = fetch_req_pc_q;
   end
 
-  // TODO(AXI-IFU-OUTPUT): 用AR/R信号重写本输出块，但保留当前单outstanding旁路结构。
-  // IFU_SEND_AR中无条件基于已保存PC拉高ARVALID，不能组合依赖ARREADY；ARADDR和ARPROT在
-  // ARVALID && !ARREADY期间必须稳定。建议ARADDR={fetch_req_pc_q[XLEN-1:2], 2'b00}；
-  // 当前只取32-bit指令，正常PC本来就应word aligned。ARPROT至少明确instruction属性。
-  //
-  // IFU_WAIT_R中可以让RREADY=1，因为本地fetch_entry_q能吸收一个受IDU反压的响应。
-  // 这样RREADY不依赖RVALID，也不会形成AXI输入到输出的组合路径。RVALID && !RREADY时
-  // RDATA/RRESP稳定是slave责任，不要在IFU中假定响应只保持一拍。
-  //
-  // WAIT_RESP采用fall-through旁路：IDU ready时response和fetch同拍握手；
-  // IDU not ready时IFU接收response，并在时钟沿保存到fetch_entry_q。
+  // 当前AXI直连输出。I-cache迁移完成前保留，用于功能回归和性能基线比较。
+  // WAIT_RESP采用fall-through旁路：IDU ready时response和fetch同拍握手；IDU not ready
+  // 时IFU接收response，并在时钟沿保存到fetch_entry_q。
   // Moore output
   always_comb begin
     ifu_axi_arvalid_o   = 1'b0;
@@ -146,13 +151,26 @@ module riscv32_ifu
     endcase
   end
 
-  // TODO(AXI-IFU-NEXT): 将状态转移事件逐一替换为AR/R握手，不要按单独valid推进。
-  // redirect处理规则保持不变：
-  // 1. ARVALID尚未握手但已经拉高时，AXI禁止撤回AR，只能保持payload并标记discard。
-  // 2. AR已握手后，AXI没有cancel通道，必须接收并丢弃旧R响应。
-  // 3. 丢弃旧R响应后才能用redirect target发新AR。
-  // 未来要允许多个outstanding read时，单个discard位不够，必须增加按请求顺序保存PC与
-  // discard状态的FIFO；AXI4-Lite没有ID，返回顺序必须与请求顺序一致。
+  // TODO(ICACHE-IFU-3): I-cache端口接通后，在本TODO正下方重写IFU控制逻辑。
+  // 推荐保持三段式书写顺序，并按以下责任划分：
+  //
+  // 输出块：
+  // - request状态持续输出`pc_q`和`fetch_epoch_q`，直到lookup request握手；
+  // - wait状态只在fetch buffer能够接收时拉高lookup response ready；
+  // - IFU不直接判断hit/miss，miss期间由I-cache拉低request ready或延后response；
+  // - response与fetch buffer之间保留flow-through路径，空buffer且IDU ready时不额外加拍。
+  //
+  // next块：
+  // - request握手后，顺序PC候选为`pc_q + 4`，但PC只有在该请求最终可继续推进时更新；
+  // - redirect优先级最高：保存target、递增epoch、清除尚未交付的fetch buffer内容；
+  // - stale response握手后返回request状态，不构造fetch_entry；
+  // - current response握手后构造fetch_entry，异常字段原样向commit边界传递；
+  // - 下游反压时保持fetch entry稳定，不得重新发送cache请求。
+  //
+  // 时序块：分别更新FSM、PC/epoch、fetch buffer三类寄存器，使每类状态靠近其用途。
+  // 第一版仍可保持单个lookup outstanding；接口中保留frontend_tag和epoch，是为了以后
+  // 增加fetch queue、多MSHR及乱序返回时不重新设计IFU与I-cache的契约。frontend_tag
+  // 标识具体请求，epoch标识该请求是否仍属于当前控制流，两者不能合并成一个字段。
   //
   // next state
   always_comb begin
@@ -252,12 +270,11 @@ module riscv32_ifu
     end
   end
 
-  // TODO(AXI-IFU-ASSERT): 添加以下等价SVA检查：
-  // - ARVALID && !ARREADY |=> ARVALID && $stable({ARADDR, ARPROT})
-  // - ARVALID在握手前不能下降
-  // - 每个R握手之前必须存在一个尚未完成的AR握手
-  // 断言放在master侧用于检查IFU责任；RVALID/RDATA稳定性放在slave侧检查。
-  //
+  // TODO(ICACHE-IFU-4): I-cache迁移后，在本TODO正下方用新通道改写断言。
+  // 至少检查：lookup request反压期间payload稳定；fetch entry反压期间payload稳定；
+  // redirect后旧epoch response永不交付；每个current response最多交付一次；PC始终4-byte对齐。
+  // 断言只能观察，不能参与ready、redirect或epoch计算。
+  // 下面断言继续检查当前AXI直连基线。
   // Register update
   always_comb begin
     if (!rst_ni) begin
@@ -284,13 +301,8 @@ module riscv32_ifu
 
 
 
-  // TODO(AXI-IFU-PERF): 基线通过后再消除气泡，不要把性能优化混入第一次协议迁移。
-  // 第一阶段保持1个outstanding。第二阶段可在AR前增加1-entry skid/request buffer，并让
-  // RREADY在fetch buffer有空间时常高。再往后增加顺序PC FIFO支持多个outstanding Lite读；
-  // 若I-cache refill需要burst或ID，应在I-cache的memory侧升级到完整AXI4，而不是向Lite
-  // 私自添加ARLEN/ARID。
-  //
-  // NOTE(P5): branch prediction, I-cache response tracking, and a fetch queue
-  // extend this boundary; redirect remains the only external PC-recovery input.
+  // NOTE(ICACHE-IFU-PERF): I-cache和fetch buffer把memory latency与IDU反压分离。后续分支
+  // 预测器只生成PC候选和prediction metadata；redirect仍是唯一恢复入口。增加更多outstanding
+  // refill或AXI burst应修改I-cache下游，不应把AXI细节重新泄露到IFU。
 
 endmodule
