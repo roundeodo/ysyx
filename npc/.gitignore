@@ -9,6 +9,7 @@
 !*.f
 !*.cc
 !*.cpp
+!*.py
 !.gitignore
 !README.md
 build/

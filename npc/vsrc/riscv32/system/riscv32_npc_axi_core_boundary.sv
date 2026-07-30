@@ -3,7 +3,9 @@
 // internal transaction into one full-AXI, single-beat transaction.
 module riscv32_npc_axi_core_boundary
   import riscv32_pkg::*;
-(
+#(
+    parameter logic [XLEN-1:0] RESET_PC = RESET_VECTOR
+) (
     input logic clk_i,
     input logic rst_ni,
 
@@ -29,17 +31,20 @@ module riscv32_npc_axi_core_boundary
     output logic      master_axi_bready_o
 );
   localparam int unsigned AXI_ROUTE_DESTINATION_COUNT = 2;
-  localparam int unsigned CLINT_DESTINATION_INDEX      = 0;
-  localparam int unsigned SOC_DESTINATION_INDEX        = 1;
+  localparam int unsigned CLINT_DESTINATION_INDEX = 0;
+  localparam int unsigned SOC_DESTINATION_INDEX = 1;
 
-  localparam logic [XLEN-1:0] AXI_ROUTE_BASE_ADDR_ARRAY[AXI_ROUTE_DESTINATION_COUNT] =
-      '{32'h0200_0000, 32'h0000_0000};
-  localparam logic [XLEN-1:0] AXI_ROUTE_ADDR_MASK_ARRAY[AXI_ROUTE_DESTINATION_COUNT] =
-      '{32'hffff_0000, 32'h0000_0000};
+  localparam logic [XLEN-1:0] AXI_ROUTE_BASE_ADDR_ARRAY[AXI_ROUTE_DESTINATION_COUNT] = '{
+      32'h0200_0000,
+      32'h0000_0000
+  };
+  localparam logic [XLEN-1:0] AXI_ROUTE_ADDR_MASK_ARRAY[AXI_ROUTE_DESTINATION_COUNT] = '{
+      32'hffff_0000,
+      32'h0000_0000
+  };
   // Only CLINT participates in address comparison. Every address outside the
   // CLINT window is sent to the SoC-facing destination by the default route.
-  localparam logic AXI_ROUTE_ADDR_SELECT_ENABLE_ARRAY[AXI_ROUTE_DESTINATION_COUNT] =
-      '{1'b1, 1'b0};
+  localparam logic AXI_ROUTE_ADDR_SELECT_ENABLE_ARRAY[AXI_ROUTE_DESTINATION_COUNT] = '{1'b1, 1'b0};
 
   axi_lite_addr_t ifu_axi_ar;
   logic           ifu_axi_arvalid;
@@ -132,35 +137,35 @@ module riscv32_npc_axi_core_boundary
   // ID 0, one beat, and INCR burst semantics at this boundary.
   always_comb begin
     master_axi_ar_o = '{
-      addr  : destination_axi_ar_array[SOC_DESTINATION_INDEX].addr,
-      id    : 4'b0,
-      len   : 8'b0,
-      size  : soc_read_transfer_size,
-      burst : 2'b01
-    };
+                      addr  : destination_axi_ar_array[SOC_DESTINATION_INDEX].addr,
+                      id    : 4'b0,
+                      len   : 8'b0,
+                      size  : soc_read_transfer_size,
+                      burst : 2'b01
+                      };
     master_axi_aw_o = '{
-      addr  : destination_axi_aw_array[SOC_DESTINATION_INDEX].addr,
-      id    : 4'b0,
-      len   : 8'b0,
-      size  : soc_write_transfer_size,
-      burst : 2'b01
-    };
-    master_axi_w_o = '{
-      data : destination_axi_w_array[SOC_DESTINATION_INDEX].data,
-      strb : destination_axi_w_array[SOC_DESTINATION_INDEX].strb,
-      last : 1'b1
-    };
+                      addr  : destination_axi_aw_array[SOC_DESTINATION_INDEX].addr,
+                      id    : 4'b0,
+                      len   : 8'b0,
+                      size  : soc_write_transfer_size,
+                      burst : 2'b01
+                      };
+    master_axi_w_o  = '{
+                      data : destination_axi_w_array[SOC_DESTINATION_INDEX].data,
+                      strb : destination_axi_w_array[SOC_DESTINATION_INDEX].strb,
+                      last : 1'b1
+                      };
 
     destination_axi_r_array[SOC_DESTINATION_INDEX] = '{
-      data : master_axi_r_i.data,
-      resp : master_axi_r_i.resp
-    };
+                                                     data : master_axi_r_i.data,
+                                                     resp : master_axi_r_i.resp
+                                                     };
     destination_axi_b_array[SOC_DESTINATION_INDEX] = '{resp: master_axi_b_i.resp};
   end
 
   assign master_axi_arvalid_o = destination_axi_arvalid_array[SOC_DESTINATION_INDEX];
   assign destination_axi_arready_array[SOC_DESTINATION_INDEX] = master_axi_arready_i;
-  assign destination_axi_rvalid_array[SOC_DESTINATION_INDEX]  = master_axi_rvalid_i;
+  assign destination_axi_rvalid_array[SOC_DESTINATION_INDEX] = master_axi_rvalid_i;
   assign master_axi_rready_o = destination_axi_rready_array[SOC_DESTINATION_INDEX];
 
   assign master_axi_awvalid_o = destination_axi_awvalid_array[SOC_DESTINATION_INDEX];
@@ -170,7 +175,9 @@ module riscv32_npc_axi_core_boundary
   assign destination_axi_bvalid_array[SOC_DESTINATION_INDEX] = master_axi_bvalid_i;
   assign master_axi_bready_o = destination_axi_bready_array[SOC_DESTINATION_INDEX];
 
-  riscv32_core u_core (
+  riscv32_core #(
+      .RESET_PC(RESET_PC)
+  ) u_core (
       .clk_i            (clk_i),
       .rst_ni           (rst_ni),
       .ifu_axi_ar_o     (ifu_axi_ar),
@@ -242,12 +249,12 @@ module riscv32_npc_axi_core_boundary
   // response completes. Its empty-path forwarding keeps the existing
   // combinational fast bypass for both CLINT and SoC requests.
   riscv32_axi_lite_xbar #(
-      .SLAVE_COUNT            (AXI_ROUTE_DESTINATION_COUNT),
-      .SLAVE_BASE_ADDR        (AXI_ROUTE_BASE_ADDR_ARRAY),
-      .SLAVE_ADDR_MASK        (AXI_ROUTE_ADDR_MASK_ARRAY),
+      .SLAVE_COUNT             (AXI_ROUTE_DESTINATION_COUNT),
+      .SLAVE_BASE_ADDR         (AXI_ROUTE_BASE_ADDR_ARRAY),
+      .SLAVE_ADDR_MASK         (AXI_ROUTE_ADDR_MASK_ARRAY),
       .SLAVE_ADDR_SELECT_ENABLE(AXI_ROUTE_ADDR_SELECT_ENABLE_ARRAY),
-      .DEFAULT_SLAVE_ENABLE   (1'b1),
-      .DEFAULT_SLAVE_INDEX    (SOC_DESTINATION_INDEX)
+      .DEFAULT_SLAVE_ENABLE    (1'b1),
+      .DEFAULT_SLAVE_INDEX     (SOC_DESTINATION_INDEX)
   ) u_axi_lite_address_router (
       .clk_i              (clk_i),
       .rst_ni             (rst_ni),
@@ -286,23 +293,23 @@ module riscv32_npc_axi_core_boundary
   riscv32_axi_lite_clint #(
       .CLINT_BASE_ADDR(AXI_ROUTE_BASE_ADDR_ARRAY[CLINT_DESTINATION_INDEX])
   ) u_axi_lite_clint (
-      .clk_i                (clk_i),
-      .rst_ni               (rst_ni),
-      .clint_axi_ar_i       (destination_axi_ar_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_arvalid_i  (destination_axi_arvalid_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_arready_o  (destination_axi_arready_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_r_o        (destination_axi_r_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_rvalid_o   (destination_axi_rvalid_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_rready_i   (destination_axi_rready_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_aw_i       (destination_axi_aw_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_awvalid_i  (destination_axi_awvalid_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_awready_o  (destination_axi_awready_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_w_i        (destination_axi_w_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_wvalid_i   (destination_axi_wvalid_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_wready_o   (destination_axi_wready_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_b_o        (destination_axi_b_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_bvalid_o   (destination_axi_bvalid_array[CLINT_DESTINATION_INDEX]),
-      .clint_axi_bready_i   (destination_axi_bready_array[CLINT_DESTINATION_INDEX])
+      .clk_i              (clk_i),
+      .rst_ni             (rst_ni),
+      .clint_axi_ar_i     (destination_axi_ar_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_arvalid_i(destination_axi_arvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_arready_o(destination_axi_arready_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_r_o      (destination_axi_r_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_rvalid_o (destination_axi_rvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_rready_i (destination_axi_rready_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_aw_i     (destination_axi_aw_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_awvalid_i(destination_axi_awvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_awready_o(destination_axi_awready_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_w_i      (destination_axi_w_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_wvalid_i (destination_axi_wvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_wready_o (destination_axi_wready_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_b_o      (destination_axi_b_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_bvalid_o (destination_axi_bvalid_array[CLINT_DESTINATION_INDEX]),
+      .clint_axi_bready_i (destination_axi_bready_array[CLINT_DESTINATION_INDEX])
   );
 
 endmodule

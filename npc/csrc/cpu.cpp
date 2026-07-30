@@ -4,8 +4,14 @@
 #include "trace.h"
 #include "watchpoint.h"
 
-#include "VysyxSoCFull.h"
-#include "VysyxSoCFull__Dpi.h"
+#define NPC_STRINGIFY_IMPL(token) #token
+#define NPC_STRINGIFY(token) NPC_STRINGIFY_IMPL(token)
+#define NPC_GENERATED_HEADER_IMPL(module_class) NPC_STRINGIFY(module_class.h)
+#define NPC_GENERATED_HEADER(module_class)                                     \
+  NPC_GENERATED_HEADER_IMPL(module_class)
+
+#include NPC_GENERATED_HEADER(TOP_CLASS)
+#include NPC_GENERATED_HEADER(TOP_DPI_CLASS)
 
 #include "svdpi.h"
 
@@ -35,6 +41,8 @@ static bool nvboard_enabled = false;
 
 static uint64_t main_time = 0;
 static uint64_t guest_inst_count = 0;
+static uint64_t guest_cycle_count = 0;
+static bool performance_statistics_printed = false;
 
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
 static const uint64_t MAX_CYCLES_WITHOUT_COMMIT = 1000000ULL;
@@ -47,12 +55,12 @@ struct CommitEvent {
   uint32_t next_pc;
 };
 
-// RV32I ABI register names. SDB accepts both these names and the x0-x31 numeric names.
+// RV32I ABI register names. SDB accepts both these names and the x0-x31 numeric
+// names.
 static const char *const reg_names[ARCH_GPR_COUNT] = {
-    "zero", "ra", "sp",  "gp",  "tp", "t0", "t1", "t2",
-    "s0",   "s1", "a0",  "a1",  "a2", "a3", "a4", "a5",
-    "a6",   "a7", "s2",  "s3",  "s4", "s5", "s6", "s7",
-    "s8",   "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
+    "zero", "ra", "sp", "gp", "tp",  "t0",  "t1", "t2", "s0", "s1", "a0",
+    "a1",   "a2", "a3", "a4", "a5",  "a6",  "a7", "s2", "s3", "s4", "s5",
+    "s6",   "s7", "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"};
 
 // NPC state
 
@@ -165,6 +173,8 @@ void cpu_init(int argc, char **argv, bool enable_nvboard, bool enable_trace) {
 
   main_time = 0;
   guest_inst_count = 0;
+  guest_cycle_count = 0;
+  performance_statistics_printed = false;
   npc_state = NPC_STOP;
 }
 
@@ -271,8 +281,20 @@ bool npc_reg_str2val(const char *name, uint32_t *val) {
   return false;
 }
 
-// Execute n instructions
+static void print_performance_statistics() {
+  const double ipc = guest_cycle_count == 0
+                         ? 0.0
+                         : static_cast<double>(guest_inst_count) /
+                               static_cast<double>(guest_cycle_count);
+  printf("NPC performance statistics:\n");
+  printf(" retired instructions = %llu\n",
+         (unsigned long long)guest_inst_count);
+  printf(" CPU cycle            = %llu\n",
+         (unsigned long long)guest_cycle_count);
+  printf(" IPC                  = %.6f\n", ipc);
+}
 
+// Execute n instructions
 void cpu_exec(uint64_t n) {
   if (npc_state == NPC_END) {
     printf("NPC has already ended.\n");
@@ -303,6 +325,7 @@ void cpu_exec(uint64_t n) {
 
     CommitEvent event{};
     single_cycle(&event);
+    guest_cycle_count++;
 
     if (!event.valid) {
       cycles_without_commit++;
@@ -334,6 +357,11 @@ void cpu_exec(uint64_t n) {
 
   if (npc_state == NPC_RUNNING) {
     npc_state = NPC_STOP;
+  }
+  if ((npc_state == NPC_END || npc_state == NPC_ABORT) &&
+      !performance_statistics_printed) {
+    print_performance_statistics();
+    performance_statistics_printed = true;
   }
 }
 

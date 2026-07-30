@@ -2,7 +2,9 @@
 // arbitration are intentionally outside this module.
 module riscv32_core
   import riscv32_pkg::*;
-(
+#(
+    parameter logic [XLEN-1:0] RESET_PC = RESET_VECTOR
+) (
     input logic clk_i,
     input logic rst_ni,
 
@@ -75,6 +77,7 @@ module riscv32_core
   logic csr_read_illegal;
   logic [XLEN-1:0] csr_mtvec;
   logic [XLEN-1:0] csr_mepc;
+  logic retired_instruction_occurred;
 
   logic trap_valid;
   logic [XLEN-1:0] trap_pc;
@@ -96,7 +99,9 @@ module riscv32_core
     execute_packet.csr_illegal = csr_read_illegal;
   end
 
-  riscv32_ifu u_ifu (
+  riscv32_ifu #(
+      .PC_START(RESET_PC)
+  ) u_ifu (
       .clk_i               (clk_i),
       .rst_ni              (rst_ni),
       .redirect_req_i      (selected_redirect_req),
@@ -133,22 +138,23 @@ module riscv32_core
   );
 
   riscv32_csr_file u_csr_file (
-      .clk_i             (clk_i),
-      .rst_ni            (rst_ni),
-      .csr_read_enable_i (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
-      .csr_read_addr_i   (decoded_uop.csr_ctrl.addr),
-      .csr_read_data_o   (csr_read_data),
-      .csr_read_illegal_o(csr_read_illegal),
-      .csr_write_valid_i (commit_valid && commit.csr_write),
-      .csr_write_addr_i  (commit.csr_addr),
-      .csr_write_data_i  (commit.csr_wdata),
-      .trap_valid_i      (trap_valid),
-      .trap_pc_i         (trap_pc),
-      .trap_cause_i      (trap_cause),
-      .trap_tval_i       (trap_tval),
-      .mret_valid_i      (mret_valid),
-      .mtvec_o           (csr_mtvec),
-      .mepc_o            (csr_mepc)
+      .clk_i                         (clk_i),
+      .rst_ni                        (rst_ni),
+      .csr_read_enable_i             (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
+      .csr_read_addr_i               (decoded_uop.csr_ctrl.addr),
+      .csr_read_data_o               (csr_read_data),
+      .csr_read_illegal_o            (csr_read_illegal),
+      .csr_write_valid_i             (commit_valid && commit.csr_write),
+      .csr_write_addr_i              (commit.csr_addr),
+      .csr_write_data_i              (commit.csr_wdata),
+      .retired_instruction_occurred_i(retired_instruction_occurred),
+      .trap_valid_i                  (trap_valid),
+      .trap_pc_i                     (trap_pc),
+      .trap_cause_i                  (trap_cause),
+      .trap_tval_i                   (trap_tval),
+      .mret_valid_i                  (mret_valid),
+      .mtvec_o                       (csr_mtvec),
+      .mepc_o                        (csr_mepc)
   );
 
   riscv32_exu u_exu (
@@ -215,6 +221,41 @@ module riscv32_core
       .gpr_write_addr_o        (gpr_write_addr),
       .gpr_write_enable_o      (gpr_write_enable)
   );
+
+  // A synchronous exception reaches the commit boundary but does not retire the
+  // faulting instruction. Future multi-commit logic will replace this scalar
+  // event with the number of non-trapping instructions retired in this cycle.
+  assign retired_instruction_occurred = commit_valid && !commit.trap_taken;
+
+`ifdef VERILATOR
+  // Simulation-only observation. Every event below is a completed valid/ready
+  // transfer, so backpressure cannot make one transaction count more than once.
+  riscv32_sim_performance_monitor u_sim_performance_monitor (
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .ifu_instruction_request_occurred_i(ifu_axi_arvalid_o && ifu_axi_arready_i),
+      .ifu_instruction_request_waiting_i(ifu_axi_arvalid_o && !ifu_axi_arready_i),
+      .ifu_instruction_response_occurred_i(ifu_axi_rvalid_i && ifu_axi_rready_o),
+      .ifu_instruction_response_discarded_occurred_i(
+          ifu_axi_rvalid_i && ifu_axi_rready_o && !fetch_entry_valid
+      ),
+      .ifu_instruction_delivery_occurred_i(fetch_entry_valid && fetch_entry_ready),
+      .ifu_downstream_waiting_i(fetch_entry_valid && !fetch_entry_ready),
+      .instruction_decode_occurred_i(decoded_uop_valid && decoded_uop_ready),
+      .decoded_fu_type_i(decoded_uop.fu_type),
+      .decoded_memory_cmd_i(decoded_uop.mem_ctrl.cmd),
+      .exu_completion_occurred_i(exu_result_valid && exu_result_ready),
+      .lsu_completion_occurred_i(lsu_writeback_valid && lsu_writeback_ready),
+      .instruction_retirement_occurred_i(retired_instruction_occurred),
+      .lsu_request_occurred_i(lsu_req_valid && lsu_req_ready),
+      .lsu_request_memory_cmd_i(lsu_req.uop.mem_ctrl.cmd),
+      .lsu_read_address_occurred_i(lsu_axi_arvalid_o && lsu_axi_arready_i),
+      .lsu_read_response_occurred_i(lsu_axi_rvalid_i && lsu_axi_rready_o),
+      .lsu_write_address_occurred_i(lsu_axi_awvalid_o && lsu_axi_awready_i),
+      .lsu_write_data_occurred_i(lsu_axi_wvalid_o && lsu_axi_wready_i),
+      .lsu_write_response_occurred_i(lsu_axi_bvalid_i && lsu_axi_bready_o)
+  );
+`endif
 
   riscv32_trap_controller u_trap_controller (
       .commit_i            (commit),
