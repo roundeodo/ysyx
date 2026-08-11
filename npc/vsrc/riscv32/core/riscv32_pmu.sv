@@ -8,7 +8,7 @@ module riscv32_pmu
 
     input logic [$clog2(RETIRE_SLOT_COUNT + 1)-1:0] retired_instruction_count_i,
 
-    // TODO(ICACHE-PMU-1): 完成icache_event_t后，在本TODO正下方增加
+    // TODO(ICACHE-PMU-1): 在本TODO正下方增加
     // `input icache_event_t icache_event_i`。该结构体每个字段表示“本周期某事件发生”，
     // 不是累计值，也不是控制请求。PMU只在时钟沿把为1的字段累加到对应64-bit计数器。
 
@@ -199,9 +199,10 @@ module riscv32_pmu
   // reset时所有cache计数器清零；正常周期捕获对应_d。继续遵循“相关寄存器靠近其next
   // 逻辑”的编码习惯，不要把全部PMU寄存器塞入一个远离定义的大always_ff。
 
-  // TODO(ICACHE-PMU-5): 在本TODO正下方增加一致性断言，但只在事件可比较时检查。
-  // 例如：同一lookup不能同时hit与miss；line refill发生时本周期或此前必须存在miss；
-  // refill line数量不能超过miss数量；PMU输出不得参与cache ready或replacement选择。
+  // TODO(ICACHE-PMU-5): 完成后用同一次I-cache定向测试核对计数关系。
+  // cacheable且无access fault的lookup应满足lookup=hit+miss；refill line不能超过miss；
+  // uncached和fault分别核对，不能为了凑等式重复计数。PMU只接收事件，不参与任何ready、
+  // replacement或redirect逻辑。
 
   // These blocks contain no policy; they only capture the _d values chosen above.
   // Keep the register families separate so each state is adjacent to its purpose:
@@ -236,14 +237,5 @@ module riscv32_pmu
       mcountinhibit_q <= mcountinhibit_d;
     end
   end
-
-  // TODO(PMU-6): After the fixed counters work, add assertions here.
-  // Check at least:
-  //   - retired_instruction_count_i never exceeds RETIRE_SLOT_COUNT;
-  //   - unimplemented mcountinhibit bits remain zero;
-  //   - PMU never drives csr_read_select_o for an unimplemented address.
-  // These assertions observe PMU behavior only and must not feed back into the
-  // retirement path. The same rule applies to every future performance event:
-  // producer -> one-way event signal -> PMU. PMU must never control the producer.
 
 endmodule

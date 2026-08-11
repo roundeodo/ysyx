@@ -1,49 +1,122 @@
-// Physical Memory Attributes for instruction fetch.
-// This module classifies an address; it does not issue a bus request or store state.
+// 取指侧物理内存属性分类器。
+//
+// 本模块只根据物理地址产生executable/cacheable/idempotent属性，不保存状态，
+// 也不发起总线请求。将地址策略独立出来，可以避免IFU、I-cache和总线适配器分别
+// 复制地址判断。未来加入页表、权限检查或更完整的PMP/PMA时，lookup和refill接口
+// 不需要因此改成AXI等外部协议。
 module riscv32_pma
+  import riscv32_addr_map_pkg::*;
   import riscv32_pkg::*;
-(
-    input  logic [XLEN-1:0] lookup_addr_i,
-    output pma_attr_t       memory_attr_o
+#(
+    parameter bit CHIPLINK_PRESENT = 1'b0
+) (
+    input  logic      [XLEN-1:0] lookup_addr_i,
+    output pma_attr_t            memory_attr_o
 );
 
-  // TODO(ICACHE-PMA-1): 在本TODO正下方集中定义当前SoC地址区间。
-  // 第一版至少覆盖以下区域，边界应与ysyxSoC地址图一致：
-  //   SRAM   0x0f00_0000起：executable=1, cacheable=0, idempotent=1；
-  //   MMIO   0x1000_0000附近：executable=0, cacheable=0, idempotent=0；
-  //   MROM   0x2000_0000起：executable=1, cacheable=0, idempotent=1；
-  //   Flash  0x3000_0000起：executable=1, cacheable=1, idempotent=1；
-  //   PSRAM  0x8000_0000起：executable=1, cacheable=1, idempotent=1；
-  //   SDRAM  0xa000_0000起：executable=1, cacheable=1, idempotent=1。
-  //
-  // 建议为每个区域定义BASE和MASK或BASE和END常量，例如：
-  //   localparam logic [XLEN-1:0] FLASH_BASE_ADDR = 32'h3000_0000;
-  //   localparam logic [XLEN-1:0] FLASH_ADDR_MASK = 32'hf000_0000;
-  //
-  // 长期应把整个SoC地址图提升到一个公共address-map package。当前先放在本模块，
-  // 但禁止I-cache、D-cache和总线xbar再次复制一套数值后各自修改。
+  // 地址常量统一由riscv32_addr_map_pkg维护。PMA使用BASE_ADDR/LAST_ADDR判断
+  // 实际实现的区间；ADDR_MATCH_MASK只提供给总线路由器，不能在本模块复制常量。
+  // 因此本模块不需要自行计算或搜索任何mask，直接调用phys_addr_in_range()。
+  // 当前有效区间为：
+  //   CLINT          0x0200_0000 - 0x0200_ffff，设备空间；
+  //   SRAM           0x0f00_0000 - 0x0f00_1fff，8 KiB；
+  //   UART           0x1000_0000 - 0x1000_0fff，设备空间；
+  //   SPI registers  0x1000_1000 - 0x1000_1fff，设备空间；
+  //   GPIO           0x1000_2000 - 0x1000_200f，设备空间；
+  //   PS/2           0x1001_1000 - 0x1001_1007，设备空间；
+  //   MROM           0x2000_0000 - 0x2000_0fff，4 KiB；
+  //   VGA            0x2100_0000 - 0x211f_ffff，设备空间；
+  //   Flash XIP      0x3000_0000 - 0x3fff_ffff，256 MiB；
+  //   ChipLink MMIO  0x4000_0000 - 0x7fff_ffff，可选设备空间；
+  //   PSRAM          0x8000_0000 - 0x803f_ffff，4 MiB；
+  //   SDRAM          0xa000_0000 - 0xa1ff_ffff，32 MiB；
+  //   ChipLink MEM   0xc000_0000 - 0xffff_ffff，可选内存空间。
 
-  // TODO(ICACHE-PMA-2): 在本TODO正下方实现纯组合地址分类。
-  // 必须先给memory_attr_o='0，默认地址因此不可执行、不可缓存、非幂等；再用
-  // unique case或按优先级明确的if/else覆盖已知区域。建议结构：
-  //
-  //   always_comb begin
-  //     memory_attr_o = '0;
-  //
-  //     if (address_is_sram) begin
-  //       memory_attr_o.executable = 1'b1;
-  //       memory_attr_o.cacheable  = 1'b0;
-  //       memory_attr_o.idempotent = 1'b1;
-  //     end else if (...) begin
-  //       ...
-  //     end
-  //   end
-  //
-  // `cacheable`只描述允许分配cache line，不描述本次是否命中。`idempotent`说明
-  // 重复读取不会产生额外设备副作用，未来投机取指只能访问idempotent区域。
+  // 每个信号只表示lookup地址是否落入对应的已实现物理地址区间。
+  logic lookup_addr_in_clint;
+  logic lookup_addr_in_sram;
+  logic lookup_addr_in_uart;
+  logic lookup_addr_in_spi_registers;
+  logic lookup_addr_in_gpio;
+  logic lookup_addr_in_ps2;
+  logic lookup_addr_in_mrom;
+  logic lookup_addr_in_vga;
+  logic lookup_addr_in_flash;
+  logic lookup_addr_in_chiplink_mmio;
+  logic lookup_addr_in_psram;
+  logic lookup_addr_in_sdram;
+  logic lookup_addr_in_chiplink_memory;
+  logic lookup_addr_in_any_mmio;
+  logic lookup_addr_in_any_uncached_memory;
+  logic lookup_addr_in_any_cacheable_memory;
+  // 这里不使用模糊的统一MMIO大区间，因为0x1000_0000附近存在未分配空洞；
+  // 未分配地址必须保留默认非法属性，不能因为高位相同就误判成合法设备。
+  always_comb begin
+    lookup_addr_in_clint = phys_addr_in_range(lookup_addr_i, CLINT_BASE_ADDR, CLINT_LAST_ADDR);
 
-  // TODO(ICACHE-PMA-3): 在本TODO正下方增加仿真断言。
-  // 至少检查所有声明为cacheable的区域同时也是executable和idempotent；检查区域
-  // 不重叠；可选地在lookup地址落入MMIO而上游仍发起取指时输出诊断信息。
+    lookup_addr_in_sram = phys_addr_in_range(lookup_addr_i, SRAM_BASE_ADDR, SRAM_LAST_ADDR);
+
+    lookup_addr_in_uart = phys_addr_in_range(lookup_addr_i, UART_BASE_ADDR, UART_LAST_ADDR);
+
+    lookup_addr_in_spi_registers =
+        phys_addr_in_range(lookup_addr_i, SPI_REG_BASE_ADDR, SPI_REG_LAST_ADDR);
+
+    lookup_addr_in_gpio = phys_addr_in_range(lookup_addr_i, GPIO_BASE_ADDR, GPIO_LAST_ADDR);
+
+    lookup_addr_in_ps2 = phys_addr_in_range(lookup_addr_i, PS2_BASE_ADDR, PS2_LAST_ADDR);
+
+    lookup_addr_in_mrom = phys_addr_in_range(lookup_addr_i, MROM_BASE_ADDR, MROM_LAST_ADDR);
+
+    lookup_addr_in_vga = phys_addr_in_range(lookup_addr_i, VGA_BASE_ADDR, VGA_LAST_ADDR);
+
+    lookup_addr_in_flash = phys_addr_in_range(lookup_addr_i, FLASH_BASE_ADDR, FLASH_LAST_ADDR);
+
+    lookup_addr_in_chiplink_mmio = CHIPLINK_PRESENT &&
+        phys_addr_in_range(lookup_addr_i, CHIPLINK_MMIO_BASE_ADDR, CHIPLINK_MMIO_LAST_ADDR);
+
+    lookup_addr_in_psram = phys_addr_in_range(lookup_addr_i, PSRAM_BASE_ADDR, PSRAM_LAST_ADDR);
+
+    lookup_addr_in_sdram = phys_addr_in_range(lookup_addr_i, SDRAM_BASE_ADDR, SDRAM_LAST_ADDR);
+
+    lookup_addr_in_chiplink_memory = CHIPLINK_PRESENT &&
+        phys_addr_in_range(lookup_addr_i, CHIPLINK_MEMORY_BASE_ADDR, CHIPLINK_MEMORY_LAST_ADDR);
+
+    lookup_addr_in_any_mmio = lookup_addr_in_clint || lookup_addr_in_uart ||
+                              lookup_addr_in_spi_registers || lookup_addr_in_gpio ||
+                              lookup_addr_in_ps2 || lookup_addr_in_vga ||
+                              lookup_addr_in_chiplink_mmio;
+
+    lookup_addr_in_any_uncached_memory = lookup_addr_in_sram || lookup_addr_in_mrom;
+
+    lookup_addr_in_any_cacheable_memory = lookup_addr_in_flash || lookup_addr_in_psram ||
+                                          lookup_addr_in_sdram ||
+                                          lookup_addr_in_chiplink_memory;
+
+  end
+
+  // pma_attr_t三个字段的含义：
+  //   executable：允许IFU从该区域取指；为0时I-cache返回取指访问异常；
+  //   cacheable ：允许把该区域读出的整条cache line留在I-cache；
+  //   idempotent：重复读取不会改变设备状态，允许未来进行投机取指或重复refill。
+  //
+  // SRAM不缓存是当前系统策略：它本身只有约1周期访问延迟，缓存收益很小。
+  // MROM同样保持不缓存。Flash、PSRAM和SDRAM延迟高且读操作无设备副作用，
+  // 因而允许取指、允许缓存且幂等。MMIO必须全部不可执行、不可缓存、非幂等。
+  always_comb begin
+    memory_attr_o = '0;
+
+    if (lookup_addr_in_any_uncached_memory) begin
+      memory_attr_o.executable = 1'b1;
+      memory_attr_o.cacheable  = 1'b0;
+      memory_attr_o.idempotent = 1'b1;
+    end else if (lookup_addr_in_any_cacheable_memory) begin
+      memory_attr_o.executable = 1'b1;
+      memory_attr_o.cacheable  = 1'b1;
+      memory_attr_o.idempotent = 1'b1;
+    end else if (lookup_addr_in_any_mmio) begin
+      memory_attr_o = '0;
+    end
+
+  end
 
 endmodule

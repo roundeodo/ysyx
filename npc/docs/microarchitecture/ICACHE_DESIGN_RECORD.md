@@ -1,0 +1,293 @@
+# I-cache设计记录
+
+状态：设计已接受，仅创建RTL TODO骨架
+
+所有者：`riscv32_icache`
+
+关联决策：当前计划P1、D004和D005；历史计划D024
+
+最后更新：2026-07-30
+
+## 1. 问题和目标
+
+当前IFU的每次取指都会经过SoC存储路径。已有基线数据显示，绝大多数活动周期用于
+等待指令响应，因此需要使用本地指令缓存为重复取指提供数据。
+
+第一个实现检查点必须满足：
+
+- 保持当前RV32I功能行为和valid/ready反压契约。
+- 流水线和miss机构可用时，每周期接受一个lookup请求。
+- lookup命中采用固定的两周期延迟。
+- cache line大于一条指令，并优先填充请求对应的word。
+- redirect后丢弃过期前端响应，同时不得违反下层总线协议。
+- 只缓存可执行、可缓存、幂等的存储区域。
+- 第一版就支持`fence.i`失效操作和性能事件。
+
+本检查点不实现多miss并发、预取、一致性、ECC、虚拟地址转换和支持burst的下层接口。
+
+## 2. 第一版命名配置
+
+本检查点使用命名配置`YSYX_RV32_BASELINE`。表中的具体数值只属于该配置，RTL必须通过
+语义参数和派生参数表达，不能把RV32地址切片散落在各子模块中。
+
+| 属性 | 参数或派生关系 | `YSYX_RV32_BASELINE` | 原因 |
+| --- | --- | ---: | --- |
+| 容量 | `ICACHE_CAPACITY_BYTES` | 8 KiB | 初始容量具备实际意义，同时避免第一版阵列过大 |
+| 路数 | `ICACHE_WAYS` | 2 | 降低直接映射冲突miss，同时保持比较和替换逻辑简单 |
+| Cache line | `ICACHE_LINE_BYTES` | 32 B | 利用空间局部性并为以后burst提供收益 |
+| 单次取指字节数 | `ICACHE_FETCH_BYTES` | 4 B | 匹配当前不支持压缩指令的RV32I前端 |
+| Set数量 | `CAPACITY_BYTES / (WAYS * LINE_BYTES)` | 128 | 由容量、路数和line大小唯一派生 |
+| 每行取指word数 | `LINE_BYTES / FETCH_BYTES` | 8 | 由line大小和取指粒度唯一派生 |
+| Offset位数 | `$clog2(LINE_BYTES)` | 5 | 选择cache line内的一个字节 |
+| Set index位数 | `$clog2(SETS)` | 7 | 选择一个set |
+| Tag位数 | `PADDR_WIDTH - OFFSET_BITS - SET_INDEX_BITS` | 20 | 区分映射到同一set的不同cache line |
+| 未完成miss数 | `ICACHE_MSHR_ENTRIES` | 1 | 第一版采用blocking cache，同时保留向多MSHR演进的边界 |
+
+配置默认值和共享类型放在`riscv32_pkg`中；模块局部派生量放在其所有者模块中。展开阶段
+必须检查容量、路数、line大小和set数量是否合法，line不小于一个取指word，并且数组
+规模与地址字段位宽一致。未来RV64配置只能修改命名配置和必要的接口宽度，不能复制一套
+I-cache RTL。
+
+## 3. 所有权边界
+
+| 模块 | 拥有 | 不拥有 |
+| --- | --- | --- |
+| `riscv32_ifu` | next-PC顺序、redirect epoch、向译码级交付 | tag、替换策略、refill协议 |
+| `riscv32_fetch_buffer` | 解耦cache响应和译码反压 | cache lookup和miss策略 |
+| `riscv32_icache` | lookup流水线、命中判断、替换和失效协调 | AXI通道细节 |
+| `riscv32_icache_tag_array` | tag和cache line present状态 | 替换策略 |
+| `riscv32_icache_data_array` | 缓存的指令word | tag有效性和refill顺序 |
+| `riscv32_icache_miss_unit` | 单个未完成miss、关键word返回、整行完成 | 下层AXI信号时序 |
+| `riscv32_icache_refill_adapter` | 将一次line refill转换为下层存储事务 | cache命中策略 |
+| `riscv32_pma` | 静态地址属性 | 动态权限和页表转换 |
+
+面向core的cache接口保持协议无关。AXI只存在于cache下方的refill adapter中，使未来
+更换cache、crossbar、AXI4 burst adapter或TileLink adapter时不需要重写IFU控制。
+
+## 4. 接口契约
+
+### 4.1 IFU到I-cache的lookup
+
+- 只有`lookup_req_valid_i && lookup_req_ready_o`时请求才被接受。
+- 请求携带PC、fetch epoch和`frontend_tag`。valid有效且ready无效期间，这些字段必须稳定。
+- `lookup_resp_valid_o && !lookup_resp_ready_i`期间响应必须稳定。
+- 响应重复携带PC、epoch和`frontend_tag`，使IFU能够匹配请求并拒绝过期工作，不依赖响应
+  返回的固定先后时间。
+- 除非模块复位取消事务，每个被接受的lookup必须产生且只能产生一个响应。
+
+### 4.2 Miss unit到refill adapter
+
+- 一次line请求携带对齐后的line地址、请求word index，以及miss/refill边界本地使用的
+  refill transaction index。miss表项保留原始前端epoch和tag，refill adapter不得解释它们。
+- Adapter按照关键word优先且环绕的顺序发出8次32位读取：请求word、后续word、较早word。
+- 每个返回beat标明对应的line word index。miss unit可以立即返回关键word，但只有全部
+  8个word写入成功后才能将tag `present`置位。
+- 下层存储错误必须产生错误响应，且不能使部分填充的cache line有效。
+
+### 4.3 失效操作
+
+- `fence.i`启动完整I-cache失效事务。
+- 失效逻辑占用tag present写端口时，必须反压新的lookup。
+- 只有全部set和way的present位清零后才能报告完成。
+
+## 5. Lookup流水线
+
+### S0：接受请求并生成索引
+
+- 接受一个协议无关的lookup请求。
+- 使用PMA对地址分类。
+- 对可缓存请求计算tag、set index和word index，并启动同步tag/data阵列读取。
+- 对不可缓存但可执行的请求绕过lookup，通过miss/refill路径发出单word非缓存访问。
+- 对不可执行或无效区域产生instruction access fault。
+
+### S1：同步阵列返回
+
+- 在阵列输出旁保存原始PC、cache tag、frontend epoch、`frontend_tag`和PMA属性。
+- 下游反压期间，metadata和data必须保持属于同一请求且同步移动。
+
+### S2：比较和选择
+
+- 两路并行比较：`way_present && way_tag == request_tag`。
+- 零路匹配表示miss，恰好一路匹配表示hit，两路同时匹配必须触发数据损坏断言。
+- 命中时选择请求word并通过响应通道返回。
+- miss时选择victim、分配单miss unit并阻塞新的miss。
+
+稳定命中吞吐目标是每周期一个lookup；从S0接受到响应可用的命中延迟目标是两周期。
+未来可以加入way prediction，但第一版始终并行比较两路tag。
+
+## 6. 替换和Refill
+
+victim选择优先使用invalid way。两路均有效时，每个set使用一个替换位选择victim；
+一次完成的hit或refill更新替换位，使下一次优先选择另一way。更新依据必须是完成的
+lookup/refill，不能仅依据收到请求。
+
+第一版miss unit是blocking结构，包含一个等价于MSHR的表项，保存：
+
+- 对齐后的line地址和请求word index。
+- victim set和way。
+- 原始PC、frontend epoch、`frontend_tag`和refill transaction index。
+- 已返回word的present vector和第一个错误响应。
+- 关键word响应是否已经发送。
+
+refill beat返回后立即写data word，metadata最后提交，从而防止lookup命中尚未完整填充的
+cache line。early restart在关键word到达后立即返回，同时miss unit继续填充其余word。
+
+第一版early restart不代表支持hit-under-miss。关键指令可以在剩余word填充时离开I-cache，
+所以后端执行能够和剩余refill重叠；但是在单miss表项释放前，lookup请求接口仍然阻塞。
+若要在refill期间接受后续hit，必须在单独检查点解决多个在途lookup的身份区分、阵列端口
+冲突，并通常需要增加MSHR。
+
+## 7. Redirect和Fence语义
+
+每个被接受的fetch携带当前`fetch_epoch_q`。redirect使epoch递增。旧epoch响应仍然完成
+cache和总线握手，但IFU不得将其交给译码级。未来miss重叠或下层响应乱序时，这条规则
+仍然成立。
+
+`fence.i`必须在允许年轻指令继续取指前使全部I-cache line失效。即使第一版SoC没有
+一致性D-cache，也要明确定义该操作，因为自修改代码和未来D-cache接入都需要明确的
+指令可见点。
+
+## 8. PMA策略
+
+第一版PMA分类器采用当前ysyxSoC物理地址图：
+
+- flash XIP、PSRAM、SDRAM等普通可执行存储区域在满足幂等条件时可以缓存。
+- 小容量SRAM和MROM在第一版保持非缓存，因为其直接访问延迟较低，且有利于确定性的
+  启动和调试。
+- CLINT、UART、GPIO、SPI寄存器、PS/2、VGA及其他MMIO全部不可缓存且不可执行。
+- 未映射地址产生instruction access fault。
+
+准确地址范围只允许在`riscv32_pma`中定义一次，IFU和下层adapter不得重复cache策略。
+
+## 9. 正确性不变量
+
+- cache hit必须恰好存在一个匹配且present的way。
+- 只有全部refill word成功后cache line才能变为present。
+- 一个被接受的lookup最多产生一个响应。
+- 旧epoch响应不得到达译码级。
+- valid/ready接口停顿时payload必须稳定。
+- 单miss表项被占用时不得被覆盖。
+- 第一版refill adapter最多存在一个未完成下层读取。
+- 下层错误不得安装有效cache line。
+- 失效操作和refill metadata提交不得同时占用同一tag array写端口。
+- 不可缓存和不可执行区域不得分配cache line。
+
+## 10. 时序和快速路径
+
+S0/S1/S2寄存器边界避免PMA分类、SRAM访问、tag比较、word选择和fetch-buffer反压形成一条
+组合路径。响应通道可以同周期流入空fetch buffer，buffer寄存器提供阻塞后备路径。
+下层refill流量不位于hit路径。
+
+early restart是第一条miss快速路径，在不允许部分cache hit的前提下降低前端可见miss延迟。
+hit-under-miss、多MSHR、way prediction和prefetch只有在计数器证明其收益且顺序流水线稳定后
+才进入后续检查点。
+
+## 11. 性能事件
+
+| 事件 | 精确定义 | 用途 |
+| --- | --- | --- |
+| lookup request | IFU lookup握手成功 | 前端需求数 |
+| hit response | cache-hit响应握手成功 | 命中率 |
+| miss allocation | miss表项从空闲变为占用 | miss率 |
+| critical-word response | early-restart响应握手成功 | 前端可见miss延迟 |
+| refill beat | 一个下层word响应握手成功 | refill流量 |
+| refill completion | 完整line metadata提交 | line fill数量 |
+| uncached request | PMA路由的非缓存访问被接受 | bypass流量 |
+| lookup stall cycle | 有效lookup无法被接受的周期 | 前端结构阻塞 |
+| miss busy cycle | miss表项被占用的周期 | blocking miss代价 |
+| stale response | 响应epoch与当前epoch不同 | 错误路径代价 |
+| invalidate cycle | `fence.i`失效过程活动的周期 | 维护操作代价 |
+
+## 12. 验证计划
+
+1. 对每个set、word和tag边界测试地址拆分。
+2. 测试cold miss、所有way hit、invalid-way选择、替换选择和set冲突。
+3. 按关键word优先顺序返回refill word并验证early restart。
+4. 分别对lookup响应、refill请求和refill响应施加反压。
+5. 在每个refill beat注入下层错误，验证不会安装cache line。
+6. 在S0、S1、hit响应阻塞及每个miss/refill状态触发redirect。
+7. 在空cache、满cache和refill进行中执行`fence.i`。
+8. 断言通道稳定、请求响应守恒、way hit one-hot和整行提交。
+9. 分别在cache启用和禁用状态运行cpu-tests、DiffTest、RT-Thread和microbench。
+10. 对比IPC、IFU response-wait周期、命中率、miss penalty和综合时序。
+
+## 13. 开源设计研究
+
+| 来源 | 学到的机制 | 本地决策 |
+| --- | --- | --- |
+| Ibex I-cache | 两级lookup、fill buffer、关键word优先refill、失效和pass-through | 采用固定分级lookup、early restart、显式失效和非缓存bypass；暂缓多fill buffer |
+| BOOM fetch unit | fetch packet和flow-through fetch buffer解耦I-cache响应与译码 | 采用独立flow-through fetch buffer；第一版保持4字节取指宽度 |
+| XiangShan WayLookup/I-cache | 分离main pipeline、array、miss unit、replacer、control、metadata queue、refill广播和flush/反压 | 采用模块所有权分离和响应身份；暂缓metadata queue和多请求refill广播 |
+| OpenTitan硬件设计文档 | Theory of Operation、接口表、设计细节、DV计划和断言 | 采用这种记录结构，并要求实现前先定义验证目标 |
+
+## 14. 逐文件实现顺序
+
+下面的顺序按类型依赖、局部可验证性和集成风险排列。禁止跳到IFU或core接线后再回头补
+package和下层事务契约。
+
+### 检查点A：冻结公共类型
+
+1. 完成`npc/vsrc/riscv32/common/riscv32_pkg.sv`中的`ICACHE-PKG-1`至
+   `ICACHE-PKG-5`。
+2. 只定义几何参数、派生位宽、索引类型、PMA属性、lookup/refill通道和PMU事件，不在
+   package中加入任何状态机或策略逻辑。
+3. 单独编译package，确认所有参数组合和结构体位宽合法后，才能继续下一文件。
+
+### 检查点B：地址属性和存储阵列
+
+4. 完成`core/frontend/riscv32_pma.sv`，先验证每个地址区域的起点、终点和边界外地址。
+5. 完成`core/frontend/riscv32_icache_tag_array.sv`，验证同步读、metadata写、复位失效和
+   同地址读写语义。
+6. 完成`core/frontend/riscv32_icache_data_array.sv`，验证按way、set和word索引的同步读，
+   以及refill每周期写入一个word。
+7. 此阶段只测试阵列，不实现hit判断、替换或miss。两个阵列都通过局部测试后再进入下层
+   访存路径。
+
+### 检查点C：下层refill事务
+
+8. 完成`core/frontend/riscv32_icache_refill_adapter.sv`。先实现单个未完成读取，再按关键
+   第一版通过一次完整AXI4 INCR burst取回整条cache line。总线按递增地址返回，
+   `critical_word_index`只用于识别关键字到达并支持early restart，不虚构critical-word-first顺序。
+9. 验证AR反压、R反压、`SLVERR`、`DECERR`、word索引回绕、请求和响应载荷稳定性。
+10. 完成`core/frontend/riscv32_icache_miss_unit.sv`，保存唯一miss的身份、victim位置、
+    已返回word集合和首个错误。
+11. 验证关键word提前响应、部分refill不可见、整行成功后才提交metadata，以及错误发生后
+    不安装有效cache line。
+
+### 检查点D：I-cache主体
+
+12. 完成`core/frontend/riscv32_icache.sv`，按顺序实现PMA路由、S0/S1/S2 lookup流水、
+    两路tag比较、hit数据选择、victim选择、refill接入和`fence.i`失效。
+13. 先测试cold miss和稳定hit，再测试set冲突、invalid-way优先、替换位、下层错误、
+    redirect和失效；不要一次写完整模块后才开始验证。
+14. 完成`core/frontend/riscv32_fetch_buffer.sv`，实现cache响应与译码反压解耦、空队列
+    同周期旁路、阻塞后的寄存器回退，以及旧epoch响应丢弃。
+
+### 检查点E：接入现有core
+
+15. 修改`core/riscv32_ifu.sv`，用协议无关lookup通道替换IFU直接拥有AXI读事务的逻辑；
+    IFU继续拥有PC、redirect epoch和向译码级交付的顺序。
+16. 修改`core/riscv32_core.sv`，只完成结构化接线和事件汇总，不把cache策略重新写进core。
+17. 修改`core/riscv32_pmu.sv`，连接lookup、hit、miss、refill、stall和stale response事件。
+18. 只有确实需要软件读取新增计数器时，才修改`core/riscv32_csr_file.sv`增加CSR映射；
+    仿真专用计数器不应无条件扩大可综合CSR状态。
+19. 每个新增模块通过局部编译后，按package、PMA、array、adapter、miss unit、cache、
+    fetch buffer的依赖顺序加入`npc/vsrc/riscv32/filelist/filelist.f`。在此之前保持活动
+    filelist可构建。
+
+### 检查点F：完整回归和性能比较
+
+20. 依次运行lint、NPC功能测试、cpu-tests、DiffTest、RT-Thread和microbench。
+21. 检查lookup请求数、hit与miss总数、refill数量、IFU等待周期和提交指令数之间的守恒
+    关系，并将结果追加到[`EXPERIMENT_LOG.md`](../verification/EXPERIMENT_LOG.md)。
+22. 完成综合和STA，确认S0/S1/S2确实切断PMA、阵列、tag比较和响应反压之间的长组合路径。
+23. 完整AXI4 burst属于当前基础实现；只有功能、计数器和时序基线稳定后，才评估更多MSHR、hit-under-miss、
+    prefetch、way prediction和更宽取指。
+
+## 15. 仍需解决的问题
+
+- 首次测量后SRAM/MROM是否应继续保持非缓存。
+- 何时从单未完成refill扩展到多MSHR，以及如何分配和回收AXI ID。
+- 两项或四项fetch buffer中哪一种更适合P4流水线。
+- 哪种替换策略相对每set一个替换位能产生可测量收益。
+- 是否应在加宽取指带宽之前引入压缩指令。

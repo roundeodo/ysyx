@@ -1,55 +1,47 @@
-# NPC Microarchitecture Notes
+# NPC 微架构设计记录
 
-This directory records the reasoning behind CPU and SoC module designs. It is a
-long-lived engineering log, not a replacement for comments next to RTL.
+本目录保存具体模块的需求、边界、接口契约、微架构选择和正确性不变量。RTL 旁边的注释
+只解释局部代码；架构路线、开发规范、实验结果和学习总结分别由上级分类目录维护。
 
-## Document Roles
+新增模块时，从
+[`MODULE_DESIGN_RECORD_TEMPLATE.md`](../development/MODULE_DESIGN_RECORD_TEMPLATE.md)
+复制一份模块记录，再进入 RTL 实现。体系结构的最终依据是
+[`ARCHITECTURE_PLAN.md`](../architecture/ARCHITECTURE_PLAN.md)，命名和源码组织的最终依据是
+[`NAMING_GUIDE.md`](../development/NAMING_GUIDE.md)。
 
-- `MODULE_DESIGN_RECORD_TEMPLATE.md`: template used before implementing a new
-  architectural module or changing an existing module boundary.
-- `<MODULE>_DESIGN_RECORD.md`: stable requirements, ownership, interface contracts,
-  microarchitecture, invariants, and accepted decisions for one module.
-- `EXPERIMENT_LOG.md`: append-only measurements tied to a configuration and Git commit.
+## 固定开发流程
 
-The architecture authority remains
-[`ARCHITECTURE_PLAN.md`](../../vsrc/riscv32/doc/ARCHITECTURE_PLAN.md). The naming and source
-organization authority remains
-[`NAMING_GUIDE.md`](../../vsrc/riscv32/doc/NAMING_GUIDE.md).
+1. 编写RTL前创建或更新模块设计记录，写清问题、可测量目标、所有权边界、接口契约、
+   状态和数据结构、正确性不变量以及验证计划。
+2. 至少对比两个相关的开源实现或标准。记录从每个来源学到的具体机制，并说明本地设计
+   选择采用、调整还是拒绝；不能只复制代码结构而不理解其契约。
+3. 在架构计划中冻结第一个实现检查点。后续修改若与冻结决策冲突，必须新增
+   决策记录，说明证据和迁移办法。
+4. 教学TODO必须紧邻真正的插入位置，并明确声明、默认值、状态转移、边界条件和测试。
+5. 每次只实现一个能够独立验证的边界。未完成文件不进入活动filelist，确保上一个验证
+   检查点始终可运行。
+6. 验证后向[`EXPERIMENT_LOG.md`](../verification/EXPERIMENT_LOG.md)追加命令、配置、
+   commit、结果和分析。设计变化后不得覆盖
+   旧数据。
+7. 模块检查点结束时，将有证据支持的开发心得追加到
+   [`LEARNING_JOURNAL.md`](../learning/LEARNING_JOURNAL.md)。稳定结论回写
+   模块设计记录；没有实验支持的判断必须留在“仍需验证”，不能写成既定事实。
 
-## Required Workflow
+## 设计记录准入检查
 
-1. Before RTL, create or update the module design record. State the problem, measurable
-   goals, ownership boundary, interface contract, state/data structures, correctness
-   invariants, and verification plan.
-2. Compare at least two relevant open-source designs or standards. Record the exact
-   mechanism learned from each source and explain whether it is adopted, adapted, or
-   rejected. Do not copy a local structure without understanding its contract.
-3. Freeze the first implementation checkpoint in `ARCHITECTURE_PLAN.md`. A later change
-   that contradicts a frozen decision needs a new decision record.
-4. Put educational TODOs directly above their implementation locations. Each TODO must
-   identify required declarations, defaults, state transitions, edge cases, and tests.
-5. Implement one independently verifiable boundary at a time. Keep incomplete source files
-   out of the active filelist so the last verified checkpoint remains runnable.
-6. After verification, append the command, configuration, commit, result, and analysis to
-   `EXPERIMENT_LOG.md`. Never overwrite an older result when the design changes.
+一份模块设计记录只有回答以下问题后，才可以进入RTL实现：
 
-## Review Standard
+- 本模块拥有哪些信息，哪些状态和策略必须留在其他模块？
+- 哪次握手开始事务，哪次握手结束事务，反压期间哪些字段必须稳定？
+- 哪些状态是架构态、推测态、可替换状态或仅供仿真的状态？
+- 复位、重定向、异常、失效和下游阻塞时分别发生什么？
+- 目标延迟和吞吐是多少，哪条组合路径可能成为时序瓶颈？
+- 哪些断言用于发现损坏、重复、丢失、过期响应或协议违规？
+- 哪些性能计数器能够证明目标负载确实受益？
 
-A module record is ready for RTL only when it answers all of these questions:
+## 当前记录
 
-- What information does this module own, and what must remain outside it?
-- What transaction starts work, what transaction ends work, and what must remain stable
-  under backpressure?
-- Which state is architectural, speculative, replaceable, or simulation-only?
-- What happens on reset, redirect, exception, invalidation, and downstream stall?
-- Which latency is required, which throughput is required, and which path may become a
-  timing bottleneck?
-- Which assertions detect corruption, duplication, loss, stale responses, or protocol
-  violations?
-- Which counters prove that the feature improves the target workload?
-
-## Current Records
-
-- [`ICACHE_DESIGN_RECORD.md`](ICACHE_DESIGN_RECORD.md): first cache checkpoint and its
-  planned migration path toward a high-performance frontend.
-- [`EXPERIMENT_LOG.md`](EXPERIMENT_LOG.md): baseline and future cache experiments.
+- [`ICACHE_DESIGN_RECORD.md`](ICACHE_DESIGN_RECORD.md)：第一版I-cache检查点及其向高性能
+  前端演进的路径。
+- [`EXPERIMENT_LOG.md`](../verification/EXPERIMENT_LOG.md)：I-cache接入前基线和后续实验结果。
+- [`LEARNING_JOURNAL.md`](../learning/LEARNING_JOURNAL.md)：可复用经验和尚未证实的假设。

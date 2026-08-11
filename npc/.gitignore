@@ -10,6 +10,8 @@
 !*.cc
 !*.cpp
 !*.py
+!*.md
+!constr/riscv32_npc_axi.sdc
 !.gitignore
 !README.md
 build/

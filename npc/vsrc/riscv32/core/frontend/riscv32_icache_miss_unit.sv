@@ -1,4 +1,10 @@
-// Blocking I-cache miss tracker. The first version contains one MSHR.
+// 阻塞式I-cache miss跟踪与line安装单元，v1只包含一个MSHR等价表项。
+//
+// 本模块保存一次miss从分配到完整refill结束所需的全部状态，包括原取指身份、
+// victim位置、返回word集合和错误状态。标准INCR burst到达critical word时允许先返回
+// 给前端，但只有
+// 全部word成功写入后才提交metadata。v1在refill期间阻塞新lookup，因此early restart
+// 不是hit-under-miss；未来增加多个MSHR时，应扩展表项和事务匹配，而不是改变IFU接口。
 module riscv32_icache_miss_unit
   import riscv32_pkg::*;
 (
@@ -54,7 +60,8 @@ module riscv32_icache_miss_unit
   //   每个成功返回word产生一次data_write_valid_o，但只有cacheable请求才写array；
   // - COMPLETE：若lookup_resp_q尚未被IFU接收，稳定保持valid和payload。
   //
-  // critical-word-first early restart：critical word返回时立即构造lookup response，
+  // natural early restart：标准INCR burst从line base开始；critical word对应beat返回时
+  // 立即构造lookup response，
   // 不必等待其余7个word。但miss transaction仍保持present，继续完成整条line refill。
   // 若IFU反压，lookup_resp_q负责保存；不得因此重复向data array写同一个word。
   // 第一版early restart只提前交付critical word；miss unit仍占用唯一MSHR，直到整条line
@@ -82,12 +89,8 @@ module riscv32_icache_miss_unit
   // 脉冲；refill_line_completed_occurred仅在完整cacheable line安装时脉冲。
   // lookup/hit/uncached事件由I-cache顶层生成，避免一个事件有多个驱动者。
 
-  // TODO(ICACHE-MISS-6): 增加正确性断言和directed tests。
-  // - 一个MSHR present时不得接受第二个miss；
-  // - 一个word最多写一次；line present写1前所有word present；
-  // - uncached和fault请求不写metadata present=1；
-  // - response在valid&&!ready期间稳定；
-  // - critical word为0和line末尾两种情况都验证环回顺序；
-  // - redirect不会取消下层AXI握手，旧epoch丢弃由IFU完成。
+  // TODO(ICACHE-MISS-6): 完成后编写directed tests，覆盖单MSHR阻塞、逐word写入、
+  // metadata最后提交、uncached/fault不安装line、响应反压、critical word位于line首部/
+  // 中部/末尾，以及redirect后旧epoch响应被IFU丢弃。
 
 endmodule

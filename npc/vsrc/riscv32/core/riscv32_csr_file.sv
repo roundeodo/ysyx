@@ -15,7 +15,7 @@ module riscv32_csr_file
 
     input logic retired_instruction_occurred_i,
 
-    // TODO(ICACHE-CSR-1): 完成icache_event_t后，在本TODO正下方加入
+    // TODO(ICACHE-CSR-1): 在本TODO正下方加入
     // `input icache_event_t icache_event_i`，并原样连接到u_pmu。CSR file只负责地址
     // 路由，不解释或重新生成cache事件。若第一版cache计数器仅供仿真观察，可先不增加
     // 软件可见CSR；但事件仍应从producer单向进入PMU，避免仿真monitor重复推导语义。

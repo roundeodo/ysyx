@@ -2,58 +2,50 @@
 // arbitration are intentionally outside this module.
 module riscv32_core
   import riscv32_pkg::*;
+  import riscv32_axi4_pkg::*;
 #(
     parameter logic [XLEN-1:0] RESET_PC = RESET_VECTOR
 ) (
     input logic clk_i,
     input logic rst_ni,
 
-    // Instruction read master port
-    output axi_lite_addr_t ifu_axi_ar_o,
-    output logic           ifu_axi_arvalid_o,
-    input  logic           ifu_axi_arready_i,
-    input  axi_lite_r_t    ifu_axi_r_i,
-    input  logic           ifu_axi_rvalid_i,
-    output logic           ifu_axi_rready_o,
+    // 取指和数据访问保持为两个独立manager。系统层负责仲裁和地址路由，
+    // core内部不感知SoC拓扑。
+    output axi4_manager_to_target_t instruction_axi4_manager_o,
+    input  axi4_target_to_manager_t instruction_axi4_manager_i,
 
-    // Data read/write master port
-    output axi_lite_addr_t lsu_axi_ar_o,
-    output logic           lsu_axi_arvalid_o,
-    input  logic           lsu_axi_arready_i,
-    input  axi_lite_r_t    lsu_axi_r_i,
-    input  logic           lsu_axi_rvalid_i,
-    output logic           lsu_axi_rready_o,
-
-    output axi_lite_addr_t lsu_axi_aw_o,
-    output logic           lsu_axi_awvalid_o,
-    input  logic           lsu_axi_awready_i,
-    output axi_lite_w_t    lsu_axi_w_o,
-    output logic           lsu_axi_wvalid_o,
-    input  logic           lsu_axi_wready_i,
-    input  axi_lite_b_t    lsu_axi_b_i,
-    input  logic           lsu_axi_bvalid_i,
-    output logic           lsu_axi_bready_o
+    output axi4_manager_to_target_t data_axi4_manager_o,
+    input  axi4_target_to_manager_t data_axi4_manager_i
 );
   localparam int unsigned REDIRECT_SOURCE_COUNT = 2;
   localparam int unsigned EXU_REDIRECT_INDEX = 0;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 1;
 
-  // TODO(ICACHE-CORE-1): 完成I-cache各子模块后，在本TODO正下方声明IFU本地通道、
-  // invalidate通道和事件通道。不要复用外部AXI信号表示cache lookup，因为两者的事务
-  // 语义不同。建议声明：
-  //
-  //   icache_lookup_req_t  icache_lookup_req;
-  //   logic                icache_lookup_req_valid;
-  //   logic                icache_lookup_req_ready;
-  //   icache_lookup_resp_t icache_lookup_resp;
-  //   logic                icache_lookup_resp_valid;
-  //   logic                icache_lookup_resp_ready;
-  //   icache_event_t       icache_event;
-  //   logic                icache_invalidate_req;
-  //   logic                icache_invalidate_done;
-  //
-  // `icache_invalidate_req`最终来自已提交的fence.i，而不是decode阶段。只有commit之后才能
-  // 改变前端可观察状态，从而保持精确异常和未来乱序执行语义。
+  icache_lookup_req_t  icache_lookup_req;
+  logic                icache_lookup_req_valid;
+  logic                icache_lookup_req_ready;
+  icache_lookup_resp_t icache_lookup_resp;
+  logic                icache_lookup_resp_valid;
+  logic                icache_lookup_resp_ready;
+
+  icache_refill_req_t  icache_refill_req;
+  logic                icache_refill_req_valid;
+  logic                icache_refill_req_ready;
+  icache_refill_resp_t icache_refill_resp;
+  logic                icache_refill_resp_valid;
+  logic                icache_refill_resp_ready;
+
+  data_memory_req_t  data_memory_req;
+  logic              data_memory_req_valid;
+  logic              data_memory_req_ready;
+  data_memory_resp_t data_memory_resp;
+  logic              data_memory_resp_valid;
+  logic              data_memory_resp_ready;
+
+  icache_event_t icache_event;
+  logic          icache_invalidate_req;
+  logic          icache_invalidate_done;
+  logic          icache_busy;
 
   fetch_entry_t fetch_entry;
   logic fetch_entry_valid;
@@ -116,21 +108,6 @@ module riscv32_core
     execute_packet.csr_illegal = csr_read_illegal;
   end
 
-  // TODO(ICACHE-CORE-2): 在本TODO正下方把当前IFU直连AXI拓扑替换为：
-  //
-  //   IFU -> I-cache lookup端口 -> I-cache refill adapter -> core外部AXI端口
-  //             |
-  //             +-> fetch buffer -> IDU
-  //
-  // 具体步骤：
-  // 1. 先按ICACHE-CORE-1声明本地通道；
-  // 2. 修改u_ifu，只连接redirect、lookup通道和fetch buffer，不再连接AXI；
-  // 3. 在u_ifu后实例化u_icache，把其lower_axi_*连接到当前ifu_axi_*顶层端口；
-  // 4. 若fetch buffer作为独立模块，则u_ifu输出先进入u_fetch_buffer，再连接u_idu；
-  // 5. fence.i失效期间禁止IFU发出新lookup，失效完成后从commit给出的顺序PC重新取指；
-  // 6. 保持LSU AXI路径不变，以便I-cache出现问题时能独立回归和定位。
-  //
-  // 第一版集成完成且回归通过后，再删除当前u_ifu上的AXI连接。不要同时改D-cache。
   riscv32_ifu #(
       .PC_START(RESET_PC)
   ) u_ifu (
@@ -138,16 +115,55 @@ module riscv32_core
       .rst_ni              (rst_ni),
       .redirect_req_i      (selected_redirect_req),
       .redirect_req_valid_i(selected_redirect_req_valid),
-      .ifu_axi_ar_o        (ifu_axi_ar_o),
-      .ifu_axi_arvalid_o   (ifu_axi_arvalid_o),
-      .ifu_axi_arready_i   (ifu_axi_arready_i),
-      .ifu_axi_r_i         (ifu_axi_r_i),
-      .ifu_axi_rvalid_i    (ifu_axi_rvalid_i),
-      .ifu_axi_rready_o    (ifu_axi_rready_o),
+      .icache_lookup_req_o (icache_lookup_req),
+      .icache_lookup_req_valid_o(icache_lookup_req_valid),
+      .icache_lookup_req_ready_i(icache_lookup_req_ready),
+      .icache_lookup_resp_i(icache_lookup_resp),
+      .icache_lookup_resp_valid_i(icache_lookup_resp_valid),
+      .icache_lookup_resp_ready_o(icache_lookup_resp_ready),
       .fetch_entry_o       (fetch_entry),
       .fetch_entry_valid_o (fetch_entry_valid),
       .fetch_entry_ready_i (fetch_entry_ready)
   );
+
+  riscv32_icache u_icache (
+      .clk_i                  (clk_i),
+      .rst_ni                 (rst_ni),
+      .lookup_req_i           (icache_lookup_req),
+      .lookup_req_valid_i     (icache_lookup_req_valid),
+      .lookup_req_ready_o     (icache_lookup_req_ready),
+      .lookup_resp_o          (icache_lookup_resp),
+      .lookup_resp_valid_o    (icache_lookup_resp_valid),
+      .lookup_resp_ready_i    (icache_lookup_resp_ready),
+      .invalidate_req_i       (icache_invalidate_req),
+      .invalidate_done_o      (icache_invalidate_done),
+      .cache_busy_o           (icache_busy),
+      .refill_req_o           (icache_refill_req),
+      .refill_req_valid_o     (icache_refill_req_valid),
+      .refill_req_ready_i     (icache_refill_req_ready),
+      .refill_resp_i          (icache_refill_resp),
+      .refill_resp_valid_i    (icache_refill_resp_valid),
+      .refill_resp_ready_o    (icache_refill_resp_ready),
+      .event_o                (icache_event)
+  );
+
+  riscv32_icache_refill_axi4_master u_icache_refill_axi4_master (
+      .clk_i               (clk_i),
+      .rst_ni              (rst_ni),
+      .refill_req_i        (icache_refill_req),
+      .refill_req_valid_i  (icache_refill_req_valid),
+      .refill_req_ready_o  (icache_refill_req_ready),
+      .refill_resp_o       (icache_refill_resp),
+      .refill_resp_valid_o (icache_refill_resp_valid),
+      .refill_resp_ready_i (icache_refill_resp_ready),
+      .axi_manager_o       (instruction_axi4_manager_o),
+      .axi_manager_i       (instruction_axi4_manager_i)
+  );
+
+  // TODO(ICACHE-CORE-FENCE-I): 在本TODO正下方用“已提交的fence.i事件”驱动
+  // `icache_invalidate_req`。不要在decode阶段失效缓存；乱序实现中，只有commit阶段
+  // 才能保证该指令不会因异常或分支误预测被取消。接入前需要先在decoded_uop_t和
+  // commit_t中增加明确的fence_i字段，并让commit在该指令到达提交点时产生一次脉冲。
 
   riscv32_idu u_idu (
       .fetch_entry_i      (fetch_entry),
@@ -214,21 +230,25 @@ module riscv32_core
       .lsu_writeback_o      (lsu_writeback),
       .lsu_writeback_valid_o(lsu_writeback_valid),
       .lsu_writeback_ready_i(lsu_writeback_ready),
-      .lsu_axi_ar_o         (lsu_axi_ar_o),
-      .lsu_axi_arvalid_o    (lsu_axi_arvalid_o),
-      .lsu_axi_arready_i    (lsu_axi_arready_i),
-      .lsu_axi_r_i          (lsu_axi_r_i),
-      .lsu_axi_rvalid_i     (lsu_axi_rvalid_i),
-      .lsu_axi_rready_o     (lsu_axi_rready_o),
-      .lsu_axi_aw_o         (lsu_axi_aw_o),
-      .lsu_axi_awvalid_o    (lsu_axi_awvalid_o),
-      .lsu_axi_awready_i    (lsu_axi_awready_i),
-      .lsu_axi_w_o          (lsu_axi_w_o),
-      .lsu_axi_wvalid_o     (lsu_axi_wvalid_o),
-      .lsu_axi_wready_i     (lsu_axi_wready_i),
-      .lsu_axi_b_i          (lsu_axi_b_i),
-      .lsu_axi_bvalid_i     (lsu_axi_bvalid_i),
-      .lsu_axi_bready_o     (lsu_axi_bready_o)
+      .data_memory_req_o    (data_memory_req),
+      .data_memory_req_valid_o(data_memory_req_valid),
+      .data_memory_req_ready_i(data_memory_req_ready),
+      .data_memory_resp_i   (data_memory_resp),
+      .data_memory_resp_valid_i(data_memory_resp_valid),
+      .data_memory_resp_ready_o(data_memory_resp_ready)
+  );
+
+  riscv32_uncached_axi4_master u_uncached_axi4_master (
+      .clk_i                    (clk_i),
+      .rst_ni                   (rst_ni),
+      .data_memory_req_i        (data_memory_req),
+      .data_memory_req_valid_i  (data_memory_req_valid),
+      .data_memory_req_ready_o  (data_memory_req_ready),
+      .data_memory_resp_o       (data_memory_resp),
+      .data_memory_resp_valid_o (data_memory_resp_valid),
+      .data_memory_resp_ready_i (data_memory_resp_ready),
+      .axi_manager_o            (data_axi4_manager_o),
+      .axi_manager_i            (data_axi4_manager_i)
   );
 
   riscv32_completion_mux u_completion_mux (
@@ -259,24 +279,16 @@ module riscv32_core
   // event with the number of non-trapping instructions retired in this cycle.
   assign retired_instruction_occurred = commit_valid && !commit.trap_taken;
 
-`ifdef VERILATOR
-  // TODO(ICACHE-CORE-3): I-cache接入后，在本TODO正下方重新映射前端性能事件。
-  // 现有`ifu_instruction_request_*`统计的是外部AXI事务；接入cache后必须区分三层：
-  // - IFU lookup：前端请求、I-cache response、向IDU交付、stale response丢弃；
-  // - I-cache：lookup、hit、miss、uncached access、refill line完成；
-  // - lower memory：refill adapter的AXI AR/R握手和响应等待。
-  // 命中率分母使用cacheable lookup，不使用AXI请求数。lower AXI只在miss或uncached时出现。
-  // 保留三层统计，才能分别判断前端反压、cache组织和外部memory latency的性能问题。
-  // Simulation-only observation. Every event below is a completed valid/ready
-  // transfer, so backpressure cannot make one transaction count more than once.
+`ifdef NPC_ENABLE_SIM_MONITOR
+  // 这里的IFU事件使用lookup层语义；下层AXI4只统计真正发生的refill事务。
   riscv32_sim_performance_monitor u_sim_performance_monitor (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
-      .ifu_instruction_request_occurred_i(ifu_axi_arvalid_o && ifu_axi_arready_i),
-      .ifu_instruction_request_waiting_i(ifu_axi_arvalid_o && !ifu_axi_arready_i),
-      .ifu_instruction_response_occurred_i(ifu_axi_rvalid_i && ifu_axi_rready_o),
+      .ifu_instruction_request_occurred_i(icache_lookup_req_valid && icache_lookup_req_ready),
+      .ifu_instruction_request_waiting_i(icache_lookup_req_valid && !icache_lookup_req_ready),
+      .ifu_instruction_response_occurred_i(icache_lookup_resp_valid && icache_lookup_resp_ready),
       .ifu_instruction_response_discarded_occurred_i(
-          ifu_axi_rvalid_i && ifu_axi_rready_o && !fetch_entry_valid
+          icache_lookup_resp_valid && icache_lookup_resp_ready && !fetch_entry_valid
       ),
       .ifu_instruction_delivery_occurred_i(fetch_entry_valid && fetch_entry_ready),
       .ifu_downstream_waiting_i(fetch_entry_valid && !fetch_entry_ready),
@@ -288,11 +300,16 @@ module riscv32_core
       .instruction_retirement_occurred_i(retired_instruction_occurred),
       .lsu_request_occurred_i(lsu_req_valid && lsu_req_ready),
       .lsu_request_memory_cmd_i(lsu_req.uop.mem_ctrl.cmd),
-      .lsu_read_address_occurred_i(lsu_axi_arvalid_o && lsu_axi_arready_i),
-      .lsu_read_response_occurred_i(lsu_axi_rvalid_i && lsu_axi_rready_o),
-      .lsu_write_address_occurred_i(lsu_axi_awvalid_o && lsu_axi_awready_i),
-      .lsu_write_data_occurred_i(lsu_axi_wvalid_o && lsu_axi_wready_i),
-      .lsu_write_response_occurred_i(lsu_axi_bvalid_i && lsu_axi_bready_o)
+      .lsu_read_address_occurred_i(data_axi4_manager_o.ar_valid &&
+                                   data_axi4_manager_i.ar_ready),
+      .lsu_read_response_occurred_i(data_axi4_manager_i.r_valid &&
+                                    data_axi4_manager_o.r_ready),
+      .lsu_write_address_occurred_i(data_axi4_manager_o.aw_valid &&
+                                    data_axi4_manager_i.aw_ready),
+      .lsu_write_data_occurred_i(data_axi4_manager_o.w_valid &&
+                                 data_axi4_manager_i.w_ready),
+      .lsu_write_response_occurred_i(data_axi4_manager_i.b_valid &&
+                                     data_axi4_manager_o.b_ready)
   );
 `endif
 
