@@ -141,18 +141,23 @@ module riscv32_icache
   //     end
   //   end
 
-  pma_attr_t                                 lookup_memory_attr;
+  pma_attr_t                                  lookup_memory_attr;
 
-  logic                                      array_read_enable;
-  icache_set_index_t                         array_read_set_index;
-  icache_word_index_t                        array_read_word_index;
-  icache_tag_t                               array_read_tag_array           [ICACHE_WAY_COUNT];
-  logic               [ICACHE_WAY_COUNT-1:0] array_read_line_present_vector;
-  logic               [            XLEN-1:0] array_read_word_data_array     [ICACHE_WAY_COUNT];
+  logic                                       array_read_enable;
+  icache_set_index_t                          array_read_set_index;
+  icache_word_index_t                         array_read_word_index;
+  icache_tag_t                                array_read_tag_array           [ICACHE_WAY_COUNT];
+  logic                [ICACHE_WAY_COUNT-1:0] array_read_line_present_vector;
+  logic                [            XLEN-1:0] array_read_word_data_array     [ICACHE_WAY_COUNT];
 
-  icache_miss_req_t                          miss_req;
-  logic                                      miss_req_valid;
-  logic                                      miss_req_ready;
+  icache_miss_req_t                           miss_req;
+  logic                                       miss_req_valid;
+  logic                                       miss_req_ready;
+  icache_lookup_resp_t                        miss_lookup_resp;
+  logic                                       miss_lookup_resp_valid;
+  logic                                       miss_lookup_resp_ready;
+  logic                                       miss_transaction_present;
+  icache_event_t                              miss_event;
   // TODO(ICACHE-TOP-2): 在本TODO正下方定义lookup流水寄存器和推进控制信号。
   // 可以直接抄写以下完整声明。S0不是寄存器：它表示输入握手和同步array读请求；
   // S1保存请求身份与PMA属性；S2保存请求身份以及与它对齐的tag/data array快照。
