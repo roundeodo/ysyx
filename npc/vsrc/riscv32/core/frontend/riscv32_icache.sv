@@ -269,6 +269,7 @@ module riscv32_icache
 
   assign lookup_s1_ready = (!lookup_s1_present_q || lookup_s2_ready) && !miss_req_valid && !miss_transaction_present;
   assign lookup_req_handshake = lookup_req_valid_i && lookup_req_ready_o;
+
   always_comb begin
     lookup_s1_d         = lookup_s1_q;
     memory_attr_s1_d    = memory_attr_s1_q;
@@ -439,9 +440,7 @@ module riscv32_icache
 
   // invalidate请求到达的当拍立即停止接收新请求；其余时间由S1是否可覆盖决定ready。
   // array read、S1请求身份和PMA属性只会在同一次lookup握手时同步更新。
-  assign lookup_req_ready_o = lookup_s1_ready &&
-                              !invalidate_blocks_lookup &&
-                              !invalidate_req_i;
+  assign lookup_req_ready_o = lookup_s1_ready && !invalidate_blocks_lookup && !invalidate_req_i;
 
   always_comb begin
     invalidate_state_d     = invalidate_state_q;
@@ -530,7 +529,8 @@ module riscv32_icache
                         (invalidate_state_q != INVALIDATE_IDLE);
   // event只观察已经发生的握手或miss-unit事件，不参与cache控制。绑定握手而不是valid，
   // 可避免下游反压使同一事务保持多拍时被重复计数。过期fetch epoch由IFU识别，因此
-  // stale_response_discarded_occurred在I-cache内部固定为0。
+  // stale_response_discarded_occurred在I-cache内部固定为0。当前event没有access-fault字段，
+  // 因此发生取指访问异常时，lookup计数不会落入hit、miss或uncached三类中的任何一类。
   always_comb begin
     event_o                                   = '0;
     event_o.lookup_occurred                   = lookup_req_handshake;
@@ -548,54 +548,62 @@ module riscv32_icache
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (lookup_req_valid_i && !lookup_req_ready_o) |=>
-          (lookup_req_valid_i && $stable(lookup_req_i))
-  ) else $error("I-cache lookup request changed while stalled");
+          (lookup_req_valid_i && $stable(
+      lookup_req_i
+  )))
+  else $error("I-cache lookup request changed while stalled");
 
   a_lookup_response_stable_while_stalled :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (lookup_resp_valid_o && !lookup_resp_ready_i) |=>
-          (lookup_resp_valid_o && $stable(lookup_resp_o))
-  ) else $error("I-cache lookup response changed while stalled");
+          (lookup_resp_valid_o && $stable(
+      lookup_resp_o
+  )))
+  else $error("I-cache lookup response changed while stalled");
 
   // 一个set中同一tag最多只能有一个present way，否则第一路编码会掩盖metadata错误。
   a_lookup_matches_at_most_one_way :
-  assert property (
-      @(posedge clk_i) disable iff (!rst_ni) $onehot0(lookup_way_hit_vector)
-  ) else $error("I-cache lookup matched more than one way");
+  assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(lookup_way_hit_vector))
+  else $error("I-cache lookup matched more than one way");
 
   // 阻塞式设计任意时刻只能由本地路径或miss unit中的一方驱动lookup响应。
   a_local_and_miss_response_are_exclusive :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       !(local_lookup_resp_valid && miss_lookup_resp_valid)
-  ) else $error("I-cache local and miss responses are both valid");
+  )
+  else $error("I-cache local and miss responses are both valid");
 
   a_miss_request_has_valid_classification :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       miss_req_valid |->
           (lookup_s2_present_q && (lookup_cache_miss || lookup_uncached))
-  ) else $error("I-cache miss request has no valid S2 classification");
+  )
+  else $error("I-cache miss request has no valid S2 classification");
 
   a_array_read_matches_lookup_acceptance :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (array_read_enable == lookup_req_handshake)
-  ) else $error("I-cache array read does not match lookup handshake");
+  )
+  else $error("I-cache array read does not match lookup handshake");
 
   // invalidate先排空miss，因此refill与invalidate不能同时写metadata array。
   a_metadata_write_sources_are_exclusive :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       !(refill_metadata_write_valid && invalidate_metadata_write_valid)
-  ) else $error("I-cache refill and invalidate metadata writes conflict");
+  )
+  else $error("I-cache refill and invalidate metadata writes conflict");
 
   a_invalidate_blocks_new_lookup :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (invalidate_req_i || invalidate_blocks_lookup) |-> !lookup_req_ready_o
-  ) else $error("I-cache accepted lookup during invalidate");
+  )
+  else $error("I-cache accepted lookup during invalidate");
 
   // present=1只能来自整条line完成安装；present=0可来自miss开始时清victim或invalidate。
   a_present_install_comes_from_refill_completion :
@@ -603,7 +611,8 @@ module riscv32_icache
       @(posedge clk_i) disable iff (!rst_ni)
       (metadata_write_valid && metadata_write_line_present) |->
           (refill_metadata_write_valid && refill_metadata_write_line_present)
-  ) else $error("I-cache present installation did not come from refill completion");
+  )
+  else $error("I-cache present installation did not come from refill completion");
 
   a_present_clear_has_valid_source :
   assert property (
@@ -611,26 +620,27 @@ module riscv32_icache
       (metadata_write_valid && !metadata_write_line_present) |->
           (invalidate_metadata_write_valid ||
            (refill_metadata_write_valid && !refill_metadata_write_line_present))
-  ) else $error("I-cache present clear has no valid source");
+  )
+  else $error("I-cache present clear has no valid source");
 
   a_blocking_miss_stops_new_lookup :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       miss_transaction_present |-> !lookup_req_handshake
-  ) else $error("Blocking I-cache accepted lookup during active miss");
+  )
+  else $error("Blocking I-cache accepted lookup during active miss");
 
   a_miss_dispatch_freezes_s1 :
-  assert property (
-      @(posedge clk_i) disable iff (!rst_ni)
-      miss_req_valid |-> !lookup_s1_ready
-  ) else $error("I-cache S1 advanced while dispatching a miss");
+  assert property (@(posedge clk_i) disable iff (!rst_ni) miss_req_valid |-> !lookup_s1_ready)
+  else $error("I-cache S1 advanced while dispatching a miss");
 
   a_replacement_update_sources_are_exclusive :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       !((local_lookup_resp_handshake && lookup_hit) &&
         (refill_metadata_write_valid && refill_metadata_write_line_present))
-  ) else $error("I-cache replacement state has two update sources");
+  )
+  else $error("I-cache replacement state has two update sources");
 `endif
 
   // TODO(ICACHE-TOP-9): 完成后按以下顺序编写directed tests。每项都检查握手次数、
