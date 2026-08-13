@@ -404,8 +404,8 @@ module riscv32_icache
   end
   // fence.i/invalidate先阻止新lookup并排空旧lookup和miss，再逐set、逐way清除
   // present位，最后产生单拍done。tag/data无需清零，因为present=0使旧内容不可见。
-  // 已经发出的下层事务必须完整握手，不能因fence.i中途撤销。当前接口要求
-  // invalidate_req_i为单周期脉冲；若未来允许电平请求，应另加等待请求撤销状态。
+  // 已经发出的下层事务必须完整握手，不能因fence.i中途撤销。上游保持请求直到done；
+  // 本状态机只在IDLE采样一次请求，done产生的同一时钟沿上游必须撤销请求，避免重复启动。
   // 当前单核无DMA一致性，fence.i用于保证软件修改代码后不再取到旧指令line。
   typedef enum logic [1:0] {
     INVALIDATE_IDLE,

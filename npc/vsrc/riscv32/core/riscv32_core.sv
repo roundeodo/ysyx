@@ -47,6 +47,8 @@ module riscv32_core
   logic icache_invalidate_req;
   logic icache_invalidate_done;
   logic icache_busy;
+  logic icache_invalidate_pending_q;
+  logic icache_invalidate_pending_d;
 
   // IFU侧表示“等待入队”，IDU侧表示“队首等待消费”。
   // 两个边界各自使用ready/valid，避免把buffer的入队和出队握手混在一起。
@@ -172,10 +174,30 @@ module riscv32_core
   );
 
   // fence.i只能在提交边界使I-cache失效，避免未提交指令修改前端状态。
-  // 当前顺序核可在同一拍发出redirect和invalidate；I-cache busy会反压新取指，
-  // 直到失效扫描结束。未来乱序核仍应由commit/ROB生成这个事件。
+  // 提交事件是单拍脉冲，但失效是多拍事务，因此pending必须保持请求直到I-cache返回done。
+  // 当前顺序核可在提交当拍发出redirect并阻止新取指；未来乱序核仍应由ROB提交端生成
+  // fence.i事件，并在收到失效完成响应后才允许后续指令提交。
   assign committed_fence_i_occurred = commit_valid && !commit.trap_taken && (commit.system_op == SYS_FENCE_I);
-  assign icache_invalidate_req = committed_fence_i_occurred;
+  assign icache_invalidate_req = committed_fence_i_occurred || icache_invalidate_pending_q;
+
+  always_comb begin
+    icache_invalidate_pending_d = icache_invalidate_pending_q;
+
+    if (icache_invalidate_done) begin
+      icache_invalidate_pending_d = 1'b0;
+    end
+    if (committed_fence_i_occurred) begin
+      icache_invalidate_pending_d = 1'b1;
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      icache_invalidate_pending_q <= 1'b0;
+    end else begin
+      icache_invalidate_pending_q <= icache_invalidate_pending_d;
+    end
+  end
 
   // buffer位于IFU和IDU之间，只保存已经完成的fetch_entry，不参与PC生成、cache访问或译码。
   // redirect当拍停止IFU入队，并在时钟沿清除队列中的旧控制流entry。IDU队首valid不受flush的
@@ -379,5 +401,23 @@ module riscv32_core
       .selected_redirect_req_o      (selected_redirect_req),
       .selected_redirect_req_valid_o(selected_redirect_req_valid)
   );
+
+`ifndef SYNTHESIS
+  // I-cache失效采用请求保持到完成的协议。busy是状态观测，不参与任何控制反馈。
+  a_icache_invalidate_request_held_until_done :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (icache_invalidate_req && !icache_invalidate_done) |=> icache_invalidate_req)
+    else $error("core withdrew I-cache invalidate request before completion");
+
+  a_icache_invalidate_done_has_request :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    icache_invalidate_done |-> icache_invalidate_req)
+    else $error("core observed I-cache invalidate completion without a request");
+
+  a_icache_invalidate_pending_means_busy :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    icache_invalidate_pending_q |-> icache_busy)
+    else $error("I-cache dropped busy while an invalidate transaction was pending");
+`endif
 
 endmodule

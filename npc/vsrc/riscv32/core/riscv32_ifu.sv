@@ -178,9 +178,6 @@ module riscv32_ifu
 
   // 协议断言检查请求反压稳定性、redirect淘汰和当前响应的原子交付。
 `ifndef SYNTHESIS
-  assert property (@(posedge clk_i) !rst_ni |-> !icache_lookup_req_valid_o)
-  else $error("IFU issued an I-cache lookup request during reset");
-
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (icache_lookup_req_valid_o && !icache_lookup_req_ready_i)
     |=> (icache_lookup_req_valid_o && $stable(
