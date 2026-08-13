@@ -5,10 +5,7 @@
 // 改变全局配置，禁止各模块再次声明自己的XLEN或AXI宽度。
 package riscv_config_pkg;
 
-  // TODO(P2-B-CFG-1): 定义当前RV32基线的独立宽度配置。
-  // 位置：直接写在本TODO下方。
-  //
-  // 请抄写以下代码：
+  // 当前RV32基线把架构、物理地址、指令、core数据和AXI宽度分别建模。
   localparam int unsigned XLEN = 32;
   localparam int unsigned PADDR_WIDTH = 32;
   localparam int unsigned INSTR_WIDTH = 32;
@@ -27,10 +24,7 @@ package riscv_config_pkg;
   // - AXI_ID_WIDTH：AXI事务身份宽度，与ROB、LSQ和frontend tag均无关。
   // - ARCH_REG_COUNT：架构整数寄存器数量；RV32I和RV64I均为32。
 
-  // TODO(P2-B-CFG-2): 定义只依赖全局配置、且被多个package共同使用的派生量。
-  // 位置：完成P2-B-CFG-1后，紧接着写在本TODO下方。
-  //
-  // 请抄写以下代码：
+  // 只依赖全局配置、且被多个package共同使用的派生量。
   localparam int unsigned XLEN_BYTE_COUNT = XLEN / 8;
   localparam int unsigned CORE_DATA_BYTE_COUNT = CORE_DATA_WIDTH / 8;
   localparam int unsigned AXI_DATA_BYTE_COUNT = AXI_DATA_WIDTH / 8;
@@ -42,10 +36,7 @@ package riscv_config_pkg;
   // 三者语义相同。P2的目的正是让以后改变其中一个时，编译错误准确暴露缺少adapter
   // 的边界，而不是通过相同位宽掩盖耦合。
 
-  // TODO(P2-B-CFG-3): 迁入全核共享的微架构容量和构建选择。
-  // 位置：直接写在本TODO下方；这些都是“选择什么实现”的配置，不是payload类型。
-  //
-  // 请抄写以下代码：
+  // 全核共享的微架构容量和构建选择。这些参数描述“选择什么实现”，不是payload类型。
   localparam int unsigned FETCH_WIDTH = 1;
   localparam int unsigned DECODE_WIDTH = 1;
   localparam int unsigned RENAME_WIDTH = 1;

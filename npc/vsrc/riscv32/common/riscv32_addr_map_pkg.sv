@@ -5,16 +5,11 @@
 // phys_addr_in_range()判断闭区间，避免把匹配掩码误解成地址空间大小。
 package riscv32_addr_map_pkg;
 
-  // TODO(P2-B-ADDR-1): 让物理地址映射使用全局PADDR_WIDTH。
-  // 位置：直接替换下方SOC_PHYS_ADDR_W参数和soc_phys_addr_t定义。
-  //
-  // 完成P2-B-CFG-1后，请抄写：
+  // TODO(P2-B-ADDR-1): 删除下方遗留的SOC_PHYS_ADDR_W。
+  // phys_addr_t及其所有使用方已经完成迁移；该参数目前没有任何使用者，继续保留会让
+  // 地址宽度看起来仍有第二个配置来源。删除后保留以下import和typedef即可。
   import riscv_config_pkg::*;
   typedef logic [PADDR_WIDTH-1:0] phys_addr_t;
-  //
-  // 然后将本文件及所有使用方的soc_phys_addr_t统一改为phys_addr_t，并删除
-  // SOC_PHYS_ADDR_W与soc_phys_addr_t，不保留兼容别名。地址常量仍可写成32'h...，
-  // 因为这些数值来自当前ysyxSoC地址图；“数值是32位地址”不代表类型由XLEN决定。
   parameter int unsigned SOC_PHYS_ADDR_W = 32;
 
   // 由riscv32_npc_system选择并在核边界终结的CLINT窗口。
