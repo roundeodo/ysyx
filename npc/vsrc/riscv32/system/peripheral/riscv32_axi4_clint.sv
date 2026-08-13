@@ -14,6 +14,10 @@ module riscv32_axi4_clint
     output axi4_target_to_manager_t axi_target_o
 );
 
+  // TODO(P2-B-CLINT-AXI-1): 将本模块中两个设备寄存器地址常量的
+  // AXI4_ADDR_WIDTH替换为AXI_ADDR_WIDTH。CLINT只消费系统总线地址宽度，不能
+  // 自己定义地址宽度；寄存器偏移和mtime行为均保持不变。
+
   localparam logic [AXI4_ADDR_WIDTH-1:0] MTIME_LOW_ADDRESS =
       CLINT_BASE_ADDR + 32'h0000_0048;
   localparam logic [AXI4_ADDR_WIDTH-1:0] MTIME_HIGH_ADDRESS =

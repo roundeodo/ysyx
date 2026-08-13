@@ -4,6 +4,8 @@ module riscv32_uncached_axi4_master
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 #(
+    // TODO(P2-B-UNCACHED-AXI-1): 将本参数列表中的AXI4_ID_WIDTH全部替换为
+    // AXI_ID_WIDTH，包括位宽和两个类型转换。不要修改axi4_*结构体或AXI4响应枚举名。
     parameter logic [AXI4_ID_WIDTH-1:0] READ_TRANSACTION_ID  = AXI4_ID_WIDTH'(1),
     parameter logic [AXI4_ID_WIDTH-1:0] WRITE_TRANSACTION_ID = AXI4_ID_WIDTH'(2)
 ) (

@@ -20,6 +20,11 @@ module top
   localparam int unsigned UART_TARGET_INDEX      = 0;
   localparam int unsigned MEMORY_TARGET_INDEX    = 1;
 
+  // TODO(P2-B-SIM-1): 完成全局配置迁移时处理本仿真壳中的两个旧名字。
+  // 1. 将下方地址数组的AXI4_ADDR_WIDTH全部替换为AXI_ADDR_WIDTH。
+  // 2. 将read_gpr()边界检查中的ARCH_REG_NUM替换为ARCH_REG_COUNT。
+  // 仿真壳只消费设计配置，不应自行复制宽度或寄存器数量。
+
   // UART uses its real platform window. Every other address reaches the DPI
   // memory target so the standalone environment can continue to run flat PMEM.
   localparam logic [AXI4_ADDR_WIDTH-1:0]

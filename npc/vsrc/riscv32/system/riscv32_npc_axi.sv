@@ -83,6 +83,10 @@ module riscv32_npc_axi
     /* verilator lint_on UNUSEDSIGNAL */
 );
 
+  // TODO(P2-B-SOC-1): 本文件的调试寄存器索引检查仍使用ARCH_REG_NUM。
+  // 在下方read_gpr()中将它替换为ARCH_REG_COUNT。ysyxSoC规定的扁平顶层端口位宽
+  // 暂时保持原样；这些端口是外部平台契约，不在P2-B中改成package类型。
+
   axi4_manager_to_target_t external_axi4_manager;
   axi4_target_to_manager_t external_axi4_manager_response;
 

@@ -4,6 +4,8 @@ module riscv32_axi4_address_router
   import riscv32_axi4_pkg::*;
 #(
     parameter int unsigned TARGET_COUNT = 2,
+    // TODO(P2-B-ROUTER-1): 将下面两个地址数组的AXI4_ADDR_WIDTH替换为
+    // AXI_ADDR_WIDTH。路由器的地址选择宽度必须与AXI fabric一致，不能另设局部宽度。
     parameter logic [AXI4_ADDR_WIDTH-1:0] TARGET_ADDRESS_BASE_ARRAY[TARGET_COUNT] =
         '{default: '0},
     parameter logic [AXI4_ADDR_WIDTH-1:0] TARGET_ADDRESS_LAST_ARRAY[TARGET_COUNT] =

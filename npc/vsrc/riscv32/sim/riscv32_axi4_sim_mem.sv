@@ -6,6 +6,12 @@ module riscv32_axi4_sim_mem
     parameter int unsigned LSU_READ_LATENCY = 1,
     parameter int unsigned LSU_WRITE_LATENCY = 1,
     parameter int unsigned RANDOM_LATENCY_MAX = 20,
+    // TODO(P2-B-SIM-MEM-1): 对本文件执行完整的AXI宽度名迁移：
+    //   AXI4_ADDR_WIDTH -> AXI_ADDR_WIDTH
+    //   AXI4_DATA_WIDTH -> AXI_DATA_WIDTH
+    //   AXI4_ID_WIDTH   -> AXI_ID_WIDTH
+    // 包括参数、状态寄存器、function参数/返回值和显式类型转换。AXI4_STRB_WIDTH
+    // 仍是协议package中的派生量，因此保持不变。
     parameter logic [AXI4_ID_WIDTH-1:0] INSTRUCTION_READ_ID = '0
 ) (
     input logic clk_i,

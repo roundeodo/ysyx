@@ -4,15 +4,25 @@ package riscv32_pkg;
 
   // TODO(P2-B-PKG-1): 让本package消费唯一配置，并删除重复配置源。
   // 位置：在现有addr_map import之前加入config import；随后删除下方由config接管的
-  // XLEN和ARCH_REG_NUM定义。
+  // 架构配置、流水宽度和后端容量定义。
   //
   // 完成P2-B-CFG-1后，请执行以下三步：
   // 1. 在本TODO下方加入：
   //      import riscv_config_pkg::*;
-  // 2. 删除下方：
-  //      parameter int unsigned XLEN = 32;
-  //      parameter int unsigned ARCH_REG_NUM = 32;
-  // 3. 将本文件所有ARCH_REG_NUM改为ARCH_REG_COUNT；不要保留旧名字作为兼容别名。
+  //      export riscv_config_pkg::*;
+  //    import让本package内部可使用配置名；export让只导入riscv32_pkg的模块也能继续
+  //    看见这些全局配置。否则每个core模块都必须重复导入config package。
+  // 2. 删除下方从XLEN到PREDICTOR_META_W的全部parameter定义。它们已经分别由
+  //    P2-B-CFG-1和P2-B-CFG-3接管。
+  // 3. 在本文件执行以下完整重命名，不要保留旧名字作为兼容别名：
+  //      ARCH_REG_NUM     -> ARCH_REG_COUNT
+  //      PHYS_REG_NUM     -> PHYS_REG_COUNT
+  //      ROB_ENTRIES      -> ROB_ENTRY_COUNT
+  //      LQ_ENTRIES       -> LOAD_QUEUE_COUNT
+  //      SQ_ENTRIES       -> STORE_QUEUE_COUNT
+  //      MEM_TXN_ENTRIES  -> MEM_TXN_COUNT
+  //      PREDICTOR_META_W -> PREDICTOR_META_WIDTH
+  // 4. 将BYTE_LANES删除；需要core字节通道数的位置统一使用CORE_DATA_BYTE_COUNT。
   //
   // 删除旧定义非常重要：如果两个package都能决定XLEN，未来会出现“改了配置却只有
   // 部分模块变宽”的静默错误。P2要求每个全局配置只有一个所有者。
@@ -285,6 +295,17 @@ package riscv32_pkg;
     logic        use_imm;
   } csr_uop_ctrl_t;
 
+  // TODO(P2-B-PKG-3): 删除已经迁入配置package的I-cache构建参数。
+  // 位置：本TODO下方就是需要删除的六个parameter；保留下方所有localparam派生量。
+  //
+  // 完成P2-B-CFG-3和P2-B-PKG-1后：
+  // 1. 删除ICACHE_CAPACITY_BYTES至FETCH_EPOCH_COUNT这六个旧parameter定义；
+  // 2. 不改下面set/word/index/tag等派生公式；这些公式属于共享I-cache类型的所有者；
+  // 3. 将ICACHE_TAG_W公式中的XLEN改为PADDR_WIDTH，因为cache tag来自物理取指地址，
+  //    RV64配置不能让32位SoC物理地址的tag无故变宽；
+  // 4. 本步骤不替换lookup payload里的地址和数据类型，那是P2-C/P2-D的工作。
+  //
+  // 删除旧定义后，数值仍由riscv_config_pkg提供，因此本步骤不改变cache容量或行为。
   // I-cache几何参数只在这里定义一次，前端各子模块统一使用下面的派生宽度，禁止各自
   // 硬编码地址切片。当前基线为8KiB、2路组相联、32B cache line和4B取指宽度，地址
   // 划分为tag[31:12]、set[11:5]、line offset[4:0]。

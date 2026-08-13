@@ -12,6 +12,10 @@ module riscv32_axi4_uart_sim
     output axi4_target_to_manager_t uart_axi_o
 );
 
+  // TODO(P2-B-UART-SIM-1): 将本模块所有AXI4_ID_WIDTH替换为AXI_ID_WIDTH。
+  // UART仿真target需要把AW/AR携带的ID返回到B/R channel；它只消费fabric配置，
+  // 不应复制一套ID宽度。UART寄存器行为和字符输出逻辑保持不变。
+
   typedef enum logic {
     READ_ACCEPT_ADDRESS,
     READ_RETURN_DATA

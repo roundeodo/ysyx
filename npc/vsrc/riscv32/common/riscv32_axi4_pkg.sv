@@ -5,7 +5,10 @@ package riscv32_axi4_pkg;
   //
   // 完成P2-B-CFG-1和P2-B-CFG-2后，请抄写：
   //   import riscv_config_pkg::*;
+  //   export riscv_config_pkg::*;
   //   localparam int unsigned AXI4_STRB_WIDTH = AXI_DATA_BYTE_COUNT;
+  // export使仅导入riscv32_axi4_pkg的互连和target模块也能看见AXI_*宽度；不要要求
+  // 每个AXI消费模块重复导入config package。
   //
   // 随后执行机械但必须完整的重命名：
   // - AXI4_ADDR_WIDTH -> AXI_ADDR_WIDTH

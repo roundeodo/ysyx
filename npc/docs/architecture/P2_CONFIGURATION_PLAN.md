@@ -67,8 +67,8 @@ ISA常量、语义枚举和模块间payload。迁移一项就删除旧定义，�
 
 当前已创建`common/riscv_config_pkg.sv`并加入仿真与STA filelist。配置package、
 `riscv32_pkg`、地址映射package和AXI4 package中的`TODO(P2-B-*)`给出了按依赖顺序可直接
-抄写的代码。完成顺序必须是CFG-1、CFG-2、PKG-1、ADDR-1、AXI-1、PKG-2；每完成一个
-公共边界就运行lint，避免一次性替换掩盖类型所有权错误。
+抄写的代码。完成顺序必须是CFG-1、CFG-2、CFG-3、PKG-1、ADDR-1、AXI-1、PKG-2、
+PKG-3；每完成一个公共边界就运行lint，避免一次性替换掩盖类型所有权错误。
 
 ### P2-C：解耦core内部宽度
 

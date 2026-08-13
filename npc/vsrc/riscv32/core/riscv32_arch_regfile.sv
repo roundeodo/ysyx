@@ -12,6 +12,8 @@ module riscv32_arch_regfile
     input  arch_reg_idx_t            rs2_addr_i,
     output logic          [XLEN-1:0] rs2_data_o
 );
+  // TODO(P2-B-REGFILE-1): 将下方ARCH_REG_NUM改为ARCH_REG_COUNT。
+  // 这是配置迁移后的唯一架构寄存器数量名；不要在本模块增加局部常量或兼容别名。
   logic [XLEN-1:0] gpr_q[ARCH_REG_NUM-1:0];
 
   always_ff @(posedge clk_i) begin

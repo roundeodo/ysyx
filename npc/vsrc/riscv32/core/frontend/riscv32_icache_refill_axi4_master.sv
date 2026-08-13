@@ -4,6 +4,10 @@ module riscv32_icache_refill_axi4_master
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 #(
+    // TODO(P2-B-ICACHE-AXI-1): 本文件全部使用新的AXI宽度名。
+    // 将AXI4_ID_WIDTH替换为AXI_ID_WIDTH，将AXI4_ADDR_WIDTH替换为AXI_ADDR_WIDTH，
+    // 包括参数位宽、requested_start_addr以及显式类型转换。协议类型和枚举的
+    // axi4_前缀不改；这里只迁移可配置宽度名。
     parameter logic [AXI4_ID_WIDTH-1:0] READ_TRANSACTION_ID = '0
 ) (
     input logic clk_i,

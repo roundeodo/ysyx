@@ -20,6 +20,9 @@ module riscv32_npc_system
   localparam int unsigned CLINT_TARGET_INDEX = 0;
   localparam int unsigned EXTERNAL_TARGET_INDEX = 1;
 
+  // TODO(P2-B-SYSTEM-1): 将下方两个本地target地址数组的AXI4_ADDR_WIDTH替换为
+  // AXI_ADDR_WIDTH。地址常量继续来自addr_map package；不要在system顶层复制地址宽度。
+
   localparam logic [AXI4_ADDR_WIDTH-1:0]
       LOCAL_TARGET_ADDRESS_BASE_ARRAY[LOCAL_TARGET_COUNT] = '{
         CLINT_BASE_ADDR,
