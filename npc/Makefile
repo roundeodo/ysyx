@@ -44,6 +44,7 @@ RTL_FILELIST ?= $(RTL_DIR)/filelist/filelist.f
 RTL_DEPENDENCIES := $(shell sed \
 	-e 's|$${NPC_HOME}|$(abspath .)|g' \
 	-e '/^[[:space:]]*\/\//d' \
+	-e '/^[[:space:]]*[+-]/d' \
 	-e '/^[[:space:]]*$$/d' \
 	$(RTL_FILELIST))
 
