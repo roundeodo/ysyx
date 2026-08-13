@@ -169,11 +169,11 @@ module riscv32_npc_axi
   export "DPI-C" function npc_get_gpr_dpi;
 
   function int npc_get_pc_dpi();
-    npc_get_pc_dpi = u_npc_system.u_core.fetch_entry.pc;
+    npc_get_pc_dpi = u_npc_system.u_core.idu_fetch_entry.pc;
   endfunction
 
   function int npc_get_inst_dpi();
-    npc_get_inst_dpi = u_npc_system.u_core.fetch_entry.instruction;
+    npc_get_inst_dpi = u_npc_system.u_core.idu_fetch_entry.instruction;
   endfunction
 
   function int npc_get_commit_valid_dpi();
