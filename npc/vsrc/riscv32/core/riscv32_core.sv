@@ -403,6 +403,9 @@ module riscv32_core
   );
 
 `ifndef SYNTHESIS
+  // rst_ni是状态寄存器的异步复位，同时也是SVA的disable条件。Verilator会把后者
+  // 视为同步使用并报告SYNCASYNCNET；该诊断不代表复位网络存在功能冲突。
+  /* verilator lint_off SYNCASYNCNET */
   // I-cache失效采用请求保持到完成的协议。busy是状态观测，不参与任何控制反馈。
   a_icache_invalidate_request_held_until_done :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
@@ -418,6 +421,7 @@ module riscv32_core
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     icache_invalidate_pending_q |-> icache_busy)
     else $error("I-cache dropped busy while an invalidate transaction was pending");
+  /* verilator lint_on SYNCASYNCNET */
 `endif
 
 endmodule
