@@ -8,19 +8,19 @@ package riscv32_pkg;
   //
   // 完成P2-B-CFG-1后，请执行以下三步：
   // 1. 在本TODO下方加入：
-  //      import riscv_config_pkg::*;
-  //      export riscv_config_pkg::*;
+  import riscv_config_pkg::*;
+  export riscv_config_pkg::*;
   //    import让本package内部可使用配置名；export让只导入riscv32_pkg的模块也能继续
   //    看见这些全局配置。否则每个core模块都必须重复导入config package。
   // 2. 删除下方从XLEN到PREDICTOR_META_W的全部parameter定义。它们已经分别由
   //    P2-B-CFG-1和P2-B-CFG-3接管。
   // 3. 在本文件执行以下完整重命名，不要保留旧名字作为兼容别名：
-  //      ARCH_REG_NUM     -> ARCH_REG_COUNT
-  //      PHYS_REG_NUM     -> PHYS_REG_COUNT
-  //      ROB_ENTRIES      -> ROB_ENTRY_COUNT
-  //      LQ_ENTRIES       -> LOAD_QUEUE_COUNT
-  //      SQ_ENTRIES       -> STORE_QUEUE_COUNT
-  //      MEM_TXN_ENTRIES  -> MEM_TXN_COUNT
+  //      ARCH_REG_COUNT     -> ARCH_REG_COUNT
+  //      PHYS_REG_COUNT     -> PHYS_REG_COUNT
+  //      ROB_ENTRY_COUNT      -> ROB_ENTRY_COUNT
+  //      LOAD_QUEUE_COUNT       -> LOAD_QUEUE_COUNT
+  //      STORE_QUEUE_COUNT       -> STORE_QUEUE_COUNT
+  //      MEM_TXN_COUNT  -> MEM_TXN_COUNT
   //      PREDICTOR_META_W -> PREDICTOR_META_WIDTH
   // 4. 将BYTE_LANES删除；需要core字节通道数的位置统一使用CORE_DATA_BYTE_COUNT。
   //
@@ -29,50 +29,36 @@ package riscv32_pkg;
   import riscv32_addr_map_pkg::*;
 
   // 架构与微架构配置
-  parameter int unsigned XLEN = 32;
-  parameter int unsigned ARCH_REG_NUM = 32;
+
 
   // 当前仍为单发射；未来增加lane数量时保持payload语义和模块职责不变。
   /* verilator lint_off UNUSEDPARAM */
-  parameter int unsigned FETCH_WIDTH = 1;
-  parameter int unsigned DECODE_WIDTH = 1;
-  parameter int unsigned RENAME_WIDTH = 1;
-  parameter int unsigned DISPATCH_WIDTH = 1;
-  parameter int unsigned COMMIT_WIDTH = 1;
-  parameter int unsigned INT_ISSUE_WIDTH = 1;
-  parameter int unsigned MEM_ISSUE_WIDTH = 1;
+
   /* verilator lint_on UNUSEDPARAM */
 
   // 后端容量集中定义，使rename、ROB、issue和恢复逻辑使用同一套索引宽度。
-  parameter int unsigned PHYS_REG_NUM = 64;
-  parameter int unsigned ROB_ENTRIES = 32;
-  parameter int unsigned LQ_ENTRIES = 16;
-  parameter int unsigned SQ_ENTRIES = 16;
-  parameter int unsigned MEM_TXN_ENTRIES = 16;
-  parameter int unsigned FRONTEND_TAG_COUNT = 16;
-  parameter int unsigned PREDICTOR_META_W = 32;
 
-  localparam int unsigned ARCH_REG_IDX_W = (ARCH_REG_NUM > 1) ? $clog2(ARCH_REG_NUM) : 1;
-  localparam int unsigned PHYS_REG_IDX_W = (PHYS_REG_NUM > 1) ? $clog2(PHYS_REG_NUM) : 1;
-  localparam int unsigned ROB_IDX_W = (ROB_ENTRIES > 1) ? $clog2(ROB_ENTRIES) : 1;
-  localparam int unsigned LQ_IDX_W = (LQ_ENTRIES > 1) ? $clog2(LQ_ENTRIES) : 1;
-  localparam int unsigned SQ_IDX_W = (SQ_ENTRIES > 1) ? $clog2(SQ_ENTRIES) : 1;
-  localparam int unsigned MEM_TXN_IDX_W = (MEM_TXN_ENTRIES > 1) ? $clog2(MEM_TXN_ENTRIES) : 1;
+
+  localparam int unsigned ARCH_REG_IDX_W = (ARCH_REG_COUNT > 1) ? $clog2(ARCH_REG_COUNT) : 1;
+  localparam int unsigned PHYS_REG_IDX_W = (PHYS_REG_COUNT > 1) ? $clog2(PHYS_REG_COUNT) : 1;
+  localparam int unsigned ROB_IDX_W = (ROB_ENTRY_COUNT > 1) ? $clog2(ROB_ENTRY_COUNT) : 1;
+  localparam int unsigned LQ_IDX_W = (LOAD_QUEUE_COUNT > 1) ? $clog2(LOAD_QUEUE_COUNT) : 1;
+  localparam int unsigned SQ_IDX_W = (STORE_QUEUE_COUNT > 1) ? $clog2(STORE_QUEUE_COUNT) : 1;
+  localparam int unsigned MEM_TXN_IDX_W = (MEM_TXN_COUNT > 1) ? $clog2(MEM_TXN_COUNT) : 1;
   localparam int unsigned FRONTEND_TAG_W = (FRONTEND_TAG_COUNT > 1) ? $clog2(
       FRONTEND_TAG_COUNT
   ) : 1;
-  localparam int unsigned BYTE_LANES = XLEN / 8;
 
   // TODO(P2-B-PKG-2): 在payload之前建立语义基础类型，并停止用logic[XLEN-1:0]
   // 同时表示指令、标量数据、PC和物理地址。
   // 位置：直接写在本TODO下方，位于索引类型和所有payload定义之前。
   //
   // 完成P2-B-PKG-1后，请抄写：
-  //   typedef logic [INSTR_WIDTH-1:0]     instruction_t;
-  //   typedef logic [XLEN-1:0]            xlen_data_t;
-  //   typedef logic [XLEN-1:0]            program_counter_t;
-  //   typedef logic [CORE_DATA_WIDTH-1:0] core_data_t;
-  //   typedef logic [CORE_DATA_BYTE_COUNT-1:0] core_byte_strobe_t;
+  typedef logic [INSTR_WIDTH-1:0] instruction_t;
+  typedef logic [XLEN-1:0] xlen_data_t;
+  typedef logic [XLEN-1:0] program_counter_t;
+  typedef logic [CORE_DATA_WIDTH-1:0] core_data_t;
+  typedef logic [CORE_DATA_BYTE_COUNT-1:0] core_byte_strobe_t;
   //
   // 类型含义：
   // - instruction_t永远表示一条基础指令的编码，不随RV64加宽。
@@ -309,12 +295,6 @@ package riscv32_pkg;
   // I-cache几何参数只在这里定义一次，前端各子模块统一使用下面的派生宽度，禁止各自
   // 硬编码地址切片。当前基线为8KiB、2路组相联、32B cache line和4B取指宽度，地址
   // 划分为tag[31:12]、set[11:5]、line offset[4:0]。
-  parameter int unsigned ICACHE_CAPACITY_BYTES = 8 * 1024;
-  parameter int unsigned ICACHE_WAY_COUNT = 2;
-  parameter int unsigned ICACHE_LINE_BYTES = 32;
-  parameter int unsigned ICACHE_FETCH_BYTES = 4;
-  parameter int unsigned ICACHE_MSHR_COUNT = 1;
-  parameter int unsigned FETCH_EPOCH_COUNT = 16;
 
   localparam int unsigned ICACHE_SET_COUNT =
       ICACHE_CAPACITY_BYTES / (ICACHE_WAY_COUNT * ICACHE_LINE_BYTES);
@@ -329,7 +309,7 @@ package riscv32_pkg;
       ICACHE_WAY_COUNT
   ) : 1;
   localparam int unsigned ICACHE_LINE_OFFSET_W = $clog2(ICACHE_LINE_BYTES);
-  localparam int unsigned ICACHE_TAG_W = XLEN - ICACHE_LINE_OFFSET_W - ICACHE_SET_INDEX_W;
+  localparam int unsigned ICACHE_TAG_W = PADDR_WIDTH - ICACHE_LINE_OFFSET_W - ICACHE_SET_INDEX_W;
   localparam int unsigned FETCH_EPOCH_W = (FETCH_EPOCH_COUNT > 1) ? $clog2(FETCH_EPOCH_COUNT) : 1;
 
 
@@ -424,12 +404,12 @@ package riscv32_pkg;
   // transaction_id在当前阻塞核中可固定为0；未来引入load/store queue和
   // 多个在途miss后，它用于将返回数据与原始存储事务重新关联。
   typedef struct packed {
-    logic [XLEN-1:0]       addr;
-    mem_cmd_e              cmd;
-    mem_size_e             size;
-    logic [XLEN-1:0]       write_data;
-    logic [BYTE_LANES-1:0] byte_strobe;
-    mem_txn_id_t           transaction_id;
+    logic [XLEN-1:0]                 addr;
+    mem_cmd_e                        cmd;
+    mem_size_e                       size;
+    logic [XLEN-1:0]                 write_data;
+    logic [CORE_DATA_BYTE_COUNT-1:0] byte_strobe;
+    mem_txn_id_t                     transaction_id;
   } data_memory_req_t;
 
   typedef struct packed {
@@ -444,9 +424,9 @@ package riscv32_pkg;
   // Frontend payloads
   // predictor_meta is opaque outside the predictor and branch-recovery path.
   typedef struct packed {
-    logic                        predicted_taken;
-    logic [XLEN-1:0]             predicted_target;
-    logic [PREDICTOR_META_W-1:0] predictor_meta;
+    logic                            predicted_taken;
+    logic [XLEN-1:0]                 predicted_target;
+    logic [PREDICTOR_META_WIDTH-1:0] predictor_meta;
   } branch_prediction_t;
 
   typedef struct packed {
@@ -599,13 +579,13 @@ package riscv32_pkg;
     logic [11:0]     csr_addr;
     logic [XLEN-1:0] csr_wdata;
 
-    logic                  memory_access;
-    mem_cmd_e              memory_cmd;
-    mem_size_e             memory_size;
-    logic [XLEN-1:0]       memory_addr;
-    logic [XLEN-1:0]       memory_rdata;
-    logic [XLEN-1:0]       memory_wdata;
-    logic [BYTE_LANES-1:0] memory_wmask;
+    logic                            memory_access;
+    mem_cmd_e                        memory_cmd;
+    mem_size_e                       memory_size;
+    logic [XLEN-1:0]                 memory_addr;
+    logic [XLEN-1:0]                 memory_rdata;
+    logic [XLEN-1:0]                 memory_wdata;
+    logic [CORE_DATA_BYTE_COUNT-1:0] memory_wmask;
 
     logic            trap_taken;
     logic            trap_is_interrupt;
@@ -646,14 +626,14 @@ package riscv32_pkg;
   } lsu_req_t;
 
   typedef struct packed {
-    decoded_uop_t          uop;
-    logic [XLEN-1:0]       result;
-    logic [XLEN-1:0]       next_pc;
-    logic [XLEN-1:0]       csr_wdata;
-    logic [XLEN-1:0]       memory_addr;
-    logic [XLEN-1:0]       memory_rdata;
-    logic [XLEN-1:0]       memory_wdata;
-    logic [BYTE_LANES-1:0] memory_wmask;
+    decoded_uop_t                    uop;
+    logic [XLEN-1:0]                 result;
+    logic [XLEN-1:0]                 next_pc;
+    logic [XLEN-1:0]                 csr_wdata;
+    logic [XLEN-1:0]                 memory_addr;
+    logic [XLEN-1:0]                 memory_rdata;
+    logic [XLEN-1:0]                 memory_wdata;
+    logic [CORE_DATA_BYTE_COUNT-1:0] memory_wmask;
   } writeback_result_t;
 
 endpackage

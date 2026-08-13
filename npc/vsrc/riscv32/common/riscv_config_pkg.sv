@@ -9,14 +9,14 @@ package riscv_config_pkg;
   // 位置：直接写在本TODO下方。
   //
   // 请抄写以下代码：
-  //   localparam int unsigned XLEN            = 32;
-  //   localparam int unsigned PADDR_WIDTH     = 32;
-  //   localparam int unsigned INSTR_WIDTH     = 32;
-  //   localparam int unsigned CORE_DATA_WIDTH = 32;
-  //   localparam int unsigned AXI_ADDR_WIDTH  = 32;
-  //   localparam int unsigned AXI_DATA_WIDTH  = 32;
-  //   localparam int unsigned AXI_ID_WIDTH    = 4;
-  //   localparam int unsigned ARCH_REG_COUNT  = 32;
+  localparam int unsigned XLEN = 32;
+  localparam int unsigned PADDR_WIDTH = 32;
+  localparam int unsigned INSTR_WIDTH = 32;
+  localparam int unsigned CORE_DATA_WIDTH = 32;
+  localparam int unsigned AXI_ADDR_WIDTH = 32;
+  localparam int unsigned AXI_DATA_WIDTH = 32;
+  localparam int unsigned AXI_ID_WIDTH = 4;
+  localparam int unsigned ARCH_REG_COUNT = 32;
   //
   // 各配置的所有权：
   // - XLEN：整数寄存器、ALU结果、CSR主体和立即数扩展后的宽度。
@@ -31,9 +31,9 @@ package riscv_config_pkg;
   // 位置：完成P2-B-CFG-1后，紧接着写在本TODO下方。
   //
   // 请抄写以下代码：
-  //   localparam int unsigned XLEN_BYTE_COUNT      = XLEN / 8;
-  //   localparam int unsigned CORE_DATA_BYTE_COUNT = CORE_DATA_WIDTH / 8;
-  //   localparam int unsigned AXI_DATA_BYTE_COUNT  = AXI_DATA_WIDTH / 8;
+  localparam int unsigned XLEN_BYTE_COUNT = XLEN / 8;
+  localparam int unsigned CORE_DATA_BYTE_COUNT = CORE_DATA_WIDTH / 8;
+  localparam int unsigned AXI_DATA_BYTE_COUNT = AXI_DATA_WIDTH / 8;
   //
   // 不要在这里计算I-cache tag、set index或line offset。这些量由I-cache几何决定，
   // 所有者是I-cache，而不是全局配置package。
@@ -46,28 +46,28 @@ package riscv_config_pkg;
   // 位置：直接写在本TODO下方；这些都是“选择什么实现”的配置，不是payload类型。
   //
   // 请抄写以下代码：
-  //   localparam int unsigned FETCH_WIDTH          = 1;
-  //   localparam int unsigned DECODE_WIDTH         = 1;
-  //   localparam int unsigned RENAME_WIDTH         = 1;
-  //   localparam int unsigned DISPATCH_WIDTH       = 1;
-  //   localparam int unsigned COMMIT_WIDTH         = 1;
-  //   localparam int unsigned INT_ISSUE_WIDTH      = 1;
-  //   localparam int unsigned MEM_ISSUE_WIDTH      = 1;
+  localparam int unsigned FETCH_WIDTH = 1;
+  localparam int unsigned DECODE_WIDTH = 1;
+  localparam int unsigned RENAME_WIDTH = 1;
+  localparam int unsigned DISPATCH_WIDTH = 1;
+  localparam int unsigned COMMIT_WIDTH = 1;
+  localparam int unsigned INT_ISSUE_WIDTH = 1;
+  localparam int unsigned MEM_ISSUE_WIDTH = 1;
   //
-  //   localparam int unsigned PHYS_REG_COUNT       = 64;
-  //   localparam int unsigned ROB_ENTRY_COUNT      = 32;
-  //   localparam int unsigned LOAD_QUEUE_COUNT     = 16;
-  //   localparam int unsigned STORE_QUEUE_COUNT    = 16;
-  //   localparam int unsigned MEM_TXN_COUNT        = 16;
-  //   localparam int unsigned FRONTEND_TAG_COUNT   = 16;
-  //   localparam int unsigned PREDICTOR_META_WIDTH = 32;
+  localparam int unsigned PHYS_REG_COUNT = 64;
+  localparam int unsigned ROB_ENTRY_COUNT = 32;
+  localparam int unsigned LOAD_QUEUE_COUNT = 16;
+  localparam int unsigned STORE_QUEUE_COUNT = 16;
+  localparam int unsigned MEM_TXN_COUNT = 16;
+  localparam int unsigned FRONTEND_TAG_COUNT = 16;
+  localparam int unsigned PREDICTOR_META_WIDTH = 32;
   //
-  //   localparam int unsigned ICACHE_CAPACITY_BYTES = 8 * 1024;
-  //   localparam int unsigned ICACHE_WAY_COUNT      = 2;
-  //   localparam int unsigned ICACHE_LINE_BYTES     = 32;
-  //   localparam int unsigned ICACHE_FETCH_BYTES    = INSTR_WIDTH / 8;
-  //   localparam int unsigned ICACHE_MSHR_COUNT     = 1;
-  //   localparam int unsigned FETCH_EPOCH_COUNT     = 16;
+  localparam int unsigned ICACHE_CAPACITY_BYTES = 8 * 1024;
+  localparam int unsigned ICACHE_WAY_COUNT = 2;
+  localparam int unsigned ICACHE_LINE_BYTES = 32;
+  localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
+  localparam int unsigned ICACHE_MSHR_COUNT = 1;
+  localparam int unsigned FETCH_EPOCH_COUNT = 16;
   //
   // 命名规则：数量使用*_COUNT，位宽使用*_WIDTH，容量明确写出单位*_BYTES。
   // 不再使用*_NUM、*_ENTRIES和*_W表达同一类概念。这里的单发射和单MSHR是P2基线，
