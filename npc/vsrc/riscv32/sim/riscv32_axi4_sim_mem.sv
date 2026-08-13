@@ -6,13 +6,8 @@ module riscv32_axi4_sim_mem
     parameter int unsigned LSU_READ_LATENCY = 1,
     parameter int unsigned LSU_WRITE_LATENCY = 1,
     parameter int unsigned RANDOM_LATENCY_MAX = 20,
-    // TODO(P2-B-SIM-MEM-1): 对本文件执行完整的AXI宽度名迁移：
-    //   AXI4_ADDR_WIDTH -> AXI_ADDR_WIDTH
-    //   AXI4_DATA_WIDTH -> AXI_DATA_WIDTH
-    //   AXI4_ID_WIDTH   -> AXI_ID_WIDTH
-    // 包括参数、状态寄存器、function参数/返回值和显式类型转换。AXI4_STRB_WIDTH
-    // 仍是协议package中的派生量，因此保持不变。
-    parameter logic [AXI4_ID_WIDTH-1:0] INSTRUCTION_READ_ID = '0
+    // 仿真存储器与被测AXI fabric共用地址、数据和ID宽度。
+    parameter logic [AXI_ID_WIDTH-1:0] INSTRUCTION_READ_ID = '0
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -45,21 +40,21 @@ module riscv32_axi4_sim_mem
 
   axi4_read_address_t read_address_q;
   axi4_read_address_t read_address_d;
-  logic [AXI4_ADDR_WIDTH-1:0] read_beat_addr_q;
-  logic [AXI4_ADDR_WIDTH-1:0] read_beat_addr_d;
+  logic [AXI_ADDR_WIDTH-1:0] read_beat_addr_q;
+  logic [AXI_ADDR_WIDTH-1:0] read_beat_addr_d;
   logic [7:0] read_beat_index_q;
   logic [7:0] read_beat_index_d;
   logic [31:0] read_delay_cycle_count_q;
   logic [31:0] read_delay_cycle_count_d;
 
-  logic [AXI4_DATA_WIDTH-1:0] read_response_data_q;
-  logic [AXI4_ID_WIDTH-1:0] read_response_id_q;
+  logic [AXI_DATA_WIDTH-1:0] read_response_data_q;
+  logic [AXI_ID_WIDTH-1:0] read_response_id_q;
   logic read_response_last_q;
 
   axi4_write_address_t write_address_q;
   axi4_write_address_t write_address_d;
-  logic [AXI4_ADDR_WIDTH-1:0] write_beat_addr_q;
-  logic [AXI4_ADDR_WIDTH-1:0] write_beat_addr_d;
+  logic [AXI_ADDR_WIDTH-1:0] write_beat_addr_q;
+  logic [AXI_ADDR_WIDTH-1:0] write_beat_addr_d;
   logic [7:0] write_beat_index_q;
   logic [7:0] write_beat_index_d;
   logic [31:0] write_delay_cycle_count_q;
@@ -79,14 +74,14 @@ module riscv32_axi4_sim_mem
   logic write_response_handshake;
 
   logic read_response_load_event;
-  logic [AXI4_ADDR_WIDTH-1:0] read_response_load_addr;
-  logic [AXI4_ID_WIDTH-1:0] read_response_load_id;
+  logic [AXI_ADDR_WIDTH-1:0] read_response_load_addr;
+  logic [AXI_ID_WIDTH-1:0] read_response_load_id;
   logic read_response_load_last;
   logic read_response_load_is_instruction;
 
   logic                        write_data_store_event;
-  logic [AXI4_ADDR_WIDTH-1:0]  write_data_store_addr;
-  logic [AXI4_DATA_WIDTH-1:0]  write_data_store_data;
+  logic [AXI_ADDR_WIDTH-1:0]  write_data_store_addr;
+  logic [AXI_DATA_WIDTH-1:0]  write_data_store_data;
   logic [AXI4_STRB_WIDTH-1:0] write_data_store_strobe;
 
   int unsigned accepted_read_latency;
@@ -106,22 +101,22 @@ module riscv32_axi4_sim_mem
     return fixed_latency;
   endfunction
 
-  function automatic logic [AXI4_ADDR_WIDTH-1:0] next_burst_addr(
-      input logic [AXI4_ADDR_WIDTH-1:0] current_addr,
-      input logic [AXI4_ADDR_WIDTH-1:0] start_addr,
+  function automatic logic [AXI_ADDR_WIDTH-1:0] next_burst_addr(
+      input logic [AXI_ADDR_WIDTH-1:0] current_addr,
+      input logic [AXI_ADDR_WIDTH-1:0] start_addr,
       input logic [7:0] burst_length,
       input logic [2:0] transfer_size,
       input axi4_burst_e burst_type
   );
-    logic [AXI4_ADDR_WIDTH-1:0] bytes_per_beat;
-    logic [AXI4_ADDR_WIDTH-1:0] burst_bytes;
-    logic [AXI4_ADDR_WIDTH-1:0] wrap_base_addr;
-    logic [AXI4_ADDR_WIDTH-1:0] incremented_addr;
+    logic [AXI_ADDR_WIDTH-1:0] bytes_per_beat;
+    logic [AXI_ADDR_WIDTH-1:0] burst_bytes;
+    logic [AXI_ADDR_WIDTH-1:0] wrap_base_addr;
+    logic [AXI_ADDR_WIDTH-1:0] incremented_addr;
 
-    bytes_per_beat = AXI4_ADDR_WIDTH'(1) << transfer_size;
-    burst_bytes = bytes_per_beat * AXI4_ADDR_WIDTH'(burst_length + 1'b1);
+    bytes_per_beat = AXI_ADDR_WIDTH'(1) << transfer_size;
+    burst_bytes = bytes_per_beat * AXI_ADDR_WIDTH'(burst_length + 1'b1);
     incremented_addr = current_addr + bytes_per_beat;
-    wrap_base_addr = start_addr & ~(burst_bytes - AXI4_ADDR_WIDTH'(1));
+    wrap_base_addr = start_addr & ~(burst_bytes - AXI_ADDR_WIDTH'(1));
 
     unique case (burst_type)
       AXI4_BURST_FIXED: return current_addr;

@@ -5,12 +5,8 @@
 // phys_addr_in_range()判断闭区间，避免把匹配掩码误解成地址空间大小。
 package riscv32_addr_map_pkg;
 
-  // TODO(P2-B-ADDR-1): 删除下方遗留的SOC_PHYS_ADDR_W。
-  // phys_addr_t及其所有使用方已经完成迁移；该参数目前没有任何使用者，继续保留会让
-  // 地址宽度看起来仍有第二个配置来源。删除后保留以下import和typedef即可。
   import riscv_config_pkg::*;
   typedef logic [PADDR_WIDTH-1:0] phys_addr_t;
-  parameter int unsigned SOC_PHYS_ADDR_W = 32;
 
   // 由riscv32_npc_system选择并在核边界终结的CLINT窗口。
   localparam phys_addr_t CLINT_BASE_ADDR = 32'h0200_0000;

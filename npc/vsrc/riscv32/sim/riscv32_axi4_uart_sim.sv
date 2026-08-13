@@ -12,7 +12,6 @@ module riscv32_axi4_uart_sim
     output axi4_target_to_manager_t uart_axi_o
 );
 
-  // TODO(P2-B-UART-SIM-1): 将本模块所有AXI4_ID_WIDTH替换为AXI_ID_WIDTH。
   // UART仿真target需要把AW/AR携带的ID返回到B/R channel；它只消费fabric配置，
   // 不应复制一套ID宽度。UART寄存器行为和字符输出逻辑保持不变。
 
@@ -32,8 +31,8 @@ module riscv32_axi4_uart_sim
   write_state_e write_state_q;
   write_state_e write_state_d;
 
-  logic [AXI4_ID_WIDTH-1:0] read_id_q;
-  logic [AXI4_ID_WIDTH-1:0] read_id_d;
+  logic [AXI_ID_WIDTH-1:0] read_id_q;
+  logic [AXI_ID_WIDTH-1:0] read_id_d;
   logic [7:0] read_last_beat_index_q;
   logic [7:0] read_last_beat_index_d;
   logic [7:0] read_beat_index_q;
@@ -41,8 +40,8 @@ module riscv32_axi4_uart_sim
   axi4_resp_e read_response_q;
   axi4_resp_e read_response_d;
 
-  logic [AXI4_ID_WIDTH-1:0] write_id_q;
-  logic [AXI4_ID_WIDTH-1:0] write_id_d;
+  logic [AXI_ID_WIDTH-1:0] write_id_q;
+  logic [AXI_ID_WIDTH-1:0] write_id_d;
   axi4_resp_e write_response_q;
   axi4_resp_e write_response_d;
 

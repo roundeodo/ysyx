@@ -10,21 +10,20 @@ module riscv32_axi4_error_target
     output axi4_target_to_manager_t axi_target_o
 );
 
-  // TODO(P2-B-ERROR-TARGET-1): 将本模块所有AXI4_ID_WIDTH替换为AXI_ID_WIDTH。
   // error target必须原样保存并返回事务ID，因此ID宽度来自全局AXI fabric配置。
   // 不要修改AXI4_RESP_DECERR等协议枚举名称。
 
   logic read_transaction_present_q;
   logic read_transaction_present_d;
-  logic [AXI4_ID_WIDTH-1:0] read_transaction_id_q;
-  logic [AXI4_ID_WIDTH-1:0] read_transaction_id_d;
+  logic [AXI_ID_WIDTH-1:0] read_transaction_id_q;
+  logic [AXI_ID_WIDTH-1:0] read_transaction_id_d;
   logic [8:0] read_beat_count_q;
   logic [8:0] read_beat_count_d;
 
   logic write_address_present_q;
   logic write_address_present_d;
-  logic [AXI4_ID_WIDTH-1:0] write_transaction_id_q;
-  logic [AXI4_ID_WIDTH-1:0] write_transaction_id_d;
+  logic [AXI_ID_WIDTH-1:0] write_transaction_id_q;
+  logic [AXI_ID_WIDTH-1:0] write_transaction_id_d;
   logic write_last_data_present_q;
   logic write_last_data_present_d;
 

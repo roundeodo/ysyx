@@ -59,9 +59,8 @@ module riscv32_lsu
   logic                   complete_locally;
   logic [1:0]             byte_offset;
   logic [XLEN-1:0]        store_write_data;
-  // TODO(P2-B-LSU-1): 将下方BYTE_LANES替换为CORE_DATA_BYTE_COUNT。
   // strobe描述core数据口每个字节通道是否写入，它取决于CORE_DATA_WIDTH，而不是XLEN。
-  logic [BYTE_LANES-1:0]  store_byte_strobe;
+  logic [CORE_DATA_BYTE_COUNT-1:0]  store_byte_strobe;
   logic [7:0]             selected_byte;
   logic [15:0]            selected_halfword;
   logic [XLEN-1:0]        formatted_load_data;

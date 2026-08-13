@@ -20,19 +20,16 @@ module top
   localparam int unsigned UART_TARGET_INDEX      = 0;
   localparam int unsigned MEMORY_TARGET_INDEX    = 1;
 
-  // TODO(P2-B-SIM-1): 完成全局配置迁移时处理本仿真壳中的两个旧名字。
-  // 1. 将下方地址数组的AXI4_ADDR_WIDTH全部替换为AXI_ADDR_WIDTH。
-  // 2. 将read_gpr()边界检查中的ARCH_REG_NUM替换为ARCH_REG_COUNT。
   // 仿真壳只消费设计配置，不应自行复制宽度或寄存器数量。
 
   // UART uses its real platform window. Every other address reaches the DPI
   // memory target so the standalone environment can continue to run flat PMEM.
-  localparam logic [AXI4_ADDR_WIDTH-1:0]
+  localparam logic [AXI_ADDR_WIDTH-1:0]
       SIM_TARGET_ADDRESS_BASE_ARRAY[SIM_TARGET_COUNT] = '{
         UART_BASE_ADDR,
         '0
       };
-  localparam logic [AXI4_ADDR_WIDTH-1:0]
+  localparam logic [AXI_ADDR_WIDTH-1:0]
       SIM_TARGET_ADDRESS_LAST_ARRAY[SIM_TARGET_COUNT] = '{
         UART_LAST_ADDR,
         '1
@@ -141,7 +138,7 @@ module top
   endfunction
 
   function int npc_get_gpr_dpi(input int index);
-    if ((index <= 0) || (index >= ARCH_REG_NUM)) begin
+    if ((index <= 0) || (index >= ARCH_REG_COUNT)) begin
       npc_get_gpr_dpi = '0;
     end else begin
       npc_get_gpr_dpi = u_npc_system.u_core.u_arch_regfile.gpr_q[index];

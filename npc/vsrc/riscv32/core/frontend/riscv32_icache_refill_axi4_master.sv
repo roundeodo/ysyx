@@ -4,11 +4,8 @@ module riscv32_icache_refill_axi4_master
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 #(
-    // TODO(P2-B-ICACHE-AXI-1): 本文件全部使用新的AXI宽度名。
-    // 将AXI4_ID_WIDTH替换为AXI_ID_WIDTH，将AXI4_ADDR_WIDTH替换为AXI_ADDR_WIDTH，
-    // 包括参数位宽、requested_start_addr以及显式类型转换。协议类型和枚举的
-    // axi4_前缀不改；这里只迁移可配置宽度名。
-    parameter logic [AXI4_ID_WIDTH-1:0] READ_TRANSACTION_ID = '0
+    // refill事务ID的宽度来自全局AXI fabric配置。
+    parameter logic [AXI_ID_WIDTH-1:0] READ_TRANSACTION_ID = '0
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -39,7 +36,7 @@ module riscv32_icache_refill_axi4_master
   icache_word_index_t received_word_index_q;
   icache_word_index_t received_word_index_d;
 
-  logic [AXI4_ADDR_WIDTH-1:0] requested_start_addr;
+  logic [AXI_ADDR_WIDTH-1:0] requested_start_addr;
 
   logic refill_req_handshake;
   logic axi_read_address_handshake;
@@ -62,7 +59,7 @@ module riscv32_icache_refill_axi4_master
     if (refill_req_q.requested_word_count == icache_refill_word_count_t'(1)) begin
       requested_start_addr =
           refill_req_q.line_base_addr +
-          AXI4_ADDR_WIDTH'(refill_req_q.critical_word_index * ICACHE_FETCH_BYTES);
+          AXI_ADDR_WIDTH'(refill_req_q.critical_word_index * ICACHE_FETCH_BYTES);
     end
   end
 
