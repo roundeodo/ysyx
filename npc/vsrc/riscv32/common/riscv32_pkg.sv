@@ -2,6 +2,20 @@
 // 本package是模块间契约的唯一来源；valid/ready握手与模块局部状态不进入payload。
 package riscv32_pkg;
 
+  // TODO(P2-B-PKG-1): 让本package消费唯一配置，并删除重复配置源。
+  // 位置：在现有addr_map import之前加入config import；随后删除下方由config接管的
+  // XLEN和ARCH_REG_NUM定义。
+  //
+  // 完成P2-B-CFG-1后，请执行以下三步：
+  // 1. 在本TODO下方加入：
+  //      import riscv_config_pkg::*;
+  // 2. 删除下方：
+  //      parameter int unsigned XLEN = 32;
+  //      parameter int unsigned ARCH_REG_NUM = 32;
+  // 3. 将本文件所有ARCH_REG_NUM改为ARCH_REG_COUNT；不要保留旧名字作为兼容别名。
+  //
+  // 删除旧定义非常重要：如果两个package都能决定XLEN，未来会出现“改了配置却只有
+  // 部分模块变宽”的静默错误。P2要求每个全局配置只有一个所有者。
   import riscv32_addr_map_pkg::*;
 
   // 架构与微架构配置
@@ -38,6 +52,27 @@ package riscv32_pkg;
       FRONTEND_TAG_COUNT
   ) : 1;
   localparam int unsigned BYTE_LANES = XLEN / 8;
+
+  // TODO(P2-B-PKG-2): 在payload之前建立语义基础类型，并停止用logic[XLEN-1:0]
+  // 同时表示指令、标量数据、PC和物理地址。
+  // 位置：直接写在本TODO下方，位于索引类型和所有payload定义之前。
+  //
+  // 完成P2-B-PKG-1后，请抄写：
+  //   typedef logic [INSTR_WIDTH-1:0]     instruction_t;
+  //   typedef logic [XLEN-1:0]            xlen_data_t;
+  //   typedef logic [XLEN-1:0]            program_counter_t;
+  //   typedef logic [CORE_DATA_WIDTH-1:0] core_data_t;
+  //   typedef logic [CORE_DATA_BYTE_COUNT-1:0] core_byte_strobe_t;
+  //
+  // 类型含义：
+  // - instruction_t永远表示一条基础指令的编码，不随RV64加宽。
+  // - xlen_data_t表示GPR、ALU、CSR和符号扩展后的立即数。
+  // - program_counter_t当前与XLEN同宽，但独立命名让PC语义在接口中可见。
+  // - core_data_t/core_byte_strobe_t只属于core侧数据存储接口。
+  //
+  // 这里不要重新定义phys_addr_t。物理地址类型属于addr_map package；本package已经
+  // import它。也不要在P2-B立刻替换下面全部payload，那属于P2-C/P2-D。P2-B先建立
+  // 类型和唯一配置源，并保持电路行为不变。
 
   /* verilator lint_off UNUSEDPARAM */
   parameter logic [XLEN-1:0] RESET_VECTOR = FLASH_BASE_ADDR;

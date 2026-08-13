@@ -1,5 +1,20 @@
 package riscv32_axi4_pkg;
 
+  // TODO(P2-B-AXI-1): 让AXI4 package消费全局互连配置，删除第二套宽度定义。
+  // 位置：直接替换下方四个AXI4_*宽度定义。
+  //
+  // 完成P2-B-CFG-1和P2-B-CFG-2后，请抄写：
+  //   import riscv_config_pkg::*;
+  //   localparam int unsigned AXI4_STRB_WIDTH = AXI_DATA_BYTE_COUNT;
+  //
+  // 随后执行机械但必须完整的重命名：
+  // - AXI4_ADDR_WIDTH -> AXI_ADDR_WIDTH
+  // - AXI4_DATA_WIDTH -> AXI_DATA_WIDTH
+  // - AXI4_ID_WIDTH   -> AXI_ID_WIDTH
+  //
+  // 删除旧的AXI4_ADDR_WIDTH、AXI4_DATA_WIDTH和AXI4_ID_WIDTH定义，不保留别名。
+  // AXI4是协议名称；宽度配置名不需要带“4”。channel类型仍保留axi4_前缀，表明
+  // 它们遵守AXI4协议。地址、数据和ID必须独立配置，不能从XLEN派生。
   parameter int unsigned AXI4_ADDR_WIDTH = 32;
   parameter int unsigned AXI4_DATA_WIDTH = 32;
   parameter int unsigned AXI4_ID_WIDTH = 4;

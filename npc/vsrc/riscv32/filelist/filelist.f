@@ -2,6 +2,7 @@
 +define+NPC_ENABLE_SIM_MONITOR
 
 // package必须位于所有import它们的模块之前。
+${NPC_HOME}/vsrc/riscv32/common/riscv_config_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_addr_map_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_axi4_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_pkg.sv

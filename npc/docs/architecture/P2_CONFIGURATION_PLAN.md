@@ -1,6 +1,6 @@
 # P2配置层和宽度解耦计划
 
-状态：已启动，尚未修改活动RTL
+状态：P2-B教学骨架已建立，等待手写配置和公共类型迁移
 
 最后更新：2026-08-13
 
@@ -57,10 +57,18 @@ SystemVerilog package不能像module一样按实例参数化，而payload类型�
 优先审计`common` package、寄存器堆、IDU/EXU/LSU/CSR、I-cache、AXI边界和DPI/仿真模型。
 注释、断言和打印格式也属于审计范围。
 
+第一轮结果见[`P2_WIDTH_AUDIT.md`](P2_WIDTH_AUDIT.md)。该清单已经识别公共package、
+I-cache、CSR/PMU、LSU和AXI边界的首批耦合点；P2-B必须按清单逐项迁移。
+
 ### P2-B：创建配置package
 
 新增唯一配置package，将当前`riscv32_pkg`中的宽度/容量配置迁入；`riscv32_pkg`只保留
 ISA常量、语义枚举和模块间payload。迁移一项就删除旧定义，不保留兼容别名。
+
+当前已创建`common/riscv_config_pkg.sv`并加入仿真与STA filelist。配置package、
+`riscv32_pkg`、地址映射package和AXI4 package中的`TODO(P2-B-*)`给出了按依赖顺序可直接
+抄写的代码。完成顺序必须是CFG-1、CFG-2、PKG-1、ADDR-1、AXI-1、PKG-2；每完成一个
+公共边界就运行lint，避免一次性替换掩盖类型所有权错误。
 
 ### P2-C：解耦core内部宽度
 
@@ -92,5 +100,5 @@ I-cache line几何与`INSTR_WIDTH`关联，不能默认等于`XLEN`。AXI packag
 
 ## 6. 第一个实际任务
 
-先完成P2-A，不直接改数据通路。输出一份按文件分类的宽度依赖清单，并为每处标记“ISA
-固定”“配置项”“局部派生”或“错误硬编码”。评审清单后，再创建配置package并逐项迁移。
+评审[`P2_WIDTH_AUDIT.md`](P2_WIDTH_AUDIT.md)中的分类，然后进入P2-B：创建唯一配置package，
+首先迁移`XLEN`、物理地址宽度、指令宽度、core数据宽度和AXI宽度，不同时改变数据通路行为。
