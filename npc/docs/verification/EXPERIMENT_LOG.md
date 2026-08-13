@@ -93,3 +93,34 @@
 - dummy太短，不能用其IPC、命中率或平均延迟判断I-cache性能，也不能覆盖替换、early
   restart、错误refill和`fence.i`。
 - 下一项实验是在提交版本上重跑相同命令，并完成I-cache定向测试和microbench A/B。
+
+## 2026-08-13 - P1 I-cache提交版本复验
+
+- Commit：`ce27fb8eed29c0b039dc11ddc66407c096486a16`。
+- 架构决策：P1、D004、D005。
+- 工作负载和规模：cpu-tests dummy / 13条退休指令。
+- 构建配置：独立NPC，8 KiB、2-way、32 B line、blocking miss、AXI4 refill、I-cache启用。
+- 命令：`make sim-npc PROJECT=riscv32 IMG=../am-kernels/tests/cpu-tests/build/dummy-riscv32-npc.bin`
+- 功能结果：pass，`HIT GOOD TRAP`，结束PC为`0x80000030`。
+- 静态检查：`make lint-npc PROJECT=riscv32`和`make lint-soc PROJECT=riscv32`均通过；
+  剩余信息为未使用地址常量和ysyxSoC既有时序风格警告。
+- 综合目标/结果：本次运行不包含综合结果。
+
+| 指标 | 数值 |
+| --- | ---: |
+| 活动周期 | 71 |
+| 退休指令数 | 13 |
+| IPC | 0.183099 |
+| IFU请求/响应/交付 | 17 / 16 / 13 |
+| IFU平均响应延迟 | 2.500 cycles |
+| IFU AR反压周期 | 14 (19.718%) |
+| IFU响应等待周期 | 40 (56.338%) |
+| IFU下游反压周期 | 1 (1.408%) |
+| IFU丢弃错误路径响应 | 3 |
+| LSU请求/完成 | 1 / 1 |
+
+分析：
+
+- 该记录把P1基本功能检查绑定到确定提交，可由相同命令复现。
+- 结果只证明最短控制流、一次store、redirect响应丢弃以及I-cache基本取指路径可工作；P1仍需
+  I-cache定向测试、完整功能回归、microbench A/B和综合/STA后才能关闭。
