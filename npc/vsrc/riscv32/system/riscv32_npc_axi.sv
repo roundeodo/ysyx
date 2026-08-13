@@ -2,6 +2,7 @@
 // ysyxSoC/spec/cpu-interface.md exactly; structured payloads remain internal.
 module riscv32_npc_axi
   import riscv32_pkg::*;
+  import riscv32_axi4_pkg::*;
 #(
     parameter logic [XLEN-1:0] RESET_PC = RESET_VECTOR
 ) (
@@ -82,37 +83,47 @@ module riscv32_npc_axi
     /* verilator lint_on UNUSEDSIGNAL */
 );
 
-  axi_addr_t master_axi_aw;
-  axi_w_t    master_axi_w;
-  axi_b_t    master_axi_b;
-  axi_addr_t master_axi_ar;
-  axi_r_t    master_axi_r;
+  axi4_manager_to_target_t external_axi4_manager;
+  axi4_target_to_manager_t external_axi4_manager_response;
 
-  // Flatten the structured master request payloads for the ysyxSoC boundary.
+  // ysyxSoC uses flat AXI4 pins. This block only maps those pins to the
+  // internal typed channel bundles; it does not alter AXI4 transaction timing.
   always_comb begin
-    io_master_awaddr  = master_axi_aw.addr;
-    io_master_awid    = master_axi_aw.id;
-    io_master_awlen   = master_axi_aw.len;
-    io_master_awsize  = master_axi_aw.size;
-    io_master_awburst = master_axi_aw.burst;
+    io_master_awvalid = external_axi4_manager.aw_valid;
+    io_master_awaddr  = external_axi4_manager.aw.addr;
+    io_master_awid    = external_axi4_manager.aw.id;
+    io_master_awlen   = external_axi4_manager.aw.len;
+    io_master_awsize  = external_axi4_manager.aw.size;
+    io_master_awburst = external_axi4_manager.aw.burst;
 
-    io_master_wdata = master_axi_w.data;
-    io_master_wstrb = master_axi_w.strb;
-    io_master_wlast = master_axi_w.last;
+    io_master_wvalid = external_axi4_manager.w_valid;
+    io_master_wdata  = external_axi4_manager.w.data;
+    io_master_wstrb  = external_axi4_manager.w.strb;
+    io_master_wlast  = external_axi4_manager.w.last;
 
-    io_master_araddr  = master_axi_ar.addr;
-    io_master_arid    = master_axi_ar.id;
-    io_master_arlen   = master_axi_ar.len;
-    io_master_arsize  = master_axi_ar.size;
-    io_master_arburst = master_axi_ar.burst;
+    io_master_bready = external_axi4_manager.b_ready;
 
-    master_axi_b = '{resp : axi_resp_e'(io_master_bresp), id   : io_master_bid};
-    master_axi_r = '{
-                   resp : axi_resp_e'(io_master_rresp),
-                   data : io_master_rdata,
-                   last : io_master_rlast,
-                   id   : io_master_rid
-                   };
+    io_master_arvalid = external_axi4_manager.ar_valid;
+    io_master_araddr  = external_axi4_manager.ar.addr;
+    io_master_arid    = external_axi4_manager.ar.id;
+    io_master_arlen   = external_axi4_manager.ar.len;
+    io_master_arsize  = external_axi4_manager.ar.size;
+    io_master_arburst = external_axi4_manager.ar.burst;
+
+    io_master_rready = external_axi4_manager.r_ready;
+
+    external_axi4_manager_response          = '0;
+    external_axi4_manager_response.aw_ready = io_master_awready;
+    external_axi4_manager_response.w_ready  = io_master_wready;
+    external_axi4_manager_response.b_valid  = io_master_bvalid;
+    external_axi4_manager_response.b.id     = io_master_bid;
+    external_axi4_manager_response.b.resp   = axi4_resp_e'(io_master_bresp);
+    external_axi4_manager_response.ar_ready = io_master_arready;
+    external_axi4_manager_response.r_valid  = io_master_rvalid;
+    external_axi4_manager_response.r.id     = io_master_rid;
+    external_axi4_manager_response.r.data   = io_master_rdata;
+    external_axi4_manager_response.r.resp   = axi4_resp_e'(io_master_rresp);
+    external_axi4_manager_response.r.last   = io_master_rlast;
   end
 
   // The current NPC has no memory-side AXI slave functionality.
@@ -130,26 +141,13 @@ module riscv32_npc_axi
     io_slave_rid     = 4'b0;
   end
 
-  riscv32_npc_axi_core_boundary #(
+  riscv32_npc_system #(
       .RESET_PC(RESET_PC)
-  ) u_npc_axi_core_boundary (
-      .clk_i               (clock),
-      .rst_ni              (~reset),
-      .master_axi_ar_o     (master_axi_ar),
-      .master_axi_arvalid_o(io_master_arvalid),
-      .master_axi_arready_i(io_master_arready),
-      .master_axi_r_i      (master_axi_r),
-      .master_axi_rvalid_i (io_master_rvalid),
-      .master_axi_rready_o (io_master_rready),
-      .master_axi_aw_o     (master_axi_aw),
-      .master_axi_awvalid_o(io_master_awvalid),
-      .master_axi_awready_i(io_master_awready),
-      .master_axi_w_o      (master_axi_w),
-      .master_axi_wvalid_o (io_master_wvalid),
-      .master_axi_wready_i (io_master_wready),
-      .master_axi_b_i      (master_axi_b),
-      .master_axi_bvalid_i (io_master_bvalid),
-      .master_axi_bready_o (io_master_bready)
+  ) u_npc_system (
+      .clk_i                  (clock),
+      .rst_ni                 (~reset),
+      .external_axi4_manager_o(external_axi4_manager),
+      .external_axi4_manager_i(external_axi4_manager_response)
   );
 
 `ifdef VERILATOR
@@ -171,33 +169,33 @@ module riscv32_npc_axi
   export "DPI-C" function npc_get_gpr_dpi;
 
   function int npc_get_pc_dpi();
-    npc_get_pc_dpi = u_npc_axi_core_boundary.u_core.fetch_entry.pc;
+    npc_get_pc_dpi = u_npc_system.u_core.idu_fetch_entry.pc;
   endfunction
 
   function int npc_get_inst_dpi();
-    npc_get_inst_dpi = u_npc_axi_core_boundary.u_core.fetch_entry.instruction;
+    npc_get_inst_dpi = u_npc_system.u_core.idu_fetch_entry.instruction;
   endfunction
 
   function int npc_get_commit_valid_dpi();
-    npc_get_commit_valid_dpi = int'(u_npc_axi_core_boundary.u_core.commit_valid);
+    npc_get_commit_valid_dpi = int'(u_npc_system.u_core.commit_valid);
   endfunction
 
   function int npc_get_commit_pc_dpi();
-    npc_get_commit_pc_dpi = u_npc_axi_core_boundary.u_core.commit.pc;
+    npc_get_commit_pc_dpi = u_npc_system.u_core.commit.pc;
   endfunction
 
   function int npc_get_commit_inst_dpi();
-    npc_get_commit_inst_dpi = u_npc_axi_core_boundary.u_core.commit.instruction;
+    npc_get_commit_inst_dpi = u_npc_system.u_core.commit.instruction;
   endfunction
 
   function int npc_get_commit_next_pc_dpi();
-    if (u_npc_axi_core_boundary.u_core.selected_redirect_req_valid &&
-        u_npc_axi_core_boundary.u_core.commit_valid &&
-        (u_npc_axi_core_boundary.u_core.selected_redirect_req.source_pc ==
-         u_npc_axi_core_boundary.u_core.commit.pc)) begin
-      npc_get_commit_next_pc_dpi = u_npc_axi_core_boundary.u_core.selected_redirect_req.target_pc;
+    if (u_npc_system.u_core.selected_redirect_req_valid &&
+        u_npc_system.u_core.commit_valid &&
+        (u_npc_system.u_core.selected_redirect_req.source_pc ==
+         u_npc_system.u_core.commit.pc)) begin
+      npc_get_commit_next_pc_dpi = u_npc_system.u_core.selected_redirect_req.target_pc;
     end else begin
-      npc_get_commit_next_pc_dpi = u_npc_axi_core_boundary.u_core.commit.next_pc;
+      npc_get_commit_next_pc_dpi = u_npc_system.u_core.commit.next_pc;
     end
   endfunction
 
@@ -205,13 +203,13 @@ module riscv32_npc_axi
     if ((index <= 0) || (index >= ARCH_REG_NUM)) begin
       npc_get_gpr_dpi = '0;
     end else begin
-      npc_get_gpr_dpi = u_npc_axi_core_boundary.u_core.u_arch_regfile.gpr_q[index];
+      npc_get_gpr_dpi = u_npc_system.u_core.u_arch_regfile.gpr_q[index];
     end
   endfunction
 
   always_ff @(posedge clock) begin
-    if (u_npc_axi_core_boundary.u_core.commit_valid &&
-        (u_npc_axi_core_boundary.u_core.commit.system_op == SYS_EBREAK)) begin
+    if (u_npc_system.u_core.commit_valid &&
+        (u_npc_system.u_core.commit.system_op == SYS_EBREAK)) begin
       ebreak_halt();
     end
   end

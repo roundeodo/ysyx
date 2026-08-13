@@ -1,14 +1,12 @@
-# NPC Performance Results
+# NPC性能评估结果
 
-Run `make perf-record` from `npc/` to append one row. The command records the
-MicroBench PMU measurement window, not simulator startup or shutdown cycles.
+在`npc/`目录运行`make perf-record`可向表格追加一行。该命令记录MicroBench的PMU
+测量窗口，不包含仿真器启动和退出周期。
 
-The commit in a row identifies the tested source tree. Commit source changes
-first, record the result second, and commit this table in a separate commit.
-Raw simulator logs are kept under `result/performance/logs/` and are ignored by
-Git.
+表格中的commit用于标识被测源码树。工作流程是先提交源码修改，再记录性能结果，最后
+用单独一次commit提交表格。仿真器原始日志保存在`result/performance/logs/`并被Git忽略。
 
-Record a result with an explicitly measured synthesis frequency:
+使用明确测量的综合频率记录结果：
 
 ```sh
 make perf-record \
@@ -16,8 +14,7 @@ make perf-record \
   PERF_FREQUENCY_MHZ=296.552
 ```
 
-Alternatively, extract the limiting max-path frequency from a specific STA
-report:
+也可以从指定STA报告中提取限制性最大路径频率：
 
 ```sh
 make perf-record \
@@ -25,9 +22,8 @@ make perf-record \
   PERF_STA_REPORT=result/<design>/<design>.rpt
 ```
 
-`PERF_SCALE` defaults to `train`. A `PERF_SCALE=test` row is useful for local
-debugging, but it is not interchangeable with a formal `train` result.
+`PERF_SCALE`默认为`train`。`PERF_SCALE=test`适合本地调试，但不能替代正式`train`结果。
 
-| Date (UTC) | NPC commit | AM-kernels commit | Scale | Description | Simulation cycles | Retired instructions | IPC | Synthesis frequency (MHz) |
+| 日期（UTC） | NPC commit | AM-kernels commit | 规模 | 说明 | 仿真周期数 | 退休指令数 | IPC | 综合频率（MHz） |
 | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: |
 <!-- PERFORMANCE_RESULTS:INSERT_BEFORE -->

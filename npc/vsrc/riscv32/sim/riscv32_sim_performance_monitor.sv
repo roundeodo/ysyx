@@ -374,7 +374,7 @@ module riscv32_sim_performance_monitor
     end
   end
 
-  // AXI-Lite AW and W are independent. Store response latency begins only after
+  // AXI4 AW and W are independent. Store response latency begins only after
   // both have handshaken, regardless of which channel completed first.
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
