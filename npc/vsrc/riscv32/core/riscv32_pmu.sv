@@ -8,13 +8,11 @@ module riscv32_pmu
 
     input logic [$clog2(RETIRE_SLOT_COUNT + 1)-1:0] retired_instruction_count_i,
 
-    // TODO(ICACHE-PMU-1): 在本TODO正下方增加
-    // `input icache_event_t icache_event_i`。该结构体每个字段表示“本周期某事件发生”，
-    // 不是累计值，也不是控制请求。PMU只在时钟沿把为1的字段累加到对应64-bit计数器。
-
-    input  logic [    11:0] csr_read_addr_i,
-    output logic            csr_read_select_o,
-    output logic [XLEN-1:0] csr_read_data_o,
+    // 每个字段都是单周期事件脉冲。PMU只观察，不向cache或流水线反馈控制。
+    input  icache_event_t            icache_event_i,
+    input  logic          [    11:0] csr_read_addr_i,
+    output logic                     csr_read_select_o,
+    output logic          [XLEN-1:0] csr_read_data_o,
 
     input logic            csr_write_valid_i,
     input logic [    11:0] csr_write_addr_i,
@@ -58,26 +56,30 @@ module riscv32_pmu
 
   logic [63:0] retired_instruction_count_extended;
 
-  assign retired_instruction_count_extended =
-      {{(64-$bits(retired_instruction_count_i)){1'b0}}, retired_instruction_count_i};
+  assign retired_instruction_count_extended = {
+    {(64 - $bits(retired_instruction_count_i)) {1'b0}}, retired_instruction_count_i
+  };
 
   // mcountinhibit lets software stop selected counters. Only CY (bit 0) and IR
   // (bit 2) are implemented now. Other bits must always read as zero.
   logic [31:0] mcountinhibit_d;
   logic [31:0] mcountinhibit_q;
 
-  // TODO(ICACHE-PMU-2): 在本TODO正下方声明I-cache性能计数器，每个计数器均使用_q/_d：
-  // - icache_lookup_count：被I-cache接受的cacheable lookup数量；
-  // - icache_hit_count：tag compare命中的lookup数量；
-  // - icache_miss_count：分配miss状态的lookup数量；
-  // - icache_refill_word_count：从下层成功接收的32-bit word数量；
-  // - icache_refill_line_count：完整安装到tag/data array的line数量；
-  // - icache_uncached_access_count：绕过cache但仍由其下层端口服务的请求数量；
-  // - icache_stale_response_count：redirect后被epoch过滤的response数量。
-  //
-  // `lookup_count == hit_count + miss_count`只对cacheable且无access fault的lookup成立；
-  // uncached和fault必须单独统计，不能为追求等式而重复计数。第一版可只通过仿真层读取
-  // 这些寄存器，后续再决定是否映射到mhpmcounter3..31与mhpmevent3..31。
+  // I-cache事件暂时作为内部硬件计数器；后续可映射到mhpmcounter CSR。
+  logic [63:0] icache_lookup_count_d;
+  logic [63:0] icache_lookup_count_q;
+  logic [63:0] icache_hit_count_d;
+  logic [63:0] icache_hit_count_q;
+  logic [63:0] icache_miss_count_d;
+  logic [63:0] icache_miss_count_q;
+  logic [63:0] icache_refill_word_count_d;
+  logic [63:0] icache_refill_word_count_q;
+  logic [63:0] icache_refill_line_count_d;
+  logic [63:0] icache_refill_line_count_q;
+  logic [63:0] icache_uncached_access_count_d;
+  logic [63:0] icache_uncached_access_count_q;
+  logic [63:0] icache_stale_response_count_d;
+  logic [63:0] icache_stale_response_count_q;
 
   // csr_read_select_o means "this address belongs to PMU". It is not a read
   // handshake and does not mean that the counter changed. riscv32_csr_file uses
@@ -88,8 +90,7 @@ module riscv32_pmu
   //
   //   unique case (csr_read_addr_i)
   //     CSR_MCYCLE: begin
-  //       csr_read_select_o = 1'b1;
-  //       csr_read_data_o   = mcycle_q[31:0];
+
   //     end
   //     // CSR_MCYCLEH   returns mcycle_q[63:32]
   //     // CSR_MINSTRET  returns minstret_q[31:0]
@@ -189,20 +190,42 @@ module riscv32_pmu
     end
   end
 
-  // TODO(ICACHE-PMU-3): 在本TODO正下方为cache计数器写独立next-state组合块。
-  // 每个`counter_d = counter_q + 64'(event_bit)`，其中event_bit只来自icache_event_i。
-  // 不要把这些更新混入mcycle/minstret CSR写优先级块；两类状态生命周期不同，拆开后更
-  // 容易加入mcountinhibit、溢出中断或事件选择器。若多个同类事件未来每周期可发生多次，
-  // 把Boolean字段升级为count字段，而不是在PMU里猜测发射宽度。
+  // 当前事件是单bit脉冲，因此每类事件每周期最多累加一次。多发射版本应把
+  // 事件字段扩展为计数值，使PMU直接累加实际发生数量。
+  always_comb begin
+    icache_lookup_count_d          = icache_lookup_count_q + 64'(icache_event_i.lookup_occurred);
+    icache_hit_count_d             = icache_hit_count_q + 64'(icache_event_i.hit_occurred);
+    icache_miss_count_d            = icache_miss_count_q + 64'(icache_event_i.miss_occurred);
+    icache_refill_word_count_d     = icache_refill_word_count_q
+                                     + 64'(icache_event_i.refill_word_occurred);
+    icache_refill_line_count_d     = icache_refill_line_count_q
+                                     + 64'(icache_event_i.refill_line_completed_occurred);
+    icache_uncached_access_count_d = icache_uncached_access_count_q
+                                     + 64'(icache_event_i.uncached_access_occurred);
+    icache_stale_response_count_d  = icache_stale_response_count_q
+                                     + 64'(icache_event_i.stale_response_discarded_occurred);
+  end
 
-  // TODO(ICACHE-PMU-4): 在本TODO正下方按状态族分别加入always_ff。
-  // reset时所有cache计数器清零；正常周期捕获对应_d。继续遵循“相关寄存器靠近其next
-  // 逻辑”的编码习惯，不要把全部PMU寄存器塞入一个远离定义的大always_ff。
-
-  // TODO(ICACHE-PMU-5): 完成后用同一次I-cache定向测试核对计数关系。
-  // cacheable且无access fault的lookup应满足lookup=hit+miss；refill line不能超过miss；
-  // uncached和fault分别核对，不能为了凑等式重复计数。PMU只接收事件，不参与任何ready、
-  // replacement或redirect逻辑。
+  // I-cache计数器独立成组，避免与软件可写的mcycle/minstret更新优先级混杂。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      icache_lookup_count_q          <= '0;
+      icache_hit_count_q             <= '0;
+      icache_miss_count_q            <= '0;
+      icache_refill_word_count_q     <= '0;
+      icache_refill_line_count_q     <= '0;
+      icache_uncached_access_count_q <= '0;
+      icache_stale_response_count_q  <= '0;
+    end else begin
+      icache_lookup_count_q          <= icache_lookup_count_d;
+      icache_hit_count_q             <= icache_hit_count_d;
+      icache_miss_count_q            <= icache_miss_count_d;
+      icache_refill_word_count_q     <= icache_refill_word_count_d;
+      icache_refill_line_count_q     <= icache_refill_line_count_d;
+      icache_uncached_access_count_q <= icache_uncached_access_count_d;
+      icache_stale_response_count_q  <= icache_stale_response_count_d;
+    end
+  end
 
   // These blocks contain no policy; they only capture the _d values chosen above.
   // Keep the register families separate so each state is adjacent to its purpose:
@@ -237,5 +260,46 @@ module riscv32_pmu
       mcountinhibit_q <= mcountinhibit_d;
     end
   end
+
+  logic pmu_csr_addr_implemented;
+
+  always_comb begin
+    unique case (csr_read_addr_i)
+      CSR_MCYCLE,
+      CSR_MCYCLEH,
+      CSR_MINSTRET,
+      CSR_MINSTRETH,
+      CSR_MCOUNTINHIBIT: pmu_csr_addr_implemented = 1'b1;
+      default:           pmu_csr_addr_implemented = 1'b0;
+    endcase
+  end
+
+`ifndef SYNTHESIS
+  // lookup先进入cache流水线，之后才被归类为hit、miss或uncached，因此累计分类数
+  // 只能小于等于lookup数，不能要求每个周期都严格相等。访问异常也可能只计lookup。
+  always_ff @(posedge clk_i) begin
+    if (rst_ni) begin
+      assert ($unsigned(retired_instruction_count_i) <= RETIRE_SLOT_COUNT)
+      else $error("PMU observed more retired instructions than available retire slots");
+
+      assert ((mcountinhibit_q & ~32'h0000_0005) == 32'b0)
+      else $error("PMU stored an unsupported mcountinhibit bit");
+
+      assert (!csr_read_select_o || pmu_csr_addr_implemented)
+      else $error("PMU selected an unimplemented CSR address");
+
+      assert ((icache_hit_count_q + icache_miss_count_q +
+               icache_uncached_access_count_q) <= icache_lookup_count_q)
+      else $error("I-cache classified more requests than it accepted");
+
+      assert (icache_refill_line_count_q <= icache_miss_count_q)
+      else $error("I-cache completed more refill lines than cacheable misses");
+
+      assert (icache_refill_word_count_q >=
+              (icache_refill_line_count_q * ICACHE_WORDS_PER_LINE))
+      else $error("I-cache completed a refill line without receiving all words");
+    end
+  end
+`endif
 
 endmodule

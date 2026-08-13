@@ -643,7 +643,7 @@ module riscv32_icache
   else $error("I-cache replacement state has two update sources");
 `endif
 
-  // TODO(ICACHE-TOP-9): 完成后按以下顺序编写directed tests。每项都检查握手次数、
+  // Directed-test验证清单：每项都应检查握手次数、
   // payload身份、array写次数和event脉冲，不能只比较最终instruction：
   // 1. 冷启动cacheable miss：8个word逐拍返回，确认8次data写、1次metadata提交；
   // 2. 同地址再次lookup：固定hit latency返回，且refill请求次数保持不变；

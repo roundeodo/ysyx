@@ -15,46 +15,42 @@ module riscv32_csr_file
 
     input logic retired_instruction_occurred_i,
 
-    // TODO(ICACHE-CSR-1): 在本TODO正下方加入
-    // `input icache_event_t icache_event_i`，并原样连接到u_pmu。CSR file只负责地址
-    // 路由，不解释或重新生成cache事件。若第一版cache计数器仅供仿真观察，可先不增加
-    // 软件可见CSR；但事件仍应从producer单向进入PMU，避免仿真monitor重复推导语义。
-
-    input logic            trap_valid_i,
-    input logic [XLEN-1:0] trap_pc_i,
-    input logic [XLEN-1:0] trap_cause_i,
-    input logic [XLEN-1:0] trap_tval_i,
-    input logic            mret_valid_i,
+    // CSR file只转发微架构事件，事件的定义与累计均由I-cache和PMU负责。
+    input icache_event_t icache_event_i,
+    input logic                     trap_valid_i,
+    input logic          [XLEN-1:0] trap_pc_i,
+    input logic          [XLEN-1:0] trap_cause_i,
+    input logic          [XLEN-1:0] trap_tval_i,
+    input logic                     mret_valid_i,
 
     output logic [XLEN-1:0] mtvec_o,
     output logic [XLEN-1:0] mepc_o
 );
-  localparam logic [11:0] CSR_MVENDORID = 12'hF11;
-  localparam logic [11:0] CSR_MARCHID   = 12'hF12;
-  localparam logic [11:0] CSR_MSTATUS   = 12'h300;
-  localparam logic [11:0] CSR_MIE       = 12'h304;
-  localparam logic [11:0] CSR_MTVEC     = 12'h305;
-  localparam logic [11:0] CSR_MSCRATCH  = 12'h340;
-  localparam logic [11:0] CSR_MEPC      = 12'h341;
-  localparam logic [11:0] CSR_MCAUSE    = 12'h342;
-  localparam logic [11:0] CSR_MTVAL     = 12'h343;
-  localparam logic [11:0] CSR_MIP       = 12'h344;
+  localparam logic [11:0] CSR_MVENDORID   = 12'hF11      ;
+  localparam logic [11:0] CSR_MARCHID     = 12'hF12      ;
+  localparam logic [11:0] CSR_MSTATUS     = 12'h300      ;
+  localparam logic [11:0] CSR_MIE         = 12'h304      ;
+  localparam logic [11:0] CSR_MTVEC       = 12'h305      ;
+  localparam logic [11:0] CSR_MSCRATCH    = 12'h340      ;
+  localparam logic [11:0] CSR_MEPC        = 12'h341      ;
+  localparam logic [11:0] CSR_MCAUSE      = 12'h342      ;
+  localparam logic [11:0] CSR_MTVAL       = 12'h343      ;
+  localparam logic [11:0] CSR_MIP         = 12'h344      ;
   localparam logic [31:0] MVENDORID_VALUE = 32'h7973_7978;
   localparam logic [31:0] MARCHID_VALUE   = 32'h0150_BE98;
 
-  logic [31:0] mstatus_q;
-  logic [31:0] mie_q;
-  logic [31:0] mtvec_q;
-  logic [31:0] mscratch_q;
-  logic [31:0] mepc_q;
-  logic [31:0] mcause_q;
-  logic [31:0] mtval_q;
-  logic [31:0] mip_q;
+  logic [    31:0] mstatus_q;
+  logic [    31:0] mie_q;
+  logic [    31:0] mtvec_q;
+  logic [    31:0] mscratch_q;
+  logic [    31:0] mepc_q;
+  logic [    31:0] mcause_q;
+  logic [    31:0] mtval_q;
+  logic [    31:0] mip_q;
 
   logic            pmu_csr_read_select;
   logic [XLEN-1:0] pmu_csr_read_data;
 
-  // TODO(ICACHE-CSR-2): 增加PMU事件端口后，在本实例连接`.icache_event_i`。
   // 不要从AXI握手推导hit/miss：一次miss会产生多次refill读，语义上不是多次cache miss。
   riscv32_pmu #(
       .RETIRE_SLOT_COUNT(1)
@@ -62,6 +58,7 @@ module riscv32_csr_file
       .clk_i                      (clk_i),
       .rst_ni                     (rst_ni),
       .retired_instruction_count_i(retired_instruction_occurred_i),
+      .icache_event_i             (icache_event_i),
       .csr_read_addr_i            (csr_read_addr_i),
       .csr_read_select_o          (pmu_csr_read_select),
       .csr_read_data_o            (pmu_csr_read_data),

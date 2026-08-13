@@ -213,7 +213,8 @@ package riscv32_pkg;
     REDIRECT_TRAP              = 3'd2,
     REDIRECT_MRET              = 3'd3,
     REDIRECT_MEMORY_REPLAY     = 3'd4,
-    REDIRECT_DEBUG             = 3'd5
+    REDIRECT_DEBUG             = 3'd5,
+    REDIRECT_FENCE_I           = 3'd6
   } redirect_reason_e;
 
   typedef enum logic [1:0] {
@@ -253,11 +254,11 @@ package riscv32_pkg;
   // 硬编码地址切片。当前基线为8KiB、2路组相联、32B cache line和4B取指宽度，地址
   // 划分为tag[31:12]、set[11:5]、line offset[4:0]。
   parameter int unsigned ICACHE_CAPACITY_BYTES = 8 * 1024;
-  parameter int unsigned ICACHE_WAY_COUNT      = 2;
-  parameter int unsigned ICACHE_LINE_BYTES     = 32;
-  parameter int unsigned ICACHE_FETCH_BYTES    = 4;
-  parameter int unsigned ICACHE_MSHR_COUNT     = 1;
-  parameter int unsigned FETCH_EPOCH_COUNT     = 16;
+  parameter int unsigned ICACHE_WAY_COUNT = 2;
+  parameter int unsigned ICACHE_LINE_BYTES = 32;
+  parameter int unsigned ICACHE_FETCH_BYTES = 4;
+  parameter int unsigned ICACHE_MSHR_COUNT = 1;
+  parameter int unsigned FETCH_EPOCH_COUNT = 16;
 
   localparam int unsigned ICACHE_SET_COUNT =
       ICACHE_CAPACITY_BYTES / (ICACHE_WAY_COUNT * ICACHE_LINE_BYTES);
@@ -279,11 +280,11 @@ package riscv32_pkg;
   // fetch_epoch不是总线transaction ID。redirect发生时IFU递增epoch；较老epoch的
   // 返回结果仍可完成memory握手，但不能进入fetch buffer。epoch回绕安全的前提是
   // 同时在途的前端事务数量严格小于FETCH_EPOCH_COUNT。
-  typedef logic [ICACHE_SET_INDEX_W-1:0]  icache_set_index_t;
+  typedef logic [ICACHE_SET_INDEX_W-1:0] icache_set_index_t;
   typedef logic [ICACHE_WORD_INDEX_W-1:0] icache_word_index_t;
-  typedef logic [ICACHE_WAY_INDEX_W-1:0]  icache_way_index_t;
-  typedef logic [ICACHE_TAG_W-1:0]        icache_tag_t;
-  typedef logic [FETCH_EPOCH_W-1:0]       fetch_epoch_t;
+  typedef logic [ICACHE_WAY_INDEX_W-1:0] icache_way_index_t;
+  typedef logic [ICACHE_TAG_W-1:0] icache_tag_t;
+  typedef logic [FETCH_EPOCH_W-1:0] fetch_epoch_t;
 
   // valid/ready必须继续作为模块端口上的独立logic，不能放进这些结构体。
   // 字段不使用时必须赋0，不允许未使用的payload传播X。
@@ -331,10 +332,12 @@ package riscv32_pkg;
 
   localparam int unsigned ICACHE_REFILL_TRANSACTION_COUNT = ICACHE_MSHR_COUNT;
   localparam int unsigned ICACHE_REFILL_TRANSACTION_INDEX_W =
-      (ICACHE_REFILL_TRANSACTION_COUNT > 1) ? $clog2(ICACHE_REFILL_TRANSACTION_COUNT) : 1;
+      (ICACHE_REFILL_TRANSACTION_COUNT > 1) ? $clog2(
+      ICACHE_REFILL_TRANSACTION_COUNT
+  ) : 1;
   localparam int unsigned ICACHE_REFILL_WORD_COUNT_W = $clog2(ICACHE_WORDS_PER_LINE + 1);
   typedef logic [ICACHE_REFILL_TRANSACTION_INDEX_W-1:0] icache_refill_transaction_index_t;
-  typedef logic [ICACHE_REFILL_WORD_COUNT_W-1:0]        icache_refill_word_count_t;
+  typedef logic [ICACHE_REFILL_WORD_COUNT_W-1:0] icache_refill_word_count_t;
 
   typedef struct packed {
     logic [XLEN-1:0]                  line_base_addr;
