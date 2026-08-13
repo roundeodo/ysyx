@@ -1,12 +1,12 @@
 # I-cache设计记录
 
-状态：设计已接受，仅创建RTL TODO骨架
+状态：RTL实现完成，验证收口中
 
 所有者：`riscv32_icache`
 
 关联决策：当前计划P1、D004和D005；历史计划D024
 
-最后更新：2026-07-30
+最后更新：2026-08-13
 
 ## 1. 问题和目标
 
@@ -23,7 +23,8 @@
 - 只缓存可执行、可缓存、幂等的存储区域。
 - 第一版就支持`fence.i`失效操作和性能事件。
 
-本检查点不实现多miss并发、预取、一致性、ECC、虚拟地址转换和支持burst的下层接口。
+本检查点不实现多miss并发、预取、一致性、ECC和虚拟地址转换。下层refill使用完整
+AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点。
 
 ## 2. 第一版命名配置
 
@@ -58,7 +59,7 @@ I-cache RTL。
 | `riscv32_icache_tag_array` | tag和cache line present状态 | 替换策略 |
 | `riscv32_icache_data_array` | 缓存的指令word | tag有效性和refill顺序 |
 | `riscv32_icache_miss_unit` | 单个未完成miss、关键word返回、整行完成 | 下层AXI信号时序 |
-| `riscv32_icache_refill_adapter` | 将一次line refill转换为下层存储事务 | cache命中策略 |
+| `riscv32_icache_refill_axi4_master` | 将一次line refill转换为AXI4读burst | cache命中策略 |
 | `riscv32_pma` | 静态地址属性 | 动态权限和页表转换 |
 
 面向core的cache接口保持协议无关。AXI只存在于cache下方的refill adapter中，使未来
@@ -245,8 +246,8 @@ package和下层事务契约。
 
 ### 检查点C：下层refill事务
 
-8. 完成`core/frontend/riscv32_icache_refill_adapter.sv`。先实现单个未完成读取，再按关键
-   第一版通过一次完整AXI4 INCR burst取回整条cache line。总线按递增地址返回，
+8. 完成`core/frontend/riscv32_icache_refill_axi4_master.sv`。第一版通过一次完整AXI4
+   INCR burst取回整条cache line。总线按递增地址返回，
    `critical_word_index`只用于识别关键字到达并支持early restart，不虚构critical-word-first顺序。
 9. 验证AR反压、R反压、`SLVERR`、`DECERR`、word索引回绕、请求和响应载荷稳定性。
 10. 完成`core/frontend/riscv32_icache_miss_unit.sv`，保存唯一miss的身份、victim位置、
@@ -291,3 +292,20 @@ package和下层事务契约。
 - 两项或四项fetch buffer中哪一种更适合P4流水线。
 - 哪种替换策略相对每set一个替换位能产生可测量收益。
 - 是否应在加宽取指带宽之前引入压缩指令。
+
+## 16. 当前实现检查点
+
+截至2026-08-13，检查点A至E的RTL和结构接线已经完成：公共类型、PMA、tag/data array、
+AXI4 refill master、blocking miss unit、S0/S1/S2 lookup、fetch buffer、IFU接入、core接线、
+PMU事件和`fence.i`失效路径均已进入活动filelist。活动RTL中不再保留AXI4-Lite兼容实现。
+
+当前证据：
+
+- `make lint-npc PROJECT=riscv32`通过，剩余信息为非致命未使用字段/参数告警；
+- `make sim-npc PROJECT=riscv32 IMG=../am-kernels/tests/cpu-tests/build/dummy-riscv32-npc.bin`
+  命中good trap；
+- dummy运行中出现错误路径响应丢弃，说明redirect epoch路径被实际触发。
+
+尚未完成检查点F。cold miss、所有way、set冲突、critical-word early restart、每个refill
+beat错误、各阶段redirect、refill期间`fence.i`以及cache开关A/B仍需定向验证；cpu-tests、
+DiffTest、RT-Thread、microbench、综合和STA也必须基于已提交版本记录后，P1才能标记为完成。

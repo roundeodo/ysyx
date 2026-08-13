@@ -236,21 +236,30 @@ SoC AXI、APB 或 TileLink 只存在于系统边界和 adapter 中。IFU、LSU �
 
 ### P1：完成参数化 I-cache
 
-状态：进行中。
+状态：RTL实现完成，验证收口中。
 
 - 当前检查点：8 KiB、2-way、32 B line、blocking miss；
 - meta/data/miss/refill/PMA分离，refill通过完整AXI4 INCR burst取回cache line；
 - 参数合法性检查、随机延迟、redirect 和 `fence.i`；
 - 记录命中率、平均取指延迟、WNS 和面积。
 
+已经完成公共类型、PMA、tag/data array、AXI4 refill、blocking miss unit、S0/S1/S2 lookup、
+fetch buffer、IFU/core接线、PMU事件和`fence.i`路径。P1退出条件仍包括定向验证、完整功能
+回归、microbench A/B以及综合/STA记录，不能以lint和dummy通过替代。
+
 设计依据见[`ICACHE_DESIGN_RECORD.md`](../microarchitecture/ICACHE_DESIGN_RECORD.md)。
 
 ### P2：建立配置层并解耦所有宽度
+
+状态：已启动，当前检查点为配置契约和宽度依赖审计。
 
 - 创建统一配置 package 和命名配置；
 - 分离 `XLEN`、地址、指令、core 数据和 SoC 总线宽度；
 - 清除散落的 `32`、固定 lane 和固定寄存器数；
 - 建立 64-bit core 到 32-bit AXI 的 adapter 单元测试。
+
+实施细节见[`P2_CONFIGURATION_PLAN.md`](P2_CONFIGURATION_PLAN.md)。P2不得破坏当前RV32
+可回归基线，也不得用散落的条件编译在模块内部维护两套数据通路。
 
 ### P3：RV64 顺序功能基线
 

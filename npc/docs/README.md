@@ -24,6 +24,7 @@
 - [完整AXI4互连架构](interconnect/AXI4_ARCHITECTURE.md)：当前主链边界、事务能力和后续扩展规则。
 
 - 最终产品和架构路线：[`architecture/ARCHITECTURE_PLAN.md`](architecture/ARCHITECTURE_PLAN.md)
+- P2配置和宽度解耦：[`architecture/P2_CONFIGURATION_PLAN.md`](architecture/P2_CONFIGURATION_PLAN.md)
 - AI 工作负载依据：[`architecture/AI_WORKLOAD_MODEL.md`](architecture/AI_WORKLOAD_MODEL.md)
 - 固定开发流程：[`development/DEVELOPMENT_PROCESS.md`](development/DEVELOPMENT_PROCESS.md)
 - 命名和源码组织：[`development/NAMING_GUIDE.md`](development/NAMING_GUIDE.md)

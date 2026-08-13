@@ -61,3 +61,35 @@
 - 核心验收指标是更少的IFU响应等待周期和更高的IPC，并使用cache hit/miss/refill
   计数器解释变化原因。
 - 由于没有记录commit和准确命令，本条记录不可完全复现，只保留为初步基线。
+
+## 2026-08-13 - P1 I-cache独立NPC基本功能检查
+
+- Commit：待提交工作树，基于`22f2b42ca794b2c4d7dc84b8f4c74d56304ed3c9`；提交后追加
+  可复现commit记录。
+- 架构决策：P1、D004、D005。
+- 工作负载和规模：cpu-tests dummy / 13条退休指令。
+- 构建配置：独立NPC，8 KiB、2-way、32 B line、blocking miss、AXI4 refill、I-cache启用。
+- 命令：`make sim-npc PROJECT=riscv32 IMG=../am-kernels/tests/cpu-tests/build/dummy-riscv32-npc.bin`
+- 功能结果：pass，`HIT GOOD TRAP`，结束PC为`0x80000030`。
+- 综合目标/结果：本次运行不包含综合结果。
+
+| 指标 | 数值 |
+| --- | ---: |
+| 活动周期 | 71 |
+| 退休指令数 | 13 |
+| IPC | 0.183099 |
+| IFU请求/响应/交付 | 17 / 16 / 13 |
+| IFU平均响应延迟 | 2.500 cycles |
+| IFU AR反压周期 | 14 (19.718%) |
+| IFU响应等待周期 | 40 (56.338%) |
+| IFU下游反压周期 | 1 (1.408%) |
+| IFU丢弃错误路径响应 | 3 |
+| LSU请求/完成 | 1 / 1 |
+
+分析：
+
+- 该结果证明当前活动RTL能够经过I-cache和fetch buffer完成基本程序，并正确丢弃redirect
+  后的错误路径响应。
+- dummy太短，不能用其IPC、命中率或平均延迟判断I-cache性能，也不能覆盖替换、early
+  restart、错误refill和`fence.i`。
+- 下一项实验是在提交版本上重跑相同命令，并完成I-cache定向测试和microbench A/B。
