@@ -1,6 +1,6 @@
 # P2配置层和宽度解耦计划
 
-状态：P2-B教学骨架已建立，等待手写配置和公共类型迁移
+状态：P2-B已完成，当前检查点为P2-C core内部宽度解耦
 
 最后更新：2026-08-13
 
@@ -65,10 +65,9 @@ I-cache、CSR/PMU、LSU和AXI边界的首批耦合点；P2-B必须按清单逐�
 新增唯一配置package，将当前`riscv32_pkg`中的宽度/容量配置迁入；`riscv32_pkg`只保留
 ISA常量、语义枚举和模块间payload。迁移一项就删除旧定义，不保留兼容别名。
 
-当前已创建`common/riscv_config_pkg.sv`并加入仿真与STA filelist。配置package、
-`riscv32_pkg`、地址映射package和AXI4 package中的`TODO(P2-B-*)`给出了按依赖顺序可直接
-抄写的代码。完成顺序必须是CFG-1、CFG-2、CFG-3、PKG-1、ADDR-1、AXI-1、PKG-2、
-PKG-3；每完成一个公共边界就运行lint，避免一次性替换掩盖类型所有权错误。
+已创建`common/riscv_config_pkg.sv`并加入仿真与STA filelist。配置package现在是全局构建
+参数的唯一来源；`riscv32_pkg`、地址映射package和AXI4 package只保留各自拥有的语义类型
+与派生量。旧宽度定义和兼容别名已经删除，独立NPC与ysyxSoC lint均已通过。
 
 ### P2-C：解耦core内部宽度
 
@@ -100,5 +99,5 @@ I-cache line几何与`INSTR_WIDTH`关联，不能默认等于`XLEN`。AXI packag
 
 ## 6. 第一个实际任务
 
-评审[`P2_WIDTH_AUDIT.md`](P2_WIDTH_AUDIT.md)中的分类，然后进入P2-B：创建唯一配置package，
-首先迁移`XLEN`、物理地址宽度、指令宽度、core数据宽度和AXI宽度，不同时改变数据通路行为。
+进入P2-C，按寄存器堆、IDU/EXU、CSR/trap、LSU、前端的顺序迁移语义类型。每完成一个
+边界都运行独立NPC和ysyxSoC lint；完成整个P2-C后再运行dummy和cpu-tests回归。

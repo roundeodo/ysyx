@@ -1,6 +1,6 @@
 # P2宽度依赖审计
 
-状态：P2-A第一轮完成，等待按所有者逐项迁移
+状态：P2-B已完成，进入P2-C core内部宽度解耦
 
 基线提交：`ce27fb8eed29c0b039dc11ddc66407c096486a16`
 
@@ -24,9 +24,9 @@
 
 | 所有者 | 当前依赖 | 分类 | 迁移动作 |
 | --- | --- | --- | --- |
-| `riscv32_pkg.sv` | `XLEN = 32` | 命名配置 | P2-B迁入配置package |
+| `riscv32_pkg.sv` | `XLEN = 32` | 命名配置 | 已迁入`riscv_config_pkg.sv` |
 | `riscv32_pkg.sv` | `instruction[31:0]` | ISA固定 | 定义独立`instruction_t`，不得改成`XLEN` |
-| `riscv32_pkg.sv` | `BYTE_LANES = XLEN / 8` | 命名配置/局部派生 | 改名为core数据lane数量，并由core数据宽度派生 |
+| `riscv32_pkg.sv` | core数据字节数 | 命名配置/局部派生 | 已改为由`CORE_DATA_WIDTH`派生的`CORE_DATA_BYTE_COUNT` |
 | `riscv32_pkg.sv` | `ICACHE_TAG_W = XLEN - ...` | 错误耦合 | 改由取指物理地址宽度派生 |
 | `riscv32_pkg.sv` | fetch、redirect和memory地址使用`XLEN` | 错误耦合 | 区分虚拟PC、物理地址和标量数据类型 |
 | `riscv32_addr_map_pkg.sv` | `soc_phys_addr_t[31:0]` | 命名配置 | 使用`PADDR_WIDTH`；地址常量保持SoC配置值 |
