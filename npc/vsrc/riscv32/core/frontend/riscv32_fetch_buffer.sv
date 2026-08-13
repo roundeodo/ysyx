@@ -1,8 +1,9 @@
 // IFU响应与IDU消费之间的小型弹性队列。
 //
 // 本模块只负责解耦上下游反压和保存已经完成的fetch entry，不参与PC选择、cache命中
-// 或指令译码。空队列允许同周期fast bypass，发生反压时退回寄存器存储。未来扩大取指
-// 宽度或加入分支预测后，这里可以演进为fetch packet queue，而无需改变I-cache阵列。
+// 或指令译码。IFU响应必须先登记到队列，再由IDU消费，从而切断I-cache响应经过译码、
+// 执行和提交后又组合反馈到前端的长路径。未来扩大取指宽度或加入分支预测后，这里可以
+// 演进为fetch packet queue，而无需改变I-cache阵列。
 module riscv32_fetch_buffer
   import riscv32_pkg::*;
 #(
@@ -46,39 +47,34 @@ module riscv32_fetch_buffer
   initial begin
     if (ENTRY_COUNT < 1) $fatal(1, "fetch buffer ENTRY_COUNT must be at least 1");
   end
-  // 接口握手与存储操作必须分开描述。空队列旁路时，上下游握手同时发生，但数据不写数组。
+  // 接口握手与存储操作必须分开描述。队列是寄存器化流水边界，不提供跨越整个核心的
+  // 空队列旁路；这种旁路会把前端响应与当拍提交/redirect组合成环路并恶化关键路径。
   logic queue_empty;
   logic queue_full;
-  logic empty_queue_bypass_active;
   logic ifu_fetch_entry_handshake_occurred;
   logic idu_fetch_entry_handshake_occurred;
   logic enqueue_to_storage_occurred;
   logic dequeue_from_storage_occurred;
-  // 空队列直接旁路IFU输入，避免增加取指交付延迟；非空时输出只能来自FIFO队首。
-  // 满队列若同周期出队，仍允许IFU入队，从而维持每周期一个entry的稳态吞吐率。
-  // 旁路会形成IFU到IDU的组合路径，前端变宽后应根据时序结果决定是否增加旁路开关。
-  always_comb begin
-    queue_empty               = (entry_count_q == entry_count_t'(0));
-    queue_full                = (entry_count_q == entry_count_t'(ENTRY_COUNT));
-    empty_queue_bypass_active = queue_empty;
-  end
 
   always_comb begin
-    idu_fetch_entry_o = empty_queue_bypass_active
-                      ? ifu_fetch_entry_i
-                      : entry_array_q[read_entry_index_q];
-    idu_fetch_entry_valid_o =
-        !flush_i && (empty_queue_bypass_active ? ifu_fetch_entry_valid_i : 1'b1);
+    queue_empty = (entry_count_q == entry_count_t'(0));
+    queue_full  = (entry_count_q == entry_count_t'(ENTRY_COUNT));
+  end
+
+  // 输出始终来自已经登记的队首。flush不能组合压低队首valid，否则当前队首指令产生的
+  // redirect会反向改变自身valid并形成组合环；flush在本拍阻止新入队，并在时钟沿清空队列。
+  // 满队列若同周期出队，仍允许IFU入队，从而保持每周期一个entry的稳态吞吐率。
+  always_comb begin
+    idu_fetch_entry_o       = entry_array_q[read_entry_index_q];
+    idu_fetch_entry_valid_o = !queue_empty;
 
     ifu_fetch_entry_ready_o =
         !flush_i && (!queue_full || (idu_fetch_entry_valid_o && idu_fetch_entry_ready_i));
 
     ifu_fetch_entry_handshake_occurred = ifu_fetch_entry_valid_i && ifu_fetch_entry_ready_o;
     idu_fetch_entry_handshake_occurred = idu_fetch_entry_valid_o && idu_fetch_entry_ready_i;
-    enqueue_to_storage_occurred =
-        ifu_fetch_entry_handshake_occurred
-        && !(empty_queue_bypass_active && idu_fetch_entry_handshake_occurred);
-    dequeue_from_storage_occurred      = idu_fetch_entry_handshake_occurred && !queue_empty;
+    enqueue_to_storage_occurred        = ifu_fetch_entry_handshake_occurred;
+    dequeue_from_storage_occurred      = idu_fetch_entry_handshake_occurred;
   end
 
   // 指针只响应真正的数组入队/出队。flush具有最高优先级，只清控制状态；旧payload因
@@ -128,7 +124,7 @@ module riscv32_fetch_buffer
       entry_array_q[write_entry_index_q] <= ifu_fetch_entry_i;
     end
   end
-  // 协议断言覆盖容量边界、反压稳定性和flush清空行为；它们不进入综合结果。
+  // 协议断言覆盖容量边界、寄存器化边界、反压稳定性和flush清空行为；它们不进入综合结果。
 `ifndef SYNTHESIS
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     entry_count_q <= entry_count_t'(ENTRY_COUNT))
@@ -137,6 +133,10 @@ module riscv32_fetch_buffer
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     queue_empty |-> !dequeue_from_storage_occurred)
     else $error("fetch buffer dequeued storage while empty");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    queue_empty |-> !idu_fetch_entry_valid_o)
+    else $error("fetch buffer exposed an unregistered bypass entry while empty");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (queue_full && !dequeue_from_storage_occurred) |-> !enqueue_to_storage_occurred)

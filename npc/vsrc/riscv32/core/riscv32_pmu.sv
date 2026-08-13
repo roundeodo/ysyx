@@ -227,7 +227,7 @@ module riscv32_pmu
   // 只能小于等于lookup数，不能要求每个周期都严格相等。访问异常也可能只计lookup。
   always_ff @(posedge clk_i) begin
     if (rst_ni) begin
-      assert ($unsigned(retired_instruction_count_i) <= RETIRE_SLOT_COUNT)
+      assert (int'(retired_instruction_count_i) <= RETIRE_SLOT_COUNT)
       else $error("PMU observed more retired instructions than available retire slots");
 
       assert ((mcountinhibit_q & ~32'h0000_0005) == 32'b0)

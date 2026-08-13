@@ -178,9 +178,8 @@ module riscv32_core
   assign icache_invalidate_req = committed_fence_i_occurred;
 
   // buffer位于IFU和IDU之间，只保存已经完成的fetch_entry，不参与PC生成、cache访问或译码。
-  // redirect必须在发生的同一拍flush队列，因为队列中的entry属于旧控制流；当前标量顺序核没有
-  // redirect ready，因此`selected_redirect_req_valid`本身就是重定向发生事件。flush时buffer会同时
-  // 拉低上下游握手，防止旧entry在重定向当拍被IDU接收。
+  // redirect当拍停止IFU入队，并在时钟沿清除队列中的旧控制流entry。IDU队首valid不受flush的
+  // 组合门控：当前队首指令可能正是redirect来源，若用redirect压低它自身的valid会形成组合环。
   riscv32_fetch_buffer #(
       .ENTRY_COUNT(2)
   ) u_fetch_buffer (
@@ -194,8 +193,9 @@ module riscv32_core
       .idu_fetch_entry_ready_i(idu_fetch_entry_ready),
       .flush_i                (selected_redirect_req_valid)
   );
-  // ENTRY_COUNT=2只表示当前前端最多缓冲两个已取回entry。未来改为多发射时，应把entry升级为
-  // fetch packet，并根据取指宽度、译码宽度和分支恢复延迟重新确定深度，而不是继续堆标量队列。
+  // ENTRY_COUNT=2只表示当前前端最多缓冲两个已取回entry。这个寄存器化边界还切断了I-cache到
+  // commit的组合路径。未来改为多发射时，应把entry升级为fetch packet，并根据取指宽度、译码
+  // 宽度和分支恢复延迟重新确定深度，而不是继续堆标量队列。
 
   riscv32_idu u_idu (
       // IDU反压只能阻止buffer出队；只要buffer还有空位，IFU仍可继续交付已经完成的取指结果。
