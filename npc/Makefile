@@ -78,6 +78,7 @@ CXX_INCLUDE_FLAGS := $(addprefix -I, $(INC_PATH))
 # The same C++ simulator drives two RTL shells. These macros describe each
 # shell's generated C++ class and reset polarity.
 NPC_CXXFLAGS := $(CXX_INCLUDE_FLAGS) \
+	-DNPC_STANDALONE_SIM \
 	-DTOP_CLASS=V$(NPC_TOP_MODULE) \
 	-DTOP_DPI_CLASS=V$(NPC_TOP_MODULE)__Dpi \
 	-DTOP_CLOCK=clk \
@@ -85,6 +86,7 @@ NPC_CXXFLAGS := $(CXX_INCLUDE_FLAGS) \
 	-DTOP_RESET_ACTIVE_LEVEL=0
 
 SOC_CXXFLAGS := $(CXX_INCLUDE_FLAGS) \
+	-DNPC_YSYXSOC_SIM \
 	-DTOP_CLASS=V$(SOC_TOP_MODULE) \
 	-DTOP_DPI_CLASS=V$(SOC_TOP_MODULE)__Dpi \
 	-DTOP_CLOCK=clock \

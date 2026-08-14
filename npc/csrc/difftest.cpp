@@ -107,21 +107,31 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
     exit(1);
   }
 
-  // NEMU 初始化后，将DUT使用的程序镜像复制到NEMU的MROM。
-  // SRAM不需要在这里复制：DUT和REF随后都会执行同一段start.S，分别完成
-  // .data从MROM到SRAM的搬运和.bss清零。
-  ref_difftest_init(0);
-  const size_t mrom_image_size = static_cast<size_t>(img_size);
-  ref_difftest_memcpy(MROM_BASE, pmem, mrom_image_size, DIFFTEST_TO_REF);
+  // standalone NPC从传统pmem入口启动；ysyxSoC则从MROM启动。同一套仿真
+  // 支撑代码必须根据构建目标选择镜像地址，不能把SoC复位地址写死到DiffTest。
+#if defined(NPC_STANDALONE_SIM)
+  constexpr uint32_t image_base = LEGACY_PMEM_BASE;
+  constexpr uint32_t reset_pc = LEGACY_PMEM_BASE;
+#elif defined(NPC_YSYXSOC_SIM)
+  constexpr uint32_t image_base = MROM_BASE;
+  constexpr uint32_t reset_pc = YSYXSOC_RESET_VECTOR;
+#else
+#error "DiffTest simulation platform is not selected"
+#endif
 
-  // DiffTest从复位后的第一条指令开始。寄存器值取自已经复位的DUT，
-  // architectural_pc使用ysyxSoC的MROM复位入口，而不是旧NPC的pmem基址。
+  // NEMU初始化后，将DUT使用的程序镜像复制到REF的同一物理地址。
+  ref_difftest_init(0);
+  const size_t image_size = static_cast<size_t>(img_size);
+  ref_difftest_memcpy(image_base, pmem, image_size, DIFFTEST_TO_REF);
+
+  // 在第一条指令执行前同步全部体系结构状态，避免REF自身的构建默认复位地址
+  // 泄漏到比较过程。
   DiffTestRegs dut = {};
-  fill_dut_regs(&dut, YSYXSOC_RESET_VECTOR);
+  fill_dut_regs(&dut, reset_pc);
   ref_difftest_regcpy(&dut, DIFFTEST_TO_REF);
 
-  printf("DiffTest: ON, REF=%s, MROM=[0x%08x, +%zu bytes], reset_pc=0x%08x\n",
-         ref_so_file, MROM_BASE, mrom_image_size, YSYXSOC_RESET_VECTOR);
+  printf("DiffTest: ON, REF=%s, image=[0x%08x, +%zu bytes], reset_pc=0x%08x\n",
+         ref_so_file, image_base, image_size, reset_pc);
 }
 
 void difftest_step(uint32_t pc, uint32_t next_pc) {
