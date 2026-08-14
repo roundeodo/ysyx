@@ -64,14 +64,30 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
   if (!enable)
     return;
 
+  // standalone NPC 从传统 pmem 入口启动；ysyxSoC 则从 MROM 启动。
+  // 镜像地址、复位 PC 和容量必须来自同一个平台选择，不能混用。
+#if defined(NPC_STANDALONE_SIM)
+  constexpr uint32_t image_base = LEGACY_PMEM_BASE;
+  constexpr uint32_t reset_pc = LEGACY_PMEM_BASE;
+  constexpr size_t image_capacity = MEM_SIZE;
+  constexpr const char *image_region_name = "pmem";
+#elif defined(NPC_YSYXSOC_SIM)
+  constexpr uint32_t image_base = MROM_BASE;
+  constexpr uint32_t reset_pc = YSYXSOC_RESET_VECTOR;
+  constexpr size_t image_capacity = MROM_SIZE;
+  constexpr const char *image_region_name = "MROM";
+#else
+#error "DiffTest simulation platform is not selected"
+#endif
+
   if (img_size <= 0) {
     printf("DiffTest requires a loaded program image\n");
     exit(1);
   }
 
-  if (img_size > static_cast<long>(MROM_SIZE)) {
-    printf("DiffTest MROM image is too large: %ld bytes, capacity=%u bytes\n",
-           img_size, MROM_SIZE);
+  if (static_cast<size_t>(img_size) > image_capacity) {
+    printf("DiffTest %s image is too large: %ld bytes, capacity=%zu bytes\n",
+           image_region_name, img_size, image_capacity);
     exit(1);
   }
 
@@ -106,18 +122,6 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
     printf("dlsym failed: %s\n", dlerror());
     exit(1);
   }
-
-  // standalone NPC从传统pmem入口启动；ysyxSoC则从MROM启动。同一套仿真
-  // 支撑代码必须根据构建目标选择镜像地址，不能把SoC复位地址写死到DiffTest。
-#if defined(NPC_STANDALONE_SIM)
-  constexpr uint32_t image_base = LEGACY_PMEM_BASE;
-  constexpr uint32_t reset_pc = LEGACY_PMEM_BASE;
-#elif defined(NPC_YSYXSOC_SIM)
-  constexpr uint32_t image_base = MROM_BASE;
-  constexpr uint32_t reset_pc = YSYXSOC_RESET_VECTOR;
-#else
-#error "DiffTest simulation platform is not selected"
-#endif
 
   // NEMU初始化后，将DUT使用的程序镜像复制到REF的同一物理地址。
   ref_difftest_init(0);
