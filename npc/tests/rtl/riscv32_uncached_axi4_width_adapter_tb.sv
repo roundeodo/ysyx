@@ -212,6 +212,27 @@ module riscv32_uncached_axi4_width_adapter_tb;
     check_core_response('0, 1'b0, mem_txn_id_t'(5));
   endtask
 
+  task automatic run_write_response_error;
+    data_memory_req_t request;
+    request                = '0;
+    request.addr           = 32'h0000_0280;
+    request.cmd            = MEM_CMD_STORE;
+    request.size           = MEM_SIZE_DOUBLE;
+    request.write_data     = 64'h0123_4567_89ab_cdef;
+    request.byte_strobe    = 8'hff;
+    request.transaction_id = mem_txn_id_t'(7);
+    send_core_request(request);
+    fork
+      accept_write_address(32'h0000_0280, 8'd1, 3'd2);
+      begin
+        accept_write_beat(32'h89ab_cdef, 4'b1111, 1'b0);
+        accept_write_beat(32'h0123_4567, 4'b1111, 1'b1);
+      end
+    join
+    send_write_response(AXI4_RESP_SLVERR);
+    check_core_response('0, 1'b1, mem_txn_id_t'(7));
+  endtask
+
   task automatic run_narrow_write(
       input phys_addr_t addr,
       input mem_size_e size,
@@ -246,6 +267,7 @@ module riscv32_uncached_axi4_width_adapter_tb;
     run_aligned_doubleword_read();
     run_second_read_beat_error();
     run_aligned_doubleword_write();
+    run_write_response_error();
 
     run_narrow_write(32'h0000_0305, MEM_SIZE_BYTE,
                      64'h0000_aa00_0000_0000, 8'b0010_0000,
