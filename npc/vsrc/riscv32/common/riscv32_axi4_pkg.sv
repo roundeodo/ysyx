@@ -22,40 +22,47 @@ package riscv32_axi4_pkg;
     AXI4_RESP_DECERR = 2'b11
   } axi4_resp_e;
 
+  // AXI边界自己的基础类型。不要借用phys_addr_t或xlen_data_t：core物理地址、
+  // 标量数据和互连payload是可以独立配置的三个维度。
+  typedef logic [AXI_ADDR_WIDTH-1:0] axi4_addr_t;
+  typedef logic [AXI_DATA_WIDTH-1:0] axi4_data_t;
+  typedef logic [AXI4_STRB_WIDTH-1:0] axi4_strb_t;
+  typedef logic [AXI_ID_WIDTH-1:0] axi4_id_t;
+
   // 五个channel分别拥有独立payload。即使AW和AR当前字段相同，也使用不同类型，
   // 防止模块接口或中间变量失去channel语义。
   typedef struct packed {
-    logic [AXI_ADDR_WIDTH-1:0] addr;
-    logic [AXI_ID_WIDTH-1:0]   id;
+    axi4_addr_t addr;
+    axi4_id_t   id;
     logic [7:0]                len;
     logic [2:0]                size;
     axi4_burst_e               burst;
   } axi4_write_address_t;
 
   typedef struct packed {
-    logic [AXI_DATA_WIDTH-1:0]  data;
-    logic [AXI4_STRB_WIDTH-1:0] strb;
-    logic                       last;
+    axi4_data_t data;
+    axi4_strb_t strb;
+    logic       last;
   } axi4_write_data_t;
 
   typedef struct packed {
-    logic [AXI_ID_WIDTH-1:0] id;
-    axi4_resp_e              resp;
+    axi4_id_t   id;
+    axi4_resp_e resp;
   } axi4_write_response_t;
 
   typedef struct packed {
-    logic [AXI_ADDR_WIDTH-1:0] addr;
-    logic [AXI_ID_WIDTH-1:0]   id;
+    axi4_addr_t addr;
+    axi4_id_t   id;
     logic [7:0]                len;
     logic [2:0]                size;
     axi4_burst_e               burst;
   } axi4_read_address_t;
 
   typedef struct packed {
-    logic [AXI_DATA_WIDTH-1:0] data;
-    logic [AXI_ID_WIDTH-1:0]   id;
-    axi4_resp_e                resp;
-    logic                      last;
+    axi4_data_t data;
+    axi4_id_t   id;
+    axi4_resp_e resp;
+    logic       last;
   } axi4_read_data_t;
 
   // 这里只按端口方向聚合连线，不合并channel，也不改变各channel的独立握手。
