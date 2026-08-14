@@ -36,7 +36,12 @@ module riscv32_icache_refill_axi4_master
   icache_word_index_t received_word_index_q;
   icache_word_index_t received_word_index_d;
 
-  logic [AXI_ADDR_WIDTH-1:0] requested_start_addr;
+  localparam int unsigned AXI_BYTE_OFFSET_WIDTH =
+      (AXI_DATA_BYTE_COUNT > 1) ? $clog2(AXI_DATA_BYTE_COUNT) : 1;
+
+  axi4_addr_t current_word_addr_q;
+  axi4_addr_t current_word_addr_d;
+  int unsigned current_word_bit_offset;
 
   logic refill_req_handshake;
   logic axi_read_address_handshake;
@@ -51,16 +56,12 @@ module riscv32_icache_refill_axi4_master
       (axi_manager_i.r.resp != AXI4_RESP_OKAY) &&
       (axi_manager_i.r.resp != AXI4_RESP_EXOKAY);
 
-  // 完整line从line base开始；单word uncached fetch直接访问critical word地址。
-  // 这里不能始终使用line_base_addr，否则同一line内非零word的不可缓存取指会读错数据。
+  // AXI允许在较宽数据总线上发出窄传输。此时有效word位于由地址低位指定的byte lane，
+  // 不能直接把整个RDATA转换成cache word。current_word_addr_q同时用于发出AR地址和
+  // 选择返回lane，每接受一个非末beat后按cache word宽度递增。
   always_comb begin
-    requested_start_addr = refill_req_q.line_base_addr;
-
-    if (refill_req_q.requested_word_count == icache_refill_word_count_t'(1)) begin
-      requested_start_addr =
-          refill_req_q.line_base_addr +
-          AXI_ADDR_WIDTH'(refill_req_q.critical_word_index * ICACHE_FETCH_BYTES);
-    end
+    current_word_bit_offset =
+        int'(current_word_addr_q[AXI_BYTE_OFFSET_WIDTH-1:0]) * 8;
   end
 
   // 第一段：组合输出。写通道在I-cache adapter中永久关闭。
@@ -72,7 +73,7 @@ module riscv32_icache_refill_axi4_master
 
     unique case (state_q)
       REFILL_SEND_READ_ADDRESS: begin
-        axi_manager_o.ar.addr  = requested_start_addr;
+        axi_manager_o.ar.addr  = current_word_addr_q;
         axi_manager_o.ar.id    = READ_TRANSACTION_ID;
         axi_manager_o.ar.len   = 8'(refill_req_q.requested_word_count - 1'b1);
         axi_manager_o.ar.size  = 3'($clog2(ICACHE_FETCH_BYTES));
@@ -81,7 +82,9 @@ module riscv32_icache_refill_axi4_master
       end
 
       REFILL_RECEIVE_READ_DATA: begin
-        refill_resp_o.word_data         = axi_manager_i.r.data;
+        refill_resp_o.word_data = icache_fetch_data_t'(
+            axi_manager_i.r.data >> current_word_bit_offset
+        );
         refill_resp_o.word_index        = received_word_index_q;
         refill_resp_o.last_word         = axi_manager_i.r.last;
         refill_resp_o.access_fault      = response_has_access_fault;
@@ -99,17 +102,22 @@ module riscv32_icache_refill_axi4_master
     state_d               = state_q;
     refill_req_d          = refill_req_q;
     received_word_index_d = received_word_index_q;
+    current_word_addr_d   = current_word_addr_q;
 
     unique case (state_q)
       REFILL_IDLE: begin
         if (refill_req_handshake) begin
-          refill_req_d          = refill_req_i;
+          refill_req_d = refill_req_i;
           if (refill_req_i.requested_word_count == icache_refill_word_count_t'(1)) begin
             received_word_index_d = refill_req_i.critical_word_index;
+            current_word_addr_d =
+                refill_req_i.line_base_addr +
+                AXI_ADDR_WIDTH'(refill_req_i.critical_word_index * ICACHE_FETCH_BYTES);
           end else begin
             received_word_index_d = '0;
+            current_word_addr_d   = refill_req_i.line_base_addr;
           end
-          state_d               = REFILL_SEND_READ_ADDRESS;
+          state_d = REFILL_SEND_READ_ADDRESS;
         end
       end
 
@@ -124,9 +132,12 @@ module riscv32_icache_refill_axi4_master
           if (axi_manager_i.r.last) begin
             refill_req_d          = '0;
             received_word_index_d = '0;
+            current_word_addr_d   = '0;
             state_d               = REFILL_IDLE;
           end else begin
             received_word_index_d = received_word_index_q + icache_word_index_t'(1);
+            current_word_addr_d =
+                current_word_addr_q + AXI_ADDR_WIDTH'(ICACHE_FETCH_BYTES);
           end
         end
       end
@@ -135,6 +146,7 @@ module riscv32_icache_refill_axi4_master
         state_d               = REFILL_IDLE;
         refill_req_d          = '0;
         received_word_index_d = '0;
+        current_word_addr_d   = '0;
       end
     endcase
   end
@@ -151,8 +163,24 @@ module riscv32_icache_refill_axi4_master
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) received_word_index_q <= '0;
-    else received_word_index_q <= received_word_index_d;
+    if (!rst_ni) begin
+      received_word_index_q <= '0;
+      current_word_addr_q   <= '0;
+    end else begin
+      received_word_index_q <= received_word_index_d;
+      current_word_addr_q   <= current_word_addr_d;
+    end
   end
+
+`ifndef SYNTHESIS
+  initial begin
+    assert (ICACHE_FETCH_BYTES <= AXI_DATA_BYTE_COUNT)
+      else $fatal(1, "I-cache refill word cannot exceed one AXI beat");
+    assert ((ICACHE_FETCH_BYTES & (ICACHE_FETCH_BYTES - 1)) == 0)
+      else $fatal(1, "I-cache fetch byte count must be a power of two");
+    assert ((AXI_DATA_BYTE_COUNT & (AXI_DATA_BYTE_COUNT - 1)) == 0)
+      else $fatal(1, "AXI data byte count must be a power of two");
+  end
+`endif
 
 endmodule

@@ -28,6 +28,8 @@ module riscv32_uncached_axi4_master
       (CORE_DATA_BYTE_COUNT + AXI_DATA_BYTE_COUNT - 1) / AXI_DATA_BYTE_COUNT;
   localparam int unsigned AXI_BEAT_INDEX_WIDTH =
       (MAX_AXI_BEAT_COUNT > 1) ? $clog2(MAX_AXI_BEAT_COUNT) : 1;
+  localparam int unsigned AXI_BYTE_OFFSET_WIDTH =
+      (AXI_DATA_BYTE_COUNT > 1) ? $clog2(AXI_DATA_BYTE_COUNT) : 1;
   localparam int unsigned AXI_MAX_TRANSFER_SIZE = $clog2(AXI_DATA_BYTE_COUNT);
 
   typedef logic [AXI_BEAT_INDEX_WIDTH-1:0] axi_beat_index_t;
@@ -97,7 +99,7 @@ module riscv32_uncached_axi4_master
   always_comb begin
     first_core_byte_offset = data_memory_req_q.addr[CORE_BYTE_OFFSET_WIDTH-1:0];
     first_axi_slice_index = axi_beat_index_t'(
-        first_core_byte_offset / AXI_DATA_BYTE_COUNT
+        first_core_byte_offset >> AXI_BYTE_OFFSET_WIDTH
     );
     current_read_slice_index  = first_axi_slice_index + read_beat_index_q;
     current_write_slice_index = first_axi_slice_index + write_beat_index_q;
