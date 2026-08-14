@@ -1,8 +1,8 @@
 # P2配置层和宽度解耦计划
 
-状态：P2-B已完成，当前检查点为P2-C core内部宽度解耦
+状态：P2-C已完成，当前检查点为P2-D cache和互连宽度解耦
 
-最后更新：2026-08-13
+最后更新：2026-08-14
 
 ## 1. 目标
 
@@ -74,6 +74,10 @@ ISA常量、语义枚举和模块间payload。迁移一项就删除旧定义，�
 依次修改寄存器堆、decode/execute、CSR/trap、LSU和前端。每个模块使用语义类型，load/store
 的size、符号扩展和byte enable必须由宽度派生。完成一个边界就运行lint和dummy。
 
+已完成寄存器堆、IDU/EXU、CSR/trap、PMU、LSU、IFU和I-cache内部数据通路的语义类型
+迁移。PC、标量数据、物理地址、指令和I-cache取指数据不再依靠相同的裸位宽表达；跨地址
+package和总线边界时使用显式类型转换。本检查点已通过独立NPC的lint、build和dummy回归。
+
 ### P2-D：解耦cache和互连宽度
 
 I-cache line几何与`INSTR_WIDTH`关联，不能默认等于`XLEN`。AXI package使用独立的地址、
@@ -97,7 +101,8 @@ I-cache line几何与`INSTR_WIDTH`关联，不能默认等于`XLEN`。AXI packag
 - 文档记录剩余硬编码及其明确所有者；
 - P3开始前冻结`YSYX_RV64_SEQUENTIAL`的ISA、软件和DiffTest范围。
 
-## 6. 第一个实际任务
+## 6. 下一个实际任务
 
-进入P2-C，按寄存器堆、IDU/EXU、CSR/trap、LSU、前端的顺序迁移语义类型。每完成一个
-边界都运行独立NPC和ysyxSoC lint；完成整个P2-C后再运行dummy和cpu-tests回归。
+进入P2-D，继续审计I-cache line几何、AXI4各通道payload和core到AXI adapter。重点验证
+取指宽度、core数据宽度与AXI数据宽度不相等时，地址切片、byte lane和burst行为仍由各自
+所有者的配置派生。

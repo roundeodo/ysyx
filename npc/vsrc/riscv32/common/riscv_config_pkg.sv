@@ -6,12 +6,19 @@
 package riscv_config_pkg;
 
   // 当前RV32基线把架构、物理地址、指令、core数据和AXI宽度分别建模。
+  // NPC_TEST_CORE64_AXI32只用于P2宽度adapter单元测试，不改变正常NPC构建配置。
+`ifdef NPC_TEST_CORE64_AXI32
+  localparam int unsigned XLEN = 64;
+  localparam int unsigned CORE_DATA_WIDTH = 64;
+  localparam int unsigned AXI_DATA_WIDTH = 32;
+`else
   localparam int unsigned XLEN = 32;
+  localparam int unsigned CORE_DATA_WIDTH = 32;
+  localparam int unsigned AXI_DATA_WIDTH = 32;
+`endif
   localparam int unsigned PADDR_WIDTH = 32;
   localparam int unsigned INSTR_WIDTH = 32;
-  localparam int unsigned CORE_DATA_WIDTH = 32;
   localparam int unsigned AXI_ADDR_WIDTH = 32;
-  localparam int unsigned AXI_DATA_WIDTH = 32;
   localparam int unsigned AXI_ID_WIDTH = 4;
   localparam int unsigned ARCH_REG_COUNT = 32;
   //

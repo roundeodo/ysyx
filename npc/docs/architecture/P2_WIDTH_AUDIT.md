@@ -1,10 +1,10 @@
 # P2宽度依赖审计
 
-状态：P2-B已完成，进入P2-C core内部宽度解耦
+状态：P2-C已完成，进入P2-D cache和互连宽度解耦
 
 基线提交：`ce27fb8eed29c0b039dc11ddc66407c096486a16`
 
-最后更新：2026-08-13
+最后更新：2026-08-14
 
 ## 1. 审计规则
 
@@ -46,6 +46,9 @@
 2. 在ISA package中引入`instruction_t`、`xlen_data_t`、`phys_addr_t`等语义类型。
 3. 先迁移公共payload，再迁移寄存器堆、IDU/EXU、CSR/trap、LSU和前端。
 4. 最后迁移AXI adapter和仿真边界；每个检查点运行NPC/SoC lint和dummy。
+
+P2-C已经完成第3项中的core内部迁移：寄存器堆、IDU/EXU、CSR/trap、PMU、LSU和前端
+均改用语义类型。P2-D继续处理第4项，不把core宽度变化隐式传播到AXI和仿真边界。
 
 ## 4. 当前禁止事项
 

@@ -183,7 +183,8 @@ package riscv32_pkg;
   typedef enum logic [1:0] {
     MEM_SIZE_BYTE = 2'd0,
     MEM_SIZE_HALF = 2'd1,
-    MEM_SIZE_WORD = 2'd2
+    MEM_SIZE_WORD = 2'd2,
+    MEM_SIZE_DOUBLE = 2'd3
   } mem_size_e;
 
   typedef enum logic [1:0] {
