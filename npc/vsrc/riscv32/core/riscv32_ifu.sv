@@ -132,7 +132,12 @@ module riscv32_ifu
         if (lookup_request_handshake) begin
           state_d             = IFU_WAIT_LOOKUP_RESPONSE;
           next_frontend_tag_d = next_frontend_tag_q + frontend_tag_t'(1);
-          if (!redirect_req_valid_i) begin
+          // redirect可能与上一条lookup响应握手同拍出现。此时状态在时钟沿后已经回到
+          // SEND_LOOKUP，但lookup_pc_q/lookup_fetch_epoch_q仍属于旧控制流；即使随后旧请求
+          // 被I-cache接受，也只能等待并丢弃它的响应，不能用lookup_pc_q + 4覆盖已经保存
+          // 在resume_pc_d中的redirect目标。epoch相等才说明本次请求属于当前控制流。
+          if (!redirect_req_valid_i &&
+              (lookup_fetch_epoch_q == current_fetch_epoch_q)) begin
             // ICACHE_FETCH_BYTES描述一次cache lookup返回多少字节，不等于ISA顺序PC步长。
             // 将二者解耦后，扩大cache line或未来一次取多条指令都不会让PC错误跳过指令。
             resume_pc_d = lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES);
