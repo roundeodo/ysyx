@@ -251,7 +251,7 @@ fetch buffer、IFU/core接线、PMU事件和`fence.i`路径。P1退出条件仍�
 
 ### P2：建立配置层并解耦所有宽度
 
-状态：进行中，P2-B配置package与公共类型边界已完成，当前进入P2-C。
+状态：已完成（2026-08-14）。
 
 - 创建统一配置 package 和命名配置；
 - 分离 `XLEN`、地址、指令、core 数据和 SoC 总线宽度；
@@ -260,6 +260,10 @@ fetch buffer、IFU/core接线、PMU事件和`fence.i`路径。P1退出条件仍�
 
 实施细节见[`P2_CONFIGURATION_PLAN.md`](P2_CONFIGURATION_PLAN.md)。P2不得破坏当前RV32
 可回归基线，也不得用散落的条件编译在模块内部维护两套数据通路。
+
+P2已完成统一配置package、core语义类型迁移、I-cache/AXI宽度解耦和64位core侧到32位
+AXI侧的adapter验证。RV32基线通过RTL lint、35项cpu-tests和standalone NEMU DiffTest；
+P3开始前需要冻结RV64软件、ISA和验证范围。
 
 ### P3：RV64 顺序功能基线
 

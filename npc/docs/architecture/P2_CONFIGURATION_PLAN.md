@@ -1,6 +1,6 @@
 # P2配置层和宽度解耦计划
 
-状态：P2-C已完成，当前检查点为P2-D cache和互连宽度解耦
+状态：P2已完成，下一检查点为P3 RV64顺序功能基线范围冻结
 
 最后更新：2026-08-14
 
@@ -83,6 +83,12 @@ package和总线边界时使用显式类型转换。本检查点已通过独立N
 I-cache line几何与`INSTR_WIDTH`关联，不能默认等于`XLEN`。AXI package使用独立的地址、
 数据、ID和strobe宽度。core到AXI的宽度变化只在adapter中完成。
 
+已完成I-cache与互连的宽度解耦。cache word、line、set和tag切片由取指宽度、物理地址宽度
+及cache参数派生；AXI4各通道使用独立的地址、数据、ID和strobe类型。uncached adapter是
+core访存宽度与AXI数据宽度之间唯一的转换边界，负责窄beat拆分、读数据合并、写数据和
+strobe切片以及错误聚合。I-cache refill adapter也按AXI beat宽度选择返回lane，不再假定
+取指word和AXI beat等宽。
+
 ### P2-E：建立宽度adapter单元测试
 
 先验证64位core侧到32位AXI侧的拆分/合并，不立即接入RV64 core。测试至少覆盖：
@@ -93,16 +99,33 @@ I-cache line几何与`INSTR_WIDTH`关联，不能默认等于`XLEN`。AXI packag
 - 第二个beat失败时只返回一次core错误；
 - valid有效且ready无效时payload稳定。
 
-## 5. P2退出条件
+已建立64位core侧到32位AXI侧的自检单元测试，覆盖对齐64位读写、byte/half/word写、
+AW/W独立反压、读写错误传播、第二个读beat失败、写响应失败以及响应背压稳定性。adapter
+对一次core请求只产生一次完成响应。
 
-- 活动RTL不存在把`XLEN`、地址宽度、指令宽度和AXI宽度默认等同的接口；
-- `YSYX_RV32_BASELINE`完成lint、dummy、cpu-tests和DiffTest回归；
-- 宽度adapter单元测试通过；
-- 文档记录剩余硬编码及其明确所有者；
-- P3开始前冻结`YSYX_RV64_SEQUENTIAL`的ISA、软件和DiffTest范围。
+## 5. P2退出条件和验证结果
+
+- [x] 活动RTL不存在把`XLEN`、地址宽度、指令宽度和AXI宽度默认等同的接口；
+- [x] `YSYX_RV32_BASELINE`完成lint、dummy和35项cpu-tests回归；
+- [x] 使用standalone内存配置的NEMU reference完成dummy DiffTest；
+- [x] 64位core侧到32位AXI侧的宽度adapter单元测试通过；
+- [x] 文档记录剩余固定宽度及其明确所有者；
+- [ ] P3开始前冻结`YSYX_RV64_SEQUENTIAL`的ISA、软件和DiffTest范围。
+
+| 检查项 | 命令或配置 | 结果 |
+| --- | --- | --- |
+| RTL lint | `make lint-npc PROJECT=riscv32` | 通过，仅剩未使用配置/地址常量提示 |
+| adapter单元测试 | `make test-width-adapter PROJECT=riscv32` | 通过 |
+| RV32功能回归 | 逐项运行35个`cpu-tests`镜像 | 35/35通过 |
+| DiffTest | dummy + standalone NEMU reference | 通过，13条退休指令 |
+
+DiffTest复验时必须区分两类NEMU reference：ysyxSoC配置使用`0x2000_0000`附近的SoC内存
+映射，独立NPC配置使用`0x8000_0000`基址。P2验证在临时目录中构建standalone reference，
+没有覆盖工作区当前的ysyxSoC NEMU配置。
 
 ## 6. 下一个实际任务
 
-进入P2-D，继续审计I-cache line几何、AXI4各通道payload和core到AXI adapter。重点验证
-取指宽度、core数据宽度与AXI数据宽度不相等时，地址切片、byte lane和burst行为仍由各自
-所有者的配置派生。
+进入P3前先冻结`YSYX_RV64_SEQUENTIAL`的首版范围：RV64I指令和CSR集合、AM链接地址、
+NEMU reference配置、DiffTest寄存器状态布局以及RV32/RV64双配置回归矩阵。文件和module
+名称暂不做全局`riscv32`到`riscv64`替换；先让同一实现通过两个命名配置，再依据模块实际
+职责统一命名。

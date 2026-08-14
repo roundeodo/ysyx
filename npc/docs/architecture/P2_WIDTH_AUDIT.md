@@ -1,6 +1,6 @@
 # P2宽度依赖审计
 
-状态：P2-C已完成，进入P2-D cache和互连宽度解耦
+状态：P2已完成
 
 基线提交：`ce27fb8eed29c0b039dc11ddc66407c096486a16`
 
@@ -48,9 +48,26 @@
 4. 最后迁移AXI adapter和仿真边界；每个检查点运行NPC/SoC lint和dummy。
 
 P2-C已经完成第3项中的core内部迁移：寄存器堆、IDU/EXU、CSR/trap、PMU、LSU和前端
-均改用语义类型。P2-D继续处理第4项，不把core宽度变化隐式传播到AXI和仿真边界。
+均改用语义类型。P2-D完成第4项：core宽度变化由明确的adapter终止，不能隐式传播到AXI
+或仿真边界。
 
-## 4. 当前禁止事项
+## 4. 最终审计结果
+
+| 固定宽度或写法 | 所有者 | 结论 |
+| --- | --- | --- |
+| ysyxSoC顶层AXI端口`[31:0]` | 外部SoC接口规范 | 保留在wrapper边界，内部使用AXI语义类型 |
+| RISC-V基础指令32位 | ISA | 保留为`instruction_t`，不随`XLEN`变化 |
+| CSR地址12位及opcode/funct字段 | ISA | 保留固定宽度 |
+| SoC设备地址常量 | address-map package | 保留具体映射值，不用于表达数据通路宽度 |
+| core标量和寄存器宽度 | 命名配置 | 只由`XLEN`及语义类型表达 |
+| cache tag/index/offset | cache局部参数 | 从物理地址和cache几何派生 |
+| AXI lane、size和strobe | AXI配置/adapter | 从`AXI_DATA_WIDTH`派生 |
+| C++/DPI数据载体 | 仿真边界 | 显式转换，不能依靠宿主语言隐式截断 |
+
+活动RTL不再保留AXI4-Lite兼容路径。历史文档可以描述迁移过程，但filelist中的实现只使用
+完整AXI4。64位core侧到32位AXI侧的拆分和合并行为已由独立单元测试固定。
+
+## 5. 当前禁止事项
 
 - 禁止全局把`[31:0]`替换为`[XLEN-1:0]`。
 - 禁止为RV32和RV64复制两套数据通路。

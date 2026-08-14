@@ -124,3 +124,28 @@
 - 该记录把P1基本功能检查绑定到确定提交，可由相同命令复现。
 - 结果只证明最短控制流、一次store、redirect响应丢弃以及I-cache基本取指路径可工作；P1仍需
   I-cache定向测试、完整功能回归、microbench A/B和综合/STA后才能关闭。
+
+## 2026-08-14 - P2配置层和宽度解耦收口
+
+- Commit：uncommitted；P2提交后应把本字段替换为确定commit。
+- 架构决策：P2，core宽度和AXI宽度只在adapter边界转换。
+- 工作负载和规模：64/32位宽度adapter定向测试、35项RV32 cpu-tests、dummy DiffTest。
+- 构建配置：`YSYX_RV32_BASELINE`；adapter单测额外启用64位core/32位AXI测试配置。
+- 命令：`make test-width-adapter PROJECT=riscv32`、`make lint-npc PROJECT=riscv32`；
+  cpu-tests逐镜像运行；DiffTest使用standalone内存配置的临时NEMU reference。
+- 功能结果：adapter测试通过，lint通过，cpu-tests 35/35通过，dummy DiffTest通过。
+- 综合目标/结果：本次变更不包含新的综合/STA结果。
+
+验证范围：
+
+- adapter覆盖64位读写拆成两个32位beat、窄写strobe、AW/W独立反压和响应保持；
+- 覆盖读beat错误、第二个读beat错误和写响应错误，均只向core返回一次错误；
+- RV32完整cpu-tests证明宽度重构没有破坏现有指令行为；
+- standalone DiffTest证明重构后的架构状态仍与NEMU一致。
+
+分析：
+
+- P2的主要风险不是算术逻辑，而是地址lane、strobe、burst终止和错误聚合边界；定向单元
+  测试比仅运行短程序更能约束这些行为。
+- ysyxSoC与独立NPC使用不同NEMU内存映射，不能复用同一个reference构建结果。后续应在
+  P3回归脚本中把两种reference配置显式命名，避免环境配置被误判为RTL错误。

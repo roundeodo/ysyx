@@ -39,8 +39,8 @@ module riscv32_ifu
   // IFU保存的是架构控制流位置；I-cache接口上的fetch_addr才是物理地址。
   program_counter_t lookup_pc_q;
   program_counter_t lookup_pc_d;
-  program_counter_t resume_pc_q;
-  program_counter_t resume_pc_d;
+  program_counter_t next_fetch_request_pc_q;
+  program_counter_t next_fetch_request_pc_d;
 
   frontend_tag_t next_frontend_tag_q;
   frontend_tag_t next_frontend_tag_d;
@@ -109,22 +109,23 @@ module riscv32_ifu
     endcase
   end
 
-  // redirect只立即更新“后续从哪里继续”和当前控制流epoch，不改写已经呈现在请求通道
+  // redirect只立即更新“下一次取指请求地址”和当前控制流epoch，不改写已经呈现在请求通道
   // 上的PC、tag和epoch。即使I-cache正在反压，请求payload也会稳定到握手发生。
-  // resume_pc表示“当前在途请求结束后应从哪里继续”，因此redirect与response同拍时也必须
-  // 使用本拍更新后的resume_pc_d，而不能使用旧的resume_pc_q。连续多个redirect发生时，
-  // 最后一次目标覆盖前一次目标，并通过递增epoch使更早控制流的返回项全部失效。
+  // next_fetch_request_pc表示“当前在途请求结束后，下一次向I-cache请求哪个PC”。因此
+  // redirect与response同拍时也必须使用本拍更新后的next_fetch_request_pc_d，不能使用旧的
+  // next_fetch_request_pc_q。连续多个redirect发生时，最后一次目标覆盖前一次目标，并通过
+  // 递增epoch使更早控制流的返回项全部失效。
   always_comb begin
-    state_d               = state_q;
-    lookup_pc_d           = lookup_pc_q;
-    resume_pc_d           = resume_pc_q;
-    next_frontend_tag_d   = next_frontend_tag_q;
-    lookup_fetch_epoch_d  = lookup_fetch_epoch_q;
-    current_fetch_epoch_d = current_fetch_epoch_q;
+    state_d                  = state_q;
+    lookup_pc_d              = lookup_pc_q;
+    next_fetch_request_pc_d  = next_fetch_request_pc_q;
+    next_frontend_tag_d      = next_frontend_tag_q;
+    lookup_fetch_epoch_d     = lookup_fetch_epoch_q;
+    current_fetch_epoch_d    = current_fetch_epoch_q;
 
     if (redirect_req_valid_i) begin
-      resume_pc_d           = redirect_req_i.target_pc;
-      current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
+      next_fetch_request_pc_d = redirect_req_i.target_pc;
+      current_fetch_epoch_d   = current_fetch_epoch_q + fetch_epoch_t'(1);
     end
 
     unique case (state_q)
@@ -135,30 +136,31 @@ module riscv32_ifu
           // redirect可能与上一条lookup响应握手同拍出现。此时状态在时钟沿后已经回到
           // SEND_LOOKUP，但lookup_pc_q/lookup_fetch_epoch_q仍属于旧控制流；即使随后旧请求
           // 被I-cache接受，也只能等待并丢弃它的响应，不能用lookup_pc_q + 4覆盖已经保存
-          // 在resume_pc_d中的redirect目标。epoch相等才说明本次请求属于当前控制流。
+          // 在next_fetch_request_pc_d中的redirect目标。epoch相等才说明本次请求属于当前控制流。
           if (!redirect_req_valid_i &&
               (lookup_fetch_epoch_q == current_fetch_epoch_q)) begin
             // ICACHE_FETCH_BYTES描述一次cache lookup返回多少字节，不等于ISA顺序PC步长。
             // 将二者解耦后，扩大cache line或未来一次取多条指令都不会让PC错误跳过指令。
-            resume_pc_d = lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES);
+            next_fetch_request_pc_d =
+                lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES);
           end
         end
       end
       IFU_WAIT_LOOKUP_RESPONSE: begin
         if (lookup_response_handshake) begin
-          lookup_pc_d          = resume_pc_d;
+          lookup_pc_d          = next_fetch_request_pc_d;
           lookup_fetch_epoch_d = current_fetch_epoch_d;
           state_d              = IFU_SEND_LOOKUP;
         end
       end
 
       default: begin
-        state_d               = IFU_SEND_LOOKUP;
-        lookup_pc_d           = PC_START;
-        resume_pc_d           = PC_START;
-        next_frontend_tag_d   = '0;
-        lookup_fetch_epoch_d  = '0;
-        current_fetch_epoch_d = '0;
+        state_d                  = IFU_SEND_LOOKUP;
+        lookup_pc_d              = PC_START;
+        next_fetch_request_pc_d  = PC_START;
+        next_frontend_tag_d      = '0;
+        lookup_fetch_epoch_d     = '0;
+        current_fetch_epoch_d    = '0;
       end
     endcase
   end
@@ -175,17 +177,17 @@ module riscv32_ifu
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      lookup_pc_q           <= PC_START;
-      resume_pc_q           <= PC_START;
-      next_frontend_tag_q   <= '0;
-      lookup_fetch_epoch_q  <= '0;
-      current_fetch_epoch_q <= '0;
+      lookup_pc_q              <= PC_START;
+      next_fetch_request_pc_q  <= PC_START;
+      next_frontend_tag_q      <= '0;
+      lookup_fetch_epoch_q     <= '0;
+      current_fetch_epoch_q    <= '0;
     end else begin
-      lookup_pc_q           <= lookup_pc_d;
-      resume_pc_q           <= resume_pc_d;
-      next_frontend_tag_q   <= next_frontend_tag_d;
-      lookup_fetch_epoch_q  <= lookup_fetch_epoch_d;
-      current_fetch_epoch_q <= current_fetch_epoch_d;
+      lookup_pc_q              <= lookup_pc_d;
+      next_fetch_request_pc_q  <= next_fetch_request_pc_d;
+      next_frontend_tag_q      <= next_frontend_tag_d;
+      lookup_fetch_epoch_q     <= lookup_fetch_epoch_d;
+      current_fetch_epoch_q    <= current_fetch_epoch_d;
     end
   end
 
