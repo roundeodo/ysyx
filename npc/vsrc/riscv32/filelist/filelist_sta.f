@@ -1,3 +1,4 @@
+// 正式配置宏由Makefile通过NPC_CONFIG唯一传入，STA filelist只负责源文件顺序。
 ${NPC_HOME}/vsrc/riscv32/common/riscv_config_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_addr_map_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_axi4_pkg.sv

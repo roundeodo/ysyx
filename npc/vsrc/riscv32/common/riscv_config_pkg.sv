@@ -5,43 +5,66 @@
 // 改变全局配置，禁止各模块再次声明自己的XLEN或AXI宽度。
 package riscv_config_pkg;
 
-  // 当前RV32基线把架构、物理地址、指令、core数据和AXI宽度分别建模。
-  // NPC_TEST_CORE64_AXI32只用于P2宽度adapter单元测试，不改变正常NPC构建配置。
-`ifdef NPC_TEST_CORE64_AXI32
-  localparam int unsigned XLEN = 64;
-  localparam int unsigned CORE_DATA_WIDTH = 64;
-  localparam int unsigned AXI_DATA_WIDTH = 32;
+  // 正式配置由Makefile唯一选择。无配置或重复配置只为配置检查保留零宽占位值，
+  // 正常RTL构建会在Make阶段直接拒绝，不允许功能模块自行选择默认配置。
+`ifdef YSYX_RV32_BASELINE
+`ifdef YSYX_RV64_SEQUENTIAL
+  localparam int unsigned CONFIG_SELECTION_COUNT = 2;
+  localparam int unsigned XLEN = 0;
+  localparam int unsigned CORE_DATA_WIDTH = 0;
+  localparam int unsigned MEM_AXI_DATA_WIDTH = 0;
 `else
+  localparam int unsigned CONFIG_SELECTION_COUNT = 1;
   localparam int unsigned XLEN = 32;
   localparam int unsigned CORE_DATA_WIDTH = 32;
-  localparam int unsigned AXI_DATA_WIDTH = 32;
+  localparam int unsigned MEM_AXI_DATA_WIDTH = 32;
 `endif
+`elsif YSYX_RV64_SEQUENTIAL
+  localparam int unsigned CONFIG_SELECTION_COUNT = 1;
+  localparam int unsigned XLEN = 64;
+  localparam int unsigned CORE_DATA_WIDTH = 64;
+  localparam int unsigned MEM_AXI_DATA_WIDTH = 64;
+`else
+  localparam int unsigned CONFIG_SELECTION_COUNT = 0;
+  localparam int unsigned XLEN = 0;
+  localparam int unsigned CORE_DATA_WIDTH = 0;
+  localparam int unsigned MEM_AXI_DATA_WIDTH = 0;
+`endif
+
   localparam int unsigned PADDR_WIDTH = 32;
   localparam int unsigned INSTR_WIDTH = 32;
-  localparam int unsigned AXI_ADDR_WIDTH = 32;
-  localparam int unsigned AXI_ID_WIDTH = 4;
   localparam int unsigned ARCH_REG_COUNT = 32;
+
+  // 正式core/cache memory AXI属于处理器架构边界。RV64配置使用64位数据beat。
+  localparam int unsigned MEM_AXI_ADDR_WIDTH = 32;
+  localparam int unsigned MEM_AXI_ID_WIDTH = 4;
+
+  // 当前ysyxSoC CPU插槽固定为AXI32。P3-D只允许在system wrapper中转换宽度，
+  // 不能把开发板限制传播到core、cache或standalone memory AXI中。
+  localparam int unsigned YSYX_SOC_AXI_ADDR_WIDTH = 32;
+  localparam int unsigned YSYX_SOC_AXI_DATA_WIDTH = 32;
+  localparam int unsigned YSYX_SOC_AXI_ID_WIDTH = 4;
   //
   // 各配置的所有权：
   // - XLEN：整数寄存器、ALU结果、CSR主体和立即数扩展后的宽度。
   // - PADDR_WIDTH：core能够表达的物理地址宽度，不等于XLEN。
   // - INSTR_WIDTH：基础指令编码宽度。RV64下仍然是32，不能跟随XLEN变成64。
   // - CORE_DATA_WIDTH：LSU语义请求在core侧携带的数据宽度。
-  // - AXI_ADDR_WIDTH/AXI_DATA_WIDTH：SoC互连的地址和单个beat数据宽度。
-  // - AXI_ID_WIDTH：AXI事务身份宽度，与ROB、LSQ和frontend tag均无关。
+  // - MEM_AXI_*：core/cache到主存系统的正式AXI边界。
+  // - YSYX_SOC_AXI_*：当前课程SoC插槽边界，只由system wrapper消费。
   // - ARCH_REG_COUNT：架构整数寄存器数量；RV32I和RV64I均为32。
 
   // 只依赖全局配置、且被多个package共同使用的派生量。
   localparam int unsigned XLEN_BYTE_COUNT = XLEN / 8;
   localparam int unsigned CORE_DATA_BYTE_COUNT = CORE_DATA_WIDTH / 8;
-  localparam int unsigned AXI_DATA_BYTE_COUNT = AXI_DATA_WIDTH / 8;
+  localparam int unsigned MEM_AXI_DATA_BYTE_COUNT = MEM_AXI_DATA_WIDTH / 8;
+  localparam int unsigned YSYX_SOC_AXI_DATA_BYTE_COUNT = YSYX_SOC_AXI_DATA_WIDTH / 8;
   //
   // 不要在这里计算I-cache tag、set index或line offset。这些量由I-cache几何决定，
   // 所有者是I-cache，而不是全局配置package。
   //
-  // 本阶段保持XLEN == CORE_DATA_WIDTH == AXI_DATA_WIDTH == 32只是基线配置，不表示
-  // 三者语义相同。P2的目的正是让以后改变其中一个时，编译错误准确暴露缺少adapter
-  // 的边界，而不是通过相同位宽掩盖耦合。
+  // RV32基线中XLEN、core数据和memory AXI恰好都是32位；RV64配置把前三者提升
+  // 到64位，但物理地址、指令和ysyxSoC AXI仍保持32位。相同数值不表示语义相同。
 
   // 全核共享的微架构容量和构建选择。这些参数描述“选择什么实现”，不是payload类型。
   localparam int unsigned FETCH_WIDTH = 1;

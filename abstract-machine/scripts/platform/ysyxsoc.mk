@@ -33,4 +33,4 @@ image: image-dep
 	@$(OBJCOPY) -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	@$(MAKE) -C $(NPC_HOME) sim-image FLASH_IMG=$(IMAGE).bin
+	@$(MAKE) -C $(NPC_HOME) sim-image NPC_CONFIG=rv32-baseline FLASH_IMG=$(IMAGE).bin

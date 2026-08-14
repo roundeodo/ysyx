@@ -15,15 +15,15 @@ module riscv32_axi4_error_target
 
   logic read_transaction_present_q;
   logic read_transaction_present_d;
-  logic [AXI_ID_WIDTH-1:0] read_transaction_id_q;
-  logic [AXI_ID_WIDTH-1:0] read_transaction_id_d;
+  logic [MEM_AXI_ID_WIDTH-1:0] read_transaction_id_q;
+  logic [MEM_AXI_ID_WIDTH-1:0] read_transaction_id_d;
   logic [8:0] read_beat_count_q;
   logic [8:0] read_beat_count_d;
 
   logic write_address_present_q;
   logic write_address_present_d;
-  logic [AXI_ID_WIDTH-1:0] write_transaction_id_q;
-  logic [AXI_ID_WIDTH-1:0] write_transaction_id_d;
+  logic [MEM_AXI_ID_WIDTH-1:0] write_transaction_id_q;
+  logic [MEM_AXI_ID_WIDTH-1:0] write_transaction_id_d;
   logic write_last_data_present_q;
   logic write_last_data_present_d;
 

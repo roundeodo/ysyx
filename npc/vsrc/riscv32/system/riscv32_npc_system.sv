@@ -22,12 +22,12 @@ module riscv32_npc_system
 
   // 本地target地址数组使用AXI fabric宽度，具体地址由addr_map package统一提供。
 
-  localparam logic [AXI_ADDR_WIDTH-1:0]
+  localparam logic [MEM_AXI_ADDR_WIDTH-1:0]
       LOCAL_TARGET_ADDRESS_BASE_ARRAY[LOCAL_TARGET_COUNT] = '{
         CLINT_BASE_ADDR,
         '0
       };
-  localparam logic [AXI_ADDR_WIDTH-1:0]
+  localparam logic [MEM_AXI_ADDR_WIDTH-1:0]
       LOCAL_TARGET_ADDRESS_LAST_ARRAY[LOCAL_TARGET_COUNT] = '{
         CLINT_LAST_ADDR,
         '1

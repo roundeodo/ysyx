@@ -6,7 +6,7 @@
 
 最终产品目标：RV64 异构 AI SoC 主处理器
 
-最后更新：2026-08-01
+最后更新：2026-08-14
 
 ## 1. 文档目的
 
@@ -63,14 +63,20 @@ ISA 列表是实现顺序，不要求一次完成。每增加一个扩展，都�
 | 参数 | 含义 | 当前基线 | 长期方向 |
 | --- | --- | --- | --- |
 | `XLEN` | 整数寄存器和标量运算宽度 | 32 | 64 |
-| `INST_WIDTH` | 基础指令容器宽度 | 32 | 32 |
+| `INSTR_WIDTH` | 基础指令容器宽度 | 32 | 32 |
 | `VADDR_WIDTH` | 虚拟地址宽度 | 32 | Sv39 对应实现宽度 |
 | `PADDR_WIDTH` | 物理地址宽度 | 32 | 由 SoC 地址图决定 |
-| `CORE_DATA_WIDTH` | core/cache 数据通路宽度 | 32 | 64 或更宽的内部 beat |
-| `SOC_AXI_DATA_WIDTH` | ysyxSoC 边界宽度 | 32 | 初期保持 32 |
+| `CORE_DATA_WIDTH` | core 语义访存数据宽度 | 32 | 64 |
+| `MEM_AXI_DATA_WIDTH` | core/cache 到系统的正式 AXI beat 宽度 | 32 | RV64 基线为 64 |
+| `YSYX_SOC_AXI_DATA_WIDTH` | 当前 ysyxSoC CPU 插槽宽度 | 32 | 保持 32，仅用于集成 |
 
-RV64 core 接入当前 32 位 ysyxSoC 时，由边界 adapter 拆分 64 位 load/store。CPU 内部不能
-因为当前 SoC 端口是 32 位，就继续把 `XLEN`、地址和 cache beat 写死为 32 位。
+当前 ysyxSoC 源码没有原生 RV64/AXI64 模式：CPU 插槽固定为 AXI32，顶层固定使用
+`Edge32BitConfig ++ DefaultRV32Config`，外设和 AXI-to-APB 路径也普遍采用 4-byte beat。
+Rocket Chip 依赖具备 RV64 配置能力，但不能由此推断 ysyxSoC 集成已经支持 RV64。
+
+因此 RV64 core、I-cache、未来 D-cache 和系统主存端口统一使用 64 位 memory AXI；接入当前
+32 位 ysyxSoC 时，才由 system wrapper 中的宽度 adapter 拆分事务。CPU 微架构不能因为当前
+验证平台的端口是 32 位，就继续把 `XLEN`、cache beat 或正式 memory AXI 写死为 32 位。
 
 ## 5. 参数化和合法配置
 
@@ -256,21 +262,27 @@ fetch buffer、IFU/core接线、PMU事件和`fence.i`路径。P1退出条件仍�
 - 创建统一配置 package 和命名配置；
 - 分离 `XLEN`、地址、指令、core 数据和 SoC 总线宽度；
 - 清除散落的 `32`、固定 lane 和固定寄存器数；
-- 建立 64-bit core 到 32-bit AXI 的 adapter 单元测试。
+- 建立 64-bit core 到 32-bit ysyxSoC AXI 边界的 adapter 单元测试。
 
 实施细节见[`P2_CONFIGURATION_PLAN.md`](P2_CONFIGURATION_PLAN.md)。P2不得破坏当前RV32
 可回归基线，也不得用散落的条件编译在模块内部维护两套数据通路。
 
 P2已完成统一配置package、core语义类型迁移、I-cache/AXI宽度解耦和64位core侧到32位
-AXI侧的adapter验证。RV32基线通过RTL lint、35项cpu-tests和standalone NEMU DiffTest；
-P3开始前需要冻结RV64软件、ISA和验证范围。
+ysyxSoC边界的adapter验证。该测试不再代表正式RV64 memory AXI的宽度；P3将正式memory
+AXI提升为64位，同时保留该adapter作为ysyxSoC集成组件。RV32基线通过RTL lint、35项
+cpu-tests和standalone NEMU DiffTest；P3开始前需要冻结RV64软件、ISA和验证范围。
 
 ### P3：RV64 顺序功能基线
 
-- RV64I 寄存器、ALU、load/store、CSR 和异常；
-- RV64 AM、NEMU DiffTest 和软件工具链；
-- 分级流水线、旁路、冒险和精确异常；
-- 保持 RV32 与 RV64 两个命名配置均可回归。
+状态：P3-A 待开始。
+
+P3先在现有多周期核上完成`YSYX_RV64_SEQUENTIAL`功能基线，再进行顺序流水化。首版范围
+冻结为RV64I、Zicsr、Zifencei和M-mode；物理地址保持32位，正式memory AXI提升为64位，
+当前ysyxSoC集成边界继续为32位。实施时保持RV32与RV64两个命名配置均可回归，禁止同时
+调试RV64新语义和流水线新时序。
+
+详细的文件顺序、退出条件和验证矩阵见
+[`P3_RV64_SEQUENTIAL_PLAN.md`](P3_RV64_SEQUENTIAL_PLAN.md)。
 
 ### P4：系统软件基础
 

@@ -86,7 +86,7 @@
 维护经过回归的命名配置，例如：
 
 - `YSYX_RV32_BASELINE`：当前课程和功能回归基线；
-- `AI_RV64_IN_ORDER`：RV64 顺序流水线和系统软件基线；
+- `YSYX_RV64_SEQUENTIAL`：RV64 多周期和顺序流水线功能基线；
 - `AI_RV64_OOO`：乱序超标量主处理器；
 - `AI_RV64_VECTOR`：加入标准向量执行能力的 AI 配置。
 

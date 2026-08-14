@@ -31,8 +31,8 @@ module riscv32_axi4_uart_sim
   write_state_e write_state_q;
   write_state_e write_state_d;
 
-  logic [AXI_ID_WIDTH-1:0] read_id_q;
-  logic [AXI_ID_WIDTH-1:0] read_id_d;
+  logic [MEM_AXI_ID_WIDTH-1:0] read_id_q;
+  logic [MEM_AXI_ID_WIDTH-1:0] read_id_d;
   logic [7:0] read_last_beat_index_q;
   logic [7:0] read_last_beat_index_d;
   logic [7:0] read_beat_index_q;
@@ -40,8 +40,8 @@ module riscv32_axi4_uart_sim
   axi4_resp_e read_response_q;
   axi4_resp_e read_response_d;
 
-  logic [AXI_ID_WIDTH-1:0] write_id_q;
-  logic [AXI_ID_WIDTH-1:0] write_id_d;
+  logic [MEM_AXI_ID_WIDTH-1:0] write_id_q;
+  logic [MEM_AXI_ID_WIDTH-1:0] write_id_d;
   axi4_resp_e write_response_q;
   axi4_resp_e write_response_d;
 

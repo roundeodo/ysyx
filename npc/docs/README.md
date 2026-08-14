@@ -26,6 +26,7 @@
 - 最终产品和架构路线：[`architecture/ARCHITECTURE_PLAN.md`](architecture/ARCHITECTURE_PLAN.md)
 - P2配置和宽度解耦：[`architecture/P2_CONFIGURATION_PLAN.md`](architecture/P2_CONFIGURATION_PLAN.md)
 - P2宽度依赖审计：[`architecture/P2_WIDTH_AUDIT.md`](architecture/P2_WIDTH_AUDIT.md)
+- P3 RV64顺序处理器实施计划：[`architecture/P3_RV64_SEQUENTIAL_PLAN.md`](architecture/P3_RV64_SEQUENTIAL_PLAN.md)
 - AI 工作负载依据：[`architecture/AI_WORKLOAD_MODEL.md`](architecture/AI_WORKLOAD_MODEL.md)
 - 固定开发流程：[`development/DEVELOPMENT_PROCESS.md`](development/DEVELOPMENT_PROCESS.md)
 - 命名和源码组织：[`development/NAMING_GUIDE.md`](development/NAMING_GUIDE.md)

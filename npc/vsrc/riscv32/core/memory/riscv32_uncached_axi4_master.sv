@@ -4,8 +4,8 @@ module riscv32_uncached_axi4_master
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 #(
-    parameter logic [AXI_ID_WIDTH-1:0] READ_TRANSACTION_ID  = AXI_ID_WIDTH'(1),
-    parameter logic [AXI_ID_WIDTH-1:0] WRITE_TRANSACTION_ID = AXI_ID_WIDTH'(2)
+    parameter logic [MEM_AXI_ID_WIDTH-1:0] READ_TRANSACTION_ID  = MEM_AXI_ID_WIDTH'(1),
+    parameter logic [MEM_AXI_ID_WIDTH-1:0] WRITE_TRANSACTION_ID = MEM_AXI_ID_WIDTH'(2)
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -25,12 +25,12 @@ module riscv32_uncached_axi4_master
   localparam int unsigned CORE_BYTE_OFFSET_WIDTH =
       (CORE_DATA_BYTE_COUNT > 1) ? $clog2(CORE_DATA_BYTE_COUNT) : 1;
   localparam int unsigned MAX_AXI_BEAT_COUNT =
-      (CORE_DATA_BYTE_COUNT + AXI_DATA_BYTE_COUNT - 1) / AXI_DATA_BYTE_COUNT;
+      (CORE_DATA_BYTE_COUNT + MEM_AXI_DATA_BYTE_COUNT - 1) / MEM_AXI_DATA_BYTE_COUNT;
   localparam int unsigned AXI_BEAT_INDEX_WIDTH =
       (MAX_AXI_BEAT_COUNT > 1) ? $clog2(MAX_AXI_BEAT_COUNT) : 1;
   localparam int unsigned AXI_BYTE_OFFSET_WIDTH =
-      (AXI_DATA_BYTE_COUNT > 1) ? $clog2(AXI_DATA_BYTE_COUNT) : 1;
-  localparam int unsigned AXI_MAX_TRANSFER_SIZE = $clog2(AXI_DATA_BYTE_COUNT);
+      (MEM_AXI_DATA_BYTE_COUNT > 1) ? $clog2(MEM_AXI_DATA_BYTE_COUNT) : 1;
+  localparam int unsigned AXI_MAX_TRANSFER_SIZE = $clog2(MEM_AXI_DATA_BYTE_COUNT);
 
   typedef logic [AXI_BEAT_INDEX_WIDTH-1:0] axi_beat_index_t;
 
@@ -145,10 +145,10 @@ module riscv32_uncached_axi4_master
         axi_manager_o.aw_valid = write_address_pending_q;
 
         axi_manager_o.w.data = data_memory_req_q.write_data[
-            current_write_slice_index * AXI_DATA_WIDTH +: AXI_DATA_WIDTH
+            current_write_slice_index * MEM_AXI_DATA_WIDTH +: MEM_AXI_DATA_WIDTH
         ];
         axi_manager_o.w.strb = data_memory_req_q.byte_strobe[
-            current_write_slice_index * AXI_DATA_BYTE_COUNT +: AXI_DATA_BYTE_COUNT
+            current_write_slice_index * MEM_AXI_DATA_BYTE_COUNT +: MEM_AXI_DATA_BYTE_COUNT
         ];
         axi_manager_o.w.last  = current_write_beat_is_last;
         axi_manager_o.w_valid = write_data_pending_q;
@@ -197,7 +197,7 @@ module riscv32_uncached_axi4_master
       UNCACHED_RECEIVE_READ_DATA: begin
         if (axi_read_data_handshake) begin
           data_memory_resp_d.read_data[
-              current_read_slice_index * AXI_DATA_WIDTH +: AXI_DATA_WIDTH
+              current_read_slice_index * MEM_AXI_DATA_WIDTH +: MEM_AXI_DATA_WIDTH
           ] = axi_manager_i.r.data;
           read_access_fault_d = read_access_fault_q || read_response_has_access_fault;
 
@@ -295,11 +295,11 @@ module riscv32_uncached_axi4_master
 
 `ifndef SYNTHESIS
   initial begin
-    assert (CORE_DATA_WIDTH >= AXI_DATA_WIDTH)
-      else $fatal(1, "uncached adapter requires CORE_DATA_WIDTH >= AXI_DATA_WIDTH");
-    assert ((CORE_DATA_WIDTH % AXI_DATA_WIDTH) == 0)
+    assert (CORE_DATA_WIDTH >= MEM_AXI_DATA_WIDTH)
+      else $fatal(1, "uncached adapter requires CORE_DATA_WIDTH >= MEM_AXI_DATA_WIDTH");
+    assert ((CORE_DATA_WIDTH % MEM_AXI_DATA_WIDTH) == 0)
       else $fatal(1, "core/AXI data-width ratio must be an integer");
-    assert ((AXI_DATA_BYTE_COUNT & (AXI_DATA_BYTE_COUNT - 1)) == 0)
+    assert ((MEM_AXI_DATA_BYTE_COUNT & (MEM_AXI_DATA_BYTE_COUNT - 1)) == 0)
       else $fatal(1, "AXI data byte count must be a power of two");
   end
 

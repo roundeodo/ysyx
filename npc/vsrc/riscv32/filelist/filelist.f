@@ -1,6 +1,7 @@
 // 仅仿真时实例化性能监视模块。STA filelist不定义此开关，因此综合设计中不存在该实例。
 +define+NPC_ENABLE_SIM_MONITOR
 
+// 正式配置宏由Makefile通过NPC_CONFIG唯一传入，filelist不得硬编码RV32/RV64。
 // package必须位于所有import它们的模块之前。
 ${NPC_HOME}/vsrc/riscv32/common/riscv_config_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_addr_map_pkg.sv

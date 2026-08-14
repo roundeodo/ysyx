@@ -5,9 +5,9 @@ module riscv32_axi4_address_router
 #(
     parameter int unsigned TARGET_COUNT = 2,
     // 路由地址数组与AXI fabric共用地址宽度，不建立路由器局部宽度配置。
-    parameter logic [AXI_ADDR_WIDTH-1:0] TARGET_ADDRESS_BASE_ARRAY[TARGET_COUNT] =
+    parameter logic [MEM_AXI_ADDR_WIDTH-1:0] TARGET_ADDRESS_BASE_ARRAY[TARGET_COUNT] =
         '{default: '0},
-    parameter logic [AXI_ADDR_WIDTH-1:0] TARGET_ADDRESS_LAST_ARRAY[TARGET_COUNT] =
+    parameter logic [MEM_AXI_ADDR_WIDTH-1:0] TARGET_ADDRESS_LAST_ARRAY[TARGET_COUNT] =
         '{default: '1},
     parameter logic TARGET_ADDRESS_SELECT_ENABLE_ARRAY[TARGET_COUNT] =
         '{default: 1'b1},

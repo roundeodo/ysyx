@@ -28,6 +28,6 @@ image: image-dep
 
 run: insert-arg
 	# sim-am passes --batch to NPC, so AM run executes to halt() without SDB input.
-	$(MAKE) -C $(NPC_HOME) sim-am IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) sim-am NPC_CONFIG=rv32-baseline IMG=$(IMAGE).bin
 
 .PHONY: insert-arg

@@ -19,7 +19,7 @@ P2不是把文件名中的`riscv32`机械替换成`riscv64`，而是先消除当
 | `INSTR_WIDTH` | 基础指令编码宽度 | 32 |
 | `CORE_DATA_WIDTH` | core侧访存数据宽度 | 32 |
 | `AXI_ADDR_WIDTH` | SoC AXI地址宽度 | 32 |
-| `AXI_DATA_WIDTH` | SoC AXI数据宽度 | 32 |
+| `AXI_DATA_WIDTH` | P2阶段的AXI数据宽度；P3将拆成正式memory AXI与ysyxSoC边界宽度 | 32 |
 | `ARCH_REG_COUNT` | 架构整数寄存器数量 | 32 |
 
 ## 2. 配置机制
@@ -103,6 +103,10 @@ strobe切片以及错误聚合。I-cache refill adapter也按AXI beat宽度选�
 AW/W独立反压、读写错误传播、第二个读beat失败、写响应失败以及响应背压稳定性。adapter
 对一次core请求只产生一次完成响应。
 
+P3对该测试的架构定位作如下收窄：它验证的是`AXI64 -> AXI32`的ysyxSoC集成边界，不是
+正式RV64 memory AXI。RV64 core/cache侧的正式memory AXI采用64位数据宽度；只有接入当前
+固定AXI32的ysyxSoC时才实例化该转换器。
+
 ## 5. P2退出条件和验证结果
 
 - [x] 活动RTL不存在把`XLEN`、地址宽度、指令宽度和AXI宽度默认等同的接口；
@@ -110,7 +114,7 @@ AW/W独立反压、读写错误传播、第二个读beat失败、写响应失败
 - [x] 使用standalone内存配置的NEMU reference完成dummy DiffTest；
 - [x] 64位core侧到32位AXI侧的宽度adapter单元测试通过；
 - [x] 文档记录剩余固定宽度及其明确所有者；
-- [ ] P3开始前冻结`YSYX_RV64_SEQUENTIAL`的ISA、软件和DiffTest范围。
+- [x] P3开始前冻结`YSYX_RV64_SEQUENTIAL`的ISA、软件和DiffTest范围。
 
 | 检查项 | 命令或配置 | 结果 |
 | --- | --- | --- |
@@ -125,7 +129,6 @@ DiffTest复验时必须区分两类NEMU reference：ysyxSoC配置使用`0x2000_0
 
 ## 6. 下一个实际任务
 
-进入P3前先冻结`YSYX_RV64_SEQUENTIAL`的首版范围：RV64I指令和CSR集合、AM链接地址、
-NEMU reference配置、DiffTest寄存器状态布局以及RV32/RV64双配置回归矩阵。文件和module
-名称暂不做全局`riscv32`到`riscv64`替换；先让同一实现通过两个命名配置，再依据模块实际
-职责统一命名。
+P3首版范围已经冻结，后续工作按
+[`P3_RV64_SEQUENTIAL_PLAN.md`](P3_RV64_SEQUENTIAL_PLAN.md)执行。文件和module名称暂不做
+全局`riscv32`到`riscv64`替换；先让同一实现通过两个命名配置，再依据模块实际职责统一命名。

@@ -10,7 +10,7 @@ module top
     parameter int unsigned SIM_LSU_READ_LATENCY    = 1,
     parameter int unsigned SIM_LSU_WRITE_LATENCY   = 1,
     parameter int unsigned SIM_RANDOM_LATENCY_MAX  = 20,
-    parameter logic [XLEN-1:0] RESET_PC            = 32'h8000_0000
+    parameter program_counter_t RESET_PC            = program_counter_t'(32'h8000_0000)
 ) (
     input logic clk,
     input logic rstn
@@ -24,12 +24,12 @@ module top
 
   // UART uses its real platform window. Every other address reaches the DPI
   // memory target so the standalone environment can continue to run flat PMEM.
-  localparam logic [AXI_ADDR_WIDTH-1:0]
+  localparam logic [MEM_AXI_ADDR_WIDTH-1:0]
       SIM_TARGET_ADDRESS_BASE_ARRAY[SIM_TARGET_COUNT] = '{
         UART_BASE_ADDR,
         '0
       };
-  localparam logic [AXI_ADDR_WIDTH-1:0]
+  localparam logic [MEM_AXI_ADDR_WIDTH-1:0]
       SIM_TARGET_ADDRESS_LAST_ARRAY[SIM_TARGET_COUNT] = '{
         UART_LAST_ADDR,
         '1

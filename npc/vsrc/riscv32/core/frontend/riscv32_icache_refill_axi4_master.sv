@@ -5,7 +5,7 @@ module riscv32_icache_refill_axi4_master
   import riscv32_axi4_pkg::*;
 #(
     // refill事务ID的宽度来自全局AXI fabric配置。
-    parameter logic [AXI_ID_WIDTH-1:0] READ_TRANSACTION_ID = '0
+    parameter logic [MEM_AXI_ID_WIDTH-1:0] READ_TRANSACTION_ID = '0
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -37,7 +37,7 @@ module riscv32_icache_refill_axi4_master
   icache_word_index_t received_word_index_d;
 
   localparam int unsigned AXI_BYTE_OFFSET_WIDTH =
-      (AXI_DATA_BYTE_COUNT > 1) ? $clog2(AXI_DATA_BYTE_COUNT) : 1;
+      (MEM_AXI_DATA_BYTE_COUNT > 1) ? $clog2(MEM_AXI_DATA_BYTE_COUNT) : 1;
 
   axi4_addr_t current_word_addr_q;
   axi4_addr_t current_word_addr_d;
@@ -112,7 +112,7 @@ module riscv32_icache_refill_axi4_master
             received_word_index_d = refill_req_i.critical_word_index;
             current_word_addr_d =
                 refill_req_i.line_base_addr +
-                AXI_ADDR_WIDTH'(refill_req_i.critical_word_index * ICACHE_FETCH_BYTES);
+                MEM_AXI_ADDR_WIDTH'(refill_req_i.critical_word_index * ICACHE_FETCH_BYTES);
           end else begin
             received_word_index_d = '0;
             current_word_addr_d   = refill_req_i.line_base_addr;
@@ -137,7 +137,7 @@ module riscv32_icache_refill_axi4_master
           end else begin
             received_word_index_d = received_word_index_q + icache_word_index_t'(1);
             current_word_addr_d =
-                current_word_addr_q + AXI_ADDR_WIDTH'(ICACHE_FETCH_BYTES);
+                current_word_addr_q + MEM_AXI_ADDR_WIDTH'(ICACHE_FETCH_BYTES);
           end
         end
       end
@@ -174,11 +174,11 @@ module riscv32_icache_refill_axi4_master
 
 `ifndef SYNTHESIS
   initial begin
-    assert (ICACHE_FETCH_BYTES <= AXI_DATA_BYTE_COUNT)
+    assert (ICACHE_FETCH_BYTES <= MEM_AXI_DATA_BYTE_COUNT)
       else $fatal(1, "I-cache refill word cannot exceed one AXI beat");
     assert ((ICACHE_FETCH_BYTES & (ICACHE_FETCH_BYTES - 1)) == 0)
       else $fatal(1, "I-cache fetch byte count must be a power of two");
-    assert ((AXI_DATA_BYTE_COUNT & (AXI_DATA_BYTE_COUNT - 1)) == 0)
+    assert ((MEM_AXI_DATA_BYTE_COUNT & (MEM_AXI_DATA_BYTE_COUNT - 1)) == 0)
       else $fatal(1, "AXI data byte count must be a power of two");
   end
 `endif

@@ -6,19 +6,38 @@
 
 PROJECT ?= riscv32
 
+SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
+CONFIG_FREE_GOALS     := help clean lint-configs test-configs
+CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
+
+ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
+ifeq ($(strip $(NPC_CONFIG)),)
+$(error NPC_CONFIG is required: $(SUPPORTED_NPC_CONFIGS))
+endif
+ifeq ($(filter $(NPC_CONFIG),$(SUPPORTED_NPC_CONFIGS)),)
+$(error unsupported NPC_CONFIG=$(NPC_CONFIG); expected one of: $(SUPPORTED_NPC_CONFIGS))
+endif
+endif
+
+ifeq ($(NPC_CONFIG),rv32-baseline)
+NPC_CONFIG_DEFINE := +define+YSYX_RV32_BASELINE
+else ifeq ($(NPC_CONFIG),rv64-sequential)
+NPC_CONFIG_DEFINE := +define+YSYX_RV64_SEQUENTIAL
+endif
+
 NPC_TOP_MODULE := top
 SOC_TOP_MODULE := ysyxSoCFull
 
-BUILD_DIR       := $(abspath ./build/$(PROJECT))
+BUILD_DIR       := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))
 NPC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_npc
 SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
 NVBOARD_OBJ_DIR := $(BUILD_DIR)/obj_dir_nvboard
-WIDTH_ADAPTER_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_width_adapter_test
+CONFIG_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_config_test
 
 NPC_SIM_BINARY     := $(BUILD_DIR)/$(NPC_TOP_MODULE)_sim
 SOC_SIM_BINARY     := $(BUILD_DIR)/$(SOC_TOP_MODULE)_sim
 NVBOARD_SIM_BINARY := $(BUILD_DIR)/$(SOC_TOP_MODULE)_nvboard
-WIDTH_ADAPTER_TEST_BINARY := $(BUILD_DIR)/width_adapter_test
+CONFIG_TEST_BINARY := $(BUILD_DIR)/config_elaboration_test
 
 IMG       ?=
 FLASH_IMG ?=
@@ -100,15 +119,16 @@ COMMON_LDFLAGS := \
 	-Wl,-rpath=$(CAPSTONE_LIB) \
 	-lcapstone -ldl
 
-# P2宽度边界单元测试只编译协议package、适配器和testbench。测试配置使用
-# 64-bit core data / 32-bit AXI data，不改变正常NPC和SoC的构建配置。
-WIDTH_ADAPTER_TEST_SOURCES := \
+CONFIG_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/memory/riscv32_uncached_axi4_master.sv \
-	$(abspath ./tests/rtl/riscv32_uncached_axi4_width_adapter_tb.sv)
+	$(abspath ./tests/rtl/riscv_config_elaboration_tb.sv)
+
+# 当前课程SoC插槽固定为AXI32。正式RV64 memory AXI在P3-D通过system wrapper
+# 转成AXI32；在该边界完成前，禁止把RV64配置误接到ysyxSoC。
+define require_rv32_soc_config
+	@test "$(NPC_CONFIG)" = "rv32-baseline" || \
+		(echo "ysyxSoC supports rv32-baseline only before P3-D"; exit 1)
+endef
 
 # ============================================================
 # NVBoard integration
@@ -134,6 +154,7 @@ $(BUILD_DIR):
 $(NPC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
+		$(NPC_CONFIG_DEFINE) \
 		--top-module $(NPC_TOP_MODULE) \
 		-f $(RTL_FILELIST) \
 		$(SIM_CPP_SOURCES) \
@@ -146,8 +167,10 @@ $(NPC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BU
 # Accurate environment: CPU integrated into ysyxSoC and its peripherals.
 $(SOC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 		$(SOC_VERILOG_SOURCES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
+	$(require_rv32_soc_config)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
+		$(NPC_CONFIG_DEFINE) \
 		$(SOC_RTL_INCLUDE_FLAGS) \
 		--top-module $(SOC_TOP_MODULE) \
 		-f $(RTL_FILELIST) \
@@ -161,8 +184,10 @@ $(SOC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 
 $(NVBOARD_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 		$(SOC_VERILOG_SOURCES) $(NVBOARD_CPP_SOURCES) $(NVBOARD_ARCHIVE) | $(BUILD_DIR)
+	$(require_rv32_soc_config)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
+		$(NPC_CONFIG_DEFINE) \
 		$(SOC_RTL_INCLUDE_FLAGS) \
 		--top-module $(SOC_TOP_MODULE) \
 		-f $(RTL_FILELIST) \
@@ -175,19 +200,23 @@ $(NVBOARD_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 		--exe \
 		-o $(NVBOARD_SIM_BINARY)
 
-$(WIDTH_ADAPTER_TEST_BINARY): $(WIDTH_ADAPTER_TEST_SOURCES) | $(BUILD_DIR)
-	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal \
-		+define+NPC_TEST_CORE64_AXI32 \
-		--top-module riscv32_uncached_axi4_width_adapter_tb \
-		$(WIDTH_ADAPTER_TEST_SOURCES) \
-		--Mdir $(WIDTH_ADAPTER_TEST_OBJ_DIR) \
-		-o $(WIDTH_ADAPTER_TEST_BINARY)
+$(CONFIG_TEST_BINARY): $(CONFIG_TEST_SOURCES) | $(BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
+		$(NPC_CONFIG_DEFINE) \
+		--top-module riscv_config_elaboration_tb \
+		$(CONFIG_TEST_SOURCES) \
+		--Mdir $(CONFIG_TEST_OBJ_DIR) \
+		-o $(CONFIG_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-width-adapter
+.PHONY: build-npc build-soc test-config test-configs
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
-test-width-adapter: $(WIDTH_ADAPTER_TEST_BINARY)
-	$(WIDTH_ADAPTER_TEST_BINARY)
+test-config: $(CONFIG_TEST_BINARY)
+	$(CONFIG_TEST_BINARY)
+
+test-configs:
+	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 # ============================================================
 # Simulation entry points
@@ -275,6 +304,7 @@ PERF_RECORD_SCRIPT    := $(abspath ./scripts/record_performance.py)
 
 .PHONY: perf perf-record
 perf: $(SOC_SIM_BINARY)
+	$(require_rv32_soc_config)
 	$(MAKE) -C $(PERF_MICROBENCH_DIR) ARCH=$(PERF_ARCH) clean
 	$(MAKE) -C $(PERF_MICROBENCH_DIR) \
 		ARCH=$(PERF_ARCH) \
@@ -307,22 +337,29 @@ perf-record:
 # Static checks and maintenance
 # ============================================================
 
-.PHONY: lint lint-npc lint-soc clean
+.PHONY: lint lint-npc lint-soc lint-configs clean
 lint: lint-npc
 
 lint-npc: $(RTL_FILELIST)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) --lint-only -Wall -Wno-fatal \
+		$(NPC_CONFIG_DEFINE) \
 		--top-module $(NPC_TOP_MODULE) \
 		-f $(RTL_FILELIST)
 
 lint-soc: $(RTL_FILELIST) $(SOC_VERILOG_SOURCES)
+	$(require_rv32_soc_config)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) --lint-only -Wall -Wno-fatal \
+		$(NPC_CONFIG_DEFINE) \
 		$(SOC_RTL_INCLUDE_FLAGS) \
 		--top-module $(SOC_TOP_MODULE) \
 		-f $(RTL_FILELIST) \
 		$(SOC_VERILOG_SOURCES)
+
+lint-configs:
+	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 clean:
 	rm -rf ./build wave.vcd waveform.vcd
@@ -336,12 +373,13 @@ include ../Makefile
 
 .PHONY: help
 help:
-	@echo "Usage: make <target> [PROJECT=riscv32] [IMG=...] [FLASH_IMG=...]"
+	@echo "Usage: make <target> PROJECT=riscv32 NPC_CONFIG=<config> [IMG=...]"
+	@echo "Configs: $(SUPPORTED_NPC_CONFIGS)"
 	@echo ""
 	@echo "Build targets:"
 	@echo "  build-npc     Build the fast standalone NPC simulator"
-	@echo "  build-soc     Build the full ysyxSoC simulator"
-	@echo "  test-width-adapter  Test 64-bit core to 32-bit AXI conversion"
+	@echo "  build-soc     Build ysyxSoC (rv32-baseline only before P3-D)"
+	@echo "  test-configs  Check both static configuration contracts"
 	@echo ""
 	@echo "Run targets:"
 	@echo "  sim-npc       Run standalone NPC; requires IMG"
@@ -359,9 +397,10 @@ help:
 	@echo "  perf          Run MicroBench on ysyxSoC"
 	@echo "  perf-record   Run and append a reproducible performance record"
 	@echo "  lint-npc      Lint the standalone NPC"
-	@echo "  lint-soc      Lint the full ysyxSoC integration"
+	@echo "  lint-soc      Lint ysyxSoC (rv32-baseline only before P3-D)"
+	@echo "  lint-configs  Lint both formal NPC configurations"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make sim-npc IMG=path/to/riscv32-npc.bin"
-	@echo "  make sim-soc FLASH_IMG=path/to/riscv32-ysyxsoc.bin"
-	@echo "  make sim-npc SIM_ARGS= IMG=path/to/riscv32-npc.bin"
+	@echo "  make lint-npc NPC_CONFIG=rv64-sequential"
+	@echo "  make sim-npc NPC_CONFIG=rv32-baseline IMG=path/to/riscv32-npc.bin"
+	@echo "  make sim-soc NPC_CONFIG=rv32-baseline FLASH_IMG=path/to/riscv32-ysyxsoc.bin"
