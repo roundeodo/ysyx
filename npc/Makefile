@@ -13,10 +13,12 @@ BUILD_DIR       := $(abspath ./build/$(PROJECT))
 NPC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_npc
 SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
 NVBOARD_OBJ_DIR := $(BUILD_DIR)/obj_dir_nvboard
+WIDTH_ADAPTER_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_width_adapter_test
 
 NPC_SIM_BINARY     := $(BUILD_DIR)/$(NPC_TOP_MODULE)_sim
 SOC_SIM_BINARY     := $(BUILD_DIR)/$(SOC_TOP_MODULE)_sim
 NVBOARD_SIM_BINARY := $(BUILD_DIR)/$(SOC_TOP_MODULE)_nvboard
+WIDTH_ADAPTER_TEST_BINARY := $(BUILD_DIR)/width_adapter_test
 
 IMG       ?=
 FLASH_IMG ?=
@@ -96,6 +98,16 @@ COMMON_LDFLAGS := \
 	-Wl,-rpath=$(CAPSTONE_LIB) \
 	-lcapstone -ldl
 
+# P2宽度边界单元测试只编译协议package、适配器和testbench。测试配置使用
+# 64-bit core data / 32-bit AXI data，不改变正常NPC和SoC的构建配置。
+WIDTH_ADAPTER_TEST_SOURCES := \
+	$(RTL_DIR)/common/riscv_config_pkg.sv \
+	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
+	$(RTL_DIR)/common/riscv32_pkg.sv \
+	$(RTL_DIR)/core/memory/riscv32_uncached_axi4_master.sv \
+	$(abspath ./tests/rtl/riscv32_uncached_axi4_width_adapter_tb.sv)
+
 # ============================================================
 # NVBoard integration
 # ============================================================
@@ -161,9 +173,19 @@ $(NVBOARD_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 		--exe \
 		-o $(NVBOARD_SIM_BINARY)
 
-.PHONY: build-npc build-soc
+$(WIDTH_ADAPTER_TEST_BINARY): $(WIDTH_ADAPTER_TEST_SOURCES) | $(BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal \
+		+define+NPC_TEST_CORE64_AXI32 \
+		--top-module riscv32_uncached_axi4_width_adapter_tb \
+		$(WIDTH_ADAPTER_TEST_SOURCES) \
+		--Mdir $(WIDTH_ADAPTER_TEST_OBJ_DIR) \
+		-o $(WIDTH_ADAPTER_TEST_BINARY)
+
+.PHONY: build-npc build-soc test-width-adapter
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
+test-width-adapter: $(WIDTH_ADAPTER_TEST_BINARY)
+	$(WIDTH_ADAPTER_TEST_BINARY)
 
 # ============================================================
 # Simulation entry points
@@ -317,6 +339,7 @@ help:
 	@echo "Build targets:"
 	@echo "  build-npc     Build the fast standalone NPC simulator"
 	@echo "  build-soc     Build the full ysyxSoC simulator"
+	@echo "  test-width-adapter  Test 64-bit core to 32-bit AXI conversion"
 	@echo ""
 	@echo "Run targets:"
 	@echo "  sim-npc       Run standalone NPC; requires IMG"
