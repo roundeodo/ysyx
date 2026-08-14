@@ -6,6 +6,8 @@
 // 后续增加way prediction、多个MSHR、prefetch和更宽fetch保留了独立演进空间。
 module riscv32_icache
   import riscv32_pkg::*;
+  // 地址拆分函数直接处理物理地址，因此显式依赖地址映射package。
+  import riscv32_addr_map_pkg::*;
 (
     input logic clk_i,
     input logic rst_ni,

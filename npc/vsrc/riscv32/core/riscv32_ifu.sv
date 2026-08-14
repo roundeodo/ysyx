@@ -1,5 +1,7 @@
 module riscv32_ifu
   import riscv32_pkg::*;
+  // PC属于ISA语义，I-cache请求地址属于物理存储系统语义；两类类型显式分属不同package。
+  import riscv32_addr_map_pkg::*;
 #(
     // 复位入口属于架构PC，不由AXI地址宽度决定。
     parameter program_counter_t PC_START = RESET_VECTOR

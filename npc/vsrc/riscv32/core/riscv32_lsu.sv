@@ -2,6 +2,8 @@
 // AXI4协议转换、cache、MMIO路由和存储系统时序均位于本模块之外。
 module riscv32_lsu
   import riscv32_pkg::*;
+  // 有效地址经过LSU检查后显式转换为物理地址，避免默认假设XLEN等于PADDR_WIDTH。
+  import riscv32_addr_map_pkg::*;
 (
     input logic clk_i,
     input logic rst_ni,
