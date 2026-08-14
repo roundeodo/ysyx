@@ -10,8 +10,9 @@ module riscv32_pma
 #(
     parameter bit CHIPLINK_PRESENT = 1'b0
 ) (
-    input  logic      [XLEN-1:0] lookup_addr_i,
-    output pma_attr_t            memory_attr_o
+    // PMA只判断SoC物理地址；物理地址宽度与ISA的XLEN可以独立演进。
+    input  phys_addr_t lookup_addr_i,
+    output pma_attr_t  memory_attr_o
 );
 
   // 地址常量统一由riscv32_addr_map_pkg维护。PMA使用BASE_ADDR/LAST_ADDR判断

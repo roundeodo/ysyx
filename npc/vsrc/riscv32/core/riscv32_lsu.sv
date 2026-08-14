@@ -50,6 +50,11 @@ module riscv32_lsu
   logic data_memory_resp_handshake;
   logic lsu_writeback_handshake;
 
+  localparam int unsigned CORE_BYTE_OFFSET_WIDTH =
+      (CORE_DATA_BYTE_COUNT > 1) ? $clog2(CORE_DATA_BYTE_COUNT) : 1;
+
+  // store路径属于core存储端口，load格式化结果属于GPR数据域。二者当前同宽只是
+  // RV32基线配置，使用不同语义类型后可以独立调整XLEN和存储beat宽度。
   logic                   is_load;
   logic                   is_store;
   logic                   has_memory_access;
@@ -57,13 +62,14 @@ module riscv32_lsu
   logic                   is_word_access;
   logic                   address_misaligned;
   logic                   complete_locally;
-  logic [1:0]             byte_offset;
-  logic [XLEN-1:0]        store_write_data;
+  logic [CORE_BYTE_OFFSET_WIDTH-1:0] byte_offset;
+  core_data_t                          store_write_data;
   // strobe描述core数据口每个字节通道是否写入，它取决于CORE_DATA_WIDTH，而不是XLEN。
-  logic [CORE_DATA_BYTE_COUNT-1:0]  store_byte_strobe;
-  logic [7:0]             selected_byte;
-  logic [15:0]            selected_halfword;
-  logic [XLEN-1:0]        formatted_load_data;
+  core_byte_strobe_t                   store_byte_strobe;
+  logic [7:0]                          selected_byte;
+  logic [15:0]                         selected_halfword;
+  logic [31:0]                         selected_word;
+  xlen_data_t                          formatted_load_data;
 
   assign lsu_req_handshake = lsu_req_valid_i && lsu_req_ready_o;
   assign data_memory_req_handshake =
@@ -73,10 +79,13 @@ module riscv32_lsu
   assign lsu_writeback_handshake = lsu_writeback_valid_o && lsu_writeback_ready_i;
 
   // IDLE时可以直接使用输入实现零额外入口延迟；请求被接受后只读取锁存副本。
+  // byte_offset按core beat宽度选择字节通道；自然对齐仍按ISA访问大小判断：
+  // half只检查bit 0，word检查bits[1:0]。
+  // 不要用总线beat宽度替代ISA对齐规则；总线即使是64位，LW仍只要求4字节对齐。
   always_comb begin
     active_lsu_req = (state_q == LSU_IDLE) ? lsu_req_i : lsu_req_q;
 
-    byte_offset        = active_lsu_req.effective_addr[1:0];
+    byte_offset = active_lsu_req.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0];
     is_load            = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
     is_store           = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
     has_memory_access  = is_load || is_store;
@@ -85,26 +94,29 @@ module riscv32_lsu
 
     address_misaligned = has_memory_access &&
                          ((is_halfword_access && byte_offset[0]) ||
-                          (is_word_access && (byte_offset != 2'b00)));
+                          (is_word_access &&
+                           (active_lsu_req.effective_addr[1:0] != 2'b00)));
     complete_locally = active_lsu_req.uop.exception_valid ||
                        address_misaligned || !has_memory_access;
 
+    // strobe只覆盖本条store写入的字节。WORD不能使用'1，否则64位存储口会误写8字节。
     store_write_data  = '0;
     store_byte_strobe = '0;
     unique case (active_lsu_req.uop.mem_ctrl.size)
       MEM_SIZE_BYTE: begin
-        store_byte_strobe = 4'b0001 << byte_offset;
-        store_write_data  = {24'b0, active_lsu_req.store_data[7:0]}
-                            << {byte_offset, 3'b000};
+        store_byte_strobe = core_byte_strobe_t'(1) << byte_offset;
+        store_write_data = core_data_t'(active_lsu_req.store_data[7:0])
+                           << (byte_offset * 8);
       end
       MEM_SIZE_HALF: begin
-        store_byte_strobe = 4'b0011 << byte_offset;
-        store_write_data  = {16'b0, active_lsu_req.store_data[15:0]}
-                            << {byte_offset, 3'b000};
+        store_byte_strobe = core_byte_strobe_t'(2'b11) << byte_offset;
+        store_write_data = core_data_t'(active_lsu_req.store_data[15:0])
+                           << (byte_offset * 8);
       end
       MEM_SIZE_WORD: begin
-        store_byte_strobe = '1;
-        store_write_data  = active_lsu_req.store_data;
+        store_byte_strobe = core_byte_strobe_t'(4'b1111) << byte_offset;
+        store_write_data = core_data_t'(active_lsu_req.store_data[31:0])
+                           << (byte_offset * 8);
       end
       default: ;
     endcase
@@ -112,9 +124,11 @@ module riscv32_lsu
 
   // 本地请求保留字节地址和访问宽度。协议adapter负责把size翻译成AXI4 AxSIZE，
   // 并保证单次uncached访问使用LEN=0、LAST=1和稳定的transaction ID。
+  // 当前无MMU，effective address在边界处显式恒等转换为physical address。
+  // 未来加入地址翻译时只替换该路径，不需要改写LSU访存语义或下游协议adapter。
   always_comb begin
     data_memory_req_o                = '0;
-    data_memory_req_o.addr           = active_lsu_req.effective_addr;
+    data_memory_req_o.addr           = phys_addr_t'(active_lsu_req.effective_addr);
     data_memory_req_o.cmd            = active_lsu_req.uop.mem_ctrl.cmd;
     data_memory_req_o.size           = active_lsu_req.uop.mem_ctrl.size;
     data_memory_req_o.write_data     = store_write_data;
@@ -123,11 +137,14 @@ module riscv32_lsu
   end
 
   // 存储层返回完整数据字。LSU根据原始地址低位选择byte/halfword并完成符号扩展。
+  // RV64下LW将bit 31符号扩展，LWU零扩展；不能把总线返回宽度直接当作load结果宽度。
   always_comb begin
     selected_byte = 8'(data_memory_resp_i.read_data >>
-                       {lsu_req_q.effective_addr[1:0], 3'b000});
+                       (lsu_req_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
     selected_halfword = 16'(data_memory_resp_i.read_data >>
-                            {lsu_req_q.effective_addr[1:0], 3'b000});
+                            (lsu_req_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
+    selected_word = 32'(data_memory_resp_i.read_data >>
+                        (lsu_req_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
     formatted_load_data = '0;
 
     unique case (lsu_req_q.uop.mem_ctrl.size)
@@ -141,7 +158,11 @@ module riscv32_lsu
             ? {{(XLEN-16){1'b0}}, selected_halfword}
             : {{(XLEN-16){selected_halfword[15]}}, selected_halfword};
       end
-      MEM_SIZE_WORD: formatted_load_data = data_memory_resp_i.read_data;
+      MEM_SIZE_WORD: begin
+        formatted_load_data = lsu_req_q.uop.mem_ctrl.unsigned_load
+            ? xlen_data_t'(selected_word)
+            : {{(XLEN-32){selected_word[31]}}, selected_word};
+      end
       default: ;
     endcase
   end
@@ -170,7 +191,7 @@ module riscv32_lsu
     memory_writeback.result       = is_load ? formatted_load_data : '0;
     memory_writeback.next_pc      = lsu_req_q.next_pc;
     memory_writeback.memory_addr  = lsu_req_q.effective_addr;
-    memory_writeback.memory_rdata = is_load ? formatted_load_data : '0;
+    memory_writeback.memory_rdata = is_load ? core_data_t'(formatted_load_data) : '0;
     memory_writeback.memory_wdata = is_store ? store_write_data : '0;
     memory_writeback.memory_wmask = is_store ? store_byte_strobe : '0;
 

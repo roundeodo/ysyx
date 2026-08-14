@@ -1,7 +1,8 @@
 module riscv32_ifu
   import riscv32_pkg::*;
 #(
-    parameter logic [XLEN-1:0] PC_START = RESET_VECTOR
+    // 复位入口属于架构PC，不由AXI地址宽度决定。
+    parameter program_counter_t PC_START = RESET_VECTOR
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -33,10 +34,11 @@ module riscv32_ifu
   ifu_state_e state_q;
   ifu_state_e state_d;
 
-  logic [XLEN-1:0] lookup_pc_q;
-  logic [XLEN-1:0] lookup_pc_d;
-  logic [XLEN-1:0] resume_pc_q;
-  logic [XLEN-1:0] resume_pc_d;
+  // IFU保存的是架构控制流位置；I-cache接口上的fetch_addr才是物理地址。
+  program_counter_t lookup_pc_q;
+  program_counter_t lookup_pc_d;
+  program_counter_t resume_pc_q;
+  program_counter_t resume_pc_d;
 
   frontend_tag_t next_frontend_tag_q;
   frontend_tag_t next_frontend_tag_d;
@@ -87,7 +89,9 @@ module riscv32_ifu
 
     unique case (state_q)
       IFU_SEND_LOOKUP: begin
-        icache_lookup_req_o.fetch_addr   = lookup_pc_q;
+        // 当前无地址翻译，转换是恒等映射；未来加入TLB/MMU时在IFU与I-cache之间插入翻译，
+        // I-cache仍只接收物理地址，避免虚拟地址别名规则污染cache和AXI refill模块。
+        icache_lookup_req_o.fetch_addr   = phys_addr_t'(lookup_pc_q);
         icache_lookup_req_o.frontend_tag = next_frontend_tag_q;
         icache_lookup_req_o.fetch_epoch  = lookup_fetch_epoch_q;
         // 复位时不发起事务；复位释放后无需额外INIT状态即可立即开始取指。
@@ -127,7 +131,9 @@ module riscv32_ifu
           state_d             = IFU_WAIT_LOOKUP_RESPONSE;
           next_frontend_tag_d = next_frontend_tag_q + frontend_tag_t'(1);
           if (!redirect_req_valid_i) begin
-            resume_pc_d = lookup_pc_q + XLEN'(ICACHE_FETCH_BYTES);
+            // ICACHE_FETCH_BYTES描述一次cache lookup返回多少字节，不等于ISA顺序PC步长。
+            // 将二者解耦后，扩大cache line或未来一次取多条指令都不会让PC错误跳过指令。
+            resume_pc_d = lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES);
           end
         end
       end

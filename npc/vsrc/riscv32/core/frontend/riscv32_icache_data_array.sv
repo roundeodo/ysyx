@@ -13,25 +13,27 @@ module riscv32_icache_data_array
 ) (
     input logic clk_i,
 
-    input  logic                          read_enable_i,
-    input  icache_set_index_t             read_set_index_i,
-    input  icache_word_index_t            read_word_index_i,
-    output logic               [XLEN-1:0] read_word_data_array_o[WAY_COUNT],
+    input  logic               read_enable_i,
+    input  icache_set_index_t  read_set_index_i,
+    input  icache_word_index_t read_word_index_i,
+    // I-cache word宽度由前端fetch配置决定，不随GPR的XLEN自动变化。
+    output icache_fetch_data_t read_word_data_array_o[WAY_COUNT],
 
-    input logic                          refill_write_valid_i,
-    input icache_set_index_t             refill_write_set_index_i,
-    input icache_way_index_t             refill_write_way_index_i,
-    input icache_word_index_t            refill_write_word_index_i,
-    input logic               [XLEN-1:0] refill_write_word_data_i
+    input logic               refill_write_valid_i,
+    input icache_set_index_t  refill_write_set_index_i,
+    input icache_way_index_t  refill_write_way_index_i,
+    input icache_word_index_t refill_write_word_index_i,
+    input icache_fetch_data_t refill_write_word_data_i
 );
 
+  // 端口、读出寄存器和存储阵列使用同一取指数据类型，禁止隐式截断或扩展。
   // 第一版每个bank宽32位，一个cache line由8个word bank组成。
   // 按word分bank可让一次lookup只读出每个way的目标32位，而不是把整条256位line拉到
   // compare/select路径。未来FETCH_WIDTH增加时再评估一次读多个word或扩大bank宽度。
   // 数组的每个[way][word]组合表示一个独立bank，set是该bank内部的读写地址。
   // 因此同一次lookup会并行读取所有way中相同word bank、相同set位置的数据。
-  logic [XLEN-1:0] data_array_q          [WAY_COUNT] [WORDS_PER_LINE] [SET_COUNT];
-  logic [XLEN-1:0] read_word_data_array_q[WAY_COUNT];
+  icache_fetch_data_t data_array_q          [WAY_COUNT] [WORDS_PER_LINE] [SET_COUNT];
+  icache_fetch_data_t read_word_data_array_q[WAY_COUNT];
 
   // read_enable_i为1的上升沿，读取所有way中由set和word共同索引的word。读地址必须
   // 与tag array使用同一个set，并由cache pipeline的S0寄存器共同驱动。

@@ -13,16 +13,20 @@ module riscv32_exu
     output logic     lsu_req_valid_o,
     input  logic     lsu_req_ready_i
 );
-  logic            [XLEN-1:0] operand_a;
-  logic            [XLEN-1:0] operand_b;
-  logic            [XLEN-1:0] alu_result;
-  logic            [XLEN-1:0] csr_operand;
-  logic            [XLEN-1:0] csr_wdata;
-  logic                       branch_condition_met;
-  logic                       branch_taken;
-  logic            [XLEN-1:0] branch_target;
-  logic                       branch_redirect_valid;
-  execute_result_t            exu_result;
+  // EXU应只依赖ISA架构宽度；物理地址宽度和AXI数据宽度都不应进入ALU。这样将来把
+  // 地址翻译放到AGU/MMU、把总线加宽时，不会迫使整数执行单元一起修改。
+  localparam int unsigned SHIFT_AMOUNT_WIDTH = $clog2(XLEN);
+
+  xlen_data_t       operand_a;
+  xlen_data_t       operand_b;
+  xlen_data_t       alu_result;
+  xlen_data_t       csr_operand;
+  xlen_data_t       csr_wdata;
+  logic             branch_condition_met;
+  logic             branch_taken;
+  program_counter_t branch_target;
+  logic             branch_redirect_valid;
+  execute_result_t  exu_result;
 
   always_comb begin
     unique case (execute_packet_i.uop.int_ctrl.operand_a_sel)
@@ -39,15 +43,16 @@ module riscv32_exu
   end
 
   always_comb begin
+    alu_result = '0;
     unique case (execute_packet_i.uop.int_ctrl.op)
       ALU_ADD:  alu_result = operand_a + operand_b;
       ALU_SUB:  alu_result = operand_a - operand_b;
-      ALU_SLL:  alu_result = operand_a << operand_b[4:0];
-      ALU_SLT:  alu_result = {31'b0, $signed(operand_a) < $signed(operand_b)};
-      ALU_SLTU: alu_result = {31'b0, operand_a < operand_b};
+      ALU_SLL:  alu_result = operand_a << operand_b[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_SLT:  alu_result[0] = $signed(operand_a) < $signed(operand_b);
+      ALU_SLTU: alu_result[0] = operand_a < operand_b;
       ALU_XOR:  alu_result = operand_a ^ operand_b;
-      ALU_SRL:  alu_result = operand_a >> operand_b[4:0];
-      ALU_SRA:  alu_result = $signed(operand_a) >>> operand_b[4:0];
+      ALU_SRL:  alu_result = operand_a >> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_SRA:  alu_result = $signed(operand_a) >>> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
       ALU_OR:   alu_result = operand_a | operand_b;
       ALU_AND:  alu_result = operand_a & operand_b;
       default:  alu_result = '0;
@@ -85,7 +90,9 @@ module riscv32_exu
       end
       CF_JALR: begin
         branch_taken  = 1'b1;
-        branch_target = (execute_packet_i.rs1_value + execute_packet_i.uop.imm) & ~32'h1;
+        // JALR只规定目标地址bit 0清零，不规定实现必须是32位。
+        branch_target    = execute_packet_i.rs1_value + execute_packet_i.uop.imm;
+        branch_target[0] = 1'b0;
       end
       default: ;
     endcase
@@ -110,7 +117,9 @@ module riscv32_exu
     exu_result                              = '0;
     exu_result.uop                          = execute_packet_i.uop;
     exu_result.result                       = alu_result;
-    exu_result.next_pc                      = execute_packet_i.uop.pc + 32'd4;
+    // 不要使用32'd4，也不要使用I-cache line/取指口宽度。顺序下一条指令的位置由ISA指令
+    // 长度决定；cache一次返回多少字节属于前端微架构，两者必须解耦。
+    exu_result.next_pc                      = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
     exu_result.csr_wdata                    = csr_wdata;
     exu_result.redirect_valid               = branch_redirect_valid;
     exu_result.redirect_req.target_pc       = branch_target;
@@ -131,7 +140,7 @@ module riscv32_exu
     end
 
     unique case (execute_packet_i.uop.fu_type)
-      FU_BRANCH: exu_result.result = execute_packet_i.uop.pc + 32'd4;
+      FU_BRANCH: exu_result.result = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
       FU_CSR:    exu_result.result = execute_packet_i.csr_rdata;
       default:   ;
     endcase

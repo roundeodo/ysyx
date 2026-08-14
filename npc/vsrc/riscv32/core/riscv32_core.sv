@@ -4,7 +4,7 @@ module riscv32_core
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 #(
-    parameter logic [XLEN-1:0] RESET_PC = RESET_VECTOR
+    parameter program_counter_t RESET_PC = RESET_VECTOR
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -64,8 +64,9 @@ module riscv32_core
   logic decoded_uop_valid;
   logic decoded_uop_ready;
 
-  logic [XLEN-1:0] rs1_value;
-  logic [XLEN-1:0] rs2_value;
+  // 架构数据、PC和AXI4通道分别使用独立语义类型，使ISA、物理地址和总线可以独立扩展。
+  xlen_data_t rs1_value;
+  xlen_data_t rs2_value;
   execute_packet_t execute_packet;
   logic execute_packet_ready;
 
@@ -90,20 +91,20 @@ module riscv32_core
   logic committed_fence_i_occurred;
   redirect_req_t fence_i_redirect_req;
 
-  logic [XLEN-1:0] gpr_write_data;
+  xlen_data_t gpr_write_data;
   arch_reg_idx_t gpr_write_addr;
   logic gpr_write_enable;
 
-  logic [XLEN-1:0] csr_read_data;
+  xlen_data_t csr_read_data;
   logic csr_read_illegal;
-  logic [XLEN-1:0] csr_mtvec;
-  logic [XLEN-1:0] csr_mepc;
+  program_counter_t csr_mtvec;
+  program_counter_t csr_mepc;
   logic retired_instruction_occurred;
 
   logic trap_valid;
-  logic [XLEN-1:0] trap_pc;
-  logic [XLEN-1:0] trap_cause;
-  logic [XLEN-1:0] trap_tval;
+  program_counter_t trap_pc;
+  xlen_data_t trap_cause;
+  xlen_data_t trap_tval;
   logic mret_valid;
 
   redirect_req_t redirect_req[REDIRECT_SOURCE_COUNT];

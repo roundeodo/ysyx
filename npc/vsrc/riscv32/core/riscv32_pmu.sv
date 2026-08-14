@@ -10,13 +10,14 @@ module riscv32_pmu
 
     // 每个字段都是单周期事件脉冲。PMU只观察，不向cache或流水线反馈控制。
     input  icache_event_t            icache_event_i,
-    input  logic          [    11:0] csr_read_addr_i,
-    output logic                     csr_read_select_o,
-    output logic          [XLEN-1:0] csr_read_data_o,
+    input  logic       [11:0] csr_read_addr_i,
+    output logic              csr_read_select_o,
+    // CSR访问宽度由XLEN决定；64位计数器的存储宽度不随CSR端口变化。
+    output xlen_data_t         csr_read_data_o,
 
-    input logic            csr_write_valid_i,
-    input logic [    11:0] csr_write_addr_i,
-    input logic [XLEN-1:0] csr_write_data_i
+    input logic       csr_write_valid_i,
+    input logic [11:0] csr_write_addr_i,
+    input xlen_data_t csr_write_data_i
 );
   // PMU (Performance Monitoring Unit) passively observes architectural or
   // microarchitectural events and accumulates how many times they occur. It must
@@ -43,6 +44,7 @@ module riscv32_pmu
   localparam logic [11:0] CSR_MCYCLEH       = 12'hB80;
   localparam logic [11:0] CSR_MINSTRETH     = 12'hB82;
 
+  // mcycle/minstret是架构定义的64位计数器。RV32分两次访问，RV64一次整宽访问。
   // mcycle counts active core clock cycles. Software combines mcycleh and mcycle
   // into one 64-bit value on RV32. It is the denominator of IPC.
   logic [63:0] mcycle_d;
@@ -83,6 +85,8 @@ module riscv32_pmu
 
   // csr_read_select_o表示读地址由PMU实现，不是握手信号，也不表示计数器发生变化。
   // CSR file据此选择PMU读数据；未实现地址保持select为0，由CSR file报告非法访问。
+  // RV32通过基础CSR和H后缀CSR分别访问低、高32位；RV64通过基础CSR访问全部64位。
+  // XLEN是静态配置，因此下面的条件会在 elaboration 时化简，不形成动态模式选择器。
   always_comb begin
     csr_read_select_o = 1'b0;
     csr_read_data_o   = '0;
@@ -90,27 +94,39 @@ module riscv32_pmu
     unique case (csr_read_addr_i)
       CSR_MCYCLE: begin
         csr_read_select_o = 1'b1;
-        csr_read_data_o   = mcycle_q[31:0];
+        if (XLEN == 32) begin
+          csr_read_data_o = xlen_data_t'(mcycle_q[31:0]);
+        end else begin
+          csr_read_data_o = xlen_data_t'(mcycle_q);
+        end
       end
 
       CSR_MCYCLEH: begin
-        csr_read_select_o = 1'b1;
-        csr_read_data_o   = mcycle_q[63:32];
+        if (XLEN == 32) begin
+          csr_read_select_o = 1'b1;
+          csr_read_data_o   = xlen_data_t'(mcycle_q[63:32]);
+        end
       end
 
       CSR_MINSTRET: begin
         csr_read_select_o = 1'b1;
-        csr_read_data_o   = minstret_q[31:0];
+        if (XLEN == 32) begin
+          csr_read_data_o = xlen_data_t'(minstret_q[31:0]);
+        end else begin
+          csr_read_data_o = xlen_data_t'(minstret_q);
+        end
       end
 
       CSR_MINSTRETH: begin
-        csr_read_select_o = 1'b1;
-        csr_read_data_o   = minstret_q[63:32];
+        if (XLEN == 32) begin
+          csr_read_select_o = 1'b1;
+          csr_read_data_o   = xlen_data_t'(minstret_q[63:32]);
+        end
       end
 
       CSR_MCOUNTINHIBIT: begin
         csr_read_select_o = 1'b1;
-        csr_read_data_o   = mcountinhibit_q;
+        csr_read_data_o   = xlen_data_t'(mcountinhibit_q);
       end
 
       default: ;
@@ -119,6 +135,7 @@ module riscv32_pmu
 
   // 软件写计数器的优先级高于同周期自动累加，避免写入值又被隐式加一。
   // mcountinhibit只实现CY(bit 0)和IR(bit 2)，其余位写入时强制清零。
+  // 软件写入优先于自动累加。RV32只覆盖被访问的半字，RV64基础CSR覆盖全部64位。
   always_comb begin
     mcycle_d        = mcycle_q;
     minstret_d      = minstret_q;
@@ -126,24 +143,34 @@ module riscv32_pmu
 
     // mcycle
     if (csr_write_valid_i && (csr_write_addr_i == CSR_MCYCLE)) begin
-      mcycle_d = {mcycle_q[63:32], csr_write_data_i};
-    end else if (csr_write_valid_i && (csr_write_addr_i == CSR_MCYCLEH)) begin
-      mcycle_d = {csr_write_data_i, mcycle_q[31:0]};
+      if (XLEN == 32) begin
+        mcycle_d = {mcycle_q[63:32], csr_write_data_i[31:0]};
+      end else begin
+        mcycle_d = 64'(csr_write_data_i);
+      end
+    end else if ((XLEN == 32) && csr_write_valid_i &&
+                 (csr_write_addr_i == CSR_MCYCLEH)) begin
+      mcycle_d = {csr_write_data_i[31:0], mcycle_q[31:0]};
     end else if (!mcountinhibit_q[0]) begin
       mcycle_d = mcycle_q + 64'd1;
     end
 
     // minstret
     if (csr_write_valid_i && (csr_write_addr_i == CSR_MINSTRET)) begin
-      minstret_d = {minstret_q[63:32], csr_write_data_i};
-    end else if (csr_write_valid_i && (csr_write_addr_i == CSR_MINSTRETH)) begin
-      minstret_d = {csr_write_data_i, minstret_q[31:0]};
+      if (XLEN == 32) begin
+        minstret_d = {minstret_q[63:32], csr_write_data_i[31:0]};
+      end else begin
+        minstret_d = 64'(csr_write_data_i);
+      end
+    end else if ((XLEN == 32) && csr_write_valid_i &&
+                 (csr_write_addr_i == CSR_MINSTRETH)) begin
+      minstret_d = {csr_write_data_i[31:0], minstret_q[31:0]};
     end else if (!mcountinhibit_q[2]) begin
       minstret_d = minstret_q + retired_instruction_count_extended;
     end
 
     if (csr_write_valid_i && (csr_write_addr_i == CSR_MCOUNTINHIBIT)) begin
-      mcountinhibit_d = csr_write_data_i & 32'h0000_0005;
+      mcountinhibit_d = 32'(csr_write_data_i) & 32'h0000_0005;
     end
   end
 
@@ -211,13 +238,14 @@ module riscv32_pmu
 
   logic pmu_csr_addr_implemented;
 
+  // 地址实现判断必须和读窗口一致；RV64不实现H后缀的高半CSR。
   always_comb begin
     unique case (csr_read_addr_i)
       CSR_MCYCLE,
-      CSR_MCYCLEH,
       CSR_MINSTRET,
-      CSR_MINSTRETH,
       CSR_MCOUNTINHIBIT: pmu_csr_addr_implemented = 1'b1;
+      CSR_MCYCLEH,
+      CSR_MINSTRETH:     pmu_csr_addr_implemented = (XLEN == 32);
       default:           pmu_csr_addr_implemented = 1'b0;
     endcase
   end

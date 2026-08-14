@@ -34,6 +34,13 @@ package riscv32_pkg;
   typedef logic [INSTR_WIDTH-1:0] instruction_t;
   typedef logic [XLEN-1:0] xlen_data_t;
   typedef logic [XLEN-1:0] program_counter_t;
+  typedef logic [XLEN-1:0] effective_addr_t;
+  localparam int unsigned INSTRUCTION_BYTES = INSTR_WIDTH / 8;
+  // effective_addr_t表示ALU/AGU刚算出的架构地址；phys_addr_t表示经过地址转换并准备
+  // 访问PMA/cache/总线的物理地址。现在没有MMU时二者数值相同，但类型必须解耦，避免
+  // 将来加入Sv39后让LSU、PMA和AXI边界继续混用同一含义。
+  // INSTRUCTION_BYTES只描述ISA顺序PC步长，不得用ICACHE_FETCH_BYTES代替；后者是
+  // cache每次返回的数据量，将来可以一次返回多条指令。
   typedef logic [CORE_DATA_WIDTH-1:0] core_data_t;
   typedef logic [CORE_DATA_BYTE_COUNT-1:0] core_byte_strobe_t;
   //
@@ -43,12 +50,11 @@ package riscv32_pkg;
   // - program_counter_t当前与XLEN同宽，但独立命名让PC语义在接口中可见。
   // - core_data_t/core_byte_strobe_t只属于core侧数据存储接口。
   //
-  // 这里不要重新定义phys_addr_t。物理地址类型属于addr_map package；本package已经
-  // import它。也不要在P2-B立刻替换下面全部payload，那属于P2-C/P2-D。P2-B先建立
-  // 类型和唯一配置源，并保持电路行为不变。
+  // phys_addr_t由addr_map package唯一拥有，避免多个package分别决定物理地址宽度。
 
   /* verilator lint_off UNUSEDPARAM */
-  parameter logic [XLEN-1:0] RESET_VECTOR = FLASH_BASE_ADDR;
+  // 复位PC属于架构前端，不应该由AXI地址字段宽度反向决定其声明。
+  parameter program_counter_t RESET_VECTOR = program_counter_t'(FLASH_BASE_ADDR);
 
   // ISA编码常量。只有IDU/decode lane负责把指令编码转换为语义操作。
   localparam logic [6:0] OPCODE_LOAD     = 7'b0000011;
@@ -289,6 +295,12 @@ package riscv32_pkg;
   typedef logic [ICACHE_TAG_W-1:0] icache_tag_t;
   typedef logic [FETCH_EPOCH_W-1:0] fetch_epoch_t;
 
+  typedef logic [ICACHE_FETCH_BYTES*8-1:0] icache_fetch_data_t;
+  // 不要修改instruction_t；instruction_t表示一条ISA指令编码，icache_fetch_data_t表示
+  // 一次cache访问交付的数据，两者当前同为32位只是当前配置的结果。
+  // 解耦原因：XLEN描述GPR/ALU宽度，ICACHE_FETCH_BYTES描述前端交付宽度。RV64仍可每次
+  // 取回一条32位基础指令；若二者绑定，迁移RV64会无故加宽data array和refill数据通路。
+
   // valid/ready必须继续作为模块端口上的独立logic，不能放进这些结构体。
   // 字段不使用时必须赋0，不允许未使用的payload传播X。
   // frontend_tag是IFU分配的前端请求身份，response必须原样返回；它和fetch_epoch
@@ -302,17 +314,20 @@ package riscv32_pkg;
   } pma_attr_t;
 
   typedef struct packed {
-    logic [XLEN-1:0] fetch_addr;
-    frontend_tag_t   frontend_tag;
-    fetch_epoch_t    fetch_epoch;
+    // I-cache边界只接收经过前端地址转换后的物理地址。
+    phys_addr_t    fetch_addr;
+    frontend_tag_t frontend_tag;
+    fetch_epoch_t  fetch_epoch;
   } icache_lookup_req_t;
 
   typedef struct packed {
-    logic [XLEN-1:0]                 fetch_addr;
-    logic [ICACHE_FETCH_BYTES*8-1:0] fetch_data;
-    frontend_tag_t                   frontend_tag;
-    fetch_epoch_t                    fetch_epoch;
-    logic                            access_fault;
+    // 响应原样带回请求物理地址，IFU再将它与当前PC关联。
+    // 地址宽度、cache交付宽度和XLEN属于三个独立配置维度，不能让整个响应随XLEN加宽。
+    phys_addr_t         fetch_addr;
+    icache_fetch_data_t fetch_data;
+    frontend_tag_t      frontend_tag;
+    fetch_epoch_t       fetch_epoch;
+    logic               access_fault;
   } icache_lookup_resp_t;
 
   // transaction_index是miss unit和refill adapter之间的本地身份，
@@ -343,14 +358,16 @@ package riscv32_pkg;
   typedef logic [ICACHE_REFILL_WORD_COUNT_W-1:0] icache_refill_word_count_t;
 
   typedef struct packed {
-    logic [XLEN-1:0]                  line_base_addr;
+    // refill地址属于存储层，不属于GPR数据域。
+    phys_addr_t                       line_base_addr;
     icache_word_index_t               critical_word_index;
     icache_refill_word_count_t        requested_word_count;
     icache_refill_transaction_index_t transaction_index;
   } icache_refill_req_t;
 
   typedef struct packed {
-    logic [ICACHE_FETCH_BYTES*8-1:0]  word_data;
+    // 这里的数据宽度由一次refill beat交付的cache word决定，不由GPR宽度决定。
+    icache_fetch_data_t               word_data;
     icache_word_index_t               word_index;
     logic                             last_word;
     logic                             access_fault;
@@ -371,18 +388,20 @@ package riscv32_pkg;
   // transaction_id在当前阻塞核中可固定为0；未来引入load/store queue和
   // 多个在途miss后，它用于将返回数据与原始存储事务重新关联。
   typedef struct packed {
-    logic [XLEN-1:0]                 addr;
-    mem_cmd_e                        cmd;
-    mem_size_e                       size;
-    logic [XLEN-1:0]                 write_data;
-    logic [CORE_DATA_BYTE_COUNT-1:0] byte_strobe;
-    mem_txn_id_t                     transaction_id;
+    // 地址、ISA数据和core存储beat是三个独立配置维度。
+    phys_addr_t        addr;
+    mem_cmd_e          cmd;
+    mem_size_e         size;
+    core_data_t        write_data;
+    core_byte_strobe_t byte_strobe;
+    mem_txn_id_t       transaction_id;
   } data_memory_req_t;
 
   typedef struct packed {
-    logic [XLEN-1:0] read_data;
-    logic            access_fault;
-    mem_txn_id_t     transaction_id;
+    // 存储层一个beat的数据宽度不由XLEN描述。
+    core_data_t  read_data;
+    logic        access_fault;
+    mem_txn_id_t transaction_id;
   } data_memory_resp_t;
 
   // 后续扩展事件时先写清楚计数关系。例如lookup = hit + miss + uncached access；
@@ -392,26 +411,27 @@ package riscv32_pkg;
   // predictor_meta is opaque outside the predictor and branch-recovery path.
   typedef struct packed {
     logic                            predicted_taken;
-    logic [XLEN-1:0]                 predicted_target;
+    program_counter_t                predicted_target;
     logic [PREDICTOR_META_WIDTH-1:0] predictor_meta;
   } branch_prediction_t;
 
   typedef struct packed {
-    logic [XLEN-1:0]    pc;
-    logic [31:0]        instruction;
+    // fetch entry是架构取指信息，不是总线payload。
+    program_counter_t   pc;
+    instruction_t       instruction;
     frontend_tag_t      frontend_tag;
     branch_prediction_t prediction;
     logic               exception_valid;
     exception_cause_e   exception_cause;
-    logic [XLEN-1:0]    exception_tval;
+    xlen_data_t         exception_tval;
   } fetch_entry_t;
 
   // Decode and rename payloads
   // IDU is the only module that translates opcode/funct fields. All unused
   // control groups must be zeroed before the payload leaves IDU.
   typedef struct packed {
-    logic [XLEN-1:0]    pc;
-    logic [31:0]        instruction;
+    program_counter_t   pc;
+    instruction_t       instruction;
     frontend_tag_t      frontend_tag;
     branch_prediction_t prediction;
 
@@ -423,7 +443,7 @@ package riscv32_pkg;
     logic          writes_rd;
 
     fu_type_e         fu_type;
-    logic [XLEN-1:0]  imm;
+    xlen_data_t       imm;
     int_uop_ctrl_t    int_ctrl;
     branch_uop_ctrl_t branch_ctrl;
     mem_uop_ctrl_t    mem_ctrl;
@@ -433,7 +453,7 @@ package riscv32_pkg;
 
     logic             exception_valid;
     exception_cause_e exception_cause;
-    logic [XLEN-1:0]  exception_tval;
+    xlen_data_t       exception_tval;
   } decoded_uop_t;
 
   typedef struct packed {
@@ -449,8 +469,8 @@ package riscv32_pkg;
   // rob_idx identifies instruction age. flush_inclusive distinguishes recovery
   // that keeps the source instruction from recovery that removes it as well.
   typedef struct packed {
-    logic [XLEN-1:0]  target_pc;
-    logic [XLEN-1:0]  source_pc;
+    program_counter_t target_pc;
+    program_counter_t source_pc;
     rob_idx_t         rob_idx;
     logic             rob_idx_valid;
     logic             flush_inclusive;
@@ -458,21 +478,22 @@ package riscv32_pkg;
   } redirect_req_t;
 
   typedef struct packed {
-    alu_op_e         op;
-    logic [XLEN-1:0] operand_a;
-    logic [XLEN-1:0] operand_b;
-    phys_reg_idx_t   pdst;
-    rob_idx_t        rob_idx;
-    logic            writes_preg;
+    alu_op_e       op;
+    xlen_data_t    operand_a;
+    xlen_data_t    operand_b;
+    phys_reg_idx_t pdst;
+    rob_idx_t      rob_idx;
+    logic          writes_preg;
   } int_execute_req_t;
 
   typedef struct packed {
+    // 分支单元输出PC，但参与比较的是XLEN数据。
     control_flow_op_e   op;
     branch_cond_e       condition;
-    logic [XLEN-1:0]    pc;
-    logic [XLEN-1:0]    imm;
-    logic [XLEN-1:0]    src1_value;
-    logic [XLEN-1:0]    src2_value;
+    program_counter_t   pc;
+    xlen_data_t         imm;
+    xlen_data_t         src1_value;
+    xlen_data_t         src2_value;
     phys_reg_idx_t      pdst;
     rob_idx_t           rob_idx;
     logic               writes_preg;
@@ -481,46 +502,48 @@ package riscv32_pkg;
   } branch_execute_req_t;
 
   typedef struct packed {
-    mem_uop_ctrl_t   mem_ctrl;
-    logic [XLEN-1:0] base_value;
-    logic [XLEN-1:0] offset;
-    logic [XLEN-1:0] store_data;
-    phys_reg_idx_t   pdst;
-    rob_idx_t        rob_idx;
-    lq_idx_t         lq_idx;
-    sq_idx_t         sq_idx;
-    logic            lq_idx_valid;
-    logic            sq_idx_valid;
-    logic            writes_preg;
+    // 后续AGU输出才使用effective_addr_t，不能在输入端提前宣称它们已经是地址。
+    mem_uop_ctrl_t mem_ctrl;
+    xlen_data_t    base_value;
+    xlen_data_t    offset;
+    xlen_data_t    store_data;
+    phys_reg_idx_t pdst;
+    rob_idx_t      rob_idx;
+    lq_idx_t       lq_idx;
+    sq_idx_t       sq_idx;
+    logic          lq_idx_valid;
+    logic          sq_idx_valid;
+    logic          writes_preg;
   } lsu_execute_req_t;
 
   typedef struct packed {
-    csr_op_e         op;
-    logic [11:0]     addr;
-    logic [XLEN-1:0] operand;
-    logic [XLEN-1:0] old_value;
-    phys_reg_idx_t   pdst;
-    rob_idx_t        rob_idx;
-    logic            read_enable;
-    logic            write_enable;
-    logic            writes_preg;
+    csr_op_e       op;
+    logic [11:0]   addr;
+    xlen_data_t    operand;
+    xlen_data_t    old_value;
+    phys_reg_idx_t pdst;
+    rob_idx_t      rob_idx;
+    logic          read_enable;
+    logic          write_enable;
+    logic          writes_preg;
   } csr_execute_req_t;
 
   // Every execution unit returns the same completion shape. This unifies PRF
   // writeback, wakeup, and ROB completion without making completion equal commit.
   typedef struct packed {
-    rob_idx_t        rob_idx;
-    logic            writes_preg;
-    phys_reg_idx_t   pdst;
-    logic [XLEN-1:0] result;
+    // completion只表达执行完成，不携带任何AXI/cache宽度假设。
+    rob_idx_t      rob_idx;
+    logic          writes_preg;
+    phys_reg_idx_t pdst;
+    xlen_data_t    result;
 
-    logic            csr_write;
-    logic [11:0]     csr_addr;
-    logic [XLEN-1:0] csr_wdata;
+    logic        csr_write;
+    logic [11:0] csr_addr;
+    xlen_data_t  csr_wdata;
 
     logic             exception_valid;
     exception_cause_e exception_cause;
-    logic [XLEN-1:0]  exception_tval;
+    xlen_data_t       exception_tval;
 
     logic          redirect_valid;
     redirect_req_t redirect_req;
@@ -534,30 +557,32 @@ package riscv32_pkg;
   // This is the only architectural event consumed by trace, DiffTest, and debug.
   // One commit_t describes one retired instruction; lane valid remains separate.
   typedef struct packed {
-    logic [XLEN-1:0] pc;
-    logic [31:0]     instruction;
-    logic [XLEN-1:0] next_pc;
+    // commit是架构可见事件，memory_addr记录指令产生的有效地址，不能把它伪装成
+    // 已完成转换的物理地址。这样DiffTest/trace也不会依赖AXI数据位宽。
+    program_counter_t pc;
+    instruction_t     instruction;
+    program_counter_t next_pc;
 
-    logic            gpr_write;
-    arch_reg_idx_t   gpr_addr;
-    logic [XLEN-1:0] gpr_wdata;
+    logic          gpr_write;
+    arch_reg_idx_t gpr_addr;
+    xlen_data_t    gpr_wdata;
 
-    logic            csr_write;
-    logic [11:0]     csr_addr;
-    logic [XLEN-1:0] csr_wdata;
+    logic        csr_write;
+    logic [11:0] csr_addr;
+    xlen_data_t  csr_wdata;
 
-    logic                            memory_access;
-    mem_cmd_e                        memory_cmd;
-    mem_size_e                       memory_size;
-    logic [XLEN-1:0]                 memory_addr;
-    logic [XLEN-1:0]                 memory_rdata;
-    logic [XLEN-1:0]                 memory_wdata;
-    logic [CORE_DATA_BYTE_COUNT-1:0] memory_wmask;
+    logic              memory_access;
+    mem_cmd_e          memory_cmd;
+    mem_size_e         memory_size;
+    effective_addr_t   memory_addr;
+    core_data_t        memory_rdata;
+    core_data_t        memory_wdata;
+    core_byte_strobe_t memory_wmask;
 
     logic            trap_taken;
     logic            trap_is_interrupt;
     logic [XLEN-2:0] trap_cause_code;
-    logic [XLEN-1:0] trap_tval;
+    xlen_data_t      trap_tval;
     priv_mode_e      privilege;
     system_op_e      system_op;
   } commit_t;
@@ -566,41 +591,41 @@ package riscv32_pkg;
   // Channel valid/ready is intentionally separate from every payload. P0 keeps
   // one combinational instruction path; P4 may register the same boundaries.
   typedef struct packed {
-    decoded_uop_t    uop;
-    logic [XLEN-1:0] rs1_value;
-    logic [XLEN-1:0] rs2_value;
-    logic [XLEN-1:0] csr_rdata;
-    logic            csr_illegal;
+    decoded_uop_t uop;
+    xlen_data_t   rs1_value;
+    xlen_data_t   rs2_value;
+    xlen_data_t   csr_rdata;
+    logic         csr_illegal;
   } execute_packet_t;
 
   typedef struct packed {
-    decoded_uop_t    uop;
-    logic [XLEN-1:0] result;
-    logic [XLEN-1:0] next_pc;
-    logic [XLEN-1:0] csr_wdata;
-    logic            redirect_valid;
-    redirect_req_t   redirect_req;
+    decoded_uop_t     uop;
+    xlen_data_t       result;
+    program_counter_t next_pc;
+    xlen_data_t       csr_wdata;
+    logic             redirect_valid;
+    redirect_req_t    redirect_req;
   } execute_result_t;
 
   // EXU-to-LSU request for the current in-order core. This is a request, not a
   // memory result: the LSU has not issued a data-memory transaction yet.
   // P6 replaces decoded_uop_t with ROB/LSQ identity carried by lsu_execute_req_t.
   typedef struct packed {
-    decoded_uop_t    uop;
-    logic [XLEN-1:0] next_pc;
-    logic [XLEN-1:0] effective_addr;
-    logic [XLEN-1:0] store_data;
+    decoded_uop_t     uop;
+    program_counter_t next_pc;
+    effective_addr_t  effective_addr;
+    xlen_data_t       store_data;
   } lsu_req_t;
 
   typedef struct packed {
-    decoded_uop_t                    uop;
-    logic [XLEN-1:0]                 result;
-    logic [XLEN-1:0]                 next_pc;
-    logic [XLEN-1:0]                 csr_wdata;
-    logic [XLEN-1:0]                 memory_addr;
-    logic [XLEN-1:0]                 memory_rdata;
-    logic [XLEN-1:0]                 memory_wdata;
-    logic [CORE_DATA_BYTE_COUNT-1:0] memory_wmask;
+    decoded_uop_t      uop;
+    xlen_data_t        result;
+    program_counter_t  next_pc;
+    xlen_data_t        csr_wdata;
+    effective_addr_t   memory_addr;
+    core_data_t        memory_rdata;
+    core_data_t        memory_wdata;
+    core_byte_strobe_t memory_wmask;
   } writeback_result_t;
 
 endpackage

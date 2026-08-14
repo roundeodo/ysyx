@@ -4,27 +4,28 @@ module riscv32_csr_file
     input logic clk_i,
     input logic rst_ni,
 
-    input  logic            csr_read_enable_i,
-    input  logic [    11:0] csr_read_addr_i,
-    output logic [XLEN-1:0] csr_read_data_o,
-    output logic            csr_read_illegal_o,
+    input  logic           csr_read_enable_i,
+    input  logic    [11:0] csr_read_addr_i,
+    // CSR数据属于XLEN宽架构状态；PC类CSR单独标注PC语义，避免误接物理总线地址。
+    output xlen_data_t     csr_read_data_o,
+    output logic           csr_read_illegal_o,
 
-    input logic            csr_write_valid_i,
-    input logic [    11:0] csr_write_addr_i,
-    input logic [XLEN-1:0] csr_write_data_i,
+    input logic       csr_write_valid_i,
+    input logic [11:0] csr_write_addr_i,
+    input xlen_data_t csr_write_data_i,
 
     input logic retired_instruction_occurred_i,
 
     // CSR file只转发微架构事件，事件的定义与累计均由I-cache和PMU负责。
     input icache_event_t icache_event_i,
-    input logic                     trap_valid_i,
-    input logic          [XLEN-1:0] trap_pc_i,
-    input logic          [XLEN-1:0] trap_cause_i,
-    input logic          [XLEN-1:0] trap_tval_i,
-    input logic                     mret_valid_i,
+    input logic             trap_valid_i,
+    input program_counter_t trap_pc_i,
+    input xlen_data_t       trap_cause_i,
+    input xlen_data_t       trap_tval_i,
+    input logic             mret_valid_i,
 
-    output logic [XLEN-1:0] mtvec_o,
-    output logic [XLEN-1:0] mepc_o
+    output program_counter_t mtvec_o,
+    output program_counter_t mepc_o
 );
   localparam logic [11:0] CSR_MVENDORID   = 12'hF11      ;
   localparam logic [11:0] CSR_MARCHID     = 12'hF12      ;
@@ -39,17 +40,20 @@ module riscv32_csr_file
   localparam logic [31:0] MVENDORID_VALUE = 32'h7973_7978;
   localparam logic [31:0] MARCHID_VALUE   = 32'h0150_BE98;
 
-  logic [    31:0] mstatus_q;
-  logic [    31:0] mie_q;
-  logic [    31:0] mtvec_q;
-  logic [    31:0] mscratch_q;
-  logic [    31:0] mepc_q;
-  logic [    31:0] mcause_q;
-  logic [    31:0] mtval_q;
-  logic [    31:0] mip_q;
+  // machine CSR随XLEN扩展；mtvec和mepc使用PC类型，其余保存普通架构状态。
+  // mstatus的MIE/MPIE/MPP位号由规范固定，不会随XLEN移动。
+  xlen_data_t       mstatus_q;
+  xlen_data_t       mie_q;
+  program_counter_t mtvec_q;
+  xlen_data_t       mscratch_q;
+  program_counter_t mepc_q;
+  xlen_data_t       mcause_q;
+  xlen_data_t       mtval_q;
+  xlen_data_t       mip_q;
 
-  logic            pmu_csr_read_select;
-  logic [XLEN-1:0] pmu_csr_read_data;
+  // PMU负责把固定64位计数器转换成当前XLEN可见的CSR读窗口。
+  logic       pmu_csr_read_select;
+  xlen_data_t pmu_csr_read_data;
 
   // 不要从AXI握手推导hit/miss：一次miss会产生多次refill读，语义上不是多次cache miss。
   riscv32_pmu #(
@@ -73,8 +77,9 @@ module riscv32_csr_file
 
     if (csr_read_enable_i) begin
       unique case (csr_read_addr_i)
-        CSR_MVENDORID: csr_read_data_o = MVENDORID_VALUE;
-        CSR_MARCHID:   csr_read_data_o = MARCHID_VALUE;
+        // 固定32位实现常量显式转换到CSR访问宽度，避免依赖隐式零扩展。
+        CSR_MVENDORID: csr_read_data_o = xlen_data_t'(MVENDORID_VALUE);
+        CSR_MARCHID:   csr_read_data_o = xlen_data_t'(MARCHID_VALUE);
         CSR_MSTATUS:   csr_read_data_o = mstatus_q;
         CSR_MIE:       csr_read_data_o = mie_q;
         CSR_MTVEC:     csr_read_data_o = mtvec_q;

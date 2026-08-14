@@ -43,7 +43,8 @@ module riscv32_icache
   icache_word_index_t                         array_read_word_index;
   icache_tag_t                                array_read_tag_array               [ICACHE_WAY_COUNT];
   logic                [ICACHE_WAY_COUNT-1:0] array_read_line_present_vector;
-  logic                [            XLEN-1:0] array_read_word_data_array         [ICACHE_WAY_COUNT];
+  // 命中数据路径使用fetch宽度，修改XLEN不会无意义地扩大I-cache阵列。
+  icache_fetch_data_t                         array_read_word_data_array         [ICACHE_WAY_COUNT];
 
   icache_miss_req_t                           miss_req;
   logic                                       miss_req_valid;
@@ -58,7 +59,7 @@ module riscv32_icache
   icache_set_index_t                          refill_data_write_set_index;
   icache_way_index_t                          refill_data_write_way_index;
   icache_word_index_t                         refill_data_write_word_index;
-  logic                [            XLEN-1:0] refill_data_write_word_data;
+  icache_fetch_data_t                         refill_data_write_word_data;
 
   logic                                       refill_metadata_write_valid;
   icache_set_index_t                          refill_metadata_write_set_index;
@@ -156,8 +157,8 @@ module riscv32_icache
   icache_tag_t lookup_tag_array_s2_d[ICACHE_WAY_COUNT];
   logic [ICACHE_WAY_COUNT-1:0] lookup_line_present_vector_s2_q;
   logic [ICACHE_WAY_COUNT-1:0] lookup_line_present_vector_s2_d;
-  logic [XLEN-1:0] lookup_word_data_array_s2_q[ICACHE_WAY_COUNT];
-  logic [XLEN-1:0] lookup_word_data_array_s2_d[ICACHE_WAY_COUNT];
+  icache_fetch_data_t lookup_word_data_array_s2_q[ICACHE_WAY_COUNT];
+  icache_fetch_data_t lookup_word_data_array_s2_d[ICACHE_WAY_COUNT];
 
   logic lookup_req_handshake;
   logic lookup_s1_ready;
@@ -172,16 +173,17 @@ module riscv32_icache
   // 不依赖这些硬编码位置。还可定义line-base函数，把低ICACHE_LINE_OFFSET_W位清零，
   // 但miss unit已经从原fetch_addr生成line base，顶层不应重复保存第二份地址。
   // 所有输入都是物理地址；本项目当前没有MMU，未来加入翻译后仍应由PMA接收翻译后的地址。
-  function automatic icache_set_index_t get_icache_set_index(input logic [XLEN-1:0] addr);
+  // 地址拆分只消费物理地址；set/word来自cache几何参数，tag从PADDR_WIDTH最高位开始。
+  function automatic icache_set_index_t get_icache_set_index(input phys_addr_t addr);
     return addr[ICACHE_LINE_OFFSET_W+ICACHE_SET_INDEX_W-1-:ICACHE_SET_INDEX_W];
   endfunction
 
-  function automatic icache_word_index_t get_icache_word_index(input logic [XLEN-1:0] addr);
+  function automatic icache_word_index_t get_icache_word_index(input phys_addr_t addr);
     return addr[ICACHE_LINE_OFFSET_W-1-:ICACHE_WORD_INDEX_W];
   endfunction
 
-  function automatic icache_tag_t get_icache_tag(input logic [XLEN-1:0] addr);
-    return addr[XLEN-1-:ICACHE_TAG_W];
+  function automatic icache_tag_t get_icache_tag(input phys_addr_t addr);
+    return addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
   endfunction
   // S2并行比较所有way的present和tag，并把请求划分为四类互斥结果：
   // access fault、uncached访问、cache hit和cache miss。命中选择只编码第一路，
@@ -193,7 +195,7 @@ module riscv32_icache
   logic lookup_hit;
   logic hit_way_selected;
   icache_way_index_t lookup_hit_way_index;
-  logic [XLEN-1:0] lookup_hit_word_data;
+  icache_fetch_data_t lookup_hit_word_data;
   logic lookup_access_fault;
   logic lookup_uncached;
   logic lookup_cache_miss;

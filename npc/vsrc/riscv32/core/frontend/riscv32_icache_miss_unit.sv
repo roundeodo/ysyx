@@ -37,7 +37,8 @@ module riscv32_icache_miss_unit
     output icache_set_index_t              data_write_set_index_o,
     output icache_way_index_t              data_write_way_index_o,
     output icache_word_index_t             data_write_word_index_o,
-    output logic                [XLEN-1:0] data_write_word_data_o,
+    // refill、data array写口和lookup响应共享取指数据类型，与XLEN解耦。
+    output icache_fetch_data_t data_write_word_data_o,
 
     // Tag array元数据写口，同一个接口承担两种操作：
     // 1. 发出refill请求时写line_present=0，先使victim失效；
@@ -151,11 +152,9 @@ module riscv32_icache_miss_unit
       // refill_req_ready_i使握手发生；同一握手周期先使cacheable victim失效。
       MISS_SEND_REFILL_REQUEST: begin
         refill_req_valid_o = 1'b1;
-        // 清零块内偏移，得到cache line起始地址。
-        refill_req_o.line_base_addr = {
-          miss_req_q.lookup_req.fetch_addr[XLEN-1:ICACHE_LINE_OFFSET_W],
-          {ICACHE_LINE_OFFSET_W{1'b0}}
-        };
+        // 复制完整物理地址后清除line内偏移，避免用XLEN切片物理地址。
+        refill_req_o.line_base_addr = miss_req_q.lookup_req.fetch_addr;
+        refill_req_o.line_base_addr[ICACHE_LINE_OFFSET_W-1:0] = '0;
         refill_req_o.critical_word_index = miss_req_q.critical_word_index;
         // Cacheable访问取回整条line；uncached访问只取当前word。
         refill_req_o.requested_word_count = miss_req_q.memory_attr.cacheable ? icache_refill_word_count_t'(ICACHE_WORDS_PER_LINE) : icache_refill_word_count_t'(1);

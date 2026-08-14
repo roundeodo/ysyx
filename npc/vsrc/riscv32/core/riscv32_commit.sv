@@ -8,9 +8,10 @@ module riscv32_commit
     output commit_t commit_o,
     output logic    commit_valid_o,
 
-    output logic          [XLEN-1:0] gpr_write_data_o,
-    output arch_reg_idx_t            gpr_write_addr_o,
-    output logic                     gpr_write_enable_o
+    // 提交边界表达架构副作用，写回数据宽度只能由XLEN决定。
+    output xlen_data_t    gpr_write_data_o,
+    output arch_reg_idx_t gpr_write_addr_o,
+    output logic          gpr_write_enable_o
 );
   assign writeback_result_ready_o = 1'b1;
   assign commit_valid_o           = writeback_result_valid_i && writeback_result_ready_o;
@@ -38,7 +39,10 @@ module riscv32_commit
     commit_o.memory_wmask      = writeback_result_i.memory_wmask;
     commit_o.trap_taken        = writeback_result_i.uop.exception_valid;
     commit_o.trap_is_interrupt = 1'b0;
-    commit_o.trap_cause_code   = {{(XLEN - 6) {1'b0}}, writeback_result_i.uop.exception_cause};
+    // 内部异常枚举显式写入架构mcause低位，避免依赖固定枚举宽度进行拼接。
+    commit_o.trap_cause_code = '0;
+    commit_o.trap_cause_code[$bits(writeback_result_i.uop.exception_cause)-1:0] =
+        writeback_result_i.uop.exception_cause;
     commit_o.trap_tval         = writeback_result_i.uop.exception_tval;
     commit_o.privilege         = PRIV_MODE_M;
     commit_o.system_op         = writeback_result_i.uop.system_op;

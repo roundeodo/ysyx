@@ -9,7 +9,8 @@ module riscv32_idu
     output logic         decoded_uop_valid_o,
     input  logic         decoded_uop_ready_i
 );
-  logic [31:0] instruction;
+  // 指令编码固定为INSTR_WIDTH，而译码后的立即数必须先按指令格式形成，再扩展到XLEN。
+  instruction_t instruction;
   logic [ 6:0] opcode;
   logic [ 4:0] rd_addr;
   logic [ 2:0] funct3;
@@ -18,11 +19,11 @@ module riscv32_idu
   logic [ 6:0] funct7;
   logic [11:0] funct12;
 
-  logic [31:0] i_type_imm;
-  logic [31:0] s_type_imm;
-  logic [31:0] b_type_imm;
-  logic [31:0] u_type_imm;
-  logic [31:0] j_type_imm;
+  xlen_data_t i_type_imm;
+  xlen_data_t s_type_imm;
+  xlen_data_t b_type_imm;
+  xlen_data_t u_type_imm;
+  xlen_data_t j_type_imm;
 
   assign instruction = fetch_entry_i.instruction;
   assign opcode = instruction[6:0];
@@ -33,19 +34,20 @@ module riscv32_idu
   assign funct7 = instruction[31:25];
   assign funct12 = instruction[31:20];
 
-  assign i_type_imm = {{20{instruction[31]}}, instruction[31:20]};
-  assign s_type_imm = {{20{instruction[31]}}, instruction[31:25], instruction[11:7]};
+  // RV64的LUI/AUIPC也要求将32位U立即数符号扩展到XLEN，不能简单在高位补零。
+  assign i_type_imm = {{(XLEN - 12) {instruction[31]}}, instruction[31:20]};
+  assign s_type_imm = {{(XLEN - 12) {instruction[31]}}, instruction[31:25], instruction[11:7]};
   assign b_type_imm = {
-    {19{instruction[31]}},
+    {(XLEN - 13) {instruction[31]}},
     instruction[31],
     instruction[7],
     instruction[30:25],
     instruction[11:8],
     1'b0
   };
-  assign u_type_imm = {instruction[31:12], 12'b0};
+  assign u_type_imm = {{(XLEN - 32) {instruction[31]}}, instruction[31:12], 12'b0};
   assign j_type_imm = {
-    {11{instruction[31]}},
+    {(XLEN - 21) {instruction[31]}},
     instruction[31],
     instruction[19:12],
     instruction[20],
