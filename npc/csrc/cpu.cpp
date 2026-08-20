@@ -249,6 +249,11 @@ npc_word_t npc_get_mcause() {
   return static_cast<npc_word_t>(npc_get_mcause_dpi());
 }
 
+npc_word_t npc_get_mtval() {
+  set_dpi_scope();
+  return static_cast<npc_word_t>(npc_get_mtval_dpi());
+}
+
 // ============================================================
 // Print registers
 // ============================================================

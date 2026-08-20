@@ -20,6 +20,7 @@ struct DiffTestRegs {
   npc_word_t mtvec;
   npc_word_t mepc;
   npc_word_t mcause;
+  npc_word_t mtval;
 };
 
 static bool difftest_enabled = false;
@@ -46,6 +47,7 @@ static void fill_dut_regs(DiffTestRegs *r, npc_word_t architectural_pc) {
   r->mtvec = npc_get_mtvec();
   r->mepc = npc_get_mepc();
   r->mcause = npc_get_mcause();
+  r->mtval = npc_get_mtval();
 }
 
 static bool checkregs(const DiffTestRegs *ref, const DiffTestRegs *dut,
@@ -74,10 +76,11 @@ static bool checkregs(const DiffTestRegs *ref, const DiffTestRegs *dut,
   }
 
   const npc_word_t dut_csrs[] = {dut->mstatus, dut->mtvec, dut->mepc,
-                                 dut->mcause};
+                                 dut->mcause, dut->mtval};
   const npc_word_t ref_csrs[] = {ref->mstatus, ref->mtvec, ref->mepc,
-                                 ref->mcause};
-  const char *const csr_names[] = {"mstatus", "mtvec", "mepc", "mcause"};
+                                 ref->mcause, ref->mtval};
+  const char *const csr_names[] = {"mstatus", "mtvec", "mepc", "mcause",
+                                   "mtval"};
   for (size_t i = 0; i < sizeof(dut_csrs) / sizeof(dut_csrs[0]); i++) {
     if (dut_csrs[i] != ref_csrs[i]) {
       printf("DiffTest CSR mismatch after pc=0x%0*llx\n",

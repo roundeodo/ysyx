@@ -108,9 +108,10 @@ module top
   export "DPI-C" function npc_get_mtvec_dpi;
   export "DPI-C" function npc_get_mepc_dpi;
   export "DPI-C" function npc_get_mcause_dpi;
+  export "DPI-C" function npc_get_mtval_dpi;
 
   function longint unsigned npc_get_pc_dpi();
-    npc_get_pc_dpi = u_npc_system.u_core.idu_fetch_entry.pc;
+    npc_get_pc_dpi = longint unsigned'(u_npc_system.u_core.idu_fetch_entry.pc);
   endfunction
 
   function int npc_get_inst_dpi();
@@ -122,7 +123,7 @@ module top
   endfunction
 
   function longint unsigned npc_get_commit_pc_dpi();
-    npc_get_commit_pc_dpi = u_npc_system.u_core.commit.pc;
+    npc_get_commit_pc_dpi = longint unsigned'(u_npc_system.u_core.commit.pc);
   endfunction
 
   function int npc_get_commit_inst_dpi();
@@ -134,10 +135,11 @@ module top
         u_npc_system.u_core.commit_valid &&
         (u_npc_system.u_core.selected_redirect_req.source_pc ==
          u_npc_system.u_core.commit.pc)) begin
-      npc_get_commit_next_pc_dpi =
-          u_npc_system.u_core.selected_redirect_req.target_pc;
+      npc_get_commit_next_pc_dpi = longint unsigned'(
+          u_npc_system.u_core.selected_redirect_req.target_pc);
     end else begin
-      npc_get_commit_next_pc_dpi = u_npc_system.u_core.commit.next_pc;
+      npc_get_commit_next_pc_dpi =
+          longint unsigned'(u_npc_system.u_core.commit.next_pc);
     end
   endfunction
 
@@ -145,24 +147,29 @@ module top
     if ((index <= 0) || (index >= ARCH_REG_COUNT)) begin
       npc_get_gpr_dpi = '0;
     end else begin
-      npc_get_gpr_dpi = u_npc_system.u_core.u_arch_regfile.gpr_q[index];
+      npc_get_gpr_dpi =
+          longint unsigned'(u_npc_system.u_core.u_arch_regfile.gpr_q[index]);
     end
   endfunction
 
   function longint unsigned npc_get_mstatus_dpi();
-    npc_get_mstatus_dpi = u_npc_system.u_core.u_csr_file.mstatus_q;
+    npc_get_mstatus_dpi = longint unsigned'(u_npc_system.u_core.u_csr_file.mstatus_q);
   endfunction
 
   function longint unsigned npc_get_mtvec_dpi();
-    npc_get_mtvec_dpi = u_npc_system.u_core.u_csr_file.mtvec_q;
+    npc_get_mtvec_dpi = longint unsigned'(u_npc_system.u_core.u_csr_file.mtvec_q);
   endfunction
 
   function longint unsigned npc_get_mepc_dpi();
-    npc_get_mepc_dpi = u_npc_system.u_core.u_csr_file.mepc_q;
+    npc_get_mepc_dpi = longint unsigned'(u_npc_system.u_core.u_csr_file.mepc_q);
   endfunction
 
   function longint unsigned npc_get_mcause_dpi();
-    npc_get_mcause_dpi = u_npc_system.u_core.u_csr_file.mcause_q;
+    npc_get_mcause_dpi = longint unsigned'(u_npc_system.u_core.u_csr_file.mcause_q);
+  endfunction
+
+  function longint unsigned npc_get_mtval_dpi();
+    npc_get_mtval_dpi = longint unsigned'(u_npc_system.u_core.u_csr_file.mtval_q);
   endfunction
 
   always_ff @(posedge clk) begin

@@ -32,6 +32,7 @@ npc_word_t npc_get_mstatus();
 npc_word_t npc_get_mtvec();
 npc_word_t npc_get_mepc();
 npc_word_t npc_get_mcause();
+npc_word_t npc_get_mtval();
 
 // print gpr value
 void npc_dump_regs();
