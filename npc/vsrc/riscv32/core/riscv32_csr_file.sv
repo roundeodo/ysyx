@@ -44,7 +44,7 @@ module riscv32_csr_file
   localparam logic [31:0] MVENDORID_VALUE = 32'h7973_7978;
   localparam logic [31:0] MARCHID_VALUE   = 32'h0150_BE98;
 
-  localparam xlen_data_t MSTATUS_RESET_VALUE = xlen_data_t'(12'h1800);
+  localparam xlen_data_t MSTATUS_RESET_VALUE = xlen_data_t'(32'h0000_1800);
   localparam xlen_data_t MSTATUS_WRITABLE_MASK =
       (xlen_data_t'(1) << 3) | (xlen_data_t'(1) << 7);
   localparam xlen_data_t MIE_WRITABLE_MASK =
