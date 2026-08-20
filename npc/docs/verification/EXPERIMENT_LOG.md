@@ -239,3 +239,50 @@ make sim-npc PROJECT=riscv32 NPC_CONFIG=rv32-baseline \
 - 对宽MMIO先拒绝再返回错误，避免第一次32位子事务已产生设备副作用后才发现访问非法；
 - 当前RV64构建中的PC/GPR仿真DPI仍为32位，该软件调试接口由P3-F统一升级，不影响本阶段
   RTL访存与协议边界的退出条件。
+
+## 2026-08-20 - P3-E RV64 CSR、精确异常与提交验证
+
+- Commit：uncommitted；沿用P3-D工作树。
+- 架构决策：CSR先产生写意图，只有commit才能改变架构状态；`minstret`由commit驱动。
+- 工作负载和规模：RV32/RV64 privileged directed test、EXU未对齐跳转回归。
+- 构建配置：`rv32-baseline`和`rv64-sequential`。
+- 命令：`make regression-p3-e PROJECT=riscv32`。
+- 功能结果：双配置特权级测试和EXU测试全部通过。
+- 综合目标/结果：本检查点不单独记录综合结果，由P3-G统一建立基线。
+
+验证范围：
+
+- CSR地址合法性、只读检查、`mstatus/mie/mtvec/mepc/mip`的WARL行为；
+- `ecall/mret`、非法指令、取指/访存access fault和未对齐异常；
+- trap指令不写GPR、不发起存储器请求，错误CSR写不产生架构副作用；
+- RV64 CSR整宽访问和RV32计数器高低半访问保持各自语义。
+
+分析：
+
+- ECALL不携带故障地址或故障指令，因此`mtval`必须为零；该端到端检查修复了
+  IDU继承IFU默认`exception_tval=pc`的错误。
+- commit与执行完成分离后，后续流水化可以保持精确异常和准确的`minstret`语义。
+
+## 2026-08-20 - P3-F RV64软件、NEMU reference与DiffTest验证
+
+- Commit：uncommitted；沿用P3-E工作树。
+- 架构决策：AM、NPC仿真器和NEMU参考模型共享一个按XLEN选择的架构状态契约。
+- 工作负载和规模：RV32/RV64各35项cpu-tests，所有测试都启用DiffTest。
+- 构建配置：`rv32-baseline`和`rv64-sequential`；NEMU分别构建RV32/RV64 reference。
+- 命令：`make regression-p3-f-rv32 PROJECT=riscv32`、
+  `make regression-p3-f-rv64 PROJECT=riscv32`。
+- 功能结果：RV32 35/35通过，RV64 35/35通过；`csr-trap`通过ECALL到`mret`闭环。
+- 综合目标/结果：本检查点不单独记录综合结果，由P3-G统一建立基线。
+
+验证范围：
+
+- AM使用RV64I+Zicsr+Zifencei/LP64工具链参数，启动和trap汇编按XLEN共享；
+- NPC DPI和DiffTest比较GPR、PC以及`mstatus/mtvec/mepc/mcause/mtval`；
+- cpu-tests覆盖算术、长整数、移位、分支、负载存储、字符串、排序、递归和CSR/trap；
+- `unalign`不加入回归，因为它要求透明完成非对齐访存，与当前硬件契约不同。
+
+分析：
+
+- RV64 `hello-str`通过后，确认AM已使用RV64软除法路径，不再误入32位C软除法的递归；
+- RV32/RV64 reference分离生成和显式选择，避免NEMU最近一次menuconfig结果污染另一配置的
+  DiffTest。

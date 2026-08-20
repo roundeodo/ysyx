@@ -1,6 +1,6 @@
 # P3 RV64 顺序处理器实施计划
 
-状态：P3-D 已完成，下一步为 P3-E
+状态：P3-E/P3-F 已完成，P3-G 回归与基线固化进行中
 
 最后更新：2026-08-20
 
@@ -245,7 +245,7 @@ RV64软件镜像、64位DiffTest/DPI架构状态仍属于P3-F，不作为P3-D退
 
 ### P3-E：实现 RV64 CSR、异常和提交
 
-状态：未开始。
+状态：已完成（2026-08-20）。
 
 修改范围：
 
@@ -259,9 +259,27 @@ RV64软件镜像、64位DiffTest/DPI架构状态仍属于P3-F，不作为P3-D退
 退出条件：`ecall/mret`、非法指令、取指/访存错误和未对齐异常均有 directed test；异常指令
 不产生寄存器或存储器副作用；RV32 trap 回归保持通过。
 
+实现结果：
+
+- CSR file实现machine CSR的合法性、只读性和WARL约束，并补齐`misa`、`mimpid`、
+  `mhartid`、`mtval`等DiffTest可观测状态；
+- CSR写操作拆成“写意图”和“最终提交写入”，trap或非法CSR访问不会留下架构副作用；
+- trap controller、commit和PMU统一使用XLEN架构状态，`minstret`仅由真实commit事件驱动；
+- EXU对JAL/JALR目标做指令地址对齐检查；IDU明确将ECALL的`mtval`置零；
+- 新增双配置特权级定向测试，覆盖CSR WARL、`ecall/mret`、非法指令、未对齐和
+  access fault的精确异常语义。
+
+验证命令：
+
+```sh
+make regression-p3-e PROJECT=riscv32
+```
+
+验证结果：RV32/RV64的privileged和EXU directed tests均通过。
+
 ### P3-F：建立 RV64 软件和参考模型
 
-状态：未开始。
+状态：已完成（2026-08-20）。
 
 修改范围：
 
@@ -273,6 +291,27 @@ RV64软件镜像、64位DiffTest/DPI架构状态仍属于P3-F，不作为P3-D退
 
 退出条件：RV64 dummy、基础 cpu-tests、异常测试和 NEMU DiffTest 通过；RV32 软件目标与
 reference 仍可独立构建。
+
+实现结果：
+
+- Abstract Machine新增`riscv64-npc`架构目标，固定使用
+  `-march=rv64i_zicsr_zifencei -mabi=lp64`，并复用参数化的NPC启动和trap入口；
+- RV64 NPC不再编译32位C软除法，而是使用AM中的RV64汇编除法实现；
+- NEMU提供独立的RV32/RV64 reference配置和动态库，RV64I执行、CSR和trap状态与NPC对齐；
+- NPC的PC、GPR、commit DPI和DiffTest架构状态改为按`NPC_XLEN`选择32/64位，
+  比较GPR、PC、`mstatus/mtvec/mepc/mcause/mtval`；
+- 新增`csr-trap`端到端测试，trap handler检查ECALL的`mcause=11`、`mtval=0`、
+  `mstatus.MPIE/MIE`，修改`mepc`后通过`mret`返回。
+
+验证命令：
+
+```sh
+make regression-p3-f-rv32 PROJECT=riscv32
+make regression-p3-f-rv64 PROJECT=riscv32
+```
+
+验证结果：RV32和RV64各35项cpu-tests全部通过DiffTest。`unalign`测试要求硬件透明执行
+非对齐访存，与当前“产生misaligned异常”的架构契约冲突，因此不属于本基线。
 
 ### P3-G：冻结 RV64 多周期功能基线
 
@@ -313,5 +352,5 @@ flush 和精确异常。流水化不能创建第二套译码或第二套架构�
 
 ## 6. 当前第一项任务
 
-P3-D 已完成。下一步执行P3-E，检查RV64 machine CSR、异常、提交和PMU计数器语义。
-后续继续按`CSR/trap -> 软件/DiffTest -> 多周期基线冻结`推进，当前不引入流水线时序。
+P3-E和P3-F已完成。当前执行P3-G，运行双配置完整回归，记录PMU和STA基线，
+然后冻结`YSYX_RV64_SEQUENTIAL`多周期检查点。P3-G关闭前不改变流水级边界。

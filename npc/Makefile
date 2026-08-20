@@ -7,7 +7,7 @@
 PROJECT ?= riscv32
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -22,9 +22,11 @@ endif
 ifeq ($(NPC_CONFIG),rv32-baseline)
 NPC_CONFIG_DEFINE := +define+YSYX_RV32_BASELINE
 NPC_CONFIG_CXXFLAG := -DNPC_XLEN=32
+NPC_SLANG_DEFINE := -DYSYX_RV32_BASELINE
 else ifeq ($(NPC_CONFIG),rv64-sequential)
 NPC_CONFIG_DEFINE := +define+YSYX_RV64_SEQUENTIAL
 NPC_CONFIG_CXXFLAG := -DNPC_XLEN=64
+NPC_SLANG_DEFINE := -DYSYX_RV64_SEQUENTIAL
 endif
 
 NPC_TOP_MODULE := top
@@ -96,6 +98,14 @@ RTL_DEPENDENCIES := $(shell sed \
 	-e '/^[[:space:]]*[+-]/d' \
 	-e '/^[[:space:]]*$$/d' \
 	$(RTL_FILELIST))
+
+STA_RTL_FILELIST := $(RTL_DIR)/filelist/filelist_sta.f
+STA_RTL_DEPENDENCIES := $(shell sed \
+	-e 's|$${NPC_HOME}|$(abspath .)|g' \
+	-e '/^[[:space:]]*\/\//d' \
+	-e '/^[[:space:]]*[+-]/d' \
+	-e '/^[[:space:]]*$$/d' \
+	$(STA_RTL_FILELIST))
 
 SOC_HOME             := $(abspath ../ysyxSoC)
 SOC_PERIPHERAL_DIR   := $(SOC_HOME)/perip
@@ -398,6 +408,7 @@ nemu-ref-rv64:
 
 regression-p3-e:
 	$(MAKE) test-privileged-configs PROJECT=$(PROJECT)
+	$(MAKE) test-exu-configs PROJECT=$(PROJECT)
 
 regression-p3-f-rv32:
 	$(MAKE) nemu-ref-rv32 PROJECT=$(PROJECT)
@@ -432,6 +443,7 @@ regression-p3-g:
 	$(MAKE) build-npc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 	$(MAKE) regression-p3-f-rv32 PROJECT=$(PROJECT)
 	$(MAKE) regression-p3-f-rv64 PROJECT=$(PROJECT)
+	$(MAKE) sta-configs PROJECT=$(PROJECT)
 
 # ============================================================
 # Simulation entry points
@@ -551,7 +563,7 @@ perf-record:
 # Static checks and maintenance
 # ============================================================
 
-.PHONY: lint lint-npc lint-soc lint-configs clean
+.PHONY: lint lint-npc lint-soc lint-configs sta sta-configs clean
 lint: lint-npc
 
 lint-npc: $(RTL_FILELIST)
@@ -573,6 +585,36 @@ lint-soc: $(RTL_FILELIST) $(SOC_VERILOG_SOURCES)
 lint-configs:
 	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+
+# 对正式standalone系统边界做综合与STA。输出按配置隔离，避免RV32/RV64结果相互覆盖。
+STA_TOOL_DIR      := $(abspath ../yosys-sta)
+STA_DESIGN        := riscv32_npc_system
+STA_FREQUENCY_MHZ ?= 300
+STA_SYNTH_STRATEGY ?= DELAY 0
+STA_SDC_FILE      := $(abspath ./constr/riscv32_npc_axi.sdc)
+STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(NPC_CONFIG))
+# 当前PDK不提供I-cache SRAM宏及其Liberty时序模型。综合时保留array模块边界，
+# 只评估core/cache controller/AXI逻辑壳，避免把8 KiB SRAM错误地展开成6万多个触发器。
+# 该报告不包含SRAM访问延迟；未来必须用目标工艺的SRAM macro和.lib替换黑盒。
+STA_MEMORY_BLACKBOX_FLAGS := \
+	--blackboxed-module riscv32_icache_tag_array \
+	--blackboxed-module riscv32_icache_data_array
+
+sta: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
+	$(MAKE) -C $(STA_TOOL_DIR) sta \
+		NPC_HOME=$(abspath .) \
+		DESIGN=$(STA_DESIGN) \
+		RTL_FILES="$(STA_RTL_DEPENDENCIES)" \
+		SLANG_FLAGS="$(NPC_SLANG_DEFINE) $(STA_MEMORY_BLACKBOX_FLAGS)" \
+		SDC_FILE=$(STA_SDC_FILE) \
+		O=$(STA_OUTPUT_ROOT) \
+		CLK_FREQ_MHZ=$(STA_FREQUENCY_MHZ) \
+		SYNTH_STRATEGY="$(STA_SYNTH_STRATEGY)" \
+		CLK_PORT_NAME=clk_i
+
+sta-configs:
+	$(MAKE) sta PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) sta PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 clean:
 	rm -rf ./build wave.vcd waveform.vcd
@@ -622,6 +664,7 @@ help:
 	@echo "  lint-npc      Lint the standalone NPC"
 	@echo "  lint-soc      Lint the selected NPC configuration inside ysyxSoC"
 	@echo "  lint-configs  Lint both formal NPC configurations"
+	@echo "  sta / sta-configs  Run 300 MHz synthesis and STA for one/both NPC configurations"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make lint-npc NPC_CONFIG=rv64-sequential"

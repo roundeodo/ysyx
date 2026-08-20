@@ -75,6 +75,12 @@ module riscv32_icache
   icache_tag_t                                metadata_write_tag;
   logic                                       metadata_write_line_present;
 
+  icache_way_index_t                          replacement_way_index_array_q      [ICACHE_SET_COUNT];
+  icache_way_index_t                          replacement_way_index;
+  logic                                       replacement_state_update_valid;
+  icache_set_index_t                          replacement_state_update_set_index;
+  icache_way_index_t                          replacement_state_update_accessed_way_index;
+
   riscv32_pma u_riscv32_pma (
       .lookup_addr_i(lookup_req_i.fetch_addr),
       .memory_attr_o(lookup_memory_attr)
@@ -360,12 +366,6 @@ module riscv32_icache
   // 每个set保存“两个way均有效时，下次优先替换哪一路”。invalidate无需清该状态，因为
   // victim选择首先检查present。异或1只适用于两路；扩展到4路时必须改成tree-PLRU或
   // 其他明确算法，不能把表面参数化误当成算法已经支持任意way数量。
-  icache_way_index_t replacement_way_index_array_q[ICACHE_SET_COUNT];
-  icache_way_index_t replacement_way_index;
-  logic replacement_state_update_valid;
-  icache_set_index_t replacement_state_update_set_index;
-  icache_way_index_t replacement_state_update_accessed_way_index;
-
   always_comb begin
     replacement_way_index =
         replacement_way_index_array_q[get_icache_set_index(lookup_s2_q.fetch_addr)];
