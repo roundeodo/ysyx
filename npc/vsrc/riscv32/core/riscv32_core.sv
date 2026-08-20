@@ -246,6 +246,7 @@ module riscv32_core
       .rst_ni                        (rst_ni),
       .csr_read_enable_i             (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
       .csr_read_addr_i               (decoded_uop.csr_ctrl.addr),
+      .csr_access_write_enable_i     (decoded_uop_valid && decoded_uop.csr_ctrl.write_enable),
       .csr_read_data_o               (csr_read_data),
       .csr_read_illegal_o            (csr_read_illegal),
       .csr_write_valid_i             (commit_valid && commit.csr_write),

@@ -28,6 +28,7 @@ module riscv32_exu
   logic             branch_condition_met;
   logic             branch_taken;
   program_counter_t branch_target;
+  logic             branch_target_misaligned;
   logic             branch_redirect_valid;
   execute_result_t  exu_result;
 
@@ -133,7 +134,10 @@ module riscv32_exu
     endcase
   end
 
-  assign branch_redirect_valid = branch_taken && !execute_packet_i.uop.exception_valid;
+  // 基础RV32I/RV64I未实现C扩展，所有控制流目标都必须4字节对齐。
+  assign branch_target_misaligned = branch_taken && (branch_target[1:0] != 2'b00);
+  assign branch_redirect_valid = branch_taken && !execute_packet_i.uop.exception_valid &&
+                                 !branch_target_misaligned;
 
   always_comb begin
     exu_result                              = '0;
@@ -155,6 +159,14 @@ module riscv32_exu
       exu_result.uop.exception_tval        = xlen_data_t'(execute_packet_i.uop.instruction);
       exu_result.uop.writes_rd             = 1'b0;
       exu_result.uop.csr_ctrl.write_enable = 1'b0;
+    end
+
+    if (!execute_packet_i.uop.exception_valid && branch_target_misaligned) begin
+      exu_result.uop.exception_valid       = 1'b1;
+      exu_result.uop.exception_cause       = EXC_INSTR_ADDR_MISALIGNED;
+      exu_result.uop.exception_tval        = xlen_data_t'(branch_target);
+      exu_result.uop.writes_rd             = 1'b0;
+      exu_result.redirect_valid            = 1'b0;
     end
 
     if (branch_redirect_valid) begin
