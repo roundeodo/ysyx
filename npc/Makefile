@@ -7,7 +7,7 @@
 PROJECT ?= riscv32
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs test-exu-configs test-lsu-configs perf-record
+CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs perf-record
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -36,6 +36,7 @@ CONFIG_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_config_test
 IDU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_idu_test
 EXU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_exu_test
 LSU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_lsu_test
+UNCACHED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_uncached_test
 SOC_WIDTH_CONVERTER_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_soc_width_converter_test
 
 NPC_SIM_BINARY     := $(BUILD_DIR)/$(NPC_TOP_MODULE)_sim
@@ -45,6 +46,7 @@ CONFIG_TEST_BINARY := $(BUILD_DIR)/config_elaboration_test
 IDU_TEST_BINARY    := $(BUILD_DIR)/idu_decode_test
 EXU_TEST_BINARY    := $(BUILD_DIR)/exu_alu_test
 LSU_TEST_BINARY    := $(BUILD_DIR)/lsu_test
+UNCACHED_TEST_BINARY := $(BUILD_DIR)/uncached_axi4_test
 SOC_WIDTH_CONVERTER_TEST_BINARY := $(BUILD_DIR)/soc_width_converter_test
 
 IMG       ?=
@@ -151,6 +153,14 @@ LSU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
 	$(RTL_DIR)/core/riscv32_lsu.sv \
 	$(abspath ./tests/rtl/riscv32_lsu_tb.sv)
+
+UNCACHED_TEST_SOURCES := \
+	$(RTL_DIR)/common/riscv_config_pkg.sv \
+	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
+	$(RTL_DIR)/common/riscv32_pkg.sv \
+	$(RTL_DIR)/core/memory/riscv32_uncached_axi4_master.sv \
+	$(abspath ./tests/rtl/riscv32_uncached_axi4_master_tb.sv)
 
 SOC_WIDTH_CONVERTER_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
@@ -265,6 +275,15 @@ $(LSU_TEST_BINARY): $(LSU_TEST_SOURCES) | $(BUILD_DIR)
 		--Mdir $(LSU_TEST_OBJ_DIR) \
 		-o $(LSU_TEST_BINARY)
 
+$(UNCACHED_TEST_BINARY): $(UNCACHED_TEST_SOURCES) | $(BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
+		-Wno-UNUSEDSIGNAL \
+		$(NPC_CONFIG_DEFINE) \
+		--top-module riscv32_uncached_axi4_master_tb \
+		$(UNCACHED_TEST_SOURCES) \
+		--Mdir $(UNCACHED_TEST_OBJ_DIR) \
+		-o $(UNCACHED_TEST_BINARY)
+
 $(SOC_WIDTH_CONVERTER_TEST_BINARY): $(SOC_WIDTH_CONVERTER_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
@@ -274,7 +293,7 @@ $(SOC_WIDTH_CONVERTER_TEST_BINARY): $(SOC_WIDTH_CONVERTER_TEST_SOURCES) | $(BUIL
 		--Mdir $(SOC_WIDTH_CONVERTER_TEST_OBJ_DIR) \
 		-o $(SOC_WIDTH_CONVERTER_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-soc-width-converter
+.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-uncached test-uncached-configs test-soc-width-converter
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
@@ -304,6 +323,13 @@ test-lsu: $(LSU_TEST_BINARY)
 test-lsu-configs:
 	$(MAKE) test-lsu PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) test-lsu PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+
+test-uncached: $(UNCACHED_TEST_BINARY)
+	$(UNCACHED_TEST_BINARY)
+
+test-uncached-configs:
+	$(MAKE) test-uncached PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) test-uncached PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 test-soc-width-converter: $(SOC_WIDTH_CONVERTER_TEST_BINARY)
 	$(SOC_WIDTH_CONVERTER_TEST_BINARY)
@@ -471,6 +497,7 @@ help:
 	@echo "  test-idu-configs  Run directed IDU tests for RV32 and RV64"
 	@echo "  test-exu-configs  Run directed EXU tests for RV32 and RV64"
 	@echo "  test-lsu-configs  Run directed LSU tests for RV32 and RV64"
+	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
 	@echo ""
 	@echo "Run targets:"
