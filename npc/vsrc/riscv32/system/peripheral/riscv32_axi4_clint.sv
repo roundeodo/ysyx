@@ -131,10 +131,9 @@ module riscv32_axi4_clint
               end
 
               MTIME_HIGH_ADDRESS: begin
-                read_response_d.data = axi4_data_t'(
-                    mtime_read_snapshot_present_q ?
-                    mtime_read_snapshot_q[63:32] : mtime_q[63:32]
-                );
+                read_response_d.data = mtime_read_snapshot_present_q ?
+                    axi4_data_t'(mtime_read_snapshot_q[63:32]) :
+                    axi4_data_t'(mtime_q[63:32]);
                 mtime_read_snapshot_present_d = 1'b0;
                 read_response_d.resp          = AXI4_RESP_OKAY;
               end

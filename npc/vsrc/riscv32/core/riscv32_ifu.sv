@@ -69,13 +69,13 @@ module riscv32_ifu
 
   always_comb begin
     lookup_response_fetch_entry                 = '0;
-    lookup_response_fetch_entry.pc              = icache_lookup_resp_i.fetch_addr;
+    lookup_response_fetch_entry.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
     lookup_response_fetch_entry.instruction     = icache_lookup_resp_i.fetch_data;
     lookup_response_fetch_entry.frontend_tag    = icache_lookup_resp_i.frontend_tag;
     lookup_response_fetch_entry.prediction      = '0;
     lookup_response_fetch_entry.exception_valid = icache_lookup_resp_i.access_fault;
     lookup_response_fetch_entry.exception_cause = EXC_INSTR_ACCESS_FAULT;
-    lookup_response_fetch_entry.exception_tval  = icache_lookup_resp_i.fetch_addr;
+    lookup_response_fetch_entry.exception_tval  = xlen_data_t'(icache_lookup_resp_i.fetch_addr);
   end
 
   // 当前响应的两个握手必须是同一件事：当resp_valid、epoch匹配且fetch_entry_ready同时
