@@ -32,7 +32,7 @@
 11. 参数名称必须带有语义和单位。容量和形状使用`_bytes`、`_bits`、`_entries`、`_sets`、
     `_ways`或`_lanes`，不能使用脱离上下文的`SIZE`、`WIDTH`和`NUM`。
 12. 彼此独立的体系结构宽度必须使用独立名称，例如`XLEN`、`INST_WIDTH`、
-    `VADDR_WIDTH`、`PADDR_WIDTH`和`AXI_DATA_WIDTH`，不能因当前配置数值相同而合并。
+    `VADDR_WIDTH`、`PADDR_WIDTH`和`MEM_AXI_DATA_WIDTH`，不能因当前配置数值相同而合并。
 
 ## 命名审查
 

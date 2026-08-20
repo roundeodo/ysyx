@@ -1,6 +1,6 @@
 # P3 RV64 顺序处理器实施计划
 
-状态：P3-A 待开始
+状态：P3-A 已完成，下一步为 P3-B
 
 最后更新：2026-08-14
 
@@ -51,7 +51,8 @@ build/riscv32/rv32-baseline/
 build/riscv32/rv64-sequential/
 ```
 
-`NPC_TEST_CORE64_AXI32` 只属于宽度 adapter 单元测试，不能作为正式 RV64 处理器配置。
+P2 使用过的临时 core64/AXI32 adapter 测试已经删除。P3 由上述两个正式构建配置直接决定
+核心和 memory AXI 的静态宽度，不再使用测试宏模拟 RV64 配置。
 
 ### 2.1 ysyxSoC 的 RV64 支持结论
 
@@ -87,7 +88,7 @@ ysyxSoC 依赖的 Rocket Chip 框架本身包含 RV64 配置能力，但这不�
 
 ### P3-A：建立正式双配置构建入口
 
-状态：待开始。
+状态：已完成（2026-08-14）。
 
 修改范围：
 
@@ -102,7 +103,7 @@ ysyxSoC 依赖的 Rocket Chip 框架本身包含 RV64 配置能力，但这不�
 
 退出条件：
 
-- RV32 配置 lint 和 dummy 继续通过；
+- RV32 配置完成 elaboration 和 lint；dummy 属于后续功能回归；
 - RV64 配置完成 elaboration 和 lint；
 - 两个配置的构建产物位于不同目录；
 - 非法 `NPC_CONFIG` 在 Make 阶段直接报错。
@@ -163,7 +164,7 @@ P3 不用保护性兜底掩盖该事实：对不支持拆分的设备访问应�
 事务前明确拒绝并产生 access fault。
 
 退出条件：覆盖 `LB/LBU/LH/LHU/LW/LWU/LD`、`SB/SH/SW/SD`，覆盖对齐错误、AXI 反压和
-第二个 beat 错误；现有宽度 adapter 单元测试继续通过。
+第二个 beat 错误；新增的 AXI64 到 ysyxSoC AXI32 边界转换器定向测试通过。
 
 ### P3-E：实现 RV64 CSR、异常和提交
 
@@ -235,5 +236,5 @@ flush 和精确异常。流水化不能创建第二套译码或第二套架构�
 
 ## 6. 当前第一项任务
 
-从 P3-A 开始。先修改配置入口和构建目录，不修改 ISA 功能。P3-A 完成后再按
-`package -> IDU -> EXU -> LSU -> CSR/trap -> 软件/DiffTest` 的顺序推进。
+P3-A 已完成。下一步执行 P3-B，只修改公共 ISA 语义和 IDU 译码，不提前实现 EXU/LSU
+功能。后续继续按 `package -> IDU -> EXU -> LSU -> CSR/trap -> 软件/DiffTest` 推进。

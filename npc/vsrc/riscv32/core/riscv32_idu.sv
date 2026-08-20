@@ -16,6 +16,7 @@ module riscv32_idu
   logic [ 2:0] funct3;
   logic [ 4:0] rs1_addr;
   logic [ 4:0] rs2_addr;
+  logic [ 5:0] funct6;
   logic [ 6:0] funct7;
   logic [11:0] funct12;
 
@@ -31,6 +32,7 @@ module riscv32_idu
   assign funct3 = instruction[14:12];
   assign rs1_addr = instruction[19:15];
   assign rs2_addr = instruction[24:20];
+  assign funct6 = instruction[31:26];
   assign funct7 = instruction[31:25];
   assign funct12 = instruction[31:20];
 
@@ -58,8 +60,7 @@ module riscv32_idu
   assign fetch_entry_ready_o = decoded_uop_ready_i;
   assign decoded_uop_valid_o = fetch_entry_valid_i;
 
-  // IDU is the only ISA-encoding decoder. Downstream modules consume semantic
-  // operations and never inspect opcode/funct fields again.
+  // IDU是ISA编码的唯一译码所有者。下游只消费语义操作，不再检查opcode/funct字段。
   always_comb begin
     decoded_uop_o                 = '0;
     decoded_uop_o.pc              = fetch_entry_i.pc;
@@ -76,7 +77,7 @@ module riscv32_idu
     decoded_uop_o.exception_tval  = fetch_entry_i.exception_tval;
 
     unique case (opcode)
-      OPCODE_R_TYPE: begin
+      OPCODE_OP: begin
         decoded_uop_o.fu_type                = FU_INT;
         decoded_uop_o.uses_rs1               = 1'b1;
         decoded_uop_o.uses_rs2               = 1'b1;
@@ -131,7 +132,7 @@ module riscv32_idu
         endcase
       end
 
-      OPCODE_I_TYPE: begin
+      OPCODE_OP_IMM: begin
         decoded_uop_o.fu_type                = FU_INT;
         decoded_uop_o.uses_rs1               = 1'b1;
         decoded_uop_o.writes_rd              = (rd_addr != '0);
@@ -148,19 +149,106 @@ module riscv32_idu
           FUNCT3_AND:     decoded_uop_o.int_ctrl.op = ALU_AND;
           FUNCT3_SLL: begin
             decoded_uop_o.int_ctrl.op = ALU_SLL;
-            if (funct7 != FUNCT7_BASE) decoded_uop_o.exception_valid = 1'b1;
+            // RV64普通移位使用6位shamt，instruction[25]属于shamt而不是funct字段。
+            // RV32仍使用完整funct7检查，从而拒绝shamt[5]=1的非法编码。
+            if (XLEN == 64) begin
+              if (funct6 != FUNCT6_BASE) decoded_uop_o.exception_valid = 1'b1;
+            end else begin
+              if (funct7 != FUNCT7_BASE) decoded_uop_o.exception_valid = 1'b1;
+            end
           end
           FUNCT3_SRL_SRA: begin
-            if (funct7 == FUNCT7_BASE) begin
-              decoded_uop_o.int_ctrl.op = ALU_SRL;
-            end else if (funct7 == FUNCT7_ALT) begin
-              decoded_uop_o.int_ctrl.op = ALU_SRA;
+            if (XLEN == 64) begin
+              if (funct6 == FUNCT6_BASE) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRL;
+              end else if (funct6 == FUNCT6_ALT) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRA;
+              end else begin
+                decoded_uop_o.exception_valid = 1'b1;
+              end
             end else begin
-              decoded_uop_o.exception_valid = 1'b1;
+              if (funct7 == FUNCT7_BASE) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRL;
+              end else if (funct7 == FUNCT7_ALT) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRA;
+              end else begin
+                decoded_uop_o.exception_valid = 1'b1;
+              end
             end
           end
           default:        decoded_uop_o.exception_valid = 1'b1;
         endcase
+      end
+
+      OPCODE_OP_IMM_32: begin
+        decoded_uop_o.fu_type                = FU_INT;
+        decoded_uop_o.uses_rs1               = 1'b1;
+        decoded_uop_o.writes_rd              = (rd_addr != '0);
+        decoded_uop_o.imm                    = i_type_imm;
+        decoded_uop_o.int_ctrl.operand_a_sel = OPA_RS1;
+        decoded_uop_o.int_ctrl.operand_b_sel = OPB_IMM;
+
+        if (XLEN != 64) begin
+          decoded_uop_o.exception_valid = 1'b1;
+        end else begin
+          unique case (funct3)
+            FUNCT3_ADD_SUB: decoded_uop_o.int_ctrl.op = ALU_ADDW;
+            FUNCT3_SLL: begin
+              decoded_uop_o.int_ctrl.op = ALU_SLLW;
+              // *IW只允许5位移位量，因此instruction[25]必须为0。
+              if (funct7 != FUNCT7_BASE) decoded_uop_o.exception_valid = 1'b1;
+            end
+            FUNCT3_SRL_SRA: begin
+              if (funct7 == FUNCT7_BASE) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRLW;
+              end else if (funct7 == FUNCT7_ALT) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRAW;
+              end else begin
+                decoded_uop_o.exception_valid = 1'b1;
+              end
+            end
+            default: decoded_uop_o.exception_valid = 1'b1;
+          endcase
+        end
+      end
+
+      OPCODE_OP_32: begin
+        decoded_uop_o.fu_type                = FU_INT;
+        decoded_uop_o.uses_rs1               = 1'b1;
+        decoded_uop_o.uses_rs2               = 1'b1;
+        decoded_uop_o.writes_rd              = (rd_addr != '0);
+        decoded_uop_o.int_ctrl.operand_a_sel = OPA_RS1;
+        decoded_uop_o.int_ctrl.operand_b_sel = OPB_RS2;
+
+        if (XLEN != 64) begin
+          decoded_uop_o.exception_valid = 1'b1;
+        end else begin
+          unique case (funct3)
+            FUNCT3_ADD_SUB: begin
+              if (funct7 == FUNCT7_BASE) begin
+                decoded_uop_o.int_ctrl.op = ALU_ADDW;
+              end else if (funct7 == FUNCT7_ALT) begin
+                decoded_uop_o.int_ctrl.op = ALU_SUBW;
+              end else begin
+                decoded_uop_o.exception_valid = 1'b1;
+              end
+            end
+            FUNCT3_SLL: begin
+              decoded_uop_o.int_ctrl.op = ALU_SLLW;
+              if (funct7 != FUNCT7_BASE) decoded_uop_o.exception_valid = 1'b1;
+            end
+            FUNCT3_SRL_SRA: begin
+              if (funct7 == FUNCT7_BASE) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRLW;
+              end else if (funct7 == FUNCT7_ALT) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRAW;
+              end else begin
+                decoded_uop_o.exception_valid = 1'b1;
+              end
+            end
+            default: decoded_uop_o.exception_valid = 1'b1;
+          endcase
+        end
       end
 
       OPCODE_LUI: begin
@@ -233,6 +321,11 @@ module riscv32_idu
             decoded_uop_o.mem_ctrl.size          = MEM_SIZE_WORD;
             decoded_uop_o.mem_ctrl.unsigned_load = 1'b0;
           end
+          FUNCT3_LD: begin
+            decoded_uop_o.mem_ctrl.size          = MEM_SIZE_DOUBLE;
+            decoded_uop_o.mem_ctrl.unsigned_load = 1'b0;
+            if (XLEN != 64) decoded_uop_o.exception_valid = 1'b1;
+          end
           FUNCT3_LBU: begin
             decoded_uop_o.mem_ctrl.size          = MEM_SIZE_BYTE;
             decoded_uop_o.mem_ctrl.unsigned_load = 1'b1;
@@ -240,6 +333,11 @@ module riscv32_idu
           FUNCT3_LHU: begin
             decoded_uop_o.mem_ctrl.size          = MEM_SIZE_HALF;
             decoded_uop_o.mem_ctrl.unsigned_load = 1'b1;
+          end
+          FUNCT3_LWU: begin
+            decoded_uop_o.mem_ctrl.size          = MEM_SIZE_WORD;
+            decoded_uop_o.mem_ctrl.unsigned_load = 1'b1;
+            if (XLEN != 64) decoded_uop_o.exception_valid = 1'b1;
           end
           default: decoded_uop_o.exception_valid = 1'b1;
         endcase
@@ -257,6 +355,10 @@ module riscv32_idu
           FUNCT3_SB: decoded_uop_o.mem_ctrl.size = MEM_SIZE_BYTE;
           FUNCT3_SH: decoded_uop_o.mem_ctrl.size = MEM_SIZE_HALF;
           FUNCT3_SW: decoded_uop_o.mem_ctrl.size = MEM_SIZE_WORD;
+          FUNCT3_SD: begin
+            decoded_uop_o.mem_ctrl.size = MEM_SIZE_DOUBLE;
+            if (XLEN != 64) decoded_uop_o.exception_valid = 1'b1;
+          end
           default:   decoded_uop_o.exception_valid = 1'b1;
         endcase
       end
@@ -324,11 +426,10 @@ module riscv32_idu
     if (decoded_uop_o.exception_valid && !fetch_entry_i.exception_valid &&
         (decoded_uop_o.system_op != SYS_ECALL)) begin
       decoded_uop_o.exception_cause = EXC_ILLEGAL_INSTRUCTION;
-      decoded_uop_o.exception_tval  = instruction;
+      decoded_uop_o.exception_tval  = xlen_data_t'(instruction);
     end
 
-    // An excepting uop retains identity and cause metadata but cannot create any
-    // younger-visible side effect before the trap boundary accepts it.
+    // 异常uop保留PC、指令和异常元数据，但在trap边界接收前不得产生架构副作用。
     if (decoded_uop_o.exception_valid) begin
       decoded_uop_o.fu_type               = FU_SYSTEM;
       decoded_uop_o.writes_rd             = 1'b0;
@@ -338,7 +439,7 @@ module riscv32_idu
     end
   end
 
-  // NOTE(P4): when DECODE_WIDTH grows, keep this module as the stage boundary
-  // and replicate a pure decode lane internally; ordering and backpressure stay here.
+  // NOTE(P4)：扩展DECODE_WIDTH时保留本模块作为阶段边界，在内部复制纯组合decode lane；
+  // 顺序和反压仍由这个边界统一管理。
 
 endmodule

@@ -57,17 +57,19 @@ package riscv32_pkg;
   parameter program_counter_t RESET_VECTOR = program_counter_t'(FLASH_BASE_ADDR);
 
   // ISA编码常量。只有IDU/decode lane负责把指令编码转换为语义操作。
-  localparam logic [6:0] OPCODE_LOAD     = 7'b0000011;
-  localparam logic [6:0] OPCODE_MISC_MEM = 7'b0001111;
-  localparam logic [6:0] OPCODE_I_TYPE   = 7'b0010011;
-  localparam logic [6:0] OPCODE_AUIPC    = 7'b0010111;
-  localparam logic [6:0] OPCODE_STORE    = 7'b0100011;
-  localparam logic [6:0] OPCODE_R_TYPE   = 7'b0110011;
-  localparam logic [6:0] OPCODE_LUI      = 7'b0110111;
-  localparam logic [6:0] OPCODE_BRANCH   = 7'b1100011;
-  localparam logic [6:0] OPCODE_JALR     = 7'b1100111;
-  localparam logic [6:0] OPCODE_JAL      = 7'b1101111;
-  localparam logic [6:0] OPCODE_SYSTEM   = 7'b1110011;
+  localparam logic [6:0] OPCODE_LOAD      = 7'b0000011;
+  localparam logic [6:0] OPCODE_MISC_MEM  = 7'b0001111;
+  localparam logic [6:0] OPCODE_OP_IMM    = 7'b0010011;
+  localparam logic [6:0] OPCODE_AUIPC     = 7'b0010111;
+  localparam logic [6:0] OPCODE_OP_IMM_32 = 7'b0011011;
+  localparam logic [6:0] OPCODE_STORE     = 7'b0100011;
+  localparam logic [6:0] OPCODE_OP        = 7'b0110011;
+  localparam logic [6:0] OPCODE_LUI       = 7'b0110111;
+  localparam logic [6:0] OPCODE_OP_32     = 7'b0111011;
+  localparam logic [6:0] OPCODE_BRANCH    = 7'b1100011;
+  localparam logic [6:0] OPCODE_JALR      = 7'b1100111;
+  localparam logic [6:0] OPCODE_JAL       = 7'b1101111;
+  localparam logic [6:0] OPCODE_SYSTEM    = 7'b1110011;
 
   localparam logic [2:0] FUNCT3_BEQ  = 3'b000;
   localparam logic [2:0] FUNCT3_BNE  = 3'b001;
@@ -79,12 +81,15 @@ package riscv32_pkg;
   localparam logic [2:0] FUNCT3_LB  = 3'b000;
   localparam logic [2:0] FUNCT3_LH  = 3'b001;
   localparam logic [2:0] FUNCT3_LW  = 3'b010;
+  localparam logic [2:0] FUNCT3_LD  = 3'b011;
   localparam logic [2:0] FUNCT3_LBU = 3'b100;
   localparam logic [2:0] FUNCT3_LHU = 3'b101;
+  localparam logic [2:0] FUNCT3_LWU = 3'b110;
 
   localparam logic [2:0] FUNCT3_SB = 3'b000;
   localparam logic [2:0] FUNCT3_SH = 3'b001;
   localparam logic [2:0] FUNCT3_SW = 3'b010;
+  localparam logic [2:0] FUNCT3_SD = 3'b011;
 
   localparam logic [2:0] FUNCT3_ADD_SUB = 3'b000;
   localparam logic [2:0] FUNCT3_SLL     = 3'b001;
@@ -95,6 +100,8 @@ package riscv32_pkg;
   localparam logic [2:0] FUNCT3_OR      = 3'b110;
   localparam logic [2:0] FUNCT3_AND     = 3'b111;
 
+  localparam logic [5:0] FUNCT6_BASE = 6'b000000;
+  localparam logic [5:0] FUNCT6_ALT  = 6'b010000;
   localparam logic [6:0] FUNCT7_BASE = 7'b0000000;
   localparam logic [6:0] FUNCT7_ALT  = 7'b0100000;
 
@@ -154,7 +161,13 @@ package riscv32_pkg;
     ALU_SRL  = 4'd6,
     ALU_SRA  = 4'd7,
     ALU_OR   = 4'd8,
-    ALU_AND  = 4'd9
+    ALU_AND  = 4'd9,
+    // *W操作必须保留独立语义：EXU在P3-C中负责截取低32位并符号扩展到XLEN。
+    ALU_ADDW = 4'd10,
+    ALU_SUBW = 4'd11,
+    ALU_SLLW = 4'd12,
+    ALU_SRLW = 4'd13,
+    ALU_SRAW = 4'd14
   } alu_op_e;
 
   typedef enum logic [1:0] {
@@ -183,7 +196,7 @@ package riscv32_pkg;
   typedef enum logic [1:0] {
     MEM_SIZE_BYTE = 2'd0,
     MEM_SIZE_HALF = 2'd1,
-    MEM_SIZE_WORD = 2'd2,
+    MEM_SIZE_WORD   = 2'd2,
     MEM_SIZE_DOUBLE = 2'd3
   } mem_size_e;
 
