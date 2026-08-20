@@ -375,6 +375,8 @@ module riscv32_idu
                 decoded_uop_o.system_op       = SYS_ECALL;
                 decoded_uop_o.exception_valid = 1'b1;
                 decoded_uop_o.exception_cause = EXC_ECALL_M;
+                // ECALL不报告故障地址或故障指令，RISC-V规定mtval写零。
+                decoded_uop_o.exception_tval  = '0;
               end
               FUNCT12_EBREAK: decoded_uop_o.system_op = SYS_EBREAK;
               FUNCT12_MRET:   decoded_uop_o.system_op = SYS_MRET;
