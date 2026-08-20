@@ -182,6 +182,7 @@
 - 工作负载和规模：RV32/RV64 directed EXU ALU test。
 - 构建配置：`rv32-baseline`和`rv64-sequential`。
 - 命令：`make test-exu-configs PROJECT=riscv32`、`make lint-configs PROJECT=riscv32`。
+- 功能结果：两套定向EXU测试通过；两套配置lint无语法或elaboration错误。
 - 综合目标/结果：本检查点不包含综合结果。
 
 验证范围：

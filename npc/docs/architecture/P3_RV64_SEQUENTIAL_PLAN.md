@@ -182,6 +182,9 @@ make test-exu-configs PROJECT=riscv32
 make lint-configs PROJECT=riscv32
 ```
 
+验证结果：RV32 与 RV64 定向 EXU 测试均通过；两套配置 lint 均无语法或 elaboration
+错误。lint 仍报告若干由后续阶段负责的宽度与未使用字段告警，它们不影响 P3-C 的退出条件。
+
 ### P3-D：实现 RV64 LSU 和宽度边界
 
 状态：未开始。

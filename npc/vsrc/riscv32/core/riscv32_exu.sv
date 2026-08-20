@@ -53,13 +53,10 @@ module riscv32_exu
     unique case (execute_packet_i.uop.int_ctrl.op)
       ALU_ADDW: word_result = operand_a[WORD_WIDTH-1:0] + operand_b[WORD_WIDTH-1:0];
       ALU_SUBW: word_result = operand_a[WORD_WIDTH-1:0] - operand_b[WORD_WIDTH-1:0];
-      ALU_SLLW:
-      word_result = operand_a[WORD_WIDTH-1:0] << operand_b[WORD_SHIFT_WIDTH-1:0];
-      ALU_SRLW:
-      word_result = operand_a[WORD_WIDTH-1:0] >> operand_b[WORD_SHIFT_WIDTH-1:0];
-      ALU_SRAW:
-      word_result = $signed(operand_a[WORD_WIDTH-1:0]) >>>
-          operand_b[WORD_SHIFT_WIDTH-1:0];
+      ALU_SLLW: word_result = operand_a[WORD_WIDTH-1:0] << operand_b[WORD_SHIFT_WIDTH-1:0];
+      ALU_SRLW: word_result = operand_a[WORD_WIDTH-1:0] >> operand_b[WORD_SHIFT_WIDTH-1:0];
+      ALU_SRAW: word_result = $signed(operand_a[WORD_WIDTH-1:0]) >>>
+                              operand_b[WORD_SHIFT_WIDTH-1:0];
       default: word_result = '0;
     endcase
   end
@@ -90,12 +87,10 @@ module riscv32_exu
     unique case (execute_packet_i.uop.branch_ctrl.condition)
       BR_BEQ: branch_condition_met = execute_packet_i.rs1_value == execute_packet_i.rs2_value;
       BR_BNE: branch_condition_met = execute_packet_i.rs1_value != execute_packet_i.rs2_value;
-      BR_BLT:
-      branch_condition_met = $signed(execute_packet_i.rs1_value) <
-          $signed(execute_packet_i.rs2_value);
-      BR_BGE:
-      branch_condition_met = $signed(execute_packet_i.rs1_value) >=
-          $signed(execute_packet_i.rs2_value);
+      BR_BLT: branch_condition_met = $signed(execute_packet_i.rs1_value) <
+                                     $signed(execute_packet_i.rs2_value);
+      BR_BGE: branch_condition_met = $signed(execute_packet_i.rs1_value) >=
+                                     $signed(execute_packet_i.rs2_value);
       BR_BLTU: branch_condition_met = execute_packet_i.rs1_value < execute_packet_i.rs2_value;
       BR_BGEU: branch_condition_met = execute_packet_i.rs1_value >= execute_packet_i.rs2_value;
       default: branch_condition_met = 1'b0;
@@ -157,7 +152,7 @@ module riscv32_exu
     if ((execute_packet_i.uop.fu_type == FU_CSR) && execute_packet_i.csr_illegal) begin
       exu_result.uop.exception_valid       = 1'b1;
       exu_result.uop.exception_cause       = EXC_ILLEGAL_INSTRUCTION;
-      exu_result.uop.exception_tval        = execute_packet_i.uop.instruction;
+      exu_result.uop.exception_tval        = xlen_data_t'(execute_packet_i.uop.instruction);
       exu_result.uop.writes_rd             = 1'b0;
       exu_result.uop.csr_ctrl.write_enable = 1'b0;
     end
