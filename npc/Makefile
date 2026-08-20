@@ -591,6 +591,7 @@ STA_TOOL_DIR      := $(abspath ../yosys-sta)
 STA_DESIGN        := riscv32_npc_system
 STA_FREQUENCY_MHZ ?= 300
 STA_SYNTH_STRATEGY ?= DELAY 0
+STA_RUN_POWER_ANALYSIS ?= 0
 STA_SDC_FILE      := $(abspath ./constr/riscv32_npc_axi.sdc)
 STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(NPC_CONFIG))
 # 当前PDK不提供I-cache SRAM宏及其Liberty时序模型。综合时保留array模块边界，
@@ -610,6 +611,7 @@ sta: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
 		O=$(STA_OUTPUT_ROOT) \
 		CLK_FREQ_MHZ=$(STA_FREQUENCY_MHZ) \
 		SYNTH_STRATEGY="$(STA_SYNTH_STRATEGY)" \
+		RUN_POWER_ANALYSIS=$(STA_RUN_POWER_ANALYSIS) \
 		CLK_PORT_NAME=clk_i
 
 sta-configs:
