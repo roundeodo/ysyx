@@ -1,6 +1,6 @@
 # P3 RV64 顺序处理器实施计划
 
-状态：P3-C 已完成，下一步为 P3-D
+状态：P3-D 已完成，下一步为 P3-E
 
 最后更新：2026-08-20
 
@@ -187,7 +187,7 @@ make lint-configs PROJECT=riscv32
 
 ### P3-D：实现 RV64 LSU 和宽度边界
 
-状态：未开始。
+状态：已完成（2026-08-20）。
 
 修改范围：
 
@@ -205,6 +205,43 @@ P3 不用保护性兜底掩盖该事实：对不支持拆分的设备访问应�
 
 退出条件：覆盖 `LB/LBU/LH/LHU/LW/LWU/LD`、`SB/SH/SW/SD`，覆盖对齐错误、AXI 反压和
 第二个 beat 错误；新增的 AXI64 到 ysyxSoC AXI32 边界转换器定向测试通过。
+
+实现结果：
+
+- LSU实现`LWU/LD/SD`、8字节自然对齐、64位load格式化和8位store strobe；load请求不再
+  携带无意义的写数据或strobe；
+- uncached adapter收敛为core与memory AXI同宽的单beat转换，RV64 `LD/SD`直接生成
+  `AxSIZE=3`、`AxLEN=0`事务，AW和W保持独立握手；
+- standalone AXI memory及C++ DPI读写数据载体提升为64位，并按32/64位memory beat对齐，
+  因而RV32与RV64共用同一仿真内存实现；
+- PMA增加`width_conversion_supported`属性，只允许普通内存区域在ysyxSoC边界拆分；
+  64位MMIO在任何下游AR/AW/W握手发生前返回`DECERR`；
+- 新增独立的ysyxSoC AXI32类型package和system边界转换器。RV64普通内存读写拆成两个
+  32位beat，保持ID，合并读数据，并汇总包括第二个read beat在内的错误；RV32配置使用
+  无状态同宽直通路径；
+- CLINT在64位memory AXI配置下支持对`mtime`进行一次64位原子读取，RV32继续使用低/高
+  32位快照协议；
+- I-cache refill继续通过参数化memory AXI读取32 B cache line；RV64下每个refill beat为
+  64位，critical word仍按取指地址所在lane交付。
+
+验证命令：
+
+```sh
+make test-lsu-configs PROJECT=riscv32
+make test-uncached-configs PROJECT=riscv32
+make test-soc-width-converter PROJECT=riscv32 NPC_CONFIG=rv64-sequential
+make lint-configs PROJECT=riscv32
+make lint-soc PROJECT=riscv32 NPC_CONFIG=rv64-sequential
+make build-npc PROJECT=riscv32 NPC_CONFIG=rv32-baseline
+make build-npc PROJECT=riscv32 NPC_CONFIG=rv64-sequential
+make sim-npc PROJECT=riscv32 NPC_CONFIG=rv32-baseline \
+  IMG=../am-kernels/tests/cpu-tests/build/dummy-riscv32-npc.bin SIM_ARGS=--batch
+```
+
+验证结果：LSU与uncached adapter双配置测试通过；AXI64到AXI32转换器覆盖窄访问lane、
+AW/W独立反压、64位拆分、第二个read beat错误和宽MMIO无副作用拒绝；standalone双配置
+完整构建通过；RV64 ysyxSoC lint通过；RV32 dummy在PC `0x80000030`命中good trap。
+RV64软件镜像、64位DiffTest/DPI架构状态仍属于P3-F，不作为P3-D退出条件。
 
 ### P3-E：实现 RV64 CSR、异常和提交
 
@@ -276,6 +313,5 @@ flush 和精确异常。流水化不能创建第二套译码或第二套架构�
 
 ## 6. 当前第一项任务
 
-P3-C 已完成。下一步执行P3-D，实现`LWU/LD/SD`、LSU 8字节宽度边界以及RV64 memory
-AXI到ysyxSoC AXI32插槽的系统边界转换。后续继续按`LSU -> CSR/trap -> 软件/DiffTest`
-推进。
+P3-D 已完成。下一步执行P3-E，检查RV64 machine CSR、异常、提交和PMU计数器语义。
+后续继续按`CSR/trap -> 软件/DiffTest -> 多周期基线冻结`推进，当前不引入流水线时序。

@@ -198,3 +198,44 @@
 - 显式32位中间结果使word语义不依赖SystemVerilog上下文宽度和隐式截断，后续拆分
   integer ALU时仍可直接复用；
 - 本检查点只关闭EXU算术语义，RV64访存、CSR和端到端程序执行仍属于后续阶段。
+
+## 2026-08-20 - P3-D RV64 LSU与AXI宽度边界验证
+
+- Commit：uncommitted；沿用P3-C工作树。
+- 架构决策：正式core memory AXI与core数据同宽；ysyxSoC AXI32限制只在system wrapper
+  转换；MMIO不允许隐式拆分。
+- 工作负载和规模：LSU、uncached AXI4 adapter、AXI64到ysyxSoC AXI32 converter定向测试，
+  双配置完整构建，RV32 dummy。
+- 构建配置：`rv32-baseline`和`rv64-sequential`。
+- 综合目标/结果：本检查点不包含综合结果。
+
+验证命令：
+
+```sh
+make test-lsu-configs PROJECT=riscv32
+make test-uncached-configs PROJECT=riscv32
+make test-soc-width-converter PROJECT=riscv32 NPC_CONFIG=rv64-sequential
+make lint-configs PROJECT=riscv32
+make lint-soc PROJECT=riscv32 NPC_CONFIG=rv64-sequential
+make build-npc PROJECT=riscv32 NPC_CONFIG=rv32-baseline
+make build-npc PROJECT=riscv32 NPC_CONFIG=rv64-sequential
+make sim-npc PROJECT=riscv32 NPC_CONFIG=rv32-baseline \
+  IMG=../am-kernels/tests/cpu-tests/build/dummy-riscv32-npc.bin SIM_ARGS=--batch
+```
+
+验证结果：
+
+- `LB/LBU/LH/LHU/LW/LWU/LD`、`SB/SH/SW/SD`及自然对齐异常测试通过；
+- uncached adapter在32/64位下均通过AR反压、AW/W独立握手、响应保持和错误映射测试；
+- 边界转换器通过窄访问lane、64位读写拆分、第二个read beat错误聚合、B反压以及宽MMIO
+  本地`DECERR`测试；
+- 两套standalone配置完整编译和链接成功，RV64 ysyxSoC lint成功；
+- RV32 dummy在PC `0x80000030`命中good trap，退休13条指令，运行71周期。
+
+分析：
+
+- core、正式memory AXI和特定SoC端口的宽度责任已经分离；后续自研64位SoC不需要继承
+  ysyxSoC的32位拆分开销；
+- 对宽MMIO先拒绝再返回错误，避免第一次32位子事务已产生设备副作用后才发现访问非法；
+- 当前RV64构建中的PC/GPR仿真DPI仍为32位，该软件调试接口由P3-F统一升级，不影响本阶段
+  RTL访存与协议边界的退出条件。
