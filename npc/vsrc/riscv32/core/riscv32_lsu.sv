@@ -62,6 +62,7 @@ module riscv32_lsu
   logic                   has_memory_access;
   logic                   is_halfword_access;
   logic                   is_word_access;
+  logic                   is_doubleword_access;
   logic                   address_misaligned;
   logic                   complete_locally;
   logic [CORE_BYTE_OFFSET_WIDTH-1:0] byte_offset;
@@ -93,11 +94,14 @@ module riscv32_lsu
     has_memory_access  = is_load || is_store;
     is_halfword_access = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_HALF;
     is_word_access     = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_WORD;
+    is_doubleword_access = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_DOUBLE;
 
     address_misaligned = has_memory_access &&
                          ((is_halfword_access && byte_offset[0]) ||
                           (is_word_access &&
-                           (active_lsu_req.effective_addr[1:0] != 2'b00)));
+                           (active_lsu_req.effective_addr[1:0] != 2'b00)) ||
+                          (is_doubleword_access &&
+                           (active_lsu_req.effective_addr[2:0] != 3'b000)));
     complete_locally = active_lsu_req.uop.exception_valid ||
                        address_misaligned || !has_memory_access;
 
@@ -120,6 +124,12 @@ module riscv32_lsu
         store_write_data = core_data_t'(active_lsu_req.store_data[31:0])
                            << (byte_offset * 8);
       end
+      MEM_SIZE_DOUBLE: begin
+        // RV64的SD覆盖完整core beat。RV32中的同一编码已经由IDU标记为非法，
+        // 因此这里使用类型转换而不是引用不存在的store_data[63:32]。
+        store_byte_strobe = '1;
+        store_write_data  = core_data_t'(active_lsu_req.store_data);
+      end
       default: ;
     endcase
   end
@@ -133,8 +143,8 @@ module riscv32_lsu
     data_memory_req_o.addr           = phys_addr_t'(active_lsu_req.effective_addr);
     data_memory_req_o.cmd            = active_lsu_req.uop.mem_ctrl.cmd;
     data_memory_req_o.size           = active_lsu_req.uop.mem_ctrl.size;
-    data_memory_req_o.write_data     = store_write_data;
-    data_memory_req_o.byte_strobe    = store_byte_strobe;
+    data_memory_req_o.write_data     = is_store ? store_write_data : '0;
+    data_memory_req_o.byte_strobe    = is_store ? store_byte_strobe : '0;
     data_memory_req_o.transaction_id = '0;
   end
 
@@ -164,6 +174,10 @@ module riscv32_lsu
         formatted_load_data = lsu_req_q.uop.mem_ctrl.unsigned_load
             ? xlen_data_t'(selected_word)
             : {{(XLEN-32){selected_word[31]}}, selected_word};
+      end
+      MEM_SIZE_DOUBLE: begin
+        // LD只在RV64中合法。显式转换保留参数化RV32构建，不在共享RTL中引用固定64位切片。
+        formatted_load_data = xlen_data_t'(data_memory_resp_i.read_data);
       end
       default: ;
     endcase

@@ -135,18 +135,20 @@ void trace_print_ringbuf() {
 }
 
 // mtrace
-void trace_mem_read(uint32_t addr, int len, uint32_t data) {
+void trace_mem_read(uint32_t addr, int len, uint64_t data) {
   if (!mtrace_enabled) {
     return;
   }
 
-  printf("mtrace: READ  addr=0x%08x len=%d data=0x%08x\n", addr, len, data);
+  printf("mtrace: READ  addr=0x%08x len=%d data=0x%016llx\n", addr, len,
+         static_cast<unsigned long long>(data));
 }
 
-void trace_mem_write(uint32_t addr, int len, uint32_t data) {
+void trace_mem_write(uint32_t addr, int len, uint64_t data) {
   if (!mtrace_enabled) {
     return;
   }
 
-  printf("mtrace: WRITE addr=0x%08x len=%d data=0x%08x\n", addr, len, data);
+  printf("mtrace: WRITE addr=0x%08x len=%d data=0x%016llx\n", addr, len,
+         static_cast<unsigned long long>(data));
 }

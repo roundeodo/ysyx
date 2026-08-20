@@ -3,6 +3,7 @@
 module riscv32_npc_axi
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
+  import riscv32_ysyx_soc_axi4_pkg::*;
 #(
     parameter logic [XLEN-1:0] RESET_PC = RESET_VECTOR
 ) (
@@ -83,49 +84,50 @@ module riscv32_npc_axi
     /* verilator lint_on UNUSEDSIGNAL */
 );
 
-  // ysyxSoC规定的扁平顶层端口是外部平台契约；内部继续使用类型化AXI channel。
+  // ysyxSoC规定的扁平AXI32端口是外部平台契约。处理器系统侧继续使用配置化memory
+  // AXI；二者只在width converter中相遇，不能用隐式赋值截断64位数据。
+  axi4_manager_to_target_t processor_memory_axi4_manager;
+  axi4_target_to_manager_t processor_memory_axi4_response;
+  ysyx_soc_axi4_manager_to_target_t soc_axi4_manager;
+  ysyx_soc_axi4_target_to_manager_t soc_axi4_response;
 
-  axi4_manager_to_target_t external_axi4_manager;
-  axi4_target_to_manager_t external_axi4_manager_response;
-
-  // ysyxSoC uses flat AXI4 pins. This block only maps those pins to the
-  // internal typed channel bundles; it does not alter AXI4 transaction timing.
+  // 扁平引脚与固定宽度SoC bundle之间只做逐字段映射，不包含协议状态。
   always_comb begin
-    io_master_awvalid = external_axi4_manager.aw_valid;
-    io_master_awaddr  = external_axi4_manager.aw.addr;
-    io_master_awid    = external_axi4_manager.aw.id;
-    io_master_awlen   = external_axi4_manager.aw.len;
-    io_master_awsize  = external_axi4_manager.aw.size;
-    io_master_awburst = external_axi4_manager.aw.burst;
+    io_master_awvalid = soc_axi4_manager.aw_valid;
+    io_master_awaddr  = soc_axi4_manager.aw.addr;
+    io_master_awid    = soc_axi4_manager.aw.id;
+    io_master_awlen   = soc_axi4_manager.aw.len;
+    io_master_awsize  = soc_axi4_manager.aw.size;
+    io_master_awburst = soc_axi4_manager.aw.burst;
 
-    io_master_wvalid = external_axi4_manager.w_valid;
-    io_master_wdata  = external_axi4_manager.w.data;
-    io_master_wstrb  = external_axi4_manager.w.strb;
-    io_master_wlast  = external_axi4_manager.w.last;
+    io_master_wvalid = soc_axi4_manager.w_valid;
+    io_master_wdata  = soc_axi4_manager.w.data;
+    io_master_wstrb  = soc_axi4_manager.w.strb;
+    io_master_wlast  = soc_axi4_manager.w.last;
 
-    io_master_bready = external_axi4_manager.b_ready;
+    io_master_bready = soc_axi4_manager.b_ready;
 
-    io_master_arvalid = external_axi4_manager.ar_valid;
-    io_master_araddr  = external_axi4_manager.ar.addr;
-    io_master_arid    = external_axi4_manager.ar.id;
-    io_master_arlen   = external_axi4_manager.ar.len;
-    io_master_arsize  = external_axi4_manager.ar.size;
-    io_master_arburst = external_axi4_manager.ar.burst;
+    io_master_arvalid = soc_axi4_manager.ar_valid;
+    io_master_araddr  = soc_axi4_manager.ar.addr;
+    io_master_arid    = soc_axi4_manager.ar.id;
+    io_master_arlen   = soc_axi4_manager.ar.len;
+    io_master_arsize  = soc_axi4_manager.ar.size;
+    io_master_arburst = soc_axi4_manager.ar.burst;
 
-    io_master_rready = external_axi4_manager.r_ready;
+    io_master_rready = soc_axi4_manager.r_ready;
 
-    external_axi4_manager_response          = '0;
-    external_axi4_manager_response.aw_ready = io_master_awready;
-    external_axi4_manager_response.w_ready  = io_master_wready;
-    external_axi4_manager_response.b_valid  = io_master_bvalid;
-    external_axi4_manager_response.b.id     = io_master_bid;
-    external_axi4_manager_response.b.resp   = axi4_resp_e'(io_master_bresp);
-    external_axi4_manager_response.ar_ready = io_master_arready;
-    external_axi4_manager_response.r_valid  = io_master_rvalid;
-    external_axi4_manager_response.r.id     = io_master_rid;
-    external_axi4_manager_response.r.data   = io_master_rdata;
-    external_axi4_manager_response.r.resp   = axi4_resp_e'(io_master_rresp);
-    external_axi4_manager_response.r.last   = io_master_rlast;
+    soc_axi4_response          = '0;
+    soc_axi4_response.aw_ready = io_master_awready;
+    soc_axi4_response.w_ready  = io_master_wready;
+    soc_axi4_response.b_valid  = io_master_bvalid;
+    soc_axi4_response.b.id     = io_master_bid;
+    soc_axi4_response.b.resp   = axi4_resp_e'(io_master_bresp);
+    soc_axi4_response.ar_ready = io_master_arready;
+    soc_axi4_response.r_valid  = io_master_rvalid;
+    soc_axi4_response.r.id     = io_master_rid;
+    soc_axi4_response.r.data   = io_master_rdata;
+    soc_axi4_response.r.resp   = axi4_resp_e'(io_master_rresp);
+    soc_axi4_response.r.last   = io_master_rlast;
   end
 
   // The current NPC has no memory-side AXI slave functionality.
@@ -148,8 +150,17 @@ module riscv32_npc_axi
   ) u_npc_system (
       .clk_i                  (clock),
       .rst_ni                 (~reset),
-      .external_axi4_manager_o(external_axi4_manager),
-      .external_axi4_manager_i(external_axi4_manager_response)
+      .external_axi4_manager_o(processor_memory_axi4_manager),
+      .external_axi4_manager_i(processor_memory_axi4_response)
+  );
+
+  riscv32_axi4_soc_width_converter u_soc_width_converter (
+      .clk_i               (clock),
+      .rst_ni              (~reset),
+      .upstream_manager_i  (processor_memory_axi4_manager),
+      .upstream_manager_o  (processor_memory_axi4_response),
+      .downstream_manager_o(soc_axi4_manager),
+      .downstream_manager_i(soc_axi4_response)
   );
 
 `ifdef VERILATOR

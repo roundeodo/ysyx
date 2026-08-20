@@ -22,7 +22,8 @@ long get_img_size();
 uint32_t paddr_read(uint32_t addr, int len);
 void paddr_write(uint32_t addr, int len, uint32_t data);
 
-extern "C" int pmem_read(int raddr);
-extern "C" void pmem_write(int waddr, int wdata, char wmask);
-extern "C" int pmem_read_data(int raddr, int len);
+extern "C" uint64_t pmem_read_data(uint32_t raddr, int transfer_byte_count,
+                                    int memory_beat_byte_count);
+extern "C" void pmem_write(uint32_t waddr, uint64_t wdata, uint8_t wmask,
+                           int memory_beat_byte_count);
 #endif

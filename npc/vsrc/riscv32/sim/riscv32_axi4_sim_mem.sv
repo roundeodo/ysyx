@@ -16,9 +16,17 @@ module riscv32_axi4_sim_mem
     output axi4_target_to_manager_t mem_axi_o
 );
 
-  import "DPI-C" function int pmem_read(input int raddr);
-  import "DPI-C" function int pmem_read_data(input int raddr, input int len);
-  import "DPI-C" function void pmem_write(input int addr, input int wdata, input byte wmask);
+  import "DPI-C" function longint unsigned pmem_read_data(
+      input int unsigned raddr,
+      input int transfer_byte_count,
+      input int memory_beat_byte_count
+  );
+  import "DPI-C" function void pmem_write(
+      input int unsigned addr,
+      input longint unsigned wdata,
+      input byte unsigned wmask,
+      input int memory_beat_byte_count
+  );
 
   typedef enum logic [1:0] {
     READ_ACCEPT_ADDRESS,
@@ -77,7 +85,7 @@ module riscv32_axi4_sim_mem
   logic [MEM_AXI_ADDR_WIDTH-1:0] read_response_load_addr;
   logic [MEM_AXI_ID_WIDTH-1:0] read_response_load_id;
   logic read_response_load_last;
-  logic read_response_load_is_instruction;
+  logic [2:0] read_response_load_size;
 
   logic                        write_data_store_event;
   logic [MEM_AXI_ADDR_WIDTH-1:0]  write_data_store_addr;
@@ -197,7 +205,7 @@ module riscv32_axi4_sim_mem
     read_response_load_addr           = '0;
     read_response_load_id             = '0;
     read_response_load_last           = 1'b0;
-    read_response_load_is_instruction = 1'b0;
+    read_response_load_size           = '0;
 
     unique case (read_state_q)
       READ_ACCEPT_ADDRESS: begin
@@ -210,7 +218,7 @@ module riscv32_axi4_sim_mem
           read_response_load_addr           = mem_axi_i.ar.addr;
           read_response_load_id             = mem_axi_i.ar.id;
           read_response_load_last           = mem_axi_i.ar.len == 8'd0;
-          read_response_load_is_instruction = mem_axi_i.ar.id == INSTRUCTION_READ_ID;
+          read_response_load_size           = mem_axi_i.ar.size;
 
           if (accepted_read_latency == 1) begin
             read_state_d = READ_RETURN_DATA;
@@ -248,7 +256,7 @@ module riscv32_axi4_sim_mem
             read_response_load_addr           = read_beat_addr_d;
             read_response_load_id             = read_address_q.id;
             read_response_load_last           = read_beat_index_d == read_address_q.len;
-            read_response_load_is_instruction = read_address_q.id == INSTRUCTION_READ_ID;
+            read_response_load_size           = read_address_q.size;
 
             if (accepted_read_latency == 1) begin
               read_state_d = READ_RETURN_DATA;
@@ -391,11 +399,11 @@ module riscv32_axi4_sim_mem
       read_response_id_q   <= '0;
       read_response_last_q <= 1'b0;
     end else if (read_response_load_event) begin
-      if (read_response_load_is_instruction) begin
-        read_response_data_q <= pmem_read(int'(read_response_load_addr));
-      end else begin
-        read_response_data_q <= pmem_read_data(int'(read_response_load_addr), 4);
-      end
+      read_response_data_q <= axi4_data_t'(pmem_read_data(
+          int'(read_response_load_addr),
+          1 << read_response_load_size,
+          MEM_AXI_DATA_BYTE_COUNT
+      ));
       read_response_id_q   <= read_response_load_id;
       read_response_last_q <= read_response_load_last;
     end
@@ -430,8 +438,9 @@ module riscv32_axi4_sim_mem
     if (write_data_store_event) begin
       pmem_write(
           int'(write_data_store_addr),
-          int'(write_data_store_data),
-          byte'(write_data_store_strobe)
+          longint'(write_data_store_data),
+          byte'(write_data_store_strobe),
+          MEM_AXI_DATA_BYTE_COUNT
       );
     end
   end

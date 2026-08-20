@@ -1,6 +1,6 @@
 // 取指侧物理内存属性分类器。
 //
-// 本模块只根据物理地址产生executable/cacheable/idempotent属性，不保存状态，
+// 本模块只根据物理地址产生执行、缓存、幂等和宽度转换属性，不保存状态，
 // 也不发起总线请求。将地址策略独立出来，可以避免IFU、I-cache和总线适配器分别
 // 复制地址判断。未来加入页表、权限检查或更完整的PMP/PMA时，lookup和refill接口
 // 不需要因此改成AXI等外部协议。
@@ -95,10 +95,11 @@ module riscv32_pma
 
   end
 
-  // pma_attr_t三个字段的含义：
+  // pma_attr_t字段的含义：
   //   executable：允许IFU从该区域取指；为0时I-cache返回取指访问异常；
   //   cacheable ：允许把该区域读出的整条cache line留在I-cache；
   //   idempotent：重复读取不会改变设备状态，允许未来进行投机取指或重复refill。
+  //   width_conversion_supported：允许总线边界把一次宽访问拆成多个窄事务。
   //
   // SRAM不缓存是当前系统策略：它本身只有约1周期访问延迟，缓存收益很小。
   // MROM同样保持不缓存。Flash、PSRAM和SDRAM延迟高且读操作无设备副作用，
@@ -107,13 +108,15 @@ module riscv32_pma
     memory_attr_o = '0;
 
     if (lookup_addr_in_any_uncached_memory) begin
-      memory_attr_o.executable = 1'b1;
-      memory_attr_o.cacheable  = 1'b0;
-      memory_attr_o.idempotent = 1'b1;
+      memory_attr_o.executable                = 1'b1;
+      memory_attr_o.cacheable                 = 1'b0;
+      memory_attr_o.idempotent                = 1'b1;
+      memory_attr_o.width_conversion_supported = 1'b1;
     end else if (lookup_addr_in_any_cacheable_memory) begin
-      memory_attr_o.executable = 1'b1;
-      memory_attr_o.cacheable  = 1'b1;
-      memory_attr_o.idempotent = 1'b1;
+      memory_attr_o.executable                = 1'b1;
+      memory_attr_o.cacheable                 = 1'b1;
+      memory_attr_o.idempotent                = 1'b1;
+      memory_attr_o.width_conversion_supported = 1'b1;
     end else if (lookup_addr_in_any_mmio) begin
       memory_attr_o = '0;
     end

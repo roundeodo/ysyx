@@ -325,6 +325,9 @@ package riscv32_pkg;
     logic executable;
     logic cacheable;
     logic idempotent;
+    // 该区域允许把一个宽访问转换为多个较窄总线传输。普通存储器为1；MMIO为0，
+    // 防止部分事务已经产生设备副作用后，后续子事务才失败。
+    logic width_conversion_supported;
   } pma_attr_t;
 
   typedef struct packed {

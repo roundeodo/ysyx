@@ -6,6 +6,7 @@
 ${NPC_HOME}/vsrc/riscv32/common/riscv_config_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_addr_map_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_axi4_pkg.sv
+${NPC_HOME}/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_pkg.sv
 
 // 前端存储阵列、miss处理和AXI4 refill路径。
@@ -40,6 +41,7 @@ ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_address_router.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_error_target.sv
 ${NPC_HOME}/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_system.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi.sv
 
 // 仅仿真使用的监视模块和AXI4 target。
