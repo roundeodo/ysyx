@@ -80,8 +80,11 @@ void watchpoint_scan(){
     if(success){
       if(current_value != current_node->old_value){
         printf("Hardware watchpoint %d: %s\n", current_node->NO, current_node->user_expression);
-        printf("Old value = %u (0x%08x)\n", current_node->old_value,current_node->old_value);
-        printf("Current value = %u (0x%08x)\n", current_value,current_value);
+        printf("Old value = %llu (" FMT_WORD ")\n",
+               (unsigned long long)current_node->old_value,
+               current_node->old_value);
+        printf("Current value = %llu (" FMT_WORD ")\n",
+               (unsigned long long)current_value, current_value);
         printf("***************************************\n");
         current_node->old_value = current_value;
         nemu_state.state = NEMU_STOP;
@@ -104,7 +107,8 @@ void watchpoint_list(){
     WP *ptr = head;
     while(ptr!= NULL){
       printf("%-8dhw watchpoint   keep y                      %s\n", ptr->NO, ptr->user_expression);
-      printf("        curr value: %u (0x%08x)\n", ptr->old_value, ptr->old_value);
+      printf("        curr value: %llu (" FMT_WORD ")\n",
+             (unsigned long long)ptr->old_value, ptr->old_value);
       ptr = ptr->next;
     }
   }

@@ -257,10 +257,10 @@ word_t eval(int p, int q, bool* success) {
       }
       break;
     case TK_HEX:
-      sscanf(tokens[p].str, "%x", &detected_number);
+      detected_number = (word_t)strtoull(tokens[p].str, NULL, 16);
       break;
     case TK_NUMBER:
-      sscanf(tokens[p].str, "%u", &detected_number);
+      detected_number = (word_t)strtoull(tokens[p].str, NULL, 10);
       break;
 
     default:

@@ -93,7 +93,7 @@ static word_t *csr_decode(word_t csr){
   case 0x342:
     return &cpu.mcause;
   default:
-    panic("unsupported csr = 0x%x", csr);
+    panic("unsupported csr = 0x%llx", (unsigned long long)csr);
   }
 }
 
@@ -116,7 +116,7 @@ static void csr_write(word_t csr_addr, word_t value) {
     cpu.mcause = value;
     break;
   default:
-    panic("unsupported csr = 0x%x", csr_addr);
+    panic("unsupported csr = 0x%llx", (unsigned long long)csr_addr);
   }
 }
 
