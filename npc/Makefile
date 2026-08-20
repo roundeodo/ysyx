@@ -7,7 +7,7 @@
 PROJECT ?= riscv32
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs perf-record
+CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -58,6 +58,20 @@ FLASH_IMG ?=
 ELF       ?=
 REF       ?=
 SIM_ARGS  ?= --batch
+
+NEMU_DIR      := $(abspath ../nemu)
+CPU_TESTS_DIR := $(abspath ../am-kernels/tests/cpu-tests)
+RV32_NEMU_REF := $(NEMU_DIR)/build/riscv32-nemu-interpreter-so
+RV64_NEMU_REF := $(NEMU_DIR)/build/riscv64-nemu-interpreter-so
+
+# 只收录能够在standalone内存环境中验证RV32I/RV64I、Zicsr和异常闭环的测试。
+# unalign要求硬件透明处理非对齐访问，与当前“产生misaligned异常”的架构契约冲突；
+# GPIO、PSRAM、SDRAM、SPI等测试属于ysyxSoC外设回归，不放进处理器ISA基线。
+P3_CPU_TESTS := \
+	add add-longlong bit bubble-sort crc32 csr-trap div dummy fact fib goldbach \
+	hello-str if-else leap-year load-store matrix-mul max mersenne min3 mov-c \
+	movsx mul-longlong pascal prime quick-sort recursion select-sort shift \
+	shuixianhua string sub-longlong sum switch to-lower-case wanshu
 
 # ============================================================
 # Source files
@@ -367,6 +381,59 @@ test-privileged-configs:
 	$(MAKE) test-privileged PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 # ============================================================
+# P3 RV32/RV64 functional baseline
+# ============================================================
+
+.PHONY: nemu-ref-rv32 nemu-ref-rv64
+.PHONY: regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g
+
+# NEMU只有一份活动.config，因此两个reference必须顺序构建，不能写成可并行的依赖图。
+nemu-ref-rv32:
+	$(MAKE) -C $(NEMU_DIR) riscv32-ref_defconfig
+	$(MAKE) -C $(NEMU_DIR)
+
+nemu-ref-rv64:
+	$(MAKE) -C $(NEMU_DIR) riscv64-ref_defconfig
+	$(MAKE) -C $(NEMU_DIR)
+
+regression-p3-e:
+	$(MAKE) test-privileged-configs PROJECT=$(PROJECT)
+
+regression-p3-f-rv32:
+	$(MAKE) nemu-ref-rv32 PROJECT=$(PROJECT)
+	$(MAKE) -C $(CPU_TESTS_DIR) \
+		ARCH=riscv32-npc \
+		NPC_RUN_TARGET=sim-difftest \
+		REF=$(RV32_NEMU_REF) \
+		ALL="$(P3_CPU_TESTS)" \
+		run
+
+regression-p3-f-rv64:
+	$(MAKE) nemu-ref-rv64 PROJECT=$(PROJECT)
+	$(MAKE) -C $(CPU_TESTS_DIR) \
+		ARCH=riscv64-npc \
+		NPC_RUN_TARGET=sim-difftest \
+		REF=$(RV64_NEMU_REF) \
+		ALL="$(P3_CPU_TESTS)" \
+		run
+
+# 每一步使用递归make显式串行执行。失败会立即停止，保留第一个失效边界的日志。
+regression-p3-g:
+	$(MAKE) test-configs PROJECT=$(PROJECT)
+	$(MAKE) test-idu-configs PROJECT=$(PROJECT)
+	$(MAKE) test-exu-configs PROJECT=$(PROJECT)
+	$(MAKE) test-lsu-configs PROJECT=$(PROJECT)
+	$(MAKE) test-uncached-configs PROJECT=$(PROJECT)
+	$(MAKE) test-privileged-configs PROJECT=$(PROJECT)
+	$(MAKE) test-soc-width-converter PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) lint-configs PROJECT=$(PROJECT)
+	$(MAKE) lint-soc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) build-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) build-npc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) regression-p3-f-rv32 PROJECT=$(PROJECT)
+	$(MAKE) regression-p3-f-rv64 PROJECT=$(PROJECT)
+
+# ============================================================
 # Simulation entry points
 # ============================================================
 
@@ -532,6 +599,10 @@ help:
 	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
 	@echo "  test-privileged-configs  Test CSR, trap, commit, and PMU semantics in RV32/RV64"
+	@echo "  nemu-ref-rv32 / nemu-ref-rv64  Build the matching standalone DiffTest reference"
+	@echo "  regression-p3-e  Run RV32/RV64 privileged directed tests"
+	@echo "  regression-p3-f-rv32 / regression-p3-f-rv64  Run 35 CPU/exception DiffTests"
+	@echo "  regression-p3-g  Run the complete sequential dual-configuration baseline"
 	@echo ""
 	@echo "Run targets:"
 	@echo "  sim-npc       Run standalone NPC; requires IMG"
