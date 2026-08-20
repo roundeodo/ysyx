@@ -50,13 +50,12 @@ static constexpr int ARCH_GPR_COUNT = 32;
 
 struct CommitEvent {
   bool valid;
-  uint32_t pc;
+  npc_word_t pc;
   uint32_t instruction;
-  uint32_t next_pc;
+  npc_word_t next_pc;
 };
 
-// RV32I ABI register names. SDB accepts both these names and the x0-x31 numeric
-// names.
+// RV32I and RV64I share the same 32-register integer ABI names.
 static const char *const reg_names[ARCH_GPR_COUNT] = {
     "zero", "ra", "sp", "gp", "tp",  "t0",  "t1", "t2", "s0", "s1", "a0",
     "a1",   "a2", "a3", "a4", "a5",  "a6",  "a7", "s2", "s3", "s4", "s5",
@@ -91,9 +90,10 @@ static void single_cycle(CommitEvent *commit_event = nullptr) {
   if (commit_event != nullptr) {
     set_dpi_scope();
     commit_event->valid = npc_get_commit_valid_dpi() != 0;
-    commit_event->pc = (uint32_t)npc_get_commit_pc_dpi();
+    commit_event->pc = static_cast<npc_word_t>(npc_get_commit_pc_dpi());
     commit_event->instruction = (uint32_t)npc_get_commit_inst_dpi();
-    commit_event->next_pc = (uint32_t)npc_get_commit_next_pc_dpi();
+    commit_event->next_pc =
+        static_cast<npc_word_t>(npc_get_commit_next_pc_dpi());
   }
 
   if (trace_enabled && tfp != nullptr) {
@@ -203,9 +203,9 @@ void cpu_reset(int n) {
 
 // Read PC
 
-uint32_t npc_get_pc() {
+npc_word_t npc_get_pc() {
   set_dpi_scope();
-  return (uint32_t)npc_get_pc_dpi();
+  return static_cast<npc_word_t>(npc_get_pc_dpi());
 }
 
 // Read inst
@@ -216,7 +216,7 @@ uint32_t npc_get_inst() {
 
 // Read GPR
 
-uint32_t npc_get_gpr(int idx) {
+npc_word_t npc_get_gpr(int idx) {
   if (idx == 0) {
     return 0;
   }
@@ -226,7 +226,27 @@ uint32_t npc_get_gpr(int idx) {
   }
 
   set_dpi_scope();
-  return (uint32_t)npc_get_gpr_dpi(idx);
+  return static_cast<npc_word_t>(npc_get_gpr_dpi(idx));
+}
+
+npc_word_t npc_get_mstatus() {
+  set_dpi_scope();
+  return static_cast<npc_word_t>(npc_get_mstatus_dpi());
+}
+
+npc_word_t npc_get_mtvec() {
+  set_dpi_scope();
+  return static_cast<npc_word_t>(npc_get_mtvec_dpi());
+}
+
+npc_word_t npc_get_mepc() {
+  set_dpi_scope();
+  return static_cast<npc_word_t>(npc_get_mepc_dpi());
+}
+
+npc_word_t npc_get_mcause() {
+  set_dpi_scope();
+  return static_cast<npc_word_t>(npc_get_mcause_dpi());
 }
 
 // ============================================================
@@ -234,10 +254,13 @@ uint32_t npc_get_gpr(int idx) {
 // ============================================================
 
 void npc_dump_regs() {
-  printf("pc  = 0x%08x\n", npc_get_pc());
+  printf("pc  = 0x%0*llx\n", NPC_WORD_HEX_DIGITS,
+         static_cast<unsigned long long>(npc_get_pc()));
 
   for (int i = 0; i < ARCH_GPR_COUNT; i++) {
-    printf("x%-2d %-5s = 0x%08x\n", i, reg_names[i], npc_get_gpr(i));
+    printf("x%-2d %-5s = 0x%0*llx\n", i, reg_names[i],
+           NPC_WORD_HEX_DIGITS,
+           static_cast<unsigned long long>(npc_get_gpr(i)));
   }
 }
 
@@ -245,7 +268,7 @@ void npc_dump_regs() {
 // Read register value by name
 // ============================================================
 
-bool npc_reg_str2val(const char *name, uint32_t *val) {
+bool npc_reg_str2val(const char *name, npc_word_t *val) {
   if (name == nullptr || val == nullptr) {
     return false;
   }
@@ -376,15 +399,17 @@ bool npc_is_halted() { return npc_state == NPC_END || npc_state == NPC_ABORT; }
 // ============================================================
 
 extern "C" void ebreak_halt() {
-  uint32_t a0_val = npc_get_gpr(10);
-  uint32_t pc_val = npc_get_pc();
+  npc_word_t a0_val = npc_get_gpr(10);
+  npc_word_t pc_val = npc_get_pc();
 
   if (a0_val == 0) {
-    printf("\033[1;32mNPC: HIT GOOD TRAP\033[0m at pc = 0x%08x\n", pc_val);
+    printf("\033[1;32mNPC: HIT GOOD TRAP\033[0m at pc = 0x%0*llx\n",
+           NPC_WORD_HEX_DIGITS, static_cast<unsigned long long>(pc_val));
   } else {
     printf(
-        "\033[1;31mNPC: HIT BAD TRAP (exit code: %u)\033[0m at pc = 0x%08x\n",
-        a0_val, pc_val);
+        "\033[1;31mNPC: HIT BAD TRAP (exit code: %llu)\033[0m at pc = 0x%0*llx\n",
+        static_cast<unsigned long long>(a0_val), NPC_WORD_HEX_DIGITS,
+        static_cast<unsigned long long>(pc_val));
   }
 
   npc_state = NPC_END;

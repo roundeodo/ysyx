@@ -104,8 +104,12 @@ module top
   export "DPI-C" function npc_get_commit_inst_dpi;
   export "DPI-C" function npc_get_commit_next_pc_dpi;
   export "DPI-C" function npc_get_gpr_dpi;
+  export "DPI-C" function npc_get_mstatus_dpi;
+  export "DPI-C" function npc_get_mtvec_dpi;
+  export "DPI-C" function npc_get_mepc_dpi;
+  export "DPI-C" function npc_get_mcause_dpi;
 
-  function int npc_get_pc_dpi();
+  function longint unsigned npc_get_pc_dpi();
     npc_get_pc_dpi = u_npc_system.u_core.idu_fetch_entry.pc;
   endfunction
 
@@ -117,7 +121,7 @@ module top
     npc_get_commit_valid_dpi = int'(u_npc_system.u_core.commit_valid);
   endfunction
 
-  function int npc_get_commit_pc_dpi();
+  function longint unsigned npc_get_commit_pc_dpi();
     npc_get_commit_pc_dpi = u_npc_system.u_core.commit.pc;
   endfunction
 
@@ -125,7 +129,7 @@ module top
     npc_get_commit_inst_dpi = u_npc_system.u_core.commit.instruction;
   endfunction
 
-  function int npc_get_commit_next_pc_dpi();
+  function longint unsigned npc_get_commit_next_pc_dpi();
     if (u_npc_system.u_core.selected_redirect_req_valid &&
         u_npc_system.u_core.commit_valid &&
         (u_npc_system.u_core.selected_redirect_req.source_pc ==
@@ -137,12 +141,28 @@ module top
     end
   endfunction
 
-  function int npc_get_gpr_dpi(input int index);
+  function longint unsigned npc_get_gpr_dpi(input int index);
     if ((index <= 0) || (index >= ARCH_REG_COUNT)) begin
       npc_get_gpr_dpi = '0;
     end else begin
       npc_get_gpr_dpi = u_npc_system.u_core.u_arch_regfile.gpr_q[index];
     end
+  endfunction
+
+  function longint unsigned npc_get_mstatus_dpi();
+    npc_get_mstatus_dpi = u_npc_system.u_core.u_csr_file.mstatus_q;
+  endfunction
+
+  function longint unsigned npc_get_mtvec_dpi();
+    npc_get_mtvec_dpi = u_npc_system.u_core.u_csr_file.mtvec_q;
+  endfunction
+
+  function longint unsigned npc_get_mepc_dpi();
+    npc_get_mepc_dpi = u_npc_system.u_core.u_csr_file.mepc_q;
+  endfunction
+
+  function longint unsigned npc_get_mcause_dpi();
+    npc_get_mcause_dpi = u_npc_system.u_core.u_csr_file.mcause_q;
   endfunction
 
   always_ff @(posedge clk) begin

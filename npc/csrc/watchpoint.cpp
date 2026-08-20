@@ -10,7 +10,7 @@
 struct WP {
   int NO;
   std::string expr_str;
-  uint32_t last_value;
+  npc_word_t last_value;
   WP *next;
 };
 
@@ -38,14 +38,14 @@ void new_wp(const char *expr_str) {
   }
 
   bool success = false;
-  uint32_t value = expr(expr_str, &success);
+  npc_word_t value = expr(expr_str, &success);
 
   if (!success) {
     printf("Bad expression, watchpoint not created\n");
     return;
   }
 
-  if (free == nullptr) {
+  if (free_ == nullptr) {
     printf("No free watchpoint\n");
     return;
   }
@@ -58,8 +58,10 @@ void new_wp(const char *expr_str) {
   wp->next = head;
   head = wp;
 
-  printf("Watchpoint %d: %s = 0x%08x (%u)\n", wp->NO, wp->expr_str.c_str(),
-         wp->last_value, wp->last_value);
+  printf("Watchpoint %d: %s = 0x%0*llx (%llu)\n", wp->NO,
+         wp->expr_str.c_str(), NPC_WORD_HEX_DIGITS,
+         static_cast<unsigned long long>(wp->last_value),
+         static_cast<unsigned long long>(wp->last_value));
 }
 
 // delete watchpoint
@@ -99,7 +101,9 @@ void display_watchpoints() {
   printf("Num\tValue\t\tExpression\n");
 
   for (WP *wp = head; wp != nullptr; wp = wp->next) {
-    printf("%d\t0x%08x\t%s\n", wp->NO, wp->last_value, wp->expr_str.c_str());
+    printf("%d\t0x%0*llx\t%s\n", wp->NO, NPC_WORD_HEX_DIGITS,
+           static_cast<unsigned long long>(wp->last_value),
+           wp->expr_str.c_str());
   }
 }
 
@@ -109,7 +113,7 @@ bool check_watchpoints() {
 
   for (WP *wp = head; wp != nullptr; wp = wp->next) {
     bool success = false;
-    uint32_t new_value = expr(wp->expr_str.c_str(), &success);
+    npc_word_t new_value = expr(wp->expr_str.c_str(), &success);
 
     if (!success) {
       printf("Watchpoint %d expression becomes invalid: %s\n", wp->NO,
@@ -121,8 +125,12 @@ bool check_watchpoints() {
     if (new_value != wp->last_value) {
       printf("\nWatchpoint %d triggered:\n", wp->NO);
       printf("  expr: %s\n", wp->expr_str.c_str());
-      printf("  old : 0x%08x (%u)\n", wp->last_value, wp->last_value);
-      printf("  new : 0x%08x (%u)\n", new_value, new_value);
+      printf("  old : 0x%0*llx (%llu)\n", NPC_WORD_HEX_DIGITS,
+             static_cast<unsigned long long>(wp->last_value),
+             static_cast<unsigned long long>(wp->last_value));
+      printf("  new : 0x%0*llx (%llu)\n", NPC_WORD_HEX_DIGITS,
+             static_cast<unsigned long long>(new_value),
+             static_cast<unsigned long long>(new_value));
 
       wp->last_value = new_value;
       triggered = true;

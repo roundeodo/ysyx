@@ -97,6 +97,38 @@ static word_t *csr_decode(word_t csr){
   }
 }
 
+static word_t csr_read(word_t csr_addr) {
+  return *csr_decode(csr_addr);
+}
+
+static void csr_write(word_t csr_addr, word_t value) {
+  switch (csr_addr) {
+  case 0x300:
+    cpu.mstatus = 0x1800 | (value & (((word_t)1 << 3) | ((word_t)1 << 7)));
+    break;
+  case 0x305:
+    cpu.mtvec = value & ~(word_t)0x3;
+    break;
+  case 0x341:
+    cpu.mepc = value & ~(word_t)0x3;
+    break;
+  case 0x342:
+    cpu.mcause = value;
+    break;
+  default:
+    panic("unsupported csr = 0x%x", csr_addr);
+  }
+}
+
+static word_t mret_target(void) {
+  const word_t previous_mpie = BITS(cpu.mstatus, 7, 7);
+  cpu.mstatus &= ~(((word_t)1 << 3) | ((word_t)1 << 7) |
+                   ((word_t)3 << 11));
+  cpu.mstatus |= (previous_mpie << 3) | ((word_t)1 << 7) |
+                 ((word_t)3 << 11);
+  return cpu.mepc;
+}
+
 static void etrace_mret(vaddr_t pc) {
 #ifdef CONFIG_ETRACE
   if (ETRACE_COND) {
@@ -197,10 +229,10 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu  , B, if (src1 >= src2) s->dnpc = s->pc + imm);
 
 
-  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw, I, word_t csr_addr = BITS(s->isa.inst, 31, 20); word_t *csr = csr_decode(csr_addr); word_t old = *csr; *csr = src1; if (rd != 0) { R(rd) = old; });
-  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs, I, word_t csr_addr = BITS(s->isa.inst, 31, 20); word_t *csr = csr_decode(csr_addr); word_t old = *csr; if (BITS(s->isa.inst, 19, 15) != 0) { *csr = old | src1; } if (rd != 0) { R(rd) = old; });
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw, I, word_t csr_addr = BITS(s->isa.inst, 31, 20); word_t old = csr_read(csr_addr); csr_write(csr_addr, src1); if (rd != 0) { R(rd) = old; });
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs, I, word_t csr_addr = BITS(s->isa.inst, 31, 20); word_t old = csr_read(csr_addr); if (BITS(s->isa.inst, 19, 15) != 0) { csr_write(csr_addr, old | src1); } if (rd != 0) { R(rd) = old; });
   INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall, N, s->dnpc = isa_raise_intr(11, s->pc));
-  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret,  N, etrace_mret(s->pc); s->dnpc = cpu.mepc);
+  INSTPAT("0011000 00010 00000 000 00000 11100 11", mret,  N, etrace_mret(s->pc); s->dnpc = mret_target());
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak, N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));

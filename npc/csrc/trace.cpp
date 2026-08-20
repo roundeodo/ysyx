@@ -15,7 +15,7 @@ static bool capstone_ready = false;
 #define ITRACE_RINGBUF_SIZE 16
 
 struct ITraceRecord {
-  uint32_t pc;
+  npc_word_t pc;
   uint32_t inst;
   char disasm[128];
 };
@@ -24,7 +24,7 @@ static ITraceRecord itrace_ringbuf[ITRACE_RINGBUF_SIZE];
 static uint64_t itrace_count = 0;
 
 // convert one 32-bit RISCV instruction into disassembly string
-static void disassemble_inst(uint32_t pc, uint32_t inst, char *buf,
+static void disassemble_inst(npc_word_t pc, uint32_t inst, char *buf,
                              size_t buf_size) {
   if (buf == nullptr || buf_size == 0) {
     return;
@@ -67,7 +67,9 @@ void trace_init(bool enable_itrace, bool enable_mtrace) {
   mtrace_enabled = enable_mtrace;
   itrace_count = 0;
 
-  cs_err err = cs_open(CS_ARCH_RISCV, CS_MODE_RISCV32, &cs_handle);
+  const cs_mode disassembly_mode =
+      NPC_XLEN == 64 ? CS_MODE_RISCV64 : CS_MODE_RISCV32;
+  cs_err err = cs_open(CS_ARCH_RISCV, disassembly_mode, &cs_handle);
 
   if (err != CS_ERR_OK) {
     capstone_ready = false;
@@ -97,7 +99,7 @@ void trace_cleanup() {
 }
 
 // record one instruction
-void trace_inst(uint32_t pc, uint32_t inst) {
+void trace_inst(npc_word_t pc, uint32_t inst) {
   char disasm_buf[128];
 
   disassemble_inst(pc, inst, disasm_buf, sizeof(disasm_buf));
@@ -115,7 +117,8 @@ void trace_inst(uint32_t pc, uint32_t inst) {
     return;
   }
 
-  printf("itrace: 0x%08x: %08x  %s\n", pc, inst, disasm_buf);
+  printf("itrace: 0x%0*llx: %08x  %s\n", NPC_WORD_HEX_DIGITS,
+         static_cast<unsigned long long>(pc), inst, disasm_buf);
 }
 
 // print recent instructions
@@ -129,7 +132,8 @@ void trace_print_ringbuf() {
   for (uint64_t i = start; i < total; i++) {
     uint64_t idx = i % ITRACE_RINGBUF_SIZE;
 
-    printf("  0x%08x: %08x  %s\n", itrace_ringbuf[idx].pc,
+    printf("  0x%0*llx: %08x  %s\n", NPC_WORD_HEX_DIGITS,
+           static_cast<unsigned long long>(itrace_ringbuf[idx].pc),
            itrace_ringbuf[idx].inst, itrace_ringbuf[idx].disasm);
   }
 }

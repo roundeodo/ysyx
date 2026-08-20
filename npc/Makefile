@@ -7,7 +7,7 @@
 PROJECT ?= riscv32
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs perf-record
+CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs perf-record
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -21,8 +21,10 @@ endif
 
 ifeq ($(NPC_CONFIG),rv32-baseline)
 NPC_CONFIG_DEFINE := +define+YSYX_RV32_BASELINE
+NPC_CONFIG_CXXFLAG := -DNPC_XLEN=32
 else ifeq ($(NPC_CONFIG),rv64-sequential)
 NPC_CONFIG_DEFINE := +define+YSYX_RV64_SEQUENTIAL
+NPC_CONFIG_CXXFLAG := -DNPC_XLEN=64
 endif
 
 NPC_TOP_MODULE := top
@@ -38,6 +40,7 @@ EXU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_exu_test
 LSU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_lsu_test
 UNCACHED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_uncached_test
 SOC_WIDTH_CONVERTER_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_soc_width_converter_test
+PRIVILEGED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_privileged_test
 
 NPC_SIM_BINARY     := $(BUILD_DIR)/$(NPC_TOP_MODULE)_sim
 SOC_SIM_BINARY     := $(BUILD_DIR)/$(SOC_TOP_MODULE)_sim
@@ -48,6 +51,7 @@ EXU_TEST_BINARY    := $(BUILD_DIR)/exu_alu_test
 LSU_TEST_BINARY    := $(BUILD_DIR)/lsu_test
 UNCACHED_TEST_BINARY := $(BUILD_DIR)/uncached_axi4_test
 SOC_WIDTH_CONVERTER_TEST_BINARY := $(BUILD_DIR)/soc_width_converter_test
+PRIVILEGED_TEST_BINARY := $(BUILD_DIR)/privileged_test
 
 IMG       ?=
 FLASH_IMG ?=
@@ -107,6 +111,7 @@ CXX_INCLUDE_FLAGS := $(addprefix -I, $(INC_PATH))
 # The same C++ simulator drives two RTL shells. These macros describe each
 # shell's generated C++ class and reset polarity.
 NPC_CXXFLAGS := $(CXX_INCLUDE_FLAGS) \
+	$(NPC_CONFIG_CXXFLAG) \
 	-DNPC_STANDALONE_SIM \
 	-DTOP_CLASS=V$(NPC_TOP_MODULE) \
 	-DTOP_DPI_CLASS=V$(NPC_TOP_MODULE)__Dpi \
@@ -115,6 +120,7 @@ NPC_CXXFLAGS := $(CXX_INCLUDE_FLAGS) \
 	-DTOP_RESET_ACTIVE_LEVEL=0
 
 SOC_CXXFLAGS := $(CXX_INCLUDE_FLAGS) \
+	$(NPC_CONFIG_CXXFLAG) \
 	-DNPC_YSYXSOC_SIM \
 	-DTOP_CLASS=V$(SOC_TOP_MODULE) \
 	-DTOP_DPI_CLASS=V$(SOC_TOP_MODULE)__Dpi \
@@ -171,6 +177,16 @@ SOC_WIDTH_CONVERTER_TEST_SOURCES := \
 	$(RTL_DIR)/core/frontend/riscv32_pma.sv \
 	$(RTL_DIR)/system/riscv32_axi4_soc_width_converter.sv \
 	$(abspath ./tests/rtl/riscv32_axi4_soc_width_converter_tb.sv)
+
+PRIVILEGED_TEST_SOURCES := \
+	$(RTL_DIR)/common/riscv_config_pkg.sv \
+	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv32_pkg.sv \
+	$(RTL_DIR)/core/riscv32_pmu.sv \
+	$(RTL_DIR)/core/riscv32_csr_file.sv \
+	$(RTL_DIR)/core/riscv32_commit.sv \
+	$(RTL_DIR)/core/riscv32_trap_controller.sv \
+	$(abspath ./tests/rtl/riscv32_privileged_tb.sv)
 
 # ============================================================
 # NVBoard integration
@@ -293,7 +309,16 @@ $(SOC_WIDTH_CONVERTER_TEST_BINARY): $(SOC_WIDTH_CONVERTER_TEST_SOURCES) | $(BUIL
 		--Mdir $(SOC_WIDTH_CONVERTER_TEST_OBJ_DIR) \
 		-o $(SOC_WIDTH_CONVERTER_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-uncached test-uncached-configs test-soc-width-converter
+$(PRIVILEGED_TEST_BINARY): $(PRIVILEGED_TEST_SOURCES) | $(BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
+		-Wno-UNUSEDSIGNAL \
+		$(NPC_CONFIG_DEFINE) \
+		--top-module riscv32_privileged_tb \
+		$(PRIVILEGED_TEST_SOURCES) \
+		--Mdir $(PRIVILEGED_TEST_OBJ_DIR) \
+		-o $(PRIVILEGED_TEST_BINARY)
+
+.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-uncached test-uncached-configs test-soc-width-converter test-privileged test-privileged-configs
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
@@ -333,6 +358,13 @@ test-uncached-configs:
 
 test-soc-width-converter: $(SOC_WIDTH_CONVERTER_TEST_BINARY)
 	$(SOC_WIDTH_CONVERTER_TEST_BINARY)
+
+test-privileged: $(PRIVILEGED_TEST_BINARY)
+	$(PRIVILEGED_TEST_BINARY)
+
+test-privileged-configs:
+	$(MAKE) test-privileged PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) test-privileged PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 # ============================================================
 # Simulation entry points
@@ -499,6 +531,7 @@ help:
 	@echo "  test-lsu-configs  Run directed LSU tests for RV32 and RV64"
 	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
+	@echo "  test-privileged-configs  Test CSR, trap, commit, and PMU semantics in RV32/RV64"
 	@echo ""
 	@echo "Run targets:"
 	@echo "  sim-npc       Run standalone NPC; requires IMG"

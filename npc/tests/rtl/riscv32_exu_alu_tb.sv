@@ -69,6 +69,35 @@ module riscv32_exu_alu_tb;
                   XLEN, operation, operand_a, immediate, expected_result, exu_result.result);
   endtask
 
+  task automatic expect_misaligned_control_flow(
+      input control_flow_op_e operation,
+      input program_counter_t instruction_pc,
+      input xlen_data_t       rs1_value,
+      input xlen_data_t       immediate,
+      input xlen_data_t       expected_target
+  );
+    execute_packet                              = '0;
+    execute_packet.uop.fu_type                  = FU_BRANCH;
+    execute_packet.uop.branch_ctrl.op           = operation;
+    execute_packet.uop.pc                       = instruction_pc;
+    execute_packet.uop.imm                      = immediate;
+    execute_packet.uop.writes_rd                = 1'b1;
+    execute_packet.rs1_value                    = rs1_value;
+    execute_packet_valid                        = 1'b1;
+    #1;
+
+    assert (execute_packet_ready && exu_result_valid && !lsu_req_valid)
+      else $fatal(1, "EXU handshake failed for misaligned control-flow operation %0d", operation);
+    assert (exu_result.uop.exception_valid &&
+            (exu_result.uop.exception_cause == EXC_INSTR_ADDR_MISALIGNED))
+      else $fatal(1, "Misaligned control-flow target did not raise instruction-address exception");
+    assert (exu_result.uop.exception_tval == expected_target)
+      else $fatal(1, "Misaligned target mismatch: expected=%h actual=%h",
+                  expected_target, exu_result.uop.exception_tval);
+    assert (!exu_result.redirect_valid && !exu_result.uop.writes_rd)
+      else $fatal(1, "Faulting control-flow instruction redirected or wrote its destination register");
+  endtask
+
   initial begin
     execute_packet       = '0;
     execute_packet_valid = 1'b0;
@@ -79,6 +108,14 @@ module riscv32_exu_alu_tb;
     expect_register_operation(ALU_SLL, xlen_data_t'(1), xlen_data_t'(31),
                               xlen_data_t'(32'h8000_0000));
     expect_register_operation(ALU_SLT, xlen_data_t'('1), xlen_data_t'(0), xlen_data_t'(1));
+
+    // 未实现C扩展时IALIGN=32。异常指令既不能重定向前端，也不能提交链接寄存器。
+    expect_misaligned_control_flow(CF_JAL, program_counter_t'(32'h8000_0000), '0,
+                                   xlen_data_t'(2), xlen_data_t'(32'h8000_0002));
+    // JALR先清除bit 0；清除后bit 1仍为1时，目标依然违反IALIGN=32。
+    expect_misaligned_control_flow(CF_JALR, program_counter_t'(32'h8000_0000),
+                                   xlen_data_t'(32'h8000_0003), '0,
+                                   xlen_data_t'(32'h8000_0002));
 
 `ifdef YSYX_RV64_SEQUENTIAL
     // ADDIW/ADDW共享ALU_ADDW语义：先在低32位回绕，再按word_result[31]符号扩展。

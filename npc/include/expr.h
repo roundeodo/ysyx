@@ -1,5 +1,5 @@
 #pragma once
 
-#include <stdint.h>
+#include "npc_config.h"
 
-uint32_t expr(const char *e, bool *success);
+npc_word_t expr(const char *e, bool *success);
