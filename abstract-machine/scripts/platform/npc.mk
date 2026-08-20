@@ -18,6 +18,9 @@ MAINARGS_MAX_LEN = 64
 MAINARGS_PLACEHOLDER = the_insert-arg_rule_in_Makefile_will_insert_mainargs_here
 CFLAGS += -DMAINARGS_MAX_LEN=$(MAINARGS_MAX_LEN) -DMAINARGS_PLACEHOLDER=$(MAINARGS_PLACEHOLDER)
 
+# The ARCH wrapper binds an AM image to the matching static RTL configuration.
+NPC_CONFIG ?= rv32-baseline
+
 insert-arg: image
 	@python $(AM_HOME)/tools/insert-arg.py $(IMAGE).bin $(MAINARGS_MAX_LEN) $(MAINARGS_PLACEHOLDER) "$(mainargs)"
 
@@ -28,6 +31,6 @@ image: image-dep
 
 run: insert-arg
 	# sim-am passes --batch to NPC, so AM run executes to halt() without SDB input.
-	$(MAKE) -C $(NPC_HOME) sim-am NPC_CONFIG=rv32-baseline IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) sim-am NPC_CONFIG=$(NPC_CONFIG) IMG=$(IMAGE).bin
 
 .PHONY: insert-arg
