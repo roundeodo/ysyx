@@ -5,7 +5,8 @@
 package riscv32_ysyx_soc_axi4_pkg;
 
   import riscv_config_pkg::*;
-  import riscv32_axi4_pkg::{axi4_burst_e, axi4_resp_e};
+  import riscv32_axi4_pkg::axi4_burst_e;
+  import riscv32_axi4_pkg::axi4_resp_e;
 
   typedef logic [YSYX_SOC_AXI_ADDR_WIDTH-1:0] ysyx_soc_axi4_addr_t;
   typedef logic [YSYX_SOC_AXI_DATA_WIDTH-1:0] ysyx_soc_axi4_data_t;
