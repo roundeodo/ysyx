@@ -111,21 +111,30 @@ module riscv32_axi4_clint
           read_response_d.resp   = AXI4_RESP_SLVERR;
           read_response_d.last   = (axi_target_i.ar.len == 0);
 
-          // CLINT registers are 32-bit, single-beat accesses. For an unsupported
-          // burst the target still returns LEN+1 SLVERR beats, preserving AXI4.
+          // RV64可在MTIME_LOW_ADDRESS原子读取完整mtime；RV32继续使用低/高32位
+          // 快照协议。其他宽度或burst仍返回LEN+1个SLVERR beat。
           if ((axi_target_i.ar.len == 0) &&
-              (axi_target_i.ar.size == 3'd2)) begin
+              (MEM_AXI_DATA_WIDTH == 64) &&
+              (axi_target_i.ar.size == 3'd3) &&
+              (axi_target_i.ar.addr == MTIME_LOW_ADDRESS)) begin
+            read_response_d.data          = axi4_data_t'(mtime_q);
+            read_response_d.resp          = AXI4_RESP_OKAY;
+            mtime_read_snapshot_present_d = 1'b0;
+          end else if ((axi_target_i.ar.len == 0) &&
+                       (axi_target_i.ar.size == 3'd2)) begin
             unique case (axi_target_i.ar.addr)
               MTIME_LOW_ADDRESS: begin
                 mtime_read_snapshot_d         = mtime_q;
                 mtime_read_snapshot_present_d = 1'b1;
-                read_response_d.data          = mtime_q[31:0];
+                read_response_d.data          = axi4_data_t'(mtime_q[31:0]);
                 read_response_d.resp          = AXI4_RESP_OKAY;
               end
 
               MTIME_HIGH_ADDRESS: begin
-                read_response_d.data = mtime_read_snapshot_present_q ?
-                    mtime_read_snapshot_q[63:32] : mtime_q[63:32];
+                read_response_d.data = axi4_data_t'(
+                    mtime_read_snapshot_present_q ?
+                    mtime_read_snapshot_q[63:32] : mtime_q[63:32]
+                );
                 mtime_read_snapshot_present_d = 1'b0;
                 read_response_d.resp          = AXI4_RESP_OKAY;
               end

@@ -7,6 +7,7 @@ module riscv32_axi4_soc_width_converter
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
   import riscv32_ysyx_soc_axi4_pkg::*;
+  import riscv32_addr_map_pkg::*;
 (
     input logic clk_i,
     input logic rst_ni,
@@ -63,7 +64,7 @@ module riscv32_axi4_soc_width_converter
     axi4_addr_t incremented_addr;
 
     bytes_per_beat  = axi4_addr_t'(1) << transfer_size;
-    burst_bytes     = bytes_per_beat * axi4_addr_t'(burst_length + 1'b1);
+    burst_bytes     = bytes_per_beat * (axi4_addr_t'(burst_length) + axi4_addr_t'(1));
     incremented_addr = current_addr + bytes_per_beat;
     wrap_base_addr  = start_addr & ~(burst_bytes - axi4_addr_t'(1));
 
