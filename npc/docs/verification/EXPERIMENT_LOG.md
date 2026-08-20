@@ -149,3 +149,28 @@
   测试比仅运行短程序更能约束这些行为。
 - ysyxSoC与独立NPC使用不同NEMU内存映射，不能复用同一个reference构建结果。后续应在
   P3回归脚本中把两种reference配置显式命名，避免环境配置被误判为RTL错误。
+
+## 2026-08-20 - P3-B RV64I译码语义验证
+
+- Commit：uncommitted；当前基于`a6f6cc06c0337a58209337bab289c0d3a79c8596`。
+- 架构决策：P3-B；IDU是指令编码到micro-op语义的唯一所有者。
+- 工作负载和规模：RV32/RV64 directed decode test。
+- 构建配置：`rv32-baseline`和`rv64-sequential`。
+- 命令：`make test-idu-configs PROJECT=riscv32`、`make lint-configs PROJECT=riscv32`。
+- 功能结果：两套定向测试通过；两套配置lint无语法或elaboration错误。
+- 综合目标/结果：本次检查点不包含综合结果。
+
+验证范围：
+
+- RV64覆盖`ADDIW/SLLIW/SRLIW/SRAIW`、`ADDW/SUBW/SLLW/SRLW/SRAW`、
+  `LWU/LD/SD`；
+- 覆盖普通RV64移位量32和63、非法`*IW shamt[5]`、非法`OP-32 funct3`以及
+  `LUI/AUIPC`符号扩展；
+- RV32明确拒绝RV64专属opcode、访存宽度和6位移位量；
+- 非法指令检查`mtval`并确认没有寄存器写、访存、CSR写或redirect副作用。
+
+分析：
+
+- 本结果只冻结译码输出契约，不代表RV64指令已经能够端到端执行。
+- P3-C需要消费独立的`ALU_*W`操作并显式实现低32位运算后符号扩展；P3-D再实现
+  `LWU/LD/SD`的数据通路和AXI宽度边界。

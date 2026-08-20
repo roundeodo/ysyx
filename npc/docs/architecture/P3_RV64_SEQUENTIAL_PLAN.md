@@ -1,8 +1,8 @@
 # P3 RV64 顺序处理器实施计划
 
-状态：P3-A 已完成，下一步为 P3-B
+状态：P3-B 已完成，下一步为 P3-C
 
-最后更新：2026-08-14
+最后更新：2026-08-20
 
 ## 1. 阶段目标
 
@@ -112,7 +112,7 @@ ysyxSoC 依赖的 Rocket Chip 框架本身包含 RV64 配置能力，但这不�
 
 ### P3-B：冻结公共 RV64I 语义和译码
 
-状态：未开始。
+状态：已完成（2026-08-20）。
 
 修改范围：
 
@@ -131,6 +131,28 @@ ysyxSoC 依赖的 Rocket Chip 框架本身包含 RV64 配置能力，但这不�
 
 退出条件：每条新增指令都有 directed decode test；非法编码不会产生寄存器写、访存或
 redirect 副作用；RV32 译码回归不变。
+
+完成内容：
+
+- package 增加 `OP-IMM-32`、`OP-32`、`LD/LWU/SD` 编码，以及独立的 `ALU_*W`
+  语义操作；译码阶段不把 `*W` 降级成普通 XLEN 运算；
+- IDU 实现 `ADDIW/SLLIW/SRLIW/SRAIW`、`ADDW/SUBW/SLLW/SRLW/SRAW`、
+  `LWU/LD/SD`，并区分 RV64 普通移位的 6 位 `shamt` 与 `*W` 移位的 5 位 `shamt`；
+- RV64 的 `LUI/AUIPC` 立即数在 IDU 中按 32 位结果符号扩展到 XLEN；
+- 非法编码保留指令身份和异常信息，但统一清除寄存器写、访存、CSR 写和 redirect 副作用；
+- 新增双配置 directed decode test，RV32 明确拒绝 RV64 专属编码，RV64 覆盖全部 P3-B
+  指令与关键非法编码。
+
+验证命令：
+
+```sh
+make test-idu-configs PROJECT=riscv32
+make lint-configs PROJECT=riscv32
+```
+
+验证结果：RV32 与 RV64 定向译码测试均通过，两套配置 lint 均无语法或 elaboration 错误。
+本检查点只证明 micro-op 语义和合法性检查正确；`*W` 执行结果由 P3-C 实现，`LD/SD`
+数据通路由 P3-D 实现。
 
 ### P3-C：实现 RV64 EXU 语义
 
@@ -236,5 +258,5 @@ flush 和精确异常。流水化不能创建第二套译码或第二套架构�
 
 ## 6. 当前第一项任务
 
-P3-A 已完成。下一步执行 P3-B，只修改公共 ISA 语义和 IDU 译码，不提前实现 EXU/LSU
-功能。后续继续按 `package -> IDU -> EXU -> LSU -> CSR/trap -> 软件/DiffTest` 推进。
+P3-B 已完成。下一步执行 P3-C，只实现 RV64 EXU 和 `*W` 结果语义，不提前修改 LSU、
+CSR 或软件环境。后续继续按 `EXU -> LSU -> CSR/trap -> 软件/DiffTest` 推进。
