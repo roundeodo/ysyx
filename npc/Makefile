@@ -7,7 +7,7 @@
 PROJECT ?= riscv32
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs perf-record
+CONFIG_FREE_GOALS     := help clean lint-configs test-configs test-idu-configs test-exu-configs perf-record
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -34,12 +34,14 @@ SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
 NVBOARD_OBJ_DIR := $(BUILD_DIR)/obj_dir_nvboard
 CONFIG_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_config_test
 IDU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_idu_test
+EXU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_exu_test
 
 NPC_SIM_BINARY     := $(BUILD_DIR)/$(NPC_TOP_MODULE)_sim
 SOC_SIM_BINARY     := $(BUILD_DIR)/$(SOC_TOP_MODULE)_sim
 NVBOARD_SIM_BINARY := $(BUILD_DIR)/$(SOC_TOP_MODULE)_nvboard
 CONFIG_TEST_BINARY := $(BUILD_DIR)/config_elaboration_test
 IDU_TEST_BINARY    := $(BUILD_DIR)/idu_decode_test
+EXU_TEST_BINARY    := $(BUILD_DIR)/exu_alu_test
 
 IMG       ?=
 FLASH_IMG ?=
@@ -131,6 +133,13 @@ IDU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
 	$(RTL_DIR)/core/riscv32_idu.sv \
 	$(abspath ./tests/rtl/riscv32_idu_decode_tb.sv)
+
+EXU_TEST_SOURCES := \
+	$(RTL_DIR)/common/riscv_config_pkg.sv \
+	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv32_pkg.sv \
+	$(RTL_DIR)/core/riscv32_exu.sv \
+	$(abspath ./tests/rtl/riscv32_exu_alu_tb.sv)
 
 # 当前课程SoC插槽固定为AXI32。正式RV64 memory AXI在P3-D通过system wrapper
 # 转成AXI32；在该边界完成前，禁止把RV64配置误接到ysyxSoC。
@@ -226,7 +235,16 @@ $(IDU_TEST_BINARY): $(IDU_TEST_SOURCES) | $(BUILD_DIR)
 		--Mdir $(IDU_TEST_OBJ_DIR) \
 		-o $(IDU_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs
+$(EXU_TEST_BINARY): $(EXU_TEST_SOURCES) | $(BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
+		-Wno-UNUSEDSIGNAL \
+		$(NPC_CONFIG_DEFINE) \
+		--top-module riscv32_exu_alu_tb \
+		$(EXU_TEST_SOURCES) \
+		--Mdir $(EXU_TEST_OBJ_DIR) \
+		-o $(EXU_TEST_BINARY)
+
+.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
@@ -242,6 +260,13 @@ test-idu: $(IDU_TEST_BINARY)
 test-idu-configs:
 	$(MAKE) test-idu PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) test-idu PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+
+test-exu: $(EXU_TEST_BINARY)
+	$(EXU_TEST_BINARY)
+
+test-exu-configs:
+	$(MAKE) test-exu PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) test-exu PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 # ============================================================
 # Simulation entry points
@@ -406,6 +431,7 @@ help:
 	@echo "  build-soc     Build ysyxSoC (rv32-baseline only before P3-D)"
 	@echo "  test-configs  Check both static configuration contracts"
 	@echo "  test-idu-configs  Run directed IDU tests for RV32 and RV64"
+	@echo "  test-exu-configs  Run directed EXU tests for RV32 and RV64"
 	@echo ""
 	@echo "Run targets:"
 	@echo "  sim-npc       Run standalone NPC; requires IMG"

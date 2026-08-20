@@ -1,6 +1,6 @@
 # P3 RV64 顺序处理器实施计划
 
-状态：P3-B 已完成，下一步为 P3-C
+状态：P3-C 已完成，下一步为 P3-D
 
 最后更新：2026-08-20
 
@@ -156,7 +156,7 @@ make lint-configs PROJECT=riscv32
 
 ### P3-C：实现 RV64 EXU 语义
 
-状态：未开始。
+状态：已完成。
 
 修改范围：
 
@@ -166,6 +166,21 @@ make lint-configs PROJECT=riscv32
 
 退出条件：RV64 ALU directed test 覆盖边界值、负数、移位量 31/32/63 和溢出回绕；RV32
 结果逐项保持一致。
+
+实现结果：
+
+- EXU新增独立32位`word_result`通路，`ADDW/SUBW/SLLW/SRLW/SRAW`均先在低32位
+  完成运算，再显式符号扩展到XLEN；
+- `*W`寄存器移位统一使用`rs2[4:0]`，普通RV64移位仍使用6位移位量；
+- 新增RV32/RV64双配置directed EXU test，覆盖普通运算回归、负数、32位溢出回绕、
+  移位量31/32/63以及`*W`与普通RV64移位规则的隔离。
+
+验证命令：
+
+```sh
+make test-exu-configs PROJECT=riscv32
+make lint-configs PROJECT=riscv32
+```
 
 ### P3-D：实现 RV64 LSU 和宽度边界
 
@@ -258,5 +273,6 @@ flush 和精确异常。流水化不能创建第二套译码或第二套架构�
 
 ## 6. 当前第一项任务
 
-P3-B 已完成。下一步执行 P3-C，只实现 RV64 EXU 和 `*W` 结果语义，不提前修改 LSU、
-CSR 或软件环境。后续继续按 `EXU -> LSU -> CSR/trap -> 软件/DiffTest` 推进。
+P3-C 已完成。下一步执行P3-D，实现`LWU/LD/SD`、LSU 8字节宽度边界以及RV64 memory
+AXI到ysyxSoC AXI32插槽的系统边界转换。后续继续按`LSU -> CSR/trap -> 软件/DiffTest`
+推进。

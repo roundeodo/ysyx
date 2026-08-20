@@ -16,10 +16,13 @@ module riscv32_exu
   // EXU应只依赖ISA架构宽度；物理地址宽度和AXI数据宽度都不应进入ALU。这样将来把
   // 地址翻译放到AGU/MMU、把总线加宽时，不会迫使整数执行单元一起修改。
   localparam int unsigned SHIFT_AMOUNT_WIDTH = $clog2(XLEN);
+  localparam int unsigned WORD_WIDTH         = 32;
+  localparam int unsigned WORD_SHIFT_WIDTH   = $clog2(WORD_WIDTH);
 
   xlen_data_t       operand_a;
   xlen_data_t       operand_b;
   xlen_data_t       alu_result;
+  logic [WORD_WIDTH-1:0] word_result;
   xlen_data_t       csr_operand;
   xlen_data_t       csr_wdata;
   logic             branch_condition_met;
@@ -42,6 +45,25 @@ module riscv32_exu
     endcase
   end
 
+  // RV64的*W指令只在低32位中完成运算，再把32位结果符号扩展到XLEN。这里保留独立的
+  // word-result通路，避免依赖宽位加法后的赋值截断，也明确约束寄存器型移位只使用
+  // rs2[4:0]。因此rs2=32等价于移位0位，而非法的立即数shamt=32已由IDU拒绝。
+  always_comb begin
+    word_result = '0;
+    unique case (execute_packet_i.uop.int_ctrl.op)
+      ALU_ADDW: word_result = operand_a[WORD_WIDTH-1:0] + operand_b[WORD_WIDTH-1:0];
+      ALU_SUBW: word_result = operand_a[WORD_WIDTH-1:0] - operand_b[WORD_WIDTH-1:0];
+      ALU_SLLW:
+      word_result = operand_a[WORD_WIDTH-1:0] << operand_b[WORD_SHIFT_WIDTH-1:0];
+      ALU_SRLW:
+      word_result = operand_a[WORD_WIDTH-1:0] >> operand_b[WORD_SHIFT_WIDTH-1:0];
+      ALU_SRAW:
+      word_result = $signed(operand_a[WORD_WIDTH-1:0]) >>>
+          operand_b[WORD_SHIFT_WIDTH-1:0];
+      default: word_result = '0;
+    endcase
+  end
+
   always_comb begin
     alu_result = '0;
     unique case (execute_packet_i.uop.int_ctrl.op)
@@ -55,6 +77,11 @@ module riscv32_exu
       ALU_SRA:  alu_result = $signed(operand_a) >>> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
       ALU_OR:   alu_result = operand_a | operand_b;
       ALU_AND:  alu_result = operand_a & operand_b;
+      ALU_ADDW,
+      ALU_SUBW,
+      ALU_SLLW,
+      ALU_SRLW,
+      ALU_SRAW: alu_result = {{(XLEN-WORD_WIDTH){word_result[WORD_WIDTH-1]}}, word_result};
       default:  alu_result = '0;
     endcase
   end

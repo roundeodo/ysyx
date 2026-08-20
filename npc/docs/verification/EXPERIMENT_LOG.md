@@ -174,3 +174,26 @@
 - 本结果只冻结译码输出契约，不代表RV64指令已经能够端到端执行。
 - P3-C需要消费独立的`ALU_*W`操作并显式实现低32位运算后符号扩展；P3-D再实现
   `LWU/LD/SD`的数据通路和AXI宽度边界。
+
+## 2026-08-20 - P3-C RV64 EXU word运算验证
+
+- Commit：uncommitted；沿用P3-B工作树。
+- 架构决策：P3-C；`*W`是独立语义操作，由EXU显式执行32位运算和符号扩展。
+- 工作负载和规模：RV32/RV64 directed EXU ALU test。
+- 构建配置：`rv32-baseline`和`rv64-sequential`。
+- 命令：`make test-exu-configs PROJECT=riscv32`、`make lint-configs PROJECT=riscv32`。
+- 综合目标/结果：本检查点不包含综合结果。
+
+验证范围：
+
+- 覆盖`ADDW/SUBW/SLLW/SRLW/SRAW`、ADDIW对应的立即数操作数路径、负数和32位
+  溢出回绕；
+- 覆盖`*W`移位量31/32/63，确认寄存器移位只消费低5位；
+- 覆盖普通RV64移位量32/63，确认其6位移位量没有被`*W`规则污染；
+- RV32覆盖原有加减、移位和有符号比较，检查P3-C没有改变基线结果。
+
+分析：
+
+- 显式32位中间结果使word语义不依赖SystemVerilog上下文宽度和隐式截断，后续拆分
+  integer ALU时仍可直接复用；
+- 本检查点只关闭EXU算术语义，RV64访存、CSR和端到端程序执行仍属于后续阶段。
