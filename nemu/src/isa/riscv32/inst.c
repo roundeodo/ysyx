@@ -22,6 +22,9 @@
 #define Mr vaddr_read
 #define Mw vaddr_write
 
+extern uint64_t g_arch_mcycle;
+extern uint64_t g_arch_minstret;
+
 #ifdef CONFIG_FTRACE
 void ftrace_call(vaddr_t pc, vaddr_t target);
 void ftrace_ret(vaddr_t pc);
@@ -100,7 +103,32 @@ static word_t *csr_decode(word_t csr){
 }
 
 static word_t csr_read(word_t csr_addr) {
-  return *csr_decode(csr_addr);
+  switch (csr_addr) {
+  case 0xb00:
+  case 0xc00:
+#ifdef CONFIG_RV64
+    return (word_t)g_arch_mcycle;
+#else
+    return (word_t)(uint32_t)g_arch_mcycle;
+#endif
+  case 0xb02:
+  case 0xc02:
+#ifdef CONFIG_RV64
+    return (word_t)g_arch_minstret;
+#else
+    return (word_t)(uint32_t)g_arch_minstret;
+#endif
+#ifndef CONFIG_RV64
+  case 0xb80:
+  case 0xc80:
+    return (word_t)(uint32_t)(g_arch_mcycle >> 32);
+  case 0xb82:
+  case 0xc82:
+    return (word_t)(uint32_t)(g_arch_minstret >> 32);
+#endif
+  default:
+    return *csr_decode(csr_addr);
+  }
 }
 
 static void csr_write(word_t csr_addr, word_t value) {
@@ -120,6 +148,32 @@ static void csr_write(word_t csr_addr, word_t value) {
   case 0x343:
     cpu.mtval = value;
     break;
+  case 0xb00:
+#ifdef CONFIG_RV64
+    g_arch_mcycle = (uint64_t)value;
+#else
+    g_arch_mcycle = (g_arch_mcycle & UINT64_C(0xffffffff00000000)) |
+                    (uint32_t)value;
+#endif
+    break;
+  case 0xb02:
+#ifdef CONFIG_RV64
+    g_arch_minstret = (uint64_t)value;
+#else
+    g_arch_minstret =
+        (g_arch_minstret & UINT64_C(0xffffffff00000000)) | (uint32_t)value;
+#endif
+    break;
+#ifndef CONFIG_RV64
+  case 0xb80:
+    g_arch_mcycle = ((uint64_t)(uint32_t)value << 32) |
+                    (uint32_t)g_arch_mcycle;
+    break;
+  case 0xb82:
+    g_arch_minstret = ((uint64_t)(uint32_t)value << 32) |
+                      (uint32_t)g_arch_minstret;
+    break;
+#endif
   default:
     panic("unsupported csr = 0x%llx", (unsigned long long)csr_addr);
   }
