@@ -56,6 +56,10 @@ static constexpr int ARCH_GPR_COUNT = 32;
 static uint64_t debug_sdram_ack_count = 0;
 static uint64_t debug_axi_delay_downstream_response_count = 0;
 static uint64_t debug_axi_delay_upstream_response_count = 0;
+static uint64_t debug_segment_start_count = 0;
+static uint64_t debug_ordinary_request_count = 0;
+static uint64_t debug_pmem_response_accept_count = 0;
+static uint64_t debug_core_read_data_count = 0;
 
 static void sample_soc_read_path_debug_events() {
   const auto *root = top->rootp;
@@ -64,6 +68,10 @@ static void sample_soc_read_path_debug_events() {
     debug_sdram_ack_count = 0;
     debug_axi_delay_downstream_response_count = 0;
     debug_axi_delay_upstream_response_count = 0;
+    debug_segment_start_count = 0;
+    debug_ordinary_request_count = 0;
+    debug_pmem_response_accept_count = 0;
+    debug_core_read_data_count = 0;
   }
 
   if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__ack_q)
@@ -72,6 +80,14 @@ static void sample_soc_read_path_debug_events() {
     debug_axi_delay_downstream_response_count++;
   if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__upstream_read_response_handshake_occurred)
     debug_axi_delay_upstream_response_count++;
+  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_first_segment_request_accepted_w)
+    debug_segment_start_count++;
+  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__ordinary_ram_request_accepted_w)
+    debug_ordinary_request_count++;
+  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__resp_accept_w)
+    debug_pmem_response_accept_count++;
+  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_data_output_occurred_w)
+    debug_core_read_data_count++;
 }
 
 static void print_soc_read_path_debug_state() {
@@ -123,6 +139,11 @@ static void print_soc_read_path_debug_state() {
          root->ysyxSoCFull__DOT__sdram__DOT__configured_burst_beat_count_q,
          root->ysyxSoCFull__DOT__sdram__DOT__read_burst_beat_count_q,
          root->ysyxSoCFull__DOT__sdram__DOT__read_beat_index_q);
+  printf("  segment/ordinary/pmem/core-read= %llu/%llu/%llu/%llu\n",
+         static_cast<unsigned long long>(debug_segment_start_count),
+         static_cast<unsigned long long>(debug_ordinary_request_count),
+         static_cast<unsigned long long>(debug_pmem_response_accept_count),
+         static_cast<unsigned long long>(debug_core_read_data_count));
 }
 #endif
 
