@@ -103,9 +103,10 @@ static void print_soc_read_path_debug_state() {
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_unissued_beat_count_q,
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_segment_request_pending_q,
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_physical_response_beat_count_q);
-  printf("  SDRAM response FIFO/core state= %u/%u/%u\n",
+  printf("  SDRAM response FIFO/core state= %u/%u/%u/%u\n",
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__u_response__DOT__count,
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__state_q,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_requested_beat_count_q,
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_response_beats_remaining_q);
   printf("  SDRAM ordinary req/read FIFO   = %u/%u/%u/%u\n",
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__req_rd_q,
@@ -118,6 +119,10 @@ static void print_soc_read_path_debug_state() {
          static_cast<unsigned long long>(debug_sdram_ack_count),
          static_cast<unsigned long long>(debug_axi_delay_downstream_response_count),
          static_cast<unsigned long long>(debug_axi_delay_upstream_response_count));
+  printf("  SDRAM model configured/read beat= %u/%u/%u\n",
+         root->ysyxSoCFull__DOT__sdram__DOT__configured_burst_beat_count_q,
+         root->ysyxSoCFull__DOT__sdram__DOT__read_burst_beat_count_q,
+         root->ysyxSoCFull__DOT__sdram__DOT__read_beat_index_q);
 }
 #endif
 
