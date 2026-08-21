@@ -380,5 +380,48 @@ PMU基线（`hello-str`）：
   只再减少18次，已出现边际收益下降；
 - 32KiB可容纳本次执行触达的全部32B指令line，因此只剩555次compulsory miss；
 - 8KiB、2-way下16/32/64B line的refill流量为18160/18880/20224B，不能只看miss次数；
-- 当前统一使用32B RTL测得的284.142 cycles penalty。正式选择line大小前必须分别校准
+- 本轮统一使用32B RTL测得的284.142 cycles penalty。正式选择line大小前必须分别校准
   16/32/64B refill时延，并补充面积、命中路径时序和目标AI workload。
+
+## 2026-08-21 - I-cache line大小与refill事务组织探索
+
+- Commit：uncommitted；沿用当前P3、I-cache和cachesim工作树。
+- 工作负载：RV64 MicroBench `test`。
+- 几何范围：1/2/4/8/16/32KiB，16/32/64B line，1/2/4-way。
+- 传输模型：4B beat；独立读事务与AXI4 INCR burst；归一化`a=b=c=d=1`。
+- 输出：`cachesim_riscv64_independent_exploration.csv`、
+  `cachesim_riscv64_burst_exploration.csv`和
+  `cachesim_riscv64_rtl_calibrated_exploration.csv`。
+
+实现和验证：
+
+- cachesim逐次miss记录critical word位于line中的第几个beat，分别计算critical TMT、
+  complete refill占用、AXI读事务数、beat数和传输字节；
+- RTL通过`NPC_ICACHE_LINE_BYTES`构建参数选择line大小，16/64B在RV32和RV64共四种组合下
+  lint通过，四种dummy smoke test均命中good trap；
+- RV64 MicroBench在16/32/64B line下均10/10通过；关键字附加代价分别为
+  4.178/4.625/5.964周期，完整refill分别为6.043/10.017/18.006周期；
+- 8KiB、2-way的NEMU trace中，独立事务模型下16/32/64B critical TMT为
+  5244/3736/3864；burst模型下降为4716/2704/1914；
+- RTL测量窗口周期为1432513/1431536/1431192，64B最低，但相对32B只降低344周期。
+
+结论：
+
+- 更大line只有配合burst才能避免重复支付每个word的事务建立开销；
+- 当前升序burst和critical-word early restart能够让IFU在整行完成前获得目标指令；
+- 64B在本工作负载上TMT最低，但系统周期收益约0.024%，不能忽略SRAM面积和时序成本；
+- 本次只完成line大小和传输组织探索，尚未形成最终I-cache参数决策。
+
+## 2026-08-21 - cachesim比较口径修正
+
+- 问题：初次汇总把历史`fixed=284.142 cycles`、归一化`a=b=c=d=1`传输模型和standalone
+  RTL实测结果放在同一张表中比较绝对AMAT/TMT。三者的时间模型和存储环境不同，该比较
+  无效。
+- 修正：`make cachesim-explore`恢复以`fixed`作为默认模型；独立事务和burst只能通过
+  `make cachesim-explore-transport`显式运行。
+- 回归：使用相同RV64 MicroBench trace、相同54组Cache几何和相同`284.142 cycles`固定
+  代价重跑，新旧CSV在miss分类、命中率、AMAT、TMT和refill字节数上逐项比较，差异数为0。
+- 比较规则：`fixed`只用于历史回归；归一化模型只允许在相同`a/b/c/d`下比较传输组织；
+  standalone RTL只允许在相同顶层、存储模型、workload和统计窗口下比较line大小。
+- 有效结论：16/32/64B standalone RTL结果之间的比较仍然有效；归一化模型能够说明burst
+  如何减少重复事务建立开销；二者都不能与旧`284.142 cycles`结果计算提升比例。

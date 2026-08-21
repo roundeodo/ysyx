@@ -30,7 +30,8 @@ def run_configuration(arguments):
         hit_time,
         refill_model,
         refill_beat_bytes,
-        miss_penalty,
+        critical_response_penalty,
+        complete_refill_penalty,
         read_address_cycles,
         memory_command_cycles,
         first_data_cycles,
@@ -52,8 +53,10 @@ def run_configuration(arguments):
         refill_model,
         "--refill-beat-bytes",
         str(refill_beat_bytes),
-        "--miss-penalty-cycles",
-        str(miss_penalty),
+        "--critical-response-penalty-cycles",
+        str(critical_response_penalty),
+        "--complete-refill-penalty-cycles",
+        str(complete_refill_penalty),
         "--read-address-cycles",
         str(read_address_cycles),
         "--memory-command-cycles",
@@ -85,10 +88,19 @@ def main():
         default="fixed",
     )
     parser.add_argument("--refill-beat-bytes", type=int, default=4)
-    parser.add_argument("--miss-penalty-cycles", type=float, default=0.0)
     parser.add_argument(
-        "--miss-penalty-by-line-size",
-        help="按行大小提供缺失代价，例如 16=150,32=284.142,64=520",
+        "--critical-response-penalty-cycles", type=float, default=0.0
+    )
+    parser.add_argument(
+        "--complete-refill-penalty-cycles", type=float, default=0.0
+    )
+    parser.add_argument(
+        "--critical-response-penalty-by-line-size",
+        help="按行大小提供关键字响应代价，例如 16=4.2,32=4.6,64=6.0",
+    )
+    parser.add_argument(
+        "--complete-refill-penalty-by-line-size",
+        help="按行大小提供整行填充代价，例如 16=6,32=10,64=18",
     )
     parser.add_argument("--read-address-cycles", type=float, default=1.0)
     parser.add_argument("--memory-command-cycles", type=float, default=1.0)
@@ -101,9 +113,14 @@ def main():
     capacities = parse_integer_list(args.capacities)
     line_sizes = parse_integer_list(args.line_sizes)
     way_counts = parse_integer_list(args.ways)
-    penalty_by_line_size = (
-        parse_penalty_map(args.miss_penalty_by_line_size)
-        if args.miss_penalty_by_line_size
+    critical_penalty_by_line_size = (
+        parse_penalty_map(args.critical_response_penalty_by_line_size)
+        if args.critical_response_penalty_by_line_size
+        else {}
+    )
+    complete_penalty_by_line_size = (
+        parse_penalty_map(args.complete_refill_penalty_by_line_size)
+        if args.complete_refill_penalty_by_line_size
         else {}
     )
 
@@ -115,8 +132,11 @@ def main():
                     continue
                 if capacity % (line_size * ways) != 0:
                     continue
-                miss_penalty = penalty_by_line_size.get(
-                    line_size, args.miss_penalty_cycles
+                critical_response_penalty = critical_penalty_by_line_size.get(
+                    line_size, args.critical_response_penalty_cycles
+                )
+                complete_refill_penalty = complete_penalty_by_line_size.get(
+                    line_size, args.complete_refill_penalty_cycles
                 )
                 configurations.append(
                     (
@@ -128,7 +148,8 @@ def main():
                         args.hit_time_cycles,
                         args.refill_model,
                         args.refill_beat_bytes,
-                        miss_penalty,
+                        critical_response_penalty,
+                        complete_refill_penalty,
                         args.read_address_cycles,
                         args.memory_command_cycles,
                         args.first_data_cycles,
@@ -171,7 +192,8 @@ def main():
         "memory_command_cycles",
         "first_data_cycles",
         "response_beat_cycles",
-        "fixed_miss_penalty_cycles",
+        "fixed_critical_response_penalty_cycles",
+        "fixed_complete_refill_penalty_cycles",
         "average_critical_response_penalty_cycles",
         "average_complete_refill_penalty_cycles",
         "amat_cycles",

@@ -29,7 +29,8 @@ struct CacheConfiguration {
   uint64_t way_count = 2;
   uint64_t refill_beat_bytes = 4;
   double hit_time_cycles = 2.0;
-  double miss_penalty_cycles = 0.0;
+  double critical_response_penalty_cycles = 0.0;
+  double complete_refill_penalty_cycles = 0.0;
   double read_address_cycles = 1.0;
   double memory_command_cycles = 1.0;
   double first_data_cycles = 1.0;
@@ -190,9 +191,15 @@ void ValidateConfiguration(const CacheConfiguration &configuration) {
       configuration.hit_time_cycles < 0.0) {
     throw std::runtime_error("hit time must be a finite nonnegative number");
   }
-  if (!std::isfinite(configuration.miss_penalty_cycles) ||
-      configuration.miss_penalty_cycles < 0.0) {
-    throw std::runtime_error("miss penalty must be a finite nonnegative number");
+  if (!std::isfinite(configuration.critical_response_penalty_cycles) ||
+      configuration.critical_response_penalty_cycles < 0.0) {
+    throw std::runtime_error(
+        "critical response penalty must be a finite nonnegative number");
+  }
+  if (!std::isfinite(configuration.complete_refill_penalty_cycles) ||
+      configuration.complete_refill_penalty_cycles < 0.0) {
+    throw std::runtime_error(
+        "complete refill penalty must be a finite nonnegative number");
   }
   const double refill_phase_cycles[] = {
       configuration.read_address_cycles,
@@ -334,7 +341,8 @@ void PrintUsage(const char *program_name) {
       << "  --hit-time-cycles N      Hit access time used by AMAT (default: 2)\n"
       << "  --refill-model MODEL     fixed, independent, or burst (default: fixed)\n"
       << "  --refill-beat-bytes N    Bytes returned by one refill beat (default: 4)\n"
-      << "  --miss-penalty-cycles N  Penalty used only by the fixed model\n"
+      << "  --critical-response-penalty-cycles N Fixed critical-word penalty\n"
+      << "  --complete-refill-penalty-cycles N Fixed complete-line penalty\n"
       << "  --read-address-cycles N  Read-address handshake phase a (default: 1)\n"
       << "  --memory-command-cycles N Memory command phase b (default: 1)\n"
       << "  --first-data-cycles N    First data return phase c (default: 1)\n"
@@ -376,10 +384,14 @@ CommandLineOptions ParseCommandLine(int argc, char **argv) {
       options.configuration.refill_beat_bytes = ParseUnsignedInteger(
           require_value(argument_index, "--refill-beat-bytes"),
           "--refill-beat-bytes");
-    } else if (argument == "--miss-penalty-cycles") {
-      options.configuration.miss_penalty_cycles = ParseFloatingPoint(
-          require_value(argument_index, "--miss-penalty-cycles"),
-          "--miss-penalty-cycles");
+    } else if (argument == "--critical-response-penalty-cycles") {
+      options.configuration.critical_response_penalty_cycles = ParseFloatingPoint(
+          require_value(argument_index, "--critical-response-penalty-cycles"),
+          "--critical-response-penalty-cycles");
+    } else if (argument == "--complete-refill-penalty-cycles") {
+      options.configuration.complete_refill_penalty_cycles = ParseFloatingPoint(
+          require_value(argument_index, "--complete-refill-penalty-cycles"),
+          "--complete-refill-penalty-cycles");
     } else if (argument == "--read-address-cycles") {
       options.configuration.read_address_cycles = ParseFloatingPoint(
           require_value(argument_index, "--read-address-cycles"),
@@ -516,9 +528,9 @@ RefillStatistics CalculateRefillStatistics(
     case RefillTransportModel::kFixedPenalty:
       refill_statistics.read_transaction_count = cache_statistics.miss_count;
       refill_statistics.average_critical_response_penalty_cycles =
-          configuration.miss_penalty_cycles;
+          configuration.critical_response_penalty_cycles;
       refill_statistics.average_complete_refill_penalty_cycles =
-          configuration.miss_penalty_cycles;
+          configuration.complete_refill_penalty_cycles;
       break;
 
     case RefillTransportModel::kIndependentReadTransactions:
@@ -625,7 +637,8 @@ void PrintCsv(const CacheConfiguration &configuration,
          "hit_rate,miss_rate,hit_time_cycles,refill_model,refill_beat_bytes,"
          "refill_beats_per_line,average_critical_beat_position,"
          "read_address_cycles,memory_command_cycles,first_data_cycles,"
-         "response_beat_cycles,fixed_miss_penalty_cycles,"
+         "response_beat_cycles,fixed_critical_response_penalty_cycles,"
+         "fixed_complete_refill_penalty_cycles,"
          "average_critical_response_penalty_cycles,"
          "average_complete_refill_penalty_cycles,amat_cycles,"
          "critical_tmt_cycles,refill_occupancy_cycles,read_transactions,"
@@ -648,7 +661,8 @@ void PrintCsv(const CacheConfiguration &configuration,
             << configuration.memory_command_cycles << ','
             << configuration.first_data_cycles << ','
             << configuration.response_beat_cycles << ','
-            << configuration.miss_penalty_cycles << ','
+            << configuration.critical_response_penalty_cycles << ','
+            << configuration.complete_refill_penalty_cycles << ','
             << refill_statistics.average_critical_response_penalty_cycles << ','
             << refill_statistics.average_complete_refill_penalty_cycles << ','
             << AverageMemoryAccessTime(configuration, statistics,
@@ -699,8 +713,10 @@ void PrintJson(const CacheConfiguration &configuration,
             << ",\n"
             << "  \"response_beat_cycles\": "
             << configuration.response_beat_cycles << ",\n"
-            << "  \"fixed_miss_penalty_cycles\": "
-            << configuration.miss_penalty_cycles << ",\n"
+            << "  \"fixed_critical_response_penalty_cycles\": "
+            << configuration.critical_response_penalty_cycles << ",\n"
+            << "  \"fixed_complete_refill_penalty_cycles\": "
+            << configuration.complete_refill_penalty_cycles << ",\n"
             << "  \"average_critical_response_penalty_cycles\": "
             << refill_statistics.average_critical_response_penalty_cycles
             << ",\n"

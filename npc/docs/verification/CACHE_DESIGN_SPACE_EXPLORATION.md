@@ -6,14 +6,15 @@
 元数据Cache模型重放该序列。它用于低成本比较容量、Cache line大小和路数，不代替RTL
 功能验证、综合、STA或完整系统性能测试。
 
-当前流程只回答：在同一条动态指令流下，不同Cache几何参数会产生多少次需求取指miss。
-它不模拟指令内容、AXI时序、refill状态机、错误路径取指、预取、多MSHR和miss重叠。
+当前流程回答两个问题：在同一条动态指令流下，不同Cache几何参数会产生多少次需求取指
+miss；在给定总线阶段延迟模型后，关键字响应时间和完整line refill占用如何变化。它不模拟
+指令内容、逐周期AXI反压、错误路径取指、预取、多MSHR和miss重叠。
 
 ## 2. 文件和职责
 
 | 文件 | 职责 |
 | --- | --- |
-| `tools/cachesim/cachesim.cpp` | 解析PC trace，维护组相联LRU元数据，统计Hit/Miss、3C、AMAT和TMT |
+| `tools/cachesim/cachesim.cpp` | 解析PC trace，维护组相联LRU元数据，统计3C、关键beat位置、AMAT、TMT和refill占用 |
 | `tools/cachesim/explore.py` | 并行启动多组cachesim，排序并生成CSV |
 | `tools/cachesim/tests/test_cachesim.py` | 用确定性地址序列验证冲突miss、容量miss和日志解析 |
 | `nemu/configs/riscv32-cachesim_defconfig` | 构建可执行、启用完整itrace的RV32 NEMU |
@@ -79,12 +80,49 @@ make cachesim-explore \
   CACHE_SCAN_OUTPUT=result/cache/cachesim_riscv32_crc32_exploration.csv
 ```
 
-`CACHE_MISS_PENALTY_CYCLES`默认沿用当前32B line RTL测得的284.142 cycles。该数值不能
-直接代表16B或64B refill。得到不同line大小的RTL实测数据后，应使用：
+默认使用历史`fixed`模型和4B refill beat，从而使原有`make cachesim-explore`命令继续复现
+旧结果。需要研究传输组织时，必须显式运行下面的目标，在同一份trace和同一组Cache几何上
+分别重算独立读事务与AXI4 INCR burst：
+
+```sh
+make cachesim-explore-transport \
+  CACHE_TRACE_ARCH=riscv64-nemu \
+  CACHE_TRACE_FILE=../am-kernels/benchmarks/microbench/build/nemu-log.txt
+```
+
+总线阶段参数为：AR握手`a`、memory command阶段`b`、首个数据返回`c`和每个R beat
+间隔`d`。默认四项均为1周期，只是用于观察结构差异的归一化模型，可以通过
+`CACHE_READ_ADDRESS_CYCLES`、`CACHE_MEMORY_COMMAND_CYCLES`、
+`CACHE_FIRST_DATA_CYCLES`和`CACHE_RESPONSE_BEAT_CYCLES`修改。
+
+对一条line中的`N`个beat，以及在第`K`个beat出现的critical word：
+
+```text
+independent critical penalty = K * (a + b + c + d)
+independent complete refill   = N * (a + b + c + d)
+burst critical penalty       = a + b + c + K * d
+burst complete refill        = a + b + c + N * d
+```
+
+`K`不是人为假设。cachesim在每次miss时由PC的line内偏移计算，并在整条trace上取平均。
+当前RTL按line base开始升序burst，因此该计算与实际critical-word early restart顺序一致。
+
+三种模型的绝对AMAT和TMT不能互相比较：
+
+- `fixed`用于复现历史基线，缺失代价由外部直接给定；
+- `independent`和`burst`用于控制变量实验，只能在相同`a/b/c/d`参数下互相比较；
+- RTL实测值只允许与相同仿真顶层、存储模型、workload和统计窗口下的其他RTL结果比较。
+
+因此，归一化`a=b=c=d=1`得到的数值不能与历史`284.142 cycles`或standalone RTL的实测
+周期直接计算提升比例。
+
+得到RTL实测数据后，使用`fixed`模型分别回灌关键字可见代价和完整refill代价：
 
 ```sh
 make cachesim-explore \
-  CACHE_MISS_PENALTY_BY_LINE_SIZE=16=150,32=284.142,64=520
+  CACHE_REFILL_MODEL=fixed \
+  CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE=16=4.178,32=4.625,64=5.964 \
+  CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE=16=6.043,32=10.017,64=18.006
 ```
 
 ### 3.5 使用RV64 MicroBench长trace
@@ -108,7 +146,7 @@ make cachesim-explore \
   CACHE_SCAN_CAPACITIES=1024,2048,4096,8192,16384,32768 \
   CACHE_SCAN_LINE_SIZES=16,32,64 \
   CACHE_SCAN_WAYS=1,2,4 \
-  CACHE_SCAN_OUTPUT=result/cache/cachesim_riscv64_microbench_test_exploration.csv
+  CACHE_SCAN_OUTPUT=result/cache/cachesim_riscv64_burst_exploration.csv
 ```
 
 当前MicroBench由`rv64g`工具链构建，会生成M扩展指令。NEMU已经实现基础RV32M/RV64M和
@@ -150,12 +188,82 @@ RV64的`MULW/DIVW/DIVUW/REMW/REMUW`，并用独立边界测试覆盖除零、最
 | 32KiB | 任意 | 555 | 555 | 0 | 0 | 99.9233% |
 
 这组数据已经能观察容量和相联度的作用：增大路数主要减少conflict miss，增大容量同时减少
-capacity和conflict miss。当前8KiB、2-way、32B line使用统一284.142 cycles miss penalty
-估算得到AMAT 2.2316 cycles、TMT 167643.78 cycles。
+capacity和conflict miss。早期扫描曾把32B line的一个实测常数套到所有line大小；该结果只
+用于验证工具链，已经由下面的分line实测校准结果取代。
 
 同为8KiB、2-way时，16/32/64B line分别产生1135/590/316次miss，但refill流量分别为
 18160/18880/20224B。更大的line减少miss却增加传输流量；在获得各line大小的真实refill
-代价前，不能仅按当前统一penalty下的AMAT排序。
+代价前，不能仅按miss次数排序。
+
+### 4.3 更大line与burst传输探索
+
+本节包含三个相互独立的受控实验，不能跨实验比较绝对周期：
+
+1. `fixed`回归只验证新版cachesim没有改变旧模型；
+2. 归一化传输模型只比较独立事务和burst的结构差异；
+3. standalone RTL实验只比较同一仿真存储模型下的16/32/64B line。
+
+首先使用相同MicroBench trace、相同54组Cache几何和相同`284.142 cycles`固定代价重跑旧
+模型。新版`fixed`输出与旧版`cachesim_riscv64_microbench_test_exploration.csv`的miss分类、
+命中率、AMAT、TMT和refill流量逐项一致，差异数为0。8KiB、2-way结果如下：
+
+| Line | Miss | 固定代价TMT | 固定代价AMAT |
+| ---: | ---: | ---: | ---: |
+| 16B | 1135 | 322501.170 | 2.445550 |
+| 32B | 590 | 167643.780 | 2.231608 |
+| 64B | 316 | 89788.872 | 2.124047 |
+
+这张表只能表示“所有line拥有相同缺失代价”时，减少miss次数带来的理论趋势，不能用来判断
+更大line的真实收益。
+
+RTL现在通过`NPC_ICACHE_LINE_BYTES`选择line大小。`ICACHE_SET_COUNT`、tag/set/offset宽度、
+data array深度、refill word计数和AXI4 ARLEN均从该值派生。16/32/64B使用独立构建目录，
+避免改变宏后误用旧Verilator产物：
+
+```sh
+make lint-npc PROJECT=riscv32 NPC_CONFIG=rv64-sequential NPC_ICACHE_LINE_BYTES=64
+make sim-npc PROJECT=riscv32 NPC_CONFIG=rv64-sequential \
+  NPC_ICACHE_LINE_BYTES=64 IMG=/path/to/microbench-riscv64-npc.bin
+```
+
+在8KiB、2-way、4B beat下，NEMU MicroBench trace得到：
+
+| Line | Miss | Hit Rate | 平均critical beat位置 | Refill流量 |
+| ---: | ---: | ---: | ---: | ---: |
+| 16B | 1135 | 99.8432% | 1.155 | 18160B |
+| 32B | 590 | 99.9185% | 1.583 | 18880B |
+| 64B | 316 | 99.9563% | 3.057 | 20224B |
+
+归一化`a=b=c=d=1`时，两种传输组织的结果为：
+
+| Line | 独立事务critical TMT | 独立事务整行占用 | Burst critical TMT | Burst整行占用 |
+| ---: | ---: | ---: | ---: | ---: |
+| 16B | 5244 | 18160 | 4716 | 7945 |
+| 32B | 3736 | 18880 | 2704 | 6490 |
+| 64B | 3864 | 20224 | 1914 | 6004 |
+
+独立事务会为每个4B word重复支付AR和首数据延迟，64B line虽然miss更少，但critical TMT
+反而略差于32B。burst只支付一次请求建立开销，64B line在这条trace上同时得到最低
+critical TMT和最低完整refill占用。这正是手册要求比较的优化点。这里的数值单位来自归一化
+阶段参数，只能在本表内部比较，不能与上面的fixed表或下面的RTL周期相减。
+
+三种line大小随后在RV64 standalone RTL上运行同一个MicroBench `test`，10项全部通过：
+
+| Line | RTL Miss | 实测critical penalty | 实测完整refill | 测量窗口周期 | 测量窗口IPC |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 16B | 1213 | 4.178 | 6.043 | 1432513 | 0.286341 |
+| 32B | 634 | 4.625 | 10.017 | 1431536 | 0.286536 |
+| 64B | 337 | 5.964 | 18.006 | 1431192 | 0.286605 |
+
+NPC和NEMU的启动代码、平台代码及取指口径不同，所以RTL Miss不能与cachesim Miss逐项相等；
+可比较的是line大小变化的趋势。把三种RTL critical penalty回灌NEMU trace后，8KiB、2-way
+的critical TMT分别为4742.030、2728.750和1884.624周期。64B在本次测试中最好，但相对
+32B只让MicroBench测量窗口减少344周期，IPC提升约0.024%。该收益不足以直接冻结64B：
+下一步还必须比较SRAM组织、综合面积、命中路径时序，以及更接近目标AI软件的trace。
+
+上述RTL结果来自相同的standalone顶层和`riscv32_axi4_sim_mem`，所以三种line之间可直接
+比较；它们不能与早期高延迟环境得到的`284.142 cycles`直接比较。后续若要评估真实SoC
+收益，必须在同一个ysyxSoC存储路径下重新测量32B基线和其他候选line。
 
 ## 5. 设计结论的证据要求
 

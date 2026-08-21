@@ -538,7 +538,9 @@ CACHE_CAPACITY_BYTES         ?= 8192
 CACHE_LINE_BYTES             ?= 32
 CACHE_WAYS                   ?= 2
 CACHE_HIT_TIME_CYCLES        ?= 2
-CACHE_REFILL_MODEL           ?= burst
+# 保持fixed作为默认值，使原有cachesim命令继续复现历史基线。independent和burst
+# 必须显式选择，避免把不同时间模型产生的AMAT/TMT放在同一张表中直接比较。
+CACHE_REFILL_MODEL           ?= fixed
 CACHE_REFILL_BEAT_BYTES      ?= 4
 # a/b/c/d默认各取1周期，只用于比较独立事务和burst的结构差异。实际周期结论必须用
 # RTL PMU测得的critical-response与complete-refill延迟校准这四项参数。
@@ -546,10 +548,14 @@ CACHE_READ_ADDRESS_CYCLES    ?= 1
 CACHE_MEMORY_COMMAND_CYCLES  ?= 1
 CACHE_FIRST_DATA_CYCLES      ?= 1
 CACHE_RESPONSE_BEAT_CYCLES   ?= 1
-# fixed模式用于直接代入RTL实测的平均critical-response miss penalty。
-CACHE_MISS_PENALTY_CYCLES    ?= 284.142
-CACHE_MISS_PENALTY_BY_LINE_SIZE ?=
-CACHE_MISS_PENALTY_ARGUMENT  = $(if $(strip $(CACHE_MISS_PENALTY_BY_LINE_SIZE)),--miss-penalty-by-line-size $(CACHE_MISS_PENALTY_BY_LINE_SIZE))
+# fixed模式分别代入RTL实测的关键字可见代价和整行refill占用，二者不能混用。
+CACHE_CRITICAL_RESPONSE_PENALTY_CYCLES ?= 284.142
+CACHE_COMPLETE_REFILL_PENALTY_CYCLES   ?= 284.142
+CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE ?=
+CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE   ?=
+CACHE_FIXED_PENALTY_ARGUMENTS = \
+	$(if $(strip $(CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE)),--critical-response-penalty-by-line-size $(CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE)) \
+	$(if $(strip $(CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE)),--complete-refill-penalty-by-line-size $(CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE))
 CACHE_SCAN_CAPACITIES        ?= 4096,8192,16384,32768
 CACHE_SCAN_LINE_SIZES        ?= 16,32,64
 CACHE_SCAN_WAYS              ?= 1,2,4
@@ -562,7 +568,8 @@ $(CACHESIM_BUILD_DIR):
 $(CACHESIM_BINARY): $(CACHESIM_SOURCE) | $(CACHESIM_BUILD_DIR)
 	$(CXX) -std=c++17 -O3 -Wall -Wextra -Wpedantic -Werror $< -o $@
 
-.PHONY: cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport
+.PHONY: cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore \
+	cachesim-explore-baseline cachesim-explore-transport
 cachesim-build: $(CACHESIM_BINARY)
 
 cachesim-test: $(CACHESIM_BINARY)
@@ -600,7 +607,8 @@ cachesim-run: $(CACHESIM_BINARY)
 		--memory-command-cycles $(CACHE_MEMORY_COMMAND_CYCLES) \
 		--first-data-cycles $(CACHE_FIRST_DATA_CYCLES) \
 		--response-beat-cycles $(CACHE_RESPONSE_BEAT_CYCLES) \
-		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES)
+		--critical-response-penalty-cycles $(CACHE_CRITICAL_RESPONSE_PENALTY_CYCLES) \
+		--complete-refill-penalty-cycles $(CACHE_COMPLETE_REFILL_PENALTY_CYCLES)
 
 cachesim-explore: $(CACHESIM_BINARY)
 	@test -f "$(CACHE_TRACE_PATH)" || \
@@ -618,9 +626,15 @@ cachesim-explore: $(CACHESIM_BINARY)
 		--memory-command-cycles $(CACHE_MEMORY_COMMAND_CYCLES) \
 		--first-data-cycles $(CACHE_FIRST_DATA_CYCLES) \
 		--response-beat-cycles $(CACHE_RESPONSE_BEAT_CYCLES) \
-		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES) $(CACHE_MISS_PENALTY_ARGUMENT) \
+		--critical-response-penalty-cycles $(CACHE_CRITICAL_RESPONSE_PENALTY_CYCLES) \
+		--complete-refill-penalty-cycles $(CACHE_COMPLETE_REFILL_PENALTY_CYCLES) \
+		$(CACHE_FIXED_PENALTY_ARGUMENTS) \
 		--jobs $(CACHE_SCAN_JOBS) \
 		--output $(CACHE_SCAN_OUTPUT)
+
+cachesim-explore-baseline:
+	$(MAKE) cachesim-explore CACHE_REFILL_MODEL=fixed \
+		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_fixed_exploration.csv)
 
 cachesim-explore-transport:
 	$(MAKE) cachesim-explore CACHE_REFILL_MODEL=independent \
@@ -780,6 +794,8 @@ help:
 	@echo "  cachesim-trace  Generate an architectural PC trace with NEMU"
 	@echo "  cachesim-run    Evaluate one cache configuration"
 	@echo "  cachesim-explore  Scan cache capacity, line size, and associativity"
+	@echo "  cachesim-explore-baseline  Reproduce the fixed-penalty baseline"
+	@echo "  cachesim-explore-transport  Compare independent reads with AXI4 burst"
 	@echo "  lint-npc      Lint the standalone NPC"
 	@echo "  lint-soc      Lint the selected NPC configuration inside ysyxSoC"
 	@echo "  lint-configs  Lint both formal NPC configurations"
@@ -787,5 +803,6 @@ help:
 	@echo ""
 	@echo "Examples:"
 	@echo "  make lint-npc NPC_CONFIG=rv64-sequential"
+	@echo "  make lint-npc NPC_CONFIG=rv64-sequential NPC_ICACHE_LINE_BYTES=64"
 	@echo "  make sim-npc NPC_CONFIG=rv32-baseline IMG=path/to/riscv32-npc.bin"
 	@echo "  make sim-soc NPC_CONFIG=rv32-baseline FLASH_IMG=path/to/riscv32-ysyxsoc.bin"

@@ -34,7 +34,7 @@ AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点�
 | 属性 | 参数或派生关系 | `YSYX_RV32_BASELINE` | 原因 |
 | --- | --- | ---: | --- |
 | 容量 | `ICACHE_CAPACITY_BYTES` | 8 KiB | 初始容量具备实际意义，同时避免第一版阵列过大 |
-| 路数 | `ICACHE_WAYS` | 2 | 降低直接映射冲突miss，同时保持比较和替换逻辑简单 |
+| 路数 | `ICACHE_WAY_COUNT` | 2 | 降低直接映射冲突miss，同时保持比较和替换逻辑简单 |
 | Cache line | `ICACHE_LINE_BYTES` | 32 B | 利用空间局部性并为以后burst提供收益 |
 | 单次取指字节数 | `ICACHE_FETCH_BYTES` | 4 B | 匹配当前不支持压缩指令的RV32I前端 |
 | Set数量 | `CAPACITY_BYTES / (WAYS * LINE_BYTES)` | 128 | 由容量、路数和line大小唯一派生 |
@@ -44,7 +44,9 @@ AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点�
 | Tag位数 | `PADDR_WIDTH - OFFSET_BITS - SET_INDEX_BITS` | 20 | 区分映射到同一set的不同cache line |
 | 未完成miss数 | `ICACHE_MSHR_ENTRIES` | 1 | 第一版采用blocking cache，同时保留向多MSHR演进的边界 |
 
-配置默认值和共享类型放在`riscv32_pkg`中；模块局部派生量放在其所有者模块中。展开阶段
+构建配置值放在`riscv_config_pkg`中，共享派生类型放在`riscv32_pkg`中；模块局部派生量
+放在其所有者模块中。`NPC_ICACHE_LINE_BYTES`可选择16/32/64B line，非32B配置进入独立
+构建目录。展开阶段
 必须检查容量、路数、line大小和set数量是否合法，line不小于一个取指word，并且数组
 规模与地址字段位宽一致。未来RV64配置只能修改命名配置和必要的接口宽度，不能复制一套
 I-cache RTL。
