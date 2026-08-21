@@ -13,8 +13,10 @@ module riscv32_arch_regfile
     input  arch_reg_idx_t rs2_addr_i,
     output xlen_data_t    rs2_data_o
 );
-  // 架构寄存器数量来自全局配置，不在本模块建立兼容别名。
-  xlen_data_t gpr_q[ARCH_REG_COUNT-1:0];
+  // x0的架构值恒为0且永远不能写，因此物理阵列只保存x1..x31。若把x0声明在阵列中，
+  // 部分综合流程仍会为它生成一整组永远不可写的触发器和读选择逻辑。
+  // 这仍是完整RV32I寄存器堆，不是RV32E；端口索引仍覆盖全部32个架构寄存器。
+  xlen_data_t gpr_q[1:ARCH_REG_COUNT-1];
 
   always_ff @(posedge clk_i) begin
     if (gpr_write_enable_i && (gpr_write_addr_i != '0)) begin
