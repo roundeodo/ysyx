@@ -210,22 +210,26 @@ module riscv32_lsu_tb;
     data_memory_resp_valid           = 1'b1;
     lsu_writeback_ready              = 1'b0;
     #1;
-    assert (data_memory_resp_ready && lsu_writeback_valid)
-      else $fatal(1, "LSU did not accept response while writeback was blocked");
+    assert (!data_memory_resp_ready && lsu_writeback_valid)
+      else $fatal(1, "LSU did not propagate writeback backpressure to memory response");
     held_writeback = lsu_writeback;
 
     @(posedge clk);
     #1;
-    data_memory_resp_valid = 1'b0;
 
     @(negedge clk);
     #1;
-    assert (lsu_writeback_valid && (lsu_writeback == held_writeback))
-      else $fatal(1, "LSU writeback changed under downstream backpressure");
+    assert (!data_memory_resp_ready && lsu_writeback_valid &&
+            (lsu_writeback == held_writeback))
+      else $fatal(1, "LSU response changed under propagated downstream backpressure");
     lsu_writeback_ready = 1'b1;
+    #1;
+    assert (data_memory_resp_ready)
+      else $fatal(1, "LSU did not release memory response after writeback became ready");
 
     @(posedge clk);
     #1;
+    data_memory_resp_valid = 1'b0;
   endtask
 
   initial begin
