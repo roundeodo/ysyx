@@ -527,8 +527,9 @@ nvboard: $(NVBOARD_SIM_BINARY)
 # ============================================================
 
 CACHE_TRACE_ARCH             ?= riscv32-nemu
-CACHE_TRACE_SCALE            ?= test
-CACHE_TRACE_FILE             ?= $(abspath ../am-kernels/benchmarks/microbench/build/nemu-log.txt)
+CACHE_TRACE_ISA              = $(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64,riscv32)
+CACHE_TRACE_IMAGE            ?= $(CPU_TESTS_DIR)/build/bubble-sort-$(CACHE_TRACE_ISA)-npc.bin
+CACHE_TRACE_FILE             ?= $(abspath ./result/cache/$(CACHE_TRACE_ISA)_nemu_itrace.log)
 CACHE_CAPACITY_BYTES         ?= 8192
 CACHE_LINE_BYTES             ?= 32
 CACHE_WAYS                   ?= 2
@@ -540,8 +541,7 @@ CACHE_SCAN_CAPACITIES        ?= 4096,8192,16384,32768
 CACHE_SCAN_LINE_SIZES        ?= 16,32,64
 CACHE_SCAN_WAYS              ?= 1,2,4
 CACHE_SCAN_JOBS              ?= 4
-CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_microbench_$(CACHE_TRACE_SCALE).csv)
-CACHE_MICROBENCH_DIR         := $(abspath ../am-kernels/benchmarks/microbench)
+CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_exploration.csv)
 
 $(CACHESIM_BUILD_DIR):
 	mkdir -p $@
@@ -562,12 +562,13 @@ cachesim-trace:
 	@test "$(CACHE_TRACE_ARCH)" = "riscv32-nemu" -o \
 	      "$(CACHE_TRACE_ARCH)" = "riscv64-nemu" || \
 		(echo "CACHE_TRACE_ARCH must be riscv32-nemu or riscv64-nemu"; exit 1)
+	@test -f "$(CACHE_TRACE_IMAGE)" || \
+		(echo "trace image not found: $(CACHE_TRACE_IMAGE)"; exit 1)
 	$(MAKE) -C $(NEMU_DIR) \
 		$(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
-	$(MAKE) -C $(CACHE_MICROBENCH_DIR) \
-		ARCH=$(CACHE_TRACE_ARCH) \
-		mainargs=$(CACHE_TRACE_SCALE) \
-		run
+	$(MAKE) -C $(NEMU_DIR)
+	$(NEMU_DIR)/build/$(CACHE_TRACE_ISA)-nemu-interpreter \
+		-l $(CACHE_TRACE_FILE) -b $(CACHE_TRACE_IMAGE)
 	@echo "NEMU instruction trace: $(CACHE_TRACE_FILE)"
 
 cachesim-run: $(CACHESIM_BINARY)
