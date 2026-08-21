@@ -84,7 +84,7 @@ module riscv32_pmu
   logic [63:0] icache_stale_response_count_q;
 
   // AMAT只统计cacheable lookup。hit/miss response latency从lookup请求被cache
-  // 接收开始，到对应lookup response被IFU接收为止。完整refill latency单独
+  // 接收开始，到对应lookup response首次有效为止，不包含IFU接收反压。完整refill latency单独
   // 从miss分配计到末一个refill word握手，用于表示blocking cache的占用时间。
   logic [63:0] icache_miss_response_count_d;
   logic [63:0] icache_miss_response_count_q;
@@ -456,6 +456,10 @@ module riscv32_pmu
       assert ((icache_hit_count_q + icache_miss_count_q +
                icache_uncached_access_count_q) <= icache_lookup_count_q)
       else $error("I-cache classified more requests than it accepted");
+
+      assert (!icache_event_i.lookup_response_is_cache_hit ||
+              icache_event_i.lookup_response_present)
+      else $error("I-cache marked a response as a hit while no response was present");
 
       assert (icache_refill_line_count_q <= icache_miss_count_q)
       else $error("I-cache completed more refill lines than cacheable misses");
