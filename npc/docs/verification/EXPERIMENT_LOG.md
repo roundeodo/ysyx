@@ -347,3 +347,38 @@ PMU基线（`hello-str`）：
   由RTL校准；
 - 下一轮必须获取目标AI工作负载的长trace，并分别校准不同line大小的miss penalty，再把
   少量候选方案送回RTL、综合和STA验证。
+
+## 2026-08-21 - RV64 MicroBench I-cache参数扫描
+
+- Commit：uncommitted；沿用当前I-cache、P3和cachesim工作树。
+- 工作负载：RV64 MicroBench `test`，10个子测试全部通过。
+- 动态指令：完整程序723827条；PMU benchmark窗口退休276790条。
+- 扫描范围：1/2/4/8/16/32KiB，16/32/64B line，1/2/4-way，共54组。
+- 输出：`result/cache/cachesim_riscv64_microbench_test_exploration.csv`。
+
+为生成trace补充的reference能力：
+
+- NEMU实现XLEN通用的`MUL/MULH/MULHSU/MULHU/DIV/DIVU/REM/REMU`；
+- RV64实现`MULW/DIVW/DIVUW/REMW/REMUW`及32位结果符号扩展；
+- 除零、最小负数除以`-1`、高位乘法和W类边界定向测试通过；
+- NEMU增加`mcycle/minstret`模型；MicroBench按XLEN选择RV32高低半读取或RV64整宽读取。
+
+关键结果（32B line）：
+
+| 容量/路数 | Miss | Compulsory | Capacity | Conflict |
+| --- | ---: | ---: | ---: | ---: |
+| 1KiB/1-way | 1674 | 555 | 748 | 371 |
+| 1KiB/4-way | 1421 | 555 | 812 | 54 |
+| 8KiB/1-way | 686 | 555 | 6 | 125 |
+| 8KiB/2-way | 590 | 555 | 10 | 25 |
+| 8KiB/4-way | 572 | 555 | 10 | 7 |
+| 32KiB/任意路数 | 555 | 555 | 0 | 0 |
+
+分析：
+
+- 相联度提升明确降低conflict miss；8KiB从1-way到2-way减少96次miss，从2-way到4-way
+  只再减少18次，已出现边际收益下降；
+- 32KiB可容纳本次执行触达的全部32B指令line，因此只剩555次compulsory miss；
+- 8KiB、2-way下16/32/64B line的refill流量为18160/18880/20224B，不能只看miss次数；
+- 当前统一使用32B RTL测得的284.142 cycles penalty。正式选择line大小前必须分别校准
+  16/32/64B refill时延，并补充面积、命中路径时序和目标AI workload。

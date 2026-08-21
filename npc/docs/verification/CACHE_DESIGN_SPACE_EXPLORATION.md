@@ -87,7 +87,37 @@ make cachesim-explore \
   CACHE_MISS_PENALTY_BY_LINE_SIZE=16=150,32=284.142,64=520
 ```
 
+### 3.5 使用RV64 MicroBench长trace
+
+CPU-test的代码工作集太小，只适合验证工具。正式扫描前先构建带itrace的RV64 NEMU，再运行
+MicroBench `test`：
+
+```sh
+make -C ../nemu riscv64-cachesim_defconfig
+make -C ../nemu
+make -C ../am-kernels/benchmarks/microbench \
+  ARCH=riscv64-nemu run mainargs=test
+```
+
+MicroBench的NEMU日志可以直接作为cachesim输入：
+
+```sh
+make cachesim-explore \
+  CACHE_TRACE_ARCH=riscv64-nemu \
+  CACHE_TRACE_FILE=../am-kernels/benchmarks/microbench/build/nemu-log.txt \
+  CACHE_SCAN_CAPACITIES=1024,2048,4096,8192,16384,32768 \
+  CACHE_SCAN_LINE_SIZES=16,32,64 \
+  CACHE_SCAN_WAYS=1,2,4 \
+  CACHE_SCAN_OUTPUT=result/cache/cachesim_riscv64_microbench_test_exploration.csv
+```
+
+当前MicroBench由`rv64g`工具链构建，会生成M扩展指令。NEMU已经实现基础RV32M/RV64M和
+RV64的`MULW/DIVW/DIVUW/REMW/REMUW`，并用独立边界测试覆盖除零、最小负数除以`-1`、
+高位乘法和W类符号扩展。
+
 ## 4. 当前流程验证结果
+
+### 4.1 CPU-test工具链验证
 
 2026-08-21使用RV32I `crc32`得到13277条动态指令。当前8KiB、2-way、32B line模型得到：
 
@@ -98,6 +128,34 @@ make cachesim-explore \
 
 该程序只访问10条32B指令Cache line，远小于4KiB，因此容量和路数扫描结果相同。这个结果
 只证明trace生成、解析、3C分类和参数扫描链路工作正常，不能用于选择最终Cache容量或路数。
+
+### 4.2 RV64 MicroBench test探索
+
+2026-08-21运行RV64 MicroBench `test`，全部10个子测试通过。完整程序执行723827条动态
+指令，其中PMU标记的benchmark测量窗口为276790条退休指令。文本trace为33.9MB，包含
+启动、benchmark、结果验证和输出路径。
+
+32B line的部分结果如下：
+
+| 容量 | 路数 | Miss | Compulsory | Capacity | Conflict | Hit Rate |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1KiB | 1 | 1674 | 555 | 748 | 371 | 99.7687% |
+| 1KiB | 2 | 1507 | 555 | 781 | 171 | 99.7918% |
+| 1KiB | 4 | 1421 | 555 | 812 | 54 | 99.8037% |
+| 4KiB | 1 | 846 | 555 | 54 | 237 | 99.8831% |
+| 4KiB | 2 | 748 | 555 | 56 | 137 | 99.8967% |
+| 8KiB | 1 | 686 | 555 | 6 | 125 | 99.9052% |
+| 8KiB | 2 | 590 | 555 | 10 | 25 | 99.9185% |
+| 8KiB | 4 | 572 | 555 | 10 | 7 | 99.9210% |
+| 32KiB | 任意 | 555 | 555 | 0 | 0 | 99.9233% |
+
+这组数据已经能观察容量和相联度的作用：增大路数主要减少conflict miss，增大容量同时减少
+capacity和conflict miss。当前8KiB、2-way、32B line使用统一284.142 cycles miss penalty
+估算得到AMAT 2.2316 cycles、TMT 167643.78 cycles。
+
+同为8KiB、2-way时，16/32/64B line分别产生1135/590/316次miss，但refill流量分别为
+18160/18880/20224B。更大的line减少miss却增加传输流量；在获得各line大小的真实refill
+代价前，不能仅按当前统一penalty下的AMAT排序。
 
 ## 5. 设计结论的证据要求
 
