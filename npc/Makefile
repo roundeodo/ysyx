@@ -539,6 +539,8 @@ CACHE_HIT_TIME_CYCLES        ?= 2
 # 284.142是当前32B line RTL在microbench test上的critical-response miss penalty。
 # 扫描其它line大小时它只是第一阶估计；得到候选方案后必须重新用RTL校准对应代价。
 CACHE_MISS_PENALTY_CYCLES    ?= 284.142
+CACHE_MISS_PENALTY_BY_LINE_SIZE ?=
+CACHE_MISS_PENALTY_ARGUMENT  = $(if $(strip $(CACHE_MISS_PENALTY_BY_LINE_SIZE)),--miss-penalty-by-line-size $(CACHE_MISS_PENALTY_BY_LINE_SIZE))
 CACHE_SCAN_CAPACITIES        ?= 4096,8192,16384,32768
 CACHE_SCAN_LINE_SIZES        ?= 16,32,64
 CACHE_SCAN_WAYS              ?= 1,2,4
@@ -595,7 +597,7 @@ cachesim-explore: $(CACHESIM_BINARY)
 		--line-sizes $(CACHE_SCAN_LINE_SIZES) \
 		--ways $(CACHE_SCAN_WAYS) \
 		--hit-time-cycles $(CACHE_HIT_TIME_CYCLES) \
-		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES) \
+		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES) $(CACHE_MISS_PENALTY_ARGUMENT) \
 		--jobs $(CACHE_SCAN_JOBS) \
 		--output $(CACHE_SCAN_OUTPUT)
 
@@ -747,6 +749,10 @@ help:
 	@echo "Evaluation targets:"
 	@echo "  perf          Run MicroBench on ysyxSoC"
 	@echo "  perf-record   Run and append a reproducible performance record"
+	@echo "  cachesim-test Build and test the metadata-only I-cache simulator"
+	@echo "  cachesim-trace  Generate an architectural PC trace with NEMU"
+	@echo "  cachesim-run    Evaluate one cache configuration"
+	@echo "  cachesim-explore  Scan cache capacity, line size, and associativity"
 	@echo "  lint-npc      Lint the standalone NPC"
 	@echo "  lint-soc      Lint the selected NPC configuration inside ysyxSoC"
 	@echo "  lint-configs  Lint both formal NPC configurations"

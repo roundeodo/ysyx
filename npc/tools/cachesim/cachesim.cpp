@@ -5,11 +5,13 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <list>
 #include <limits>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -98,43 +100,34 @@ class SetAssociativeCache {
 class FullyAssociativeShadowCache {
  public:
   explicit FullyAssociativeShadowCache(uint64_t line_count)
-      : line_array_(line_count) {}
+      : line_count_(line_count) {}
 
   bool Access(uint64_t block_address) {
-    ++access_sequence_;
-
-    for (CacheLine &line : line_array_) {
-      if (line.present && line.tag == block_address) {
-        line.last_access_sequence = access_sequence_;
-        return true;
-      }
+    const auto present_line = line_position_by_block_address_.find(block_address);
+    if (present_line != line_position_by_block_address_.end()) {
+      lru_block_address_list_.splice(lru_block_address_list_.begin(),
+                                     lru_block_address_list_,
+                                     present_line->second);
+      present_line->second = lru_block_address_list_.begin();
+      return true;
     }
 
-    CacheLine *replacement_line = nullptr;
-    for (CacheLine &line : line_array_) {
-      if (!line.present) {
-        replacement_line = &line;
-        break;
-      }
+    if (lru_block_address_list_.size() == line_count_) {
+      const uint64_t replaced_block_address = lru_block_address_list_.back();
+      line_position_by_block_address_.erase(replaced_block_address);
+      lru_block_address_list_.pop_back();
     }
-
-    if (replacement_line == nullptr) {
-      replacement_line = &*std::min_element(
-          line_array_.begin(), line_array_.end(),
-          [](const CacheLine &left, const CacheLine &right) {
-            return left.last_access_sequence < right.last_access_sequence;
-          });
-    }
-
-    replacement_line->present = true;
-    replacement_line->tag = block_address;
-    replacement_line->last_access_sequence = access_sequence_;
+    lru_block_address_list_.push_front(block_address);
+    line_position_by_block_address_[block_address] =
+        lru_block_address_list_.begin();
     return false;
   }
 
  private:
-  uint64_t access_sequence_ = 0;
-  std::vector<CacheLine> line_array_;
+  uint64_t line_count_;
+  std::list<uint64_t> lru_block_address_list_;
+  std::unordered_map<uint64_t, std::list<uint64_t>::iterator>
+      line_position_by_block_address_;
 };
 
 bool IsPowerOfTwo(uint64_t value) {

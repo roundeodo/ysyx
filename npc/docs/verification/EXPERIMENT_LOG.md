@@ -322,3 +322,28 @@ PMU基线（`hello-str`）：
 - PDK不包含I-cache SRAM macro和Liberty模型，因此面积、WNS和频率仅描述逻辑壳。获得真实
   cache时序前必须替换tag/data array并补充macro时序弧；
 - AXI反压测试是固定、可复现的五通道定向序列，不把尚未建立的随机验证环境记为已覆盖。
+
+## 2026-08-21 - NEMU itrace驱动的I-cache设计空间探索链路
+
+- Commit：uncommitted；沿用当前I-cache与P3工作树。
+- 工作负载：`bubble-sort-riscv32-npc.bin`和`crc32-riscv32-npc.bin`。
+- 模型：精确LRU组相联Cache；相同容量的全相联LRU Shadow Cache负责3C分类。
+- 扫描范围：4/8/16/32KiB，16/32/64B line，1/2/4-way，共36组。
+- 命令：`make cachesim-test`、`make cachesim-trace`、`make cachesim-explore`。
+
+验证结果：
+
+- 三组确定性测试覆盖conflict miss、capacity miss以及NEMU/NPC文本trace解析，全部通过；
+- NEMU正确运行RV32I `bubble-sort`并在PC `0x80000140`命中good trap，生成2798条PC记录；
+- NEMU正确运行RV32I `crc32`并在PC `0x8000012c`命中good trap，生成13277条PC记录；
+- `crc32`在8KiB、2-way、32B line下为10次compulsory miss，Hit Rate为99.9246818%；
+- 使用当前32B line实测常数284.142 cycles估算，AMAT为2.214010695 cycles，TMT为
+  2841.42 cycles。
+
+分析：
+
+- 当前两个cpu-test的指令工作集远小于4KiB，只能验证工具链，不能形成容量或路数决策；
+- 64B line在统一miss penalty假设下miss更少，不代表真实收益，因为其完整refill代价尚未
+  由RTL校准；
+- 下一轮必须获取目标AI工作负载的长trace，并分别校准不同line大小的miss penalty，再把
+  少量候选方案送回RTL、综合和STA验证。
