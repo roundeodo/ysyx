@@ -53,6 +53,27 @@ static const uint64_t MAX_CYCLES_WITHOUT_COMMIT = 1000000ULL;
 static constexpr int ARCH_GPR_COUNT = 32;
 
 #ifdef NPC_YSYXSOC_SIM
+static uint64_t debug_sdram_ack_count = 0;
+static uint64_t debug_axi_delay_downstream_response_count = 0;
+static uint64_t debug_axi_delay_upstream_response_count = 0;
+
+static void sample_soc_read_path_debug_events() {
+  const auto *root = top->rootp;
+
+  if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_transaction_start_present) {
+    debug_sdram_ack_count = 0;
+    debug_axi_delay_downstream_response_count = 0;
+    debug_axi_delay_upstream_response_count = 0;
+  }
+
+  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__ack_q)
+    debug_sdram_ack_count++;
+  if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__downstream_read_response_handshake_occurred)
+    debug_axi_delay_downstream_response_count++;
+  if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__upstream_read_response_handshake_occurred)
+    debug_axi_delay_upstream_response_count++;
+}
+
 static void print_soc_read_path_debug_state() {
   const auto *root = top->rootp;
 
@@ -93,6 +114,10 @@ static void print_soc_read_path_debug_state() {
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__req_out_valid_w);
   printf("  SoC xbar read address          = 0x%08x\n",
          root->ysyxSoCFull__DOT__asic__DOT__axi4xbar_1__DOT__auto_anon_in_araddr);
+  printf("  current ACK/downstream/upstream= %llu/%llu/%llu\n",
+         static_cast<unsigned long long>(debug_sdram_ack_count),
+         static_cast<unsigned long long>(debug_axi_delay_downstream_response_count),
+         static_cast<unsigned long long>(debug_axi_delay_upstream_response_count));
 }
 #endif
 
@@ -402,6 +427,9 @@ void cpu_exec(uint64_t n) {
     CommitEvent event{};
     single_cycle(&event);
     guest_cycle_count++;
+#ifdef NPC_YSYXSOC_SIM
+    sample_soc_read_path_debug_events();
+#endif
 
     if (!event.valid) {
       cycles_without_commit++;
