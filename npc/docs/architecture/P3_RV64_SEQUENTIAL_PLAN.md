@@ -1,6 +1,6 @@
 # P3 RV64 顺序处理器实施计划
 
-状态：P3-E/P3-F 已完成，P3-G 回归与基线固化进行中
+状态：P3-E/P3-F/P3-G 已完成，等待基线提交后进入 P3-H
 
 最后更新：2026-08-20
 
@@ -315,11 +315,11 @@ make regression-p3-f-rv64 PROJECT=riscv32
 
 ### P3-G：冻结 RV64 多周期功能基线
 
-状态：未开始。
+状态：已完成（2026-08-20，验证结果已固化，尚未创建基线提交）。
 
 执行完整双配置回归并记录：
 
-- lint、模块定向测试和随机反压；
+- lint、模块定向测试和AXI五通道反压；
 - RV32/RV64 cpu-tests；
 - RV32/RV64 DiffTest；
 - AM 基础程序；
@@ -329,9 +329,44 @@ make regression-p3-f-rv64 PROJECT=riscv32
 退出条件是形成可复现的 `YSYX_RV64_SEQUENTIAL` 多周期基线 commit。只有这个检查点通过，
 才能改变流水级边界。
 
+实现结果：
+
+- `make regression-p3-g PROJECT=riscv32`成为唯一的完整回归入口，依次执行双配置模块测试、
+  standalone/SoC lint、双配置构建、RV32/RV64 DiffTest和双配置STA；任一步失败都会停止；
+- RV32和RV64各35项cpu-tests全部通过DiffTest；配置、IDU、EXU、LSU、uncached AXI4、
+  privileged/commit/PMU测试均在两套配置下通过，RV64到ysyxSoC AXI32转换测试通过；
+- uncached master和SoC宽度转换器定向覆盖AR、R、AW、W、B反压、payload保持、AW/W独立
+  握手以及错误响应。固定序列保证基线可复现；随机化协议验证在P3-H验证基础设施中增加；
+- Yosys使用Slang读取完整SystemVerilog compilation unit，综合策略固定为`DELAY 0`；完整core
+  不再使用代价不可控的aggressive SAT sharing；
+- 当前PDK没有I-cache SRAM macro及其Liberty模型，因此STA将tag/data array作为黑盒，只评估
+  core、cache controller和AXI逻辑壳。报告不包含SRAM面积与访问延迟，不能冒充最终签核结果；
+- 功耗分析改成显式选项`STA_RUN_POWER_ANALYSIS=1`，默认STA只生成面积与时序基线，避免
+  vectorless power graph拖慢每次功能回归。
+
+验证命令：
+
+```sh
+make regression-p3-g PROJECT=riscv32
+```
+
+300 MHz约束下的逻辑壳基线：
+
+| 配置 | 标准单元面积 | 时序单元面积 | WNS | TNS | 报告频率 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `rv32-baseline` | 38183.32 | 18138.12 | +0.068 ns | 0.000 ns | 306.307 MHz |
+| `rv64-sequential` | 58743.44 | 27738.76 | -0.366 ns | -114.307 ns | 270.373 MHz |
+
+RV64逻辑壳面积比RV32增加约53.85%，时序单元面积增加约52.93%，报告频率下降约11.73%。
+RV64关键终点位于架构寄存器堆写回路径；这为P3-H拆分执行/写回组合路径提供了直接依据。
+
+`hello-str`的PMU基线为：RV32退休1862条、7011周期、IPC 0.265583；RV64退休1876条、
+7100周期、IPC 0.264225。两套配置的IFU平均响应延迟约2.14周期，说明当前多周期吞吐主要
+受每条指令串行取指/执行限制，而不是64位功能本身造成数量级退化。
+
 ### P3-H：顺序流水化
 
-状态：未开始，受 P3-G 阻塞。
+状态：未开始；P3-G技术退出条件已满足，创建基线提交后开始。
 
 在相同 RV64 ISA、cache、LSU、CSR、commit 和验证接口上引入分级流水线，再实现旁路、冒险、
 flush 和精确异常。流水化不能创建第二套译码或第二套架构状态。
@@ -352,5 +387,6 @@ flush 和精确异常。流水化不能创建第二套译码或第二套架构�
 
 ## 6. 当前第一项任务
 
-P3-E和P3-F已完成。当前执行P3-G，运行双配置完整回归，记录PMU和STA基线，
-然后冻结`YSYX_RV64_SEQUENTIAL`多周期检查点。P3-G关闭前不改变流水级边界。
+P3-E、P3-F和P3-G的实现与验证均已完成。下一步先审阅并提交
+`YSYX_RV64_SEQUENTIAL`多周期基线，再进入P3-H设计顺序流水级边界、旁路、冒险控制和
+精确flush；提交前不改变当前流水级边界。

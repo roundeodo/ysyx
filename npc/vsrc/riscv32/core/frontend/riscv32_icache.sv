@@ -38,48 +38,48 @@ module riscv32_icache
   // 子模块按访问路径组织：PMA负责物理地址属性，tag/data array负责同步读取，
   // miss unit负责下层访问、critical-word early restart以及逐word回填。I-cache内部
   // 使用refill语义接口，AXI4协议细节保留在cache外部的adapter中。
-  pma_attr_t                                  lookup_memory_attr;
+  pma_attr_t lookup_memory_attr;
 
-  logic                                       array_read_enable;
-  icache_set_index_t                          array_read_set_index;
-  icache_word_index_t                         array_read_word_index;
-  icache_tag_t                                array_read_tag_array               [ICACHE_WAY_COUNT];
-  logic                [ICACHE_WAY_COUNT-1:0] array_read_line_present_vector;
+  logic array_read_enable;
+  icache_set_index_t array_read_set_index;
+  icache_word_index_t array_read_word_index;
+  icache_tag_t array_read_tag_array[ICACHE_WAY_COUNT];
+  logic [ICACHE_WAY_COUNT-1:0] array_read_line_present_vector;
   // 命中数据路径使用fetch宽度，修改XLEN不会无意义地扩大I-cache阵列。
-  icache_fetch_data_t                         array_read_word_data_array         [ICACHE_WAY_COUNT];
+  icache_fetch_data_t array_read_word_data_array[ICACHE_WAY_COUNT];
 
-  icache_miss_req_t                           miss_req;
-  logic                                       miss_req_valid;
-  logic                                       miss_req_ready;
-  icache_lookup_resp_t                        miss_lookup_resp;
-  logic                                       miss_lookup_resp_valid;
-  logic                                       miss_lookup_resp_ready;
-  logic                                       miss_transaction_present;
-  icache_event_t                              miss_event;
+  icache_miss_req_t miss_req;
+  logic miss_req_valid;
+  logic miss_req_ready;
+  icache_lookup_resp_t miss_lookup_resp;
+  logic miss_lookup_resp_valid;
+  logic miss_lookup_resp_ready;
+  logic miss_transaction_present;
+  icache_event_t miss_event;
 
-  logic                                       refill_data_write_valid;
-  icache_set_index_t                          refill_data_write_set_index;
-  icache_way_index_t                          refill_data_write_way_index;
-  icache_word_index_t                         refill_data_write_word_index;
-  icache_fetch_data_t                         refill_data_write_word_data;
+  logic refill_data_write_valid;
+  icache_set_index_t refill_data_write_set_index;
+  icache_way_index_t refill_data_write_way_index;
+  icache_word_index_t refill_data_write_word_index;
+  icache_fetch_data_t refill_data_write_word_data;
 
-  logic                                       refill_metadata_write_valid;
-  icache_set_index_t                          refill_metadata_write_set_index;
-  icache_way_index_t                          refill_metadata_write_way_index;
-  icache_tag_t                                refill_metadata_write_tag;
-  logic                                       refill_metadata_write_line_present;
+  logic refill_metadata_write_valid;
+  icache_set_index_t refill_metadata_write_set_index;
+  icache_way_index_t refill_metadata_write_way_index;
+  icache_tag_t refill_metadata_write_tag;
+  logic refill_metadata_write_line_present;
 
-  logic                                       metadata_write_valid;
-  icache_set_index_t                          metadata_write_set_index;
-  icache_way_index_t                          metadata_write_way_index;
-  icache_tag_t                                metadata_write_tag;
-  logic                                       metadata_write_line_present;
+  logic metadata_write_valid;
+  icache_set_index_t metadata_write_set_index;
+  icache_way_index_t metadata_write_way_index;
+  icache_tag_t metadata_write_tag;
+  logic metadata_write_line_present;
 
-  icache_way_index_t                          replacement_way_index_array_q      [ICACHE_SET_COUNT];
-  icache_way_index_t                          replacement_way_index;
-  logic                                       replacement_state_update_valid;
-  icache_set_index_t                          replacement_state_update_set_index;
-  icache_way_index_t                          replacement_state_update_accessed_way_index;
+  icache_way_index_t replacement_way_index_array_q[ICACHE_SET_COUNT];
+  icache_way_index_t replacement_way_index;
+  logic replacement_state_update_valid;
+  icache_set_index_t replacement_state_update_set_index;
+  icache_way_index_t replacement_state_update_accessed_way_index;
 
   riscv32_pma u_riscv32_pma (
       .lookup_addr_i(lookup_req_i.fetch_addr),
@@ -536,14 +536,18 @@ module riscv32_icache
   // stale_response_discarded_occurred在I-cache内部固定为0。当前event没有access-fault字段，
   // 因此发生取指访问异常时，lookup计数不会落入hit、miss或uncached三类中的任何一类。
   always_comb begin
-    event_o                                   = '0;
-    event_o.lookup_occurred                   = lookup_req_handshake;
-    event_o.hit_occurred                      = local_lookup_resp_handshake && lookup_hit;
-    event_o.miss_occurred                     = miss_event.miss_occurred;
-    event_o.uncached_access_occurred          = miss_req_handshake && lookup_uncached;
-    event_o.refill_word_occurred              = miss_event.refill_word_occurred;
-    event_o.refill_line_completed_occurred    = miss_event.refill_line_completed_occurred;
-    event_o.stale_response_discarded_occurred = 1'b0;
+    event_o                                       = '0;
+    event_o.lookup_occurred                       = lookup_req_handshake;
+    event_o.lookup_response_occurred              = lookup_resp_valid_o && lookup_resp_ready_i;
+    event_o.lookup_request_waiting                = lookup_req_valid_i && !lookup_req_ready_o;
+    event_o.hit_occurred                          = local_lookup_resp_handshake && lookup_hit;
+    event_o.miss_occurred                         = miss_event.miss_occurred;
+    event_o.uncached_access_occurred              = miss_req_handshake && lookup_uncached;
+    event_o.refill_word_occurred                  = miss_event.refill_word_occurred;
+    event_o.refill_transaction_completed_occurred =
+                                                    miss_event.refill_transaction_completed_occurred;
+    event_o.refill_line_completed_occurred        = miss_event.refill_line_completed_occurred;
+    event_o.stale_response_discarded_occurred     = 1'b0;
   end
 
 `ifndef SYNTHESIS

@@ -9,15 +9,15 @@ module riscv32_pmu
     input logic [$clog2(RETIRE_SLOT_COUNT + 1)-1:0] retired_instruction_count_i,
 
     // 每个字段都是单周期事件脉冲。PMU只观察，不向cache或流水线反馈控制。
-    input  icache_event_t            icache_event_i,
-    input  logic       [11:0] csr_read_addr_i,
-    output logic              csr_read_select_o,
+    input  icache_event_t        icache_event_i,
+    input  logic          [11:0] csr_read_addr_i,
+    output logic                 csr_read_select_o,
     // CSR访问宽度由XLEN决定；64位计数器的存储宽度不随CSR端口变化。
-    output xlen_data_t         csr_read_data_o,
+    output xlen_data_t           csr_read_data_o,
 
-    input logic       csr_write_valid_i,
-    input logic [11:0] csr_write_addr_i,
-    input xlen_data_t csr_write_data_i
+    input logic              csr_write_valid_i,
+    input logic       [11:0] csr_write_addr_i,
+    input xlen_data_t        csr_write_data_i
 );
   // PMU (Performance Monitoring Unit) passively observes architectural or
   // microarchitectural events and accumulates how many times they occur. It must
@@ -82,6 +82,35 @@ module riscv32_pmu
   logic [63:0] icache_uncached_access_count_q;
   logic [63:0] icache_stale_response_count_d;
   logic [63:0] icache_stale_response_count_q;
+
+  // AMAT只统计cacheable lookup。hit/miss response latency从lookup请求被cache
+  // 接收开始，到对应lookup response被IFU接收为止。完整refill latency单独
+  // 从miss分配计到末一个refill word握手，用于表示blocking cache的占用时间。
+  logic [63:0] icache_miss_response_count_d;
+  logic [63:0] icache_miss_response_count_q;
+  logic [63:0] icache_refill_transaction_count_d;
+  logic [63:0] icache_refill_transaction_count_q;
+  logic [63:0] icache_lookup_request_wait_cycle_count_d;
+  logic [63:0] icache_lookup_request_wait_cycle_count_q;
+  logic [63:0] icache_hit_latency_cycle_sum_d;
+  logic [63:0] icache_hit_latency_cycle_sum_q;
+  logic [63:0] icache_miss_response_latency_cycle_sum_d;
+  logic [63:0] icache_miss_response_latency_cycle_sum_q;
+  logic [63:0] icache_refill_latency_cycle_sum_d;
+  logic [63:0] icache_refill_latency_cycle_sum_q;
+
+  // 当前IFU最多只有一个lookup在途，因此一个计时器就能精确匹配请求和响应。
+  // 未来允许多请求在途时，必须改为按frontend tag保存起始时间，不能共享此计时器。
+  logic [63:0] icache_lookup_elapsed_cycle_count_d;
+  logic [63:0] icache_lookup_elapsed_cycle_count_q;
+  logic [63:0] icache_refill_elapsed_cycle_count_d;
+  logic [63:0] icache_refill_elapsed_cycle_count_q;
+  logic        icache_lookup_timer_active_d;
+  logic        icache_lookup_timer_active_q;
+  logic        icache_lookup_miss_classification_d;
+  logic        icache_lookup_miss_classification_q;
+  logic        icache_refill_timer_active_d;
+  logic        icache_refill_timer_active_q;
 
   // csr_read_select_o表示读地址由PMU实现，不是握手信号，也不表示计数器发生变化。
   // CSR file据此选择PMU读数据；未实现地址保持select为0，由CSR file报告非法访问。
@@ -148,8 +177,7 @@ module riscv32_pmu
       end else begin
         mcycle_d = 64'(csr_write_data_i);
       end
-    end else if ((XLEN == 32) && csr_write_valid_i &&
-                 (csr_write_addr_i == CSR_MCYCLEH)) begin
+    end else if ((XLEN == 32) && csr_write_valid_i && (csr_write_addr_i == CSR_MCYCLEH)) begin
       mcycle_d = {csr_write_data_i[31:0], mcycle_q[31:0]};
     end else if (!mcountinhibit_q[0]) begin
       mcycle_d = mcycle_q + 64'd1;
@@ -162,8 +190,7 @@ module riscv32_pmu
       end else begin
         minstret_d = 64'(csr_write_data_i);
       end
-    end else if ((XLEN == 32) && csr_write_valid_i &&
-                 (csr_write_addr_i == CSR_MINSTRETH)) begin
+    end else if ((XLEN == 32) && csr_write_valid_i && (csr_write_addr_i == CSR_MINSTRETH)) begin
       minstret_d = {csr_write_data_i[31:0], minstret_q[31:0]};
     end else if (!mcountinhibit_q[2]) begin
       minstret_d = minstret_q + retired_instruction_count_extended;
@@ -190,6 +217,72 @@ module riscv32_pmu
                                      + 64'(icache_event_i.stale_response_discarded_occurred);
   end
 
+  // Lookup计时与事件计数分开：hit在响应握手当拍直接分类；miss先在S2
+  // 分类，之后critical word才产生通用lookup response。uncached和access fault会
+  // 正常结束lookup计时器，但不进入cacheable AMAT的分子或分母。
+  always_comb begin
+    icache_miss_response_count_d             = icache_miss_response_count_q;
+    icache_refill_transaction_count_d        = icache_refill_transaction_count_q;
+    icache_lookup_request_wait_cycle_count_d =
+                                               icache_lookup_request_wait_cycle_count_q + 64'(icache_event_i.lookup_request_waiting);
+    icache_hit_latency_cycle_sum_d           = icache_hit_latency_cycle_sum_q;
+    icache_miss_response_latency_cycle_sum_d = icache_miss_response_latency_cycle_sum_q;
+    icache_refill_latency_cycle_sum_d        = icache_refill_latency_cycle_sum_q;
+    icache_lookup_elapsed_cycle_count_d      = icache_lookup_elapsed_cycle_count_q;
+    icache_refill_elapsed_cycle_count_d      = icache_refill_elapsed_cycle_count_q;
+    icache_lookup_timer_active_d             = icache_lookup_timer_active_q;
+    icache_lookup_miss_classification_d      = icache_lookup_miss_classification_q;
+    icache_refill_timer_active_d             = icache_refill_timer_active_q;
+
+    if (icache_lookup_timer_active_q) begin
+      icache_lookup_elapsed_cycle_count_d = icache_lookup_elapsed_cycle_count_q + 64'd1;
+    end
+    if (icache_refill_timer_active_q) begin
+      icache_refill_elapsed_cycle_count_d = icache_refill_elapsed_cycle_count_q + 64'd1;
+    end
+
+    if (icache_event_i.miss_occurred) begin
+      icache_lookup_miss_classification_d = 1'b1;
+      icache_refill_timer_active_d        = 1'b1;
+      icache_refill_elapsed_cycle_count_d = '0;
+    end
+
+    // response结束当前lookup。对于hit，hit_occurred与通用response事件同拍；
+    // 对于miss，使用之前锁存的S2分类。“已经过的周期+1”把响应当拍计入延迟。
+    if (icache_event_i.lookup_response_occurred) begin
+      if (icache_event_i.hit_occurred) begin
+        icache_hit_latency_cycle_sum_d = icache_hit_latency_cycle_sum_q +
+                                         icache_lookup_elapsed_cycle_count_q + 64'd1;
+      end else if (icache_lookup_miss_classification_q || icache_event_i.miss_occurred) begin
+        icache_miss_response_count_d             = icache_miss_response_count_q + 64'd1;
+        icache_miss_response_latency_cycle_sum_d =
+                                                   icache_miss_response_latency_cycle_sum_q +
+                                                   icache_lookup_elapsed_cycle_count_q + 64'd1;
+      end
+
+      icache_lookup_elapsed_cycle_count_d = '0;
+      icache_lookup_timer_active_d        = 1'b0;
+      icache_lookup_miss_classification_d = 1'b0;
+    end
+
+    // 允许“旧响应完成+新请求接收”同拍发生。如果当前没有旧lookup且请求
+    // 与响应同拍，该请求已以1拍延迟完成，不再留下活动计时器。
+    if (icache_event_i.lookup_occurred &&
+        (!icache_event_i.lookup_response_occurred || icache_lookup_timer_active_q)) begin
+      icache_lookup_elapsed_cycle_count_d = '0;
+      icache_lookup_timer_active_d        = 1'b1;
+      icache_lookup_miss_classification_d = 1'b0;
+    end
+
+    if (icache_event_i.refill_transaction_completed_occurred) begin
+      icache_refill_transaction_count_d   = icache_refill_transaction_count_q + 64'd1;
+      icache_refill_latency_cycle_sum_d   = icache_refill_latency_cycle_sum_q +
+                                            icache_refill_elapsed_cycle_count_q + 64'd1;
+      icache_refill_elapsed_cycle_count_d = '0;
+      icache_refill_timer_active_d        = 1'b0;
+    end
+  end
+
   // I-cache计数器独立成组，避免与软件可写的mcycle/minstret更新优先级混杂。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -208,6 +301,35 @@ module riscv32_pmu
       icache_refill_line_count_q     <= icache_refill_line_count_d;
       icache_uncached_access_count_q <= icache_uncached_access_count_d;
       icache_stale_response_count_q  <= icache_stale_response_count_d;
+    end
+  end
+
+  // AMAT统计状态独立更新，不向I-cache或流水线生成任何控制信号。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      icache_miss_response_count_q             <= '0;
+      icache_refill_transaction_count_q        <= '0;
+      icache_lookup_request_wait_cycle_count_q <= '0;
+      icache_hit_latency_cycle_sum_q           <= '0;
+      icache_miss_response_latency_cycle_sum_q <= '0;
+      icache_refill_latency_cycle_sum_q        <= '0;
+      icache_lookup_elapsed_cycle_count_q      <= '0;
+      icache_refill_elapsed_cycle_count_q      <= '0;
+      icache_lookup_timer_active_q             <= 1'b0;
+      icache_lookup_miss_classification_q      <= 1'b0;
+      icache_refill_timer_active_q             <= 1'b0;
+    end else begin
+      icache_miss_response_count_q             <= icache_miss_response_count_d;
+      icache_refill_transaction_count_q        <= icache_refill_transaction_count_d;
+      icache_lookup_request_wait_cycle_count_q <= icache_lookup_request_wait_cycle_count_d;
+      icache_hit_latency_cycle_sum_q           <= icache_hit_latency_cycle_sum_d;
+      icache_miss_response_latency_cycle_sum_q <= icache_miss_response_latency_cycle_sum_d;
+      icache_refill_latency_cycle_sum_q        <= icache_refill_latency_cycle_sum_d;
+      icache_lookup_elapsed_cycle_count_q      <= icache_lookup_elapsed_cycle_count_d;
+      icache_refill_elapsed_cycle_count_q      <= icache_refill_elapsed_cycle_count_d;
+      icache_lookup_timer_active_q             <= icache_lookup_timer_active_d;
+      icache_lookup_miss_classification_q      <= icache_lookup_miss_classification_d;
+      icache_refill_timer_active_q             <= icache_refill_timer_active_d;
     end
   end
 
@@ -241,16 +363,73 @@ module riscv32_pmu
   // 地址实现判断必须和读窗口一致；RV64不实现H后缀的高半CSR。
   always_comb begin
     unique case (csr_read_addr_i)
-      CSR_MCYCLE,
-      CSR_MINSTRET,
-      CSR_MCOUNTINHIBIT: pmu_csr_addr_implemented = 1'b1;
-      CSR_MCYCLEH,
-      CSR_MINSTRETH:     pmu_csr_addr_implemented = (XLEN == 32);
-      default:           pmu_csr_addr_implemented = 1'b0;
+      CSR_MCYCLE, CSR_MINSTRET, CSR_MCOUNTINHIBIT: pmu_csr_addr_implemented = 1'b1;
+      CSR_MCYCLEH, CSR_MINSTRETH:                  pmu_csr_addr_implemented = (XLEN == 32);
+      default:                                     pmu_csr_addr_implemented = 1'b0;
     endcase
   end
 
 `ifndef SYNTHESIS
+  function automatic real calculate_average_cycles(input logic [63:0] cycle_sum,
+                                                   input logic [63:0] event_count);
+    if (event_count == 0) begin
+      return 0.0;
+    end
+    return real'(cycle_sum) / real'(event_count);
+  endfunction
+
+  function automatic real calculate_percentage(input logic [63:0] event_count,
+                                               input logic [63:0] total_count);
+    if (total_count == 0) begin
+      return 0.0;
+    end
+    return 100.0 * real'(event_count) / real'(total_count);
+  endfunction
+
+  function automatic real calculate_miss_penalty();
+    if ((icache_hit_count_q == 0) || (icache_miss_response_count_q == 0)) begin
+      return 0.0;
+    end
+    return calculate_average_cycles(
+        icache_miss_response_latency_cycle_sum_q, icache_miss_response_count_q
+    ) - calculate_average_cycles(
+        icache_hit_latency_cycle_sum_q, icache_hit_count_q
+    );
+  endfunction
+
+  // 浮点计算只存在于仿真输出。可综合PMU只累计整数事件和周期，
+  // 不在硬件中为一次性报告实现除法器。AMAT直接使用已完成的cacheable
+  // response延迟总和；数学上与 hit_latency + miss_rate * miss_penalty 等价。
+  final begin
+    if ((icache_hit_count_q + icache_miss_response_count_q) != 0) begin
+      $display("");
+      $display("================ I-cache AMAT counters ===================");
+      $display("lookups / cacheable hits / cacheable misses : %0d / %0d / %0d",
+               icache_lookup_count_q, icache_hit_count_q, icache_miss_count_q);
+      $display("I-cache hit rate                            : %.3f%%", calculate_percentage(
+               icache_hit_count_q, icache_hit_count_q + icache_miss_count_q));
+      $display("average hit response latency                : %.3f cycles",
+               calculate_average_cycles(icache_hit_latency_cycle_sum_q, icache_hit_count_q));
+      $display("average miss critical response latency      : %.3f cycles",
+               calculate_average_cycles(icache_miss_response_latency_cycle_sum_q,
+                                        icache_miss_response_count_q));
+      $display("average miss penalty                        : %.3f cycles",
+               calculate_miss_penalty());
+      $display("I-cache AMAT                                : %.3f cycles",
+               calculate_average_cycles(
+               icache_hit_latency_cycle_sum_q + icache_miss_response_latency_cycle_sum_q,
+               icache_hit_count_q + icache_miss_response_count_q));
+      $display("average complete refill latency             : %.3f cycles",
+               calculate_average_cycles(icache_refill_latency_cycle_sum_q,
+                                        icache_refill_transaction_count_q));
+      $display("lookup request waiting cycles               : %0d",
+               icache_lookup_request_wait_cycle_count_q);
+      $display("successful line installs / refill finishes  : %0d / %0d",
+               icache_refill_line_count_q, icache_refill_transaction_count_q);
+      $display("==========================================================");
+    end
+  end
+
   // lookup先进入cache流水线，之后才被归类为hit、miss或uncached，因此累计分类数
   // 只能小于等于lookup数，不能要求每个周期都严格相等。访问异常也可能只计lookup。
   always_ff @(posedge clk_i) begin
@@ -271,9 +450,31 @@ module riscv32_pmu
       assert (icache_refill_line_count_q <= icache_miss_count_q)
       else $error("I-cache completed more refill lines than cacheable misses");
 
-      assert (icache_refill_word_count_q >=
-              (icache_refill_line_count_q * ICACHE_WORDS_PER_LINE))
+      assert (icache_miss_response_count_q <= icache_miss_count_q)
+      else $error("I-cache returned more miss responses than allocated misses");
+
+      assert (icache_refill_transaction_count_q <= icache_miss_count_q)
+      else $error("I-cache finished more refill transactions than allocated misses");
+
+      assert (icache_refill_line_count_q <= icache_refill_transaction_count_q)
+      else $error("I-cache installed more lines than completed refill transactions");
+
+      assert (icache_refill_word_count_q >= (icache_refill_line_count_q * ICACHE_WORDS_PER_LINE))
       else $error("I-cache completed a refill line without receiving all words");
+
+      assert (!(icache_event_i.lookup_occurred && icache_lookup_timer_active_q &&
+                !icache_event_i.lookup_response_occurred))
+      else $error("I-cache AMAT timer observed more than one outstanding lookup");
+
+      assert (!icache_event_i.lookup_response_occurred ||
+              icache_lookup_timer_active_q || icache_event_i.lookup_occurred)
+      else $error("I-cache AMAT timer observed a response without a request");
+
+      assert (!icache_event_i.miss_occurred || icache_lookup_timer_active_q)
+      else $error("I-cache AMAT timer observed a miss without an active lookup");
+
+      assert (!icache_event_i.refill_transaction_completed_occurred || icache_refill_timer_active_q)
+      else $error("I-cache refill timer observed completion without an active refill");
     end
   end
 `endif

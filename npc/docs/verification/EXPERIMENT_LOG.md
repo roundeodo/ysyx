@@ -286,3 +286,39 @@ make sim-npc PROJECT=riscv32 NPC_CONFIG=rv32-baseline \
 - RV64 `hello-str`通过后，确认AM已使用RV64软除法路径，不再误入32位C软除法的递归；
 - RV32/RV64 reference分离生成和显式选择，避免NEMU最近一次menuconfig结果污染另一配置的
   DiffTest。
+
+## 2026-08-20 - P3-G RV64多周期功能基线
+
+- Commit：uncommitted；P3-G实现和验证已完成，创建基线提交前不得开始P3-H。
+- 架构决策：同一份RTL必须同时维持RV32课程基线和RV64顺序基线；ysyxSoC的AXI32限制只
+  保留在system width-converter边界。
+- 工作负载和规模：双配置模块定向测试、RV32/RV64各35项cpu-tests DiffTest、standalone
+  与ysyxSoC lint、完整core综合和STA。
+- 构建配置：`rv32-baseline`和`rv64-sequential`。
+- 命令：`make regression-p3-g PROJECT=riscv32`。
+- 功能结果：统一回归命令退出码为0；RV32 35/35、RV64 35/35 DiffTest通过，全部定向测试、
+  lint和构建通过。
+
+PMU基线（`hello-str`）：
+
+| 配置 | 退休指令 | CPU周期 | IPC | IFU平均响应延迟 | load平均延迟 | store平均延迟 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| RV32 | 1862 | 7011 | 0.265583 | 2.139 cycles | 3.132 cycles | 3.000 cycles |
+| RV64 | 1876 | 7100 | 0.264225 | 2.148 cycles | 3.131 cycles | 3.000 cycles |
+
+综合与STA基线（300 MHz，I-cache SRAM array作为黑盒）：
+
+| 配置 | 标准单元面积 | 时序单元面积 | WNS | TNS | 报告频率 | 关键终点 |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| RV32 | 38183.32 | 18138.12 | +0.068 ns | 0.000 ns | 306.307 MHz | I-cache替换状态 |
+| RV64 | 58743.44 | 27738.76 | -0.366 ns | -114.307 ns | 270.373 MHz | 架构寄存器堆写回 |
+
+分析：
+
+- RV64逻辑壳面积相对RV32增加约53.85%，时序单元面积增加约52.93%，报告频率下降约
+  11.73%；64位寄存器状态和写回选择路径已经成为P3-H必须处理的物理代价；
+- 两套配置的`hello-str` IPC均约0.265，说明当前主要吞吐限制是多周期处理器把取指、执行和
+  访存串行化，而不是RV64语义本身；
+- PDK不包含I-cache SRAM macro和Liberty模型，因此面积、WNS和频率仅描述逻辑壳。获得真实
+  cache时序前必须替换tag/data array并补充macro时序弧；
+- AXI反压测试是固定、可复现的五通道定向序列，不把尚未建立的随机验证环境记为已覆盖。

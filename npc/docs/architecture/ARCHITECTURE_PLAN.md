@@ -6,7 +6,7 @@
 
 最终产品目标：RV64 异构 AI SoC 主处理器
 
-最后更新：2026-08-14
+最后更新：2026-08-21
 
 ## 1. 文档目的
 
@@ -274,7 +274,8 @@ cpu-tests和standalone NEMU DiffTest；P3开始前需要冻结RV64软件、ISA�
 
 ### P3：RV64 顺序功能基线
 
-状态：P3-D 已完成，下一检查点为P3-E。
+状态：P3-A至P3-G已完成。当前等待提交`YSYX_RV64_SEQUENTIAL`多周期基线，随后进入
+P3-H顺序流水化。
 
 P3先在现有多周期核上完成`YSYX_RV64_SEQUENTIAL`功能基线，再进行顺序流水化。首版范围
 冻结为RV64I、Zicsr、Zifencei和M-mode；物理地址保持32位，正式memory AXI提升为64位，
@@ -282,8 +283,9 @@ P3先在现有多周期核上完成`YSYX_RV64_SEQUENTIAL`功能基线，再进�
 调试RV64新语义和流水线新时序。
 
 当前已完成正式双配置入口、RV64I译码、`*W`执行语义、`LWU/LD/SD`、同宽64位memory
-AXI以及ysyxSoC边界的AXI64到AXI32转换。下一步只处理CSR、异常、提交和PMU的RV64语义，
-不提前进入软件环境或流水化。
+AXI、ysyxSoC边界的AXI64到AXI32转换，以及CSR、异常、提交、PMU、RV64软件环境、
+DiffTest和双配置综合/STA基线。下一步先创建可回退的多周期基线提交，再在相同ISA、cache、
+LSU、CSR和commit接口上划分顺序流水级，实现反压、旁路、冒险处理、精确flush和精确异常。
 
 详细的文件顺序、退出条件和验证矩阵见
 [`P3_RV64_SEQUENTIAL_PLAN.md`](P3_RV64_SEQUENTIAL_PLAN.md)。

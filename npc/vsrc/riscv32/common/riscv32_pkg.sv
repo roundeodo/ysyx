@@ -100,8 +100,8 @@ package riscv32_pkg;
   localparam logic [2:0] FUNCT3_OR      = 3'b110;
   localparam logic [2:0] FUNCT3_AND     = 3'b111;
 
-  localparam logic [5:0] FUNCT6_BASE = 6'b000000;
-  localparam logic [5:0] FUNCT6_ALT  = 6'b010000;
+  localparam logic [5:0] FUNCT6_BASE = 6'b000000 ;
+  localparam logic [5:0] FUNCT6_ALT  = 6'b010000 ;
   localparam logic [6:0] FUNCT7_BASE = 7'b0000000;
   localparam logic [6:0] FUNCT7_ALT  = 7'b0100000;
 
@@ -194,8 +194,8 @@ package riscv32_pkg;
   } mem_cmd_e;
 
   typedef enum logic [1:0] {
-    MEM_SIZE_BYTE = 2'd0,
-    MEM_SIZE_HALF = 2'd1,
+    MEM_SIZE_BYTE   = 2'd0,
+    MEM_SIZE_HALF   = 2'd1,
     MEM_SIZE_WORD   = 2'd2,
     MEM_SIZE_DOUBLE = 2'd3
   } mem_size_e;
@@ -393,10 +393,16 @@ package riscv32_pkg;
   // 这些字段描述“本周期发生了什么”，因此使用occurred后缀；它们不得反向控制cache：
   typedef struct packed {
     logic lookup_occurred;
+    logic lookup_response_occurred;
+    // waiting表示请求已有效但cache本周期不能接收，用于累计前端阻塞周期。
+    logic lookup_request_waiting;
     logic hit_occurred;
     logic miss_occurred;
     logic uncached_access_occurred;
     logic refill_word_occurred;
+    // transaction completion表示末一个refill word已握手，不要与“新line成功安装”混淆。
+    // 访存错误会结束transaction，但不会产生refill_line_completed_occurred。
+    logic refill_transaction_completed_occurred;
     logic refill_line_completed_occurred;
     logic stale_response_discarded_occurred;
   } icache_event_t;
