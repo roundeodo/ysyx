@@ -5,7 +5,8 @@
 # ============================================================
 
 PROJECT ?= riscv32
-NPC_ICACHE_CAPACITY_BYTES ?= 64
+# RV32课程面积基线使用32B；RV64顺序核暂保留64B。两者实例化同一参数化RTL。
+NPC_ICACHE_CAPACITY_BYTES ?= $(if $(filter rv32-baseline,$(NPC_CONFIG)),32,64)
 NPC_ICACHE_LINE_BYTES ?= 16
 NPC_SDRAM_NATIVE_READ_BURST ?= 1
 
