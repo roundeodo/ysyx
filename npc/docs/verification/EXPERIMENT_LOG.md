@@ -543,3 +543,26 @@ PMU基线（`hello-str`）：
 必须通过`ARREADY`反压等待，不能临时降级为普通首beat。错误降级会使事务只返回一个
 非末beat且永远等不到`RLAST`。修复后`make test-sdram-axi`、`make test-axi-delayer`和
 两组MicroBench均通过。
+
+## 2026-08-21 - I-cache逐line RTL缺失代价自动校准
+
+- 增加`make icache-calibrate-penalty`，在同一个RV32 ysyxSoC、SDRAM、AXI delay和原生
+  BL8环境中依次构建16/32/64B I-cache并运行MicroBench；
+- 每完成一种line大小就把PMU统计写入CSV，并单独保存完整仿真日志，避免长时间校准中途
+  停止时丢失已经完成的结果；
+- 增加`make cachesim-explore-calibrated`。cachesim从CSV按line大小分别读取critical
+  miss penalty和complete refill latency，不再为所有候选配置套用同一个周期常数；
+- 增加校准输出解析、CSV读取和参数检查单元测试。
+
+MicroBench `test`流程验证结果：
+
+| Line | Miss | Critical penalty | Complete refill | PMU周期 | PMU退休指令 | PMU IPC | 精确AMAT |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 16B | 1301 | 32.061 | 80.953 | 2304079 | 430203 | 0.186714 | 2.039641 |
+| 32B | 689 | 31.106 | 48.536 | 2268195 | 430203 | 0.189668 | 2.020366 |
+| 64B | 368 | 39.745 | 89.378 | 2267304 | 430203 | 0.189742 | 2.013898 |
+
+相对32B，16B测量窗口多35884周期（+1.582%），64B少891周期（-0.039%）。64B的单次
+关键字和整行代价都高于32B，但miss次数减少使AMAT和总周期略低；该`test`结果只验证流程并
+给出趋势，正式参数选择仍需`train`校准和代表性PC trace。当前默认bubble-sort trace只有
+6次miss，因此只用于验证cachesim确实读取了三组独立周期，不能据此冻结line大小。
