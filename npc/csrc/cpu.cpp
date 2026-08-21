@@ -13,6 +13,10 @@
 #include NPC_GENERATED_HEADER(TOP_CLASS)
 #include NPC_GENERATED_HEADER(TOP_DPI_CLASS)
 
+#ifdef NPC_YSYXSOC_SIM
+#include "VysyxSoCFull___024root.h"
+#endif
+
 #include "svdpi.h"
 
 #include <verilated.h>
@@ -369,6 +373,16 @@ void cpu_exec(uint64_t n) {
     cycles_without_commit = 0;
     guest_inst_count++;
     retired++;
+
+#ifdef NPC_YSYXSOC_SIM
+    if (event.pc == static_cast<npc_word_t>(0xa0003ee0u)) {
+      printf("DEBUG SDRAM[a0003ee0] = 0x%08x, fetched = 0x%08x\n",
+             top->rootp->ysyxSoCFull__DOT__sdram__DOT__memory_word_array[
+                 0x00c003b8u],
+             event.instruction);
+      npc_state = NPC_ABORT;
+    }
+#endif
 
     trace_inst(event.pc, event.instruction);
     ftrace_update(event.pc, event.instruction, event.next_pc);
