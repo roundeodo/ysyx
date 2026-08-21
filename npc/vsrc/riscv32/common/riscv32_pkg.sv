@@ -284,17 +284,24 @@ package riscv32_pkg;
   localparam int unsigned ICACHE_SET_COUNT =
       ICACHE_CAPACITY_BYTES / (ICACHE_WAY_COUNT * ICACHE_LINE_BYTES);
   localparam int unsigned ICACHE_WORDS_PER_LINE = ICACHE_LINE_BYTES / ICACHE_FETCH_BYTES;
-  localparam int unsigned ICACHE_SET_INDEX_W = (ICACHE_SET_COUNT > 1) ? $clog2(
+  localparam int unsigned ICACHE_SET_INDEX_BITS = (ICACHE_SET_COUNT > 1) ? $clog2(
       ICACHE_SET_COUNT
-  ) : 1;
-  localparam int unsigned ICACHE_WORD_INDEX_W = (ICACHE_WORDS_PER_LINE > 1) ? $clog2(
+  ) : 0;
+  localparam int unsigned ICACHE_WORD_INDEX_BITS = (ICACHE_WORDS_PER_LINE > 1) ? $clog2(
       ICACHE_WORDS_PER_LINE
-  ) : 1;
+  ) : 0;
+  // SystemVerilog不允许零宽类型，因此类型宽度最小为1；*_BITS才是地址中
+  // 真正消耗的索引位数。当只有一个set或一个word时，地址函数直接返回0。
+  localparam int unsigned ICACHE_SET_INDEX_W = (ICACHE_SET_INDEX_BITS > 0) ?
+      ICACHE_SET_INDEX_BITS : 1;
+  localparam int unsigned ICACHE_WORD_INDEX_W = (ICACHE_WORD_INDEX_BITS > 0) ?
+      ICACHE_WORD_INDEX_BITS : 1;
   localparam int unsigned ICACHE_WAY_INDEX_W = (ICACHE_WAY_COUNT > 1) ? $clog2(
       ICACHE_WAY_COUNT
   ) : 1;
   localparam int unsigned ICACHE_LINE_OFFSET_W = $clog2(ICACHE_LINE_BYTES);
-  localparam int unsigned ICACHE_TAG_W = PADDR_WIDTH - ICACHE_LINE_OFFSET_W - ICACHE_SET_INDEX_W;
+  localparam int unsigned ICACHE_TAG_W =
+      PADDR_WIDTH - ICACHE_LINE_OFFSET_W - ICACHE_SET_INDEX_BITS;
   localparam int unsigned FETCH_EPOCH_W = (FETCH_EPOCH_COUNT > 1) ? $clog2(FETCH_EPOCH_COUNT) : 1;
 
 

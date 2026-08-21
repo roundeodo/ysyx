@@ -1,7 +1,7 @@
 // I-cache元数据存储阵列。
 //
 // 本模块只保存每个set、每个way的tag和line-present位，并提供同步读口和受控写口。
-// 命中判断、替换策略、miss状态和invalidate遍历都不属于本模块。保持这种边界后，
+// 命中判断、miss状态和invalidate遍历都不属于本模块。保持这种边界后，
 // 当前触发器阵列可以独立替换成SRAM宏，而不需要改写I-cache控制路径。
 module riscv32_icache_tag_array
   import riscv32_pkg::*;

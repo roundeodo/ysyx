@@ -1,9 +1,9 @@
-// 两路组相联、阻塞式L1指令缓存顶层，hit路径采用分级流水处理。
+// 直接映射、阻塞式L1指令缓存顶层，hit路径采用分级流水处理。
 //
-// 本模块拥有lookup pipeline、way命中选择、替换策略和invalidate协调；tag/data阵列、
+// 本模块拥有lookup pipeline、命中判定和invalidate协调；tag/data阵列、
 // miss跟踪、PMA分类和下层协议转换分别交给子模块。v1目标是hit时每周期接受一个请求、
 // 固定两周期lookup延迟，并在INCR refill自然到达关键word时支持early restart。这个边界为
-// 后续增加way prediction、多个MSHR、prefetch和更宽fetch保留了独立演进空间。
+// 后续增加组相联、多个MSHR、prefetch和更宽fetch保留了独立演进空间。
 module riscv32_icache
   import riscv32_pkg::*;
   // 地址拆分函数直接处理物理地址，因此显式依赖地址映射package。
@@ -75,12 +75,6 @@ module riscv32_icache
   icache_tag_t metadata_write_tag;
   logic metadata_write_line_present;
 
-  icache_way_index_t replacement_way_index_array_q[ICACHE_SET_COUNT];
-  icache_way_index_t replacement_way_index;
-  logic replacement_state_update_valid;
-  icache_set_index_t replacement_state_update_set_index;
-  icache_way_index_t replacement_state_update_accessed_way_index;
-
   riscv32_pma u_riscv32_pma (
       .lookup_addr_i(lookup_req_i.fetch_addr),
       .memory_attr_o(lookup_memory_attr)
@@ -145,8 +139,17 @@ module riscv32_icache
   // 这些是当前实现的明确几何约束，不是运行时容错。line大小由构建参数选择，所有
   // 地址切片、阵列深度和refill计数必须只依赖package中的派生量。
   initial begin
-    if (ICACHE_WAY_COUNT != 2) begin
-      $fatal(1, "riscv32_icache currently requires ICACHE_WAY_COUNT == 2");
+    if (ICACHE_WAY_COUNT != 1) begin
+      $fatal(1, "course-area I-cache requires direct mapping");
+    end
+    if (ICACHE_CAPACITY_BYTES == 0 || ICACHE_LINE_BYTES == 0) begin
+      $fatal(1, "I-cache capacity and line size must be non-zero");
+    end
+    if ((ICACHE_CAPACITY_BYTES % (ICACHE_WAY_COUNT * ICACHE_LINE_BYTES)) != 0) begin
+      $fatal(1, "I-cache capacity must contain an integer number of sets");
+    end
+    if ((ICACHE_SET_COUNT & (ICACHE_SET_COUNT - 1)) != 0) begin
+      $fatal(1, "I-cache set count must be a power of two");
     end
     if ((ICACHE_LINE_BYTES & (ICACHE_LINE_BYTES - 1)) != 0) begin
       $fatal(1, "I-cache line size must be a power of two");
@@ -192,11 +195,17 @@ module riscv32_icache
   // 所有输入都是物理地址；本项目当前没有MMU，未来加入翻译后仍应由PMA接收翻译后的地址。
   // 地址拆分只消费物理地址；set/word来自cache几何参数，tag从PADDR_WIDTH最高位开始。
   function automatic icache_set_index_t get_icache_set_index(input phys_addr_t addr);
-    return addr[ICACHE_LINE_OFFSET_W+ICACHE_SET_INDEX_W-1-:ICACHE_SET_INDEX_W];
+    if (ICACHE_SET_INDEX_BITS == 0) begin
+      return '0;
+    end
+    return icache_set_index_t'(addr >> ICACHE_LINE_OFFSET_W);
   endfunction
 
   function automatic icache_word_index_t get_icache_word_index(input phys_addr_t addr);
-    return addr[ICACHE_LINE_OFFSET_W-1-:ICACHE_WORD_INDEX_W];
+    if (ICACHE_WORD_INDEX_BITS == 0) begin
+      return '0;
+    end
+    return icache_word_index_t'(addr >> $clog2(ICACHE_FETCH_BYTES));
   endfunction
 
   function automatic icache_tag_t get_icache_tag(input phys_addr_t addr);
@@ -273,7 +282,8 @@ module riscv32_icache
     miss_req.memory_attr           = memory_attr_s2_q;
     miss_req.set_index             = get_icache_set_index(lookup_s2_q.fetch_addr);
     miss_req.critical_word_index   = get_icache_word_index(lookup_s2_q.fetch_addr);
-    miss_req.replacement_way_index = replacement_way_index;
+    // 直接映射中每个set只有way 0，miss unit无需保存或查询替换状态。
+    miss_req.replacement_way_index = '0;
     miss_req.refill_tag            = get_icache_tag(lookup_s2_q.fetch_addr);
     miss_req_valid                 = lookup_s2_present_q && (lookup_cache_miss || lookup_uncached);
     array_read_enable              = lookup_req_handshake;
@@ -369,52 +379,6 @@ module riscv32_icache
     end
   end
 
-  // 两路替换策略：优先选择无效way；两路都有效时，每个set记录下次牺牲way。
-  // hit真正交付或refill完整提交后，把另一路设为下一候选。该算法明确只支持两路；
-  // 扩展到更多way时应替换为tree-PLRU等算法，而不是仅放宽参数。
-  // 每个set保存“两个way均有效时，下次优先替换哪一路”。invalidate无需清该状态，因为
-  // victim选择首先检查present。异或1只适用于两路；扩展到4路时必须改成tree-PLRU或
-  // 其他明确算法，不能把表面参数化误当成算法已经支持任意way数量。
-  always_comb begin
-    replacement_way_index =
-        replacement_way_index_array_q[get_icache_set_index(lookup_s2_q.fetch_addr)];
-
-    if (!lookup_line_present_vector_s2_q[0]) begin
-      replacement_way_index = icache_way_index_t'(0);
-    end else if (!lookup_line_present_vector_s2_q[1]) begin
-      replacement_way_index = icache_way_index_t'(1);
-    end
-  end
-
-  always_comb begin
-    replacement_state_update_valid              = 1'b0;
-    replacement_state_update_set_index          = '0;
-    replacement_state_update_accessed_way_index = '0;
-
-    if (local_lookup_resp_handshake && lookup_hit) begin
-      replacement_state_update_valid              = 1'b1;
-      replacement_state_update_set_index          = get_icache_set_index(lookup_s2_q.fetch_addr);
-      replacement_state_update_accessed_way_index = lookup_hit_way_index;
-    end
-
-    // miss unit在miss开始时会先清victim的present；只有整条line完成并重新置present时，
-    // 才算一次真实安装并更新替换状态。
-    if (refill_metadata_write_valid && refill_metadata_write_line_present) begin
-      replacement_state_update_valid              = 1'b1;
-      replacement_state_update_set_index          = refill_metadata_write_set_index;
-      replacement_state_update_accessed_way_index = refill_metadata_write_way_index;
-    end
-  end
-
-  always_ff @(posedge clk_i) begin
-    if (!rst_ni) begin
-      for (int unsigned set_index = 0; set_index < ICACHE_SET_COUNT; set_index++) begin
-        replacement_way_index_array_q[set_index] <= '0;
-      end
-    end else if (replacement_state_update_valid) begin
-      replacement_way_index_array_q[replacement_state_update_set_index] <= replacement_state_update_accessed_way_index ^ icache_way_index_t'(1);
-    end
-  end
   // fence.i/invalidate先阻止新lookup并排空旧lookup和miss，再逐set、逐way清除
   // present位，最后产生单拍done。tag/data无需清零，因为present=0使旧内容不可见。
   // 已经发出的下层事务必须完整握手，不能因fence.i中途撤销。上游保持请求直到done；
@@ -652,21 +616,16 @@ module riscv32_icache
   assert property (@(posedge clk_i) disable iff (!rst_ni) miss_req_valid |-> !lookup_s1_ready)
   else $error("I-cache S1 advanced while dispatching a miss");
 
-  a_replacement_update_sources_are_exclusive :
-  assert property (
-      @(posedge clk_i) disable iff (!rst_ni)
-      !((local_lookup_resp_handshake && lookup_hit) &&
-        (refill_metadata_write_valid && refill_metadata_write_line_present))
-  )
-  else $error("I-cache replacement state has two update sources");
 `endif
 
   // Directed-test验证清单：每项都应检查握手次数、
   // payload身份、array写次数和event脉冲，不能只比较最终instruction：
-  // 1. 冷启动cacheable miss：8个word逐拍返回，确认8次data写、1次metadata提交；
+  // 1. 冷启动cacheable miss：ICACHE_WORDS_PER_LINE个word逐拍返回，确认逐word
+  //    data写和最后一次metadata提交；
   // 2. 同地址再次lookup：固定hit latency返回，且refill请求次数保持不变；
-  // 3. 同set不同tag：先填满两路，再访问第三条line，确认invalid-way优先和两路替换状态；
-  // 4. critical word为0、3、7：响应分别在对应beat后出现，line仍到RLAST才安装完成；
+  // 3. 同set不同tag：新line必须覆盖唯一way，旧tag不得继续命中；
+  // 4. critical word取line内不同位置：响应在对应beat后出现，line仍到RLAST
+  //    才安装完成；
   // 5. 响应反压：hit和early-restart response分别保持若干拍，确认payload稳定；
   // 6. uncached SRAM/MROM：只发一个word请求，不写data/tag array，第二次仍访问下层；
   // 7. 非executable MMIO/空洞：本地返回access fault，不能产生任何refill；
