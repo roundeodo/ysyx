@@ -7,7 +7,7 @@
 PROJECT ?= riscv32
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -65,6 +65,13 @@ NEMU_DIR      := $(abspath ../nemu)
 CPU_TESTS_DIR := $(abspath ../am-kernels/tests/cpu-tests)
 RV32_NEMU_REF := $(NEMU_DIR)/build/riscv32-nemu-interpreter-so
 RV64_NEMU_REF := $(NEMU_DIR)/build/riscv64-nemu-interpreter-so
+
+CACHESIM_DIR         := $(abspath ./tools/cachesim)
+CACHESIM_BUILD_DIR   := $(abspath ./build/tools/cachesim)
+CACHESIM_SOURCE      := $(CACHESIM_DIR)/cachesim.cpp
+CACHESIM_BINARY      := $(CACHESIM_BUILD_DIR)/cachesim
+CACHESIM_TEST_SCRIPT := $(CACHESIM_DIR)/tests/test_cachesim.py
+CACHESIM_EXPLORE_SCRIPT := $(CACHESIM_DIR)/explore.py
 
 # 只收录能够在standalone内存环境中验证RV32I/RV64I、Zicsr和异常闭环的测试。
 # unalign要求硬件透明处理非对齐访问，与当前“产生misaligned异常”的架构契约冲突；
@@ -514,6 +521,79 @@ nvboard: $(NVBOARD_SIM_BINARY)
 	$(NVBOARD_SIM_BINARY) --nvboard \
 		$(if $(FLASH_IMG),--flash $(FLASH_IMG)) \
 		$(IMG)
+
+# ============================================================
+# I-cache metadata simulation and design-space exploration
+# ============================================================
+
+CACHE_TRACE_ARCH             ?= riscv32-nemu
+CACHE_TRACE_SCALE            ?= test
+CACHE_TRACE_FILE             ?= $(abspath ../am-kernels/benchmarks/microbench/build/nemu-log.txt)
+CACHE_CAPACITY_BYTES         ?= 8192
+CACHE_LINE_BYTES             ?= 32
+CACHE_WAYS                   ?= 2
+CACHE_HIT_TIME_CYCLES        ?= 2
+# 284.142是当前32B line RTL在microbench test上的critical-response miss penalty。
+# 扫描其它line大小时它只是第一阶估计；得到候选方案后必须重新用RTL校准对应代价。
+CACHE_MISS_PENALTY_CYCLES    ?= 284.142
+CACHE_SCAN_CAPACITIES        ?= 4096,8192,16384,32768
+CACHE_SCAN_LINE_SIZES        ?= 16,32,64
+CACHE_SCAN_WAYS              ?= 1,2,4
+CACHE_SCAN_JOBS              ?= 4
+CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_microbench_$(CACHE_TRACE_SCALE).csv)
+CACHE_MICROBENCH_DIR         := $(abspath ../am-kernels/benchmarks/microbench)
+
+$(CACHESIM_BUILD_DIR):
+	mkdir -p $@
+
+$(CACHESIM_BINARY): $(CACHESIM_SOURCE) | $(CACHESIM_BUILD_DIR)
+	$(CXX) -std=c++17 -O3 -Wall -Wextra -Wpedantic -Werror $< -o $@
+
+.PHONY: cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore
+cachesim-build: $(CACHESIM_BINARY)
+
+cachesim-test: $(CACHESIM_BINARY)
+	python3 $(CACHESIM_TEST_SCRIPT) $(CACHESIM_BINARY)
+
+# NEMU只负责产生架构执行PC序列；cachesim不依赖NEMU内部数据结构。
+# 该入口会切换NEMU的活动.config，后续构建DiffTest reference时相应的nemu-ref目标会
+# 再切换回共享库配置。
+cachesim-trace:
+	@test "$(CACHE_TRACE_ARCH)" = "riscv32-nemu" -o \
+	      "$(CACHE_TRACE_ARCH)" = "riscv64-nemu" || \
+		(echo "CACHE_TRACE_ARCH must be riscv32-nemu or riscv64-nemu"; exit 1)
+	$(MAKE) -C $(NEMU_DIR) \
+		$(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
+	$(MAKE) -C $(CACHE_MICROBENCH_DIR) \
+		ARCH=$(CACHE_TRACE_ARCH) \
+		mainargs=$(CACHE_TRACE_SCALE) \
+		run
+	@echo "NEMU instruction trace: $(CACHE_TRACE_FILE)"
+
+cachesim-run: $(CACHESIM_BINARY)
+	@test -f "$(CACHE_TRACE_FILE)" || \
+		(echo "trace file not found: $(CACHE_TRACE_FILE)"; exit 1)
+	$(CACHESIM_BINARY) \
+		--trace $(CACHE_TRACE_FILE) \
+		--capacity-bytes $(CACHE_CAPACITY_BYTES) \
+		--line-bytes $(CACHE_LINE_BYTES) \
+		--ways $(CACHE_WAYS) \
+		--hit-time-cycles $(CACHE_HIT_TIME_CYCLES) \
+		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES)
+
+cachesim-explore: $(CACHESIM_BINARY)
+	@test -f "$(CACHE_TRACE_FILE)" || \
+		(echo "trace file not found: $(CACHE_TRACE_FILE)"; exit 1)
+	python3 $(CACHESIM_EXPLORE_SCRIPT) \
+		--binary $(CACHESIM_BINARY) \
+		--trace $(CACHE_TRACE_FILE) \
+		--capacities $(CACHE_SCAN_CAPACITIES) \
+		--line-sizes $(CACHE_SCAN_LINE_SIZES) \
+		--ways $(CACHE_SCAN_WAYS) \
+		--hit-time-cycles $(CACHE_HIT_TIME_CYCLES) \
+		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES) \
+		--jobs $(CACHE_SCAN_JOBS) \
+		--output $(CACHE_SCAN_OUTPUT)
 
 # ============================================================
 # Reproducible performance evaluation

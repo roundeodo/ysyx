@@ -89,6 +89,7 @@ static void memory_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
 }
 
+#ifndef CONFIG_DEVICE
 static void out_of_bound(paddr_t addr) {
 #ifdef CONFIG_YSYXSOC_MEMORY
   panic("address = " FMT_PADDR " is outside MROM [" FMT_PADDR
@@ -101,6 +102,7 @@ static void out_of_bound(paddr_t addr) {
       addr, PMEM_LEFT, PMEM_RIGHT, cpu.pc);
 #endif
 }
+#endif
 
 void init_mem(void) {
 #if defined(CONFIG_PMEM_MALLOC)
