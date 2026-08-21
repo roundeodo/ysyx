@@ -2,6 +2,7 @@
 // Core数据口与正式memory AXI保持同宽；ysyxSoC的32位限制只在system wrapper处理。
 module riscv32_uncached_axi4_master
   import riscv32_pkg::*;
+  import riscv32_addr_map_pkg::*;
   import riscv32_axi4_pkg::*;
 #(
     parameter logic [MEM_AXI_ID_WIDTH-1:0] READ_TRANSACTION_ID  = MEM_AXI_ID_WIDTH'(1),
