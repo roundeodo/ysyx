@@ -6,9 +6,14 @@
 
 PROJECT ?= riscv32
 NPC_ICACHE_LINE_BYTES ?= 32
+NPC_SDRAM_NATIVE_READ_BURST ?= 1
+
+ifeq ($(filter $(NPC_SDRAM_NATIVE_READ_BURST),0 1),)
+$(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
+endif
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-sdram-axi test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -21,20 +26,25 @@ endif
 endif
 
 ifeq ($(NPC_CONFIG),rv32-baseline)
-NPC_CONFIG_DEFINE := +define+YSYX_RV32_BASELINE +define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES)
+NPC_CONFIG_DEFINE := +define+YSYX_RV32_BASELINE +define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) +define+YSYX_SDRAM_NATIVE_READ_BURST=$(NPC_SDRAM_NATIVE_READ_BURST)
 NPC_CONFIG_CXXFLAG := -DNPC_XLEN=32
-NPC_SLANG_DEFINE := -DYSYX_RV32_BASELINE -DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES)
+NPC_SLANG_DEFINE := -DYSYX_RV32_BASELINE -DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) -DYSYX_SDRAM_NATIVE_READ_BURST=$(NPC_SDRAM_NATIVE_READ_BURST)
 else ifeq ($(NPC_CONFIG),rv64-sequential)
-NPC_CONFIG_DEFINE := +define+YSYX_RV64_SEQUENTIAL +define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES)
+NPC_CONFIG_DEFINE := +define+YSYX_RV64_SEQUENTIAL +define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) +define+YSYX_SDRAM_NATIVE_READ_BURST=$(NPC_SDRAM_NATIVE_READ_BURST)
 NPC_CONFIG_CXXFLAG := -DNPC_XLEN=64
-NPC_SLANG_DEFINE := -DYSYX_RV64_SEQUENTIAL -DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES)
+NPC_SLANG_DEFINE := -DYSYX_RV64_SEQUENTIAL -DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) -DYSYX_SDRAM_NATIVE_READ_BURST=$(NPC_SDRAM_NATIVE_READ_BURST)
 endif
 
 NPC_TOP_MODULE := top
 SOC_TOP_MODULE := ysyxSoCFull
 
-NPC_BUILD_VARIANT := $(if $(filter 32,$(NPC_ICACHE_LINE_BYTES)),,icache-line-$(NPC_ICACHE_LINE_BYTES))
-BUILD_DIR       := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG)$(if $(NPC_BUILD_VARIANT),/$(NPC_BUILD_VARIANT)))
+BUILD_DIR := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))
+ifneq ($(NPC_ICACHE_LINE_BYTES),32)
+BUILD_DIR := $(BUILD_DIR)/icache-line-$(NPC_ICACHE_LINE_BYTES)
+endif
+ifeq ($(NPC_SDRAM_NATIVE_READ_BURST),0)
+BUILD_DIR := $(BUILD_DIR)/sdram-read-bl1
+endif
 NPC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_npc
 SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
 NVBOARD_OBJ_DIR := $(BUILD_DIR)/obj_dir_nvboard
@@ -47,6 +57,8 @@ SOC_WIDTH_CONVERTER_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_soc_width_converter_tes
 PRIVILEGED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_privileged_test
 SDRAM_AXI_TEST_BUILD_DIR := $(abspath ./build/tests/sdram_axi)
 SDRAM_AXI_TEST_OBJ_DIR   := $(SDRAM_AXI_TEST_BUILD_DIR)/obj_dir
+AXI_DELAYER_TEST_BUILD_DIR := $(abspath ./build/tests/axi4_delayer)
+AXI_DELAYER_TEST_OBJ_DIR   := $(AXI_DELAYER_TEST_BUILD_DIR)/obj_dir
 
 NPC_SIM_BINARY     := $(BUILD_DIR)/$(NPC_TOP_MODULE)_sim
 SOC_SIM_BINARY     := $(BUILD_DIR)/$(SOC_TOP_MODULE)_sim
@@ -59,6 +71,7 @@ UNCACHED_TEST_BINARY := $(BUILD_DIR)/uncached_axi4_test
 SOC_WIDTH_CONVERTER_TEST_BINARY := $(BUILD_DIR)/soc_width_converter_test
 PRIVILEGED_TEST_BINARY := $(BUILD_DIR)/privileged_test
 SDRAM_AXI_TEST_BINARY  := $(SDRAM_AXI_TEST_BUILD_DIR)/sdram_axi_test
+AXI_DELAYER_TEST_BINARY := $(AXI_DELAYER_TEST_BUILD_DIR)/axi4_delayer_test
 
 IMG       ?=
 FLASH_IMG ?=
@@ -232,6 +245,10 @@ SDRAM_AXI_TEST_SOURCES := \
 	$(SOC_HOME)/perip/sdram/sdram.v \
 	$(abspath ./tests/rtl/sdram_axi_transaction_classification_tb.sv)
 
+AXI_DELAYER_TEST_SOURCES := \
+	$(SOC_HOME)/perip/amba/axi4_delayer.v \
+	$(abspath ./tests/rtl/axi4_delayer_tb.sv)
+
 # ============================================================
 # NVBoard integration
 # ============================================================
@@ -253,6 +270,9 @@ $(BUILD_DIR):
 	mkdir -p $@
 
 $(SDRAM_AXI_TEST_BUILD_DIR):
+	mkdir -p $@
+
+$(AXI_DELAYER_TEST_BUILD_DIR):
 	mkdir -p $@
 
 # Fast functional environment: CPU + local AXI models, reset PC 0x8000_0000.
@@ -373,7 +393,15 @@ $(SDRAM_AXI_TEST_BINARY): $(SDRAM_AXI_TEST_SOURCES) | $(SDRAM_AXI_TEST_BUILD_DIR
 		--Mdir $(SDRAM_AXI_TEST_OBJ_DIR) \
 		-o $(SDRAM_AXI_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-uncached test-uncached-configs test-soc-width-converter test-sdram-axi test-privileged test-privileged-configs
+$(AXI_DELAYER_TEST_BINARY): $(AXI_DELAYER_TEST_SOURCES) | $(AXI_DELAYER_TEST_BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal \
+		-Wno-BLKSEQ -Wno-TIMESCALEMOD -Wno-UNUSEDSIGNAL \
+		--top-module axi4_delayer_tb \
+		$(AXI_DELAYER_TEST_SOURCES) \
+		--Mdir $(AXI_DELAYER_TEST_OBJ_DIR) \
+		-o $(AXI_DELAYER_TEST_BINARY)
+
+.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-uncached test-uncached-configs test-soc-width-converter test-sdram-axi test-axi-delayer test-privileged test-privileged-configs
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
@@ -416,6 +444,9 @@ test-soc-width-converter: $(SOC_WIDTH_CONVERTER_TEST_BINARY)
 
 test-sdram-axi: $(SDRAM_AXI_TEST_BINARY)
 	$(SDRAM_AXI_TEST_BINARY)
+
+test-axi-delayer: $(AXI_DELAYER_TEST_BINARY)
+	$(AXI_DELAYER_TEST_BINARY)
 
 test-privileged: $(PRIVILEGED_TEST_BINARY)
 	$(PRIVILEGED_TEST_BINARY)
@@ -795,6 +826,7 @@ help:
 	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
 	@echo "  test-sdram-axi  Test AXI transaction classification and native SDRAM BL8 reads"
+	@echo "  test-axi-delayer  Test per-beat AXI read timing and independent write timing"
 	@echo "  test-privileged-configs  Test CSR, trap, commit, and PMU semantics in RV32/RV64"
 	@echo "  nemu-ref-rv32 / nemu-ref-rv64  Build the matching standalone DiffTest reference"
 	@echo "  regression-p3-e  Run RV32/RV64 privileged directed tests"

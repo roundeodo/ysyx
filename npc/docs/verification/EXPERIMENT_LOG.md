@@ -444,26 +444,60 @@ PMU基线（`hello-str`）：
 - 当前是AXI层8-beat burst。SDRAM Mode Register仍配置BL1，控制器在打开行上调度8条
   单beat READ命令；原生SDRAM BL8属于后续独立优化，不能与本次AXI burst混为一谈。
 
-## 2026-08-21 - SDRAM原生BL8读快速路径
+## 2026-08-21 - AXI读事务到SDRAM原生BL8的通用分段
 
 - AXI-to-SDRAM边界开始接收`ARSIZE/AWSIZE`，地址步进不再隐含固定4B；
-- 快速路径完全按AXI事务属性选择：仅32-bit、INCR、32B对齐、8 beat读事务映射为
-  一条原生SDRAM BL8，判断逻辑不依赖请求来自I-cache、未来D-cache还是其他manager；
+- 分段器完全按AXI事务属性工作，不依赖请求来自I-cache、未来D-cache还是其他manager。
+  对32-bit INCR读，32B对齐且至少剩余8 beat时发一条原生BL8；未对齐头部和不足8 beat
+  的尾部使用单拍，从而支持任意长度和任意word对齐起点；
+- 一个AXI读事务可映射为多个物理SDRAM段。事务级状态统一保持原始ID、总beat数和唯一的
+  最终`RLAST`，物理段状态只选择下一条单拍或BL8命令；
 - Mode Register配置为读BL8、写single-beat。其他读事务仍逐beat调度，并在取得所需
   单个beat后发送`BURST TERMINATE`，避免固定BL8列地址回绕改变AXI地址序列；
-- 原生burst的8个返回beat先进入16深度响应FIFO，因此SDRAM连续返回不受AXI
-  `RREADY`反压影响；当前写路径尚未把完整W burst预先缓存，所以不伪装支持原生
-  BL8写，未来D-cache脏行写回需要在同一事务分类器下增加写burst buffer。
+- 原生burst的返回beat先进入16深度响应FIFO。发出每个物理段前按FIFO占用量做信用检查，
+  因此SDRAM连续返回不受AXI `RREADY`反压影响；16项刚好可以完整缓存64B/32-bit事务，
+  更长事务会在段边界等待FIFO释放空间；
+- 当前写路径尚未把完整W burst预先缓存，所以不伪装支持原生BL8写。未来D-cache脏行
+  写回需要在同一事务分类器下增加写burst buffer。
 
 验证结果：
 
-- `make test-sdram-axi`通过：原生事务在`RREADY`连续拉低20周期时仍按顺序保存8个
-  response beat，并保持AXI ID和`RLAST`正确；
-- 定向测试确认原生事务只产生1条SDRAM READ且不产生BURST TERMINATE；不满足条件的
-  4-beat事务产生4条独立READ和4条BURST TERMINATE；
-- `icache-sdram-burst-test`和4KiB `sdram-test`均命中good trap，字节和半字写掩码通过；
+- `make test-sdram-axi`通过：32B对齐事务产生1条READ且不产生TERMINATE；64B对齐事务
+  产生2条READ且不产生TERMINATE；从32B边界后4B开始的64B事务被拆为7个头部单拍、
+  1个BL8和1个尾部单拍，共9条READ和8条TERMINATE；
+- 上述事务均在`RREADY`连续拉低20周期时保持数据顺序、AXI ID和唯一的最终`RLAST`；
+- 32B和64B I-cache配置的`icache-sdram-burst-test`均命中good trap；4KiB `sdram-test`
+  同样通过，字节和半字写掩码没有回归；
 - 波形中`0xa0000000`的refill只出现1条SDRAM READ命令，8个AXI响应beat连续返回；
 - response beat索引在仿真时间`21017..21031`按一个CPU周期递增，旧BL1基线约每两个
   CPU周期返回一个beat，完整32B读取的尾部缩短约7个CPU周期；
 - 单beatSDRAM回归出现1026条READ和1026条BURST TERMINATE，证明短事务没有误收
   固定BL8的剩余数据。
+
+## 2026-08-21 - AXI事务延迟校准模块
+
+- 将`ysyxSoC/perip/amba/axi4_delayer.v`从直通连接改为事务级延迟校准器，默认频率比为
+  `3037 / 1024`。读事务与写事务使用独立计时状态，允许一笔读和一笔写同时进行；
+- 计时起点是上游第一次拉高`ARVALID`，或`AWVALID/WVALID`中最早出现的时刻，而不是
+  地址握手时刻。因此等待下游`READY`的时间也被纳入设备访问时间；
+- R通道为每个返回beat分别计算目标上游周期，并保存ID、数据、响应状态、`RLAST`和目标
+  周期。16项响应FIFO能够覆盖64B cache line在32-bit AXI上的16个beat，也允许下游在
+  上游尚未到目标时刻时继续返回数据；
+- 若响应到达时已经满足目标周期且FIFO为空，则使用直接路径同周期返回，不固定增加一拍；
+- AW和W握手分别记录，支持二者任意先后到达。当前写路径校准整笔事务的B响应；尚未实现
+  D-cache脏行写回，因此不把W burst逐beat校准记为已完成；
+- 当前每个方向最多一笔未完成事务，不支持同方向多ID并发。该限制符合当前顺序核，但未来
+  流水化访存和多未决miss需要用按ID/事务项保存起点与目标时刻的队列替换单事务状态。
+
+验证结果：
+
+- `make test-axi-delayer`通过。定向测试使用精确2:1频率比，让写事务与尚未结束的16-beat
+  读突发重叠；每个读beat均满足`upstream - start = 2 * (downstream - start)`，且W先于
+  AW握手时写事务仍从最早出现的VALID开始计时；
+- ysyxSoC完整lint和RV32仿真构建通过，仅保留工程既有非致命告警；
+- `icache-sdram-burst-test`命中good trap，15次refill的平均critical响应延迟为16.600
+  周期，平均完整回填延迟为49.000周期；
+- 同一测试在64B I-cache line配置下也命中good trap，9次refill的平均critical响应延迟为
+  26.889周期，平均完整回填延迟为95.556周期，覆盖了16项R响应FIFO的全部深度；
+- 4KiB `sdram-test`通过字、字节和半字写掩码检查并命中good trap。该测试的I-cache平均
+  完整回填延迟为48.782周期，LSU AXI读/写响应平均延迟为8.794/6.104周期。
