@@ -425,3 +425,45 @@ PMU基线（`hello-str`）：
   standalone RTL只允许在相同顶层、存储模型、workload和统计窗口下比较line大小。
 - 有效结论：16/32/64B standalone RTL结果之间的比较仍然有效；归一化模型能够说明burst
   如何减少重复事务建立开销；二者都不能与旧`284.142 cycles`结果计算提升比例。
+
+## 2026-08-21 - ysyxSoC AXI SDRAM与I-cache burst联调
+
+- ysyxSoC启用AXI SDRAM控制器，CPU BlackBox直接实例化`riscv32_npc_axi`；
+- 仿真平台用两个并行x16 SDRAM颗粒形成32-bit数据口，`DQ`和`DQM`分别扩展为32位和4位；
+- 增加`icache-sdram-burst-test`：先向`0xa0000000`写入两条指令，执行`fence.i`后跳到
+  SDRAM取指并检查返回值；
+- 修复SDRAM控制器将一个AXI写beat重复发出两条WRITE命令的问题；
+- 修复SDRAM行为模型在返回最后一个读beat时丢弃同周期下一条流水化READ命令的问题。
+
+验证结果：
+
+- `icache-sdram-burst-test`和原有`sdram-test`均命中good trap；
+- SoC lint通过，仅保留既有的非致命告警；
+- 波形确认对`0xa0000000`只发生一次AXI AR握手，`ARLEN=7`、`ARBURST=INCR`；
+- 随后完成8次R握手，前两拍为`0x02a00513`和`0x00008067`，最后一拍`RLAST=1`；
+- 当前是AXI层8-beat burst。SDRAM Mode Register仍配置BL1，控制器在打开行上调度8条
+  单beat READ命令；原生SDRAM BL8属于后续独立优化，不能与本次AXI burst混为一谈。
+
+## 2026-08-21 - SDRAM原生BL8读快速路径
+
+- AXI-to-SDRAM边界开始接收`ARSIZE/AWSIZE`，地址步进不再隐含固定4B；
+- 快速路径完全按AXI事务属性选择：仅32-bit、INCR、32B对齐、8 beat读事务映射为
+  一条原生SDRAM BL8，判断逻辑不依赖请求来自I-cache、未来D-cache还是其他manager；
+- Mode Register配置为读BL8、写single-beat。其他读事务仍逐beat调度，并在取得所需
+  单个beat后发送`BURST TERMINATE`，避免固定BL8列地址回绕改变AXI地址序列；
+- 原生burst的8个返回beat先进入16深度响应FIFO，因此SDRAM连续返回不受AXI
+  `RREADY`反压影响；当前写路径尚未把完整W burst预先缓存，所以不伪装支持原生
+  BL8写，未来D-cache脏行写回需要在同一事务分类器下增加写burst buffer。
+
+验证结果：
+
+- `make test-sdram-axi`通过：原生事务在`RREADY`连续拉低20周期时仍按顺序保存8个
+  response beat，并保持AXI ID和`RLAST`正确；
+- 定向测试确认原生事务只产生1条SDRAM READ且不产生BURST TERMINATE；不满足条件的
+  4-beat事务产生4条独立READ和4条BURST TERMINATE；
+- `icache-sdram-burst-test`和4KiB `sdram-test`均命中good trap，字节和半字写掩码通过；
+- 波形中`0xa0000000`的refill只出现1条SDRAM READ命令，8个AXI响应beat连续返回；
+- response beat索引在仿真时间`21017..21031`按一个CPU周期递增，旧BL1基线约每两个
+  CPU周期返回一个beat，完整32B读取的尾部缩短约7个CPU周期；
+- 单beatSDRAM回归出现1026条READ和1026条BURST TERMINATE，证明短事务没有误收
+  固定BL8的剩余数据。

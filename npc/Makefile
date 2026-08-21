@@ -8,7 +8,7 @@ PROJECT ?= riscv32
 NPC_ICACHE_LINE_BYTES ?= 32
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-sdram-axi test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -45,6 +45,8 @@ LSU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_lsu_test
 UNCACHED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_uncached_test
 SOC_WIDTH_CONVERTER_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_soc_width_converter_test
 PRIVILEGED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_privileged_test
+SDRAM_AXI_TEST_BUILD_DIR := $(abspath ./build/tests/sdram_axi)
+SDRAM_AXI_TEST_OBJ_DIR   := $(SDRAM_AXI_TEST_BUILD_DIR)/obj_dir
 
 NPC_SIM_BINARY     := $(BUILD_DIR)/$(NPC_TOP_MODULE)_sim
 SOC_SIM_BINARY     := $(BUILD_DIR)/$(SOC_TOP_MODULE)_sim
@@ -56,6 +58,7 @@ LSU_TEST_BINARY    := $(BUILD_DIR)/lsu_test
 UNCACHED_TEST_BINARY := $(BUILD_DIR)/uncached_axi4_test
 SOC_WIDTH_CONVERTER_TEST_BINARY := $(BUILD_DIR)/soc_width_converter_test
 PRIVILEGED_TEST_BINARY := $(BUILD_DIR)/privileged_test
+SDRAM_AXI_TEST_BINARY  := $(SDRAM_AXI_TEST_BUILD_DIR)/sdram_axi_test
 
 IMG       ?=
 FLASH_IMG ?=
@@ -221,6 +224,14 @@ PRIVILEGED_TEST_SOURCES := \
 	$(RTL_DIR)/core/riscv32_trap_controller.sv \
 	$(abspath ./tests/rtl/riscv32_privileged_tb.sv)
 
+SDRAM_AXI_TEST_SOURCES := \
+	$(SOC_HOME)/perip/sdram/sdram_top_axi.v \
+	$(SOC_HOME)/perip/sdram/core_sdram_axi4/sdram_axi.v \
+	$(SOC_HOME)/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v \
+	$(SOC_HOME)/perip/sdram/core_sdram_axi4/sdram_axi_core.v \
+	$(SOC_HOME)/perip/sdram/sdram.v \
+	$(abspath ./tests/rtl/sdram_axi_transaction_classification_tb.sv)
+
 # ============================================================
 # NVBoard integration
 # ============================================================
@@ -239,6 +250,9 @@ include $(NVBOARD_HOME)/scripts/nvboard.mk
 # ============================================================
 
 $(BUILD_DIR):
+	mkdir -p $@
+
+$(SDRAM_AXI_TEST_BUILD_DIR):
 	mkdir -p $@
 
 # Fast functional environment: CPU + local AXI models, reset PC 0x8000_0000.
@@ -351,7 +365,15 @@ $(PRIVILEGED_TEST_BINARY): $(PRIVILEGED_TEST_SOURCES) | $(BUILD_DIR)
 		--Mdir $(PRIVILEGED_TEST_OBJ_DIR) \
 		-o $(PRIVILEGED_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-uncached test-uncached-configs test-soc-width-converter test-privileged test-privileged-configs
+$(SDRAM_AXI_TEST_BINARY): $(SDRAM_AXI_TEST_SOURCES) | $(SDRAM_AXI_TEST_BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal \
+		-Wno-DECLFILENAME -Wno-PINCONNECTEMPTY -Wno-UNUSEDSIGNAL \
+		--top-module sdram_axi_transaction_classification_tb \
+		$(SDRAM_AXI_TEST_SOURCES) \
+		--Mdir $(SDRAM_AXI_TEST_OBJ_DIR) \
+		-o $(SDRAM_AXI_TEST_BINARY)
+
+.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-uncached test-uncached-configs test-soc-width-converter test-sdram-axi test-privileged test-privileged-configs
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
@@ -391,6 +413,9 @@ test-uncached-configs:
 
 test-soc-width-converter: $(SOC_WIDTH_CONVERTER_TEST_BINARY)
 	$(SOC_WIDTH_CONVERTER_TEST_BINARY)
+
+test-sdram-axi: $(SDRAM_AXI_TEST_BINARY)
+	$(SDRAM_AXI_TEST_BINARY)
 
 test-privileged: $(PRIVILEGED_TEST_BINARY)
 	$(PRIVILEGED_TEST_BINARY)
@@ -769,6 +794,7 @@ help:
 	@echo "  test-lsu-configs  Run directed LSU tests for RV32 and RV64"
 	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
+	@echo "  test-sdram-axi  Test AXI transaction classification and native SDRAM BL8 reads"
 	@echo "  test-privileged-configs  Test CSR, trap, commit, and PMU semantics in RV32/RV64"
 	@echo "  nemu-ref-rv32 / nemu-ref-rv64  Build the matching standalone DiffTest reference"
 	@echo "  regression-p3-e  Run RV32/RV64 privileged directed tests"
