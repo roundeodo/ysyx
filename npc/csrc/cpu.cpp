@@ -69,11 +69,17 @@ struct DebugSdramReadCycle {
   uint8_t model_state;
   uint8_t model_beat;
   uint8_t core_read_pipeline;
+  uint8_t controller_state;
+  uint8_t controller_command;
+  uint8_t controller_bank;
+  uint16_t controller_address;
+  uint16_t controller_active_row;
+  uint16_t model_active_row;
   bool model_drive;
   bool core_response;
 };
 
-static DebugSdramReadCycle debug_sdram_cycle_ring[128];
+static DebugSdramReadCycle debug_sdram_cycle_ring[512];
 static uint32_t debug_sdram_cycle_count = 0;
 
 static void capture_debug_read_response() {
@@ -109,9 +115,14 @@ static void capture_debug_read_response() {
       root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_data_output_occurred_w;
   const uint8_t core_pipeline =
       root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__rd_q;
-  if (model_drive || core_response || core_pipeline != 0) {
+  const uint8_t controller_state =
+      root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__state_q;
+  const uint8_t controller_command =
+      root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__command_q;
+  if (model_drive || core_response || core_pipeline != 0 ||
+      controller_state != 2u || controller_command != 7u) {
     DebugSdramReadCycle &entry =
-        debug_sdram_cycle_ring[debug_sdram_cycle_count % 128];
+        debug_sdram_cycle_ring[debug_sdram_cycle_count % 512];
     entry.cycle = main_time / 2;
     entry.model_data = root->ysyxSoCFull__DOT__sdram__DOT__read_data_output;
     entry.model_word_index =
@@ -123,6 +134,18 @@ static void capture_debug_read_response() {
     entry.model_state = root->ysyxSoCFull__DOT__sdram__DOT__read_state_q;
     entry.model_beat = root->ysyxSoCFull__DOT__sdram__DOT__read_beat_index_q;
     entry.core_read_pipeline = core_pipeline;
+    entry.controller_state = controller_state;
+    entry.controller_command = controller_command;
+    entry.controller_bank =
+        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__bank_q;
+    entry.controller_address =
+        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__addr_q;
+    entry.controller_active_row =
+        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__active_row_q[
+            entry.controller_bank];
+    entry.model_active_row =
+        root->ysyxSoCFull__DOT__sdram__DOT__active_row_index_array_q[
+            entry.controller_bank];
     entry.model_drive = model_drive;
     entry.core_response = core_response;
     debug_sdram_cycle_count++;
@@ -141,15 +164,19 @@ static void print_debug_read_responses() {
            entry.last, entry.count);
   }
 
-  const uint32_t sdram_begin = debug_sdram_cycle_count > 128
-                                   ? debug_sdram_cycle_count - 128
+  const uint32_t sdram_begin = debug_sdram_cycle_count > 512
+                                   ? debug_sdram_cycle_count - 512
                                    : 0;
   for (uint32_t index = sdram_begin; index < debug_sdram_cycle_count;
        ++index) {
-    const DebugSdramReadCycle &entry = debug_sdram_cycle_ring[index % 128];
-    printf("DEBUG SDRAM cycle=%llu state=%u beat=%u index=%06x model=%08x drive=%u rd_pipe=%x sample0=%08x sample=%08x response=%u\n",
-           static_cast<unsigned long long>(entry.cycle), entry.model_state,
-           entry.model_beat, entry.model_word_index, entry.model_data,
+    const DebugSdramReadCycle &entry = debug_sdram_cycle_ring[index % 512];
+    printf("DEBUG SDRAM cycle=%llu ctrl_state=%u cmd=%x bank=%u addr=%04x ctrl_row=%x model_row=%x model_state=%u beat=%u index=%06x model=%08x drive=%u rd_pipe=%x sample0=%08x sample=%08x response=%u\n",
+           static_cast<unsigned long long>(entry.cycle),
+           entry.controller_state,
+           entry.controller_command, entry.controller_bank,
+           entry.controller_address, entry.controller_active_row,
+           entry.model_active_row, entry.model_state, entry.model_beat,
+           entry.model_word_index, entry.model_data,
            entry.model_drive, entry.core_read_pipeline, entry.sample_data0,
            entry.sample_data, entry.core_response);
   }
