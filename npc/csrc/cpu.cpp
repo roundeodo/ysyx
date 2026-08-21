@@ -60,6 +60,22 @@ struct DebugReadResponse {
 static DebugReadResponse debug_read_response_ring[64];
 static uint32_t debug_read_response_count = 0;
 
+struct DebugSdramReadCycle {
+  uint64_t cycle;
+  uint32_t model_data;
+  uint32_t model_word_index;
+  uint32_t sample_data0;
+  uint32_t sample_data;
+  uint8_t model_state;
+  uint8_t model_beat;
+  uint8_t core_read_pipeline;
+  bool model_drive;
+  bool core_response;
+};
+
+static DebugSdramReadCycle debug_sdram_cycle_ring[128];
+static uint32_t debug_sdram_cycle_count = 0;
+
 static void capture_debug_read_response() {
   auto *root = top->rootp;
   const auto save = [&](bool downstream, uint32_t data, bool last) {
@@ -86,6 +102,31 @@ static void capture_debug_read_response() {
          root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_in_rdata,
          root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_in_rlast);
   }
+
+  const bool model_drive =
+      root->ysyxSoCFull__DOT__sdram__DOT__read_state_q == 2u;
+  const bool core_response =
+      root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_data_output_occurred_w;
+  const uint8_t core_pipeline =
+      root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__rd_q;
+  if (model_drive || core_response || core_pipeline != 0) {
+    DebugSdramReadCycle &entry =
+        debug_sdram_cycle_ring[debug_sdram_cycle_count % 128];
+    entry.cycle = main_time / 2;
+    entry.model_data = root->ysyxSoCFull__DOT__sdram__DOT__read_data_output;
+    entry.model_word_index =
+        root->ysyxSoCFull__DOT__sdram__DOT__current_read_memory_word_index;
+    entry.sample_data0 =
+        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__sample_data0_q;
+    entry.sample_data =
+        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__sample_data_q;
+    entry.model_state = root->ysyxSoCFull__DOT__sdram__DOT__read_state_q;
+    entry.model_beat = root->ysyxSoCFull__DOT__sdram__DOT__read_beat_index_q;
+    entry.core_read_pipeline = core_pipeline;
+    entry.model_drive = model_drive;
+    entry.core_response = core_response;
+    debug_sdram_cycle_count++;
+  }
 }
 
 static void print_debug_read_responses() {
@@ -98,6 +139,19 @@ static void print_debug_read_responses() {
            entry.downstream ? "SDRAM->delay" : "delay->SoC  ",
            static_cast<unsigned long long>(entry.cycle), entry.data,
            entry.last, entry.count);
+  }
+
+  const uint32_t sdram_begin = debug_sdram_cycle_count > 128
+                                   ? debug_sdram_cycle_count - 128
+                                   : 0;
+  for (uint32_t index = sdram_begin; index < debug_sdram_cycle_count;
+       ++index) {
+    const DebugSdramReadCycle &entry = debug_sdram_cycle_ring[index % 128];
+    printf("DEBUG SDRAM cycle=%llu state=%u beat=%u index=%06x model=%08x drive=%u rd_pipe=%x sample0=%08x sample=%08x response=%u\n",
+           static_cast<unsigned long long>(entry.cycle), entry.model_state,
+           entry.model_beat, entry.model_word_index, entry.model_data,
+           entry.model_drive, entry.core_read_pipeline, entry.sample_data0,
+           entry.sample_data, entry.core_response);
   }
 }
 #endif
