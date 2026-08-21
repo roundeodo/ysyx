@@ -566,9 +566,9 @@ cachesim-trace:
 		(echo "trace image not found: $(CACHE_TRACE_IMAGE)"; exit 1)
 	$(MAKE) -C $(NEMU_DIR) \
 		$(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
-	$(MAKE) -C $(NEMU_DIR)
-	$(NEMU_DIR)/build/$(CACHE_TRACE_ISA)-nemu-interpreter \
-		-l $(CACHE_TRACE_FILE) -b $(CACHE_TRACE_IMAGE)
+	$(MAKE) -C $(NEMU_DIR) run \
+		ARGS="-l $(CACHE_TRACE_FILE) -b" \
+		IMG=$(CACHE_TRACE_IMAGE)
 	@echo "NEMU instruction trace: $(CACHE_TRACE_FILE)"
 
 cachesim-run: $(CACHESIM_BINARY)
