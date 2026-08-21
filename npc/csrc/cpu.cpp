@@ -13,10 +13,6 @@
 #include NPC_GENERATED_HEADER(TOP_CLASS)
 #include NPC_GENERATED_HEADER(TOP_DPI_CLASS)
 
-#ifdef NPC_YSYXSOC_SIM
-#include "VysyxSoCFull___024root.h"
-#endif
-
 #include "svdpi.h"
 
 #include <verilated.h>
@@ -51,101 +47,6 @@ static bool performance_statistics_printed = false;
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
 static const uint64_t MAX_CYCLES_WITHOUT_COMMIT = 1000000ULL;
 static constexpr int ARCH_GPR_COUNT = 32;
-
-#ifdef NPC_YSYXSOC_SIM
-static uint64_t debug_sdram_ack_count = 0;
-static uint64_t debug_axi_delay_downstream_response_count = 0;
-static uint64_t debug_axi_delay_upstream_response_count = 0;
-static uint64_t debug_segment_start_count = 0;
-static uint64_t debug_ordinary_request_count = 0;
-static uint64_t debug_pmem_response_accept_count = 0;
-static uint64_t debug_core_read_data_count = 0;
-
-static void sample_soc_read_path_debug_events() {
-  const auto *root = top->rootp;
-
-  if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_transaction_start_present) {
-    debug_sdram_ack_count = 0;
-    debug_axi_delay_downstream_response_count = 0;
-    debug_axi_delay_upstream_response_count = 0;
-    debug_segment_start_count = 0;
-    debug_ordinary_request_count = 0;
-    debug_pmem_response_accept_count = 0;
-    debug_core_read_data_count = 0;
-  }
-
-  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__ack_q)
-    debug_sdram_ack_count++;
-  if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__downstream_read_response_handshake_occurred)
-    debug_axi_delay_downstream_response_count++;
-  if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__upstream_read_response_handshake_occurred)
-    debug_axi_delay_upstream_response_count++;
-  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_first_segment_request_accepted_w)
-    debug_segment_start_count++;
-  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__ordinary_ram_request_accepted_w)
-    debug_ordinary_request_count++;
-  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__resp_accept_w)
-    debug_pmem_response_accept_count++;
-  if (root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_data_output_occurred_w)
-    debug_core_read_data_count++;
-}
-
-static void print_soc_read_path_debug_state() {
-  const auto *root = top->rootp;
-
-  printf("SOC read-path state at timeout:\n");
-  printf("  icache miss state/vector       = %u/0x%02x\n",
-         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache__DOT__u_riscv32_icache_miss_unit__DOT__state_q,
-         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache__DOT__u_riscv32_icache_miss_unit__DOT__received_word_present_vector_q);
-  printf("  refill master state/index      = %u/%u\n",
-         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__state_q,
-         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__received_word_index_q);
-  printf("  refill current word/request    = 0x%08x/0x%010llx\n",
-         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__current_word_addr_q,
-         static_cast<unsigned long long>(
-             root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__refill_req_q));
-  printf("  core merge present/pending     = %u/%u\n",
-         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_axi4_core_merge__DOT__read_transaction_present_q,
-         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_axi4_core_merge__DOT__read_address_pending_q);
-  printf("  AXI delay active/AR/count      = %u/%u/%u\n",
-         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_transaction_active_q,
-         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_address_handshake_occurred_q,
-         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_response_count_q);
-  printf("  SDRAM segment active/resp      = %u/%u/%u\n",
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_transaction_active_q,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_transaction_response_beat_index_q,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_transaction_total_beat_count_q);
-  printf("  SDRAM unissued/pending/physical= %u/%u/%u\n",
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_unissued_beat_count_q,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_segment_request_pending_q,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_physical_response_beat_count_q);
-  printf("  SDRAM response FIFO/core state= %u/%u/%u/%u\n",
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__u_response__DOT__count,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__state_q,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_requested_beat_count_q,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_response_beats_remaining_q);
-  printf("  SDRAM ordinary req/read FIFO   = %u/%u/%u/%u\n",
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__req_rd_q,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__req_addr_q,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__u_requests__DOT__count,
-         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__req_out_valid_w);
-  printf("  SoC xbar read address          = 0x%08x\n",
-         root->ysyxSoCFull__DOT__asic__DOT__axi4xbar_1__DOT__auto_anon_in_araddr);
-  printf("  current ACK/downstream/upstream= %llu/%llu/%llu\n",
-         static_cast<unsigned long long>(debug_sdram_ack_count),
-         static_cast<unsigned long long>(debug_axi_delay_downstream_response_count),
-         static_cast<unsigned long long>(debug_axi_delay_upstream_response_count));
-  printf("  SDRAM model configured/read beat= %u/%u/%u\n",
-         root->ysyxSoCFull__DOT__sdram__DOT__configured_burst_beat_count_q,
-         root->ysyxSoCFull__DOT__sdram__DOT__read_burst_beat_count_q,
-         root->ysyxSoCFull__DOT__sdram__DOT__read_beat_index_q);
-  printf("  segment/ordinary/pmem/core-read= %llu/%llu/%llu/%llu\n",
-         static_cast<unsigned long long>(debug_segment_start_count),
-         static_cast<unsigned long long>(debug_ordinary_request_count),
-         static_cast<unsigned long long>(debug_pmem_response_accept_count),
-         static_cast<unsigned long long>(debug_core_read_data_count));
-}
-#endif
 
 struct CommitEvent {
   bool valid;
@@ -453,18 +354,12 @@ void cpu_exec(uint64_t n) {
     CommitEvent event{};
     single_cycle(&event);
     guest_cycle_count++;
-#ifdef NPC_YSYXSOC_SIM
-    sample_soc_read_path_debug_events();
-#endif
 
     if (!event.valid) {
       cycles_without_commit++;
       if (cycles_without_commit >= MAX_CYCLES_WITHOUT_COMMIT) {
         printf("\033[1;31mNPC: no commit for %llu cycles\033[0m\n",
                (unsigned long long)cycles_without_commit);
-#ifdef NPC_YSYXSOC_SIM
-        print_soc_read_path_debug_state();
-#endif
         npc_state = NPC_ABORT;
         break;
       }
