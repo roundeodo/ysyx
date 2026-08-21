@@ -13,7 +13,7 @@ $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport icache-calibrate-penalty cachesim-explore-calibrated
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -89,7 +89,9 @@ CACHESIM_BUILD_DIR   := $(abspath ./build/tools/cachesim)
 CACHESIM_SOURCE      := $(CACHESIM_DIR)/cachesim.cpp
 CACHESIM_BINARY      := $(CACHESIM_BUILD_DIR)/cachesim
 CACHESIM_TEST_SCRIPT := $(CACHESIM_DIR)/tests/test_cachesim.py
+CACHESIM_CALIBRATION_TEST_SCRIPT := $(CACHESIM_DIR)/tests/test_calibration.py
 CACHESIM_EXPLORE_SCRIPT := $(CACHESIM_DIR)/explore.py
+ICACHE_CALIBRATION_SCRIPT := $(abspath ./scripts/calibrate_icache_penalty.py)
 
 # 只收录能够在standalone内存环境中验证RV32I/RV64I、Zicsr和异常闭环的测试。
 # unalign要求硬件透明处理非对齐访问，与当前“产生misaligned异常”的架构契约冲突；
@@ -609,14 +611,19 @@ CACHE_CRITICAL_RESPONSE_PENALTY_CYCLES ?= 284.142
 CACHE_COMPLETE_REFILL_PENALTY_CYCLES   ?= 284.142
 CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE ?=
 CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE   ?=
+CACHE_PENALTY_CALIBRATION_FILE               ?=
 CACHE_FIXED_PENALTY_ARGUMENTS = \
 	$(if $(strip $(CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE)),--critical-response-penalty-by-line-size $(CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE)) \
-	$(if $(strip $(CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE)),--complete-refill-penalty-by-line-size $(CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE))
+	$(if $(strip $(CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE)),--complete-refill-penalty-by-line-size $(CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE)) \
+	$(if $(strip $(CACHE_PENALTY_CALIBRATION_FILE)),--penalty-calibration-csv $(abspath $(CACHE_PENALTY_CALIBRATION_FILE)))
 CACHE_SCAN_CAPACITIES        ?= 4096,8192,16384,32768
 CACHE_SCAN_LINE_SIZES        ?= 16,32,64
 CACHE_SCAN_WAYS              ?= 1,2,4
 CACHE_SCAN_JOBS              ?= 4
 CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_$(CACHE_REFILL_MODEL)_exploration.csv)
+ICACHE_CALIBRATION_LINE_SIZES ?= 16,32,64
+ICACHE_CALIBRATION_SCALE      ?= test
+ICACHE_CALIBRATION_OUTPUT     ?= $(abspath ./result/cache/rtl_icache_penalty_rv32_sdram_bl8_$(ICACHE_CALIBRATION_SCALE).csv)
 
 $(CACHESIM_BUILD_DIR):
 	mkdir -p $@
@@ -625,11 +632,13 @@ $(CACHESIM_BINARY): $(CACHESIM_SOURCE) | $(CACHESIM_BUILD_DIR)
 	$(CXX) -std=c++17 -O3 -Wall -Wextra -Wpedantic -Werror $< -o $@
 
 .PHONY: cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore \
-	cachesim-explore-baseline cachesim-explore-transport
+	cachesim-explore-baseline cachesim-explore-transport \
+	icache-calibrate-penalty cachesim-explore-calibrated
 cachesim-build: $(CACHESIM_BINARY)
 
 cachesim-test: $(CACHESIM_BINARY)
 	python3 $(CACHESIM_TEST_SCRIPT) $(CACHESIM_BINARY)
+	python3 $(CACHESIM_CALIBRATION_TEST_SCRIPT)
 
 # NEMU只负责产生架构执行PC序列；cachesim不依赖NEMU内部数据结构。
 # 该入口会切换NEMU的活动.config，后续构建DiffTest reference时相应的nemu-ref目标会
@@ -697,6 +706,25 @@ cachesim-explore-transport:
 		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_independent_exploration.csv)
 	$(MAKE) cachesim-explore CACHE_REFILL_MODEL=burst \
 		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_burst_exploration.csv)
+
+# 在同一RV32 ysyxSoC+SDRAM+BL8环境中逐项重编译并运行MicroBench，从RTL PMU
+# 提取关键字响应代价和整行refill占用。每完成一种line大小就立即更新CSV并保留原始日志。
+icache-calibrate-penalty:
+	python3 $(ICACHE_CALIBRATION_SCRIPT) \
+		--npc-dir $(abspath .) \
+		--line-sizes $(ICACHE_CALIBRATION_LINE_SIZES) \
+		--scale $(ICACHE_CALIBRATION_SCALE) \
+		--output $(ICACHE_CALIBRATION_OUTPUT)
+
+# 用RTL校准出的逐line缺失代价运行metadata-only cachesim。这里固定使用fixed模型，
+# 因为CSV中的周期已经包含当前总线、延迟模块、SDRAM控制器和refill实现的综合效果。
+cachesim-explore-calibrated:
+	@test -f "$(ICACHE_CALIBRATION_OUTPUT)" || \
+		(echo "I-cache calibration file not found: $(ICACHE_CALIBRATION_OUTPUT)"; exit 1)
+	$(MAKE) cachesim-explore \
+		CACHE_REFILL_MODEL=fixed \
+		CACHE_PENALTY_CALIBRATION_FILE=$(ICACHE_CALIBRATION_OUTPUT) \
+		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_rtl_calibrated_$(ICACHE_CALIBRATION_SCALE).csv)
 
 # ============================================================
 # Reproducible performance evaluation
@@ -854,6 +882,8 @@ help:
 	@echo "  cachesim-explore  Scan cache capacity, line size, and associativity"
 	@echo "  cachesim-explore-baseline  Reproduce the fixed-penalty baseline"
 	@echo "  cachesim-explore-transport  Compare independent reads with AXI4 burst"
+	@echo "  icache-calibrate-penalty  Measure 16/32/64B miss penalties in RTL"
+	@echo "  cachesim-explore-calibrated  Explore using the RTL calibration CSV"
 	@echo "  lint-npc      Lint the standalone NPC"
 	@echo "  lint-soc      Lint the selected NPC configuration inside ysyxSoC"
 	@echo "  lint-configs  Lint both formal NPC configurations"

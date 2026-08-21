@@ -20,6 +20,37 @@ def parse_penalty_map(text):
     return penalty_by_line_size
 
 
+def parse_penalty_calibration(path):
+    critical_penalty_by_line_size = {}
+    complete_penalty_by_line_size = {}
+    with path.open(newline="", encoding="utf-8") as calibration_file:
+        reader = csv.DictReader(calibration_file)
+        required_fields = {
+            "line_bytes",
+            "average_miss_penalty_cycles",
+            "average_complete_refill_latency_cycles",
+        }
+        if reader.fieldnames is None or not required_fields.issubset(reader.fieldnames):
+            raise ValueError(
+                "penalty calibration CSV must contain line_bytes, "
+                "average_miss_penalty_cycles, and "
+                "average_complete_refill_latency_cycles"
+            )
+        for row in reader:
+            line_size = int(row["line_bytes"], 0)
+            if line_size in critical_penalty_by_line_size:
+                raise ValueError(
+                    f"duplicate {line_size}B entry in penalty calibration CSV"
+                )
+            critical_penalty_by_line_size[line_size] = float(
+                row["average_miss_penalty_cycles"]
+            )
+            complete_penalty_by_line_size[line_size] = float(
+                row["average_complete_refill_latency_cycles"]
+            )
+    return critical_penalty_by_line_size, complete_penalty_by_line_size
+
+
 def run_configuration(arguments):
     (
         binary,
@@ -102,6 +133,11 @@ def main():
         "--complete-refill-penalty-by-line-size",
         help="按行大小提供整行填充代价，例如 16=6,32=10,64=18",
     )
+    parser.add_argument(
+        "--penalty-calibration-csv",
+        type=Path,
+        help="读取RTL校准脚本生成的按行大小缺失代价表",
+    )
     parser.add_argument("--read-address-cycles", type=float, default=1.0)
     parser.add_argument("--memory-command-cycles", type=float, default=1.0)
     parser.add_argument("--first-data-cycles", type=float, default=1.0)
@@ -113,16 +149,45 @@ def main():
     capacities = parse_integer_list(args.capacities)
     line_sizes = parse_integer_list(args.line_sizes)
     way_counts = parse_integer_list(args.ways)
-    critical_penalty_by_line_size = (
+    critical_penalty_by_line_size = {}
+    complete_penalty_by_line_size = {}
+    if args.penalty_calibration_csv:
+        if args.refill_model != "fixed":
+            parser.error("--penalty-calibration-csv requires --refill-model fixed")
+        (
+            critical_penalty_by_line_size,
+            complete_penalty_by_line_size,
+        ) = parse_penalty_calibration(args.penalty_calibration_csv)
+
+    explicit_critical_penalty_by_line_size = (
         parse_penalty_map(args.critical_response_penalty_by_line_size)
         if args.critical_response_penalty_by_line_size
         else {}
     )
-    complete_penalty_by_line_size = (
+    explicit_complete_penalty_by_line_size = (
         parse_penalty_map(args.complete_refill_penalty_by_line_size)
         if args.complete_refill_penalty_by_line_size
         else {}
     )
+    critical_penalty_by_line_size.update(
+        explicit_critical_penalty_by_line_size
+    )
+    complete_penalty_by_line_size.update(
+        explicit_complete_penalty_by_line_size
+    )
+
+    if args.penalty_calibration_csv:
+        missing_line_sizes = sorted(
+            line_size
+            for line_size in line_sizes
+            if line_size not in critical_penalty_by_line_size
+            or line_size not in complete_penalty_by_line_size
+        )
+        if missing_line_sizes:
+            raise ValueError(
+                "penalty calibration CSV is missing line sizes: "
+                + ",".join(str(line_size) for line_size in missing_line_sizes)
+            )
 
     configurations = []
     for capacity in capacities:

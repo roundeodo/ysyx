@@ -265,6 +265,49 @@ NPC和NEMU的启动代码、平台代码及取指口径不同，所以RTL Miss�
 比较；它们不能与早期高延迟环境得到的`284.142 cycles`直接比较。后续若要评估真实SoC
 收益，必须在同一个ysyxSoC存储路径下重新测量32B基线和其他候选line。
 
+### 4.1 用RTL自动校准cachesim缺失代价
+
+现在使用下面的目标在完全相同的RV32 ysyxSoC、SDRAM、AXI delay和原生BL8环境中，分别
+编译16B、32B和64B I-cache并运行MicroBench：
+
+```sh
+cd /home/yong/ysyx/ysyx-workbench/npc
+make icache-calibrate-penalty ICACHE_CALIBRATION_SCALE=test
+```
+
+短规模用于检查流程，正式记录使用`train`：
+
+```sh
+make icache-calibrate-penalty \
+  ICACHE_CALIBRATION_SCALE=train \
+  ICACHE_CALIBRATION_LINE_SIZES=16,32,64
+```
+
+脚本实时转发仿真输出；每完成一种line大小，就立即更新
+`result/cache/rtl_icache_penalty_rv32_sdram_bl8_<scale>.csv`，并把完整终端输出保存到
+`result/cache/calibration_logs/`。因此长时间仿真即使中途停止，已经完成的项目仍然保留。
+
+校准表给cachesim提供两个不同的周期量：
+
+- `average_miss_penalty_cycles`是关键字交付给IFU的延迟减去正常hit延迟，用于计算AMAT和
+  critical TMT；
+- `average_complete_refill_latency_cycles`是从miss开始到整条cacheline全部写入array的时间，
+  用于评估miss unit、AXI和下层存储器被占用的时间。
+
+生成校准表后运行：
+
+```sh
+make cachesim-explore-calibrated ICACHE_CALIBRATION_SCALE=train
+```
+
+该目标读取CSV中每种line大小各自的实测周期，再对NEMU PC trace扫描容量、line大小和路数。
+CSV已经包含当前AXI、延迟模块、SDRAM控制器和refill微架构的综合效果，因此这里使用
+`fixed`模型；不能再叠加`independent`或`burst`理想时间公式，否则会重复计算传输开销。
+
+校准脚本同时保存MicroBench PMU测量窗口的cycle、retired instruction和IPC，用来确认三次
+运行执行了同一工作量。I-cache lookup/hit/miss计数覆盖完整仿真，而PMU窗口只覆盖
+MicroBench计分区间，两者的统计边界不同，不能拿lookup数直接除以PMU周期。
+
 ## 5. 设计结论的证据要求
 
 正式参数选择至少需要：

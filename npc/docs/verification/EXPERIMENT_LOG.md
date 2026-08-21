@@ -501,3 +501,45 @@ PMU基线（`hello-str`）：
   26.889周期，平均完整回填延迟为95.556周期，覆盖了16项R响应FIFO的全部深度；
 - 4KiB `sdram-test`通过字、字节和半字写掩码检查并命中good trap。该测试的I-cache平均
   完整回填延迟为48.782周期，LSU AXI读/写响应平均延迟为8.794/6.104周期。
+
+## 2026-08-21 - MicroBench train原生SDRAM BL8严格A/B评估
+
+实验控制变量：
+
+- 工作负载统一为同一份`riscv32-ysyxsoc-sdram` MicroBench `train`镜像；
+- CPU配置统一为`rv32-baseline`，I-cache为32B line，AXI延迟校准参数保持不变；
+- 唯一变量是`NPC_SDRAM_NATIVE_READ_BURST`：`0`将一个AXI burst拆成8个独立SDRAM
+  BL1读，`1`将满足条件的32B段映射为一条原生SDRAM BL8；
+- 两组10个子测试均通过，MicroBench测量窗口退休指令均为186810217条。
+
+结果：
+
+| 指标 | BL1基线 | 原生BL8 | 变化 |
+| --- | ---: | ---: | ---: |
+| MicroBench测量窗口周期 | 902867825 | 902833775 | -34050 (-0.00377%) |
+| MicroBench测量窗口IPC | 0.206907 | 0.206915 | +0.00377% |
+| 全程CPU周期 | 1239931108 | 1239853749 | -77359 (-0.00624%) |
+| I-cache miss | 725 | 725 | 不变 |
+| 平均critical响应延迟 | 46.021 | 33.212 | -27.83% |
+| 平均miss penalty | 44.021 | 31.212 | -29.10% |
+| 平均完整refill延迟 | 154.618 | 48.708 | -68.50% |
+| lookup请求等待周期 | 81167 | 13668 | -83.16% |
+| 全程critical TMT估算 | 31915.225 | 22628.700 | -9286.525 (-29.10%) |
+| 全程精确AMAT估算 | 2.000094 | 2.000067 | -0.000027周期 |
+
+分析：
+
+- 原生BL8显著减少SDRAM命令建立和整行回填时间，说明物理传输优化真实有效；
+- 725次miss相对于约3.38亿次lookup极少，命中率约99.9998%，因此miss penalty即使下降
+  29%，AMAT和应用IPC也几乎不变；本工作负载已不能继续放大I-cache refill优化收益；
+- critical-word early restart使CPU无需等待完整cache line返回。完整refill缩短68.50%，
+  但大部分尾部传输处于关键字交付后的后台路径，因此不能等比例转化为总周期下降；
+- MicroBench PMU窗口只覆盖各benchmark的`run()`，I-cache统计覆盖启动、准备、打印和
+  benchmark全程。因此全程TMT不能直接与PMU窗口减少的34050周期逐项相减；
+- 后续若要评估burst的应用收益，应使用指令工作集超过I-cache容量、或人为缩小I-cache的
+  压力工作负载；当前结果更适合证明传输机制正确，以及表明性能瓶颈不在I-cache miss。
+
+实现中发现并修复的协议问题：满足原生burst分类条件但响应FIFO暂时没有足够空间时，
+必须通过`ARREADY`反压等待，不能临时降级为普通首beat。错误降级会使事务只返回一个
+非末beat且永远等不到`RLAST`。修复后`make test-sdram-axi`、`make test-axi-delayer`和
+两组MicroBench均通过。
