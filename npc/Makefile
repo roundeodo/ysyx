@@ -530,6 +530,8 @@ CACHE_TRACE_ARCH             ?= riscv32-nemu
 CACHE_TRACE_ISA              = $(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64,riscv32)
 CACHE_TRACE_IMAGE            ?= $(CPU_TESTS_DIR)/build/bubble-sort-$(CACHE_TRACE_ISA)-npc.bin
 CACHE_TRACE_FILE             ?= $(abspath ./result/cache/$(CACHE_TRACE_ISA)_nemu_itrace.log)
+CACHE_TRACE_IMAGE_PATH       = $(abspath $(CACHE_TRACE_IMAGE))
+CACHE_TRACE_PATH             = $(abspath $(CACHE_TRACE_FILE))
 CACHE_CAPACITY_BYTES         ?= 8192
 CACHE_LINE_BYTES             ?= 32
 CACHE_WAYS                   ?= 2
@@ -562,20 +564,21 @@ cachesim-trace:
 	@test "$(CACHE_TRACE_ARCH)" = "riscv32-nemu" -o \
 	      "$(CACHE_TRACE_ARCH)" = "riscv64-nemu" || \
 		(echo "CACHE_TRACE_ARCH must be riscv32-nemu or riscv64-nemu"; exit 1)
-	@test -f "$(CACHE_TRACE_IMAGE)" || \
-		(echo "trace image not found: $(CACHE_TRACE_IMAGE)"; exit 1)
+	@test -f "$(CACHE_TRACE_IMAGE_PATH)" || \
+		(echo "trace image not found: $(CACHE_TRACE_IMAGE_PATH)"; exit 1)
+	mkdir -p $(dir $(CACHE_TRACE_PATH))
 	$(MAKE) -C $(NEMU_DIR) \
 		$(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
 	$(MAKE) -C $(NEMU_DIR) run \
-		ARGS="-l $(CACHE_TRACE_FILE) -b" \
-		IMG=$(CACHE_TRACE_IMAGE)
-	@echo "NEMU instruction trace: $(CACHE_TRACE_FILE)"
+		ARGS="-l $(CACHE_TRACE_PATH) -b" \
+		IMG=$(CACHE_TRACE_IMAGE_PATH)
+	@echo "NEMU instruction trace: $(CACHE_TRACE_PATH)"
 
 cachesim-run: $(CACHESIM_BINARY)
-	@test -f "$(CACHE_TRACE_FILE)" || \
-		(echo "trace file not found: $(CACHE_TRACE_FILE)"; exit 1)
+	@test -f "$(CACHE_TRACE_PATH)" || \
+		(echo "trace file not found: $(CACHE_TRACE_PATH)"; exit 1)
 	$(CACHESIM_BINARY) \
-		--trace $(CACHE_TRACE_FILE) \
+		--trace $(CACHE_TRACE_PATH) \
 		--capacity-bytes $(CACHE_CAPACITY_BYTES) \
 		--line-bytes $(CACHE_LINE_BYTES) \
 		--ways $(CACHE_WAYS) \
@@ -583,11 +586,11 @@ cachesim-run: $(CACHESIM_BINARY)
 		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES)
 
 cachesim-explore: $(CACHESIM_BINARY)
-	@test -f "$(CACHE_TRACE_FILE)" || \
-		(echo "trace file not found: $(CACHE_TRACE_FILE)"; exit 1)
+	@test -f "$(CACHE_TRACE_PATH)" || \
+		(echo "trace file not found: $(CACHE_TRACE_PATH)"; exit 1)
 	python3 $(CACHESIM_EXPLORE_SCRIPT) \
 		--binary $(CACHESIM_BINARY) \
-		--trace $(CACHE_TRACE_FILE) \
+		--trace $(CACHE_TRACE_PATH) \
 		--capacities $(CACHE_SCAN_CAPACITIES) \
 		--line-sizes $(CACHE_SCAN_LINE_SIZES) \
 		--ways $(CACHE_SCAN_WAYS) \
