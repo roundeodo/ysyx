@@ -138,6 +138,106 @@ static inline word_t sign_extend_word(uint32_t value) {
   return (word_t)(int64_t)(int32_t)value;
 }
 
+typedef __int128          signed_double_word_t;
+typedef unsigned __int128 unsigned_double_word_t;
+
+static inline word_t multiply_high_signed(word_t lhs, word_t rhs) {
+  const signed_double_word_t product =
+      (signed_double_word_t)(sword_t)lhs *
+      (signed_double_word_t)(sword_t)rhs;
+  return (word_t)((unsigned_double_word_t)product >> (sizeof(word_t) * 8));
+}
+
+static inline word_t multiply_high_signed_unsigned(word_t lhs, word_t rhs) {
+  const signed_double_word_t product =
+      (signed_double_word_t)(sword_t)lhs *
+      (signed_double_word_t)(unsigned_double_word_t)rhs;
+  return (word_t)((unsigned_double_word_t)product >> (sizeof(word_t) * 8));
+}
+
+static inline word_t multiply_high_unsigned(word_t lhs, word_t rhs) {
+  const unsigned_double_word_t product =
+      (unsigned_double_word_t)lhs * (unsigned_double_word_t)rhs;
+  return (word_t)(product >> (sizeof(word_t) * 8));
+}
+
+static inline word_t divide_signed(word_t dividend, word_t divisor) {
+  const sword_t signed_dividend = (sword_t)dividend;
+  const sword_t signed_divisor  = (sword_t)divisor;
+  const sword_t minimum_value =
+      (sword_t)((word_t)1 << (sizeof(word_t) * 8 - 1));
+
+  if (divisor == 0) {
+    return ~(word_t)0;
+  }
+  if (signed_dividend == minimum_value && signed_divisor == (sword_t)-1) {
+    return dividend;
+  }
+  return (word_t)(signed_dividend / signed_divisor);
+}
+
+static inline word_t divide_unsigned(word_t dividend, word_t divisor) {
+  return divisor == 0 ? ~(word_t)0 : dividend / divisor;
+}
+
+static inline word_t remainder_signed(word_t dividend, word_t divisor) {
+  const sword_t signed_dividend = (sword_t)dividend;
+  const sword_t signed_divisor  = (sword_t)divisor;
+  const sword_t minimum_value =
+      (sword_t)((word_t)1 << (sizeof(word_t) * 8 - 1));
+
+  if (divisor == 0) {
+    return dividend;
+  }
+  if (signed_dividend == minimum_value && signed_divisor == (sword_t)-1) {
+    return 0;
+  }
+  return (word_t)(signed_dividend % signed_divisor);
+}
+
+static inline word_t remainder_unsigned(word_t dividend, word_t divisor) {
+  return divisor == 0 ? dividend : dividend % divisor;
+}
+
+#ifdef CONFIG_RV64
+static inline word_t divide_signed_word(uint32_t dividend, uint32_t divisor) {
+  const int32_t signed_dividend = (int32_t)dividend;
+  const int32_t signed_divisor  = (int32_t)divisor;
+
+  if (divisor == 0) {
+    return ~(word_t)0;
+  }
+  if (signed_dividend == INT32_MIN && signed_divisor == -1) {
+    return sign_extend_word(dividend);
+  }
+  return sign_extend_word((uint32_t)(signed_dividend / signed_divisor));
+}
+
+static inline word_t divide_unsigned_word(uint32_t dividend, uint32_t divisor) {
+  const uint32_t quotient = divisor == 0 ? UINT32_MAX : dividend / divisor;
+  return sign_extend_word(quotient);
+}
+
+static inline word_t remainder_signed_word(uint32_t dividend, uint32_t divisor) {
+  const int32_t signed_dividend = (int32_t)dividend;
+  const int32_t signed_divisor  = (int32_t)divisor;
+
+  if (divisor == 0) {
+    return sign_extend_word(dividend);
+  }
+  if (signed_dividend == INT32_MIN && signed_divisor == -1) {
+    return 0;
+  }
+  return sign_extend_word((uint32_t)(signed_dividend % signed_divisor));
+}
+
+static inline word_t remainder_unsigned_word(uint32_t dividend,
+                                             uint32_t divisor) {
+  const uint32_t remainder = divisor == 0 ? dividend : dividend % divisor;
+  return sign_extend_word(remainder);
+}
+#endif
+
 static void etrace_mret(vaddr_t pc) {
 #ifdef CONFIG_ETRACE
   if (ETRACE_COND) {
@@ -209,11 +309,30 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000000 ????? ????? 110 ????? 01100 11", or,   R, R(rd) = src1 | src2);
   INSTPAT("0000000 ????? ????? 111 ????? 01100 11", and,  R, R(rd) = src1 & src2);
 
+  // M扩展的基础操作宽度跟随XLEN；高位乘法使用双倍宽度中间结果。
+  INSTPAT("0000001 ????? ????? 000 ????? 01100 11", mul,    R, R(rd) = src1 * src2);
+  INSTPAT("0000001 ????? ????? 001 ????? 01100 11", mulh,   R, R(rd) = multiply_high_signed(src1, src2));
+  INSTPAT("0000001 ????? ????? 010 ????? 01100 11", mulhsu, R, R(rd) = multiply_high_signed_unsigned(src1, src2));
+  INSTPAT("0000001 ????? ????? 011 ????? 01100 11", mulhu,  R, R(rd) = multiply_high_unsigned(src1, src2));
+  INSTPAT("0000001 ????? ????? 100 ????? 01100 11", div,    R, R(rd) = divide_signed(src1, src2));
+  INSTPAT("0000001 ????? ????? 101 ????? 01100 11", divu,   R, R(rd) = divide_unsigned(src1, src2));
+  INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem,    R, R(rd) = remainder_signed(src1, src2));
+  INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu,   R, R(rd) = remainder_unsigned(src1, src2));
+
   INSTPAT("0000000 ????? ????? 000 ????? 01110 11", addw, R, R(rd) = sign_extend_word((uint32_t)(src1 + src2)));
   INSTPAT("0100000 ????? ????? 000 ????? 01110 11", subw, R, R(rd) = sign_extend_word((uint32_t)(src1 - src2)));
   INSTPAT("0000000 ????? ????? 001 ????? 01110 11", sllw, R, R(rd) = sign_extend_word((uint32_t)src1 << (src2 & 0x1f)));
   INSTPAT("0000000 ????? ????? 101 ????? 01110 11", srlw, R, R(rd) = sign_extend_word((uint32_t)src1 >> (src2 & 0x1f)));
   INSTPAT("0100000 ????? ????? 101 ????? 01110 11", sraw, R, R(rd) = sign_extend_word((uint32_t)((int32_t)src1 >> (src2 & 0x1f))));
+
+#ifdef CONFIG_RV64
+  // RV64M的W类指令只计算低32位，并把32位结果符号扩展到XLEN。
+  INSTPAT("0000001 ????? ????? 000 ????? 01110 11", mulw,  R, R(rd) = sign_extend_word((uint32_t)src1 * (uint32_t)src2));
+  INSTPAT("0000001 ????? ????? 100 ????? 01110 11", divw,  R, R(rd) = divide_signed_word((uint32_t)src1, (uint32_t)src2));
+  INSTPAT("0000001 ????? ????? 101 ????? 01110 11", divuw, R, R(rd) = divide_unsigned_word((uint32_t)src1, (uint32_t)src2));
+  INSTPAT("0000001 ????? ????? 110 ????? 01110 11", remw,  R, R(rd) = remainder_signed_word((uint32_t)src1, (uint32_t)src2));
+  INSTPAT("0000001 ????? ????? 111 ????? 01110 11", remuw, R, R(rd) = remainder_unsigned_word((uint32_t)src1, (uint32_t)src2));
+#endif
 
   INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal, J,
           R(rd) = s->pc + 4;
