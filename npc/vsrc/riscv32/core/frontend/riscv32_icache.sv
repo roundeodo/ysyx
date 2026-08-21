@@ -531,16 +531,17 @@ module riscv32_icache
                         miss_transaction_present ||
                         invalidate_req_i ||
                         (invalidate_state_q != INVALIDATE_IDLE);
-  // event只观察已经发生的握手或miss-unit事件，不参与cache控制。绑定握手而不是valid，
-  // 可避免下游反压使同一事务保持多拍时被重复计数。过期fetch epoch由IFU识别，因此
+  // event只观察cache接口和miss-unit事件，不参与cache控制。lookup response使用present
+  // 作为AMAT终点；PMU用活动请求状态保证响应反压时不会重复计数。过期fetch epoch由IFU识别，因此
   // stale_response_discarded_occurred在I-cache内部固定为0。当前event没有access-fault字段，
   // 因此发生取指访问异常时，lookup计数不会落入hit、miss或uncached三类中的任何一类。
   always_comb begin
     event_o                                       = '0;
     event_o.lookup_occurred                       = lookup_req_handshake;
-    event_o.lookup_response_occurred              = lookup_resp_valid_o && lookup_resp_ready_i;
+    event_o.lookup_response_present               = lookup_resp_valid_o;
+    event_o.lookup_response_is_cache_hit          = local_lookup_resp_valid && lookup_hit &&
+                                                    !miss_lookup_resp_valid;
     event_o.lookup_request_waiting                = lookup_req_valid_i && !lookup_req_ready_o;
-    event_o.hit_occurred                          = local_lookup_resp_handshake && lookup_hit;
     event_o.miss_occurred                         = miss_event.miss_occurred;
     event_o.uncached_access_occurred              = miss_req_handshake && lookup_uncached;
     event_o.refill_word_occurred                  = miss_event.refill_word_occurred;

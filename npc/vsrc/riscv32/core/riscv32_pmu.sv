@@ -112,6 +112,14 @@ module riscv32_pmu
   logic        icache_refill_timer_active_d;
   logic        icache_refill_timer_active_q;
 
+  // response present可能因下游反压保持多拍。只有PMU仍在跟踪请求，或请求和结果
+  // 同拍出现时，当前present才表示一个尚未统计的新结果。
+  logic        icache_lookup_response_available_for_active_request;
+
+  assign icache_lookup_response_available_for_active_request =
+      icache_event_i.lookup_response_present &&
+      (icache_lookup_timer_active_q || icache_event_i.lookup_occurred);
+
   // csr_read_select_o表示读地址由PMU实现，不是握手信号，也不表示计数器发生变化。
   // CSR file据此选择PMU读数据；未实现地址保持select为0，由CSR file报告非法访问。
   // RV32通过基础CSR和H后缀CSR分别访问低、高32位；RV64通过基础CSR访问全部64位。
@@ -205,7 +213,6 @@ module riscv32_pmu
   // 事件字段扩展为计数值，使PMU直接累加实际发生数量。
   always_comb begin
     icache_lookup_count_d          = icache_lookup_count_q + 64'(icache_event_i.lookup_occurred);
-    icache_hit_count_d             = icache_hit_count_q + 64'(icache_event_i.hit_occurred);
     icache_miss_count_d            = icache_miss_count_q + 64'(icache_event_i.miss_occurred);
     icache_refill_word_count_d     = icache_refill_word_count_q
                                      + 64'(icache_event_i.refill_word_occurred);
@@ -217,10 +224,12 @@ module riscv32_pmu
                                      + 64'(icache_event_i.stale_response_discarded_occurred);
   end
 
-  // Lookup计时与事件计数分开：hit在响应握手当拍直接分类；miss先在S2
-  // 分类，之后critical word才产生通用lookup response。uncached和access fault会
+  // Lookup计时与事件计数分开：hit在响应首次可用时直接分类；miss先在S2
+  // 分类，之后critical word才产生通用lookup response。计时不等待response ready，
+  // 因而不会把fetch buffer或后端反压算入cache AMAT。uncached和access fault会
   // 正常结束lookup计时器，但不进入cacheable AMAT的分子或分母。
   always_comb begin
+    icache_hit_count_d                       = icache_hit_count_q;
     icache_miss_response_count_d             = icache_miss_response_count_q;
     icache_refill_transaction_count_d        = icache_refill_transaction_count_q;
     icache_lookup_request_wait_cycle_count_d =
@@ -247,10 +256,11 @@ module riscv32_pmu
       icache_refill_elapsed_cycle_count_d = '0;
     end
 
-    // response结束当前lookup。对于hit，hit_occurred与通用response事件同拍；
+    // response首次可用时结束当前lookup。对于hit，cache同时给出命中分类；
     // 对于miss，使用之前锁存的S2分类。“已经过的周期+1”把响应当拍计入延迟。
-    if (icache_event_i.lookup_response_occurred) begin
-      if (icache_event_i.hit_occurred) begin
+    if (icache_lookup_response_available_for_active_request) begin
+      if (icache_event_i.lookup_response_is_cache_hit) begin
+        icache_hit_count_d             = icache_hit_count_q + 64'd1;
         icache_hit_latency_cycle_sum_d = icache_hit_latency_cycle_sum_q +
                                          icache_lookup_elapsed_cycle_count_q + 64'd1;
       end else if (icache_lookup_miss_classification_q || icache_event_i.miss_occurred) begin
@@ -265,10 +275,10 @@ module riscv32_pmu
       icache_lookup_miss_classification_d = 1'b0;
     end
 
-    // 允许“旧响应完成+新请求接收”同拍发生。如果当前没有旧lookup且请求
+    // 允许“旧响应可用+新请求接收”同拍发生。如果当前没有旧lookup且请求
     // 与响应同拍，该请求已以1拍延迟完成，不再留下活动计时器。
     if (icache_event_i.lookup_occurred &&
-        (!icache_event_i.lookup_response_occurred || icache_lookup_timer_active_q)) begin
+        (!icache_event_i.lookup_response_present || icache_lookup_timer_active_q)) begin
       icache_lookup_elapsed_cycle_count_d = '0;
       icache_lookup_timer_active_d        = 1'b1;
       icache_lookup_miss_classification_d = 1'b0;
@@ -463,12 +473,8 @@ module riscv32_pmu
       else $error("I-cache completed a refill line without receiving all words");
 
       assert (!(icache_event_i.lookup_occurred && icache_lookup_timer_active_q &&
-                !icache_event_i.lookup_response_occurred))
+                !icache_event_i.lookup_response_present))
       else $error("I-cache AMAT timer observed more than one outstanding lookup");
-
-      assert (!icache_event_i.lookup_response_occurred ||
-              icache_lookup_timer_active_q || icache_event_i.lookup_occurred)
-      else $error("I-cache AMAT timer observed a response without a request");
 
       assert (!icache_event_i.miss_occurred || icache_lookup_timer_active_q)
       else $error("I-cache AMAT timer observed a miss without an active lookup");

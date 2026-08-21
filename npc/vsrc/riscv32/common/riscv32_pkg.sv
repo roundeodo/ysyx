@@ -390,13 +390,16 @@ package riscv32_pkg;
     logic                             access_fault;
     icache_refill_transaction_index_t transaction_index;
   } icache_refill_resp_t;
-  // 这些字段描述“本周期发生了什么”，因此使用occurred后缀；它们不得反向控制cache：
+  // PMU观察接口不得反向控制cache。occurred字段是单周期事件脉冲；present/is字段
+  // 描述当前响应口状态，由PMU自身的活动请求状态保证每个响应只统计一次。
   typedef struct packed {
     logic lookup_occurred;
-    logic lookup_response_occurred;
+    // AMAT的终点是cache首次给出结果，不是下游最终完成握手。否则fetch buffer反压
+    // 会被错误计入cache访问时间。
+    logic lookup_response_present;
+    logic lookup_response_is_cache_hit;
     // waiting表示请求已有效但cache本周期不能接收，用于累计前端阻塞周期。
     logic lookup_request_waiting;
-    logic hit_occurred;
     logic miss_occurred;
     logic uncached_access_occurred;
     logic refill_word_occurred;
