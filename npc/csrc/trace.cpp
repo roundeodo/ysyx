@@ -17,7 +17,6 @@ static bool capstone_ready = false;
 struct ITraceRecord {
   npc_word_t pc;
   uint32_t inst;
-  char disasm[128];
 };
 
 static ITraceRecord itrace_ringbuf[ITRACE_RINGBUF_SIZE];
@@ -100,23 +99,18 @@ void trace_cleanup() {
 
 // record one instruction
 void trace_inst(npc_word_t pc, uint32_t inst) {
-  char disasm_buf[128];
-
-  disassemble_inst(pc, inst, disasm_buf, sizeof(disasm_buf));
-
   uint64_t idx = itrace_count % ITRACE_RINGBUF_SIZE;
 
   itrace_ringbuf[idx].pc = pc;
   itrace_ringbuf[idx].inst = inst;
-  snprintf(itrace_ringbuf[idx].disasm, sizeof(itrace_ringbuf[idx].disasm), "%s",
-           disasm_buf);
-
   itrace_count++;
 
   if (!itrace_enabled) {
     return;
   }
 
+  char disasm_buf[128];
+  disassemble_inst(pc, inst, disasm_buf, sizeof(disasm_buf));
   printf("itrace: 0x%0*llx: %08x  %s\n", NPC_WORD_HEX_DIGITS,
          static_cast<unsigned long long>(pc), inst, disasm_buf);
 }
@@ -131,10 +125,13 @@ void trace_print_ringbuf() {
 
   for (uint64_t i = start; i < total; i++) {
     uint64_t idx = i % ITRACE_RINGBUF_SIZE;
+    char disasm_buf[128];
+    disassemble_inst(itrace_ringbuf[idx].pc, itrace_ringbuf[idx].inst,
+                     disasm_buf, sizeof(disasm_buf));
 
     printf("  0x%0*llx: %08x  %s\n", NPC_WORD_HEX_DIGITS,
            static_cast<unsigned long long>(itrace_ringbuf[idx].pc),
-           itrace_ringbuf[idx].inst, itrace_ringbuf[idx].disasm);
+           itrace_ringbuf[idx].inst, disasm_buf);
   }
 }
 
