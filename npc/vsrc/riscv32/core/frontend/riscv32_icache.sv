@@ -1,8 +1,8 @@
 // 直接映射、阻塞式L1指令缓存顶层，hit路径采用分级流水处理。
 //
 // 本模块拥有lookup pipeline、命中判定和invalidate协调；tag/data阵列、
-// miss跟踪、PMA分类和下层协议转换分别交给子模块。v1目标是hit时每周期接受一个请求、
-// 固定两周期lookup延迟，并在INCR refill自然到达关键word时支持early restart。这个边界为
+// miss跟踪、PMA分类和下层协议转换分别交给子模块。hit路径由同步array读和
+// 一级请求身份寄存组成，并在INCR refill自然到达关键word时支持early restart。这个边界为
 // 后续增加组相联、多个MSHR、prefetch和更宽fetch保留了独立演进空间。
 module riscv32_icache
   import riscv32_pkg::*;
@@ -162,29 +162,17 @@ module riscv32_icache
     end
   end
   // Lookup流水线：S0是输入握手与同步阵列读请求；S1保存请求身份和PMA属性，
-  // 等待阵列读结果；S2保存请求及其对应的tag/data快照，并执行命中判断。
-  // present表示该级持有有效请求，ready表示该级可在本拍结束时被覆盖。
-  // miss被miss unit接收的当拍必须清空S2并冻结S1，不能顺手把年轻请求推进S2；否则
-  // miss response尚未返回时，年轻请求可能先产生本地hit response，破坏顺序。
+  // tag/data array内部的同步读寄存器在同一时钟沿保存对应阵列数据。下一拍直接使用
+  // S1身份和阵列输出执行命中判断，不再增加一份内容完全相同的S2快照。
+  // present表示S1持有有效请求，ready表示该请求已完成或级内为空。miss调度当拍
+  // 禁止接收年轻请求，保证单MSHR阻塞式I-cache不会产生响应越序。
   icache_lookup_req_t lookup_s1_q, lookup_s1_d;
   pma_attr_t memory_attr_s1_q, memory_attr_s1_d;
   logic lookup_s1_present_q, lookup_s1_present_d;
 
-  icache_lookup_req_t lookup_s2_q, lookup_s2_d;
-  pma_attr_t memory_attr_s2_q, memory_attr_s2_d;
-  logic lookup_s2_present_q, lookup_s2_present_d;
-
-  icache_tag_t lookup_tag_array_s2_q[ICACHE_WAY_COUNT];
-  icache_tag_t lookup_tag_array_s2_d[ICACHE_WAY_COUNT];
-  logic [ICACHE_WAY_COUNT-1:0] lookup_line_present_vector_s2_q;
-  logic [ICACHE_WAY_COUNT-1:0] lookup_line_present_vector_s2_d;
-  icache_fetch_data_t lookup_word_data_array_s2_q[ICACHE_WAY_COUNT];
-  icache_fetch_data_t lookup_word_data_array_s2_d[ICACHE_WAY_COUNT];
-
   logic lookup_req_handshake;
   logic lookup_s1_ready;
-  logic lookup_s2_ready;
-  logic lookup_s2_completed;
+  logic lookup_s1_completed;
   logic local_lookup_resp_handshake;
   logic miss_req_handshake;
 
@@ -211,11 +199,11 @@ module riscv32_icache
   function automatic icache_tag_t get_icache_tag(input phys_addr_t addr);
     return addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
   endfunction
-  // S2比较直接映射way 0的present和tag，并把请求划分为四类互斥结果：
+  // S1比较直接映射way 0的present和tag，并把请求划分为四类互斥结果：
   // access fault、uncached访问、cache hit和cache miss。这里不实现多路比较和way encoder。
   // 四类结果互斥：不可执行地址本地返回fault；可执行但不可缓存地址走单word uncached
-  // 访问；cacheable地址命中时本地返回，未命中时请求整line refill。响应反压时S2保持，
-  // 所以上述组合payload也随S2保持，无需重复增加response寄存器。
+  // 访问；cacheable地址命中时本地返回，未命中时请求整line refill。响应反压时S1和
+  // array读输出都保持，所以组合payload也保持稳定，无需重复增加response寄存器。
   logic [ICACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
   logic lookup_hit;
   icache_fetch_data_t lookup_hit_word_data;
@@ -230,23 +218,23 @@ module riscv32_icache
     lookup_hit            = 1'b0;
     lookup_hit_word_data  = '0;
 
-    lookup_way_hit_vector[0] = lookup_s2_present_q && memory_attr_s2_q.executable &&
-                               memory_attr_s2_q.cacheable &&
-                               lookup_line_present_vector_s2_q[0] &&
-                               (lookup_tag_array_s2_q[0] == get_icache_tag(
-                                   lookup_s2_q.fetch_addr));
+    lookup_way_hit_vector[0] = lookup_s1_present_q && memory_attr_s1_q.executable &&
+                               memory_attr_s1_q.cacheable &&
+                               array_read_line_present_vector[0] &&
+                               (array_read_tag_array[0] == get_icache_tag(
+                                   lookup_s1_q.fetch_addr));
     lookup_hit           = lookup_way_hit_vector[0];
-    lookup_hit_word_data = lookup_word_data_array_s2_q[0];
+    lookup_hit_word_data = array_read_word_data_array[0];
 
-    lookup_access_fault = lookup_s2_present_q && !memory_attr_s2_q.executable;
-    lookup_uncached     = lookup_s2_present_q && memory_attr_s2_q.executable && !memory_attr_s2_q.cacheable;
-    lookup_cache_miss   = lookup_s2_present_q && memory_attr_s2_q.executable && memory_attr_s2_q.cacheable && !lookup_hit;
+    lookup_access_fault = lookup_s1_present_q && !memory_attr_s1_q.executable;
+    lookup_uncached     = lookup_s1_present_q && memory_attr_s1_q.executable && !memory_attr_s1_q.cacheable;
+    lookup_cache_miss   = lookup_s1_present_q && memory_attr_s1_q.executable && memory_attr_s1_q.cacheable && !lookup_hit;
 
     local_lookup_resp_valid        = lookup_access_fault || lookup_hit;
     local_lookup_resp              = '0;
-    local_lookup_resp.fetch_addr   = lookup_s2_q.fetch_addr;
-    local_lookup_resp.frontend_tag = lookup_s2_q.frontend_tag;
-    local_lookup_resp.fetch_epoch  = lookup_s2_q.fetch_epoch;
+    local_lookup_resp.fetch_addr   = lookup_s1_q.fetch_addr;
+    local_lookup_resp.frontend_tag = lookup_s1_q.frontend_tag;
+    local_lookup_resp.fetch_epoch  = lookup_s1_q.fetch_epoch;
     local_lookup_resp.access_fault = lookup_access_fault;
     local_lookup_resp.fetch_data   = lookup_hit ? lookup_hit_word_data : '0;
   end
@@ -266,14 +254,14 @@ module riscv32_icache
     end
 
     miss_req                       = '0;
-    miss_req.lookup_req            = lookup_s2_q;
-    miss_req.memory_attr           = memory_attr_s2_q;
-    miss_req.set_index             = get_icache_set_index(lookup_s2_q.fetch_addr);
-    miss_req.critical_word_index   = get_icache_word_index(lookup_s2_q.fetch_addr);
+    miss_req.lookup_req            = lookup_s1_q;
+    miss_req.memory_attr           = memory_attr_s1_q;
+    miss_req.set_index             = get_icache_set_index(lookup_s1_q.fetch_addr);
+    miss_req.critical_word_index   = get_icache_word_index(lookup_s1_q.fetch_addr);
     // 直接映射中每个set只有way 0，miss unit无需保存或查询替换状态。
     miss_req.replacement_way_index = '0;
-    miss_req.refill_tag            = get_icache_tag(lookup_s2_q.fetch_addr);
-    miss_req_valid                 = lookup_s2_present_q && (lookup_cache_miss || lookup_uncached);
+    miss_req.refill_tag            = get_icache_tag(lookup_s1_q.fetch_addr);
+    miss_req_valid                 = lookup_s1_present_q && (lookup_cache_miss || lookup_uncached);
     array_read_enable              = lookup_req_handshake;
     array_read_set_index           = get_icache_set_index(lookup_req_i.fetch_addr);
     array_read_word_index          = get_icache_word_index(lookup_req_i.fetch_addr);
@@ -281,10 +269,9 @@ module riscv32_icache
 
   assign local_lookup_resp_handshake = local_lookup_resp_valid && lookup_resp_ready_i && !miss_lookup_resp_valid;
   assign miss_req_handshake = miss_req_valid && miss_req_ready;
-  assign lookup_s2_completed = local_lookup_resp_handshake || miss_req_handshake;
-  assign lookup_s2_ready = !lookup_s2_present_q || lookup_s2_completed;
-
-  assign lookup_s1_ready = (!lookup_s1_present_q || lookup_s2_ready) && !miss_req_valid && !miss_transaction_present;
+  assign lookup_s1_completed = local_lookup_resp_handshake || miss_req_handshake;
+  assign lookup_s1_ready = (!lookup_s1_present_q || lookup_s1_completed) &&
+                           !miss_req_valid && !miss_transaction_present;
   assign lookup_req_handshake = lookup_req_valid_i && lookup_req_ready_o;
 
   always_comb begin
@@ -292,33 +279,9 @@ module riscv32_icache
     memory_attr_s1_d    = memory_attr_s1_q;
     lookup_s1_present_d = lookup_s1_present_q;
 
-    lookup_s2_d                     = lookup_s2_q;
-    memory_attr_s2_d                = memory_attr_s2_q;
-    lookup_s2_present_d             = lookup_s2_present_q;
-    lookup_line_present_vector_s2_d = lookup_line_present_vector_s2_q;
-
-    for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-      lookup_tag_array_s2_d[way_index]       = lookup_tag_array_s2_q[way_index];
-      lookup_word_data_array_s2_d[way_index] = lookup_word_data_array_s2_q[way_index];
-    end
-
     if (miss_req_handshake) begin
-      lookup_s2_present_d = 1'b0;
-    end else if (lookup_s2_ready && !miss_transaction_present) begin
-      lookup_s2_present_d = lookup_s1_present_q;
-      if (lookup_s1_present_q) begin
-        lookup_s2_d                     = lookup_s1_q;
-        memory_attr_s2_d                = memory_attr_s1_q;
-        lookup_line_present_vector_s2_d = array_read_line_present_vector;
-
-        for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-          lookup_tag_array_s2_d[way_index]       = array_read_tag_array[way_index];
-          lookup_word_data_array_s2_d[way_index] = array_read_word_data_array[way_index];
-        end
-      end
-    end
-
-    if (lookup_s1_ready) begin
+      lookup_s1_present_d = 1'b0;
+    end else if (lookup_s1_ready) begin
       lookup_s1_present_d = lookup_req_handshake;
       if (lookup_req_handshake) begin
         lookup_s1_d      = lookup_req_i;
@@ -339,35 +302,7 @@ module riscv32_icache
     end
   end
 
-  always_ff @(posedge clk_i) begin
-    if (!rst_ni) begin
-      lookup_s2_q         <= '0;
-      memory_attr_s2_q    <= '0;
-      lookup_s2_present_q <= 1'b0;
-    end else begin
-      lookup_s2_q         <= lookup_s2_d;
-      memory_attr_s2_q    <= memory_attr_s2_d;
-      lookup_s2_present_q <= lookup_s2_present_d;
-    end
-  end
-
-  always_ff @(posedge clk_i) begin
-    if (!rst_ni) begin
-      lookup_line_present_vector_s2_q <= '0;
-      for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-        lookup_tag_array_s2_q[way_index]       <= '0;
-        lookup_word_data_array_s2_q[way_index] <= '0;
-      end
-    end else begin
-      lookup_line_present_vector_s2_q <= lookup_line_present_vector_s2_d;
-      for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-        lookup_tag_array_s2_q[way_index]       <= lookup_tag_array_s2_d[way_index];
-        lookup_word_data_array_s2_q[way_index] <= lookup_word_data_array_s2_d[way_index];
-      end
-    end
-  end
-
-  // fence.i/invalidate先阻止新lookup并排空旧lookup和miss，再逐set、逐way清除
+  // fence.i/invalidate先阻止新lookup并排空旧lookup和miss，再逐set清除
   // present位，最后产生单拍done。tag/data无需清零，因为present=0使旧内容不可见。
   // 已经发出的下层事务必须完整握手，不能因fence.i中途撤销。上游保持请求直到done；
   // 本状态机只在IDLE采样一次请求，done产生的同一时钟沿上游必须撤销请求，避免重复启动。
@@ -381,7 +316,6 @@ module riscv32_icache
 
   invalidate_state_e invalidate_state_q, invalidate_state_d;
   icache_set_index_t invalidate_set_index_q, invalidate_set_index_d;
-  icache_way_index_t invalidate_way_index_q, invalidate_way_index_d;
   logic invalidate_blocks_lookup;
   logic invalidate_metadata_write_valid;
 
@@ -410,7 +344,6 @@ module riscv32_icache
   always_comb begin
     invalidate_state_d     = invalidate_state_q;
     invalidate_set_index_d = invalidate_set_index_q;
-    invalidate_way_index_d = invalidate_way_index_q;
 
     unique case (invalidate_state_q)
       INVALIDATE_IDLE: begin
@@ -420,24 +353,17 @@ module riscv32_icache
       end
 
       INVALIDATE_DRAIN_LOOKUPS: begin
-        if (!lookup_s1_present_q && !lookup_s2_present_q && !miss_transaction_present) begin
+        if (!lookup_s1_present_q && !miss_transaction_present) begin
           invalidate_set_index_d = '0;
-          invalidate_way_index_d = '0;
           invalidate_state_d     = INVALIDATE_CLEAR_METADATA;
         end
       end
 
       INVALIDATE_CLEAR_METADATA: begin
-        if (invalidate_way_index_q == icache_way_index_t'(ICACHE_WAY_COUNT - 1)) begin
-          invalidate_way_index_d = '0;
-
-          if (invalidate_set_index_q == icache_set_index_t'(ICACHE_SET_COUNT - 1)) begin
-            invalidate_state_d = INVALIDATE_COMPLETE;
-          end else begin
-            invalidate_set_index_d = invalidate_set_index_q + icache_set_index_t'(1);
-          end
+        if (invalidate_set_index_q == icache_set_index_t'(ICACHE_SET_COUNT - 1)) begin
+          invalidate_state_d = INVALIDATE_COMPLETE;
         end else begin
-          invalidate_way_index_d = invalidate_way_index_q + icache_way_index_t'(1);
+          invalidate_set_index_d = invalidate_set_index_q + icache_set_index_t'(1);
         end
       end
 
@@ -448,7 +374,6 @@ module riscv32_icache
       default: begin
         invalidate_state_d     = INVALIDATE_IDLE;
         invalidate_set_index_d = '0;
-        invalidate_way_index_d = '0;
       end
     endcase
   end
@@ -464,10 +389,8 @@ module riscv32_icache
   always_ff @(posedge clk_i) begin
     if (!rst_ni) begin
       invalidate_set_index_q <= '0;
-      invalidate_way_index_q <= '0;
     end else begin
       invalidate_set_index_q <= invalidate_set_index_d;
-      invalidate_way_index_q <= invalidate_way_index_d;
     end
   end
 
@@ -481,14 +404,13 @@ module riscv32_icache
     if (invalidate_metadata_write_valid) begin
       metadata_write_valid        = 1'b1;
       metadata_write_set_index    = invalidate_set_index_q;
-      metadata_write_way_index    = invalidate_way_index_q;
+      metadata_write_way_index    = '0;
       metadata_write_tag          = '0;
       metadata_write_line_present = 1'b0;
     end
   end
 
   assign cache_busy_o = lookup_s1_present_q ||
-                        lookup_s2_present_q ||
                         miss_transaction_present ||
                         invalidate_req_i ||
                         (invalidate_state_q != INVALIDATE_IDLE);
@@ -544,9 +466,9 @@ module riscv32_icache
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       miss_req_valid |->
-          (lookup_s2_present_q && (lookup_cache_miss || lookup_uncached))
+          (lookup_s1_present_q && (lookup_cache_miss || lookup_uncached))
   )
-  else $error("I-cache miss request has no valid S2 classification");
+  else $error("I-cache miss request has no valid S1 classification");
 
   a_array_read_matches_lookup_acceptance :
   assert property (

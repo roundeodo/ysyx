@@ -31,8 +31,7 @@ module riscv32_lsu
   typedef enum logic [1:0] {
     LSU_IDLE,
     LSU_SEND_MEMORY_REQUEST,
-    LSU_WAIT_MEMORY_RESPONSE,
-    LSU_HOLD_WRITEBACK
+    LSU_WAIT_MEMORY_RESPONSE
   } lsu_state_e;
 
   lsu_state_e state_q;
@@ -42,15 +41,12 @@ module riscv32_lsu
   lsu_req_t lsu_req_d;
   lsu_req_t active_lsu_req;
 
-  writeback_result_t buffered_writeback_q;
-  writeback_result_t buffered_writeback_d;
   writeback_result_t local_writeback;
   writeback_result_t memory_writeback;
 
   logic lsu_req_handshake;
   logic data_memory_req_handshake;
   logic data_memory_resp_handshake;
-  logic lsu_writeback_handshake;
 
   localparam int unsigned CORE_BYTE_OFFSET_WIDTH =
       (CORE_DATA_BYTE_COUNT > 1) ? $clog2(CORE_DATA_BYTE_COUNT) : 1;
@@ -79,7 +75,6 @@ module riscv32_lsu
       data_memory_req_valid_o && data_memory_req_ready_i;
   assign data_memory_resp_handshake =
       data_memory_resp_valid_i && data_memory_resp_ready_o;
-  assign lsu_writeback_handshake = lsu_writeback_valid_o && lsu_writeback_ready_i;
 
   // IDLE时可以直接使用输入实现零额外入口延迟；请求被接受后只读取锁存副本。
   // byte_offset按core beat宽度选择字节通道；自然对齐仍按ISA访问大小判断：
@@ -222,16 +217,19 @@ module riscv32_lsu
   end
 
   // 第一段：输出逻辑。IDLE支持请求直通到存储层，也支持本地完成直通到completion。
+  // 本地完成只在completion能够接收时接收LSU请求；存储响应则把completion的
+  // ready直接传回存储层。因此反压期间由原始发送方保持payload，LSU不需要再复制
+  // 一整份writeback_result_t。这是标准ready/valid反压，不改变接口协议。
   always_comb begin
     lsu_req_ready_o          = 1'b0;
     data_memory_req_valid_o  = 1'b0;
     data_memory_resp_ready_o = 1'b0;
-    lsu_writeback_o          = buffered_writeback_q;
+    lsu_writeback_o          = '0;
     lsu_writeback_valid_o    = 1'b0;
 
     unique case (state_q)
       LSU_IDLE: begin
-        lsu_req_ready_o = 1'b1;
+        lsu_req_ready_o = !lsu_req_valid_i || !complete_locally || lsu_writeback_ready_i;
         if (lsu_req_valid_i) begin
           if (complete_locally) begin
             lsu_writeback_o       = local_writeback;
@@ -247,14 +245,9 @@ module riscv32_lsu
       end
 
       LSU_WAIT_MEMORY_RESPONSE: begin
-        data_memory_resp_ready_o = 1'b1;
+        data_memory_resp_ready_o = lsu_writeback_ready_i;
         lsu_writeback_o           = memory_writeback;
         lsu_writeback_valid_o     = data_memory_resp_valid_i;
-      end
-
-      LSU_HOLD_WRITEBACK: begin
-        lsu_writeback_o       = buffered_writeback_q;
-        lsu_writeback_valid_o = 1'b1;
       end
 
       default: ;
@@ -266,17 +259,13 @@ module riscv32_lsu
   always_comb begin
     state_d                = state_q;
     lsu_req_d              = lsu_req_q;
-    buffered_writeback_d   = buffered_writeback_q;
 
     unique case (state_q)
       LSU_IDLE: begin
         if (lsu_req_handshake) begin
           lsu_req_d = lsu_req_i;
           if (complete_locally) begin
-            if (!lsu_writeback_handshake) begin
-              buffered_writeback_d = local_writeback;
-              state_d              = LSU_HOLD_WRITEBACK;
-            end
+            lsu_req_d = '0;
           end else if (data_memory_req_handshake) begin
             state_d = LSU_WAIT_MEMORY_RESPONSE;
           end else begin
@@ -293,33 +282,19 @@ module riscv32_lsu
 
       LSU_WAIT_MEMORY_RESPONSE: begin
         if (data_memory_resp_handshake) begin
-          if (lsu_writeback_handshake) begin
-            lsu_req_d = '0;
-            state_d   = LSU_IDLE;
-          end else begin
-            buffered_writeback_d = memory_writeback;
-            state_d              = LSU_HOLD_WRITEBACK;
-          end
-        end
-      end
-
-      LSU_HOLD_WRITEBACK: begin
-        if (lsu_writeback_handshake) begin
-          lsu_req_d            = '0;
-          buffered_writeback_d = '0;
-          state_d              = LSU_IDLE;
+          lsu_req_d = '0;
+          state_d   = LSU_IDLE;
         end
       end
 
       default: begin
-        state_d              = LSU_IDLE;
-        lsu_req_d            = '0;
-        buffered_writeback_d = '0;
+        state_d   = LSU_IDLE;
+        lsu_req_d = '0;
       end
     endcase
   end
 
-  // 第三段：按状态、请求身份和响应缓冲分组更新寄存器。
+  // 第三段：按状态和请求身份分组更新寄存器。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) state_q <= LSU_IDLE;
     else state_q <= state_d;
@@ -328,11 +303,6 @@ module riscv32_lsu
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) lsu_req_q <= '0;
     else lsu_req_q <= lsu_req_d;
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) buffered_writeback_q <= '0;
-    else buffered_writeback_q <= buffered_writeback_d;
   end
 
   // 当前顺序核固定只有一个访存在途。未来乱序实现中，load返回按LSQ/ROB tag匹配；
