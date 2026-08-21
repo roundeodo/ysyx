@@ -48,6 +48,60 @@ static uint64_t guest_inst_count = 0;
 static uint64_t guest_cycle_count = 0;
 static bool performance_statistics_printed = false;
 
+#ifdef NPC_YSYXSOC_SIM
+struct DebugReadResponse {
+  uint64_t cycle;
+  uint32_t data;
+  uint8_t count;
+  bool downstream;
+  bool last;
+};
+
+static DebugReadResponse debug_read_response_ring[64];
+static uint32_t debug_read_response_count = 0;
+
+static void capture_debug_read_response() {
+  auto *root = top->rootp;
+  const auto save = [&](bool downstream, uint32_t data, bool last) {
+    DebugReadResponse &entry =
+        debug_read_response_ring[debug_read_response_count % 64];
+    entry.cycle = main_time / 2;
+    entry.data = data;
+    entry.count = root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_response_count_q;
+    entry.downstream = downstream;
+    entry.last = last;
+    debug_read_response_count++;
+  };
+
+  if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__out_rvalid &&
+      root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_out_rready) {
+    save(true,
+         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__out_rdata,
+         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__out_rlast);
+  }
+
+  if (root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_in_rvalid &&
+      root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__in_rready) {
+    save(false,
+         root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_in_rdata,
+         root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_in_rlast);
+  }
+}
+
+static void print_debug_read_responses() {
+  const uint32_t begin = debug_read_response_count > 64
+                             ? debug_read_response_count - 64
+                             : 0;
+  for (uint32_t index = begin; index < debug_read_response_count; ++index) {
+    const DebugReadResponse &entry = debug_read_response_ring[index % 64];
+    printf("DEBUG R %s cycle=%llu data=%08x last=%u fifo_count=%u\n",
+           entry.downstream ? "SDRAM->delay" : "delay->SoC  ",
+           static_cast<unsigned long long>(entry.cycle), entry.data,
+           entry.last, entry.count);
+  }
+}
+#endif
+
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
 static const uint64_t MAX_CYCLES_WITHOUT_COMMIT = 1000000ULL;
 static constexpr int ARCH_GPR_COUNT = 32;
@@ -90,6 +144,10 @@ static inline void set_dpi_scope() {
 static void single_cycle(CommitEvent *commit_event = nullptr) {
   top->TOP_CLOCK = 0;
   top->eval();
+
+#ifdef NPC_YSYXSOC_SIM
+  capture_debug_read_response();
+#endif
 
   if (commit_event != nullptr) {
     set_dpi_scope();
@@ -380,6 +438,7 @@ void cpu_exec(uint64_t n) {
              top->rootp->ysyxSoCFull__DOT__sdram__DOT__memory_word_array[
                  0x00c003b8u],
              event.instruction);
+      print_debug_read_responses();
       npc_state = NPC_ABORT;
     }
 #endif
