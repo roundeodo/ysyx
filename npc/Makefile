@@ -5,9 +5,10 @@
 # ============================================================
 
 PROJECT ?= riscv32
+NPC_ICACHE_LINE_BYTES ?= 32
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -20,19 +21,20 @@ endif
 endif
 
 ifeq ($(NPC_CONFIG),rv32-baseline)
-NPC_CONFIG_DEFINE := +define+YSYX_RV32_BASELINE
+NPC_CONFIG_DEFINE := +define+YSYX_RV32_BASELINE +define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES)
 NPC_CONFIG_CXXFLAG := -DNPC_XLEN=32
-NPC_SLANG_DEFINE := -DYSYX_RV32_BASELINE
+NPC_SLANG_DEFINE := -DYSYX_RV32_BASELINE -DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES)
 else ifeq ($(NPC_CONFIG),rv64-sequential)
-NPC_CONFIG_DEFINE := +define+YSYX_RV64_SEQUENTIAL
+NPC_CONFIG_DEFINE := +define+YSYX_RV64_SEQUENTIAL +define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES)
 NPC_CONFIG_CXXFLAG := -DNPC_XLEN=64
-NPC_SLANG_DEFINE := -DYSYX_RV64_SEQUENTIAL
+NPC_SLANG_DEFINE := -DYSYX_RV64_SEQUENTIAL -DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES)
 endif
 
 NPC_TOP_MODULE := top
 SOC_TOP_MODULE := ysyxSoCFull
 
-BUILD_DIR       := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))
+NPC_BUILD_VARIANT := $(if $(filter 32,$(NPC_ICACHE_LINE_BYTES)),,icache-line-$(NPC_ICACHE_LINE_BYTES))
+BUILD_DIR       := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG)$(if $(NPC_BUILD_VARIANT),/$(NPC_BUILD_VARIANT)))
 NPC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_npc
 SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
 NVBOARD_OBJ_DIR := $(BUILD_DIR)/obj_dir_nvboard
@@ -536,8 +538,15 @@ CACHE_CAPACITY_BYTES         ?= 8192
 CACHE_LINE_BYTES             ?= 32
 CACHE_WAYS                   ?= 2
 CACHE_HIT_TIME_CYCLES        ?= 2
-# 284.142是当前32B line RTL在microbench test上的critical-response miss penalty。
-# 扫描其它line大小时它只是第一阶估计；得到候选方案后必须重新用RTL校准对应代价。
+CACHE_REFILL_MODEL           ?= burst
+CACHE_REFILL_BEAT_BYTES      ?= 4
+# a/b/c/d默认各取1周期，只用于比较独立事务和burst的结构差异。实际周期结论必须用
+# RTL PMU测得的critical-response与complete-refill延迟校准这四项参数。
+CACHE_READ_ADDRESS_CYCLES    ?= 1
+CACHE_MEMORY_COMMAND_CYCLES  ?= 1
+CACHE_FIRST_DATA_CYCLES      ?= 1
+CACHE_RESPONSE_BEAT_CYCLES   ?= 1
+# fixed模式用于直接代入RTL实测的平均critical-response miss penalty。
 CACHE_MISS_PENALTY_CYCLES    ?= 284.142
 CACHE_MISS_PENALTY_BY_LINE_SIZE ?=
 CACHE_MISS_PENALTY_ARGUMENT  = $(if $(strip $(CACHE_MISS_PENALTY_BY_LINE_SIZE)),--miss-penalty-by-line-size $(CACHE_MISS_PENALTY_BY_LINE_SIZE))
@@ -545,7 +554,7 @@ CACHE_SCAN_CAPACITIES        ?= 4096,8192,16384,32768
 CACHE_SCAN_LINE_SIZES        ?= 16,32,64
 CACHE_SCAN_WAYS              ?= 1,2,4
 CACHE_SCAN_JOBS              ?= 4
-CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_exploration.csv)
+CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_$(CACHE_REFILL_MODEL)_exploration.csv)
 
 $(CACHESIM_BUILD_DIR):
 	mkdir -p $@
@@ -553,7 +562,7 @@ $(CACHESIM_BUILD_DIR):
 $(CACHESIM_BINARY): $(CACHESIM_SOURCE) | $(CACHESIM_BUILD_DIR)
 	$(CXX) -std=c++17 -O3 -Wall -Wextra -Wpedantic -Werror $< -o $@
 
-.PHONY: cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore
+.PHONY: cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport
 cachesim-build: $(CACHESIM_BINARY)
 
 cachesim-test: $(CACHESIM_BINARY)
@@ -585,6 +594,12 @@ cachesim-run: $(CACHESIM_BINARY)
 		--line-bytes $(CACHE_LINE_BYTES) \
 		--ways $(CACHE_WAYS) \
 		--hit-time-cycles $(CACHE_HIT_TIME_CYCLES) \
+		--refill-model $(CACHE_REFILL_MODEL) \
+		--refill-beat-bytes $(CACHE_REFILL_BEAT_BYTES) \
+		--read-address-cycles $(CACHE_READ_ADDRESS_CYCLES) \
+		--memory-command-cycles $(CACHE_MEMORY_COMMAND_CYCLES) \
+		--first-data-cycles $(CACHE_FIRST_DATA_CYCLES) \
+		--response-beat-cycles $(CACHE_RESPONSE_BEAT_CYCLES) \
 		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES)
 
 cachesim-explore: $(CACHESIM_BINARY)
@@ -597,9 +612,21 @@ cachesim-explore: $(CACHESIM_BINARY)
 		--line-sizes $(CACHE_SCAN_LINE_SIZES) \
 		--ways $(CACHE_SCAN_WAYS) \
 		--hit-time-cycles $(CACHE_HIT_TIME_CYCLES) \
+		--refill-model $(CACHE_REFILL_MODEL) \
+		--refill-beat-bytes $(CACHE_REFILL_BEAT_BYTES) \
+		--read-address-cycles $(CACHE_READ_ADDRESS_CYCLES) \
+		--memory-command-cycles $(CACHE_MEMORY_COMMAND_CYCLES) \
+		--first-data-cycles $(CACHE_FIRST_DATA_CYCLES) \
+		--response-beat-cycles $(CACHE_RESPONSE_BEAT_CYCLES) \
 		--miss-penalty-cycles $(CACHE_MISS_PENALTY_CYCLES) $(CACHE_MISS_PENALTY_ARGUMENT) \
 		--jobs $(CACHE_SCAN_JOBS) \
 		--output $(CACHE_SCAN_OUTPUT)
+
+cachesim-explore-transport:
+	$(MAKE) cachesim-explore CACHE_REFILL_MODEL=independent \
+		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_independent_exploration.csv)
+	$(MAKE) cachesim-explore CACHE_REFILL_MODEL=burst \
+		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_burst_exploration.csv)
 
 # ============================================================
 # Reproducible performance evaluation

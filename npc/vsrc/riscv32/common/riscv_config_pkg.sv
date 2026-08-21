@@ -85,7 +85,9 @@ package riscv_config_pkg;
   //
   localparam int unsigned ICACHE_CAPACITY_BYTES = 8 * 1024;
   localparam int unsigned ICACHE_WAY_COUNT = 2;
-  localparam int unsigned ICACHE_LINE_BYTES = 32;
+  // Makefile通过NPC_ICACHE_LINE_BYTES传入该构建参数。改变line大小时，set数量、
+  // tag/offset宽度、data array深度和AXI4 burst长度全部由下游派生，禁止逐模块修改。
+  localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
   localparam int unsigned ICACHE_MSHR_COUNT = 1;
   localparam int unsigned FETCH_EPOCH_COUNT = 16;

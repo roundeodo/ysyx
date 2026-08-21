@@ -21,7 +21,21 @@ def parse_penalty_map(text):
 
 
 def run_configuration(arguments):
-    binary, trace_path, capacity, line_size, ways, hit_time, miss_penalty = arguments
+    (
+        binary,
+        trace_path,
+        capacity,
+        line_size,
+        ways,
+        hit_time,
+        refill_model,
+        refill_beat_bytes,
+        miss_penalty,
+        read_address_cycles,
+        memory_command_cycles,
+        first_data_cycles,
+        response_beat_cycles,
+    ) = arguments
     command = [
         str(binary),
         "--trace",
@@ -34,8 +48,20 @@ def run_configuration(arguments):
         str(ways),
         "--hit-time-cycles",
         str(hit_time),
+        "--refill-model",
+        refill_model,
+        "--refill-beat-bytes",
+        str(refill_beat_bytes),
         "--miss-penalty-cycles",
         str(miss_penalty),
+        "--read-address-cycles",
+        str(read_address_cycles),
+        "--memory-command-cycles",
+        str(memory_command_cycles),
+        "--first-data-cycles",
+        str(first_data_cycles),
+        "--response-beat-cycles",
+        str(response_beat_cycles),
         "--output-format",
         "json",
     ]
@@ -53,11 +79,21 @@ def main():
     parser.add_argument("--line-sizes", default="16,32,64")
     parser.add_argument("--ways", default="1,2,4")
     parser.add_argument("--hit-time-cycles", type=float, default=2.0)
+    parser.add_argument(
+        "--refill-model",
+        choices=("fixed", "independent", "burst"),
+        default="fixed",
+    )
+    parser.add_argument("--refill-beat-bytes", type=int, default=4)
     parser.add_argument("--miss-penalty-cycles", type=float, default=0.0)
     parser.add_argument(
         "--miss-penalty-by-line-size",
         help="按行大小提供缺失代价，例如 16=150,32=284.142,64=520",
     )
+    parser.add_argument("--read-address-cycles", type=float, default=1.0)
+    parser.add_argument("--memory-command-cycles", type=float, default=1.0)
+    parser.add_argument("--first-data-cycles", type=float, default=1.0)
+    parser.add_argument("--response-beat-cycles", type=float, default=1.0)
     parser.add_argument("--jobs", type=int, default=1)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -90,7 +126,13 @@ def main():
                         line_size,
                         ways,
                         args.hit_time_cycles,
+                        args.refill_model,
+                        args.refill_beat_bytes,
                         miss_penalty,
+                        args.read_address_cycles,
+                        args.memory_command_cycles,
+                        args.first_data_cycles,
+                        args.response_beat_cycles,
                     )
                 )
 
@@ -99,7 +141,7 @@ def main():
 
     results.sort(
         key=lambda result: (
-            result["tmt_cycles"],
+            result["critical_tmt_cycles"],
             result["misses"],
             result["capacity_bytes"],
             result["ways"],
@@ -121,9 +163,22 @@ def main():
         "hit_rate",
         "miss_rate",
         "hit_time_cycles",
-        "miss_penalty_cycles",
+        "refill_model",
+        "refill_beat_bytes",
+        "refill_beats_per_line",
+        "average_critical_beat_position",
+        "read_address_cycles",
+        "memory_command_cycles",
+        "first_data_cycles",
+        "response_beat_cycles",
+        "fixed_miss_penalty_cycles",
+        "average_critical_response_penalty_cycles",
+        "average_complete_refill_penalty_cycles",
         "amat_cycles",
-        "tmt_cycles",
+        "critical_tmt_cycles",
+        "refill_occupancy_cycles",
+        "read_transactions",
+        "transferred_refill_beats",
         "refill_traffic_bytes",
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -134,7 +189,7 @@ def main():
             writer.writerow({name: result[name] for name in field_names})
 
     print(
-        "capacity  line  ways      misses   hit rate   compulsory   capacity   conflict       AMAT          TMT"
+        "capacity  line  ways      misses   hit rate   critical penalty  complete refill       AMAT   critical TMT"
     )
     for result in results[: min(12, len(results))]:
         print(
@@ -143,11 +198,10 @@ def main():
             f"{result['ways']:>4}  "
             f"{result['misses']:>10}  "
             f"{result['hit_rate'] * 100:>8.4f}%  "
-            f"{result['compulsory_misses']:>10}  "
-            f"{result['capacity_misses']:>9}  "
-            f"{result['conflict_misses']:>9}  "
+            f"{result['average_critical_response_penalty_cycles']:>16.3f}  "
+            f"{result['average_complete_refill_penalty_cycles']:>15.3f}  "
             f"{result['amat_cycles']:>9.4f}  "
-            f"{result['tmt_cycles']:>12.3f}"
+            f"{result['critical_tmt_cycles']:>13.3f}"
         )
     print(f"\n完整结果: {args.output}")
 

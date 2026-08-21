@@ -17,12 +17,25 @@
 
 namespace {
 
+enum class RefillTransportModel {
+  kFixedPenalty,
+  kIndependentReadTransactions,
+  kIncrementingBurst,
+};
+
 struct CacheConfiguration {
   uint64_t capacity_bytes = 8192;
   uint64_t line_bytes = 32;
   uint64_t way_count = 2;
+  uint64_t refill_beat_bytes = 4;
   double hit_time_cycles = 2.0;
   double miss_penalty_cycles = 0.0;
+  double read_address_cycles = 1.0;
+  double memory_command_cycles = 1.0;
+  double first_data_cycles = 1.0;
+  double response_beat_cycles = 1.0;
+  RefillTransportModel refill_transport_model =
+      RefillTransportModel::kFixedPenalty;
 };
 
 struct CacheStatistics {
@@ -33,8 +46,20 @@ struct CacheStatistics {
   uint64_t capacity_miss_count = 0;
   uint64_t conflict_miss_count = 0;
   uint64_t unique_line_count = 0;
+  uint64_t critical_beat_position_sum = 0;
   uint64_t source_line_count = 0;
   uint64_t ignored_nonempty_line_count = 0;
+};
+
+struct RefillStatistics {
+  uint64_t refill_beat_count_per_line = 0;
+  uint64_t read_transaction_count = 0;
+  uint64_t transferred_beat_count = 0;
+  double average_critical_beat_position = 0.0;
+  double average_critical_response_penalty_cycles = 0.0;
+  double average_complete_refill_penalty_cycles = 0.0;
+  double total_critical_miss_time_cycles = 0.0;
+  double total_refill_occupancy_cycles = 0.0;
 };
 
 struct CacheLine {
@@ -144,6 +169,14 @@ void ValidateConfiguration(const CacheConfiguration &configuration) {
   if (!IsPowerOfTwo(configuration.way_count)) {
     throw std::runtime_error("way count must be a nonzero power of two");
   }
+  if (!IsPowerOfTwo(configuration.refill_beat_bytes)) {
+    throw std::runtime_error("refill beat size must be a nonzero power of two");
+  }
+  if (configuration.line_bytes < configuration.refill_beat_bytes ||
+      configuration.line_bytes % configuration.refill_beat_bytes != 0) {
+    throw std::runtime_error(
+        "line size must be divisible by the refill beat size");
+  }
   if (configuration.capacity_bytes <
       configuration.line_bytes * configuration.way_count) {
     throw std::runtime_error("capacity is smaller than one complete cache set");
@@ -161,6 +194,44 @@ void ValidateConfiguration(const CacheConfiguration &configuration) {
       configuration.miss_penalty_cycles < 0.0) {
     throw std::runtime_error("miss penalty must be a finite nonnegative number");
   }
+  const double refill_phase_cycles[] = {
+      configuration.read_address_cycles,
+      configuration.memory_command_cycles,
+      configuration.first_data_cycles,
+      configuration.response_beat_cycles,
+  };
+  for (const double phase_cycles : refill_phase_cycles) {
+    if (!std::isfinite(phase_cycles) || phase_cycles < 0.0) {
+      throw std::runtime_error(
+          "refill phase times must be finite nonnegative numbers");
+    }
+  }
+}
+
+const char *RefillTransportModelName(RefillTransportModel model) {
+  switch (model) {
+    case RefillTransportModel::kFixedPenalty:
+      return "fixed";
+    case RefillTransportModel::kIndependentReadTransactions:
+      return "independent";
+    case RefillTransportModel::kIncrementingBurst:
+      return "burst";
+  }
+  throw std::runtime_error("unreachable refill transport model");
+}
+
+RefillTransportModel ParseRefillTransportModel(const std::string &text) {
+  if (text == "fixed") {
+    return RefillTransportModel::kFixedPenalty;
+  }
+  if (text == "independent") {
+    return RefillTransportModel::kIndependentReadTransactions;
+  }
+  if (text == "burst") {
+    return RefillTransportModel::kIncrementingBurst;
+  }
+  throw std::runtime_error(
+      "--refill-model must be fixed, independent, or burst");
 }
 
 std::string_view TrimLeft(std::string_view text) {
@@ -261,7 +332,13 @@ void PrintUsage(const char *program_name) {
       << "  --line-bytes N           Cache line size (default: 32)\n"
       << "  --ways N                 Set associativity (default: 2)\n"
       << "  --hit-time-cycles N      Hit access time used by AMAT (default: 2)\n"
-      << "  --miss-penalty-cycles N  Additional miss penalty used by AMAT/TMT\n"
+      << "  --refill-model MODEL     fixed, independent, or burst (default: fixed)\n"
+      << "  --refill-beat-bytes N    Bytes returned by one refill beat (default: 4)\n"
+      << "  --miss-penalty-cycles N  Penalty used only by the fixed model\n"
+      << "  --read-address-cycles N  Read-address handshake phase a (default: 1)\n"
+      << "  --memory-command-cycles N Memory command phase b (default: 1)\n"
+      << "  --first-data-cycles N    First data return phase c (default: 1)\n"
+      << "  --response-beat-cycles N Per-beat response phase d (default: 1)\n"
       << "  --output-format FORMAT   text, csv, or json (default: text)\n"
       << "  --help                   Show this message\n";
 }
@@ -292,10 +369,33 @@ CommandLineOptions ParseCommandLine(int argc, char **argv) {
     } else if (argument == "--hit-time-cycles") {
       options.configuration.hit_time_cycles = ParseFloatingPoint(
           require_value(argument_index, "--hit-time-cycles"), "--hit-time-cycles");
+    } else if (argument == "--refill-model") {
+      options.configuration.refill_transport_model = ParseRefillTransportModel(
+          require_value(argument_index, "--refill-model"));
+    } else if (argument == "--refill-beat-bytes") {
+      options.configuration.refill_beat_bytes = ParseUnsignedInteger(
+          require_value(argument_index, "--refill-beat-bytes"),
+          "--refill-beat-bytes");
     } else if (argument == "--miss-penalty-cycles") {
       options.configuration.miss_penalty_cycles = ParseFloatingPoint(
           require_value(argument_index, "--miss-penalty-cycles"),
           "--miss-penalty-cycles");
+    } else if (argument == "--read-address-cycles") {
+      options.configuration.read_address_cycles = ParseFloatingPoint(
+          require_value(argument_index, "--read-address-cycles"),
+          "--read-address-cycles");
+    } else if (argument == "--memory-command-cycles") {
+      options.configuration.memory_command_cycles = ParseFloatingPoint(
+          require_value(argument_index, "--memory-command-cycles"),
+          "--memory-command-cycles");
+    } else if (argument == "--first-data-cycles") {
+      options.configuration.first_data_cycles = ParseFloatingPoint(
+          require_value(argument_index, "--first-data-cycles"),
+          "--first-data-cycles");
+    } else if (argument == "--response-beat-cycles") {
+      options.configuration.response_beat_cycles = ParseFloatingPoint(
+          require_value(argument_index, "--response-beat-cycles"),
+          "--response-beat-cycles");
     } else if (argument == "--output-format") {
       options.output_format = require_value(argument_index, "--output-format");
     } else if (argument == "--help") {
@@ -351,6 +451,10 @@ CacheStatistics SimulateTrace(std::istream &trace_stream,
       ++statistics.hit_count;
     } else {
       ++statistics.miss_count;
+      statistics.critical_beat_position_sum +=
+          ((*program_counter % configuration.line_bytes) /
+           configuration.refill_beat_bytes) +
+          1;
       if (!previously_accessed) {
         ++statistics.compulsory_miss_count;
       } else if (fully_associative_cache_hit) {
@@ -385,20 +489,82 @@ double MissRate(const CacheStatistics &statistics) {
          static_cast<double>(statistics.access_count);
 }
 
-double AverageMemoryAccessTime(const CacheConfiguration &configuration,
-                               const CacheStatistics &statistics) {
-  return configuration.hit_time_cycles +
-         MissRate(statistics) * configuration.miss_penalty_cycles;
+RefillStatistics CalculateRefillStatistics(
+    const CacheConfiguration &configuration,
+    const CacheStatistics &cache_statistics) {
+  RefillStatistics refill_statistics;
+  refill_statistics.refill_beat_count_per_line =
+      configuration.line_bytes / configuration.refill_beat_bytes;
+  refill_statistics.transferred_beat_count =
+      cache_statistics.miss_count * refill_statistics.refill_beat_count_per_line;
+
+  if (cache_statistics.miss_count == 0) {
+    return refill_statistics;
+  }
+
+  refill_statistics.average_critical_beat_position =
+      static_cast<double>(cache_statistics.critical_beat_position_sum) /
+      static_cast<double>(cache_statistics.miss_count);
+
+  const double request_setup_cycles =
+      configuration.read_address_cycles + configuration.memory_command_cycles;
+  const double independent_transaction_cycles =
+      request_setup_cycles + configuration.first_data_cycles +
+      configuration.response_beat_cycles;
+
+  switch (configuration.refill_transport_model) {
+    case RefillTransportModel::kFixedPenalty:
+      refill_statistics.read_transaction_count = cache_statistics.miss_count;
+      refill_statistics.average_critical_response_penalty_cycles =
+          configuration.miss_penalty_cycles;
+      refill_statistics.average_complete_refill_penalty_cycles =
+          configuration.miss_penalty_cycles;
+      break;
+
+    case RefillTransportModel::kIndependentReadTransactions:
+      refill_statistics.read_transaction_count =
+          refill_statistics.transferred_beat_count;
+      refill_statistics.average_critical_response_penalty_cycles =
+          refill_statistics.average_critical_beat_position *
+          independent_transaction_cycles;
+      refill_statistics.average_complete_refill_penalty_cycles =
+          static_cast<double>(refill_statistics.refill_beat_count_per_line) *
+          independent_transaction_cycles;
+      break;
+
+    case RefillTransportModel::kIncrementingBurst:
+      refill_statistics.read_transaction_count = cache_statistics.miss_count;
+      refill_statistics.average_critical_response_penalty_cycles =
+          request_setup_cycles + configuration.first_data_cycles +
+          refill_statistics.average_critical_beat_position *
+              configuration.response_beat_cycles;
+      refill_statistics.average_complete_refill_penalty_cycles =
+          request_setup_cycles + configuration.first_data_cycles +
+          static_cast<double>(refill_statistics.refill_beat_count_per_line) *
+              configuration.response_beat_cycles;
+      break;
+  }
+
+  refill_statistics.total_critical_miss_time_cycles =
+      static_cast<double>(cache_statistics.miss_count) *
+      refill_statistics.average_critical_response_penalty_cycles;
+  refill_statistics.total_refill_occupancy_cycles =
+      static_cast<double>(cache_statistics.miss_count) *
+      refill_statistics.average_complete_refill_penalty_cycles;
+  return refill_statistics;
 }
 
-double TotalMissTime(const CacheConfiguration &configuration,
-                     const CacheStatistics &statistics) {
-  return static_cast<double>(statistics.miss_count) *
-         configuration.miss_penalty_cycles;
+double AverageMemoryAccessTime(const CacheConfiguration &configuration,
+                               const CacheStatistics &statistics,
+                               const RefillStatistics &refill_statistics) {
+  return configuration.hit_time_cycles +
+         refill_statistics.total_critical_miss_time_cycles /
+             static_cast<double>(statistics.access_count);
 }
 
 void PrintText(const CacheConfiguration &configuration,
-               const CacheStatistics &statistics) {
+               const CacheStatistics &statistics,
+               const RefillStatistics &refill_statistics) {
   const uint64_t set_count = configuration.capacity_bytes /
                              (configuration.line_bytes * configuration.way_count);
   std::cout << std::fixed << std::setprecision(6);
@@ -417,10 +583,31 @@ void PrintText(const CacheConfiguration &configuration,
   std::cout << "  unique cache lines      : " << statistics.unique_line_count << '\n';
   std::cout << "  hit rate                : " << HitRate(statistics) * 100.0 << "%\n";
   std::cout << "  miss rate               : " << MissRate(statistics) * 100.0 << "%\n";
+  std::cout << "  refill model            : "
+            << RefillTransportModelName(configuration.refill_transport_model) << '\n';
+  std::cout << "  refill beat bytes       : " << configuration.refill_beat_bytes << '\n';
+  std::cout << "  refill beats per line   : "
+            << refill_statistics.refill_beat_count_per_line << '\n';
+  std::cout << "  average critical beat   : "
+            << refill_statistics.average_critical_beat_position << '\n';
+  std::cout << "  average critical penalty: "
+            << refill_statistics.average_critical_response_penalty_cycles
+            << " cycles\n";
+  std::cout << "  average complete refill : "
+            << refill_statistics.average_complete_refill_penalty_cycles
+            << " cycles\n";
   std::cout << "  estimated AMAT cycles   : "
-            << AverageMemoryAccessTime(configuration, statistics) << '\n';
-  std::cout << "  estimated TMT cycles    : "
-            << TotalMissTime(configuration, statistics) << '\n';
+            << AverageMemoryAccessTime(configuration, statistics,
+                                       refill_statistics)
+            << '\n';
+  std::cout << "  critical-word TMT cycles: "
+            << refill_statistics.total_critical_miss_time_cycles << '\n';
+  std::cout << "  refill occupancy cycles : "
+            << refill_statistics.total_refill_occupancy_cycles << '\n';
+  std::cout << "  AXI read transactions   : "
+            << refill_statistics.read_transaction_count << '\n';
+  std::cout << "  transferred refill beats: "
+            << refill_statistics.transferred_beat_count << '\n';
   std::cout << "  refill traffic bytes    : "
             << statistics.miss_count * configuration.line_bytes << '\n';
   std::cout << "  ignored nonempty lines  : "
@@ -428,14 +615,21 @@ void PrintText(const CacheConfiguration &configuration,
 }
 
 void PrintCsv(const CacheConfiguration &configuration,
-              const CacheStatistics &statistics) {
+              const CacheStatistics &statistics,
+              const RefillStatistics &refill_statistics) {
   const uint64_t set_count = configuration.capacity_bytes /
                              (configuration.line_bytes * configuration.way_count);
   std::cout
       << "capacity_bytes,line_bytes,ways,sets,accesses,hits,misses,"
          "compulsory_misses,capacity_misses,conflict_misses,unique_lines,"
-         "hit_rate,miss_rate,hit_time_cycles,miss_penalty_cycles,amat_cycles,"
-         "tmt_cycles,refill_traffic_bytes\n";
+         "hit_rate,miss_rate,hit_time_cycles,refill_model,refill_beat_bytes,"
+         "refill_beats_per_line,average_critical_beat_position,"
+         "read_address_cycles,memory_command_cycles,first_data_cycles,"
+         "response_beat_cycles,fixed_miss_penalty_cycles,"
+         "average_critical_response_penalty_cycles,"
+         "average_complete_refill_penalty_cycles,amat_cycles,"
+         "critical_tmt_cycles,refill_occupancy_cycles,read_transactions,"
+         "transferred_refill_beats,refill_traffic_bytes\n";
   std::cout << std::fixed << std::setprecision(9)
             << configuration.capacity_bytes << ',' << configuration.line_bytes << ','
             << configuration.way_count << ',' << set_count << ','
@@ -446,14 +640,29 @@ void PrintCsv(const CacheConfiguration &configuration,
             << statistics.conflict_miss_count << ','
             << statistics.unique_line_count << ',' << HitRate(statistics) << ','
             << MissRate(statistics) << ',' << configuration.hit_time_cycles << ','
+            << RefillTransportModelName(configuration.refill_transport_model) << ','
+            << configuration.refill_beat_bytes << ','
+            << refill_statistics.refill_beat_count_per_line << ','
+            << refill_statistics.average_critical_beat_position << ','
+            << configuration.read_address_cycles << ','
+            << configuration.memory_command_cycles << ','
+            << configuration.first_data_cycles << ','
+            << configuration.response_beat_cycles << ','
             << configuration.miss_penalty_cycles << ','
-            << AverageMemoryAccessTime(configuration, statistics) << ','
-            << TotalMissTime(configuration, statistics) << ','
+            << refill_statistics.average_critical_response_penalty_cycles << ','
+            << refill_statistics.average_complete_refill_penalty_cycles << ','
+            << AverageMemoryAccessTime(configuration, statistics,
+                                       refill_statistics)
+            << ',' << refill_statistics.total_critical_miss_time_cycles << ','
+            << refill_statistics.total_refill_occupancy_cycles << ','
+            << refill_statistics.read_transaction_count << ','
+            << refill_statistics.transferred_beat_count << ','
             << statistics.miss_count * configuration.line_bytes << '\n';
 }
 
 void PrintJson(const CacheConfiguration &configuration,
-               const CacheStatistics &statistics) {
+               const CacheStatistics &statistics,
+               const RefillStatistics &refill_statistics) {
   const uint64_t set_count = configuration.capacity_bytes /
                              (configuration.line_bytes * configuration.way_count);
   std::cout << std::fixed << std::setprecision(9);
@@ -473,12 +682,43 @@ void PrintJson(const CacheConfiguration &configuration,
             << "  \"hit_rate\": " << HitRate(statistics) << ",\n"
             << "  \"miss_rate\": " << MissRate(statistics) << ",\n"
             << "  \"hit_time_cycles\": " << configuration.hit_time_cycles << ",\n"
-            << "  \"miss_penalty_cycles\": "
+            << "  \"refill_model\": \""
+            << RefillTransportModelName(configuration.refill_transport_model)
+            << "\",\n"
+            << "  \"refill_beat_bytes\": " << configuration.refill_beat_bytes
+            << ",\n"
+            << "  \"refill_beats_per_line\": "
+            << refill_statistics.refill_beat_count_per_line << ",\n"
+            << "  \"average_critical_beat_position\": "
+            << refill_statistics.average_critical_beat_position << ",\n"
+            << "  \"read_address_cycles\": "
+            << configuration.read_address_cycles << ",\n"
+            << "  \"memory_command_cycles\": "
+            << configuration.memory_command_cycles << ",\n"
+            << "  \"first_data_cycles\": " << configuration.first_data_cycles
+            << ",\n"
+            << "  \"response_beat_cycles\": "
+            << configuration.response_beat_cycles << ",\n"
+            << "  \"fixed_miss_penalty_cycles\": "
             << configuration.miss_penalty_cycles << ",\n"
+            << "  \"average_critical_response_penalty_cycles\": "
+            << refill_statistics.average_critical_response_penalty_cycles
+            << ",\n"
+            << "  \"average_complete_refill_penalty_cycles\": "
+            << refill_statistics.average_complete_refill_penalty_cycles
+            << ",\n"
             << "  \"amat_cycles\": "
-            << AverageMemoryAccessTime(configuration, statistics) << ",\n"
-            << "  \"tmt_cycles\": "
-            << TotalMissTime(configuration, statistics) << ",\n"
+            << AverageMemoryAccessTime(configuration, statistics,
+                                       refill_statistics)
+            << ",\n"
+            << "  \"critical_tmt_cycles\": "
+            << refill_statistics.total_critical_miss_time_cycles << ",\n"
+            << "  \"refill_occupancy_cycles\": "
+            << refill_statistics.total_refill_occupancy_cycles << ",\n"
+            << "  \"read_transactions\": "
+            << refill_statistics.read_transaction_count << ",\n"
+            << "  \"transferred_refill_beats\": "
+            << refill_statistics.transferred_beat_count << ",\n"
             << "  \"refill_traffic_bytes\": "
             << statistics.miss_count * configuration.line_bytes << ",\n"
             << "  \"source_lines\": " << statistics.source_line_count << ",\n"
@@ -499,12 +739,14 @@ int main(int argc, char **argv) {
 
     const CacheStatistics statistics =
         SimulateTrace(trace_file, options.configuration);
+    const RefillStatistics refill_statistics =
+        CalculateRefillStatistics(options.configuration, statistics);
     if (options.output_format == "text") {
-      PrintText(options.configuration, statistics);
+      PrintText(options.configuration, statistics, refill_statistics);
     } else if (options.output_format == "csv") {
-      PrintCsv(options.configuration, statistics);
+      PrintCsv(options.configuration, statistics, refill_statistics);
     } else {
-      PrintJson(options.configuration, statistics);
+      PrintJson(options.configuration, statistics, refill_statistics);
     }
     return 0;
   } catch (const std::exception &error) {

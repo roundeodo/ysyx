@@ -279,9 +279,7 @@ package riscv32_pkg;
   } csr_uop_ctrl_t;
 
   // I-cache构建参数来自riscv_config_pkg，下面只保留由cache几何派生的局部宽度。
-  // I-cache几何参数只在这里定义一次，前端各子模块统一使用下面的派生宽度，禁止各自
-  // 硬编码地址切片。当前基线为8KiB、2路组相联、32B cache line和4B取指宽度，地址
-  // 划分为tag[31:12]、set[11:5]、line offset[4:0]。
+  // 前端各子模块统一使用这些派生宽度，禁止硬编码tag/set/line offset地址切片。
 
   localparam int unsigned ICACHE_SET_COUNT =
       ICACHE_CAPACITY_BYTES / (ICACHE_WAY_COUNT * ICACHE_LINE_BYTES);

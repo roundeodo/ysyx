@@ -142,10 +142,20 @@ module riscv32_icache
       .event_o                      (miss_event)
   );
 
-  // `ICACHE_WAY_COUNT==2`不是防御性容错，而是当前replacement算法的明确设计约束。
+  // 这些是当前实现的明确几何约束，不是运行时容错。line大小由构建参数选择，所有
+  // 地址切片、阵列深度和refill计数必须只依赖package中的派生量。
   initial begin
     if (ICACHE_WAY_COUNT != 2) begin
       $fatal(1, "riscv32_icache currently requires ICACHE_WAY_COUNT == 2");
+    end
+    if ((ICACHE_LINE_BYTES & (ICACHE_LINE_BYTES - 1)) != 0) begin
+      $fatal(1, "I-cache line size must be a power of two");
+    end
+    if ((ICACHE_LINE_BYTES % ICACHE_FETCH_BYTES) != 0) begin
+      $fatal(1, "I-cache line size must contain an integer number of fetch words");
+    end
+    if (ICACHE_WORDS_PER_LINE > 256) begin
+      $fatal(1, "I-cache refill exceeds the AXI4 ARLEN limit");
     end
   end
   // Lookup流水线：S0是输入握手与同步阵列读请求；S1保存请求身份和PMA属性，
@@ -177,8 +187,7 @@ module riscv32_icache
 
   // 地址按tag、set index和line内word index拆分。统一使用参数化位选，避免把
   // 当前32B line、128 sets等配置硬编码进控制逻辑。这里接收的必须是物理地址。
-  // 当前参数对应offset[4:0]、set[11:5]、tag[31:12]，word index为[4:2]；上述写法
-  // 不依赖这些硬编码位置。还可定义line-base函数，把低ICACHE_LINE_OFFSET_W位清零，
+  // 这些位选随line和set数量变化。还可定义line-base函数，把低ICACHE_LINE_OFFSET_W位清零，
   // 但miss unit已经从原fetch_addr生成line base，顶层不应重复保存第二份地址。
   // 所有输入都是物理地址；本项目当前没有MMU，未来加入翻译后仍应由PMA接收翻译后的地址。
   // 地址拆分只消费物理地址；set/word来自cache几何参数，tag从PADDR_WIDTH最高位开始。
