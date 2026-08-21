@@ -13,6 +13,10 @@
 #include NPC_GENERATED_HEADER(TOP_CLASS)
 #include NPC_GENERATED_HEADER(TOP_DPI_CLASS)
 
+#ifdef NPC_YSYXSOC_SIM
+#include "VysyxSoCFull___024root.h"
+#endif
+
 #include "svdpi.h"
 
 #include <verilated.h>
@@ -47,6 +51,39 @@ static bool performance_statistics_printed = false;
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
 static const uint64_t MAX_CYCLES_WITHOUT_COMMIT = 1000000ULL;
 static constexpr int ARCH_GPR_COUNT = 32;
+
+#ifdef NPC_YSYXSOC_SIM
+static void print_soc_read_path_debug_state() {
+  const auto *root = top->rootp;
+
+  printf("SOC read-path state at timeout:\n");
+  printf("  icache miss state/vector       = %u/0x%02x\n",
+         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache__DOT__u_riscv32_icache_miss_unit__DOT__state_q,
+         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache__DOT__u_riscv32_icache_miss_unit__DOT__received_word_present_vector_q);
+  printf("  refill master state/index      = %u/%u\n",
+         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__state_q,
+         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__received_word_index_q);
+  printf("  core merge present/pending     = %u/%u\n",
+         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_axi4_core_merge__DOT__read_transaction_present_q,
+         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_axi4_core_merge__DOT__read_address_pending_q);
+  printf("  AXI delay active/AR/count      = %u/%u/%u\n",
+         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_transaction_active_q,
+         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_address_handshake_occurred_q,
+         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_response_count_q);
+  printf("  SDRAM segment active/resp      = %u/%u/%u\n",
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_transaction_active_q,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_transaction_response_beat_index_q,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_transaction_total_beat_count_q);
+  printf("  SDRAM unissued/pending/physical= %u/%u/%u\n",
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_unissued_beat_count_q,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_segment_request_pending_q,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__segmented_read_physical_response_beat_count_q);
+  printf("  SDRAM response FIFO/core state= %u/%u/%u\n",
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__u_response__DOT__count,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__state_q,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_response_beats_remaining_q);
+}
+#endif
 
 struct CommitEvent {
   bool valid;
@@ -360,6 +397,9 @@ void cpu_exec(uint64_t n) {
       if (cycles_without_commit >= MAX_CYCLES_WITHOUT_COMMIT) {
         printf("\033[1;31mNPC: no commit for %llu cycles\033[0m\n",
                (unsigned long long)cycles_without_commit);
+#ifdef NPC_YSYXSOC_SIM
+        print_soc_read_path_debug_state();
+#endif
         npc_state = NPC_ABORT;
         break;
       }
