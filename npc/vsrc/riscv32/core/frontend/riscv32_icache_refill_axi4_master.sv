@@ -31,8 +31,15 @@ module riscv32_icache_refill_axi4_master
   refill_adapter_state_e state_q;
   refill_adapter_state_e state_d;
 
-  icache_refill_req_t refill_req_q;
-  icache_refill_req_t refill_req_d;
+  // adapter在AR握手后只需记住burst长度和本地事务身份。line_base_addr与
+  // critical_word_index已经折叠进current_word_addr，避免为同一地址保存两份状态。
+  typedef struct packed {
+    icache_refill_word_count_t        requested_word_count;
+    icache_refill_transaction_index_t transaction_index;
+  } refill_transaction_context_t;
+
+  refill_transaction_context_t refill_transaction_context_q;
+  refill_transaction_context_t refill_transaction_context_d;
   icache_word_index_t received_word_index_q;
   icache_word_index_t received_word_index_d;
 
@@ -75,7 +82,9 @@ module riscv32_icache_refill_axi4_master
       REFILL_SEND_READ_ADDRESS: begin
         axi_manager_o.ar.addr  = current_word_addr_q;
         axi_manager_o.ar.id    = READ_TRANSACTION_ID;
-        axi_manager_o.ar.len   = 8'(refill_req_q.requested_word_count - 1'b1);
+        axi_manager_o.ar.len = 8'(
+            refill_transaction_context_q.requested_word_count - 1'b1
+        );
         axi_manager_o.ar.size  = 3'($clog2(ICACHE_FETCH_BYTES));
         axi_manager_o.ar.burst = AXI4_BURST_INCR;
         axi_manager_o.ar_valid = 1'b1;
@@ -88,7 +97,7 @@ module riscv32_icache_refill_axi4_master
         refill_resp_o.word_index        = received_word_index_q;
         refill_resp_o.last_word         = axi_manager_i.r.last;
         refill_resp_o.access_fault      = response_has_access_fault;
-        refill_resp_o.transaction_index = refill_req_q.transaction_index;
+        refill_resp_o.transaction_index = refill_transaction_context_q.transaction_index;
         refill_resp_valid_o             = axi_manager_i.r_valid;
         axi_manager_o.r_ready           = refill_resp_ready_i;
       end
@@ -99,15 +108,18 @@ module riscv32_icache_refill_axi4_master
 
   // 第二段：事务状态和beat位置。单word uncached fetch仍使用LEN=0的INCR事务。
   always_comb begin
-    state_d               = state_q;
-    refill_req_d          = refill_req_q;
-    received_word_index_d = received_word_index_q;
-    current_word_addr_d   = current_word_addr_q;
+    state_d                       = state_q;
+    refill_transaction_context_d = refill_transaction_context_q;
+    received_word_index_d         = received_word_index_q;
+    current_word_addr_d           = current_word_addr_q;
 
     unique case (state_q)
       REFILL_IDLE: begin
         if (refill_req_handshake) begin
-          refill_req_d = refill_req_i;
+          refill_transaction_context_d.requested_word_count =
+              refill_req_i.requested_word_count;
+          refill_transaction_context_d.transaction_index =
+              refill_req_i.transaction_index;
           if (refill_req_i.requested_word_count == icache_refill_word_count_t'(1)) begin
             received_word_index_d = refill_req_i.critical_word_index;
             current_word_addr_d =
@@ -130,10 +142,7 @@ module riscv32_icache_refill_axi4_master
       REFILL_RECEIVE_READ_DATA: begin
         if (axi_read_data_handshake) begin
           if (axi_manager_i.r.last) begin
-            refill_req_d          = '0;
-            received_word_index_d = '0;
-            current_word_addr_d   = '0;
-            state_d               = REFILL_IDLE;
+            state_d = REFILL_IDLE;
           end else begin
             received_word_index_d = received_word_index_q + icache_word_index_t'(1);
             current_word_addr_d =
@@ -143,10 +152,7 @@ module riscv32_icache_refill_axi4_master
       end
 
       default: begin
-        state_d               = REFILL_IDLE;
-        refill_req_d          = '0;
-        received_word_index_d = '0;
-        current_word_addr_d   = '0;
+        state_d = REFILL_IDLE;
       end
     endcase
   end
@@ -157,19 +163,15 @@ module riscv32_icache_refill_axi4_master
     else state_q <= state_d;
   end
 
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) refill_req_q <= '0;
-    else refill_req_q <= refill_req_d;
+  // payload寄存器只在state_q赋予其语义后读取，因此不需要复位或在事务结束时清零。
+  // 这会综合成普通数据触发器，而不是为无效payload增加异步复位网络。
+  always_ff @(posedge clk_i) begin
+    refill_transaction_context_q <= refill_transaction_context_d;
   end
 
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      received_word_index_q <= '0;
-      current_word_addr_q   <= '0;
-    end else begin
-      received_word_index_q <= received_word_index_d;
-      current_word_addr_q   <= current_word_addr_d;
-    end
+  always_ff @(posedge clk_i) begin
+    received_word_index_q <= received_word_index_d;
+    current_word_addr_q   <= current_word_addr_d;
   end
 
 `ifndef SYNTHESIS
