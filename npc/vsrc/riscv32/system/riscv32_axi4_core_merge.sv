@@ -29,15 +29,18 @@ module riscv32_axi4_core_merge
 
   logic read_transaction_present_q;
   logic read_transaction_present_d;
+  logic read_address_pending_q;
+  logic read_address_pending_d;
   logic read_address_handshake;
   logic read_last_handshake;
 
-  // 空闲时对同时到达的指令和数据读请求做轮询仲裁。事务在途时只允许已锁定
-  // requester接收R通道，避免另一个manager误收同一burst中的后续beat。
+  // 空闲时对同时到达的指令和数据读请求做轮询仲裁。只要已经向下游展示
+  // ARVALID，即使尚未握手，也必须锁定请求来源并保持AR payload稳定；完成AR
+  // 握手后继续保持同一来源，直到对应RLAST完成。
   always_comb begin
     selected_read_requester = read_transaction_requester_q;
 
-    if (!read_transaction_present_q) begin
+    if (!read_transaction_present_q && !read_address_pending_q) begin
       unique case ({data_manager_i.ar_valid, instruction_manager_i.ar_valid})
         2'b10: selected_read_requester = READ_REQUESTER_DATA;
         2'b01: selected_read_requester = READ_REQUESTER_INSTRUCTION;
@@ -135,16 +138,26 @@ module riscv32_axi4_core_merge
                                downstream_manager_o.r_ready &&
                                downstream_manager_i.r.last;
 
-  // 第二段：只记录读事务来源和下一次竞争的优先方。这里不按ID重新排序，
-  // 当前实现最多允许一个读burst在互联中在途；接口和ID语义仍为后续多在途保留。
+  // 第二段：AR受阻时先锁定请求来源，AR握手后再进入响应等待阶段。这里不按ID
+  // 重新排序，当前实现最多允许一个读burst在互联中在途；接口和ID语义仍为
+  // 后续多在途保留。
   always_comb begin
     read_transaction_requester_d = read_transaction_requester_q;
     next_priority_read_requester_d = next_priority_read_requester_q;
     read_transaction_present_d = read_transaction_present_q;
+    read_address_pending_d = read_address_pending_q;
 
-    if (!read_transaction_present_q && read_address_handshake) begin
-      read_transaction_requester_d = selected_read_requester;
-      read_transaction_present_d   = 1'b1;
+    if (!read_transaction_present_q) begin
+      if (!read_address_pending_q && downstream_manager_o.ar_valid) begin
+        read_transaction_requester_d = selected_read_requester;
+        read_address_pending_d        = !read_address_handshake;
+      end
+
+      if (read_address_handshake) begin
+        read_transaction_requester_d = selected_read_requester;
+        read_address_pending_d        = 1'b0;
+        read_transaction_present_d    = 1'b1;
+      end
     end
 
     if (read_last_handshake) begin
@@ -164,9 +177,11 @@ module riscv32_axi4_core_merge
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       read_transaction_present_q   <= 1'b0;
+      read_address_pending_q       <= 1'b0;
       read_transaction_requester_q <= READ_REQUESTER_INSTRUCTION;
     end else begin
       read_transaction_present_q   <= read_transaction_present_d;
+      read_address_pending_q       <= read_address_pending_d;
       read_transaction_requester_q <= read_transaction_requester_d;
     end
   end

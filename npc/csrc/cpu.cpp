@@ -13,10 +13,6 @@
 #include NPC_GENERATED_HEADER(TOP_CLASS)
 #include NPC_GENERATED_HEADER(TOP_DPI_CLASS)
 
-#ifdef NPC_YSYXSOC_SIM
-#include "VysyxSoCFull___024root.h"
-#endif
-
 #include "svdpi.h"
 
 #include <verilated.h>
@@ -47,141 +43,6 @@ static uint64_t main_time = 0;
 static uint64_t guest_inst_count = 0;
 static uint64_t guest_cycle_count = 0;
 static bool performance_statistics_printed = false;
-
-#ifdef NPC_YSYXSOC_SIM
-struct DebugReadResponse {
-  uint64_t cycle;
-  uint32_t data;
-  uint8_t count;
-  bool downstream;
-  bool last;
-};
-
-static DebugReadResponse debug_read_response_ring[64];
-static uint32_t debug_read_response_count = 0;
-
-struct DebugSdramReadCycle {
-  uint64_t cycle;
-  uint32_t model_data;
-  uint32_t model_word_index;
-  uint32_t sample_data0;
-  uint32_t sample_data;
-  uint8_t model_state;
-  uint8_t model_beat;
-  uint8_t core_read_pipeline;
-  uint8_t controller_state;
-  uint8_t controller_command;
-  uint8_t controller_bank;
-  uint16_t controller_address;
-  uint16_t controller_active_row;
-  uint16_t model_active_row;
-  bool model_drive;
-  bool core_response;
-};
-
-static DebugSdramReadCycle debug_sdram_cycle_ring[512];
-static uint32_t debug_sdram_cycle_count = 0;
-
-static void capture_debug_read_response() {
-  auto *root = top->rootp;
-  const auto save = [&](bool downstream, uint32_t data, bool last) {
-    DebugReadResponse &entry =
-        debug_read_response_ring[debug_read_response_count % 64];
-    entry.cycle = main_time / 2;
-    entry.data = data;
-    entry.count = root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__read_response_count_q;
-    entry.downstream = downstream;
-    entry.last = last;
-    debug_read_response_count++;
-  };
-
-  if (root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__out_rvalid &&
-      root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_out_rready) {
-    save(true,
-         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__out_rdata,
-         root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__out_rlast);
-  }
-
-  if (root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_in_rvalid &&
-      root->ysyxSoCFull__DOT__asic__DOT__axi4delay_delayer__DOT__in_rready) {
-    save(false,
-         root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_in_rdata,
-         root->ysyxSoCFull__DOT__asic__DOT___axi4delay_delayer_in_rlast);
-  }
-
-  const bool model_drive =
-      root->ysyxSoCFull__DOT__sdram__DOT__read_state_q == 2u;
-  const bool core_response =
-      root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_data_output_occurred_w;
-  const uint8_t core_pipeline =
-      root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__rd_q;
-  const uint8_t controller_state =
-      root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__state_q;
-  const uint8_t controller_command =
-      root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__command_q;
-  if (model_drive || core_response || core_pipeline != 0 ||
-      controller_state != 2u || controller_command != 7u) {
-    DebugSdramReadCycle &entry =
-        debug_sdram_cycle_ring[debug_sdram_cycle_count % 512];
-    entry.cycle = main_time / 2;
-    entry.model_data = root->ysyxSoCFull__DOT__sdram__DOT__read_data_output;
-    entry.model_word_index =
-        root->ysyxSoCFull__DOT__sdram__DOT__current_read_memory_word_index;
-    entry.sample_data0 =
-        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__sample_data0_q;
-    entry.sample_data =
-        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__sample_data_q;
-    entry.model_state = root->ysyxSoCFull__DOT__sdram__DOT__read_state_q;
-    entry.model_beat = root->ysyxSoCFull__DOT__sdram__DOT__read_beat_index_q;
-    entry.core_read_pipeline = core_pipeline;
-    entry.controller_state = controller_state;
-    entry.controller_command = controller_command;
-    entry.controller_bank =
-        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__bank_q;
-    entry.controller_address =
-        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__addr_q;
-    entry.controller_active_row =
-        root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__active_row_q[
-            entry.controller_bank];
-    entry.model_active_row =
-        root->ysyxSoCFull__DOT__sdram__DOT__active_row_index_array_q[
-            entry.controller_bank];
-    entry.model_drive = model_drive;
-    entry.core_response = core_response;
-    debug_sdram_cycle_count++;
-  }
-}
-
-static void print_debug_read_responses() {
-  const uint32_t begin = debug_read_response_count > 64
-                             ? debug_read_response_count - 64
-                             : 0;
-  for (uint32_t index = begin; index < debug_read_response_count; ++index) {
-    const DebugReadResponse &entry = debug_read_response_ring[index % 64];
-    printf("DEBUG R %s cycle=%llu data=%08x last=%u fifo_count=%u\n",
-           entry.downstream ? "SDRAM->delay" : "delay->SoC  ",
-           static_cast<unsigned long long>(entry.cycle), entry.data,
-           entry.last, entry.count);
-  }
-
-  const uint32_t sdram_begin = debug_sdram_cycle_count > 512
-                                   ? debug_sdram_cycle_count - 512
-                                   : 0;
-  for (uint32_t index = sdram_begin; index < debug_sdram_cycle_count;
-       ++index) {
-    const DebugSdramReadCycle &entry = debug_sdram_cycle_ring[index % 512];
-    printf("DEBUG SDRAM cycle=%llu ctrl_state=%u cmd=%x bank=%u addr=%04x ctrl_row=%x model_row=%x model_state=%u beat=%u index=%06x model=%08x drive=%u rd_pipe=%x sample0=%08x sample=%08x response=%u\n",
-           static_cast<unsigned long long>(entry.cycle),
-           entry.controller_state,
-           entry.controller_command, entry.controller_bank,
-           entry.controller_address, entry.controller_active_row,
-           entry.model_active_row, entry.model_state, entry.model_beat,
-           entry.model_word_index, entry.model_data,
-           entry.model_drive, entry.core_read_pipeline, entry.sample_data0,
-           entry.sample_data, entry.core_response);
-  }
-}
-#endif
 
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
 static const uint64_t MAX_CYCLES_WITHOUT_COMMIT = 1000000ULL;
@@ -225,10 +86,6 @@ static inline void set_dpi_scope() {
 static void single_cycle(CommitEvent *commit_event = nullptr) {
   top->TOP_CLOCK = 0;
   top->eval();
-
-#ifdef NPC_YSYXSOC_SIM
-  capture_debug_read_response();
-#endif
 
   if (commit_event != nullptr) {
     set_dpi_scope();
@@ -512,17 +369,6 @@ void cpu_exec(uint64_t n) {
     cycles_without_commit = 0;
     guest_inst_count++;
     retired++;
-
-#ifdef NPC_YSYXSOC_SIM
-    if (event.pc == static_cast<npc_word_t>(0xa0003ee0u)) {
-      printf("DEBUG SDRAM[a0003ee0] = 0x%08x, fetched = 0x%08x\n",
-             top->rootp->ysyxSoCFull__DOT__sdram__DOT__memory_word_array[
-                 0x00c003b8u],
-             event.instruction);
-      print_debug_read_responses();
-      npc_state = NPC_ABORT;
-    }
-#endif
 
     trace_inst(event.pc, event.instruction);
     ftrace_update(event.pc, event.instruction, event.next_pc);
