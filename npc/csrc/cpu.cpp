@@ -63,6 +63,10 @@ static void print_soc_read_path_debug_state() {
   printf("  refill master state/index      = %u/%u\n",
          root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__state_q,
          root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__received_word_index_q);
+  printf("  refill current word/request    = 0x%08x/0x%010llx\n",
+         root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__current_word_addr_q,
+         static_cast<unsigned long long>(
+             root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_core__DOT__u_icache_refill_axi4_master__DOT__refill_req_q));
   printf("  core merge present/pending     = %u/%u\n",
          root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_axi4_core_merge__DOT__read_transaction_present_q,
          root->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__u_npc_system__DOT__u_axi4_core_merge__DOT__read_address_pending_q);
@@ -82,6 +86,13 @@ static void print_soc_read_path_debug_state() {
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__u_response__DOT__count,
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__state_q,
          root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_core__DOT__read_response_beats_remaining_q);
+  printf("  SDRAM ordinary req/read FIFO   = %u/%u/%u/%u\n",
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__req_rd_q,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__req_addr_q,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__u_requests__DOT__count,
+         root->ysyxSoCFull__DOT__asic__DOT__lsdram_axi__DOT__msdram__DOT__u_sdram_axi__DOT__u_axi__DOT__req_out_valid_w);
+  printf("  SoC xbar read address          = 0x%08x\n",
+         root->ysyxSoCFull__DOT__asic__DOT__axi4xbar_1__DOT__auto_anon_in_araddr);
 }
 #endif
 
