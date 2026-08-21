@@ -211,16 +211,13 @@ module riscv32_icache
   function automatic icache_tag_t get_icache_tag(input phys_addr_t addr);
     return addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
   endfunction
-  // S2并行比较所有way的present和tag，并把请求划分为四类互斥结果：
-  // access fault、uncached访问、cache hit和cache miss。命中选择只编码第一路，
-  // 多路同时命中属于metadata错误，由后面的onehot断言报告。
+  // S2比较直接映射way 0的present和tag，并把请求划分为四类互斥结果：
+  // access fault、uncached访问、cache hit和cache miss。这里不实现多路比较和way encoder。
   // 四类结果互斥：不可执行地址本地返回fault；可执行但不可缓存地址走单word uncached
   // 访问；cacheable地址命中时本地返回，未命中时请求整line refill。响应反压时S2保持，
   // 所以上述组合payload也随S2保持，无需重复增加response寄存器。
   logic [ICACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
   logic lookup_hit;
-  logic hit_way_selected;
-  icache_way_index_t lookup_hit_way_index;
   icache_fetch_data_t lookup_hit_word_data;
   logic lookup_access_fault;
   logic lookup_uncached;
@@ -231,24 +228,15 @@ module riscv32_icache
   always_comb begin
     lookup_way_hit_vector = '0;
     lookup_hit            = 1'b0;
-    hit_way_selected      = 1'b0;
-    lookup_hit_way_index  = '0;
     lookup_hit_word_data  = '0;
 
-    for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-      lookup_way_hit_vector[way_index] = lookup_s2_present_q && memory_attr_s2_q.executable && memory_attr_s2_q.cacheable && lookup_line_present_vector_s2_q[way_index] && (lookup_tag_array_s2_q[way_index] == get_icache_tag(
-          lookup_s2_q.fetch_addr));
-    end
-    lookup_hit = |lookup_way_hit_vector;
-
-    // 正常情况下只命中一路；这里编码第一路命中，断言负责发现多路同时命中的错误。
-    for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-      if (lookup_way_hit_vector[way_index] && !hit_way_selected) begin
-        lookup_hit_way_index = icache_way_index_t'(way_index);
-        lookup_hit_word_data = lookup_word_data_array_s2_q[way_index];
-        hit_way_selected     = 1'b1;
-      end
-    end
+    lookup_way_hit_vector[0] = lookup_s2_present_q && memory_attr_s2_q.executable &&
+                               memory_attr_s2_q.cacheable &&
+                               lookup_line_present_vector_s2_q[0] &&
+                               (lookup_tag_array_s2_q[0] == get_icache_tag(
+                                   lookup_s2_q.fetch_addr));
+    lookup_hit           = lookup_way_hit_vector[0];
+    lookup_hit_word_data = lookup_word_data_array_s2_q[0];
 
     lookup_access_fault = lookup_s2_present_q && !memory_attr_s2_q.executable;
     lookup_uncached     = lookup_s2_present_q && memory_attr_s2_q.executable && !memory_attr_s2_q.cacheable;
@@ -543,11 +531,6 @@ module riscv32_icache
       lookup_resp_o
   )))
   else $error("I-cache lookup response changed while stalled");
-
-  // 一个set中同一tag最多只能有一个present way，否则第一路编码会掩盖metadata错误。
-  a_lookup_matches_at_most_one_way :
-  assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(lookup_way_hit_vector))
-  else $error("I-cache lookup matched more than one way");
 
   // 阻塞式设计任意时刻只能由本地路径或miss unit中的一方驱动lookup响应。
   a_local_and_miss_response_are_exclusive :
