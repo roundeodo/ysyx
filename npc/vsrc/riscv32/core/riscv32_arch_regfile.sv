@@ -18,8 +18,13 @@ module riscv32_arch_regfile
   // 这仍是完整RV32I寄存器堆，不是RV32E；端口索引仍覆盖全部32个架构寄存器。
   xlen_data_t gpr_q[1:ARCH_REG_COUNT-1];
 
-  always_ff @(posedge clk_i) begin
-    if (gpr_write_enable_i && (gpr_write_addr_i != '0)) begin
+  // 小容量多端口寄存器堆采用低电平透明锁存阵列，而不是为每一位实例化正沿DFF。
+  // 提交结果在时钟低电平期间写入，锁存器在下一上升沿前关闭；随后组合读口向下一条
+  // 指令提供稳定数据。这个组织保持原有两读一写架构接口，同时更接近真实寄存器堆的
+  // 面积实现。它也明确建立半周期写入时序：写地址、写数据和写使能必须在低电平阶段
+  // 稳定，未来流水化后应由commit级寄存器驱动这些信号。
+  always_latch begin
+    if (!clk_i && gpr_write_enable_i && (gpr_write_addr_i != '0)) begin
       gpr_q[gpr_write_addr_i] <= gpr_write_data_i;
     end
   end
