@@ -109,9 +109,9 @@ module riscv32_csr_file
     mstatus_value[3]     = mstatus_mie_q;
 
     mie_value                       = '0;
-    mie_value[IRQ_MACHINE_SOFTWARE] = mie_msie_q;
-    mie_value[IRQ_MACHINE_TIMER]    = mie_mtie_q;
-    mie_value[IRQ_MACHINE_EXTERNAL] = mie_meie_q;
+    mie_value[int'(IRQ_MACHINE_SOFTWARE)] = mie_msie_q;
+    mie_value[int'(IRQ_MACHINE_TIMER)]    = mie_mtie_q;
+    mie_value[int'(IRQ_MACHINE_EXTERNAL)] = mie_meie_q;
 
     mtvec_value  = {mtvec_base_q, 2'b00};
     mepc_value   = {mepc_base_q, 2'b00};
@@ -190,9 +190,9 @@ module riscv32_csr_file
             mstatus_mpie_q <= csr_write_data_i[7];
           end
           CSR_MIE: begin
-            mie_msie_q <= csr_write_data_i[IRQ_MACHINE_SOFTWARE];
-            mie_mtie_q <= csr_write_data_i[IRQ_MACHINE_TIMER];
-            mie_meie_q <= csr_write_data_i[IRQ_MACHINE_EXTERNAL];
+            mie_msie_q <= csr_write_data_i[int'(IRQ_MACHINE_SOFTWARE)];
+            mie_mtie_q <= csr_write_data_i[int'(IRQ_MACHINE_TIMER)];
+            mie_meie_q <= csr_write_data_i[int'(IRQ_MACHINE_EXTERNAL)];
           end
           // 第一版只支持Direct模式，低两位强制为0。
           CSR_MTVEC:    mtvec_base_q <= csr_write_data_i[XLEN-1:2];
