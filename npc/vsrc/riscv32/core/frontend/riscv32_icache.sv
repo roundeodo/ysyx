@@ -96,6 +96,7 @@ module riscv32_icache
 
   riscv32_icache_data_array u_riscv32_icache_data_array (
       .clk_i                    (clk_i),
+      .rst_ni                   (rst_ni),
       .read_enable_i            (array_read_enable),
       .read_set_index_i         (array_read_set_index),
       .read_word_index_i        (array_read_word_index),
@@ -522,6 +523,12 @@ module riscv32_icache
       !(local_lookup_resp_valid && miss_lookup_resp_valid)
   )
   else $error("I-cache local and miss responses are both valid");
+
+  // 同一个set中不能存在两个present且tag相同的way，否则命中数据会依赖way优先级，
+  // 并掩盖refill/invalidate元数据管理错误。
+  a_lookup_hits_at_most_one_way :
+  assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(lookup_way_hit_vector))
+  else $error("I-cache lookup matched multiple ways");
 
   a_miss_request_has_valid_classification :
   assert property (

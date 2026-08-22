@@ -12,6 +12,7 @@ module riscv32_icache_data_array
     parameter int unsigned WORDS_PER_LINE = ICACHE_WORDS_PER_LINE
 ) (
     input logic clk_i,
+    input logic rst_ni,
 
     input  logic               read_enable_i,
     input  icache_set_index_t  read_set_index_i,
@@ -35,6 +36,15 @@ module riscv32_icache_data_array
   icache_fetch_data_t data_array_q          [WAY_COUNT] [WORDS_PER_LINE] [SET_COUNT];
   icache_fetch_data_t read_word_data_array_q[WAY_COUNT];
 
+  // refill写请求先在上升沿进入staging寄存器，随后在低电平阶段写入数据阵列。
+  // staging切断miss-unit组合输出到透明阵列的路径，也保证write payload在整个低电平
+  // 写入窗口保持不变。payload在enable=0时没有语义，因此只复位enable。
+  icache_set_index_t  staged_refill_write_set_index_q;
+  icache_way_index_t  staged_refill_write_way_index_q;
+  icache_word_index_t staged_refill_write_word_index_q;
+  icache_fetch_data_t staged_refill_write_word_data_q;
+  logic               staged_refill_write_enable_q;
+
   // read_enable_i为1的上升沿，读取所有way中由set和word共同索引的word。读地址必须
   // 与tag array使用同一个set，并由cache pipeline的S0寄存器共同驱动。
   always_ff @(posedge clk_i) begin
@@ -54,7 +64,8 @@ module riscv32_icache_data_array
 
   // refill_write_valid_i为1时，只更新指定way/set/word。I-cache只读，所以没有dirty
   // bit和store byte mask。数据阵列无需复位；line是否可被命中完全由tag array中的
-  // present位决定。
+  // present位决定。这里使用显式staging加低电平透明锁存阵列，降低小容量数据阵列由
+  // 标准单元实现时的面积；未来换成SRAM宏时，只需在本模块内部替换存储体和端口时序。
   //
   // 第一版blocking cache可禁止lookup与refill写同一set。未来early restart和hit-under-
   // miss需要定义冲突策略，并优先考虑refill data bypass而不是依赖SRAM read-during-write
@@ -65,10 +76,25 @@ module riscv32_icache_data_array
   // 只有该line的所有word均成功写入后，miss unit才允许tag array把对应present写成1。
   // 本模块不能自行修改metadata，否则data和metadata提交时序会出现两个控制来源。
   always_ff @(posedge clk_i) begin
-    if (refill_write_valid_i) begin
-      data_array_q[refill_write_way_index_i]
-                  [refill_write_word_index_i]
-                  [refill_write_set_index_i] <= refill_write_word_data_i;
+    staged_refill_write_set_index_q  <= refill_write_set_index_i;
+    staged_refill_write_way_index_q  <= refill_write_way_index_i;
+    staged_refill_write_word_index_q <= refill_write_word_index_i;
+    staged_refill_write_word_data_q  <= refill_write_word_data_i;
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      staged_refill_write_enable_q <= 1'b0;
+    end else begin
+      staged_refill_write_enable_q <= refill_write_valid_i;
+    end
+  end
+
+  always_latch begin
+    if (!clk_i && staged_refill_write_enable_q) begin
+      data_array_q[staged_refill_write_way_index_q]
+                  [staged_refill_write_word_index_q]
+                  [staged_refill_write_set_index_q] = staged_refill_write_word_data_q;
     end
   end
 
