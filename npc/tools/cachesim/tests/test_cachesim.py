@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import struct
 import subprocess
 import sys
 import tempfile
@@ -13,6 +14,57 @@ del sys.argv[1]
 
 
 class CacheSimTest(unittest.TestCase):
+    def run_binary_trace(
+        self,
+        program_counter_runs,
+        capacity=8,
+        line_size=4,
+        ways=1,
+    ):
+        instruction_count = sum(run[1] for run in program_counter_runs)
+        with tempfile.NamedTemporaryFile("wb") as trace_file:
+            trace_file.write(
+                struct.pack(
+                    "<8sIIQQ",
+                    b"NPCPCTR1",
+                    1,
+                    4,
+                    instruction_count,
+                    len(program_counter_runs),
+                )
+            )
+            for first_program_counter, run_instruction_count, stride in program_counter_runs:
+                trace_file.write(
+                    struct.pack(
+                        "<QIi",
+                        first_program_counter,
+                        run_instruction_count,
+                        stride,
+                    )
+                )
+            trace_file.flush()
+            command = [
+                str(CACHESIM_BINARY),
+                "--trace",
+                trace_file.name,
+                "--capacity-bytes",
+                str(capacity),
+                "--line-bytes",
+                str(line_size),
+                "--ways",
+                str(ways),
+                "--critical-response-penalty-cycles",
+                "10",
+                "--complete-refill-penalty-cycles",
+                "10",
+                "--output-format",
+                "json",
+            ]
+            completed = subprocess.run(
+                command, check=True, text=True, capture_output=True
+            )
+        return json.loads(completed.stdout)
+
     def run_trace(
         self,
         trace_lines,
@@ -84,6 +136,19 @@ class CacheSimTest(unittest.TestCase):
         )
         self.assertEqual(result["accesses"], 2)
         self.assertEqual(result["ignored_nonempty_lines"], 1)
+
+    def test_binary_run_trace_matches_program_counter_sequence(self):
+        result = self.run_binary_trace(
+            [(0x0, 3, 4), (0x0, 1, 0)],
+            capacity=8,
+            line_size=4,
+            ways=2,
+        )
+        self.assertEqual(result["accesses"], 4)
+        self.assertEqual(result["misses"], 4)
+        self.assertEqual(result["compulsory_misses"], 3)
+        self.assertEqual(result["capacity_misses"], 1)
+        self.assertEqual(result["conflict_misses"], 0)
 
     def test_independent_transactions_repeat_all_read_phases(self):
         result = self.run_trace(

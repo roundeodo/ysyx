@@ -41,27 +41,28 @@ line为753.748ms。8B line命中率较低但完整refill占用约减半，说明
 的事务占用时间，而不只是3C miss数量。进入流水线和非阻塞cache阶段后，必须重新探索容量、
 路数和line大小，不能把课程配置直接当成目标AI处理器配置。
 
-## 2. 第一版命名配置
+## 2. 当前课程配置与长期配置
 
-本检查点使用命名配置`YSYX_RV32_BASELINE`。表中的具体数值只属于该配置，RTL必须通过
-语义参数和派生参数表达，不能把RV32地址切片散落在各子模块中。
+当前检查点使用命名配置`YSYX_RV32_BASELINE`。表中的当前值用于B4课程面积与功能验证；
+长期值描述采用SRAM宏、流水前端和非阻塞miss结构后的目标，不是当前RTL的默认参数。
+两者共用同一套语义参数和派生类型，不能把地址切片或某一组参数散落在子模块中。
 
-| 属性 | 参数或派生关系 | `YSYX_RV32_BASELINE` | 原因 |
-| --- | --- | ---: | --- |
-| 容量 | `ICACHE_CAPACITY_BYTES` | 8 KiB | 初始容量具备实际意义，同时避免第一版阵列过大 |
-| 路数 | `ICACHE_WAY_COUNT` | 2 | 降低直接映射冲突miss，同时保持比较和替换逻辑简单 |
-| Cache line | `ICACHE_LINE_BYTES` | 32 B | 利用空间局部性并为以后burst提供收益 |
-| 单次取指字节数 | `ICACHE_FETCH_BYTES` | 4 B | 匹配当前不支持压缩指令的RV32I前端 |
-| Set数量 | `CAPACITY_BYTES / (WAYS * LINE_BYTES)` | 128 | 由容量、路数和line大小唯一派生 |
-| 每行取指word数 | `LINE_BYTES / FETCH_BYTES` | 8 | 由line大小和取指粒度唯一派生 |
-| Offset位数 | `$clog2(LINE_BYTES)` | 5 | 选择cache line内的一个字节 |
-| Set index位数 | `$clog2(SETS)` | 7 | 选择一个set |
-| Tag位数 | `PADDR_WIDTH - OFFSET_BITS - SET_INDEX_BITS` | 20 | 区分映射到同一set的不同cache line |
-| 未完成miss数 | `ICACHE_MSHR_ENTRIES` | 1 | 第一版采用blocking cache，同时保留向多MSHR演进的边界 |
+| 属性 | 参数或派生关系 | 当前课程值 | 长期目标 | 说明 |
+| --- | --- | ---: | ---: | --- |
+| 容量 | `ICACHE_CAPACITY_BYTES` | 64 B | 8 KiB起步 | 当前array由标准单元实现，长期改用SRAM宏 |
+| 路数 | `ICACHE_WAY_COUNT` | 1 | 2或更多 | 当前直接映射删除了无效替换状态，长期按目标workload重新探索 |
+| Cache line | `ICACHE_LINE_BYTES` | 8 B | 32或64 B | 当前单MSHR会被长line的refill尾部阻塞，长期先解除该瓶颈 |
+| 单次取指字节数 | `ICACHE_FETCH_BYTES` | 4 B | 参数化扩宽 | 当前匹配不支持压缩指令的单发射RV32I前端 |
+| Set数量 | `CAPACITY_BYTES / (WAYS * LINE_BYTES)` | 8 | 参数派生 | 由容量、路数和line大小唯一派生 |
+| 每行取指word数 | `LINE_BYTES / FETCH_BYTES` | 2 | 参数派生 | 由line大小和取指粒度唯一派生 |
+| Offset位数 | `$clog2(LINE_BYTES)` | 3 | 参数派生 | 选择cache line内的一个字节 |
+| Set index位数 | `$clog2(SETS)` | 3 | 参数派生 | 选择一个set |
+| Tag位数 | `PADDR_WIDTH - OFFSET_BITS - SET_INDEX_BITS` | 26 | 参数派生 | 区分映射到同一set的不同cache line |
+| 未完成miss数 | `ICACHE_MSHR_ENTRIES` | 1 | 至少2 | 当前采用blocking cache，长期支持hit-under-miss和多miss并发 |
 
 构建配置值放在`riscv_config_pkg`中，共享派生类型放在`riscv32_pkg`中；模块局部派生量
-放在其所有者模块中。`NPC_ICACHE_LINE_BYTES`可选择16/32/64B line，非32B配置进入独立
-构建目录。展开阶段
+放在其所有者模块中。`NPC_ICACHE_LINE_BYTES`至少支持4/8/16/32/64B line，每组配置进入
+独立构建目录。展开阶段
 必须检查容量、路数、line大小和set数量是否合法，line不小于一个取指word，并且数组
 规模与地址字段位宽一致。未来RV64配置只能修改命名配置和必要的接口宽度，不能复制一套
 I-cache RTL。
@@ -71,7 +72,7 @@ I-cache RTL。
 | 模块 | 拥有 | 不拥有 |
 | --- | --- | --- |
 | `riscv32_ifu` | next-PC顺序、redirect epoch、向译码级交付 | tag、替换策略、refill协议 |
-| `riscv32_fetch_buffer` | 解耦cache响应和译码反压 | cache lookup和miss策略 |
+| `riscv32_ifu`内部响应寄存器 | 保存已返回但尚未交付的指令，并处理redirect epoch | cache lookup和miss策略 |
 | `riscv32_icache` | lookup流水线、命中判断、替换和失效协调 | AXI通道细节 |
 | `riscv32_icache_tag_array` | tag和cache line present状态 | 替换策略 |
 | `riscv32_icache_data_array` | 缓存的指令word | tag有效性和refill顺序 |

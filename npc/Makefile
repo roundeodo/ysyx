@@ -590,7 +590,7 @@ nvboard: $(NVBOARD_SIM_BINARY)
 CACHE_TRACE_ARCH             ?= riscv32-nemu
 CACHE_TRACE_ISA              = $(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64,riscv32)
 CACHE_TRACE_IMAGE            ?= $(CPU_TESTS_DIR)/build/bubble-sort-$(CACHE_TRACE_ISA)-npc.bin
-CACHE_TRACE_FILE             ?= $(abspath ./result/cache/$(CACHE_TRACE_ISA)_nemu_itrace.log)
+CACHE_TRACE_FILE             ?= $(abspath ./result/cache/$(CACHE_TRACE_ISA)_nemu_pc_trace.bin)
 CACHE_TRACE_IMAGE_PATH       = $(abspath $(CACHE_TRACE_IMAGE))
 CACHE_TRACE_PATH             = $(abspath $(CACHE_TRACE_FILE))
 CACHE_CAPACITY_BYTES         ?= 64
@@ -654,9 +654,9 @@ cachesim-trace:
 	$(MAKE) -C $(NEMU_DIR) \
 		$(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
 	$(MAKE) -C $(NEMU_DIR) run \
-		ARGS="-l $(CACHE_TRACE_PATH) -b" \
+		ARGS="--cachesim-trace=$(CACHE_TRACE_PATH) -b" \
 		IMG=$(CACHE_TRACE_IMAGE_PATH)
-	@echo "NEMU instruction trace: $(CACHE_TRACE_PATH)"
+	@echo "NEMU compact PC trace: $(CACHE_TRACE_PATH)"
 
 cachesim-run: $(CACHESIM_BINARY)
 	@test -f "$(CACHE_TRACE_PATH)" || \

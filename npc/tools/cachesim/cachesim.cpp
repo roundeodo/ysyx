@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <iterator>
 #include <list>
 #include <limits>
 #include <optional>
@@ -68,6 +69,28 @@ struct CacheLine {
   uint64_t tag = 0;
   uint64_t last_access_sequence = 0;
 };
+
+struct BinaryTraceHeader {
+  char magic[8];
+  uint32_t version;
+  uint32_t program_counter_bytes;
+  uint64_t instruction_count;
+  uint64_t run_count;
+};
+
+struct BinaryProgramCounterRun {
+  uint64_t first_program_counter;
+  uint32_t instruction_count;
+  int32_t program_counter_stride_bytes;
+};
+
+constexpr char kBinaryTraceMagic[8] = {
+    'N', 'P', 'C', 'P', 'C', 'T', 'R', '1',
+};
+constexpr uint32_t kBinaryTraceVersion = 1;
+
+static_assert(sizeof(BinaryTraceHeader) == 32);
+static_assert(sizeof(BinaryProgramCounterRun) == 16);
 
 class SetAssociativeCache {
  public:
@@ -430,6 +453,31 @@ CommandLineOptions ParseCommandLine(int argc, char **argv) {
   return options;
 }
 
+template <typename Value>
+void ReadBinaryValue(std::istream &trace_stream, Value *value,
+                     const char *description) {
+  trace_stream.read(reinterpret_cast<char *>(value), sizeof(*value));
+  if (!trace_stream) {
+    throw std::runtime_error(std::string("truncated binary trace while reading ") +
+                             description);
+  }
+}
+
+bool HasBinaryTraceMagic(std::istream &trace_stream) {
+  char file_magic[sizeof(kBinaryTraceMagic)] = {};
+  trace_stream.read(file_magic, sizeof(file_magic));
+  const bool has_binary_magic =
+      trace_stream.gcount() == static_cast<std::streamsize>(sizeof(file_magic)) &&
+      std::equal(std::begin(file_magic), std::end(file_magic),
+                 std::begin(kBinaryTraceMagic));
+  trace_stream.clear();
+  trace_stream.seekg(0, std::ios::beg);
+  if (!trace_stream) {
+    throw std::runtime_error("failed to seek trace file");
+  }
+  return has_binary_magic;
+}
+
 CacheStatistics SimulateTrace(std::istream &trace_stream,
                               const CacheConfiguration &configuration) {
   const uint64_t cache_line_count =
@@ -439,18 +487,8 @@ CacheStatistics SimulateTrace(std::istream &trace_stream,
   std::unordered_set<uint64_t> previously_accessed_line_set;
   CacheStatistics statistics;
 
-  std::string trace_line;
-  while (std::getline(trace_stream, trace_line)) {
-    ++statistics.source_line_count;
-    const std::optional<uint64_t> program_counter = ParseProgramCounter(trace_line);
-    if (!program_counter.has_value()) {
-      if (!TrimLeft(trace_line).empty()) {
-        ++statistics.ignored_nonempty_line_count;
-      }
-      continue;
-    }
-
-    const uint64_t block_address = *program_counter / configuration.line_bytes;
+  auto access_program_counter = [&](uint64_t program_counter) {
+    const uint64_t block_address = program_counter / configuration.line_bytes;
     const bool previously_accessed =
         previously_accessed_line_set.find(block_address) !=
         previously_accessed_line_set.end();
@@ -464,7 +502,7 @@ CacheStatistics SimulateTrace(std::istream &trace_stream,
     } else {
       ++statistics.miss_count;
       statistics.critical_beat_position_sum +=
-          ((*program_counter % configuration.line_bytes) /
+          ((program_counter % configuration.line_bytes) /
            configuration.refill_beat_bytes) +
           1;
       if (!previously_accessed) {
@@ -476,6 +514,85 @@ CacheStatistics SimulateTrace(std::istream &trace_stream,
       }
     }
     previously_accessed_line_set.insert(block_address);
+  };
+
+  if (HasBinaryTraceMagic(trace_stream)) {
+    BinaryTraceHeader header = {};
+    ReadBinaryValue(trace_stream, &header, "header");
+    if (!std::equal(std::begin(header.magic), std::end(header.magic),
+                    std::begin(kBinaryTraceMagic))) {
+      throw std::runtime_error("invalid binary trace magic");
+    }
+    if (header.version != kBinaryTraceVersion) {
+      throw std::runtime_error("unsupported binary trace version");
+    }
+    if (header.program_counter_bytes != 4 &&
+        header.program_counter_bytes != 8) {
+      throw std::runtime_error("binary trace program-counter width must be 4 or 8");
+    }
+
+    uint64_t decoded_instruction_count = 0;
+    for (uint64_t run_index = 0; run_index < header.run_count; ++run_index) {
+      BinaryProgramCounterRun run = {};
+      ReadBinaryValue(trace_stream, &run, "program-counter run");
+      ++statistics.source_line_count;
+      if (run.instruction_count == 0) {
+        throw std::runtime_error("binary trace contains an empty run");
+      }
+
+      uint64_t program_counter = run.first_program_counter;
+      for (uint32_t instruction_index = 0;
+           instruction_index < run.instruction_count; ++instruction_index) {
+        if (header.program_counter_bytes == 4 && program_counter > UINT32_MAX) {
+          throw std::runtime_error("RV32 binary trace contains a 64-bit program counter");
+        }
+        access_program_counter(program_counter);
+        ++decoded_instruction_count;
+
+        if (instruction_index + 1 == run.instruction_count) {
+          continue;
+        }
+        const int64_t stride = run.program_counter_stride_bytes;
+        if (stride >= 0) {
+          if (program_counter >
+              std::numeric_limits<uint64_t>::max() -
+                  static_cast<uint64_t>(stride)) {
+            throw std::runtime_error("binary trace program counter overflow");
+          }
+          program_counter += static_cast<uint64_t>(stride);
+        } else {
+          const uint64_t magnitude = static_cast<uint64_t>(-stride);
+          if (program_counter < magnitude) {
+            throw std::runtime_error("binary trace program counter underflow");
+          }
+          program_counter -= magnitude;
+        }
+      }
+    }
+
+    if (decoded_instruction_count != header.instruction_count) {
+      throw std::runtime_error(
+          "binary trace instruction count does not match its header");
+    }
+    char trailing_byte = 0;
+    trace_stream.read(&trailing_byte, 1);
+    if (trace_stream.gcount() != 0) {
+      throw std::runtime_error("binary trace contains trailing data");
+    }
+  } else {
+    std::string trace_line;
+    while (std::getline(trace_stream, trace_line)) {
+      ++statistics.source_line_count;
+      const std::optional<uint64_t> program_counter =
+          ParseProgramCounter(trace_line);
+      if (!program_counter.has_value()) {
+        if (!TrimLeft(trace_line).empty()) {
+          ++statistics.ignored_nonempty_line_count;
+        }
+        continue;
+      }
+      access_program_counter(*program_counter);
+    }
   }
 
   statistics.unique_line_count = previously_accessed_line_set.size();
@@ -748,7 +865,7 @@ void PrintJson(const CacheConfiguration &configuration,
 int main(int argc, char **argv) {
   try {
     const CommandLineOptions options = ParseCommandLine(argc, argv);
-    std::ifstream trace_file(options.trace_path);
+    std::ifstream trace_file(options.trace_path, std::ios::binary);
     if (!trace_file) {
       throw std::runtime_error("cannot open trace file: " + options.trace_path);
     }

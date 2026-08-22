@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <cpu/cpu.h>
+#include <cpu/cachesim-trace.h>
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
@@ -102,6 +103,7 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
+    record_cachesim_program_counter(s.pc);
     g_nr_guest_inst ++;
     // NEMU当前是顺序功能模型，每条完成的指令按一个架构周期计数。
     g_arch_mcycle ++;
