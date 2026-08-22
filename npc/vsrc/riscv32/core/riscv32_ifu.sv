@@ -58,14 +58,20 @@ module riscv32_ifu
   logic lookup_request_handshake;
   logic lookup_response_handshake;
   logic lookup_response_is_current;
+  logic redirect_originates_from_lookup_response;
 
   assign lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
   assign lookup_response_handshake = icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
 
-  // epoch用于区分redirect前后的取指流。redirect一旦有效，前端必须立即禁止旧响应进入
-  // fetch buffer；即使响应携带的epoch等于寄存器中的旧epoch，它在本拍也已失效。
-  // 失效响应仍必须握手并排空，否则单在途IFU会永久等待该响应，无法从redirect目标重新取指。
-  assign lookup_response_is_current = !redirect_req_valid_i && (icache_lookup_resp_i.fetch_epoch == current_fetch_epoch_q);
+  // fast-bypass fetch buffer允许当前响应同拍经过IDU/EXU并产生redirect。此时redirect的
+  // source_pc等于当前响应PC，它不能反过来压低自身valid；其他source_pc的redirect来自
+  // 更老指令，当前响应属于错误路径，必须只排空而不能交付。epoch继续处理跨周期旧响应。
+  assign redirect_originates_from_lookup_response =
+      redirect_req_valid_i &&
+      (redirect_req_i.source_pc == program_counter_t'(icache_lookup_resp_i.fetch_addr));
+  assign lookup_response_is_current =
+      (icache_lookup_resp_i.fetch_epoch == current_fetch_epoch_q) &&
+      (!redirect_req_valid_i || redirect_originates_from_lookup_response);
 
   always_comb begin
     lookup_response_fetch_entry                 = '0;
@@ -201,8 +207,9 @@ module riscv32_ifu
   else $error("IFU changed I-cache lookup request while backpressured");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    redirect_req_valid_i |-> !fetch_entry_valid_o)
-  else $error("IFU delivered an old-path fetch entry during redirect");
+    (redirect_req_valid_i && !redirect_originates_from_lookup_response)
+    |-> !fetch_entry_valid_o)
+  else $error("IFU delivered a younger old-path fetch entry during redirect");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == IFU_WAIT_LOOKUP_RESPONSE

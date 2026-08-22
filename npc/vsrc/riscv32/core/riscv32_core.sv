@@ -200,9 +200,9 @@ module riscv32_core
     end
   end
 
-  // buffer位于IFU和IDU之间，只保存已经完成的fetch_entry，不参与PC生成、cache访问或译码。
-  // redirect当拍停止IFU入队，并在时钟沿清除队列中的旧控制流entry。IDU队首valid不受flush的
-  // 组合门控：当前队首指令可能正是redirect来源，若用redirect压低它自身的valid会形成组合环。
+  // buffer位于IFU和IDU之间，只在IDU反压时保存已经完成的fetch_entry。空槽fast bypass让
+  // 无反压响应同拍进入译码/执行，避免固定增加一拍并让当前控制流redirect及时修正下一PC。
+  // IDU valid不受flush组合门控：当前指令可能正是redirect来源，门控会压低它自身的valid。
   riscv32_fetch_buffer u_fetch_buffer (
       .clk_i                  (clk_i),
       .rst_ni                 (rst_ni),
@@ -214,7 +214,7 @@ module riscv32_core
       .idu_fetch_entry_ready_i(idu_fetch_entry_ready),
       .flush_i                (selected_redirect_req_valid)
   );
-  // 当前阻塞顺序核只需要一个弹性entry；同拍出队和入队仍可维持每周期一条的命中吞吐。
+  // 当前阻塞顺序核只需要一个fall-through弹性entry；同拍出队和入队仍可维持连续交付。
   // 未来多发射前端应把它替换为按fetch packet计数的独立队列，而不是在当前标量结构上堆深度。
 
   riscv32_idu u_idu (
