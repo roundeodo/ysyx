@@ -754,3 +754,28 @@ direct-mapped、AXI SDRAM连续读和MicroBench `test`下，只把I-cache容量�
 已经频繁早于顺序后端准备好指令；此后继续扩大I-cache的边际收益有限。剩余主要开销来自
 顺序核同一时刻只允许一个lookup在途、每条指令等待完成后才推进，以及无D-cache LSU的
 长延迟访问。1KiB配置只用于瓶颈分离，不替代满足23000um^2约束的64B课程面积配置。
+
+## 2026-08-22 - 1KiB默认配置与自修改代码一致性回归
+
+根据前一轮瓶颈分离结果，RV32I开发默认配置正式调整为1KiB容量、direct-mapped、8B line；
+RV64顺序配置继续保持64B/16B，RV32仍为RV32I而非RV32E。该决定优先减少容量miss和仿真
+时间，小面积64B配置仍可通过命令行参数复现实验，但不再作为默认性能配置。
+
+新增两项SDRAM自修改代码测试。两项测试都先执行一次返回1的目标函数，使对应line进入
+I-cache，再用store把第一条指令改成返回2：
+
+| 测试 | 同步操作 | 第二次调用结果 | 结论 |
+| --- | --- | ---: | --- |
+| `icache-smc-no-fence` | 仅编译器memory barrier | 1 | store更新了SDRAM，但旧I-cache line仍可见 |
+| `icache-smc-fence-i` | `fence.i` | 2 | I-cache metadata失效后重新从SDRAM取到新指令 |
+
+执行命令：
+
+```sh
+cd /home/yong/ysyx/ysyx-workbench/am-kernels/tests/cpu-tests
+make ARCH=riscv32-ysyxsoc-sdram ALL=icache-smc-no-fence run
+make ARCH=riscv32-ysyxsoc-sdram ALL=icache-smc-fence-i run
+```
+
+两项均命中good trap。无`fence.i`测试用于复现当前微架构的旧副本，不是通用ISA符合性
+断言；有`fence.i`测试才是必须满足的架构结果。

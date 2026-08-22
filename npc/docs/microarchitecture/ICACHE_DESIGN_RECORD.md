@@ -333,3 +333,43 @@ PMU事件和`fence.i`失效路径均已进入活动filelist。活动RTL中不再
 尚未完成检查点F。cold miss、所有way、set冲突、critical-word early restart、每个refill
 beat错误、各阶段redirect、refill期间`fence.i`以及cache开关A/B仍需定向验证；cpu-tests、
 DiffTest、RT-Thread、microbench、综合和STA也必须基于已提交版本记录后，P1才能标记为完成。
+
+## 17. RV32I性能默认配置与`fence.i`一致性验证
+
+2026-08-22将RV32I默认I-cache从`64B/1-way/8B line`调整为
+`1KiB/1-way/8B line`。本次只改变几何参数，不修改IFU lookup、miss unit refill或AXI4
+协议。RV32配置继续使用`rv32i_zicsr_zifencei`，没有切换到RV32E。
+
+选择依据如下：
+
+- direct-mapped避免增加多路tag比较、way选择和替换状态，保持命中路径简单；
+- 8B line已经实际使用AXI INCR burst和SDRAM连续读，同时不会让当前blocking miss unit
+  长时间等待无关的尾部refill；
+- 同一MicroBench `test`中，1KiB相对64B将miss从172752降至11927，PMU窗口IPC从
+  0.082929提高到0.236549，Total从71.005ms降至29.714ms；
+- 1KiB不再以23000um^2课程面积线为默认目标。需要复现实验用小面积配置时，应通过
+  `NPC_ICACHE_CAPACITY_BYTES=64`显式选择，而不是在RTL中保留第二套实现。
+
+自修改代码会同时产生两个物理内存副本：store通过数据通路改写SDRAM，而I-cache中已经
+命中的旧cache line不会被这次store自动修改。RISC-V在软件执行`fence.i`之前允许后续取指
+继续观察旧副本；因此“未执行`fence.i`仍读到旧指令”是复现实验，不是ISA错误。
+
+当前`fence.i`实现按以下顺序建立可见点：
+
+1. IDU将`MISC-MEM/funct3=001`译码为`SYS_FENCE_I`；
+2. 指令到达commit边界后，core产生前端redirect，并保持`icache_invalidate_req`；
+3. I-cache立即停止接收新lookup，排空S1 lookup和正在进行的miss/refill；
+4. invalidate状态机逐set、逐way把tag metadata的`present`清零。tag和data位本身不用清零，
+   因为`present=0`已经保证旧内容不能命中；
+5. `invalidate_done`返回后撤销pending请求，IFU从`fence.i`的`next_pc`重新取指。此后对被
+   修改地址的访问必然miss并从SDRAM取回新指令。
+
+定向测试位于`am-kernels/tests/cpu-tests/tests/`：
+
+- `icache-smc-no-fence.c`先执行返回1的函数，再把第一条指令改成返回2，但不执行
+  `fence.i`；第二次调用仍返回1，证明旧I-cache副本确实存在；
+- `icache-smc-fence-i.c`执行同样的store后插入`fence.i`；第二次调用返回2，证明整片失效
+  和重新取指生效。
+
+两项测试均在`riscv32-ysyxsoc-sdram`环境、1KiB默认I-cache下命中good trap。SDRAM启动代码
+在从Flash复制运行镜像后、首次跳到SDRAM前也执行`fence.i`，原因与运行时自修改代码相同。

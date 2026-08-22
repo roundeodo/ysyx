@@ -5,10 +5,11 @@
 # ============================================================
 
 PROJECT ?= riscv32
-# RV32课程配置和RV64顺序核都保留64B数据容量；RV32采用8B line，在Nangate45下
-# 满足23,000um^2面积约束，并避免blocking refill为更长line支付过多尾部占用时间。
+# RV32I默认使用性能配置：1KiB direct-mapped、8B line。实测表明，当前blocking
+# I-cache中扩大容量比继续加长line更有效；8B line同时限制完整refill占用时间。
+# RV64顺序核暂时保留原有64B/16B实验基线，避免本次RV32I调整改变另一配置的结果。
 NPC_ICACHE_WAY_COUNT ?= 1
-NPC_ICACHE_CAPACITY_BYTES ?= 64
+NPC_ICACHE_CAPACITY_BYTES ?= $(if $(filter rv64-sequential,$(NPC_CONFIG)),64,1024)
 NPC_ICACHE_LINE_BYTES ?= $(if $(filter rv64-sequential,$(NPC_CONFIG)),16,8)
 NPC_SDRAM_NATIVE_READ_BURST ?= 1
 
