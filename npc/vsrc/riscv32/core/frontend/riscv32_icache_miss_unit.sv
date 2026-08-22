@@ -333,9 +333,16 @@ module riscv32_icache_miss_unit
   assign critical_set_index = icache_set_index_t'(
       miss_context_q.lookup_req.fetch_addr >> ICACHE_LINE_OFFSET_W
   );
-  assign critical_word_index = icache_word_index_t'(
-      miss_context_q.lookup_req.fetch_addr >> $clog2(ICACHE_FETCH_BYTES)
-  );
+  // 索引类型为了避免零宽向量至少保留1 bit，但单word line的合法word index仍只有0。
+  // 若直接转换fetch_addr>>2，PC[2]会被误当成line内索引，使一半取指无法匹配critical
+  // word。多word line才从line内偏移中提取word编号。
+  if (ICACHE_WORD_INDEX_BITS == 0) begin : gen_single_refill_word_index
+    assign critical_word_index = '0;
+  end else begin : gen_multiple_refill_word_index
+    assign critical_word_index = icache_word_index_t'(
+        miss_context_q.lookup_req.fetch_addr >> $clog2(ICACHE_FETCH_BYTES)
+    );
+  end
   assign refill_tag = miss_context_q.lookup_req.fetch_addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
   assign current_refill_word_is_critical = refill_resp_i.word_index == critical_word_index;
 
