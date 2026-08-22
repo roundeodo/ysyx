@@ -11,7 +11,6 @@ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_refill_axi4_master.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache.sv
-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv
 ${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_uncached_axi4_master.sv
 
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_arch_regfile.sv

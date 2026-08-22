@@ -26,7 +26,7 @@ module riscv32_ifu
 );
 
   // 当前前端只允许一个lookup在途，因此控制器只有“发送请求”和“等待响应”两个状态。
-  // I-cache内部的hit、miss和refill过程不泄漏到IFU；响应保存则由独立fetch buffer负责。
+  // I-cache内部的hit、miss和refill过程不泄漏到IFU；响应保持由I-cache响应通道负责。
   // 将来支持多在途取指时，应增加request queue和response matching，而不是继续堆叠FSM状态。
   typedef enum logic {
     IFU_SEND_LOOKUP,
@@ -52,7 +52,7 @@ module riscv32_ifu
   fetch_epoch_t current_fetch_epoch_d;
 
   // I-cache响应在这里组合转换为前端entry；IFU不重复保存payload。
-  // IFU负责PC和请求身份，I-cache负责命中与refill，fetch buffer负责反压期间的数据保持。
+  // IFU负责PC和请求身份，I-cache负责命中、refill以及反压期间的响应保持。
   fetch_entry_t lookup_response_fetch_entry;
 
   logic lookup_request_handshake;
@@ -64,8 +64,8 @@ module riscv32_ifu
 
   // 响应是否属于当前控制流只由请求携带的epoch决定。不能用组合redirect压低valid，
   // 否则当前响应经过IDU/EXU产生redirect后会反向改变自身valid，构成组合环。
-  // 若更老的缓冲指令与年轻响应同拍产生redirect，fetch buffer仍输出旧指令，并在时钟沿
-  // 以flush优先清除年轻响应；跨周期返回的旧响应则由epoch失配在这里直接排空。
+  // 当前核心在旧指令尚未完成时会反压IDU，因此年轻响应不会被同期接受；redirect递增
+  // epoch后，跨周期保留在I-cache响应通道中的旧响应会在这里被直接排空。
   assign lookup_response_is_current =
       icache_lookup_resp_i.fetch_epoch == current_fetch_epoch_q;
 
@@ -81,9 +81,9 @@ module riscv32_ifu
   end
 
   // 当前响应的两个握手必须是同一件事：当resp_valid、epoch匹配且fetch_entry_ready同时
-  // 成立时，IFU才既消费I-cache响应又向fetch buffer交付entry，不能只完成其中一侧。
+  // 成立时，IFU才既消费I-cache响应又向IDU交付entry，不能只完成其中一侧。
   // 旧响应不交付fetch_entry，但ready固定为1，使其尽快离开返回通道。
-  // fetch_entry_ready_i在后续顶层连接中应来自独立fetch buffer，而不是直接来自IDU。
+  // 当前阻塞核心直接使用IDU ready；未来加入解耦取指队列时，该ready改接队列入口。
   always_comb begin
     icache_lookup_req_o        = '0;
     icache_lookup_req_valid_o  = 1'b0;
@@ -168,7 +168,7 @@ module riscv32_ifu
   end
 
   // 状态寄存器与请求上下文分组更新。payload由valid位和FSM管理有效性，不在IFU中
-  // 另设一份响应寄存器；这能避免与fetch buffer形成重复存储和重复反压路径。
+  // 另设一份响应寄存器；I-cache响应通道已经提供稳定性，重复存储只会增加面积。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       state_q <= IFU_SEND_LOOKUP;
@@ -213,7 +213,7 @@ module riscv32_ifu
      && icache_lookup_resp_valid_i && lookup_response_is_current)
     |-> (fetch_entry_valid_o
          && (icache_lookup_resp_ready_o == fetch_entry_ready_i)))
-  else $error("IFU current response was not coupled to fetch-buffer delivery");
+  else $error("IFU current response was not coupled to IDU delivery");
 `endif
 
 endmodule

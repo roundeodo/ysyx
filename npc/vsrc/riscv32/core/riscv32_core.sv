@@ -50,12 +50,8 @@ module riscv32_core
   logic icache_invalidate_pending_q;
   logic icache_invalidate_pending_d;
 
-  // IFU侧表示“等待入队”，IDU侧表示“队首等待消费”。
-  // 两个边界各自使用ready/valid，避免把buffer的入队和出队握手混在一起。
-  fetch_entry_t ifu_fetch_entry;
-  logic ifu_fetch_entry_valid;
-  logic ifu_fetch_entry_ready;
-
+  // 当前阻塞前端只有一个lookup在途。I-cache响应通道已经在反压期间保持payload，
+  // 因此IFU可直接把完成的fetch entry交给IDU，无需重复保存一份相同payload。
   fetch_entry_t idu_fetch_entry;
   logic idu_fetch_entry_valid;
   logic idu_fetch_entry_ready;
@@ -134,10 +130,9 @@ module riscv32_core
       .icache_lookup_resp_i      (icache_lookup_resp),
       .icache_lookup_resp_valid_i(icache_lookup_resp_valid),
       .icache_lookup_resp_ready_o(icache_lookup_resp_ready),
-      // IFU只与fetch buffer的入队端交互，不直接感知IDU反压。
-      .fetch_entry_o             (ifu_fetch_entry),
-      .fetch_entry_valid_o       (ifu_fetch_entry_valid),
-      .fetch_entry_ready_i       (ifu_fetch_entry_ready)
+      .fetch_entry_o             (idu_fetch_entry),
+      .fetch_entry_valid_o       (idu_fetch_entry_valid),
+      .fetch_entry_ready_i       (idu_fetch_entry_ready)
   );
 
   riscv32_icache u_icache (
@@ -200,25 +195,8 @@ module riscv32_core
     end
   end
 
-  // buffer位于IFU和IDU之间，只在IDU反压时保存已经完成的fetch_entry。空槽fast bypass让
-  // 无反压响应同拍进入译码/执行，避免固定增加一拍并让当前控制流redirect及时修正下一PC。
-  // IDU valid不受flush组合门控：当前指令可能正是redirect来源，门控会压低它自身的valid。
-  riscv32_fetch_buffer u_fetch_buffer (
-      .clk_i                  (clk_i),
-      .rst_ni                 (rst_ni),
-      .ifu_fetch_entry_i      (ifu_fetch_entry),
-      .ifu_fetch_entry_valid_i(ifu_fetch_entry_valid),
-      .ifu_fetch_entry_ready_o(ifu_fetch_entry_ready),
-      .idu_fetch_entry_o      (idu_fetch_entry),
-      .idu_fetch_entry_valid_o(idu_fetch_entry_valid),
-      .idu_fetch_entry_ready_i(idu_fetch_entry_ready),
-      .flush_i                (selected_redirect_req_valid)
-  );
-  // 当前阻塞顺序核只需要一个fall-through弹性entry；同拍出队和入队仍可维持连续交付。
-  // 未来多发射前端应把它替换为按fetch packet计数的独立队列，而不是在当前标量结构上堆深度。
-
   riscv32_idu u_idu (
-      // IDU反压只能阻止buffer出队；只要buffer还有空位，IFU仍可继续交付已经完成的取指结果。
+      // IDU反压经IFU直接传回I-cache响应ready；I-cache负责保持尚未消费的响应。
       .fetch_entry_i      (idu_fetch_entry),
       .fetch_entry_valid_i(idu_fetch_entry_valid),
       .fetch_entry_ready_o(idu_fetch_entry_ready),
@@ -343,8 +321,8 @@ module riscv32_core
   assign retired_instruction_occurred = commit_valid && !commit.trap_taken;
 
 `ifdef NPC_ENABLE_SIM_MONITOR
-  // lookup request/response属于IFU与I-cache边界；delivery和waiting属于
-  // fetch buffer与IDU边界。分开统计才能区分cache等待与译码反压。
+  // lookup request/response属于IFU与I-cache边界；delivery和waiting属于IFU与IDU边界。
+  // 分开统计才能区分cache等待与译码反压。
   riscv32_sim_performance_monitor u_sim_performance_monitor (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
@@ -352,7 +330,7 @@ module riscv32_core
       .ifu_instruction_request_waiting_i(icache_lookup_req_valid && !icache_lookup_req_ready),
       .ifu_instruction_response_occurred_i(icache_lookup_resp_valid && icache_lookup_resp_ready),
       .ifu_instruction_response_discarded_occurred_i(
-          icache_lookup_resp_valid && icache_lookup_resp_ready && !ifu_fetch_entry_valid
+          icache_lookup_resp_valid && icache_lookup_resp_ready && !idu_fetch_entry_valid
       ),
       .ifu_instruction_delivery_occurred_i(idu_fetch_entry_valid && idu_fetch_entry_ready),
       .ifu_downstream_waiting_i(idu_fetch_entry_valid && !idu_fetch_entry_ready),
