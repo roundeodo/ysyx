@@ -228,7 +228,6 @@ module riscv32_core
       .csr_write_addr_i              (commit.csr_addr),
       .csr_write_data_i              (commit.csr_wdata),
       .retired_instruction_occurred_i(retired_instruction_occurred),
-      .icache_event_i                (icache_event),
       .trap_valid_i                  (trap_valid),
       .trap_pc_i                     (trap_pc),
       .trap_cause_i                  (trap_cause),
@@ -347,6 +346,14 @@ module riscv32_core
       .lsu_write_address_occurred_i(data_axi4_manager_o.aw_valid && data_axi4_manager_i.aw_ready),
       .lsu_write_data_occurred_i(data_axi4_manager_o.w_valid && data_axi4_manager_i.w_ready),
       .lsu_write_response_occurred_i(data_axi4_manager_i.b_valid && data_axi4_manager_o.b_ready)
+  );
+
+  // Cache性能统计只存在于仿真配置。它观察I-cache定义的语义事件，不从AXI
+  // beat反推hit/miss，因此不会把一次cache line refill误计成多次miss。
+  riscv32_sim_icache_performance_monitor u_sim_icache_performance_monitor (
+      .clk_i         (clk_i),
+      .rst_ni        (rst_ni),
+      .icache_event_i(icache_event)
   );
 `endif
 

@@ -17,8 +17,6 @@ module riscv32_csr_file
 
     input logic retired_instruction_occurred_i,
 
-    // CSR file只转发微架构事件，事件的定义与累计均由I-cache和PMU负责。
-    input icache_event_t icache_event_i,
     input logic             trap_valid_i,
     input program_counter_t trap_pc_i,
     input xlen_data_t       trap_cause_i,
@@ -83,14 +81,14 @@ module riscv32_csr_file
   logic       pmu_csr_read_select;
   xlen_data_t pmu_csr_read_data;
 
-  // 不要从AXI握手推导hit/miss：一次miss会产生多次refill读，语义上不是多次cache miss。
+  // PMU只实现软件可见的架构计数器。I-cache AMAT等分析状态属于仿真监视器，
+  // 不应增加CSR file或流片核心的面积。
   riscv32_pmu #(
       .RETIRE_SLOT_COUNT(1)
   ) u_pmu (
       .clk_i                      (clk_i),
       .rst_ni                     (rst_ni),
       .retired_instruction_count_i(retired_instruction_occurred_i),
-      .icache_event_i             (icache_event_i),
       .csr_read_addr_i            (csr_read_addr_i),
       .csr_read_select_o          (pmu_csr_read_select),
       .csr_read_data_o            (pmu_csr_read_data),

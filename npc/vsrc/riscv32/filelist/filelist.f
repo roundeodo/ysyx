@@ -45,6 +45,7 @@ ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi.sv
 
 // 仅仿真使用的监视模块和AXI4 target。
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_performance_monitor.sv
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_icache_performance_monitor.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/sim/top.sv
