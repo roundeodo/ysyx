@@ -690,3 +690,45 @@ trace；该结果用于第一阶段几何筛选，不能替代最终RTL回归。
 
 因此保持64B/1-way/8B为课程默认。它是在标准单元面积约束和当前blocking微架构下的局部
 最优点，不是长期AI CPU的最终配置。
+
+## 2026-08-22 - AXI SDRAM短burst连续读优化
+
+此前正式`make perf`默认使用`riscv32-ysyxsoc-psram`，实际路径为AXI到APB桥、APB延迟器和
+PSRAM，无法验证B4要求的AXI SDRAM burst。现将性能和I-cache缺失代价标定默认环境统一为
+`riscv32-ysyxsoc-sdram`，PSRAM仅保留为启动和外设验证环境。
+
+RTL检查发现I-cache refill master已经发送完整AXI4 INCR burst，但SDRAM边界只在32-bit、
+32B对齐且至少8 beat时使用连续读分段器。RV32课程默认8B line只产生2 beat，因此仍被拆成
+两条独立SDRAM READ。改造后，所有多beat、32-bit、word对齐的INCR事务均进入分段器；每个
+物理段的beat数取事务剩余beat、到下一个32B边界的beat和8三者最小值。SDRAM core接受
+`len=0..7`表示1..8 beat，短段在最后一个所需beat后发送BURST TERMINATE，完整BL8自然结束。
+
+定向测试覆盖2、4、8、16 beat以及跨32B边界的4/16 beat事务：
+
+| AXI事务 | 物理分段 | SDRAM READ数 | BURST TERMINATE数 |
+| --- | --- | ---: | ---: |
+| 对齐2 beat | 2 | 1 | 1 |
+| 对齐4 beat | 4 | 1 | 1 |
+| 对齐8 beat | 8 | 1 | 0 |
+| 对齐16 beat | 8 + 8 | 2 | 0 |
+| 偏移1 word的16 beat | 7 + 8 + 1 | 3 | 2 |
+| 偏移6 word的4 beat | 2 + 2 | 2 | 2 |
+
+在RV32、64B容量、direct-mapped、8B line、MicroBench `test`下，仅切换SDRAM传输实现：
+
+| 指标 | 独立BL1 | 连续读 | 变化 |
+| --- | ---: | ---: | ---: |
+| Scored time | 72.120 ms | 52.010 ms | -27.884% |
+| Total time | 96.100 ms | 71.005 ms | -26.113% |
+| PMU窗口周期 | 7191928 | 5187565 | -27.870% |
+| PMU窗口IPC | 0.059817 | 0.082929 | +38.638% |
+| 全程CPU周期 | 10086928 | 7479025 | -25.854% |
+| miss critical response | 27.176 cycles | 25.559 cycles | -5.950% |
+| complete refill | 41.473 cycles | 26.216 cycles | -36.788% |
+| I-cache AMAT | 6.521 cycles | 6.176 cycles | -5.291% |
+| lookup等待周期 | 2665027 | 304324 | -88.581% |
+
+关键字到达只提前约1.6周期，因此AMAT改善有限；主要收益来自第二个word不再重新支付地址、
+SDRAM命令和首数据延迟，使blocking miss更早释放，显著减少下一次lookup等待。两组PMU测量
+窗口均退休430203条指令且MicroBench全部通过，比较口径一致。该结果证明当前8B line也实际
+使用了AXI burst和SDRAM连续数据阶段，不再只是接口上携带`ARLEN`。

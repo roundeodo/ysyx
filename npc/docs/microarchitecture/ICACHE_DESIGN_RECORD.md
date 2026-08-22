@@ -6,7 +6,7 @@
 
 关联决策：当前计划P1、D004和D005；历史计划D024
 
-最后更新：2026-08-13
+最后更新：2026-08-22
 
 ## 1. 问题和目标
 
@@ -36,10 +36,11 @@ AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点�
   选项伪造面积结果；
 - 在当前单MSHR结构下，避免16B及更长line的refill尾部长期阻塞下一次lookup。
 
-实测64B/8B配置面积为22708.952 um^2，MicroBench `test` Total为563.649ms；同容量16B
-line为753.748ms。8B line命中率较低但完整refill占用约减半，说明当前瓶颈是blocking miss
-的事务占用时间，而不只是3C miss数量。进入流水线和非阻塞cache阶段后，必须重新探索容量、
-路数和line大小，不能把课程配置直接当成目标AI处理器配置。
+实测64B/8B配置面积为22708.952 um^2。早期PSRAM路径的MicroBench `test` Total为
+563.649ms；切换到AXI SDRAM并让2-beat refill映射为一条物理连续读后，Total降为71.005ms。
+同一SDRAM下的BL1基线为96.100ms，说明当前瓶颈既包括blocking miss占用，也包括下层重复
+地址、命令和首数据等待。进入流水线和非阻塞cache阶段后，必须重新探索容量、路数和line
+大小，不能把课程配置直接当成目标AI处理器配置。
 
 ## 2. 当前课程配置与长期配置
 
@@ -98,9 +99,14 @@ I-cache RTL。
 
 - 一次line请求携带对齐后的line地址、请求word index，以及miss/refill边界本地使用的
   refill transaction index。miss表项保留原始前端epoch和tag，refill adapter不得解释它们。
-- Adapter按照关键word优先且环绕的顺序发出8次32位读取：请求word、后续word、较早word。
-- 每个返回beat标明对应的line word index。miss unit可以立即返回关键word，但只有全部
-  8个word写入成功后才能将tag `present`置位。
+- Adapter为整条line发出一次32-bit AXI4 INCR burst，beat数由
+  `ICACHE_LINE_BYTES / ICACHE_FETCH_BYTES`派生。AXI地址从line基址递增，不改变协议顺序来
+  人为实现critical-word-first。
+- 每个返回beat标明对应的line word index。请求word到达时miss unit可以立即返回关键word，
+  但只有当前配置的全部line word写入成功后才能将tag `present`置位。
+- ysyxSoC SDRAM边界按32B原生BL8边界把AXI burst切成最少数量的物理连续读段。8B、16B、
+  32B对齐line分别映射为2、4、8个连续数据beat；短段在最后一个所需beat后发送
+  BURST TERMINATE，跨32B边界的事务必须拆段，不能使用SDRAM回绕数据冒充AXI INCR地址。
 - 下层存储错误必须产生错误响应，且不能使部分填充的cache line有效。
 
 ### 4.3 失效操作
