@@ -197,6 +197,19 @@ module sdram_axi_transaction_classification_tb;
     assert (sdram_burst_terminate_command_count - terminate_command_count_before_transaction == 0)
       else $fatal(1, "native BL8 transaction emitted BURST TERMINATE");
 
+    // 当前RV32默认8B cacheline对应2-beat AXI读。控制器应只发一条SDRAM READ，
+    // 连续接收两个word后用BURST TERMINATE丢弃Mode Register BL8的剩余beat。
+    read_command_count_before_transaction      = sdram_read_command_count;
+    terminate_command_count_before_transaction = sdram_burst_terminate_command_count;
+    issue_read_transaction(32'ha000_0040, 8'd1, 3'd2, 2'd1, 4'h2);
+    receive_read_response(2, 32'h1000_0010, 4'h2, 0);
+    assert (sdram_read_command_count - read_command_count_before_transaction == 1)
+      else $fatal(1, "2-beat transaction emitted %0d SDRAM READ commands",
+                  sdram_read_command_count - read_command_count_before_transaction);
+    assert (sdram_burst_terminate_command_count - terminate_command_count_before_transaction == 1)
+      else $fatal(1, "2-beat transaction emitted %0d BURST TERMINATE commands",
+                  sdram_burst_terminate_command_count - terminate_command_count_before_transaction);
+
     // 64B对齐cacheline被拆成两个连续BL8。两个物理段共享同一个AXI ID，只有
     // 第16个AXI response beat携带RLAST。
     read_command_count_before_transaction      = sdram_read_command_count;
@@ -209,30 +222,42 @@ module sdram_axi_transaction_classification_tb;
     assert (sdram_burst_terminate_command_count - terminate_command_count_before_transaction == 0)
       else $fatal(1, "64B aligned transaction emitted BURST TERMINATE");
 
-    // 从32B边界内偏移4B开始的64B事务不能直接使用两个BL8。分段器先发7个单拍
-    // 到达下一个32B边界，再发1个BL8，最后用1个单拍完成尾部。
+    // 从32B边界内偏移4B开始的64B事务被分为7+8+1 beat三个物理连续读段，
+    // 首尾短段各产生一次BURST TERMINATE，中间完整BL8自然结束。
     read_command_count_before_transaction      = sdram_read_command_count;
     terminate_command_count_before_transaction = sdram_burst_terminate_command_count;
     issue_read_transaction(32'ha000_0124, 8'd15, 3'd2, 2'd1, 4'h7);
     receive_read_response(16, 32'h1000_0049, 4'h7, 20);
-    assert (sdram_read_command_count - read_command_count_before_transaction == 9)
+    assert (sdram_read_command_count - read_command_count_before_transaction == 3)
       else $fatal(1, "64B crossing transaction emitted %0d SDRAM READ commands",
                   sdram_read_command_count - read_command_count_before_transaction);
-    assert (sdram_burst_terminate_command_count - terminate_command_count_before_transaction == 8)
+    assert (sdram_burst_terminate_command_count - terminate_command_count_before_transaction == 2)
       else $fatal(1, "64B crossing transaction emitted %0d BURST TERMINATE commands",
                   sdram_burst_terminate_command_count - terminate_command_count_before_transaction);
 
-    // 普通4-beat AXI读不满足原生BL8条件，应保持4条独立物理READ，并逐次终止
-    // Mode Register固定产生的多余beat。
+    // 16B cacheline对应4-beat AXI读，应合并成一条物理连续读，并在第4 beat后终止。
     read_command_count_before_transaction      = sdram_read_command_count;
     terminate_command_count_before_transaction = sdram_burst_terminate_command_count;
     issue_read_transaction(32'ha000_0080, 8'd3, 3'd2, 2'd1, 4'h5);
     receive_read_response(4, 32'h1000_0020, 4'h5, 0);
-    assert (sdram_read_command_count - read_command_count_before_transaction == 4)
-      else $fatal(1, "fallback AXI burst emitted %0d SDRAM READ commands",
+    assert (sdram_read_command_count - read_command_count_before_transaction == 1)
+      else $fatal(1, "4-beat transaction emitted %0d SDRAM READ commands",
                   sdram_read_command_count - read_command_count_before_transaction);
-    assert (sdram_burst_terminate_command_count - terminate_command_count_before_transaction == 4)
-      else $fatal(1, "fallback AXI burst emitted %0d BURST TERMINATE commands",
+    assert (sdram_burst_terminate_command_count - terminate_command_count_before_transaction == 1)
+      else $fatal(1, "4-beat transaction emitted %0d BURST TERMINATE commands",
+                  sdram_burst_terminate_command_count - terminate_command_count_before_transaction);
+
+    // 4-beat事务若从32B边界内第6个word开始，必须拆成2+2两个物理段，避免
+    // SDRAM BL8在边界内回绕后返回错误地址的数据。
+    read_command_count_before_transaction      = sdram_read_command_count;
+    terminate_command_count_before_transaction = sdram_burst_terminate_command_count;
+    issue_read_transaction(32'ha000_0098, 8'd3, 3'd2, 2'd1, 4'h8);
+    receive_read_response(4, 32'h1000_0026, 4'h8, 0);
+    assert (sdram_read_command_count - read_command_count_before_transaction == 2)
+      else $fatal(1, "boundary-crossing 4-beat transaction emitted %0d SDRAM READ commands",
+                  sdram_read_command_count - read_command_count_before_transaction);
+    assert (sdram_burst_terminate_command_count - terminate_command_count_before_transaction == 2)
+      else $fatal(1, "boundary-crossing 4-beat transaction emitted %0d BURST TERMINATE commands",
                   sdram_burst_terminate_command_count - terminate_command_count_before_transaction);
 
     $display("sdram_axi_transaction_classification_tb: PASS");

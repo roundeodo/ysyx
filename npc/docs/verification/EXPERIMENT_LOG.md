@@ -631,7 +631,7 @@ lookup、refill和AXI4协议不变，以同一套参数化RTL比较64B容量、d
 
 | 容量/路数/line | 总面积 | 300MHz WNS | 最高频率估计 | 结论 |
 | --- | ---: | ---: | ---: | --- |
-| 64B/1-way/4B | 24270.638 um^2 | 通过 | 以报告为准 | 超过23000 um^2，淘汰 |
+| 64B/1-way/4B | 23988.146 um^2 | +0.653 ns | 373.182 MHz | 超过23000 um^2，淘汰 |
 | 64B/1-way/8B | 22708.952 um^2 | +0.578 ns | 363.022 MHz | 满足面积约束，选为课程默认 |
 
 真实ysyxSoC MicroBench `test`对比：
@@ -639,7 +639,7 @@ lookup、refill和AXI4协议不变，以同一套参数化RTL比较64B容量、d
 | 配置 | Total | 全程CPU周期 | I-cache hit rate | miss critical | complete refill |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | 32B/1-way/16B旧面积基线 | 约1033 ms | 约107M | 未记录 | 未记录 | 未记录 |
-| 64B/1-way/16B | 753.748 ms | 78659855 | 85.146% | 未单列 | 565.662 cycles |
+| 64B/1-way/16B | 753.748 ms | 78659855 | 85.146% | 237.170 cycles | 565.662 cycles |
 | 64B/1-way/8B | 563.649 ms | 58905189 | 78.922% | 163.405 cycles | 286.283 cycles |
 
 8B line相对16B line的命中率更低，但完整refill占用约减半，总周期减少19754666，
@@ -651,3 +651,42 @@ MicroBench作为参数选择依据。
 最终RV32课程默认配置冻结为64B容量、direct-mapped、8B line。它不是长期AI处理器的最终
 I-cache：流水线阶段应通过多MSHR、hit-under-miss、refill/lookup端口仲裁或banking解除
 blocking tail，而不是继续依赖缩短line。长期配置仍需在SRAM宏和目标AI workload下重新探索。
+
+## 2026-08-22 - MicroBench train紧凑trace与blocking TMT探索
+
+为避免每组RTL参数都运行数小时级MicroBench `train`，本轮在NEMU中加入二进制紧凑PC
+trace。每条记录保存起始PC、连续指令数和固定步长，`cachesim`可直接重放，也继续兼容旧的
+文本trace。MicroBench `train`在NEMU中通过全部测试，共执行63102503条指令，生成118MiB
+trace；该结果用于第一阶段几何筛选，不能替代最终RTL回归。
+
+同一条train trace、64B容量、direct-mapped下：
+
+| line | Miss | Hit Rate |
+| ---: | ---: | ---: |
+| 4B | 28180869 | 55.3411% |
+| 8B | 15977866 | 74.6795% |
+| 16B | 9246162 | 85.3474% |
+| 32B | 8105770 | 87.1546% |
+| 64B | 9708149 | 84.6153% |
+
+容量扩展对miss更有效：1KiB/8B/1-way为667497次，2KiB/8B/2-way为386012次，
+8KiB/8B/4-way为2461次。但当前标准单元array下，128B/16B核面积已达到
+25406.458 um^2，无法满足23000 um^2课程约束。
+
+当前单MSHR I-cache在整行安装完成前不接收下一次lookup，因此新增`blocking TMT`：miss次数
+乘以完整refill延迟。PSRAM标定下，8B、16B、32B line的完整refill分别为286.283、
+565.662、1121.856周期；对应train blocking TMT为4.574e9、5.230e9、9.094e9周期。
+16B只看critical TMT时优于8B，但blocking TMT高14.3%；32B将miss减少49.3%，完整refill
+延迟却增加到约3.92倍，最终阻塞时间约翻倍。
+
+补充综合与RTL `test`证据：
+
+| 配置 | 核面积 | Fmax估计 | MicroBench Total | 全程CPU周期 | Hit Rate |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 64B/1-way/4B | 23988.146 um^2 | 373.182 MHz | 未运行 | 未运行 | train 55.3411% |
+| 64B/1-way/8B | 22708.952 um^2 | 363.022 MHz | 563.649 ms | 58905189 | 78.922% |
+| 64B/1-way/16B | 22474.340 um^2 | 389.599 MHz | 753.748 ms | 78659855 | 85.146% |
+| 64B/1-way/32B | 21808.276 um^2 | 403.614 MHz | 1304.315 ms | 134882469 | 86.446% |
+
+因此保持64B/1-way/8B为课程默认。它是在标准单元面积约束和当前blocking微架构下的局部
+最优点，不是长期AI CPU的最终配置。

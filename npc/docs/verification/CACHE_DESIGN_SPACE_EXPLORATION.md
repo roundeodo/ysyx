@@ -17,8 +17,8 @@ miss；在给定总线阶段延迟模型后，关键字响应时间和完整line
 | `tools/cachesim/cachesim.cpp` | 解析PC trace，维护组相联LRU元数据，统计3C、关键beat位置、AMAT、TMT和refill占用 |
 | `tools/cachesim/explore.py` | 并行启动多组cachesim，排序并生成CSV |
 | `tools/cachesim/tests/test_cachesim.py` | 用确定性地址序列验证冲突miss、容量miss和日志解析 |
-| `nemu/configs/riscv32-cachesim_defconfig` | 构建可执行、启用完整itrace的RV32 NEMU |
-| `nemu/configs/riscv64-cachesim_defconfig` | 构建可执行、启用完整itrace的RV64 NEMU |
+| `nemu/configs/riscv32-cachesim_defconfig` | 构建可执行、启用紧凑PC trace的RV32 NEMU |
+| `nemu/configs/riscv64-cachesim_defconfig` | 构建可执行、启用紧凑PC trace的RV64 NEMU |
 
 `cachesim`中的被测Cache和全相联Shadow Cache都使用精确LRU。Shadow Cache容量和行大小与
 被测Cache相同，但只有一个set。每次真实Cache miss按以下规则分类：
@@ -52,8 +52,11 @@ make cachesim-trace
 ```sh
 make cachesim-trace \
   CACHE_TRACE_IMAGE=../am-kernels/tests/cpu-tests/build/crc32-riscv32-npc.bin \
-  CACHE_TRACE_FILE=result/cache/riscv32_crc32_nemu_itrace.log
+  CACHE_TRACE_FILE=result/cache/riscv32_crc32_nemu_pc_trace.bin
 ```
+
+紧凑trace只记录取指PC，并用`起始PC + 指令数 + 固定步长`描述一段连续序列。文件头保存
+PC宽度、总指令数和记录数；它比逐条文本itrace小得多，`cachesim`也仍能兼容旧文本格式。
 
 该目标会将NEMU活动配置切换为`riscv32-cachesim_defconfig`。后续运行DiffTest前，使用
 `make nemu-ref-rv32`或`make nemu-ref-rv64`重新生成对应reference。
@@ -62,7 +65,7 @@ make cachesim-trace \
 
 ```sh
 make cachesim-run \
-  CACHE_TRACE_FILE=result/cache/riscv32_crc32_nemu_itrace.log \
+  CACHE_TRACE_FILE=result/cache/riscv32_crc32_nemu_pc_trace.bin \
   CACHE_CAPACITY_BYTES=8192 \
   CACHE_LINE_BYTES=32 \
   CACHE_WAYS=2
@@ -72,7 +75,7 @@ make cachesim-run \
 
 ```sh
 make cachesim-explore \
-  CACHE_TRACE_FILE=result/cache/riscv32_crc32_nemu_itrace.log \
+  CACHE_TRACE_FILE=result/cache/riscv32_crc32_nemu_pc_trace.bin \
   CACHE_SCAN_CAPACITIES=4096,8192,16384,32768 \
   CACHE_SCAN_LINE_SIZES=16,32,64 \
   CACHE_SCAN_WAYS=1,2,4 \
@@ -280,7 +283,7 @@ make icache-calibrate-penalty ICACHE_CALIBRATION_SCALE=test
 ```sh
 make icache-calibrate-penalty \
   ICACHE_CALIBRATION_SCALE=train \
-  ICACHE_CALIBRATION_LINE_SIZES=16,32,64
+  ICACHE_CALIBRATION_LINE_SIZES=8,16,32,64
 ```
 
 脚本实时转发仿真输出；每完成一种line大小，就立即更新
@@ -317,25 +320,68 @@ MicroBench计分区间，两者的统计边界不同，不能拿lookup数直接�
 3. 候选方案对应的SRAM面积、命中路径时序和功耗；
 4. 在RTL PMU上复核Hit/Miss、AMAT、前端阻塞周期和IPC。
 
-当前NEMU committed itrace不包含redirect后的过期取指。它适合需求取指设计空间探索；未来
+当前NEMU紧凑PC trace不包含redirect后的过期取指。它适合需求取指设计空间探索；未来
 验证分支预测、预取和错误路径污染时，应另外记录NPC I-cache请求握手trace，不能混用两种
 统计口径。
 
 ## 6. 面积约束下的RV32课程基线
 
-为完成手册的23000 um^2面积目标，RV32默认I-cache采用32B容量、16B line、direct-mapped。
-该选择不是最终高性能配置，而是面积受限设计点。相同Nangate45和`DELAY 0`综合策略下，
-完整`riscv32_core`面积为22088.374 um^2，其中时序单元占10145.506 um^2；tag/data array
-均参与标准单元映射，没有用黑盒或综合排除降低面积。
+当前课程配置固定为64B容量、direct-mapped、8B line。所有tag/data存储均映射为Nangate45
+标准单元，没有通过黑盒或综合排除隐藏面积。300MHz约束下的实测结果为：
 
-NEMU MicroBench test PC trace给出的直接对比为：
+| line | 核面积 | WNS | 最高频率估计 | 结论 |
+| ---: | ---: | ---: | ---: | --- |
+| 4B | 23988.146 um^2 | +0.653 ns | 373.182 MHz | 超过23000 um^2，淘汰 |
+| 8B | 22708.952 um^2 | +0.578 ns | 363.022 MHz | 满足面积约束，课程默认 |
+| 16B | 22474.340 um^2 | +0.766 ns | 389.599 MHz | 面积满足，blocking refill较慢 |
+| 32B | 21808.276 um^2 | +0.855 ns | 403.614 MHz | 面积满足，blocking refill最慢 |
 
-| 容量 | Miss | Hit Rate | 估算AMAT | Critical TMT |
-| ---: | ---: | ---: | ---: | ---: |
-| 32B | 95540 | 86.8639% | 2.5929 | 431228 |
-| 64B | 64619 | 91.1153% | 2.4022 | 292532 |
+当前64B总容量非常小，改变line大小也会同时改变set数量。因此该表不能解释为“line越大面积
+必然越小”，而是这几个具体参数组合经过同一工具链综合后的联合结果。
 
-因此32B以更高miss率和TMT换取约2644.838 um^2的综合面积下降。可以长期保留的优化是删除
-重复流水寄存器、压缩跨周期事务上下文、去掉x0物理存储；32B容量本身则只属于课程面积
-基线。进入目标AI CPU阶段后，应恢复更大容量并用SRAM宏实现array，再基于代表性工作负载
-联合评估面积、时序、AMAT和功耗。
+## 7. MicroBench train快速探索
+
+使用NEMU执行MicroBench `train`得到63102503条需求取指PC，紧凑trace保存于
+`result/cache/riscv32_microbench_train_pc_trace.bin`。该trace只反映已提交路径，适合比较
+容量、line和路数引起的需求miss，不包含redirect后的错误路径请求。
+
+64B、direct-mapped的几何扫描结果为：
+
+| line | Miss | Hit Rate |
+| ---: | ---: | ---: |
+| 4B | 28180869 | 55.3411% |
+| 8B | 15977866 | 74.6795% |
+| 16B | 9246162 | 85.3474% |
+| 32B | 8105770 | 87.1546% |
+| 64B | 9708149 | 84.6153% |
+
+64B line只有一个set，冲突和容量效应反而使miss回升。扩大总容量比只扩大line更有效：例如
+1KiB/8B/1-way降到667497次miss，8KiB/8B/4-way只剩2461次miss；但当前array使用标准单元，
+128B/16B已经达到25406.458 um^2，无法满足23000 um^2课程面积约束。
+
+## 8. Blocking TMT
+
+当前I-cache只有一个miss表项。critical word返回后可以让当前取指提前继续，但miss unit仍要
+等待整行refill完成，期间不能接收下一条lookup。因此当前RTL的快速排序指标不能只使用
+`critical TMT = miss count * critical penalty`，还必须计算：
+
+```text
+blocking TMT = miss count * complete refill latency
+```
+
+同一PSRAM环境的RTL标定中，8B、16B、32B line的miss critical penalty分别为
+162.405、236.170、489.787周期，完整refill分别为286.283、565.662、1121.856周期。
+代入同一份train trace：
+
+| line | Critical TMT | Blocking TMT |
+| ---: | ---: | ---: |
+| 8B | 2.595e9 cycles | 4.574e9 cycles |
+| 16B | 2.184e9 cycles | 5.230e9 cycles |
+| 32B | 3.970e9 cycles | 9.094e9 cycles |
+
+16B仅看critical TMT时优于8B，但完整refill占用使blocking TMT高14.3%。32B虽将miss减少
+49.3%，完整refill延迟却约为8B的3.92倍，最终blocking TMT约为2倍。因此课程配置继续使用
+8B line。完整结果保存在
+`result/cache/riscv32_microbench_train_psram_measured_8B_16B_32B.csv`。长期AI处理器需要用
+SRAM宏扩大容量，并通过hit-under-miss、多MSHR或banking解除blocking tail；这属于后续
+流水化Cache微架构工作，不应通过继续缩短line规避。

@@ -199,7 +199,7 @@ def run_make_perf(
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Measure I-cache miss penalties for 16/32/64B lines in RTL"
+        description="Measure per-line-size I-cache miss penalties in RTL"
     )
     parser.add_argument("--npc-dir", type=pathlib.Path, required=True)
     parser.add_argument("--line-sizes", default="16,32,64")

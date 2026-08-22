@@ -9,7 +9,7 @@ PROJECT ?= riscv32
 # 满足23,000um^2面积约束，并避免blocking refill为更长line支付过多尾部占用时间。
 NPC_ICACHE_WAY_COUNT ?= 1
 NPC_ICACHE_CAPACITY_BYTES ?= 64
-NPC_ICACHE_LINE_BYTES ?= $(if $(filter rv32-baseline,$(NPC_CONFIG)),8,16)
+NPC_ICACHE_LINE_BYTES ?= $(if $(filter rv64-sequential,$(NPC_CONFIG)),16,8)
 NPC_SDRAM_NATIVE_READ_BURST ?= 1
 
 ifeq ($(filter $(NPC_SDRAM_NATIVE_READ_BURST),0 1),)
@@ -593,10 +593,11 @@ CACHE_TRACE_IMAGE            ?= $(CPU_TESTS_DIR)/build/bubble-sort-$(CACHE_TRACE
 CACHE_TRACE_FILE             ?= $(abspath ./result/cache/$(CACHE_TRACE_ISA)_nemu_pc_trace.bin)
 CACHE_TRACE_IMAGE_PATH       = $(abspath $(CACHE_TRACE_IMAGE))
 CACHE_TRACE_PATH             = $(abspath $(CACHE_TRACE_FILE))
-CACHE_CAPACITY_BYTES         ?= 64
-CACHE_LINE_BYTES             ?= 16
-CACHE_WAYS                   ?= 1
-CACHE_HIT_TIME_CYCLES        ?= 2
+CACHE_CAPACITY_BYTES         ?= $(NPC_ICACHE_CAPACITY_BYTES)
+CACHE_LINE_BYTES             ?= $(NPC_ICACHE_LINE_BYTES)
+CACHE_WAYS                   ?= $(NPC_ICACHE_WAY_COUNT)
+# 当前RTL在命中时从lookup握手到响应握手需要1周期。
+CACHE_HIT_TIME_CYCLES        ?= 1
 # 保持fixed作为默认值，使原有cachesim命令继续复现历史基线。independent和burst
 # 必须显式选择，避免把不同时间模型产生的AMAT/TMT放在同一张表中直接比较。
 CACHE_REFILL_MODEL           ?= fixed
@@ -607,9 +608,10 @@ CACHE_READ_ADDRESS_CYCLES    ?= 1
 CACHE_MEMORY_COMMAND_CYCLES  ?= 1
 CACHE_FIRST_DATA_CYCLES      ?= 1
 CACHE_RESPONSE_BEAT_CYCLES   ?= 1
-# fixed模式分别代入RTL实测的关键字可见代价和整行refill占用，二者不能混用。
-CACHE_CRITICAL_RESPONSE_PENALTY_CYCLES ?= 284.142
-CACHE_COMPLETE_REFILL_PENALTY_CYCLES   ?= 284.142
+# 默认值对应当前RV32课程配置的8B line和PSRAM实测结果。扫描其他line时应传入按line
+# 分类的实测值或校准CSV，不能把这两个值直接复用。
+CACHE_CRITICAL_RESPONSE_PENALTY_CYCLES ?= 162.405
+CACHE_COMPLETE_REFILL_PENALTY_CYCLES   ?= 286.283
 CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE ?=
 CACHE_COMPLETE_REFILL_PENALTY_BY_LINE_SIZE   ?=
 CACHE_PENALTY_CALIBRATION_FILE               ?=
@@ -625,7 +627,8 @@ CACHE_RANKING_METRIC         ?= blocking-tmt
 CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_$(CACHE_REFILL_MODEL)_exploration.csv)
 ICACHE_CALIBRATION_LINE_SIZES     ?= 8,16,32,64
 ICACHE_CALIBRATION_SCALE          ?= test
-ICACHE_CALIBRATION_ARCH           ?= riscv32-ysyxsoc-psram
+# B4 cache评估必须经过AXI SDRAM路径，才能测量AXI burst和AXI delayer的真实效果。
+ICACHE_CALIBRATION_ARCH           ?= riscv32-ysyxsoc-sdram
 ICACHE_CALIBRATION_CAPACITY_BYTES ?= $(NPC_ICACHE_CAPACITY_BYTES)
 ICACHE_CALIBRATION_WAY_COUNT      ?= $(NPC_ICACHE_WAY_COUNT)
 ICACHE_CALIBRATION_MEMORY_NAME     = $(patsubst riscv32-ysyxsoc-%,%,$(ICACHE_CALIBRATION_ARCH))
@@ -740,7 +743,8 @@ cachesim-explore-calibrated:
 # Reproducible performance evaluation
 # ============================================================
 
-PERF_ARCH             ?= riscv32-ysyxsoc-psram
+# 正式性能基线使用AXI SDRAM。PSRAM只用于独立的外设和启动流程验证。
+PERF_ARCH             ?= riscv32-ysyxsoc-sdram
 PERF_SCALE            ?= train
 PERF_MICROBENCH_DIR   := $(abspath ../am-kernels/benchmarks/microbench)
 PERF_MICROBENCH_IMAGE := $(PERF_MICROBENCH_DIR)/build/microbench-$(PERF_ARCH).bin
@@ -889,7 +893,7 @@ help:
 	@echo "  cachesim-explore  Scan cache capacity, line size, and associativity"
 	@echo "  cachesim-explore-baseline  Reproduce the fixed-penalty baseline"
 	@echo "  cachesim-explore-transport  Compare independent reads with AXI4 burst"
-	@echo "  icache-calibrate-penalty  Measure 16/32/64B miss penalties in RTL"
+	@echo "  icache-calibrate-penalty  Measure per-line-size miss penalties in RTL"
 	@echo "  cachesim-explore-calibrated  Explore using the RTL calibration CSV"
 	@echo "  lint-npc      Lint the standalone NPC"
 	@echo "  lint-soc      Lint the selected NPC configuration inside ysyxSoC"
