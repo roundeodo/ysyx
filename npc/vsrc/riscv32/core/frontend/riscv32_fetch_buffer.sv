@@ -32,8 +32,8 @@ module riscv32_fetch_buffer
 
   // 空buffer使用fast bypass；buffer已占用时仍由寄存器稳定输出。ready在空buffer时恒为1，
   // 因为即使IDU本拍不接收，也可以在上升沿把IFU entry保存到唯一槽位。flush不组合门控
-  // IDU valid，否则当前正在产生redirect的指令会压低自己的valid并形成组合环；更年轻的
-  // I-cache响应由IFU的epoch/source-PC检查负责丢弃。
+  // IDU valid，否则当前正在产生redirect的指令会压低自己的valid并形成组合环；buffer
+  // 已占用时始终优先输出旧entry，redirect在时钟沿用flush清除同拍到达的年轻响应。
   always_comb begin
     idu_fetch_entry_o       = entry_present_q ? entry_q : ifu_fetch_entry_i;
     idu_fetch_entry_valid_o = entry_present_q || ifu_fetch_entry_valid_i;

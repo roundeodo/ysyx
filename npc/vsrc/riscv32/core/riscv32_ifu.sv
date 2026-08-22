@@ -58,20 +58,16 @@ module riscv32_ifu
   logic lookup_request_handshake;
   logic lookup_response_handshake;
   logic lookup_response_is_current;
-  logic redirect_originates_from_lookup_response;
 
   assign lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
   assign lookup_response_handshake = icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
 
-  // fast-bypass fetch buffer允许当前响应同拍经过IDU/EXU并产生redirect。此时redirect的
-  // source_pc等于当前响应PC，它不能反过来压低自身valid；其他source_pc的redirect来自
-  // 更老指令，当前响应属于错误路径，必须只排空而不能交付。epoch继续处理跨周期旧响应。
-  assign redirect_originates_from_lookup_response =
-      redirect_req_valid_i &&
-      (redirect_req_i.source_pc == program_counter_t'(icache_lookup_resp_i.fetch_addr));
+  // 响应是否属于当前控制流只由请求携带的epoch决定。不能用组合redirect压低valid，
+  // 否则当前响应经过IDU/EXU产生redirect后会反向改变自身valid，构成组合环。
+  // 若更老的缓冲指令与年轻响应同拍产生redirect，fetch buffer仍输出旧指令，并在时钟沿
+  // 以flush优先清除年轻响应；跨周期返回的旧响应则由epoch失配在这里直接排空。
   assign lookup_response_is_current =
-      (icache_lookup_resp_i.fetch_epoch == current_fetch_epoch_q) &&
-      (!redirect_req_valid_i || redirect_originates_from_lookup_response);
+      icache_lookup_resp_i.fetch_epoch == current_fetch_epoch_q;
 
   always_comb begin
     lookup_response_fetch_entry                 = '0;
@@ -197,7 +193,7 @@ module riscv32_ifu
     end
   end
 
-  // 协议断言检查请求反压稳定性、redirect淘汰和当前响应的原子交付。
+  // 协议断言检查请求反压稳定性、epoch淘汰和当前响应的原子交付。
 `ifndef SYNTHESIS
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (icache_lookup_req_valid_o && !icache_lookup_req_ready_i)
@@ -205,11 +201,6 @@ module riscv32_ifu
       icache_lookup_req_o
   )))
   else $error("IFU changed I-cache lookup request while backpressured");
-
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (redirect_req_valid_i && !redirect_originates_from_lookup_response)
-    |-> !fetch_entry_valid_o)
-  else $error("IFU delivered a younger old-path fetch entry during redirect");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == IFU_WAIT_LOOKUP_RESPONSE
