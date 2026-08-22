@@ -566,3 +566,46 @@ MicroBench `test`流程验证结果：
 关键字和整行代价都高于32B，但miss次数减少使AMAT和总周期略低；该`test`结果只验证流程并
 给出趋势，正式参数选择仍需`train`校准和代表性PC trace。当前默认bubble-sort trace只有
 6次miss，因此只用于验证cachesim确实读取了三组独立周期，不能据此冻结line大小。
+
+## 2026-08-22 - RV32课程面积基线的RTL结构优化
+
+本轮固定使用Nangate45、`DELAY 0`综合策略和1000MHz约束，不修改ABC策略、库、时序约束
+或存储器黑盒。所有面积变化均来自RTL状态与存储结构调整，I-cache tag/data array仍按真实
+标准单元参与综合。
+
+主要结构调整：
+
+- I-cache命中流水线删除重复保存的S2请求、tag和data副本，S1请求直接和同步array读结果
+  完成比较；direct-mapped配置不再保存没有信息量的替换路索引和逐路失效计数器；
+- miss unit只保存尚未完成事务必需的地址、属性和响应数据，set/tag/word index按需由地址
+  计算；综合电路不再保存仅供断言检查的整行beat接收位图；
+- refill和uncached AXI master不再寄存完整请求/响应bundle，只保存跨周期仍有意义的事务
+  上下文；AXI R/B响应遵守VALID保持规则，直接通过ready/valid交给上游；
+- LSU删除重复的完整writeback缓冲状态，fetch buffer固定为当前顺序核实际需要的单entry
+  弹性寄存器；寄存器堆不再物理实现恒为零的x0，但仍保留完整RV32I的32个体系结构编号；
+- RV32课程面积基线将参数化I-cache容量设为32B、line保持16B。RV64顺序核仍默认64B，
+  两者实例化同一套参数化RTL，没有保留旧实现或兼容分支。
+
+同一综合命令下的结果：
+
+| 配置 | 总面积 | 时序单元面积 | 最高频率估计 |
+| --- | ---: | ---: | ---: |
+| 优化后的64B I-cache RV32 | 24733.212 um^2 | 未单独记录 | 623.879 MHz |
+| 32B课程面积基线最终RTL | 22088.374 um^2 | 10145.506 um^2 | 562.267 MHz |
+
+相对本轮开始时的29456.042 um^2，最终减少7367.668 um^2，即25.0%，并低于手册建议的
+23000 um^2面积线。当前562.267MHz不是目标频率结果：uncached R/B直通减少了响应寄存器，
+但形成了AXI响应到LSU格式化、completion再到GPR写回的长组合路径。用户当前优先要求面积，
+因此暂不通过增加流水寄存器换取频率；进入流水线阶段时应重新切分该路径。
+
+验证结果：
+
+- `make lint-npc NPC_CONFIG=rv32-baseline`和`rv64-sequential`均通过；
+- RV32/RV64 uncached AXI定向测试均通过，测试端会在ready为0时保持RVALID/BVALID和payload；
+- RV32 LSU定向测试通过；
+- 32B默认配置运行`dummy-riscv32-npc.bin`命中good trap，退休13条指令、运行55周期。
+
+32B容量不是最终AI处理器的性能配置。既有NEMU MicroBench test trace中，16B line、
+direct-mapped配置从64B降为32B后，miss由64619增加到95540，命中率从91.1153%降到
+86.8639%，估算AMAT从2.4022升到2.5929周期。该配置只用于完成课程面积约束并建立可复现
+基线；后续应在SRAM宏、流水化命中路径和目标AI workload约束下重新扩大容量和路数。
