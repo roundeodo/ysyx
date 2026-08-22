@@ -779,3 +779,30 @@ make ARCH=riscv32-ysyxsoc-sdram ALL=icache-smc-fence-i run
 
 两项均命中good trap。无`fence.i`测试用于复现当前微架构的旧副本，不是通用ISA符合性
 断言；有`fence.i`测试才是必须满足的架构结果。
+
+## 2026-08-22 - D-cache设计空间与流水线理想收益
+
+NEMU新增紧凑架构数据访问trace，cachesim扩展为write-back、write-allocate、精确LRU的
+D-cache模型，并单独统计dirty eviction、writeback流量和写回占用。MicroBench `test`共产生
+98857条普通内存访问；1KiB、2-way、32B line得到95.7019%命中率、4249次miss和3290次
+脏块替换。归一化blocking TMT为79639周期，其中32900周期来自脏块写回，占41.3%。这证明
+只使用命中率或refill次数会高估D-cache收益。
+
+72组参数扫描中，8KiB、64B、4-way的归一化blocking TMT最低，为43468周期，较1KiB、
+32B、2-way减少45.4%。该结果只用于几何参数排序；正式RTL仍需使用真实SDRAM写延迟、综合
+面积和目标AI workload复核。
+
+在RV32、1KiB/1-way/8B I-cache、MicroBench `test`下，完整仿真为3284092 active cycles、
+832171条退休指令。仿真计数器给出的理想上限为：
+
+| 假设 | 估算周期 | 估算IPC | 相对当前加速比 |
+| --- | ---: | ---: | ---: |
+| 当前RTL | 3284092 | 0.253395 | 1.000x |
+| 理想D-cache | 1967326 | 0.422996 | 1.669x |
+| 理想单发射流水线 | 2457466 | 0.338630 | 1.336x |
+| 理想流水线和理想D-cache | 1140700 | 0.729527 | 2.879x |
+
+理想D-cache删除每条load/store超过基础一周期的执行开销；理想单发射流水线保留当前数据访存
+额外开销和I-cache miss额外开销，其余按每条退休指令一个基础周期计算。二者是同一基线上的
+反事实上限，不能直接相乘。基于收益与面积证据，下一步先实现顺序流水线；正式D-cache延后
+到可使用SRAM宏的配置。

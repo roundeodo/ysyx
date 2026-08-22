@@ -1,4 +1,4 @@
-# I-cache设计空间探索
+# Cache设计空间探索
 
 ## 1. 目标
 
@@ -6,15 +6,16 @@
 元数据Cache模型重放该序列。它用于低成本比较容量、Cache line大小和路数，不代替RTL
 功能验证、综合、STA或完整系统性能测试。
 
-当前流程回答两个问题：在同一条动态指令流下，不同Cache几何参数会产生多少次需求取指
-miss；在给定总线阶段延迟模型后，关键字响应时间和完整line refill占用如何变化。它不模拟
-指令内容、逐周期AXI反压、错误路径取指、预取、多MSHR和miss重叠。
+当前流程回答三个问题：在同一条动态指令流下，不同I-cache几何参数会产生多少次需求取指
+miss；在给定总线阶段延迟模型后，关键字响应时间和完整line refill占用如何变化；在同一条
+动态load/store序列下，不同D-cache几何参数会产生多少miss、脏块写回和下层存储流量。它
+不模拟逐周期AXI反压、错误路径取指、预取、多MSHR和miss重叠。
 
 ## 2. 文件和职责
 
 | 文件 | 职责 |
 | --- | --- |
-| `tools/cachesim/cachesim.cpp` | 解析PC trace，维护组相联LRU元数据，统计3C、关键beat位置、AMAT、TMT和refill占用 |
+| `tools/cachesim/cachesim.cpp` | 解析PC或数据访问trace，维护组相联LRU元数据，统计3C、AMAT、TMT、refill和脏块写回 |
 | `tools/cachesim/explore.py` | 并行启动多组cachesim，排序并生成CSV |
 | `tools/cachesim/tests/test_cachesim.py` | 用确定性地址序列验证冲突miss、容量miss和日志解析 |
 | `nemu/configs/riscv32-cachesim_defconfig` | 构建可执行、启用紧凑PC trace的RV32 NEMU |
@@ -385,3 +386,131 @@ blocking TMT = miss count * complete refill latency
 `result/cache/riscv32_microbench_train_psram_measured_8B_16B_32B.csv`。长期AI处理器需要用
 SRAM宏扩大容量，并通过hit-under-miss、多MSHR或banking解除blocking tail；这属于后续
 流水化Cache微架构工作，不应通过继续缩短line规避。
+
+## 9. D-cache与流水线理想收益评估
+
+### 9.1 数据访问trace的统计口径
+
+NEMU现在可以输出紧凑的架构数据访问trace。记录点位于成功完成的load/store访存处，只记录
+普通内存访问，不记录取指和MMIO。当前NEMU未启用虚拟内存，因此trace中的虚拟地址与物理
+地址相同；引入分页后，D-cache模型应根据实际微架构改为记录地址翻译前或翻译后的地址。
+
+在`ysyx-workbench/npc`下执行：
+
+```sh
+make dcachesim-trace DCACHE_TRACE_SCALE=test
+make dcachesim-run DCACHE_TRACE_SCALE=test
+make dcachesim-explore DCACHE_TRACE_SCALE=test
+```
+
+`dcachesim-trace`使用NEMU运行MicroBench并生成二进制mtrace；`dcachesim-run`评估一组参数；
+`dcachesim-explore`扫描容量、line和路数。当前模型采用write-back、write-allocate和精确LRU：
+
+- load/store miss都会分配新line；
+- store hit只设置dirty，不立即向下层写数据；
+- 替换dirty line时统计一次完整line写回；
+- 跨line的数据访问会拆成两个Cache line访问，但仍只计为一条架构访存指令；
+- MMIO不进入Cache，也不参与本次mtrace统计。
+
+归一化burst模型中的D-cache阻塞时间为：
+
+```text
+blocking TMT = refill占用时间 + dirty writeback占用时间
+```
+
+这个定义比`miss count * refill latency`更完整。写回Cache可能拥有较低miss率，但如果工作集
+持续修改数据，被替换的脏line仍会占用写地址、写数据和写响应通道。
+
+### 9.2 MicroBench test的D-cache探索
+
+2026-08-22使用RV32 NEMU运行MicroBench `test`，生成98857条架构数据访问，其中load为
+52774条，store为46083条。1KiB、2-way、32B line结果为：
+
+| 指标 | 结果 |
+| --- | ---: |
+| Hit / Miss | 94608 / 4249 |
+| Hit Rate | 95.7019% |
+| Compulsory / Capacity / Conflict | 1231 / 2653 / 365 |
+| Dirty eviction | 3290 |
+| 归一化critical TMT | 55933 cycles |
+| 归一化blocking TMT | 79639 cycles |
+| 其中dirty writeback | 32900 cycles |
+| Refill / Writeback流量 | 135968B / 105280B |
+
+脏块写回约占该配置blocking TMT的41.3%。因此只根据95.7%的命中率估算D-cache收益会明显
+偏高。对72组参数扫描后，归一化blocking TMT较低的候选包括：
+
+| 容量 | Line | 路数 | Miss | Hit Rate | Blocking TMT |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 8KiB | 64B | 4 | 1258 | 98.7275% | 43468 |
+| 8KiB | 64B | 2 | 1289 | 98.6961% | 44489 |
+| 8KiB | 32B | 4 | 2380 | 97.5925% | 46840 |
+| 8KiB | 64B | 1 | 1368 | 98.6162% | 46890 |
+
+这些数据只能用于候选排序，不能直接宣称RTL会得到对应加速比。最终选择还需要综合面积、
+命中路径时序、真实SDRAM写回延迟，以及代表目标AI软件的数据访问trace。当前array若继续
+使用标准单元，8KiB D-cache会远超课程面积预算；后续应使用SRAM宏，再实现参数化、阻塞式
+PIPT、单MSHR、write-back/write-allocate、独立writeback buffer和MMIO uncached路径。
+
+### 9.3 RTL计数器给出的理想收益上限
+
+仿真性能监视器现在直接使用整数计数器计算理想上限，不修改被测CPU的功能路径，也不会进入
+综合。2026-08-22运行：
+
+```sh
+make perf NPC_CONFIG=rv32-baseline PERF_SCALE=test
+```
+
+MicroBench十项测试全部通过。PMU计分窗口为1818657 cycles、430203条退休指令、IPC
+0.236549；完整仿真统计为3284092个active cycles、832171条退休指令、IPC 0.253395。
+
+先定义访存指令超过基础一周期的额外开销：
+
+```text
+memory_excess = memory_execution_cycle_sum - memory_instruction_count
+              = 1316766 cycles
+```
+
+理想D-cache假设所有load/store都只占基础一周期，但保留当前前端、控制流和其他开销：
+
+```text
+ideal_dcache_cycles = active_cycles - memory_excess
+                    = 1967326 cycles
+ideal_dcache_speedup = 3284092 / 1967326 = 1.669x
+```
+
+这是真正D-cache绝不可能超过的访存收益上限，因为现实中仍有命中延迟、miss、写回、uncached
+访问和结构冲突。
+
+I-cache的额外miss开销直接由原始整数计数器计算，避免用打印后的小数平均值反推：
+
+```text
+icache_miss_excess = miss_response_latency_sum
+                   - miss_count * average_hit_latency
+                   = 308529 cycles
+```
+
+理想单发射流水线假设每周期退休一条指令，但保留当前数据访存额外开销和I-cache miss额外
+开销：
+
+```text
+ideal_pipeline_cycles = retired_instructions
+                      + memory_excess
+                      + icache_miss_excess
+                      = 2457466 cycles
+ideal_pipeline_speedup = 3284092 / 2457466 = 1.336x
+```
+
+最后同时假设理想流水线和理想D-cache，仅保留一条指令一个基础周期与当前I-cache miss开销：
+
+```text
+ideal_pipeline_and_dcache_cycles = retired_instructions + icache_miss_excess
+                                  = 1140700 cycles
+combined_ideal_speedup = 3284092 / 1140700 = 2.879x
+```
+
+`1.669x`、`1.336x`和`2.879x`都不是未来RTL的承诺值。前两项也不能直接相乘，因为两种优化
+消除的周期集合需要按同一基线重新组合。该结果表明当前版本中，理想D-cache的上限大于仅把
+非访存执行重叠起来的单发射流水线收益；但在23000 um^2课程面积约束下，使用标准单元加入
+有效容量的D-cache并不现实。工程顺序应先实现五级流水线和精确stall/flush，再在采用SRAM宏
+的配置中加入D-cache，最后用相同workload和统计窗口比较实测值与本节理想上限。

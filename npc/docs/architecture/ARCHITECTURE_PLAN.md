@@ -382,6 +382,16 @@ npc/docs/
 原因：本项目的目标包括学习先进团队的工程方法。没有决策依据和验证证据的 RTL 不能形成
 可维护经验。
 
+### D006：先完成顺序流水线，再实现正式D-cache
+
+原因：RV32 MicroBench `test`计数表明，理想单发射流水线和理想D-cache的收益上限分别约为
+1.336x和1.669x，但当前23000 um^2课程面积约束无法容纳由标准单元实现的有效容量D-cache。
+顺序流水线不依赖新增大容量阵列，并且是后续non-blocking cache、LSQ和内存级并行的前提。
+因此先在现有I-cache和uncached LSU接口上完成stall、forward、flush和精确异常，再在可使用
+SRAM宏的正式配置中加入参数化write-back/write-allocate D-cache、writeback buffer和MSHR。
+具体统计口径和数据见
+[`CACHE_DESIGN_SPACE_EXPLORATION.md`](../verification/CACHE_DESIGN_SPACE_EXPLORATION.md)。
+
 ## 15. 变更流程
 
 修改冻结决策时必须：
