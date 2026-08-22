@@ -354,14 +354,6 @@ module riscv32_icache_miss_unit
   // Beat完整性只属于验证逻辑。RTL数据通路信任同一工程内refill master产生的RLAST，
   // 不为内部协议再增加一套运行时防御计数器。
   logic [ICACHE_WORDS_PER_LINE-1:0] observed_refill_word_vector_q;
-  logic [ICACHE_WORDS_PER_LINE-1:0] observed_refill_word_vector_with_current_resp;
-
-  always_comb begin
-    observed_refill_word_vector_with_current_resp = observed_refill_word_vector_q;
-    if (refill_resp_handshake && miss_context_q.cacheable) begin
-      observed_refill_word_vector_with_current_resp[refill_resp_i.word_index] = 1'b1;
-    end
-  end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -426,15 +418,24 @@ module riscv32_icache_miss_unit
 
   // Cache line安装约束：先失效victim，再逐word覆盖；只有完整且无错误的line才能
   // 重新写present=1。下面几条断言共同保护这一提交顺序。
-  a_metadata_commit_requires_complete_error_free_line :
+  a_metadata_commit_requires_last_error_free_data_write :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (metadata_write_valid_o && metadata_write_line_present_o) |->
           (data_write_valid_o && refill_resp_i.last_word &&
-           (&observed_refill_word_vector_with_current_resp) &&
            !refill_access_fault_seen_q && !refill_resp_i.access_fault)
   )
-  else $error("I-cache metadata was committed before a complete error-free line arrived");
+  else $error("I-cache metadata commit did not accompany the final error-free data write");
+
+  // Concurrent assertion在时钟沿的preponed区域采样，因此提交当拍不能读取由同一握手
+  // 更新的位图新值。下一拍再检查_q，既覆盖当前last beat，也正确处理只有一个word的line。
+  a_metadata_commit_observes_every_refill_word :
+  assert property (
+      @(posedge clk_i) disable iff (!rst_ni)
+      (metadata_write_valid_o && metadata_write_line_present_o) |=>
+          (&observed_refill_word_vector_q)
+  )
+  else $error("I-cache metadata was committed before every line word arrived");
 
   // Cacheable refill一旦被下层接收，victim metadata必须先失效。之后即使burst报错，
   // 已被部分覆盖的data way也不会以旧tag重新命中。
