@@ -427,17 +427,19 @@ module riscv32_icache_miss_unit
   )
   else $error("I-cache metadata commit did not accompany the final error-free data write");
 
-  // 提交当拍，observed_refill_word_vector_q只记录此前已经接收的beat，当前last beat尚未
-  // 在时序块中写入位图。因此检查时把当前word_index对应位显式并入已有位图。这样既能
-  // 覆盖单word line，也不会把metadata提交后的下一笔miss误当成本事务的一部分。
-  a_metadata_commit_observes_every_refill_word :
-  assert property (
-      @(posedge clk_i) disable iff (!rst_ni)
-      (metadata_write_valid_o && metadata_write_line_present_o) |->
-          (&(observed_refill_word_vector_q |
-             (ICACHE_WORDS_PER_LINE'(1) << refill_resp_i.word_index)))
-  )
-  else $error("I-cache metadata was committed before every line word arrived");
+  // 单word line的完整性已经由上一条断言中的data_write_valid_o和last_word完整证明；
+  // 接收位图只在多word line中提供额外约束。提交当拍，_q只记录此前已经接收的beat，
+  // 因此把当前last beat对应位并入已有位图后，再检查整条line是否全部到达。
+  if (ICACHE_WORDS_PER_LINE > 1) begin : gen_multiword_refill_completeness_assertion
+    a_metadata_commit_observes_every_refill_word :
+    assert property (
+        @(posedge clk_i) disable iff (!rst_ni)
+        (metadata_write_valid_o && metadata_write_line_present_o) |->
+            (&(observed_refill_word_vector_q |
+               (ICACHE_WORDS_PER_LINE'(1) << refill_resp_i.word_index)))
+    )
+    else $error("I-cache metadata was committed before every line word arrived");
+  end
 
   // Cacheable refill一旦被下层接收，victim metadata必须先失效。之后即使burst报错，
   // 已被部分覆盖的data way也不会以旧tag重新命中。
