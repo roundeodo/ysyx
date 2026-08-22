@@ -207,6 +207,7 @@ module riscv32_core
 
   riscv32_arch_regfile u_arch_regfile (
       .clk_i             (clk_i),
+      .rst_ni            (rst_ni),
       .gpr_write_data_i  (gpr_write_data),
       .gpr_write_addr_i  (gpr_write_addr),
       .gpr_write_enable_i(gpr_write_enable),
