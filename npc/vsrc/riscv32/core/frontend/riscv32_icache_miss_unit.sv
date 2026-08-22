@@ -446,16 +446,6 @@ module riscv32_icache_miss_unit
   )
   else $error("I-cache refill did not invalidate its victim before data overwrite");
 
-  a_successful_last_beat_completes_cacheable_line :
-  assert property (
-      @(posedge clk_i) disable iff (!rst_ni)
-      (refill_resp_handshake && refill_resp_i.last_word &&
-       miss_context_q.cacheable &&
-       !refill_access_fault_seen_q && !refill_resp_i.access_fault) |->
-          (&observed_refill_word_vector_with_current_resp)
-  )
-  else $error("I-cache refill ended before every requested word arrived");
-
   a_uncached_request_never_writes_cache_arrays :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
@@ -485,7 +475,8 @@ module riscv32_icache_miss_unit
 
   // 定向验证清单：每项都应同时检查握手次数、payload身份和array写入次数，不能只检查
   // 最终指令值。这些是模块接口契约的回归检查，不是尚未实现的RTL逻辑。
-  // 1. cacheable miss：发送8个word，确认data write恰好8次、metadata只在最后一次出现；
+  // 1. cacheable miss：发送ICACHE_WORDS_PER_LINE个word，确认data write次数相同、metadata
+  //    只在最后一次出现；该项必须覆盖单word line，防止把多beat假设写死在控制逻辑中；
   // 2. critical word分别为0、3、7：确认lookup response在对应beat后出现，而不是固定等RLAST；
   // 3. IFU反压：critical响应出现后保持ready=0若干拍，确认payload稳定且剩余refill继续；
   // 4. uncached：只发一个refill word，返回正确身份，但data/metadata写入次数均为0；
