@@ -427,13 +427,15 @@ module riscv32_icache_miss_unit
   )
   else $error("I-cache metadata commit did not accompany the final error-free data write");
 
-  // Concurrent assertion在时钟沿的preponed区域采样，因此提交当拍不能读取由同一握手
-  // 更新的位图新值。下一拍再检查_q，既覆盖当前last beat，也正确处理只有一个word的line。
+  // 提交当拍，observed_refill_word_vector_q只记录此前已经接收的beat，当前last beat尚未
+  // 在时序块中写入位图。因此检查时把当前word_index对应位显式并入已有位图。这样既能
+  // 覆盖单word line，也不会把metadata提交后的下一笔miss误当成本事务的一部分。
   a_metadata_commit_observes_every_refill_word :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
-      (metadata_write_valid_o && metadata_write_line_present_o) |=>
-          (&observed_refill_word_vector_q)
+      (metadata_write_valid_o && metadata_write_line_present_o) |->
+          (&(observed_refill_word_vector_q |
+             (ICACHE_WORDS_PER_LINE'(1) << refill_resp_i.word_index)))
   )
   else $error("I-cache metadata was committed before every line word arrived");
 
