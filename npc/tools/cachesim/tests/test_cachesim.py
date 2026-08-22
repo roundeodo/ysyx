@@ -166,7 +166,9 @@ class CacheSimTest(unittest.TestCase):
         )
         self.assertEqual(result["average_complete_refill_penalty_cycles"], 16.0)
         self.assertEqual(result["critical_tmt_cycles"], 20.0)
+        self.assertEqual(result["blocking_tmt_cycles"], 32.0)
         self.assertEqual(result["refill_occupancy_cycles"], 32.0)
+        self.assertEqual(result["blocking_amat_cycles"], 18.0)
         self.assertEqual(result["read_transactions"], 8)
 
     def test_incrementing_burst_pays_setup_once(self):
@@ -183,7 +185,9 @@ class CacheSimTest(unittest.TestCase):
         )
         self.assertEqual(result["average_complete_refill_penalty_cycles"], 7.0)
         self.assertEqual(result["critical_tmt_cycles"], 11.0)
+        self.assertEqual(result["blocking_tmt_cycles"], 14.0)
         self.assertEqual(result["refill_occupancy_cycles"], 14.0)
+        self.assertEqual(result["blocking_amat_cycles"], 9.0)
         self.assertEqual(result["read_transactions"], 2)
 
 

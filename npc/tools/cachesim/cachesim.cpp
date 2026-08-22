@@ -691,6 +691,15 @@ double AverageMemoryAccessTime(const CacheConfiguration &configuration,
              static_cast<double>(statistics.access_count);
 }
 
+double BlockingAverageMemoryAccessTime(
+    const CacheConfiguration &configuration,
+    const CacheStatistics &statistics,
+    const RefillStatistics &refill_statistics) {
+  return configuration.hit_time_cycles +
+         refill_statistics.total_refill_occupancy_cycles /
+             static_cast<double>(statistics.access_count);
+}
+
 void PrintText(const CacheConfiguration &configuration,
                const CacheStatistics &statistics,
                const RefillStatistics &refill_statistics) {
@@ -729,6 +738,10 @@ void PrintText(const CacheConfiguration &configuration,
             << AverageMemoryAccessTime(configuration, statistics,
                                        refill_statistics)
             << '\n';
+  std::cout << "  blocking AMAT cycles    : "
+            << BlockingAverageMemoryAccessTime(configuration, statistics,
+                                               refill_statistics)
+            << '\n';
   std::cout << "  critical-word TMT cycles: "
             << refill_statistics.total_critical_miss_time_cycles << '\n';
   std::cout << "  refill occupancy cycles : "
@@ -758,7 +771,8 @@ void PrintCsv(const CacheConfiguration &configuration,
          "fixed_complete_refill_penalty_cycles,"
          "average_critical_response_penalty_cycles,"
          "average_complete_refill_penalty_cycles,amat_cycles,"
-         "critical_tmt_cycles,refill_occupancy_cycles,read_transactions,"
+         "blocking_amat_cycles,critical_tmt_cycles,blocking_tmt_cycles,"
+         "refill_occupancy_cycles,read_transactions,"
          "transferred_refill_beats,refill_traffic_bytes\n";
   std::cout << std::fixed << std::setprecision(9)
             << configuration.capacity_bytes << ',' << configuration.line_bytes << ','
@@ -784,7 +798,11 @@ void PrintCsv(const CacheConfiguration &configuration,
             << refill_statistics.average_complete_refill_penalty_cycles << ','
             << AverageMemoryAccessTime(configuration, statistics,
                                        refill_statistics)
+            << ','
+            << BlockingAverageMemoryAccessTime(configuration, statistics,
+                                               refill_statistics)
             << ',' << refill_statistics.total_critical_miss_time_cycles << ','
+            << refill_statistics.total_refill_occupancy_cycles << ','
             << refill_statistics.total_refill_occupancy_cycles << ','
             << refill_statistics.read_transaction_count << ','
             << refill_statistics.transferred_beat_count << ','
@@ -844,8 +862,14 @@ void PrintJson(const CacheConfiguration &configuration,
             << AverageMemoryAccessTime(configuration, statistics,
                                        refill_statistics)
             << ",\n"
+            << "  \"blocking_amat_cycles\": "
+            << BlockingAverageMemoryAccessTime(configuration, statistics,
+                                               refill_statistics)
+            << ",\n"
             << "  \"critical_tmt_cycles\": "
             << refill_statistics.total_critical_miss_time_cycles << ",\n"
+            << "  \"blocking_tmt_cycles\": "
+            << refill_statistics.total_refill_occupancy_cycles << ",\n"
             << "  \"refill_occupancy_cycles\": "
             << refill_statistics.total_refill_occupancy_cycles << ",\n"
             << "  \"read_transactions\": "

@@ -621,10 +621,15 @@ CACHE_SCAN_CAPACITIES        ?= 64,128,256,512,1024,2048,4096
 CACHE_SCAN_LINE_SIZES        ?= 4,8,16,32,64
 CACHE_SCAN_WAYS              ?= 1,2
 CACHE_SCAN_JOBS              ?= 4
+CACHE_RANKING_METRIC         ?= blocking-tmt
 CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_$(CACHE_REFILL_MODEL)_exploration.csv)
-ICACHE_CALIBRATION_LINE_SIZES ?= 16,32,64
-ICACHE_CALIBRATION_SCALE      ?= test
-ICACHE_CALIBRATION_OUTPUT     ?= $(abspath ./result/cache/rtl_icache_penalty_rv32_sdram_bl8_$(ICACHE_CALIBRATION_SCALE).csv)
+ICACHE_CALIBRATION_LINE_SIZES     ?= 8,16,32,64
+ICACHE_CALIBRATION_SCALE          ?= test
+ICACHE_CALIBRATION_ARCH           ?= riscv32-ysyxsoc-psram
+ICACHE_CALIBRATION_CAPACITY_BYTES ?= $(NPC_ICACHE_CAPACITY_BYTES)
+ICACHE_CALIBRATION_WAY_COUNT      ?= $(NPC_ICACHE_WAY_COUNT)
+ICACHE_CALIBRATION_MEMORY_NAME     = $(patsubst riscv32-ysyxsoc-%,%,$(ICACHE_CALIBRATION_ARCH))
+ICACHE_CALIBRATION_OUTPUT         ?= $(abspath ./result/cache/rtl_icache_penalty_rv32_$(ICACHE_CALIBRATION_MEMORY_NAME)_$(ICACHE_CALIBRATION_SCALE).csv)
 
 $(CACHESIM_BUILD_DIR):
 	mkdir -p $@
@@ -696,6 +701,7 @@ cachesim-explore: $(CACHESIM_BINARY)
 		--complete-refill-penalty-cycles $(CACHE_COMPLETE_REFILL_PENALTY_CYCLES) \
 		$(CACHE_FIXED_PENALTY_ARGUMENTS) \
 		--jobs $(CACHE_SCAN_JOBS) \
+		--ranking-metric $(CACHE_RANKING_METRIC) \
 		--output $(CACHE_SCAN_OUTPUT)
 
 cachesim-explore-baseline:
@@ -708,12 +714,15 @@ cachesim-explore-transport:
 	$(MAKE) cachesim-explore CACHE_REFILL_MODEL=burst \
 		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_burst_exploration.csv)
 
-# 在同一RV32 ysyxSoC+SDRAM+BL8环境中逐项重编译并运行MicroBench，从RTL PMU
-# 提取关键字响应代价和整行refill占用。每完成一种line大小就立即更新CSV并保留原始日志。
+# 在同一RV32 ysyxSoC存储环境中逐项重编译并运行MicroBench，从RTL PMU提取关键字
+# 响应代价和整行refill占用。存储目标、容量和路数显式写入CSV，禁止跨环境混用代价。
 icache-calibrate-penalty:
 	python3 $(ICACHE_CALIBRATION_SCRIPT) \
 		--npc-dir $(abspath .) \
 		--line-sizes $(ICACHE_CALIBRATION_LINE_SIZES) \
+		--cache-capacity-bytes $(ICACHE_CALIBRATION_CAPACITY_BYTES) \
+		--cache-way-count $(ICACHE_CALIBRATION_WAY_COUNT) \
+		--benchmark-arch $(ICACHE_CALIBRATION_ARCH) \
 		--scale $(ICACHE_CALIBRATION_SCALE) \
 		--output $(ICACHE_CALIBRATION_OUTPUT)
 

@@ -143,6 +143,12 @@ def main():
     parser.add_argument("--first-data-cycles", type=float, default=1.0)
     parser.add_argument("--response-beat-cycles", type=float, default=1.0)
     parser.add_argument("--jobs", type=int, default=1)
+    parser.add_argument(
+        "--ranking-metric",
+        choices=("critical-tmt", "blocking-tmt"),
+        default="blocking-tmt",
+        help="当前阻塞式I-cache应使用blocking-tmt；支持hit-under-miss后再使用critical-tmt",
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
@@ -225,9 +231,14 @@ def main():
     with ProcessPoolExecutor(max_workers=args.jobs) as executor:
         results = list(executor.map(run_configuration, configurations))
 
+    ranking_field = (
+        "blocking_tmt_cycles"
+        if args.ranking_metric == "blocking-tmt"
+        else "critical_tmt_cycles"
+    )
     results.sort(
         key=lambda result: (
-            result["critical_tmt_cycles"],
+            result[ranking_field],
             result["misses"],
             result["capacity_bytes"],
             result["ways"],
@@ -262,7 +273,9 @@ def main():
         "average_critical_response_penalty_cycles",
         "average_complete_refill_penalty_cycles",
         "amat_cycles",
+        "blocking_amat_cycles",
         "critical_tmt_cycles",
+        "blocking_tmt_cycles",
         "refill_occupancy_cycles",
         "read_transactions",
         "transferred_refill_beats",
@@ -276,7 +289,7 @@ def main():
             writer.writerow({name: result[name] for name in field_names})
 
     print(
-        "capacity  line  ways      misses   hit rate   critical penalty  complete refill       AMAT   critical TMT"
+        "capacity  line  ways      misses   hit rate   critical penalty  complete refill       AMAT  blocking AMAT     ranking TMT"
     )
     for result in results[: min(12, len(results))]:
         print(
@@ -288,7 +301,8 @@ def main():
             f"{result['average_critical_response_penalty_cycles']:>16.3f}  "
             f"{result['average_complete_refill_penalty_cycles']:>15.3f}  "
             f"{result['amat_cycles']:>9.4f}  "
-            f"{result['critical_tmt_cycles']:>13.3f}"
+            f"{result['blocking_amat_cycles']:>13.4f}  "
+            f"{result[ranking_field]:>14.3f}"
         )
     print(f"\n完整结果: {args.output}")
 

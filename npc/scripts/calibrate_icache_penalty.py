@@ -15,7 +15,10 @@ FLOAT_PATTERN = r"[0-9]+(?:\.[0-9]+)?"
 @dataclass(frozen=True)
 class CalibrationResult:
     line_bytes: int
+    cache_capacity_bytes: int
+    cache_way_count: int
     benchmark_scale: str
+    benchmark_arch: str
     refill_transport: str
     lookup_count: int
     cache_hit_count: int
@@ -37,8 +40,10 @@ def parse_line_sizes(text: str) -> list[int]:
     if len(set(line_sizes)) != len(line_sizes):
         raise ValueError("I-cache line sizes must not contain duplicates")
     for line_size in line_sizes:
-        if line_size not in (16, 32, 64):
-            raise ValueError("supported I-cache line sizes are 16, 32, and 64 bytes")
+        if line_size < 4 or line_size > 64 or line_size & (line_size - 1):
+            raise ValueError(
+                "I-cache line sizes must be powers of two between 4 and 64 bytes"
+            )
     return line_sizes
 
 
@@ -50,7 +55,12 @@ def parse_single_match(pattern: str, output: str, label: str) -> re.Match[str]:
 
 
 def parse_calibration_output(
-    output: str, line_bytes: int, benchmark_scale: str
+    output: str,
+    line_bytes: int,
+    cache_capacity_bytes: int,
+    cache_way_count: int,
+    benchmark_scale: str,
+    benchmark_arch: str,
 ) -> CalibrationResult:
     counts = parse_single_match(
         r"lookups / cacheable hits / cacheable misses\s*:\s*"
@@ -106,8 +116,11 @@ def parse_calibration_output(
     exact_amat = average_hit_latency + cache_miss_count / lookup_count * average_penalty
     return CalibrationResult(
         line_bytes=line_bytes,
+        cache_capacity_bytes=cache_capacity_bytes,
+        cache_way_count=cache_way_count,
         benchmark_scale=benchmark_scale,
-        refill_transport="axi-burst+sdram-bl8",
+        benchmark_arch=benchmark_arch,
+        refill_transport=f"axi-burst+{benchmark_arch}",
         lookup_count=lookup_count,
         cache_hit_count=cache_hit_count,
         cache_miss_count=cache_miss_count,
@@ -137,7 +150,10 @@ def write_results(results: list[CalibrationResult], output_path: pathlib.Path) -
 def run_make_perf(
     npc_dir: pathlib.Path,
     line_bytes: int,
+    cache_capacity_bytes: int,
+    cache_way_count: int,
     benchmark_scale: str,
+    benchmark_arch: str,
     log_path: pathlib.Path,
 ) -> str:
     command = [
@@ -145,9 +161,11 @@ def run_make_perf(
         "perf",
         "PROJECT=riscv32",
         "NPC_CONFIG=rv32-baseline",
+        f"NPC_ICACHE_CAPACITY_BYTES={cache_capacity_bytes}",
+        f"NPC_ICACHE_WAY_COUNT={cache_way_count}",
         f"NPC_ICACHE_LINE_BYTES={line_bytes}",
         "NPC_SDRAM_NATIVE_READ_BURST=1",
-        "PERF_ARCH=riscv32-ysyxsoc-sdram",
+        f"PERF_ARCH={benchmark_arch}",
         f"PERF_SCALE={benchmark_scale}",
     ]
     print(f"\nRunning {line_bytes}B calibration:")
@@ -185,6 +203,13 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument("--npc-dir", type=pathlib.Path, required=True)
     parser.add_argument("--line-sizes", default="16,32,64")
+    parser.add_argument("--cache-capacity-bytes", type=int, default=64)
+    parser.add_argument("--cache-way-count", type=int, default=1)
+    parser.add_argument(
+        "--benchmark-arch",
+        choices=("riscv32-ysyxsoc-psram", "riscv32-ysyxsoc-sdram"),
+        default="riscv32-ysyxsoc-psram",
+    )
     parser.add_argument(
         "--scale", choices=("test", "train", "ref", "huge"), default="test"
     )
@@ -202,8 +227,23 @@ def main() -> int:
 
     for line_bytes in line_sizes:
         log_path = log_dir / f"{output_path.stem}-{line_bytes}B.log"
-        output = run_make_perf(npc_dir, line_bytes, args.scale, log_path)
-        result = parse_calibration_output(output, line_bytes, args.scale)
+        output = run_make_perf(
+            npc_dir,
+            line_bytes,
+            args.cache_capacity_bytes,
+            args.cache_way_count,
+            args.scale,
+            args.benchmark_arch,
+            log_path,
+        )
+        result = parse_calibration_output(
+            output,
+            line_bytes,
+            args.cache_capacity_bytes,
+            args.cache_way_count,
+            args.scale,
+            args.benchmark_arch,
+        )
         results.append(result)
         write_results(results, output_path)
         print(

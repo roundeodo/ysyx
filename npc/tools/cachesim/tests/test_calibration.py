@@ -32,15 +32,25 @@ MicroBench PMU measurement window:
 
 class CalibrationTest(unittest.TestCase):
     def test_line_size_validation(self):
-        self.assertEqual(parse_line_sizes("16,32,64"), [16, 32, 64])
+        self.assertEqual(parse_line_sizes("8,16,32,64"), [8, 16, 32, 64])
         with self.assertRaises(ValueError):
             parse_line_sizes("16,16")
         with self.assertRaises(ValueError):
             parse_line_sizes("128")
 
     def test_parse_rtl_counters(self):
-        result = parse_calibration_output(SAMPLE_OUTPUT, 32, "test")
+        result = parse_calibration_output(
+            SAMPLE_OUTPUT,
+            32,
+            64,
+            1,
+            "test",
+            "riscv32-ysyxsoc-psram",
+        )
         self.assertEqual(result.cache_miss_count, 10)
+        self.assertEqual(result.cache_capacity_bytes, 64)
+        self.assertEqual(result.cache_way_count, 1)
+        self.assertEqual(result.benchmark_arch, "riscv32-ysyxsoc-psram")
         self.assertEqual(result.average_miss_penalty_cycles, 31.25)
         self.assertEqual(result.average_complete_refill_latency_cycles, 48.5)
         self.assertAlmostEqual(result.exact_amat_cycles, 2.3125)
