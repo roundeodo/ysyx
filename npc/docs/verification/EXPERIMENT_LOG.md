@@ -732,3 +732,25 @@ RTL检查发现I-cache refill master已经发送完整AXI4 INCR burst，但SDRAM
 SDRAM命令和首数据延迟，使blocking miss更早释放，显著减少下一次lookup等待。两组PMU测量
 窗口均退休430203条指令且MicroBench全部通过，比较口径一致。该结果证明当前8B line也实际
 使用了AXI burst和SDRAM连续数据阶段，不再只是接口上携带`ARLEN`。
+
+## 2026-08-22 - 64B与1KiB I-cache瓶颈分离实验
+
+为判断低IPC来自AXI/SDRAM实现还是课程面积版I-cache容量，在相同RV32核、8B line、
+direct-mapped、AXI SDRAM连续读和MicroBench `test`下，只把I-cache容量从64B改为1KiB：
+
+| 指标 | 64B | 1KiB | 变化 |
+| --- | ---: | ---: | ---: |
+| Scored time | 52.010 ms | 18.310 ms | -64.795% |
+| Total time | 71.005 ms | 29.714 ms | -58.152% |
+| PMU窗口周期 | 5187565 | 1818657 | -64.942% |
+| PMU窗口IPC | 0.082929 | 0.236549 | +185.243% |
+| I-cache hit rate | 78.923% | 98.567% | +19.644 pp |
+| I-cache AMAT | 6.176 cycles | 1.371 cycles | -77.801% |
+| miss次数 | 172752 | 11927 | -93.096% |
+| IFU平均响应延迟 | 7.753 cycles | 2.924 cycles | -62.286% |
+
+两组PMU窗口都退休430203条指令。1KiB配置证明64B课程面积版的容量缺失是`0.08` IPC的首要
+原因，而不是AXI burst失效。扩大容量后IFU downstream backpressure升至39.347%，表示前端
+已经频繁早于顺序后端准备好指令；此后继续扩大I-cache的边际收益有限。剩余主要开销来自
+顺序核同一时刻只允许一个lookup在途、每条指令等待完成后才推进，以及无D-cache LSU的
+长延迟访问。1KiB配置只用于瓶颈分离，不替代满足23000um^2约束的64B课程面积配置。
