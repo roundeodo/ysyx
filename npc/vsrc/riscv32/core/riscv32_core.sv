@@ -44,6 +44,12 @@ module riscv32_core
   logic data_memory_resp_ready;
 
   icache_event_t icache_event;
+`ifdef NPC_ENABLE_SIM_MONITOR
+  logic [63:0] sim_icache_cacheable_hit_count;
+  logic [63:0] sim_icache_cacheable_miss_response_count;
+  logic [63:0] sim_icache_hit_latency_cycle_sum;
+  logic [63:0] sim_icache_miss_response_latency_cycle_sum;
+`endif
   logic icache_invalidate_req;
   logic icache_invalidate_done;
   logic icache_busy;
@@ -346,15 +352,27 @@ module riscv32_core
       .lsu_read_response_occurred_i(data_axi4_manager_i.r_valid && data_axi4_manager_o.r_ready),
       .lsu_write_address_occurred_i(data_axi4_manager_o.aw_valid && data_axi4_manager_i.aw_ready),
       .lsu_write_data_occurred_i(data_axi4_manager_o.w_valid && data_axi4_manager_i.w_ready),
-      .lsu_write_response_occurred_i(data_axi4_manager_i.b_valid && data_axi4_manager_o.b_ready)
+      .lsu_write_response_occurred_i(data_axi4_manager_i.b_valid && data_axi4_manager_o.b_ready),
+      .icache_cacheable_hit_count_i(sim_icache_cacheable_hit_count),
+      .icache_cacheable_miss_response_count_i(
+          sim_icache_cacheable_miss_response_count
+      ),
+      .icache_hit_latency_cycle_sum_i(sim_icache_hit_latency_cycle_sum),
+      .icache_miss_response_latency_cycle_sum_i(
+          sim_icache_miss_response_latency_cycle_sum
+      )
   );
 
   // Cache性能统计只存在于仿真配置。它观察I-cache定义的语义事件，不从AXI
   // beat反推hit/miss，因此不会把一次cache line refill误计成多次miss。
   riscv32_sim_icache_performance_monitor u_sim_icache_performance_monitor (
-      .clk_i         (clk_i),
-      .rst_ni        (rst_ni),
-      .icache_event_i(icache_event)
+      .clk_i                            (clk_i),
+      .rst_ni                           (rst_ni),
+      .icache_event_i                   (icache_event),
+      .cacheable_hit_count_o            (sim_icache_cacheable_hit_count),
+      .cacheable_miss_response_count_o  (sim_icache_cacheable_miss_response_count),
+      .hit_latency_cycle_sum_o          (sim_icache_hit_latency_cycle_sum),
+      .miss_response_latency_cycle_sum_o(sim_icache_miss_response_latency_cycle_sum)
   );
 `endif
 

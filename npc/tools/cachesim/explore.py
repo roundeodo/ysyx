@@ -63,10 +63,14 @@ def run_configuration(arguments):
         refill_beat_bytes,
         critical_response_penalty,
         complete_refill_penalty,
+        dirty_writeback_penalty,
         read_address_cycles,
         memory_command_cycles,
         first_data_cycles,
         response_beat_cycles,
+        write_address_cycles,
+        write_data_beat_cycles,
+        write_response_cycles,
     ) = arguments
     command = [
         str(binary),
@@ -88,6 +92,8 @@ def run_configuration(arguments):
         str(critical_response_penalty),
         "--complete-refill-penalty-cycles",
         str(complete_refill_penalty),
+        "--dirty-writeback-penalty-cycles",
+        str(dirty_writeback_penalty),
         "--read-address-cycles",
         str(read_address_cycles),
         "--memory-command-cycles",
@@ -96,6 +102,12 @@ def run_configuration(arguments):
         str(first_data_cycles),
         "--response-beat-cycles",
         str(response_beat_cycles),
+        "--write-address-cycles",
+        str(write_address_cycles),
+        "--write-data-beat-cycles",
+        str(write_data_beat_cycles),
+        "--write-response-cycles",
+        str(write_response_cycles),
         "--output-format",
         "json",
     ]
@@ -105,7 +117,7 @@ def run_configuration(arguments):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="并行扫描 I-cache 容量、行大小和路数"
+        description="并行扫描 I-cache 或 D-cache 的容量、行大小和路数"
     )
     parser.add_argument("--binary", type=Path, required=True)
     parser.add_argument("--trace", type=Path, required=True)
@@ -126,6 +138,9 @@ def main():
         "--complete-refill-penalty-cycles", type=float, default=0.0
     )
     parser.add_argument(
+        "--dirty-writeback-penalty-cycles", type=float, default=0.0
+    )
+    parser.add_argument(
         "--critical-response-penalty-by-line-size",
         help="按行大小提供关键字响应代价，例如 16=4.2,32=4.6,64=6.0",
     )
@@ -142,12 +157,15 @@ def main():
     parser.add_argument("--memory-command-cycles", type=float, default=1.0)
     parser.add_argument("--first-data-cycles", type=float, default=1.0)
     parser.add_argument("--response-beat-cycles", type=float, default=1.0)
+    parser.add_argument("--write-address-cycles", type=float, default=1.0)
+    parser.add_argument("--write-data-beat-cycles", type=float, default=1.0)
+    parser.add_argument("--write-response-cycles", type=float, default=1.0)
     parser.add_argument("--jobs", type=int, default=1)
     parser.add_argument(
         "--ranking-metric",
         choices=("critical-tmt", "blocking-tmt"),
         default="blocking-tmt",
-        help="当前阻塞式I-cache应使用blocking-tmt；支持hit-under-miss后再使用critical-tmt",
+        help="blocking cache使用blocking-tmt；支持early restart或hit-under-miss时可比较critical-tmt",
     )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -221,10 +239,14 @@ def main():
                         args.refill_beat_bytes,
                         critical_response_penalty,
                         complete_refill_penalty,
+                        args.dirty_writeback_penalty_cycles,
                         args.read_address_cycles,
                         args.memory_command_cycles,
                         args.first_data_cycles,
                         args.response_beat_cycles,
+                        args.write_address_cycles,
+                        args.write_data_beat_cycles,
+                        args.write_response_cycles,
                     )
                 )
 
@@ -246,10 +268,14 @@ def main():
     )
 
     field_names = [
+        "trace_kind",
         "capacity_bytes",
         "line_bytes",
         "ways",
         "sets",
+        "architectural_accesses",
+        "loads",
+        "stores",
         "accesses",
         "hits",
         "misses",
@@ -257,6 +283,7 @@ def main():
         "capacity_misses",
         "conflict_misses",
         "unique_lines",
+        "dirty_evictions",
         "hit_rate",
         "miss_rate",
         "hit_time_cycles",
@@ -268,18 +295,25 @@ def main():
         "memory_command_cycles",
         "first_data_cycles",
         "response_beat_cycles",
+        "write_address_cycles",
+        "write_data_beat_cycles",
+        "write_response_cycles",
         "fixed_critical_response_penalty_cycles",
         "fixed_complete_refill_penalty_cycles",
+        "dirty_writeback_penalty_cycles",
         "average_critical_response_penalty_cycles",
         "average_complete_refill_penalty_cycles",
+        "average_dirty_writeback_penalty_cycles",
         "amat_cycles",
         "blocking_amat_cycles",
         "critical_tmt_cycles",
         "blocking_tmt_cycles",
         "refill_occupancy_cycles",
+        "dirty_writeback_cycles",
         "read_transactions",
         "transferred_refill_beats",
         "refill_traffic_bytes",
+        "writeback_traffic_bytes",
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", newline="", encoding="utf-8") as output_file:

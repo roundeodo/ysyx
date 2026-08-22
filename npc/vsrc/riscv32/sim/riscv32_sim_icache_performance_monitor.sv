@@ -6,7 +6,12 @@ module riscv32_sim_icache_performance_monitor
     input logic clk_i,
     input logic rst_ni,
 
-    input icache_event_t icache_event_i
+    input icache_event_t icache_event_i,
+
+    output logic [63:0] cacheable_hit_count_o,
+    output logic [63:0] cacheable_miss_response_count_o,
+    output logic [63:0] hit_latency_cycle_sum_o,
+    output logic [63:0] miss_response_latency_cycle_sum_o
 );
   // 这些计数器用于验证命中率、AMAT和refill行为，不属于架构状态，也不参与
   // 任意ready、stall或redirect控制。模块仅进入仿真filelist，综合核心中不存在。
@@ -37,6 +42,13 @@ module riscv32_sim_icache_performance_monitor
   assign lookup_response_available_for_active_request =
       icache_event_i.lookup_response_present &&
       (lookup_timer_active_q || icache_event_i.lookup_occurred);
+
+  // 向综合性能监视器导出原始整数计数。理想流水线估算在统一位置组合退休数、
+  // LSU额外等待和I-cache缺失代价，避免从格式化后的平均值反推而产生舍入误差。
+  assign cacheable_hit_count_o              = hit_count_q;
+  assign cacheable_miss_response_count_o    = miss_response_count_q;
+  assign hit_latency_cycle_sum_o            = hit_latency_cycle_sum_q;
+  assign miss_response_latency_cycle_sum_o  = miss_response_latency_cycle_sum_q;
 
   function automatic real calculate_average_cycles(
       input logic [63:0] cycle_sum,

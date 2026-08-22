@@ -26,7 +26,12 @@ module riscv32_sim_performance_monitor
     input logic     lsu_read_response_occurred_i,
     input logic     lsu_write_address_occurred_i,
     input logic     lsu_write_data_occurred_i,
-    input logic     lsu_write_response_occurred_i
+    input logic     lsu_write_response_occurred_i,
+
+    input logic [63:0] icache_cacheable_hit_count_i,
+    input logic [63:0] icache_cacheable_miss_response_count_i,
+    input logic [63:0] icache_hit_latency_cycle_sum_i,
+    input logic [63:0] icache_miss_response_latency_cycle_sum_i
 );
   logic [63:0] active_cycle_count_q;
   logic [63:0] decoded_instruction_count_q;
@@ -124,6 +129,53 @@ module riscv32_sim_performance_monitor
       return 0.0;
     end
     return real'(cycle_sum) / real'(event_count);
+  endfunction
+
+  function automatic real calculate_memory_execution_excess_cycles();
+    if (memory_execution_cycle_sum_q <= memory_instruction_count_q) begin
+      return 0.0;
+    end
+    return real'(memory_execution_cycle_sum_q - memory_instruction_count_q);
+  endfunction
+
+  function automatic real calculate_icache_miss_penalty_cycle_sum();
+    real average_hit_latency;
+    real miss_response_cycle_sum;
+
+    if ((icache_cacheable_hit_count_i == 0) ||
+        (icache_cacheable_miss_response_count_i == 0)) begin
+      return 0.0;
+    end
+    average_hit_latency = real'(icache_hit_latency_cycle_sum_i) /
+                          real'(icache_cacheable_hit_count_i);
+    miss_response_cycle_sum = real'(icache_miss_response_latency_cycle_sum_i);
+    return miss_response_cycle_sum -
+           real'(icache_cacheable_miss_response_count_i) * average_hit_latency;
+  endfunction
+
+  function automatic real calculate_ideal_dcache_cycle_count();
+    return real'(active_cycle_count_q) -
+           calculate_memory_execution_excess_cycles();
+  endfunction
+
+  function automatic real calculate_ideal_single_issue_pipeline_cycle_count();
+    // 一拍基线覆盖每条退休指令；访存指令仍保留超过一拍的真实LSU等待；
+    // I-cache只保留miss相对正常hit多出的供给停顿。
+    return real'(retired_instruction_count_q) +
+           calculate_memory_execution_excess_cycles() +
+           calculate_icache_miss_penalty_cycle_sum();
+  endfunction
+
+  function automatic real calculate_ideal_pipeline_and_dcache_cycle_count();
+    return real'(retired_instruction_count_q) +
+           calculate_icache_miss_penalty_cycle_sum();
+  endfunction
+
+  function automatic real calculate_speedup(input real projected_cycle_count);
+    if (projected_cycle_count <= 0.0) begin
+      return 0.0;
+    end
+    return real'(active_cycle_count_q) / projected_cycle_count;
   endfunction
 
   task automatic add_instruction_execution_cycles(
@@ -482,6 +534,21 @@ module riscv32_sim_performance_monitor
              lsu_write_bus_transaction_count_q);
     $display("EXU / LSU completions                  : %0d / %0d", exu_completion_count_q,
              lsu_completion_count_q);
+    $display("");
+    $display("idealized upper-bound estimates");
+    $display("memory execution excess cycles        : %.3f",
+             calculate_memory_execution_excess_cycles());
+    $display("I-cache critical miss excess cycles   : %.3f",
+             calculate_icache_miss_penalty_cycle_sum());
+    $display("ideal D-cache cycles / speedup         : %.3f / %.3fx",
+             calculate_ideal_dcache_cycle_count(),
+             calculate_speedup(calculate_ideal_dcache_cycle_count()));
+    $display("ideal single-issue pipeline cycles     : %.3f / %.3fx",
+             calculate_ideal_single_issue_pipeline_cycle_count(),
+             calculate_speedup(calculate_ideal_single_issue_pipeline_cycle_count()));
+    $display("ideal pipeline + D-cache cycles        : %.3f / %.3fx",
+             calculate_ideal_pipeline_and_dcache_cycle_count(),
+             calculate_speedup(calculate_ideal_pipeline_and_dcache_cycle_count()));
     $display("==========================================================");
 
     if (decoded_instruction_count_q != ifu_instruction_delivery_count_q) begin

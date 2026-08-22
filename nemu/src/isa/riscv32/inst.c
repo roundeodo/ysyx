@@ -17,10 +17,31 @@
 #include <cpu/cpu.h>
 #include <cpu/ifetch.h>
 #include <cpu/decode.h>
+#include <cpu/cachesim-trace.h>
+#include <memory/paddr.h>
 
 #define R(i) gpr(i)
-#define Mr vaddr_read
-#define Mw vaddr_write
+
+// D-cache探索只记录架构load/store对普通内存的访问。取指由PC trace记录，
+// MMIO不应进入D-cache模型；当前NEMU未启用地址翻译，因此vaddr可直接按paddr分类。
+static word_t cachesim_data_read(vaddr_t address, int transfer_byte_count) {
+  const word_t data = vaddr_read(address, transfer_byte_count);
+  if (in_memory((paddr_t)address)) {
+    record_cachesim_data_access(address, transfer_byte_count, false);
+  }
+  return data;
+}
+
+static void cachesim_data_write(vaddr_t address, int transfer_byte_count,
+                                word_t data) {
+  vaddr_write(address, transfer_byte_count, data);
+  if (in_memory((paddr_t)address)) {
+    record_cachesim_data_access(address, transfer_byte_count, true);
+  }
+}
+
+#define Mr cachesim_data_read
+#define Mw cachesim_data_write
 
 extern uint64_t g_arch_mcycle;
 extern uint64_t g_arch_minstret;

@@ -14,6 +14,62 @@ del sys.argv[1]
 
 
 class CacheSimTest(unittest.TestCase):
+    def run_binary_data_trace(
+        self,
+        data_access_runs,
+        capacity=8,
+        line_size=4,
+        ways=1,
+        dirty_writeback_penalty=0,
+    ):
+        access_count = sum(run[1] for run in data_access_runs)
+        with tempfile.NamedTemporaryFile("wb") as trace_file:
+            trace_file.write(
+                struct.pack(
+                    "<8sIIQQ",
+                    b"NPCDCTR1",
+                    1,
+                    4,
+                    access_count,
+                    len(data_access_runs),
+                )
+            )
+            for first_address, run_access_count, stride, size, is_write in data_access_runs:
+                trace_file.write(
+                    struct.pack(
+                        "<QIhBB",
+                        first_address,
+                        run_access_count,
+                        stride,
+                        size,
+                        1 if is_write else 0,
+                    )
+                )
+            trace_file.flush()
+            command = [
+                str(CACHESIM_BINARY),
+                "--trace",
+                trace_file.name,
+                "--capacity-bytes",
+                str(capacity),
+                "--line-bytes",
+                str(line_size),
+                "--ways",
+                str(ways),
+                "--critical-response-penalty-cycles",
+                "10",
+                "--complete-refill-penalty-cycles",
+                "10",
+                "--dirty-writeback-penalty-cycles",
+                str(dirty_writeback_penalty),
+                "--output-format",
+                "json",
+            ]
+            completed = subprocess.run(
+                command, check=True, text=True, capture_output=True
+            )
+        return json.loads(completed.stdout)
+
     def run_binary_trace(
         self,
         program_counter_runs,
@@ -189,6 +245,31 @@ class CacheSimTest(unittest.TestCase):
         self.assertEqual(result["refill_occupancy_cycles"], 14.0)
         self.assertEqual(result["blocking_amat_cycles"], 9.0)
         self.assertEqual(result["read_transactions"], 2)
+
+    def test_data_trace_tracks_load_store_and_dirty_eviction(self):
+        result = self.run_binary_data_trace(
+            [
+                (0x0, 1, 0, 4, True),
+                (0x8, 1, 0, 4, True),
+                (0x0, 1, 0, 4, False),
+            ],
+            dirty_writeback_penalty=7,
+        )
+        self.assertEqual(result["trace_kind"], "data")
+        self.assertEqual(result["architectural_accesses"], 3)
+        self.assertEqual(result["loads"], 1)
+        self.assertEqual(result["stores"], 2)
+        self.assertEqual(result["accesses"], 3)
+        self.assertEqual(result["misses"], 3)
+        self.assertEqual(result["dirty_evictions"], 2)
+        self.assertEqual(result["dirty_writeback_cycles"], 14.0)
+        self.assertEqual(result["blocking_tmt_cycles"], 44.0)
+
+    def test_cross_line_data_access_updates_each_touched_line(self):
+        result = self.run_binary_data_trace([(0x3, 1, 0, 2, False)])
+        self.assertEqual(result["architectural_accesses"], 1)
+        self.assertEqual(result["accesses"], 2)
+        self.assertEqual(result["misses"], 2)
 
 
 if __name__ == "__main__":

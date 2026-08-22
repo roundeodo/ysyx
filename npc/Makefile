@@ -18,7 +18,7 @@ $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport icache-calibrate-penalty cachesim-explore-calibrated
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore icache-calibrate-penalty cachesim-explore-calibrated
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -83,6 +83,7 @@ SIM_ARGS  ?= --batch
 
 NEMU_DIR      := $(abspath ../nemu)
 CPU_TESTS_DIR := $(abspath ../am-kernels/tests/cpu-tests)
+MICROBENCH_DIR := $(abspath ../am-kernels/benchmarks/microbench)
 RV32_NEMU_REF := $(NEMU_DIR)/build/riscv32-nemu-interpreter-so
 RV64_NEMU_REF := $(NEMU_DIR)/build/riscv64-nemu-interpreter-so
 
@@ -741,13 +742,103 @@ cachesim-explore-calibrated:
 		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_rtl_calibrated_$(ICACHE_CALIBRATION_SCALE).csv)
 
 # ============================================================
+# D-cache metadata simulation and design-space exploration
+# ============================================================
+
+# 数据trace记录的是已执行load/store的普通内存地址，不含取指和MMIO。模型采用
+# write-back、write-allocate和精确LRU；burst模型按整行读入和脏行整行写回计时。
+DCACHE_TRACE_ARCH       ?= riscv32-nemu
+DCACHE_TRACE_ISA        = $(if $(filter riscv64-nemu,$(DCACHE_TRACE_ARCH)),riscv64,riscv32)
+DCACHE_TRACE_SCALE      ?= test
+DCACHE_TRACE_IMAGE      ?= $(MICROBENCH_DIR)/build/microbench-$(DCACHE_TRACE_ARCH).bin
+DCACHE_TRACE_FILE       ?= $(abspath ./result/cache/$(DCACHE_TRACE_ISA)_microbench_$(DCACHE_TRACE_SCALE)_data_trace.bin)
+DCACHE_TRACE_IMAGE_PATH = $(abspath $(DCACHE_TRACE_IMAGE))
+DCACHE_TRACE_PATH       = $(abspath $(DCACHE_TRACE_FILE))
+DCACHE_CAPACITY_BYTES   ?= 1024
+DCACHE_LINE_BYTES       ?= 32
+DCACHE_WAYS             ?= 2
+DCACHE_HIT_TIME_CYCLES  ?= 1
+DCACHE_REFILL_MODEL     ?= burst
+DCACHE_REFILL_BEAT_BYTES ?= 4
+DCACHE_READ_ADDRESS_CYCLES   ?= 1
+DCACHE_MEMORY_COMMAND_CYCLES ?= 1
+DCACHE_FIRST_DATA_CYCLES     ?= 1
+DCACHE_RESPONSE_BEAT_CYCLES  ?= 1
+DCACHE_WRITE_ADDRESS_CYCLES  ?= 1
+DCACHE_WRITE_DATA_BEAT_CYCLES ?= 1
+DCACHE_WRITE_RESPONSE_CYCLES ?= 1
+DCACHE_FIXED_CRITICAL_RESPONSE_PENALTY_CYCLES ?= 0
+DCACHE_FIXED_COMPLETE_REFILL_PENALTY_CYCLES   ?= 0
+DCACHE_FIXED_DIRTY_WRITEBACK_PENALTY_CYCLES   ?= 0
+DCACHE_SCAN_CAPACITIES ?= 256,512,1024,2048,4096,8192
+DCACHE_SCAN_LINE_SIZES ?= 8,16,32,64
+DCACHE_SCAN_WAYS       ?= 1,2,4
+DCACHE_SCAN_JOBS       ?= 4
+DCACHE_SCAN_OUTPUT     ?= $(abspath ./result/cache/dcachesim_$(DCACHE_TRACE_ISA)_$(DCACHE_TRACE_SCALE)_$(DCACHE_REFILL_MODEL)_exploration.csv)
+
+DCACHE_MODEL_ARGUMENTS = \
+	--hit-time-cycles $(DCACHE_HIT_TIME_CYCLES) \
+	--refill-model $(DCACHE_REFILL_MODEL) \
+	--refill-beat-bytes $(DCACHE_REFILL_BEAT_BYTES) \
+	--critical-response-penalty-cycles $(DCACHE_FIXED_CRITICAL_RESPONSE_PENALTY_CYCLES) \
+	--complete-refill-penalty-cycles $(DCACHE_FIXED_COMPLETE_REFILL_PENALTY_CYCLES) \
+	--dirty-writeback-penalty-cycles $(DCACHE_FIXED_DIRTY_WRITEBACK_PENALTY_CYCLES) \
+	--read-address-cycles $(DCACHE_READ_ADDRESS_CYCLES) \
+	--memory-command-cycles $(DCACHE_MEMORY_COMMAND_CYCLES) \
+	--first-data-cycles $(DCACHE_FIRST_DATA_CYCLES) \
+	--response-beat-cycles $(DCACHE_RESPONSE_BEAT_CYCLES) \
+	--write-address-cycles $(DCACHE_WRITE_ADDRESS_CYCLES) \
+	--write-data-beat-cycles $(DCACHE_WRITE_DATA_BEAT_CYCLES) \
+	--write-response-cycles $(DCACHE_WRITE_RESPONSE_CYCLES)
+
+.PHONY: dcachesim-trace dcachesim-run dcachesim-explore
+dcachesim-trace:
+	@test "$(DCACHE_TRACE_ARCH)" = "riscv32-nemu" -o \
+	      "$(DCACHE_TRACE_ARCH)" = "riscv64-nemu" || \
+		(echo "DCACHE_TRACE_ARCH must be riscv32-nemu or riscv64-nemu"; exit 1)
+	$(MAKE) -C $(NEMU_DIR) \
+		$(if $(filter riscv64-nemu,$(DCACHE_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
+	$(MAKE) -C $(MICROBENCH_DIR) ARCH=$(DCACHE_TRACE_ARCH) clean
+	$(MAKE) -C $(MICROBENCH_DIR) \
+		ARCH=$(DCACHE_TRACE_ARCH) mainargs=$(DCACHE_TRACE_SCALE) insert-arg
+	mkdir -p $(dir $(DCACHE_TRACE_PATH))
+	$(MAKE) -C $(NEMU_DIR) run \
+		ARGS="--cachesim-data-trace=$(DCACHE_TRACE_PATH) -b" \
+		IMG=$(DCACHE_TRACE_IMAGE_PATH)
+	@echo "NEMU compact data trace: $(DCACHE_TRACE_PATH)"
+
+dcachesim-run: $(CACHESIM_BINARY)
+	@test -f "$(DCACHE_TRACE_PATH)" || \
+		(echo "data trace file not found: $(DCACHE_TRACE_PATH)"; exit 1)
+	$(CACHESIM_BINARY) \
+		--trace $(DCACHE_TRACE_PATH) \
+		--capacity-bytes $(DCACHE_CAPACITY_BYTES) \
+		--line-bytes $(DCACHE_LINE_BYTES) \
+		--ways $(DCACHE_WAYS) \
+		$(DCACHE_MODEL_ARGUMENTS)
+
+dcachesim-explore: $(CACHESIM_BINARY)
+	@test -f "$(DCACHE_TRACE_PATH)" || \
+		(echo "data trace file not found: $(DCACHE_TRACE_PATH)"; exit 1)
+	python3 $(CACHESIM_EXPLORE_SCRIPT) \
+		--binary $(CACHESIM_BINARY) \
+		--trace $(DCACHE_TRACE_PATH) \
+		--capacities $(DCACHE_SCAN_CAPACITIES) \
+		--line-sizes $(DCACHE_SCAN_LINE_SIZES) \
+		--ways $(DCACHE_SCAN_WAYS) \
+		$(DCACHE_MODEL_ARGUMENTS) \
+		--jobs $(DCACHE_SCAN_JOBS) \
+		--ranking-metric blocking-tmt \
+		--output $(DCACHE_SCAN_OUTPUT)
+
+# ============================================================
 # Reproducible performance evaluation
 # ============================================================
 
 # 正式性能基线使用AXI SDRAM。PSRAM只用于独立的外设和启动流程验证。
 PERF_ARCH             ?= riscv32-ysyxsoc-sdram
 PERF_SCALE            ?= train
-PERF_MICROBENCH_DIR   := $(abspath ../am-kernels/benchmarks/microbench)
+PERF_MICROBENCH_DIR   := $(MICROBENCH_DIR)
 PERF_MICROBENCH_IMAGE := $(PERF_MICROBENCH_DIR)/build/microbench-$(PERF_ARCH).bin
 PERF_DESCRIPTION      ?=
 PERF_FREQUENCY_MHZ    ?=
@@ -894,6 +985,9 @@ help:
 	@echo "  cachesim-explore  Scan cache capacity, line size, and associativity"
 	@echo "  cachesim-explore-baseline  Reproduce the fixed-penalty baseline"
 	@echo "  cachesim-explore-transport  Compare independent reads with AXI4 burst"
+	@echo "  dcachesim-trace  Generate an architectural load/store trace with NEMU"
+	@echo "  dcachesim-run    Evaluate one write-back/write-allocate D-cache"
+	@echo "  dcachesim-explore  Scan D-cache capacity, line size, and associativity"
 	@echo "  icache-calibrate-penalty  Measure per-line-size miss penalties in RTL"
 	@echo "  cachesim-explore-calibrated  Explore using the RTL calibration CSV"
 	@echo "  lint-npc      Lint the standalone NPC"
