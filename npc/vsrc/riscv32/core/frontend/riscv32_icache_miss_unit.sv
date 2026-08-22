@@ -80,10 +80,11 @@ module riscv32_icache_miss_unit
   miss_state_e state_q, state_d;
 
   // 单MSHR只保存事务生命周期内不可重新获得的信息。set、critical word和tag都由
-  // fetch_addr确定，replacement way在直接映射cache中恒为0，因此不能再复制进寄存器。
-  // 这保留了模块间的完整miss_req协议，同时减少单MSHR内部的触发器和保持多路器。
+  // fetch_addr确定；replacement way由lookup阶段根据当前metadata和替换状态选定，
+  // 必须随事务保存，使victim失效、逐word回填和metadata安装始终写入同一路。
   typedef struct packed {
     icache_lookup_req_t lookup_req;
+    icache_way_index_t  replacement_way_index;
     logic               cacheable;
   } miss_context_t;
 
@@ -142,12 +143,12 @@ module riscv32_icache_miss_unit
     refill_resp_ready_o           = 1'b0;
     data_write_valid_o            = 1'b0;
     data_write_set_index_o        = critical_set_index;
-    data_write_way_index_o        = '0;
+    data_write_way_index_o        = miss_context_q.replacement_way_index;
     data_write_word_index_o       = refill_resp_i.word_index;
     data_write_word_data_o        = refill_resp_i.word_data;
     metadata_write_valid_o        = 1'b0;
     metadata_write_set_index_o    = critical_set_index;
-    metadata_write_way_index_o    = '0;
+    metadata_write_way_index_o    = miss_context_q.replacement_way_index;
     metadata_write_tag_o          = refill_tag;
     metadata_write_line_present_o = 1'b0;
     miss_transaction_present_o    = (state_q != MISS_IDLE);
@@ -218,8 +219,9 @@ module riscv32_icache_miss_unit
       MISS_IDLE: begin
         // 分配MSHR：一次性锁存请求身份，并清空上一事务的进度、错误和响应历史。
         if (miss_req_handshake) begin
-          miss_context_d.lookup_req   = miss_req_i.lookup_req;
-          miss_context_d.cacheable    = miss_req_i.cacheable;
+          miss_context_d.lookup_req            = miss_req_i.lookup_req;
+          miss_context_d.replacement_way_index = miss_req_i.replacement_way_index;
+          miss_context_d.cacheable             = miss_req_i.cacheable;
           refill_access_fault_seen_d  = 1'b0;
           lookup_resp_data_d          = '0;
           lookup_resp_access_fault_d  = 1'b0;

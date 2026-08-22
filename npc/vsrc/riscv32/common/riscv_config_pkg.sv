@@ -86,11 +86,10 @@ package riscv_config_pkg;
   localparam int unsigned FRONTEND_TAG_COUNT = 2;
   localparam int unsigned PREDICTOR_META_WIDTH = 32;
   //
-  // 课程面积版使用直接映射I-cache，不实现多路比较和替换状态。
-  // 容量与line大小由Makefile唯一选择；set数量、tag/offset宽度、data array
-  // 深度和AXI4 burst长度全部由下游派生，禁止逐模块修改。
+  // I-cache容量、路数与line大小由Makefile唯一选择；set数量、tag/offset宽度、
+  // data array深度和AXI4 burst长度全部由下游派生，禁止逐模块修改。
   localparam int unsigned ICACHE_CAPACITY_BYTES = `YSYX_ICACHE_CAPACITY_BYTES;
-  localparam int unsigned ICACHE_WAY_COUNT = 1;
+  localparam int unsigned ICACHE_WAY_COUNT = `YSYX_ICACHE_WAY_COUNT;
   localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
   localparam int unsigned ICACHE_MSHR_COUNT = 1;

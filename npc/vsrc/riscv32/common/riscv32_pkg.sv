@@ -363,9 +363,10 @@ package riscv32_pkg;
   // burst顺序。last_word是本地refill通道的事务结束标志，由AXI4 RLAST导出。
   typedef struct packed {
     icache_lookup_req_t lookup_req;
-    // Miss unit只需要知道本次访问是否安装cache line。set、word和tag均可从
-    // lookup_req.fetch_addr唯一派生，跨模块重复携带会产生两个信息来源。
-    logic               cacheable;
+    // set、word和tag均可从fetch_addr唯一派生；replacement way由lookup阶段根据
+    // 当前metadata和替换状态选定，必须随miss事务传递，不能在miss unit中重新决定。
+    icache_way_index_t replacement_way_index;
+    logic              cacheable;
   } icache_miss_req_t;
 
   localparam int unsigned ICACHE_REFILL_TRANSACTION_COUNT = ICACHE_MSHR_COUNT;

@@ -1,4 +1,4 @@
-// 直接映射、阻塞式L1指令缓存顶层，hit路径采用分级流水处理。
+// 参数化组相联、阻塞式L1指令缓存顶层，hit路径采用分级流水处理。
 //
 // 本模块拥有lookup pipeline、命中判定和invalidate协调；tag/data阵列、
 // miss跟踪、PMA分类和下层协议转换分别交给子模块。hit路径由同步array读和
@@ -139,8 +139,8 @@ module riscv32_icache
   // 这些是当前实现的明确几何约束，不是运行时容错。line大小由构建参数选择，所有
   // 地址切片、阵列深度和refill计数必须只依赖package中的派生量。
   initial begin
-    if (ICACHE_WAY_COUNT != 1) begin
-      $fatal(1, "course-area I-cache requires direct mapping");
+    if ((ICACHE_WAY_COUNT & (ICACHE_WAY_COUNT - 1)) != 0) begin
+      $fatal(1, "I-cache way count must be a power of two");
     end
     if (ICACHE_CAPACITY_BYTES == 0 || ICACHE_LINE_BYTES == 0) begin
       $fatal(1, "I-cache capacity and line size must be non-zero");
@@ -202,8 +202,9 @@ module riscv32_icache
   function automatic icache_tag_t get_icache_tag(input phys_addr_t addr);
     return addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
   endfunction
-  // S1比较直接映射way 0的present和tag，并把请求划分为四类互斥结果：
-  // access fault、uncached访问、cache hit和cache miss。这里不实现多路比较和way encoder。
+  // S1并行比较全部way的present和tag，并把请求划分为四类互斥结果：
+  // access fault、uncached访问、cache hit和cache miss。命中向量按低way优先选择数据；
+  // 正常状态下同一set最多只能有一路命中，仿真断言会检查重复tag错误。
   // 四类结果互斥：不可执行地址本地返回fault；可执行但不可缓存地址走单word uncached
   // 访问；cacheable地址命中时本地返回，未命中时请求整line refill。响应反压时S1和
   // array读输出都保持，所以组合payload也保持稳定，无需重复增加response寄存器。
@@ -213,21 +214,32 @@ module riscv32_icache
   logic lookup_access_fault;
   logic lookup_uncached;
   logic lookup_cache_miss;
+  icache_way_index_t replacement_way_index;
   logic local_lookup_resp_valid;
   icache_lookup_resp_t local_lookup_resp;
+
+  // 每个set保存下一次全有效miss的victim way。若存在invalid way，优先使用invalid way，
+  // 不覆盖仍有用的line；只有全部way有效时才使用轮转指针。替换状态只在cacheable miss
+  // 真正被miss unit接收时推进，反压期间不得提前改变。
+  icache_way_index_t replacement_next_way_q[ICACHE_SET_COUNT];
+  logic replacement_invalid_way_found;
 
   always_comb begin
     lookup_way_hit_vector = '0;
     lookup_hit            = 1'b0;
     lookup_hit_word_data  = '0;
 
-    lookup_way_hit_vector[0] = lookup_s1_present_q && lookup_executable_s1_q &&
-                               lookup_cacheable_s1_q &&
-                               array_read_line_present_vector[0] &&
-                               (array_read_tag_array[0] == get_icache_tag(
-                                   lookup_s1_q.fetch_addr));
-    lookup_hit           = lookup_way_hit_vector[0];
-    lookup_hit_word_data = array_read_word_data_array[0];
+    for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
+      lookup_way_hit_vector[way_index] = lookup_s1_present_q && lookup_executable_s1_q &&
+                                          lookup_cacheable_s1_q &&
+                                          array_read_line_present_vector[way_index] &&
+                                          (array_read_tag_array[way_index] == get_icache_tag(
+                                              lookup_s1_q.fetch_addr));
+      if (!lookup_hit && lookup_way_hit_vector[way_index]) begin
+        lookup_hit           = 1'b1;
+        lookup_hit_word_data = array_read_word_data_array[way_index];
+      end
+    end
 
     lookup_access_fault = lookup_s1_present_q && !lookup_executable_s1_q;
     lookup_uncached     = lookup_s1_present_q && lookup_executable_s1_q &&
@@ -242,6 +254,16 @@ module riscv32_icache
     local_lookup_resp.fetch_epoch  = lookup_s1_q.fetch_epoch;
     local_lookup_resp.access_fault = lookup_access_fault;
     local_lookup_resp.fetch_data   = lookup_hit ? lookup_hit_word_data : '0;
+
+    replacement_way_index =
+        replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)];
+    replacement_invalid_way_found = 1'b0;
+    for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
+      if (!replacement_invalid_way_found && !array_read_line_present_vector[way_index]) begin
+        replacement_way_index         = icache_way_index_t'(way_index);
+        replacement_invalid_way_found = 1'b1;
+      end
+    end
   end
   // 响应路径优先返回miss unit的响应，本地hit/fault响应在其后。lookup流水采用
   // elastic ready/valid推进；阻塞式miss存续期间冻结年轻请求，避免响应越序。
@@ -260,6 +282,7 @@ module riscv32_icache
 
     miss_req                       = '0;
     miss_req.lookup_req            = lookup_s1_q;
+    miss_req.replacement_way_index = replacement_way_index;
     miss_req.cacheable             = lookup_cacheable_s1_q;
     miss_req_valid                 = lookup_s1_present_q && (lookup_cache_miss || lookup_uncached);
     array_read_enable              = lookup_req_handshake;
@@ -306,6 +329,23 @@ module riscv32_icache
     end
   end
 
+  // Round-robin只决定“全部way有效”时的下一victim。直接映射配置中该状态恒为0，
+  // 综合会将其删除；2-way面积配置中每个set只需要1 bit替换状态。
+  always_ff @(posedge clk_i) begin
+    if (!rst_ni) begin
+      for (int unsigned set_index = 0; set_index < ICACHE_SET_COUNT; set_index++) begin
+        replacement_next_way_q[set_index] <= '0;
+      end
+    end else if (miss_req_handshake && miss_req.cacheable) begin
+      if (replacement_way_index == icache_way_index_t'(ICACHE_WAY_COUNT - 1)) begin
+        replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <= '0;
+      end else begin
+        replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <=
+            replacement_way_index + icache_way_index_t'(1);
+      end
+    end
+  end
+
   // fence.i/invalidate先阻止新lookup并排空旧lookup和miss，再逐set清除
   // present位，最后产生单拍done。tag/data无需清零，因为present=0使旧内容不可见。
   // 已经发出的下层事务必须完整握手，不能因fence.i中途撤销。上游保持请求直到done；
@@ -320,6 +360,7 @@ module riscv32_icache
 
   invalidate_state_e invalidate_state_q, invalidate_state_d;
   icache_set_index_t invalidate_set_index_q, invalidate_set_index_d;
+  icache_way_index_t invalidate_way_index_q, invalidate_way_index_d;
   logic invalidate_blocks_lookup;
   logic invalidate_metadata_write_valid;
 
@@ -348,6 +389,7 @@ module riscv32_icache
   always_comb begin
     invalidate_state_d     = invalidate_state_q;
     invalidate_set_index_d = invalidate_set_index_q;
+    invalidate_way_index_d = invalidate_way_index_q;
 
     unique case (invalidate_state_q)
       INVALIDATE_IDLE: begin
@@ -359,15 +401,21 @@ module riscv32_icache
       INVALIDATE_DRAIN_LOOKUPS: begin
         if (!lookup_s1_present_q && !miss_transaction_present) begin
           invalidate_set_index_d = '0;
+          invalidate_way_index_d = '0;
           invalidate_state_d     = INVALIDATE_CLEAR_METADATA;
         end
       end
 
       INVALIDATE_CLEAR_METADATA: begin
-        if (invalidate_set_index_q == icache_set_index_t'(ICACHE_SET_COUNT - 1)) begin
-          invalidate_state_d = INVALIDATE_COMPLETE;
+        if (invalidate_way_index_q == icache_way_index_t'(ICACHE_WAY_COUNT - 1)) begin
+          invalidate_way_index_d = '0;
+          if (invalidate_set_index_q == icache_set_index_t'(ICACHE_SET_COUNT - 1)) begin
+            invalidate_state_d = INVALIDATE_COMPLETE;
+          end else begin
+            invalidate_set_index_d = invalidate_set_index_q + icache_set_index_t'(1);
+          end
         end else begin
-          invalidate_set_index_d = invalidate_set_index_q + icache_set_index_t'(1);
+          invalidate_way_index_d = invalidate_way_index_q + icache_way_index_t'(1);
         end
       end
 
@@ -378,6 +426,7 @@ module riscv32_icache
       default: begin
         invalidate_state_d     = INVALIDATE_IDLE;
         invalidate_set_index_d = '0;
+        invalidate_way_index_d = '0;
       end
     endcase
   end
@@ -387,6 +436,14 @@ module riscv32_icache
       invalidate_state_q <= INVALIDATE_IDLE;
     end else begin
       invalidate_state_q <= invalidate_state_d;
+    end
+  end
+
+  always_ff @(posedge clk_i) begin
+    if (!rst_ni) begin
+      invalidate_way_index_q <= '0;
+    end else begin
+      invalidate_way_index_q <= invalidate_way_index_d;
     end
   end
 
@@ -408,7 +465,7 @@ module riscv32_icache
     if (invalidate_metadata_write_valid) begin
       metadata_write_valid        = 1'b1;
       metadata_write_set_index    = invalidate_set_index_q;
-      metadata_write_way_index    = '0;
+      metadata_write_way_index    = invalidate_way_index_q;
       metadata_write_tag          = '0;
       metadata_write_line_present = 1'b0;
     end
