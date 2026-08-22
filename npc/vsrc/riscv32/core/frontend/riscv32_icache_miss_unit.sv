@@ -219,7 +219,7 @@ module riscv32_icache_miss_unit
         // 分配MSHR：一次性锁存请求身份，并清空上一事务的进度、错误和响应历史。
         if (miss_req_handshake) begin
           miss_context_d.lookup_req   = miss_req_i.lookup_req;
-          miss_context_d.cacheable    = miss_req_i.memory_attr.cacheable;
+          miss_context_d.cacheable    = miss_req_i.cacheable;
           refill_access_fault_seen_d  = 1'b0;
           lookup_resp_data_d          = '0;
           lookup_resp_access_fault_d  = 1'b0;
@@ -342,7 +342,7 @@ module riscv32_icache_miss_unit
   // 真正安装metadata。分开两者后，访存错误也不会让PMU的refill计时器永久占用。
   always_comb begin
     event_o                                       = '0;
-    event_o.miss_occurred                         = miss_req_handshake && miss_req_i.memory_attr.cacheable;
+    event_o.miss_occurred                         = miss_req_handshake && miss_req_i.cacheable;
     event_o.refill_word_occurred                  = refill_resp_handshake && miss_context_q.cacheable;
     event_o.refill_transaction_completed_occurred =
                                                     refill_resp_handshake && refill_resp_i.last_word && miss_context_q.cacheable;

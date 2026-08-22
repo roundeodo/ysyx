@@ -167,7 +167,10 @@ module riscv32_icache
   // present表示S1持有有效请求，ready表示该请求已完成或级内为空。miss调度当拍
   // 禁止接收年轻请求，保证单MSHR阻塞式I-cache不会产生响应越序。
   icache_lookup_req_t lookup_s1_q, lookup_s1_d;
-  pma_attr_t memory_attr_s1_q, memory_attr_s1_d;
+  // Lookup流水只保存命中分类真正使用的PMA位。idempotent和宽度转换属性属于
+  // 数据访问/总线边界，不应随每次取指进入S1寄存器。
+  logic lookup_executable_s1_q, lookup_executable_s1_d;
+  logic lookup_cacheable_s1_q, lookup_cacheable_s1_d;
   logic lookup_s1_present_q, lookup_s1_present_d;
 
   logic lookup_req_handshake;
@@ -218,17 +221,19 @@ module riscv32_icache
     lookup_hit            = 1'b0;
     lookup_hit_word_data  = '0;
 
-    lookup_way_hit_vector[0] = lookup_s1_present_q && memory_attr_s1_q.executable &&
-                               memory_attr_s1_q.cacheable &&
+    lookup_way_hit_vector[0] = lookup_s1_present_q && lookup_executable_s1_q &&
+                               lookup_cacheable_s1_q &&
                                array_read_line_present_vector[0] &&
                                (array_read_tag_array[0] == get_icache_tag(
                                    lookup_s1_q.fetch_addr));
     lookup_hit           = lookup_way_hit_vector[0];
     lookup_hit_word_data = array_read_word_data_array[0];
 
-    lookup_access_fault = lookup_s1_present_q && !memory_attr_s1_q.executable;
-    lookup_uncached     = lookup_s1_present_q && memory_attr_s1_q.executable && !memory_attr_s1_q.cacheable;
-    lookup_cache_miss   = lookup_s1_present_q && memory_attr_s1_q.executable && memory_attr_s1_q.cacheable && !lookup_hit;
+    lookup_access_fault = lookup_s1_present_q && !lookup_executable_s1_q;
+    lookup_uncached     = lookup_s1_present_q && lookup_executable_s1_q &&
+                          !lookup_cacheable_s1_q;
+    lookup_cache_miss   = lookup_s1_present_q && lookup_executable_s1_q &&
+                          lookup_cacheable_s1_q && !lookup_hit;
 
     local_lookup_resp_valid        = lookup_access_fault || lookup_hit;
     local_lookup_resp              = '0;
@@ -255,12 +260,7 @@ module riscv32_icache
 
     miss_req                       = '0;
     miss_req.lookup_req            = lookup_s1_q;
-    miss_req.memory_attr           = memory_attr_s1_q;
-    miss_req.set_index             = get_icache_set_index(lookup_s1_q.fetch_addr);
-    miss_req.critical_word_index   = get_icache_word_index(lookup_s1_q.fetch_addr);
-    // 直接映射中每个set只有way 0，miss unit无需保存或查询替换状态。
-    miss_req.replacement_way_index = '0;
-    miss_req.refill_tag            = get_icache_tag(lookup_s1_q.fetch_addr);
+    miss_req.cacheable             = lookup_cacheable_s1_q;
     miss_req_valid                 = lookup_s1_present_q && (lookup_cache_miss || lookup_uncached);
     array_read_enable              = lookup_req_handshake;
     array_read_set_index           = get_icache_set_index(lookup_req_i.fetch_addr);
@@ -276,7 +276,8 @@ module riscv32_icache
 
   always_comb begin
     lookup_s1_d         = lookup_s1_q;
-    memory_attr_s1_d    = memory_attr_s1_q;
+    lookup_executable_s1_d = lookup_executable_s1_q;
+    lookup_cacheable_s1_d  = lookup_cacheable_s1_q;
     lookup_s1_present_d = lookup_s1_present_q;
 
     if (miss_req_handshake) begin
@@ -285,7 +286,8 @@ module riscv32_icache
       lookup_s1_present_d = lookup_req_handshake;
       if (lookup_req_handshake) begin
         lookup_s1_d      = lookup_req_i;
-        memory_attr_s1_d = lookup_memory_attr;
+        lookup_executable_s1_d = lookup_memory_attr.executable;
+        lookup_cacheable_s1_d  = lookup_memory_attr.cacheable;
       end
     end
   end
@@ -293,11 +295,13 @@ module riscv32_icache
   always_ff @(posedge clk_i) begin
     if (!rst_ni) begin
       lookup_s1_q         <= '0;
-      memory_attr_s1_q    <= '0;
+      lookup_executable_s1_q <= 1'b0;
+      lookup_cacheable_s1_q  <= 1'b0;
       lookup_s1_present_q <= 1'b0;
     end else begin
       lookup_s1_q         <= lookup_s1_d;
-      memory_attr_s1_q    <= memory_attr_s1_d;
+      lookup_executable_s1_q <= lookup_executable_s1_d;
+      lookup_cacheable_s1_q  <= lookup_cacheable_s1_d;
       lookup_s1_present_q <= lookup_s1_present_d;
     end
   end

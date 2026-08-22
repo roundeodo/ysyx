@@ -153,19 +153,19 @@ module top
   endfunction
 
   function longint unsigned npc_get_mstatus_dpi();
-    npc_get_mstatus_dpi = 64'($unsigned(u_npc_system.u_core.u_csr_file.mstatus_q));
+    npc_get_mstatus_dpi = 64'($unsigned(u_npc_system.u_core.u_csr_file.mstatus_value));
   endfunction
 
   function longint unsigned npc_get_mtvec_dpi();
-    npc_get_mtvec_dpi = 64'($unsigned(u_npc_system.u_core.u_csr_file.mtvec_q));
+    npc_get_mtvec_dpi = 64'($unsigned(u_npc_system.u_core.u_csr_file.mtvec_value));
   endfunction
 
   function longint unsigned npc_get_mepc_dpi();
-    npc_get_mepc_dpi = 64'($unsigned(u_npc_system.u_core.u_csr_file.mepc_q));
+    npc_get_mepc_dpi = 64'($unsigned(u_npc_system.u_core.u_csr_file.mepc_value));
   endfunction
 
   function longint unsigned npc_get_mcause_dpi();
-    npc_get_mcause_dpi = 64'($unsigned(u_npc_system.u_core.u_csr_file.mcause_q));
+    npc_get_mcause_dpi = 64'($unsigned(u_npc_system.u_core.u_csr_file.mcause_value));
   endfunction
 
   function longint unsigned npc_get_mtval_dpi();
