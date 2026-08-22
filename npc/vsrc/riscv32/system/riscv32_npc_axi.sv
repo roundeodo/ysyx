@@ -224,6 +224,7 @@ module riscv32_npc_axi
       npc_get_gpr_dpi = '0;
     end else begin
       npc_get_gpr_dpi =
+          (index == 0) ? 64'd0 :
           64'($unsigned(u_npc_system.u_core.u_arch_regfile.gpr_q[index]));
     end
   endfunction

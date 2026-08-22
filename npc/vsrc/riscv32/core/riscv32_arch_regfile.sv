@@ -45,7 +45,7 @@ module riscv32_arch_regfile
   // 后可由commit级寄存器直接承担staging职责，避免重复寄存。
   always_latch begin
     if (!clk_i && staged_write_enable_q) begin
-      gpr_q[staged_write_addr_q] <= staged_write_data_q;
+      gpr_q[staged_write_addr_q] = staged_write_data_q;
     end
   end
 
