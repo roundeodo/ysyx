@@ -219,12 +219,6 @@ module riscv32_icache
   logic local_lookup_resp_valid;
   icache_lookup_resp_t local_lookup_resp;
 
-  // 每个set保存下一次全有效miss的victim way。若存在invalid way，优先使用invalid way，
-  // 不覆盖仍有用的line；只有全部way有效时才使用轮转指针。替换状态只在cacheable miss
-  // 真正被miss unit接收时推进，反压期间不得提前改变。
-  icache_way_index_t replacement_next_way_q[ICACHE_SET_COUNT];
-  logic replacement_invalid_way_found;
-
   always_comb begin
     lookup_way_hit_vector = '0;
     lookup_hit            = 1'b0;
@@ -256,16 +250,50 @@ module riscv32_icache
     local_lookup_resp.access_fault = lookup_access_fault;
     local_lookup_resp.fetch_data   = lookup_hit ? lookup_hit_word_data : '0;
 
-    replacement_way_index =
-        replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)];
-    replacement_invalid_way_found = 1'b0;
-    for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-      if (!replacement_invalid_way_found && !array_read_line_present_vector[way_index]) begin
-        replacement_way_index         = icache_way_index_t'(way_index);
-        replacement_invalid_way_found = 1'b1;
+  end
+
+  // 直接映射配置的victim恒为way 0，不应实例化任何替换状态。组相联配置才为每个set
+  // 保存下一次全有效miss的victim way：优先使用invalid way，全部way有效时使用轮转指针。
+  // generate在展开期只保留当前配置需要的硬件，不改变I-cache外部协议。
+  generate
+    if (ICACHE_WAY_COUNT == 1) begin : g_direct_mapped_replacement
+      always_comb begin
+        replacement_way_index = '0;
+      end
+    end else begin : g_set_associative_replacement
+      icache_way_index_t replacement_next_way_q[ICACHE_SET_COUNT];
+      logic replacement_invalid_way_found;
+
+      always_comb begin
+        replacement_way_index =
+            replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)];
+        replacement_invalid_way_found = 1'b0;
+
+        for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
+          if (!replacement_invalid_way_found && !array_read_line_present_vector[way_index]) begin
+            replacement_way_index         = icache_way_index_t'(way_index);
+            replacement_invalid_way_found = 1'b1;
+          end
+        end
+      end
+
+      // 替换状态只在cacheable miss真正被miss unit接收时推进，反压期间不得提前改变。
+      always_ff @(posedge clk_i) begin
+        if (!rst_ni) begin
+          for (int unsigned set_index = 0; set_index < ICACHE_SET_COUNT; set_index++) begin
+            replacement_next_way_q[set_index] <= '0;
+          end
+        end else if (miss_req_handshake && miss_req.cacheable) begin
+          if (replacement_way_index == icache_way_index_t'(ICACHE_WAY_COUNT - 1)) begin
+            replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <= '0;
+          end else begin
+            replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <=
+                replacement_way_index + icache_way_index_t'(1);
+          end
+        end
       end
     end
-  end
+  endgenerate
   // 响应路径优先返回miss unit的响应，本地hit/fault响应在其后。lookup流水采用
   // elastic ready/valid推进；阻塞式miss存续期间冻结年轻请求，避免响应越序。
   // critical word可以提前返回IFU，但唯一MSHR仍占用到整条cache line回填结束。
@@ -327,23 +355,6 @@ module riscv32_icache
       lookup_executable_s1_q <= lookup_executable_s1_d;
       lookup_cacheable_s1_q  <= lookup_cacheable_s1_d;
       lookup_s1_present_q <= lookup_s1_present_d;
-    end
-  end
-
-  // Round-robin只决定“全部way有效”时的下一victim。直接映射配置中该状态恒为0，
-  // 综合会将其删除；2-way面积配置中每个set只需要1 bit替换状态。
-  always_ff @(posedge clk_i) begin
-    if (!rst_ni) begin
-      for (int unsigned set_index = 0; set_index < ICACHE_SET_COUNT; set_index++) begin
-        replacement_next_way_q[set_index] <= '0;
-      end
-    end else if (miss_req_handshake && miss_req.cacheable) begin
-      if (replacement_way_index == icache_way_index_t'(ICACHE_WAY_COUNT - 1)) begin
-        replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <= '0;
-      end else begin
-        replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <=
-            replacement_way_index + icache_way_index_t'(1);
-      end
     end
   end
 
