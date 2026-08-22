@@ -609,3 +609,45 @@ MicroBench `test`流程验证结果：
 direct-mapped配置从64B降为32B后，miss由64619增加到95540，命中率从91.1153%降到
 86.8639%，估算AMAT从2.4022升到2.5929周期。该配置只用于完成课程面积约束并建立可复现
 基线；后续应在SRAM宏、流水化命中路径和目标AI workload约束下重新扩大容量和路数。
+
+## 2026-08-22 - RV32课程配置的面积与真实RTL性能联合优化
+
+前一条记录中的32B/16B配置只证明面积可以达标，没有同时满足性能目标。本轮保持外部
+lookup、refill和AXI4协议不变，以同一套参数化RTL比较64B容量、direct-mapped下的line大小，
+并使用真实ysyxSoC MicroBench统计替代只计算critical miss penalty的简化模型。
+
+定位到的主要问题：
+
+- 当前I-cache只有一个blocking miss表项。critical word可提前返回，但完整line refill结束前
+  仍不接受下一次lookup，因此更长line会增加miss期间的前端占用时间；
+- 旧AMAT只使用critical response latency，没有计入blocking refill尾部阻塞，因而会高估
+  16B line相对8B line的收益；
+- 4B line暴露参数化缺陷：word index类型为避免零宽仍保留1 bit，miss unit却曾把PC[2]
+  当成line内索引。修复后，单word line的critical word index静态固定为0；
+- 单word refill的完整性已经由“最后一个beat同时写data”证明，接收位图断言只在多word
+  line中启用，避免把无额外信息的验证状态用于单word配置。
+
+同一Nangate45、300MHz约束和`DELAY 0`策略下：
+
+| 容量/路数/line | 总面积 | 300MHz WNS | 最高频率估计 | 结论 |
+| --- | ---: | ---: | ---: | --- |
+| 64B/1-way/4B | 24270.638 um^2 | 通过 | 以报告为准 | 超过23000 um^2，淘汰 |
+| 64B/1-way/8B | 22708.952 um^2 | +0.578 ns | 363.022 MHz | 满足面积约束，选为课程默认 |
+
+真实ysyxSoC MicroBench `test`对比：
+
+| 配置 | Total | 全程CPU周期 | I-cache hit rate | miss critical | complete refill |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 32B/1-way/16B旧面积基线 | 约1033 ms | 约107M | 未记录 | 未记录 | 未记录 |
+| 64B/1-way/16B | 753.748 ms | 78659855 | 85.146% | 未单列 | 565.662 cycles |
+| 64B/1-way/8B | 563.649 ms | 58905189 | 78.922% | 163.405 cycles | 286.283 cycles |
+
+8B line相对16B line的命中率更低，但完整refill占用约减半，总周期减少19754666，
+MicroBench Total减少25.2%。相对旧32B/16B面积基线，Total约减少45.4%，同时总面积仍低于
+23000 um^2。4B line修复后通过standalone dummy，但13次取指全部miss、运行78周期；相比
+8B line的54周期已经显示其空间局部性不足，再加上面积超限，因此不再运行耗时的完整
+MicroBench作为参数选择依据。
+
+最终RV32课程默认配置冻结为64B容量、direct-mapped、8B line。它不是长期AI处理器的最终
+I-cache：流水线阶段应通过多MSHR、hit-under-miss、refill/lookup端口仲裁或banking解除
+blocking tail，而不是继续依赖缩短line。长期配置仍需在SRAM宏和目标AI workload下重新探索。

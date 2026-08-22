@@ -26,6 +26,21 @@
 本检查点不实现多miss并发、预取、一致性、ECC和虚拟地址转换。下层refill使用完整
 AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点。
 
+## B4课程面积配置与长期配置的边界
+
+当前RV32课程默认配置为64B容量、direct-mapped、8B line。该配置的目的不是替代本文后续
+记录的长期8KiB/2-way目标，而是在DFF/锁存器实现小容量array的阶段同时满足以下约束：
+
+- Nangate45综合总面积低于23000 um^2；
+- 保留真实同步array读、tag比较、blocking miss和AXI4 refill协议，不用组合存储器或综合
+  选项伪造面积结果；
+- 在当前单MSHR结构下，避免16B及更长line的refill尾部长期阻塞下一次lookup。
+
+实测64B/8B配置面积为22708.952 um^2，MicroBench `test` Total为563.649ms；同容量16B
+line为753.748ms。8B line命中率较低但完整refill占用约减半，说明当前瓶颈是blocking miss
+的事务占用时间，而不只是3C miss数量。进入流水线和非阻塞cache阶段后，必须重新探索容量、
+路数和line大小，不能把课程配置直接当成目标AI处理器配置。
+
 ## 2. 第一版命名配置
 
 本检查点使用命名配置`YSYX_RV32_BASELINE`。表中的具体数值只属于该配置，RTL必须通过
