@@ -130,7 +130,7 @@ module riscv32_core
   logic raw_hazard_present;
   logic serializing_hazard_present;
   logic structural_hazard_present;
-  logic lsu_busy;
+  logic lsu_transaction_active;
   logic execute_redirect_occurred;
   logic commit_redirect_occurred;
 
@@ -266,8 +266,6 @@ module riscv32_core
 
   // RAW检测发生在操作数被ID/EX寄存器采样之前。无转发首版会等生产者离开WB；
   // 串行化CSR/system指令则要求后端排空，并阻止年轻指令越过它。
-  assign lsu_busy = !lsu_req_ready;
-
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i                            (clk_i),
       .rst_ni                           (rst_ni),
@@ -277,7 +275,7 @@ module riscv32_core
       .execute_uop_valid_i              (execute_packet_valid),
       .writeback_result_i               (writeback_result),
       .writeback_result_valid_i         (writeback_result_valid),
-      .lsu_busy_i                       (lsu_busy),
+      .lsu_busy_i                       (lsu_transaction_active),
       .execute_redirect_occurred_i      (execute_redirect_occurred),
       .commit_redirect_occurred_i       (commit_redirect_occurred),
       .decode_accept_allowed_o          (decode_accept_allowed),
@@ -324,6 +322,7 @@ module riscv32_core
       .lsu_req_i               (lsu_req),
       .lsu_req_valid_i         (lsu_req_valid),
       .lsu_req_ready_o         (lsu_req_ready),
+      .lsu_transaction_active_o(lsu_transaction_active),
       .lsu_writeback_o         (lsu_writeback),
       .lsu_writeback_valid_o   (lsu_writeback_valid),
       .lsu_writeback_ready_i   (lsu_writeback_ready),

@@ -11,6 +11,7 @@ module riscv32_lsu
     input  lsu_req_t lsu_req_i,
     input  logic     lsu_req_valid_i,
     output logic     lsu_req_ready_o,
+    output logic     lsu_transaction_active_o,
 
     output data_memory_req_t data_memory_req_o,
     output logic             data_memory_req_valid_o,
@@ -84,6 +85,9 @@ module riscv32_lsu
   xlen_data_t                          formatted_load_data;
 
   assign lsu_req_handshake = lsu_req_valid_i && lsu_req_ready_o;
+  // 该状态只描述已经被LSU接收但尚未完成的存储事务，不从ready反推，因而不会
+  // 把当前输入valid重新反馈到流水线允许信号中形成组合环。
+  assign lsu_transaction_active_o = state_q != LSU_IDLE;
   assign data_memory_req_handshake =
       data_memory_req_valid_o && data_memory_req_ready_i;
   assign data_memory_resp_handshake =
