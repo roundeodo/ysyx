@@ -18,7 +18,7 @@ module riscv32_core
     input  axi4_target_to_manager_t data_axi4_manager_i
 );
   localparam int unsigned REDIRECT_SOURCE_COUNT = 4;
-  localparam int unsigned DECODE_PREDICTION_REDIRECT_INDEX = 0;
+  localparam int unsigned DECODE_DIRECT_JUMP_REDIRECT_INDEX = 0;
   localparam int unsigned EXU_REDIRECT_INDEX = 1;
   localparam int unsigned FENCE_I_REDIRECT_INDEX = 2;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 3;
@@ -70,9 +70,9 @@ module riscv32_core
   decoded_uop_t decoded_uop;
   logic decoded_uop_valid;
   logic decoded_uop_ready;
-  branch_prediction_t decode_prediction;
-  redirect_req_t decode_prediction_redirect_req;
-  logic decode_prediction_redirect_req_valid;
+  branch_prediction_t decode_direct_jump_prediction;
+  redirect_req_t decode_direct_jump_redirect_req;
+  logic decode_direct_jump_redirect_req_valid;
   logic decoded_uop_handshake_occurred;
 
   // IDU和寄存器堆组合生成待进入ID/EX的payload；decode_execute_stage输出才是
@@ -152,7 +152,7 @@ module riscv32_core
   always_comb begin
     decoded_execute_packet             = '0;
     decoded_execute_packet.uop         = decoded_uop;
-    decoded_execute_packet.uop.prediction = decode_prediction;
+    decoded_execute_packet.uop.prediction = decode_direct_jump_prediction;
     decoded_execute_packet.rs1_value   = rs1_value;
     decoded_execute_packet.rs2_value   = rs2_value;
     decoded_execute_packet.csr_rdata   = csr_read_data;
@@ -288,12 +288,12 @@ module riscv32_core
 
   assign decoded_uop_handshake_occurred = decoded_uop_valid && decoded_uop_ready;
 
-  riscv32_decode_control_flow_predictor u_decode_control_flow_predictor (
-      .decoded_uop_i                       (decoded_uop),
-      .decoded_uop_handshake_occurred_i    (decoded_uop_handshake_occurred),
-      .prediction_o                        (decode_prediction),
-      .predicted_redirect_req_o            (decode_prediction_redirect_req),
-      .predicted_redirect_req_valid_o      (decode_prediction_redirect_req_valid)
+  riscv32_decode_direct_jump_resolver u_decode_direct_jump_resolver (
+      .decoded_uop_i                    (decoded_uop),
+      .decoded_uop_handshake_occurred_i (decoded_uop_handshake_occurred),
+      .direct_jump_prediction_o         (decode_direct_jump_prediction),
+      .direct_jump_redirect_req_o       (decode_direct_jump_redirect_req),
+      .direct_jump_redirect_req_valid_o (decode_direct_jump_redirect_req_valid)
   );
 
   riscv32_csr_file u_csr_file (
@@ -493,8 +493,12 @@ module riscv32_core
       .pipeline_raw_hazard_waiting_i(raw_hazard_present),
       .pipeline_serializing_waiting_i(serializing_hazard_present),
       .pipeline_structural_waiting_i(structural_hazard_present && decoded_uop_valid),
+      .frontend_supply_waiting_i(!decoded_uop_valid && !structural_hazard_present &&
+                                 !commit_redirect_occurred),
       .pipeline_control_flush_occurred_i(selected_redirect_req_valid),
       .pipeline_execute_instruction_discarded_i(commit_redirect_occurred && execute_packet_valid),
+      .decode_direct_jump_redirect_occurred_i(decode_direct_jump_redirect_req_valid),
+      .execute_misprediction_redirect_occurred_i(execute_redirect_occurred),
       .control_flow_resolution_occurred_i(
           exu_result_valid && exu_result_ready &&
           (exu_result.uop.fu_type == FU_BRANCH) && !exu_result.uop.exception_valid
@@ -549,9 +553,9 @@ module riscv32_core
   assign execute_redirect_occurred = exu_result_valid && exu_result_ready &&
                                      exu_result.redirect_valid;
   assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
-  assign redirect_req[DECODE_PREDICTION_REDIRECT_INDEX] = decode_prediction_redirect_req;
-  assign redirect_req_valid[DECODE_PREDICTION_REDIRECT_INDEX] =
-      decode_prediction_redirect_req_valid;
+  assign redirect_req[DECODE_DIRECT_JUMP_REDIRECT_INDEX] = decode_direct_jump_redirect_req;
+  assign redirect_req_valid[DECODE_DIRECT_JUMP_REDIRECT_INDEX] =
+      decode_direct_jump_redirect_req_valid;
   assign redirect_req[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
   assign redirect_req_valid[FENCE_I_REDIRECT_INDEX] = committed_fence_i_occurred;
 
@@ -570,35 +574,6 @@ module riscv32_core
   );
 
 `ifndef SYNTHESIS
-  always_ff @(posedge clk_i) begin : debug_frontend_protocol
-    if (rst_ni && $test$plusargs("debug_frontend")) begin
-      if (selected_redirect_req_valid) begin
-        $display("frontend-debug redirect source=%h target=%h reason=%0d",
-                 selected_redirect_req.source_pc, selected_redirect_req.target_pc,
-                 selected_redirect_req.reason);
-      end
-      if (icache_lookup_req_valid && icache_lookup_req_ready) begin
-        $display("frontend-debug lookup-request pc=%h tag=%0d epoch=%0d",
-                 icache_lookup_req.fetch_addr, icache_lookup_req.frontend_tag,
-                 icache_lookup_req.fetch_epoch);
-      end
-      if (icache_lookup_resp_valid && icache_lookup_resp_ready) begin
-        $display("frontend-debug lookup-response pc=%h tag=%0d epoch=%0d deliver=%0b",
-                 icache_lookup_resp.fetch_addr, icache_lookup_resp.frontend_tag,
-                 icache_lookup_resp.fetch_epoch, ifu_fetch_entry_valid);
-      end
-      if (ifu_fetch_entry_valid && ifu_fetch_entry_ready) begin
-        $display("frontend-debug fetch-buffer-push pc=%h", ifu_fetch_entry.pc);
-      end
-      if (idu_fetch_entry_valid && idu_fetch_entry_ready) begin
-        $display("frontend-debug fetch-buffer-pop pc=%h", idu_fetch_entry.pc);
-      end
-      if (commit_valid) begin
-        $display("frontend-debug commit pc=%h next=%h", commit.pc, commit.next_pc);
-      end
-    end
-  end
-
   // rst_ni是状态寄存器的异步复位，同时也是SVA的disable条件。Verilator会把后者
   // 视为同步使用并报告SYNCASYNCNET；该诊断不代表复位网络存在功能冲突。
   /* verilator lint_off SYNCASYNCNET */

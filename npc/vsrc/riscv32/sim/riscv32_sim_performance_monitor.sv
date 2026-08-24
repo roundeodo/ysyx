@@ -23,8 +23,11 @@ module riscv32_sim_performance_monitor
     input logic pipeline_raw_hazard_waiting_i,
     input logic pipeline_serializing_waiting_i,
     input logic pipeline_structural_waiting_i,
+    input logic frontend_supply_waiting_i,
     input logic pipeline_control_flush_occurred_i,
     input logic pipeline_execute_instruction_discarded_i,
+    input logic decode_direct_jump_redirect_occurred_i,
+    input logic execute_misprediction_redirect_occurred_i,
 
     // 控制流结果在EX级真正完成握手时采样。预测收益必须按实际执行过的控制流指令
     // 统计，不能拿decode数量或redirect数量替代：不跳分支不会产生当前实现的redirect，
@@ -52,11 +55,19 @@ module riscv32_sim_performance_monitor
   logic     [63:0] retired_instruction_count_q;
   logic     [63:0] exu_completion_count_q;
   logic     [63:0] lsu_completion_count_q;
-  logic     [63:0] pipeline_raw_hazard_wait_cycle_count_q;
-  logic     [63:0] pipeline_serializing_wait_cycle_count_q;
-  logic     [63:0] pipeline_structural_wait_cycle_count_q;
+  logic     [63:0] control_misprediction_recovery_stall_cycle_count_q;
+  logic     [63:0] decode_direct_jump_refill_stall_cycle_count_q;
+  logic     [63:0] lsu_structural_stall_cycle_count_q;
+  logic     [63:0] raw_dependency_stall_cycle_count_q;
+  logic     [63:0] serializing_stall_cycle_count_q;
+  logic     [63:0] frontend_supply_stall_cycle_count_q;
+  logic     [63:0] other_no_issue_cycle_count_q;
   logic     [63:0] pipeline_control_flush_count_q;
   logic     [63:0] pipeline_execute_discard_count_q;
+  logic     [63:0] decode_direct_jump_redirect_count_q;
+  logic     [63:0] execute_misprediction_redirect_count_q;
+  logic            decode_direct_jump_refill_pending_q;
+  logic            control_misprediction_recovery_pending_q;
 
   logic     [63:0] conditional_branch_count_q;
   logic     [63:0] conditional_branch_taken_count_q;
@@ -229,16 +240,22 @@ module riscv32_sim_performance_monitor
   // READY is never counted as another instruction or bus transaction.
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      active_cycle_count_q                    <= '0;
-      decoded_instruction_count_q             <= '0;
-      retired_instruction_count_q             <= '0;
-      exu_completion_count_q                  <= '0;
-      lsu_completion_count_q                  <= '0;
-      pipeline_raw_hazard_wait_cycle_count_q  <= '0;
-      pipeline_serializing_wait_cycle_count_q <= '0;
-      pipeline_structural_wait_cycle_count_q  <= '0;
-      pipeline_control_flush_count_q          <= '0;
-      pipeline_execute_discard_count_q        <= '0;
+      active_cycle_count_q                                <= '0;
+      decoded_instruction_count_q                         <= '0;
+      retired_instruction_count_q                         <= '0;
+      exu_completion_count_q                              <= '0;
+      lsu_completion_count_q                              <= '0;
+      control_misprediction_recovery_stall_cycle_count_q <= '0;
+      decode_direct_jump_refill_stall_cycle_count_q      <= '0;
+      lsu_structural_stall_cycle_count_q                  <= '0;
+      raw_dependency_stall_cycle_count_q                  <= '0;
+      serializing_stall_cycle_count_q                     <= '0;
+      frontend_supply_stall_cycle_count_q                 <= '0;
+      other_no_issue_cycle_count_q                        <= '0;
+      pipeline_control_flush_count_q                      <= '0;
+      pipeline_execute_discard_count_q                    <= '0;
+      decode_direct_jump_redirect_count_q                 <= '0;
+      execute_misprediction_redirect_count_q              <= '0;
       conditional_branch_count_q              <= '0;
       conditional_branch_taken_count_q        <= '0;
       backward_branch_count_q                 <= '0;
@@ -289,20 +306,40 @@ module riscv32_sim_performance_monitor
       if (lsu_completion_occurred_i) begin
         lsu_completion_count_q <= lsu_completion_count_q + 64'd1;
       end
-      if (pipeline_raw_hazard_waiting_i) begin
-        pipeline_raw_hazard_wait_cycle_count_q <= pipeline_raw_hazard_wait_cycle_count_q + 64'd1;
-      end
-      if (pipeline_serializing_waiting_i) begin
-        pipeline_serializing_wait_cycle_count_q <= pipeline_serializing_wait_cycle_count_q + 64'd1;
-      end
-      if (pipeline_structural_waiting_i) begin
-        pipeline_structural_wait_cycle_count_q <= pipeline_structural_wait_cycle_count_q + 64'd1;
+      // 每个未发射周期只归属一个首要原因。以“译码指令进入ID/EX”作为
+      // 单发射流水线的有效槽位，避免将LSU busy期间同时出现的RAW、前端反压
+      // 和响应在途重复计数。优先级表示恢复原因和最老的阻塞来源。
+      if (!instruction_decode_occurred_i) begin
+        if (control_misprediction_recovery_pending_q) begin
+          control_misprediction_recovery_stall_cycle_count_q <=
+              control_misprediction_recovery_stall_cycle_count_q + 64'd1;
+        end else if (decode_direct_jump_refill_pending_q) begin
+          decode_direct_jump_refill_stall_cycle_count_q <=
+              decode_direct_jump_refill_stall_cycle_count_q + 64'd1;
+        end else if (pipeline_structural_waiting_i) begin
+          lsu_structural_stall_cycle_count_q <= lsu_structural_stall_cycle_count_q + 64'd1;
+        end else if (pipeline_raw_hazard_waiting_i) begin
+          raw_dependency_stall_cycle_count_q <= raw_dependency_stall_cycle_count_q + 64'd1;
+        end else if (pipeline_serializing_waiting_i) begin
+          serializing_stall_cycle_count_q <= serializing_stall_cycle_count_q + 64'd1;
+        end else if (frontend_supply_waiting_i) begin
+          frontend_supply_stall_cycle_count_q <= frontend_supply_stall_cycle_count_q + 64'd1;
+        end else begin
+          other_no_issue_cycle_count_q <= other_no_issue_cycle_count_q + 64'd1;
+        end
       end
       if (pipeline_control_flush_occurred_i) begin
         pipeline_control_flush_count_q <= pipeline_control_flush_count_q + 64'd1;
       end
       if (pipeline_execute_instruction_discarded_i) begin
         pipeline_execute_discard_count_q <= pipeline_execute_discard_count_q + 64'd1;
+      end
+      if (decode_direct_jump_redirect_occurred_i) begin
+        decode_direct_jump_redirect_count_q <= decode_direct_jump_redirect_count_q + 64'd1;
+      end
+      if (execute_misprediction_redirect_occurred_i) begin
+        execute_misprediction_redirect_count_q <=
+            execute_misprediction_redirect_count_q + 64'd1;
       end
 
       if (control_flow_resolution_occurred_i) begin
@@ -353,6 +390,29 @@ module riscv32_sim_performance_monitor
 
           default: ;
         endcase
+      end
+    end
+  end
+
+  // redirect到目标指令真正进入ID/EX之间的周期才是控制冒险代价。
+  // EX级预测纠正优先级高于译码级JAL redirect，因此纠正发生时应取消
+  // 旧的JAL目标等待。目标指令真正进入ID/EX后恢复标记才清零；若在IFU交付时
+  // 提前清零，会漏掉fetch buffer到译码握手之间的空泡。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      decode_direct_jump_refill_pending_q         <= 1'b0;
+      control_misprediction_recovery_pending_q    <= 1'b0;
+    end else begin
+      if (instruction_decode_occurred_i) begin
+        decode_direct_jump_refill_pending_q      <= 1'b0;
+        control_misprediction_recovery_pending_q <= 1'b0;
+      end
+      if (decode_direct_jump_redirect_occurred_i) begin
+        decode_direct_jump_refill_pending_q <= 1'b1;
+      end
+      if (execute_misprediction_redirect_occurred_i) begin
+        decode_direct_jump_refill_pending_q      <= 1'b0;
+        control_misprediction_recovery_pending_q <= 1'b1;
       end
     end
   end
@@ -644,17 +704,37 @@ module riscv32_sim_performance_monitor
     $display("EXU / LSU completions                  : %0d / %0d", exu_completion_count_q,
              lsu_completion_count_q);
     $display("");
-    $display("pipeline RAW-hazard wait cycles       : %0d (%.3f%%)",
-             pipeline_raw_hazard_wait_cycle_count_q, calculate_percentage(
-             pipeline_raw_hazard_wait_cycle_count_q, active_cycle_count_q));
-    $display("pipeline serializing wait cycles      : %0d (%.3f%%)",
-             pipeline_serializing_wait_cycle_count_q, calculate_percentage(
-             pipeline_serializing_wait_cycle_count_q, active_cycle_count_q));
-    $display("pipeline LSU structural wait cycles   : %0d (%.3f%%)",
-             pipeline_structural_wait_cycle_count_q, calculate_percentage(
-             pipeline_structural_wait_cycle_count_q, active_cycle_count_q));
-    $display("pipeline control flushes / EX discards: %0d / %0d", pipeline_control_flush_count_q,
-             pipeline_execute_discard_count_q);
+    $display("exclusive pipeline issue-slot attribution");
+    $display("  issued instructions                 : %0d (%.3f%%)",
+             decoded_instruction_count_q,
+             calculate_percentage(decoded_instruction_count_q, active_cycle_count_q));
+    $display("  EX mispredict recovery stalls       : %0d (%.3f%%)",
+             control_misprediction_recovery_stall_cycle_count_q,
+             calculate_percentage(control_misprediction_recovery_stall_cycle_count_q,
+                                  active_cycle_count_q));
+    $display("  decode JAL target-refill stalls     : %0d (%.3f%%)",
+             decode_direct_jump_refill_stall_cycle_count_q,
+             calculate_percentage(decode_direct_jump_refill_stall_cycle_count_q,
+                                  active_cycle_count_q));
+    $display("  LSU structural stalls               : %0d (%.3f%%)",
+             lsu_structural_stall_cycle_count_q,
+             calculate_percentage(lsu_structural_stall_cycle_count_q, active_cycle_count_q));
+    $display("  unresolved RAW stalls               : %0d (%.3f%%)",
+             raw_dependency_stall_cycle_count_q,
+             calculate_percentage(raw_dependency_stall_cycle_count_q, active_cycle_count_q));
+    $display("  serializing stalls                  : %0d (%.3f%%)",
+             serializing_stall_cycle_count_q,
+             calculate_percentage(serializing_stall_cycle_count_q, active_cycle_count_q));
+    $display("  frontend supply stalls              : %0d (%.3f%%)",
+             frontend_supply_stall_cycle_count_q,
+             calculate_percentage(frontend_supply_stall_cycle_count_q, active_cycle_count_q));
+    $display("  other empty issue slots             : %0d (%.3f%%)",
+             other_no_issue_cycle_count_q,
+             calculate_percentage(other_no_issue_cycle_count_q, active_cycle_count_q));
+    $display("redirects selected / JAL / EX correction: %0d / %0d / %0d",
+             pipeline_control_flush_count_q, decode_direct_jump_redirect_count_q,
+             execute_misprediction_redirect_count_q);
+    $display("pipeline execute discards             : %0d", pipeline_execute_discard_count_q);
     $display("");
     $display("resolved control-flow profile");
     $display("conditional branches / taken        : %0d / %0d (%.3f%% taken)",
@@ -709,6 +789,15 @@ module riscv32_sim_performance_monitor
     end
     if (lsu_request_count_q != lsu_completion_count_q) begin
       $display("PERF CHECK: LSU request count differs from LSU completion count");
+    end
+    if (active_cycle_count_q !=
+        decoded_instruction_count_q +
+        control_misprediction_recovery_stall_cycle_count_q +
+        decode_direct_jump_refill_stall_cycle_count_q +
+        lsu_structural_stall_cycle_count_q + raw_dependency_stall_cycle_count_q +
+        serializing_stall_cycle_count_q + frontend_supply_stall_cycle_count_q +
+        other_no_issue_cycle_count_q) begin
+      $display("PERF CHECK: exclusive issue-slot categories do not cover all active cycles");
     end
   end
 

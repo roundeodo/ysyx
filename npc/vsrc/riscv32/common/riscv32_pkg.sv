@@ -247,8 +247,8 @@ package riscv32_pkg;
     REDIRECT_MEMORY_REPLAY     = 3'd4,
     REDIRECT_DEBUG             = 3'd5,
     REDIRECT_FENCE_I           = 3'd6,
-    // 译码级静态预测只恢复前端，不表示预测错误。真正的mispredict仍由EX级产生。
-    REDIRECT_BRANCH_PREDICTION = 3'd7
+    // JAL的方向和PC相对目标在译码级已确定，该redirect只刷新前端。
+    REDIRECT_DECODE_DIRECT_JUMP = 3'd7
   } redirect_reason_e;
 
   typedef enum logic [1:0] {
