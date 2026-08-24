@@ -6,14 +6,22 @@ module riscv32_pipeline_hazard_controller
     input logic clk_i,
     input logic rst_ni,
 
-    input decoded_uop_t decoded_uop_i,
-    input logic         decoded_uop_valid_i,
+    input logic          decoded_uop_valid_i,
+    input logic          decoded_uses_rs1_i,
+    input arch_reg_idx_t decoded_rs1_i,
+    input logic          decoded_uses_rs2_i,
+    input arch_reg_idx_t decoded_rs2_i,
+    input logic          decoded_serializing_i,
 
-    input decoded_uop_t execute_uop_i,
-    input logic         execute_uop_valid_i,
+    input logic          execute_uop_valid_i,
+    input logic          execute_writes_rd_i,
+    input arch_reg_idx_t execute_rd_i,
+    input logic          execute_serializing_i,
 
-    input writeback_result_t writeback_result_i,
-    input logic              writeback_result_valid_i,
+    input logic          writeback_result_valid_i,
+    input logic          writeback_writes_rd_i,
+    input arch_reg_idx_t writeback_rd_i,
+    input logic          writeback_serializing_i,
 
     // 当前LSU是blocking单事务单元。busy期间不允许年轻指令进入ID/EX，既避免
     // completion端口冲突，也避免在未保存LSU目的寄存器的情况下漏检load-use RAW。
@@ -41,21 +49,19 @@ module riscv32_pipeline_hazard_controller
   logic control_recovery_occurred;
 
   always_comb begin
-    execute_writes_rs1 = execute_uop_valid_i && execute_uop_i.writes_rd &&
-                         (execute_uop_i.rd != '0) && decoded_uop_i.uses_rs1 &&
-                         (execute_uop_i.rd == decoded_uop_i.rs1);
-    execute_writes_rs2 = execute_uop_valid_i && execute_uop_i.writes_rd &&
-                         (execute_uop_i.rd != '0) && decoded_uop_i.uses_rs2 &&
-                         (execute_uop_i.rd == decoded_uop_i.rs2);
+    execute_writes_rs1 = execute_uop_valid_i && execute_writes_rd_i &&
+                         (execute_rd_i != '0) && decoded_uses_rs1_i &&
+                         (execute_rd_i == decoded_rs1_i);
+    execute_writes_rs2 = execute_uop_valid_i && execute_writes_rd_i &&
+                         (execute_rd_i != '0) && decoded_uses_rs2_i &&
+                         (execute_rd_i == decoded_rs2_i);
 
-    writeback_writes_rs1 = writeback_result_valid_i &&
-                           writeback_result_i.uop.writes_rd &&
-                           (writeback_result_i.uop.rd != '0) && decoded_uop_i.uses_rs1 &&
-                           (writeback_result_i.uop.rd == decoded_uop_i.rs1);
-    writeback_writes_rs2 = writeback_result_valid_i &&
-                           writeback_result_i.uop.writes_rd &&
-                           (writeback_result_i.uop.rd != '0) && decoded_uop_i.uses_rs2 &&
-                           (writeback_result_i.uop.rd == decoded_uop_i.rs2);
+    writeback_writes_rs1 = writeback_result_valid_i && writeback_writes_rd_i &&
+                           (writeback_rd_i != '0) && decoded_uses_rs1_i &&
+                           (writeback_rd_i == decoded_rs1_i);
+    writeback_writes_rs2 = writeback_result_valid_i && writeback_writes_rd_i &&
+                           (writeback_rd_i != '0) && decoded_uses_rs2_i &&
+                           (writeback_rd_i == decoded_rs2_i);
   end
 
   assign raw_hazard_present_o = decoded_uop_valid_i &&
@@ -64,13 +70,13 @@ module riscv32_pipeline_hazard_controller
 
   assign older_instruction_present = execute_uop_valid_i || writeback_result_valid_i || lsu_busy_i;
   assign older_serializing_instruction_present =
-      (execute_uop_valid_i && execute_uop_i.serializing) ||
-      (writeback_result_valid_i && writeback_result_i.uop.serializing);
+      (execute_uop_valid_i && execute_serializing_i) ||
+      (writeback_result_valid_i && writeback_serializing_i);
 
   // 串行化指令必须等所有老指令离开后端后才能进入；进入后又阻止年轻指令，直到自己提交。
   assign serializing_hazard_present_o = decoded_uop_valid_i &&
       (older_serializing_instruction_present ||
-       (decoded_uop_i.serializing && older_instruction_present));
+       (decoded_serializing_i && older_instruction_present));
 
   assign structural_hazard_present_o = lsu_busy_i;
   assign control_recovery_occurred = execute_redirect_occurred_i || commit_redirect_occurred_i;
