@@ -223,6 +223,8 @@ PIPELINE_TEST_SOURCES := \
 	$(RTL_DIR)/core/riscv32_decode_execute_stage.sv \
 	$(RTL_DIR)/core/riscv32_pipeline_hazard_controller.sv \
 	$(RTL_DIR)/core/riscv32_writeback_stage.sv \
+	$(RTL_DIR)/core/riscv32_commit.sv \
+	$(RTL_DIR)/core/riscv32_trap_controller.sv \
 	$(RTL_DIR)/core/riscv32_ifu.sv \
 	$(abspath ./tests/rtl/riscv32_pipeline_control_tb.sv)
 

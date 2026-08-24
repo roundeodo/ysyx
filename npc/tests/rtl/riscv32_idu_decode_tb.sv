@@ -115,6 +115,42 @@ module riscv32_idu_decode_tb;
       else $fatal(1, "illegal instruction retained an architectural side effect: %08x", instruction);
   endtask
 
+  task automatic expect_system_exception(
+      input instruction_t instruction,
+      input system_op_e expected_system_op,
+      input exception_cause_e expected_cause
+  );
+    apply_instruction(instruction);
+    assert (decoded_uop.exception_valid &&
+            (decoded_uop.system_op == expected_system_op) &&
+            (decoded_uop.exception_cause == expected_cause) &&
+            (decoded_uop.exception_tval == '0))
+      else $fatal(1, "system exception decode mismatch: instruction=%08x cause=%0d",
+                  instruction, decoded_uop.exception_cause);
+    assert (!decoded_uop.writes_rd && decoded_uop.mem_ctrl.cmd == MEM_CMD_NONE &&
+            !decoded_uop.csr_ctrl.write_enable)
+      else $fatal(1, "system exception retained an architectural side effect");
+  endtask
+
+  task automatic expect_fetch_exception_priority;
+    fetch_entry                 = '0;
+    fetch_entry.pc              = program_counter_t'(32'h3000_0200);
+    // 该数据位型恰好是ECALL，但取指访问已经失败，IDU不得用cause 11覆盖IFU的cause 1。
+    fetch_entry.instruction     = instruction_t'(32'h0000_0073);
+    fetch_entry.exception_valid = 1'b1;
+    fetch_entry.exception_cause = EXC_INSTR_ACCESS_FAULT;
+    fetch_entry.exception_tval  = xlen_data_t'(32'h3000_0200);
+    fetch_entry_valid           = 1'b1;
+    #1;
+    assert (decoded_uop_valid && decoded_uop.exception_valid &&
+            (decoded_uop.exception_cause == EXC_INSTR_ACCESS_FAULT) &&
+            (decoded_uop.exception_tval == xlen_data_t'(32'h3000_0200)))
+      else $fatal(1, "IDU overwrote an older IFU exception");
+    assert (!decoded_uop.writes_rd && decoded_uop.mem_ctrl.cmd == MEM_CMD_NONE &&
+            !decoded_uop.csr_ctrl.write_enable)
+      else $fatal(1, "IFU exception retained a decoded architectural side effect");
+  endtask
+
   initial begin
     fetch_entry       = '0;
     fetch_entry_valid = 1'b0;
@@ -124,6 +160,9 @@ module riscv32_idu_decode_tb;
     expect_integer_op(encode_i(12'h01f, 5'd1, FUNCT3_SLL, 5'd2, OPCODE_OP_IMM), ALU_SLL);
     expect_load(encode_i(12'h004, 5'd1, FUNCT3_LW, 5'd2, OPCODE_LOAD), MEM_SIZE_WORD, 1'b0);
     expect_store(encode_s(12'h008, 5'd2, 5'd1, FUNCT3_SW, OPCODE_STORE), MEM_SIZE_WORD);
+    expect_system_exception(32'h0000_0073, SYS_ECALL, EXC_ECALL_M);
+    expect_system_exception(32'h0010_0073, SYS_EBREAK, EXC_BREAKPOINT);
+    expect_fetch_exception_priority();
 
 `ifdef YSYX_RV64_SEQUENTIAL
     // OP-IMM-32：立即数算术和5位移位量分别验证。

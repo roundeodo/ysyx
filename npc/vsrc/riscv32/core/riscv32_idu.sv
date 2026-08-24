@@ -374,11 +374,18 @@ module riscv32_idu
               FUNCT12_ECALL: begin
                 decoded_uop_o.system_op       = SYS_ECALL;
                 decoded_uop_o.exception_valid = 1'b1;
+                // 当前核只实现M-mode，因此ECALL的架构cause固定为11。加入U/S-mode后，
+                // 应把当前特权级作为译码上下文输入，并在8、9、11之间选择。
                 decoded_uop_o.exception_cause = EXC_ECALL_M;
                 // ECALL不报告故障地址或故障指令，RISC-V规定mtval写零。
                 decoded_uop_o.exception_tval  = '0;
               end
-              FUNCT12_EBREAK: decoded_uop_o.system_op = SYS_EBREAK;
+              FUNCT12_EBREAK: begin
+                decoded_uop_o.system_op       = SYS_EBREAK;
+                decoded_uop_o.exception_valid = 1'b1;
+                decoded_uop_o.exception_cause = EXC_BREAKPOINT;
+                decoded_uop_o.exception_tval  = '0;
+              end
               FUNCT12_MRET:   decoded_uop_o.system_op = SYS_MRET;
               default:        decoded_uop_o.exception_valid = 1'b1;
             endcase
@@ -425,8 +432,15 @@ module riscv32_idu
       default: decoded_uop_o.exception_valid = 1'b1;
     endcase
 
-    if (decoded_uop_o.exception_valid && !fetch_entry_i.exception_valid &&
-        (decoded_uop_o.system_op != SYS_ECALL)) begin
+    // 同一条指令只保留最早阶段产生的异常。取指异常已经说明本条指令编码不可用，
+    // IDU即使从返回数据位型中看到了ECALL/EBREAK，也不得覆盖IFU给出的cause和tval。
+    if (fetch_entry_i.exception_valid) begin
+      decoded_uop_o.exception_valid = 1'b1;
+      decoded_uop_o.exception_cause = fetch_entry_i.exception_cause;
+      decoded_uop_o.exception_tval  = fetch_entry_i.exception_tval;
+    end else if (decoded_uop_o.exception_valid &&
+                 (decoded_uop_o.system_op != SYS_ECALL) &&
+                 (decoded_uop_o.system_op != SYS_EBREAK)) begin
       decoded_uop_o.exception_cause = EXC_ILLEGAL_INSTRUCTION;
       decoded_uop_o.exception_tval  = xlen_data_t'(instruction);
     end

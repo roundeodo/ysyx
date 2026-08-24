@@ -177,6 +177,69 @@ module riscv32_lsu_tb;
     lsu_req_valid = 1'b0;
   endtask
 
+  task automatic check_preexisting_exception_is_preserved;
+    @(negedge clk);
+    lsu_req                           = make_memory_request(
+        MEM_CMD_LOAD, MEM_SIZE_WORD, 1'b0, effective_addr_t'(32'h8000_0000), '0
+    );
+    lsu_req.uop.exception_valid       = 1'b1;
+    lsu_req.uop.exception_cause       = EXC_ILLEGAL_INSTRUCTION;
+    lsu_req.uop.exception_tval        = xlen_data_t'(32'hffff_ffff);
+    lsu_req_valid                     = 1'b1;
+    data_memory_req_ready             = 1'b1;
+    lsu_writeback_ready               = 1'b1;
+    #1;
+    assert (lsu_req_ready && lsu_writeback_valid && !data_memory_req_valid)
+      else $fatal(1, "LSU issued memory traffic for an instruction with an older exception");
+    assert (lsu_writeback.uop.exception_valid &&
+            (lsu_writeback.uop.exception_cause == EXC_ILLEGAL_INSTRUCTION) &&
+            (lsu_writeback.uop.exception_tval == xlen_data_t'(32'hffff_ffff)))
+      else $fatal(1, "LSU overwrote an older exception");
+
+    @(posedge clk);
+    #1;
+    lsu_req_valid = 1'b0;
+  endtask
+
+  task automatic check_access_fault(
+      input mem_cmd_e command,
+      input exception_cause_e expected_cause
+  );
+    @(negedge clk);
+    lsu_req = make_memory_request(
+        command, MEM_SIZE_WORD, 1'b0, effective_addr_t'(32'h8000_0040),
+        xlen_data_t'(32'h1234_5678)
+    );
+    lsu_req_valid         = 1'b1;
+    data_memory_req_ready = 1'b1;
+    #1;
+    assert (lsu_req_ready && data_memory_req_valid)
+      else $fatal(1, "LSU did not issue the access-fault test transaction");
+
+    @(posedge clk);
+    #1;
+    lsu_req_valid         = 1'b0;
+    data_memory_req_ready = 1'b0;
+
+    @(negedge clk);
+    data_memory_resp                = '0;
+    data_memory_resp.access_fault   = 1'b1;
+    data_memory_resp.transaction_id = '0;
+    data_memory_resp_valid          = 1'b1;
+    lsu_writeback_ready             = 1'b1;
+    #1;
+    assert (data_memory_resp_ready && lsu_writeback_valid &&
+            lsu_writeback.uop.exception_valid &&
+            (lsu_writeback.uop.exception_cause == expected_cause) &&
+            (lsu_writeback.uop.exception_tval == xlen_data_t'(32'h8000_0040)) &&
+            !lsu_writeback.uop.writes_rd)
+      else $fatal(1, "LSU access-fault completion mismatch: command=%0d", command);
+
+    @(posedge clk);
+    #1;
+    data_memory_resp_valid = 1'b0;
+  endtask
+
   task automatic check_response_backpressure;
     writeback_result_t held_writeback;
 
@@ -267,6 +330,9 @@ module riscv32_lsu_tb;
                             EXC_LOAD_ADDR_MISALIGNED);
     check_misaligned_access(MEM_CMD_STORE, MEM_SIZE_WORD, effective_addr_t'(32'h8000_0002),
                             EXC_STORE_ADDR_MISALIGNED);
+    check_preexisting_exception_is_preserved();
+    check_access_fault(MEM_CMD_LOAD, EXC_LOAD_ACCESS_FAULT);
+    check_access_fault(MEM_CMD_STORE, EXC_STORE_ACCESS_FAULT);
 
 `ifdef YSYX_RV64_SEQUENTIAL
     check_load(MEM_SIZE_WORD, 1'b1, effective_addr_t'(32'h8000_0004), 64'h8000_0001_0123_4567,

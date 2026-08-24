@@ -127,6 +127,39 @@ commit事件驱动，因此流水级中的指令尚未成为架构状态。寄�
 异常指令可以到达commit，但不会作为普通指令退休；trap controller在commit边界更新CSR并
 发出redirect。提交级redirect会阻止同拍年轻EX结果进入WB，这是精确异常成立的关键条件。
 
+### 5.1 同步异常的产生、传递和仲裁
+
+异常元数据随指令一起通过`fetch_entry_t`、`decoded_uop_t`和`writeback_result_t`传递，字段为
+`exception_valid`、`exception_cause`和`exception_tval`。流水级不使用独立的全局异常线，
+因此反压不会让异常和所属指令错位，flush也会连同年轻指令的异常元数据一起删除。
+
+当前各级产生的同步异常如下：
+
+| 产生位置 | 当前产生的异常 | `tval` |
+| --- | --- | --- |
+| IFU/I-cache | instruction access fault | 故障取指地址 |
+| IDU | illegal instruction、breakpoint、M-mode ecall | 非法指令编码或0 |
+| EXU | taken branch/jump target misaligned、illegal CSR access | 目标地址或指令编码 |
+| LSU | load/store address misaligned、load/store access fault | 有效地址 |
+
+没有MMU时不会产生instruction/load/store page fault；package保留cause 12、13和15，供未来
+TLB/PTW接入。当前只实现M-mode，因此ECALL只产生cause 11；cause 8和9保留给未来U/S-mode。
+未实现A扩展，所以表中的Store/AMO异常在当前核中只覆盖store，AMO编码仍按非法指令处理。
+
+同一条指令可能被多个阶段检查，必须保留最早发现的异常。例如IFU已经报告access fault后，
+IDU不能再根据无效返回位型把它覆盖成ECALL或illegal instruction；EXU和LSU也只在尚无异常
+时生成本级cause。异常完成包在各执行单元出口统一清除GPR写、CSR写、redirect和访存请求等
+正常副作用。
+
+不同指令可能在同一拍分别于IFU、IDU、EXU/LSU和WB携带异常。当前单发射顺序流水线不需要
+按cause号仲裁：WB中的指令年龄最大，只有它能进入commit；它产生的commit redirect禁止年轻
+EX指令发出completion或访存请求，并清空ID/EX、completion/WB以及前端旧epoch响应。因此
+最终写入`mepc/mcause/mtval`的一定是程序顺序中最老的异常。
+
+未来乱序实现不能继续依赖流水级位置表达年龄。执行单元只把异常写入ROB项，不立即更新CSR；
+只有ROB头部异常才能提交trap。store必须先进入store queue，并在对应ROB项提交后才允许对外
+可见，否则年轻store可能在更老异常确定前破坏精确状态。
+
 ## 6. 当前性能限制与演进顺序
 
 首版的保守规则会产生可观停顿，但每一种停顿都有单独PMU计数：RAW等待、串行化等待、LSU
@@ -147,7 +180,8 @@ make test-pipeline-configs PROJECT=riscv32
 ```
 
 覆盖空级接收、同拍替换、反压payload保持、flush、EX/WB RAW、串行化、LSU结构冒险以及
-EX级和commit级redirect的不同清除范围。
+EX级和commit级redirect的不同清除范围。异常定向场景还覆盖IFU异常优先于IDU重新译码、
+EBREAK/ECALL译码、LSU未对齐与访问错误，以及WB、EX和ID同时出现异常时只提交最老异常。
 
 整机回归：
 

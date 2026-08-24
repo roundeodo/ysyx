@@ -226,7 +226,11 @@ package riscv32_pkg;
     EXC_STORE_ADDR_MISALIGNED = 5'd6,
     EXC_STORE_ACCESS_FAULT    = 5'd7,
     EXC_ECALL_U               = 5'd8,
-    EXC_ECALL_M               = 5'd11
+    EXC_ECALL_S               = 5'd9,
+    EXC_ECALL_M               = 5'd11,
+    EXC_INSTR_PAGE_FAULT      = 5'd12,
+    EXC_LOAD_PAGE_FAULT       = 5'd13,
+    EXC_STORE_PAGE_FAULT      = 5'd15
   } exception_cause_e;
 
   typedef enum logic [3:0] {

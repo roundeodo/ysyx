@@ -56,4 +56,14 @@ module riscv32_commit
   // NOTE(P6): a ROB will later choose the oldest completed entries and drive
   // the same commit_t contract in program order.
 
+`ifndef SYNTHESIS
+  always_comb begin : check_trap_side_effects
+    if (commit_valid_o && commit_o.trap_taken) begin
+      assert (!commit_o.gpr_write && !commit_o.csr_write && !commit_o.memory_access &&
+              !gpr_write_enable_o)
+      else $error("trapping instruction leaked a normal architectural side effect");
+    end
+  end
+`endif
+
 endmodule

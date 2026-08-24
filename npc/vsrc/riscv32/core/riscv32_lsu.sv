@@ -219,6 +219,14 @@ module riscv32_lsu
                                             ? EXC_LOAD_ADDR_MISALIGNED : EXC_STORE_ADDR_MISALIGNED;
       local_writeback.uop.exception_tval  = active_lsu_req.effective_addr;
     end
+
+    // 无论异常最初来自IFU、IDU还是本级对齐检查，异常完成包都不得保留正常执行副作用。
+    // 统一在LSU出口归一化，避免每个异常产生点分别依赖writes_rd和memory_wmask的初值。
+    if (local_writeback.uop.exception_valid) begin
+      local_writeback.uop.writes_rd = 1'b0;
+      local_writeback.result        = '0;
+      local_writeback.memory_wmask  = '0;
+    end
   end
 
   // access_fault来自D-cache、uncached adapter或系统互联，LSU在这里转换成架构异常。
@@ -241,6 +249,7 @@ module riscv32_lsu
       memory_writeback.uop.exception_cause = is_load
                                              ? EXC_LOAD_ACCESS_FAULT : EXC_STORE_ACCESS_FAULT;
       memory_writeback.uop.exception_tval  = pending_lsu_context_q.effective_addr;
+      memory_writeback.uop.writes_rd       = 1'b0;
       memory_writeback.result              = '0;
       memory_writeback.memory_rdata        = '0;
     end
@@ -341,5 +350,27 @@ module riscv32_lsu
 
   // 当前顺序核固定只有一个访存在途。未来乱序实现中，load返回按LSQ/ROB tag匹配；
   // store在ROB提交后进入store buffer，再由memory ordering逻辑决定何时对外可见。
+
+`ifndef SYNTHESIS
+  /* verilator lint_off SYNCASYNCNET */
+  a_preexisting_exception_never_reaches_memory :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_IDLE && lsu_req_valid_i && lsu_req_i.uop.exception_valid)
+    |-> !data_memory_req_valid_o)
+  else $error("LSU issued a memory request for an instruction with an older exception");
+
+  a_misaligned_access_never_reaches_memory :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_IDLE && lsu_req_valid_i && address_misaligned)
+    |-> !data_memory_req_valid_o)
+  else $error("LSU issued a memory request for a misaligned access");
+
+  a_exception_writeback_has_no_register_write :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lsu_writeback_valid_o && lsu_writeback_o.uop.exception_valid)
+    |-> !lsu_writeback_o.uop.writes_rd)
+  else $error("LSU exception retained a destination-register side effect");
+  /* verilator lint_on SYNCASYNCNET */
+`endif
 
 endmodule

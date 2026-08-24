@@ -509,6 +509,15 @@ module riscv32_core
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     icache_invalidate_pending_q |-> icache_busy)
   else $error("I-cache dropped busy while an invalidate transaction was pending");
+
+  // 精确异常只允许在commit成为架构事件。该拍必须阻止更年轻的EX指令发出副作用，
+  // 并同时清空ID/EX与可能同拍进入WB的年轻completion。
+  a_committed_exception_flushes_younger_instructions :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (commit_valid && commit.trap_taken) |->
+    (commit_redirect_occurred && decode_execute_flush && writeback_flush &&
+     !execute_issue_allowed))
+  else $error("committed exception did not block and flush younger pipeline work");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 

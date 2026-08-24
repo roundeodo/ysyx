@@ -35,6 +35,11 @@ module riscv32_pipeline_control_tb;
   logic              writeback_result_ready;
   logic              writeback_flush;
 
+  commit_t           staged_commit;
+  logic              staged_commit_valid;
+  redirect_req_t     staged_trap_redirect;
+  logic              staged_trap_redirect_valid;
+
   decoded_uop_t      hazard_decoded_uop;
   logic              hazard_decoded_uop_valid;
   decoded_uop_t      hazard_execute_uop;
@@ -92,6 +97,31 @@ module riscv32_pipeline_control_tb;
       .writeback_result_valid_o (writeback_result_valid),
       .writeback_result_ready_i (writeback_result_ready),
       .flush_i                  (writeback_flush)
+  );
+
+  riscv32_commit u_commit (
+      .writeback_result_i      (writeback_result),
+      .writeback_result_valid_i(writeback_result_valid),
+      .writeback_result_ready_o(),
+      .commit_o                (staged_commit),
+      .commit_valid_o          (staged_commit_valid),
+      .gpr_write_data_o        (),
+      .gpr_write_addr_o        (),
+      .gpr_write_enable_o      ()
+  );
+
+  riscv32_trap_controller u_trap_controller (
+      .commit_i            (staged_commit),
+      .commit_valid_i      (staged_commit_valid),
+      .mtvec_i             (program_counter_t'(64'h8000_0100)),
+      .mepc_i              ('0),
+      .trap_valid_o        (),
+      .trap_pc_o           (),
+      .trap_cause_o        (),
+      .trap_tval_o         (),
+      .mret_valid_o        (),
+      .redirect_req_o      (staged_trap_redirect),
+      .redirect_req_valid_o(staged_trap_redirect_valid)
   );
 
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
@@ -349,6 +379,102 @@ module riscv32_pipeline_control_tb;
     clear_hazard_inputs();
   endtask
 
+  // 同一时刻可观察到三个不同年龄的异常：WB中的老load fault、ID/EX中的年轻非法指令，
+  // 以及仍停在译码边界的更年轻取指fault。只有WB异常有权进入commit；提交级redirect
+  // 必须拒绝同拍completion并清空所有年轻流水状态。
+  task automatic check_precise_exception_age_priority;
+    writeback_result_t older_lsu_exception;
+    writeback_result_t younger_completion;
+    execute_packet_t   younger_idu_exception;
+
+    older_lsu_exception                            = '0;
+    older_lsu_exception.uop.pc                     = program_counter_t'(64'h8000_0040);
+    older_lsu_exception.uop.instruction            = instruction_t'(32'h0000_2283);
+    older_lsu_exception.uop.rd                     = arch_reg_idx_t'(5);
+    older_lsu_exception.uop.writes_rd              = 1'b1;
+    older_lsu_exception.uop.mem_ctrl.cmd            = MEM_CMD_LOAD;
+    older_lsu_exception.uop.exception_valid         = 1'b1;
+    older_lsu_exception.uop.exception_cause         = EXC_LOAD_ACCESS_FAULT;
+    older_lsu_exception.uop.exception_tval          = xlen_data_t'(64'h8000_4000);
+
+    younger_idu_exception                          = '0;
+    younger_idu_exception.uop.pc                   = program_counter_t'(64'h8000_0044);
+    younger_idu_exception.uop.instruction          = instruction_t'(32'hffff_ffff);
+    younger_idu_exception.uop.exception_valid       = 1'b1;
+    younger_idu_exception.uop.exception_cause       = EXC_ILLEGAL_INSTRUCTION;
+    younger_idu_exception.uop.exception_tval        = xlen_data_t'(32'hffff_ffff);
+
+    younger_completion                             = '0;
+    younger_completion.uop.pc                      = program_counter_t'(64'h8000_0048);
+    younger_completion.uop.exception_valid         = 1'b1;
+    younger_completion.uop.exception_cause         = EXC_INSTR_ACCESS_FAULT;
+    younger_completion.uop.exception_tval          = xlen_data_t'(64'h8000_0048);
+
+    // 先让老异常进入WB，同时让下一条异常进入ID/EX。
+    @(negedge clk);
+    clear_hazard_inputs();
+    writeback_flush              = 1'b0;
+    decode_execute_flush         = 1'b0;
+    completion_result            = older_lsu_exception;
+    completion_result_valid      = 1'b1;
+    decoded_execute_packet       = younger_idu_exception;
+    decoded_execute_packet_valid = 1'b1;
+    execute_packet_ready         = 1'b1;
+
+    @(posedge clk);
+    #1;
+    assert (writeback_result_valid && execute_packet_valid)
+      else $fatal(1, "exception age test did not populate WB and ID/EX");
+
+    // WB异常提交的同一拍，再呈现一个更年轻completion和一个仍在decode的IFU异常。
+    @(negedge clk);
+    completion_result                         = younger_completion;
+    completion_result_valid                   = 1'b1;
+    hazard_writeback_result                   = writeback_result;
+    hazard_writeback_result_valid             = writeback_result_valid;
+    hazard_execute_uop                        = execute_packet.uop;
+    hazard_execute_uop_valid                  = execute_packet_valid;
+    hazard_decoded_uop                        = '0;
+    hazard_decoded_uop.exception_valid        = 1'b1;
+    hazard_decoded_uop.exception_cause        = EXC_INSTR_ACCESS_FAULT;
+    hazard_decoded_uop.exception_tval         = xlen_data_t'(64'h8000_004c);
+    hazard_decoded_uop_valid                  = 1'b1;
+    #1;
+
+    assert (staged_commit_valid && staged_commit.trap_taken &&
+            (staged_commit.trap_cause_code[$bits(exception_cause_e)-1:0] ==
+             EXC_LOAD_ACCESS_FAULT) &&
+            !staged_commit.gpr_write && !staged_commit.memory_access)
+      else $fatal(1, "oldest LSU exception did not own the commit boundary");
+    assert (staged_trap_redirect_valid &&
+            (staged_trap_redirect.target_pc == program_counter_t'(64'h8000_0100)))
+      else $fatal(1, "oldest exception did not produce the trap redirect");
+
+    commit_redirect_occurred = staged_trap_redirect_valid;
+    #1;
+    assert (!decode_accept_allowed && !execute_issue_allowed &&
+            hazard_decode_execute_flush && hazard_writeback_flush)
+      else $fatal(1, "commit exception did not block and flush younger instructions");
+
+    decode_execute_flush = hazard_decode_execute_flush;
+    writeback_flush       = hazard_writeback_flush;
+    #1;
+    assert (!completion_result_ready && !decoded_execute_packet_ready)
+      else $fatal(1, "young exception payload was accepted during precise recovery");
+
+    @(posedge clk);
+    #1;
+    assert (!writeback_result_valid && !execute_packet_valid)
+      else $fatal(1, "younger exception survived the oldest exception redirect");
+
+    @(negedge clk);
+    completion_result_valid      = 1'b0;
+    decoded_execute_packet_valid = 1'b0;
+    decode_execute_flush         = 1'b0;
+    writeback_flush              = 1'b0;
+    clear_hazard_inputs();
+  endtask
+
   task automatic check_ifu_zero_bubble_lookup;
     icache_lookup_req_t active_request;
     icache_lookup_req_t next_request;
@@ -490,6 +616,7 @@ module riscv32_pipeline_control_tb;
     check_decode_execute_stage();
     check_writeback_stage();
     check_hazard_controller();
+    check_precise_exception_age_priority();
     check_ifu_zero_bubble_lookup();
 
     $display("pipeline control tests passed: XLEN=%0d", XLEN);

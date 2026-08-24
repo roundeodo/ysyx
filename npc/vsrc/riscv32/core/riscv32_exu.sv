@@ -153,7 +153,8 @@ module riscv32_exu
     exu_result.redirect_req.reason          = REDIRECT_BRANCH_MISPREDICT;
     exu_result.redirect_req.flush_inclusive = 1'b0;
 
-    if ((execute_packet_i.uop.fu_type == FU_CSR) && execute_packet_i.csr_illegal) begin
+    if (!execute_packet_i.uop.exception_valid &&
+        (execute_packet_i.uop.fu_type == FU_CSR) && execute_packet_i.csr_illegal) begin
       exu_result.uop.exception_valid       = 1'b1;
       exu_result.uop.exception_cause       = EXC_ILLEGAL_INSTRUCTION;
       exu_result.uop.exception_tval        = xlen_data_t'(execute_packet_i.uop.instruction);
@@ -196,5 +197,14 @@ module riscv32_exu
 
   // NOTE(P5): split this aggregate into int_alu, branch_unit, agu, and csr_exec.
   // Each unit then receives a narrow request and emits an independent completion.
+
+`ifndef SYNTHESIS
+  always_comb begin : check_exception_side_effects
+    if (exu_result_valid_o && exu_result_o.uop.exception_valid) begin
+      assert (!exu_result_o.redirect_valid && !exu_result_o.uop.writes_rd)
+      else $error("EXU exception retained a redirect or destination-register side effect");
+    end
+  end
+`endif
 
 endmodule

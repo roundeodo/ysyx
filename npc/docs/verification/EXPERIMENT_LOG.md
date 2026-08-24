@@ -916,3 +916,25 @@ forwarding和分支预测，并且blocking LSU在整个事务期间阻止年轻�
 组合路径没有成为当前关键路径。当前完整流水线core面积为25627.770 um^2，比课程25000
 um^2上限高2.51%，后续面积优化必须以当前功能和同一综合约束为基线，不能删除架构语义或
 改变模块协议来获得表面数字。
+
+## 2026-08-24 - 顺序流水线精确同步异常
+
+异常字段继续随指令payload逐级传递，只有commit可以产生trap和更新CSR。补充EBREAK异常，
+修复IFU access fault可能被IDU按返回位型覆盖，以及上游异常经过LSU时仍保留`writes_rd`的
+问题。EXU、LSU和commit增加无副作用断言，core增加“异常提交必须阻止EX发射并冲刷ID/EX、
+WB”的恢复断言。
+
+新增定向测试构造三条不同年龄的异常指令：最老load access fault位于WB，年轻illegal
+instruction位于ID/EX，最年轻instruction access fault位于译码输入。验证只有WB异常的PC、
+cause和tval进入commit，年轻异常没有被接受，并在提交redirect后全部清空。
+
+| 验证项 | 结果 |
+| --- | --- |
+| `make test-idu-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make test-exu-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make test-lsu-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make test-pipeline-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make test-privileged-configs PROJECT=riscv32` | RV32/RV64通过 |
+
+当前没有MMU和U/S-mode，因此页故障以及U/S-mode ECALL仅保留cause编码，不会由RTL产生；
+中断仲裁也不属于本次同步异常改动。
