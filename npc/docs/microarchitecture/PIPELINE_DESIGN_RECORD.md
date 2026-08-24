@@ -13,13 +13,17 @@
 - trap、`mret`和`fence.i`仍在commit边界恢复，保持精确架构状态；
 - DiffTest只观察commit事件，不观察流水级内部的推测状态。
 
-首版不实现forwarding、分支预测、非阻塞LSU、多发射或乱序执行。这些功能必须建立在当前
+当前检查点已经实现EX/WB到ID/EX的标量操作数forwarding，以及IFU到IDU之间的两项
+fetch queue；尚未实现分支预测、非阻塞LSU、多发射或乱序执行。这些功能必须建立在当前
 正确性边界之上逐项加入，不能通过第二套译码或第二套架构寄存器状态绕开现有契约。
 
 ## 2. 当前数据通路
 
 ```text
 I-cache/IFU ready-valid保持
+          |
+          v
+  fetch queue（2项已完成取指结果）
           |
           v
       IDU组合译码 + 架构寄存器组合读 + CSR组合读
@@ -40,12 +44,14 @@ I-cache/IFU ready-valid保持
        commit + GPR/CSR架构状态更新 + DiffTest
 ```
 
-IFU和I-cache已经使用valid/ready保持尚未消费的取指响应，因此首版没有复制一个功能相同的
-IF/ID寄存器。IDU是组合译码边界，`decode_execute_stage`是第一处新增的流水寄存器。
+IFU和I-cache使用valid/ready保持当前取指响应；两项fetch queue保存已经完成但IDU尚未接收
+的取指结果，用于吸收短时后端反压并切断I-cache到IDU的组合反压路径。IDU是组合译码边界，
+`decode_execute_stage`保存进入执行级的指令。
 
 | 边界 | 保存的payload | 有效状态所有者 | 主要作用 |
 | --- | --- | --- | --- |
-| IFU到IDU | `fetch_entry_t` | IFU/I-cache | 保持PC、指令、前端身份和取指异常 |
+| IFU到fetch queue | `fetch_entry_t` | IFU/I-cache | 交付已经完成的取指结果 |
+| fetch queue到IDU | `fetch_entry_t[2]` | `riscv32_fetch_buffer` | 保持PC、指令、前端身份和取指异常 |
 | ID/EX | `execute_packet_t` | `riscv32_decode_execute_stage` | 保存uop、两个源操作数和CSR读取结果 |
 | EX/LSU完成 | `writeback_result_t` | completion生产者 | 统一标量执行与访存完成结果 |
 | completion/WB | `writeback_result_t` | `riscv32_writeback_stage` | 切断执行到commit的组合路径，稳定退休payload |
@@ -65,14 +71,16 @@ input_ready      = stage_can_accept && !flush
 
 I-cache命中响应被IDU接收的同一周期，IFU直接在lookup请求通道呈现下一条顺序PC。若
 I-cache的`ready`为1，旧响应离开和新请求进入在同一周期完成，IFU继续保持一个lookup在途；
-若`ready`为0，IFU在下一周期进入发送状态并稳定保持相同的PC、前端tag和epoch。该路径没有
-增加fetch queue、MSHR或宽payload寄存器，只消除了原来每次响应后固定回到发送状态造成的
-一周期空泡。
+若`ready`为0，IFU在下一周期进入发送状态并稳定保持相同的PC、前端tag和epoch。该路径消除
+了原来每次响应后固定回到发送状态造成的一周期空泡。随后加入的两项fetch queue允许IFU在
+IDU短暂停顿时继续交付最多两个已取回结果；队列满后必须向IFU传播反压。
 
 redirect优先于顺序请求。redirect与响应交付同拍发生时，IFU禁止发送旧控制流的`PC+4`，
 保存redirect目标并增加epoch；已经发出的旧请求仍完成协议握手，但旧epoch响应只会被排空，
 不会进入IDU。当前结构仍限制为一个lookup在途，不具备多请求并行、hit-under-miss或预测
 取指能力，这些功能需要显式request queue和返回匹配，不能继续扩展当前两状态FSM实现。
+有限深度队列不能保证后端任意长停顿时仍每拍取指；当前能够保证的是：I-cache本地命中、
+lookup端口ready、无redirect且fetch queue有空间时，前端可以连续每拍交付一条指令。
 
 在RV32、64B/2-way/8B line课程面积配置下做同代码基线A/B综合：严格串行IFU面积为
 25372.676 um^2，同周期换手后为25627.770 um^2，增加255.094 um^2（1.01%）；两者时序
@@ -84,9 +92,10 @@ redirect优先于顺序请求。redirect与响应交付同拍发生时，IFU禁�
 
 ### 3.1 RAW数据冒险
 
-IDU给出的`uses_rs1/uses_rs2/writes_rd`是冒险判断的唯一语义来源。当前没有forwarding，若
-ID/EX或WB中的老指令将写入当前译码指令使用的源寄存器，hazard controller阻止当前指令
-进入ID/EX。生产者在commit边沿写入架构寄存器后，下一周期消费者从组合读口读到新值。
+IDU给出的`uses_rs1/uses_rs2/writes_rd`是冒险判断的唯一语义来源。hazard controller分别
+检查EX和WB生产者；EX结果已产生时直接前递，WB结果在提交当拍前递。若最新的EX生产者命中
+但结果尚不可用，消费者必须停顿，不能错误使用同名的更旧WB值。load结果在blocking LSU
+返回前不可用，因此load-use仍保留RAW停顿。
 
 不检查WAR和WAW：单发射、顺序执行、顺序提交以及架构寄存器只在commit写入，使年轻指令
 不可能先于老指令更新架构状态。进入乱序阶段后，这些依赖由rename、物理寄存器和ROB处理。
@@ -162,14 +171,15 @@ EX指令发出completion或访存请求，并清空ID/EX、completion/WB以及�
 
 ## 6. 当前性能限制与演进顺序
 
-首版的保守规则会产生可观停顿，但每一种停顿都有单独PMU计数：RAW等待、串行化等待、LSU
+当前保守规则仍会产生可观停顿，但每一种停顿都有单独PMU计数：RAW等待、串行化等待、LSU
 结构等待、控制flush和被提交级恢复丢弃的EX指令。后续优化按以下顺序进行：
 
-1. 增加EX/WB到ID/EX操作数的forwarding，缩短普通ALU RAW等待；
-2. 对load-use保留必要停顿，并在加入D-cache后根据真实返回时刻唤醒；
-3. 增加静态或动态分支预测，用前端tag和epoch完成错误路径恢复；
-4. 把blocking LSU升级为带队列的接口，再考虑独立completion仲裁；
-5. 只有顺序流水线的精确异常和回归稳定后，才引入rename、ROB和乱序调度。
+1. 已增加EX/WB到ID/EX操作数的forwarding，普通ALU依赖不再固定等待commit；
+2. 已增加两项fetch queue，隔离短时IDU反压；
+3. 对load-use保留必要停顿，并在加入D-cache后根据真实返回时刻唤醒；
+4. 增加静态或动态分支预测，用前端tag和epoch完成错误路径恢复；
+5. 把blocking LSU升级为带队列的接口，再考虑独立completion仲裁；
+6. 只有顺序流水线的精确异常和回归稳定后，才引入rename、ROB和乱序调度。
 
 ## 7. 验证
 
@@ -182,6 +192,16 @@ make test-pipeline-configs PROJECT=riscv32
 覆盖空级接收、同拍替换、反压payload保持、flush、EX/WB RAW、串行化、LSU结构冒险以及
 EX级和commit级redirect的不同清除范围。异常定向场景还覆盖IFU异常优先于IDU重新译码、
 EBREAK/ECALL译码、LSU未对齐与访问错误，以及WB、EX和ID同时出现异常时只提交最老异常。
+
+流水线控制的有界形式验证：
+
+```sh
+make formal-pipeline
+```
+
+当前BMC深度为20。fetch queue使用独立顺序参考模型验证不丢失、不重复、保持顺序、flush
+清空和反压稳定；hazard controller验证EX/WB最新生产者优先、不可用结果必须停顿、同一源
+操作数不会同时选择两个前递源。该验证只覆盖控制模块性质，不等价于整核形式化证明。
 
 整机回归：
 
@@ -197,8 +217,8 @@ MicroBench用于比较流水化前后的周期、IPC和各类停顿占比，不�
 同一测量窗口执行1971267周期、IPC为0.218236，周期减少186459（8.64%），IPC提升9.46%。
 该优化不增加在途请求数或存储项，只删除固定前端空泡。
 
-当前流水线仍没有forwarding，所有命中ID/EX或WB目的寄存器的RAW都停顿；taken控制流在EX
-解析且没有预测；LSU事务期间不允许年轻指令继续进入执行。同周期取指换手后，MicroBench
-完整运行中仍有711592个RAW等待周期、1426390个LSU结构等待周期和177815次控制flush；
-IFU下游反压占59.314%。因此下一步应减少后端RAW、blocking LSU和错误路径取指，而不是继续
-在单在途IFU FSM中叠加状态。
+加入两项fetch queue和EX/WB forwarding后，同一MicroBench `test`测量窗口执行1770976周期、
+退休430203条指令，IPC为0.242918；相对同周期换手版本减少200291周期（-10.16%），IPC提升
+11.31%。完整运行中RAW等待为255742周期，LSU结构等待为1438484周期，控制flush为178314次，
+IFU下游反压占50.252%。当前最大瓶颈已经是blocking LSU；队列不能消除持续后端停顿，下一步
+应优先缩短数据访问占用，再加入分支预测减少错误路径取指。

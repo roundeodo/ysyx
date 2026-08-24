@@ -945,3 +945,51 @@ AM使用提交的`EBREAK`作为宿主仿真终止标记，而RTL仍按架构把�
 在提交沿设置仿真结束状态，因此C++执行循环必须先检查结束状态，再决定是否让NEMU继续执行
 终止标记。这样既保留硬件断点异常语义，又避免把宿主退出约定之后的PC重定向拿去做一次
 没有意义的DiffTest比较。
+
+## 2026-08-24 - Fetch queue、操作数前递与流水线控制BMC
+
+在IFU和IDU之间增加两项寄存器化fetch queue。I-cache本地命中、lookup端口ready、无redirect
+且队列有空间时，IFU可以连续每拍交付一条指令；IDU短暂停顿先消耗队列容量，队列满后才向
+IFU传播反压。redirect禁止当拍旧路径入队，并在时钟沿清空已经缓冲的旧路径指令。
+
+hazard controller增加EX和WB两个前递来源。EX是更新的生产者，优先于WB；若EX命中源寄存器
+但结果尚不可用，则必须保持RAW停顿，不能退回使用更旧WB结果。普通ALU依赖可从EX直接前递，
+同拍提交的结果可从WB前递；load-use在LSU完成前仍停顿。
+
+验证结果：
+
+| 验证项 | 结果 |
+| --- | --- |
+| `make lint-configs PROJECT=riscv32` | RV32/RV64通过，仅保留既有未使用字段警告 |
+| `make test-pipeline-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make formal-pipeline` | BMC深度20通过 |
+| `make regression-p3-f-rv32 PROJECT=riscv32` | 35/35 DiffTest通过 |
+| `make perf PROJECT=riscv32 NPC_CONFIG=rv32-baseline PERF_SCALE=test` | MicroBench PASS |
+
+MicroBench同一PMU测量窗口对比：
+
+| 指标 | 同周期IFU换手 | Fetch queue和前递 | 变化 |
+| --- | ---: | ---: | ---: |
+| 退休指令 | 430203 | 430203 | 0 |
+| 周期 | 1971267 | 1770976 | -200291（-10.16%） |
+| IPC | 0.218236 | 0.242918 | +11.31% |
+
+新版本完整运行的active周期为3284725，退休834484条指令，IPC为0.254050。主要计数为：
+
+| 指标 | 数值 |
+| --- | ---: |
+| RAW等待周期 | 255742（7.786%） |
+| LSU结构等待周期 | 1438484（43.793%） |
+| 控制flush | 178314次 |
+| IFU下游反压周期 | 1650655（50.252%） |
+| I-cache命中率 | 99.186% |
+| I-cache AMAT | 1.219周期 |
+
+这组计数不能解释为IFU命中吞吐不足。队列能吸收短时反压，但blocking LSU会让IDU持续多拍
+不接收，任何有限队列最终都会填满。当前性能优化优先级应为：缩短或解耦LSU占用、解决
+load-use等待、加入分支预测，最后再根据前端并发需求增加lookup在途数。
+
+形式验证采用独立顺序参考模型检查fetch queue的顺序、容量、flush和反压性质，并检查前递
+选择的最新生产者优先规则。它没有把当前整核与旧单周期核做提交事件等价，因此不能声称已经
+完成手册所述的整核形式化验证；整核版本还需要固定单周期REF，并比较每条退休指令的PC、
+next PC、GPR写入、CSR写入和trap事件。
