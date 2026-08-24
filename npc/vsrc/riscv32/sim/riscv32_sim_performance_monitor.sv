@@ -153,7 +153,9 @@ module riscv32_sim_performance_monitor
            real'(icache_cacheable_miss_response_count_i) * average_hit_latency;
   endfunction
 
-  function automatic real calculate_ideal_dcache_cycle_count();
+  function automatic real calculate_oracle_single_cycle_data_memory_cycle_count();
+    // 这不是某个可实现D-cache的性能模型。它把每条load/store的执行时间强制缩短到一拍，
+    // 只用于给数据供给优化建立绝对上限，不包含miss、写回、端口冲突和uncached访问。
     return real'(active_cycle_count_q) -
            calculate_memory_execution_excess_cycles();
   endfunction
@@ -166,7 +168,7 @@ module riscv32_sim_performance_monitor
            calculate_icache_miss_penalty_cycle_sum();
   endfunction
 
-  function automatic real calculate_ideal_pipeline_and_dcache_cycle_count();
+  function automatic real calculate_ideal_pipeline_and_oracle_data_memory_cycle_count();
     return real'(retired_instruction_count_q) +
            calculate_icache_miss_penalty_cycle_sum();
   endfunction
@@ -540,15 +542,15 @@ module riscv32_sim_performance_monitor
              calculate_memory_execution_excess_cycles());
     $display("I-cache critical miss excess cycles   : %.3f",
              calculate_icache_miss_penalty_cycle_sum());
-    $display("ideal D-cache cycles / speedup         : %.3f / %.3fx",
-             calculate_ideal_dcache_cycle_count(),
-             calculate_speedup(calculate_ideal_dcache_cycle_count()));
+    $display("oracle 1-cycle data memory / speedup   : %.3f / %.3fx",
+             calculate_oracle_single_cycle_data_memory_cycle_count(),
+             calculate_speedup(calculate_oracle_single_cycle_data_memory_cycle_count()));
     $display("ideal single-issue pipeline cycles     : %.3f / %.3fx",
              calculate_ideal_single_issue_pipeline_cycle_count(),
              calculate_speedup(calculate_ideal_single_issue_pipeline_cycle_count()));
-    $display("ideal pipeline + D-cache cycles        : %.3f / %.3fx",
-             calculate_ideal_pipeline_and_dcache_cycle_count(),
-             calculate_speedup(calculate_ideal_pipeline_and_dcache_cycle_count()));
+    $display("ideal pipeline + oracle data memory    : %.3f / %.3fx",
+             calculate_ideal_pipeline_and_oracle_data_memory_cycle_count(),
+             calculate_speedup(calculate_ideal_pipeline_and_oracle_data_memory_cycle_count()));
     $display("==========================================================");
 
     if (decoded_instruction_count_q != ifu_instruction_delivery_count_q) begin

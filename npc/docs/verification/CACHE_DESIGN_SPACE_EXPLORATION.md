@@ -471,16 +471,17 @@ memory_excess = memory_execution_cycle_sum - memory_instruction_count
               = 1316766 cycles
 ```
 
-理想D-cache假设所有load/store都只占基础一周期，但保留当前前端、控制流和其他开销：
+神谕单周期数据存储器假设所有load/store都只占基础一周期，但保留当前前端、控制流和其他
+开销。它没有模拟任何具体D-cache，不能当作可实现D-cache的预期收益：
 
 ```text
-ideal_dcache_cycles = active_cycles - memory_excess
-                    = 1967326 cycles
-ideal_dcache_speedup = 3284092 / 1967326 = 1.669x
+oracle_data_memory_cycles = active_cycles - memory_excess
+                          = 1967326 cycles
+oracle_data_memory_speedup = 3284092 / 1967326 = 1.669x
 ```
 
-这是真正D-cache绝不可能超过的访存收益上限，因为现实中仍有命中延迟、miss、写回、uncached
-访问和结构冲突。
+这是任何D-cache都不可能超过的数据供给收益上限，因为现实中仍有命中延迟、miss、写回、
+uncached访问和结构冲突。
 
 I-cache的额外miss开销直接由原始整数计数器计算，避免用打印后的小数平均值反推：
 
@@ -501,16 +502,19 @@ ideal_pipeline_cycles = retired_instructions
 ideal_pipeline_speedup = 3284092 / 2457466 = 1.336x
 ```
 
-最后同时假设理想流水线和理想D-cache，仅保留一条指令一个基础周期与当前I-cache miss开销：
+最后同时假设理想流水线和神谕单周期数据存储器，仅保留一条指令一个基础周期与当前I-cache
+miss开销：
 
 ```text
-ideal_pipeline_and_dcache_cycles = retired_instructions + icache_miss_excess
-                                  = 1140700 cycles
+ideal_pipeline_and_oracle_data_memory_cycles
+    = retired_instructions + icache_miss_excess
+    = 1140700 cycles
 combined_ideal_speedup = 3284092 / 1140700 = 2.879x
 ```
 
 `1.669x`、`1.336x`和`2.879x`都不是未来RTL的承诺值。前两项也不能直接相乘，因为两种优化
-消除的周期集合需要按同一基线重新组合。该结果表明当前版本中，理想D-cache的上限大于仅把
-非访存执行重叠起来的单发射流水线收益；但在23000 um^2课程面积约束下，使用标准单元加入
-有效容量的D-cache并不现实。工程顺序应先实现五级流水线和精确stall/flush，再在采用SRAM宏
-的配置中加入D-cache，最后用相同workload和统计窗口比较实测值与本节理想上限。
+消除的周期集合需要按同一基线重新组合。`1.669x`只说明当前执行时间中数据访存额外周期占比
+较高，不能证明加入现实D-cache比流水线更划算。手册比较的是面积约束下可实现D-cache的
+性价比：同容量D-cache因写路径、dirty状态和写回控制而比I-cache更大，而当前23000 um^2
+课程预算几乎没有剩余空间。工程顺序应先实现五级流水线和精确stall/flush，再在采用SRAM宏
+的配置中加入D-cache，最后用相同workload、统计窗口和真实miss/writeback代价计算实际收益。

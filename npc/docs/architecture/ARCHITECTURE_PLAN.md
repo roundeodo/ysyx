@@ -384,8 +384,9 @@ npc/docs/
 
 ### D006：先完成顺序流水线，再实现正式D-cache
 
-原因：RV32 MicroBench `test`计数表明，理想单发射流水线和理想D-cache的收益上限分别约为
-1.336x和1.669x，但当前23000 um^2课程面积约束无法容纳由标准单元实现的有效容量D-cache。
+原因：RV32 MicroBench `test`计数表明，理想单发射流水线的收益上限约为1.336x；把所有
+load/store强制缩短到一拍的神谕数据存储器上限为1.669x，但后者不是可实现D-cache的性能
+预测。当前23000 um^2课程面积约束无法容纳由标准单元实现的有效容量D-cache。
 顺序流水线不依赖新增大容量阵列，并且是后续non-blocking cache、LSQ和内存级并行的前提。
 因此先在现有I-cache和uncached LSU接口上完成stall、forward、flush和精确异常，再在可使用
 SRAM宏的正式配置中加入参数化write-back/write-allocate D-cache、writeback buffer和MSHR。
