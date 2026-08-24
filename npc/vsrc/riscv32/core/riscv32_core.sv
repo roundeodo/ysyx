@@ -570,6 +570,35 @@ module riscv32_core
   );
 
 `ifndef SYNTHESIS
+  always_ff @(posedge clk_i) begin : debug_frontend_protocol
+    if (rst_ni && $test$plusargs("debug_frontend")) begin
+      if (selected_redirect_req_valid) begin
+        $display("frontend-debug redirect source=%h target=%h reason=%0d",
+                 selected_redirect_req.source_pc, selected_redirect_req.target_pc,
+                 selected_redirect_req.reason);
+      end
+      if (icache_lookup_req_valid && icache_lookup_req_ready) begin
+        $display("frontend-debug lookup-request pc=%h tag=%0d epoch=%0d",
+                 icache_lookup_req.fetch_addr, icache_lookup_req.frontend_tag,
+                 icache_lookup_req.fetch_epoch);
+      end
+      if (icache_lookup_resp_valid && icache_lookup_resp_ready) begin
+        $display("frontend-debug lookup-response pc=%h tag=%0d epoch=%0d deliver=%0b",
+                 icache_lookup_resp.fetch_addr, icache_lookup_resp.frontend_tag,
+                 icache_lookup_resp.fetch_epoch, ifu_fetch_entry_valid);
+      end
+      if (ifu_fetch_entry_valid && ifu_fetch_entry_ready) begin
+        $display("frontend-debug fetch-buffer-push pc=%h", ifu_fetch_entry.pc);
+      end
+      if (idu_fetch_entry_valid && idu_fetch_entry_ready) begin
+        $display("frontend-debug fetch-buffer-pop pc=%h", idu_fetch_entry.pc);
+      end
+      if (commit_valid) begin
+        $display("frontend-debug commit pc=%h next=%h", commit.pc, commit.next_pc);
+      end
+    end
+  end
+
   // rst_ni是状态寄存器的异步复位，同时也是SVA的disable条件。Verilator会把后者
   // 视为同步使用并报告SYNCASYNCNET；该诊断不代表复位网络存在功能冲突。
   /* verilator lint_off SYNCASYNCNET */
