@@ -232,6 +232,15 @@ module riscv32_core
       .rst_ni                             (rst_ni),
       .fetch_entry_i                      (ifu_fetch_entry),
       .fetch_entry_handshake_occurred_i   (ifu_fetch_entry_valid && ifu_fetch_entry_ready),
+      .resolved_conditional_branch_pc_i   (exu_result.uop.pc),
+      .resolved_conditional_branch_occurred_i(
+          exu_result_valid && exu_result_ready &&
+          (exu_result.uop.branch_ctrl.op == CF_BRANCH) && !exu_result.uop.exception_valid
+      ),
+      .resolved_conditional_branch_taken_i(
+          exu_result.next_pc !=
+          (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES))
+      ),
       .predicted_fetch_entry_o            (predicted_fetch_entry),
       .prediction_redirect_req_o          (fetch_prediction_redirect_req),
       .prediction_redirect_req_valid_o    (fetch_prediction_redirect_req_valid)
