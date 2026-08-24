@@ -26,6 +26,14 @@ module riscv32_sim_performance_monitor
     input logic pipeline_control_flush_occurred_i,
     input logic pipeline_execute_instruction_discarded_i,
 
+    // 控制流结果在EX级真正完成握手时采样。预测收益必须按实际执行过的控制流指令
+    // 统计，不能拿decode数量或redirect数量替代：不跳分支不会产生当前实现的redirect，
+    // 而JAL/JALR与条件分支的可预测性也不同。
+    input logic             control_flow_resolution_occurred_i,
+    input control_flow_op_e resolved_control_flow_op_i,
+    input logic             resolved_control_flow_taken_i,
+    input xlen_data_t       resolved_control_flow_immediate_i,
+
     input logic     lsu_request_occurred_i,
     input mem_cmd_e lsu_request_memory_cmd_i,
     input logic     lsu_read_address_occurred_i,
@@ -49,6 +57,17 @@ module riscv32_sim_performance_monitor
   logic     [63:0] pipeline_structural_wait_cycle_count_q;
   logic     [63:0] pipeline_control_flush_count_q;
   logic     [63:0] pipeline_execute_discard_count_q;
+
+  logic     [63:0] conditional_branch_count_q;
+  logic     [63:0] conditional_branch_taken_count_q;
+  logic     [63:0] backward_branch_count_q;
+  logic     [63:0] backward_branch_taken_count_q;
+  logic     [63:0] forward_branch_count_q;
+  logic     [63:0] forward_branch_taken_count_q;
+  logic     [63:0] direct_jump_count_q;
+  logic     [63:0] indirect_jump_count_q;
+  logic     [63:0] always_not_taken_prediction_error_count_q;
+  logic     [63:0] btfnt_prediction_error_count_q;
 
   logic     [63:0] integer_instruction_count_q;
   logic     [63:0] branch_instruction_count_q;
@@ -220,6 +239,16 @@ module riscv32_sim_performance_monitor
       pipeline_structural_wait_cycle_count_q  <= '0;
       pipeline_control_flush_count_q          <= '0;
       pipeline_execute_discard_count_q        <= '0;
+      conditional_branch_count_q              <= '0;
+      conditional_branch_taken_count_q        <= '0;
+      backward_branch_count_q                 <= '0;
+      backward_branch_taken_count_q           <= '0;
+      forward_branch_count_q                  <= '0;
+      forward_branch_taken_count_q            <= '0;
+      direct_jump_count_q                     <= '0;
+      indirect_jump_count_q                   <= '0;
+      always_not_taken_prediction_error_count_q <= '0;
+      btfnt_prediction_error_count_q          <= '0;
       integer_instruction_count_q             <= '0;
       branch_instruction_count_q              <= '0;
       memory_instruction_count_q              <= '0;
@@ -274,6 +303,56 @@ module riscv32_sim_performance_monitor
       end
       if (pipeline_execute_instruction_discarded_i) begin
         pipeline_execute_discard_count_q <= pipeline_execute_discard_count_q + 64'd1;
+      end
+
+      if (control_flow_resolution_occurred_i) begin
+        unique case (resolved_control_flow_op_i)
+          CF_BRANCH: begin
+            conditional_branch_count_q <= conditional_branch_count_q + 64'd1;
+            if (resolved_control_flow_taken_i) begin
+              conditional_branch_taken_count_q <= conditional_branch_taken_count_q + 64'd1;
+              // 当前RTL按顺序PC取指，所以条件分支实际跳转就是一次预测错误。
+              always_not_taken_prediction_error_count_q <=
+                  always_not_taken_prediction_error_count_q + 64'd1;
+            end
+
+            // BTFNT只使用分支立即数符号：负偏移预测跳转，正偏移预测不跳。
+            // 这里直接统计候选策略的错误数，尚未改变RTL行为。
+            if (resolved_control_flow_immediate_i[XLEN-1]) begin
+              backward_branch_count_q <= backward_branch_count_q + 64'd1;
+              if (resolved_control_flow_taken_i) begin
+                backward_branch_taken_count_q <= backward_branch_taken_count_q + 64'd1;
+              end else begin
+                btfnt_prediction_error_count_q <= btfnt_prediction_error_count_q + 64'd1;
+              end
+            end else begin
+              forward_branch_count_q <= forward_branch_count_q + 64'd1;
+              if (resolved_control_flow_taken_i) begin
+                forward_branch_taken_count_q <= forward_branch_taken_count_q + 64'd1;
+                btfnt_prediction_error_count_q <= btfnt_prediction_error_count_q + 64'd1;
+              end
+            end
+          end
+
+          CF_JAL: begin
+            direct_jump_count_q <= direct_jump_count_q + 64'd1;
+            // JAL恒跳转且目标为PC+imm；始终顺序取指一定预测错误，BTFNT扩展策略则
+            // 可在译码时准确得到方向和目标，因此不计入BTFNT错误。
+            always_not_taken_prediction_error_count_q <=
+                always_not_taken_prediction_error_count_q + 64'd1;
+          end
+
+          CF_JALR: begin
+            indirect_jump_count_q <= indirect_jump_count_q + 64'd1;
+            // 没有BTB/RAS时，JALR目标无法仅由指令位得到；两种低成本静态策略均按
+            // 顺序PC预测，所以每条正常完成的JALR都是一次预测错误。
+            always_not_taken_prediction_error_count_q <=
+                always_not_taken_prediction_error_count_q + 64'd1;
+            btfnt_prediction_error_count_q <= btfnt_prediction_error_count_q + 64'd1;
+          end
+
+          default: ;
+        endcase
       end
     end
   end
@@ -576,6 +655,29 @@ module riscv32_sim_performance_monitor
              pipeline_structural_wait_cycle_count_q, active_cycle_count_q));
     $display("pipeline control flushes / EX discards: %0d / %0d", pipeline_control_flush_count_q,
              pipeline_execute_discard_count_q);
+    $display("");
+    $display("resolved control-flow profile");
+    $display("conditional branches / taken        : %0d / %0d (%.3f%% taken)",
+             conditional_branch_count_q, conditional_branch_taken_count_q,
+             calculate_percentage(conditional_branch_taken_count_q, conditional_branch_count_q));
+    $display("  backward / taken                  : %0d / %0d (%.3f%% taken)",
+             backward_branch_count_q, backward_branch_taken_count_q,
+             calculate_percentage(backward_branch_taken_count_q, backward_branch_count_q));
+    $display("  forward / taken                   : %0d / %0d (%.3f%% taken)",
+             forward_branch_count_q, forward_branch_taken_count_q,
+             calculate_percentage(forward_branch_taken_count_q, forward_branch_count_q));
+    $display("direct / indirect jumps             : %0d / %0d", direct_jump_count_q,
+             indirect_jump_count_q);
+    $display("always-not-taken prediction errors  : %0d (%.3f%% of control flow)",
+             always_not_taken_prediction_error_count_q,
+             calculate_percentage(always_not_taken_prediction_error_count_q,
+                                  conditional_branch_count_q + direct_jump_count_q +
+                                  indirect_jump_count_q));
+    $display("BTFNT+JAL prediction errors          : %0d (%.3f%% of control flow)",
+             btfnt_prediction_error_count_q,
+             calculate_percentage(btfnt_prediction_error_count_q,
+                                  conditional_branch_count_q + direct_jump_count_q +
+                                  indirect_jump_count_q));
     $display("");
     $display("idealized upper-bound estimates");
     $display("memory execution excess cycles        : %.3f",

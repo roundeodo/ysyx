@@ -479,6 +479,16 @@ module riscv32_core
       .pipeline_structural_waiting_i(structural_hazard_present && decoded_uop_valid),
       .pipeline_control_flush_occurred_i(selected_redirect_req_valid),
       .pipeline_execute_instruction_discarded_i(commit_redirect_occurred && execute_packet_valid),
+      .control_flow_resolution_occurred_i(
+          exu_result_valid && exu_result_ready &&
+          (exu_result.uop.fu_type == FU_BRANCH) && !exu_result.uop.exception_valid
+      ),
+      .resolved_control_flow_op_i(exu_result.uop.branch_ctrl.op),
+      .resolved_control_flow_taken_i(
+          exu_result.next_pc !=
+          (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES))
+      ),
+      .resolved_control_flow_immediate_i(exu_result.uop.imm),
       .lsu_request_occurred_i(lsu_req_valid && lsu_req_ready),
       .lsu_request_memory_cmd_i(lsu_req.uop.mem_ctrl.cmd),
       .lsu_read_address_occurred_i(data_axi4_manager_o.ar_valid && data_axi4_manager_i.ar_ready),
