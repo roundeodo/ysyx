@@ -58,12 +58,16 @@ module riscv32_decode_control_flow_predictor
   end
 
 `ifndef SYNTHESIS
-  assert property (@(*) predicted_redirect_req_valid_o |-> prediction_o.predicted_taken)
-  else $error("decode predictor redirected without a taken prediction");
-
-  assert property (@(*) prediction_o.predicted_taken |->
-                    (prediction_o.predicted_target[1:0] == 2'b00))
-  else $error("decode predictor produced a misaligned target");
+  always_comb begin : check_static_prediction
+    if (predicted_redirect_req_valid_o) begin
+      assert (prediction_o.predicted_taken)
+      else $error("decode predictor redirected without a taken prediction");
+    end
+    if (prediction_o.predicted_taken) begin
+      assert (prediction_o.predicted_target[1:0] == 2'b00)
+      else $error("decode predictor produced a misaligned target");
+    end
+  end
 `endif
 
 endmodule
