@@ -20,6 +20,12 @@ module riscv32_sim_performance_monitor
     input logic     lsu_completion_occurred_i,
     input logic     instruction_retirement_occurred_i,
 
+    input logic pipeline_raw_hazard_waiting_i,
+    input logic pipeline_serializing_waiting_i,
+    input logic pipeline_structural_waiting_i,
+    input logic pipeline_control_flush_occurred_i,
+    input logic pipeline_execute_instruction_discarded_i,
+
     input logic     lsu_request_occurred_i,
     input mem_cmd_e lsu_request_memory_cmd_i,
     input logic     lsu_read_address_occurred_i,
@@ -38,6 +44,11 @@ module riscv32_sim_performance_monitor
   logic [63:0] retired_instruction_count_q;
   logic [63:0] exu_completion_count_q;
   logic [63:0] lsu_completion_count_q;
+  logic [63:0] pipeline_raw_hazard_wait_cycle_count_q;
+  logic [63:0] pipeline_serializing_wait_cycle_count_q;
+  logic [63:0] pipeline_structural_wait_cycle_count_q;
+  logic [63:0] pipeline_control_flush_count_q;
+  logic [63:0] pipeline_execute_discard_count_q;
 
   logic [63:0] integer_instruction_count_q;
   logic [63:0] branch_instruction_count_q;
@@ -220,6 +231,11 @@ module riscv32_sim_performance_monitor
       retired_instruction_count_q        <= '0;
       exu_completion_count_q             <= '0;
       lsu_completion_count_q             <= '0;
+      pipeline_raw_hazard_wait_cycle_count_q   <= '0;
+      pipeline_serializing_wait_cycle_count_q  <= '0;
+      pipeline_structural_wait_cycle_count_q   <= '0;
+      pipeline_control_flush_count_q           <= '0;
+      pipeline_execute_discard_count_q         <= '0;
       integer_instruction_count_q        <= '0;
       branch_instruction_count_q         <= '0;
       memory_instruction_count_q         <= '0;
@@ -260,13 +276,30 @@ module riscv32_sim_performance_monitor
       if (lsu_completion_occurred_i) begin
         lsu_completion_count_q <= lsu_completion_count_q + 64'd1;
       end
+      if (pipeline_raw_hazard_waiting_i) begin
+        pipeline_raw_hazard_wait_cycle_count_q <=
+            pipeline_raw_hazard_wait_cycle_count_q + 64'd1;
+      end
+      if (pipeline_serializing_waiting_i) begin
+        pipeline_serializing_wait_cycle_count_q <=
+            pipeline_serializing_wait_cycle_count_q + 64'd1;
+      end
+      if (pipeline_structural_waiting_i) begin
+        pipeline_structural_wait_cycle_count_q <=
+            pipeline_structural_wait_cycle_count_q + 64'd1;
+      end
+      if (pipeline_control_flush_occurred_i) begin
+        pipeline_control_flush_count_q <= pipeline_control_flush_count_q + 64'd1;
+      end
+      if (pipeline_execute_instruction_discarded_i) begin
+        pipeline_execute_discard_count_q <= pipeline_execute_discard_count_q + 64'd1;
+      end
     end
   end
 
-  // Execution latency starts when IDU transfers a uop and ends when EXU or LSU
-  // transfers its result. The current core has one in-flight execution slot.
-  // A future out-of-order core must replace this scalar state with timestamps
-  // indexed by ROB tag so multiple instructions can be measured concurrently.
+  // 当前顺序流水线的ID/EX中最多有一条执行中指令，但“旧指令完成”和“新指令进入ID/EX”
+  // 可以同拍发生。完成事件因此先结算旧上下文，再由decode事件建立新上下文；不能把同拍
+  // 的两个事件视为同一条组合完成指令。未来乱序核需要改成按ROB tag索引的时间戳表。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       instruction_execution_active_q             <= 1'b0;
@@ -278,25 +311,25 @@ module riscv32_sim_performance_monitor
       csr_execution_cycle_sum_q                  <= '0;
       system_execution_cycle_sum_q               <= '0;
       unclassified_execution_cycle_sum_q         <= '0;
-    end else if (instruction_decode_occurred_i && instruction_completion_occurred) begin
-      // A combinational EXU or local LSU completion occupies one measured cycle.
-      add_instruction_execution_cycles(decoded_fu_type_i, 64'd1);
-      instruction_execution_active_q           <= 1'b0;
-      active_instruction_fu_type_q             <= FU_NONE;
-      active_instruction_elapsed_cycle_count_q <= '0;
-    end else if (instruction_decode_occurred_i) begin
-      instruction_execution_active_q           <= 1'b1;
-      active_instruction_fu_type_q             <= decoded_fu_type_i;
-      active_instruction_elapsed_cycle_count_q <= '0;
-    end else if (instruction_execution_active_q && instruction_completion_occurred) begin
-      add_instruction_execution_cycles(active_instruction_fu_type_q,
-                                       active_instruction_elapsed_cycle_count_q + 64'd1);
-      instruction_execution_active_q           <= 1'b0;
-      active_instruction_fu_type_q             <= FU_NONE;
-      active_instruction_elapsed_cycle_count_q <= '0;
-    end else if (instruction_execution_active_q) begin
-      active_instruction_elapsed_cycle_count_q <=
-          active_instruction_elapsed_cycle_count_q + 64'd1;
+    end else begin
+      if (instruction_execution_active_q && instruction_completion_occurred) begin
+        add_instruction_execution_cycles(active_instruction_fu_type_q,
+                                         active_instruction_elapsed_cycle_count_q + 64'd1);
+      end
+
+      if (instruction_decode_occurred_i) begin
+        instruction_execution_active_q           <= 1'b1;
+        active_instruction_fu_type_q             <= decoded_fu_type_i;
+        active_instruction_elapsed_cycle_count_q <= '0;
+      end else if (pipeline_execute_instruction_discarded_i ||
+                   instruction_completion_occurred) begin
+        instruction_execution_active_q           <= 1'b0;
+        active_instruction_fu_type_q             <= FU_NONE;
+        active_instruction_elapsed_cycle_count_q <= '0;
+      end else if (instruction_execution_active_q) begin
+        active_instruction_elapsed_cycle_count_q <=
+            active_instruction_elapsed_cycle_count_q + 64'd1;
+      end
     end
   end
 
@@ -536,6 +569,21 @@ module riscv32_sim_performance_monitor
              lsu_write_bus_transaction_count_q);
     $display("EXU / LSU completions                  : %0d / %0d", exu_completion_count_q,
              lsu_completion_count_q);
+    $display("");
+    $display("pipeline RAW-hazard wait cycles       : %0d (%.3f%%)",
+             pipeline_raw_hazard_wait_cycle_count_q,
+             calculate_percentage(pipeline_raw_hazard_wait_cycle_count_q,
+                                  active_cycle_count_q));
+    $display("pipeline serializing wait cycles      : %0d (%.3f%%)",
+             pipeline_serializing_wait_cycle_count_q,
+             calculate_percentage(pipeline_serializing_wait_cycle_count_q,
+                                  active_cycle_count_q));
+    $display("pipeline LSU structural wait cycles   : %0d (%.3f%%)",
+             pipeline_structural_wait_cycle_count_q,
+             calculate_percentage(pipeline_structural_wait_cycle_count_q,
+                                  active_cycle_count_q));
+    $display("pipeline control flushes / EX discards: %0d / %0d",
+             pipeline_control_flush_count_q, pipeline_execute_discard_count_q);
     $display("");
     $display("idealized upper-bound estimates");
     $display("memory execution excess cycles        : %.3f",

@@ -66,10 +66,15 @@ module riscv32_core
   logic decoded_uop_valid;
   logic decoded_uop_ready;
 
-  // 架构数据、PC和AXI4通道分别使用独立语义类型，使ISA、物理地址和总线可以独立扩展。
+  // IDU和寄存器堆组合生成待进入ID/EX的payload；decode_execute_stage输出才是
+  // 当前EX级指令。两个名称显式区分流水级边界两侧，避免把组合译码结果误当成寄存状态。
   xlen_data_t rs1_value;
   xlen_data_t rs2_value;
+  execute_packet_t decoded_execute_packet;
+  logic            decoded_execute_packet_valid;
+  logic            decoded_execute_packet_ready;
   execute_packet_t execute_packet;
+  logic            execute_packet_valid;
   logic execute_packet_ready;
 
   execute_result_t exu_result;
@@ -84,9 +89,13 @@ module riscv32_core
   logic lsu_writeback_valid;
   logic lsu_writeback_ready;
 
+  writeback_result_t completion_result;
+  logic              completion_result_valid;
+  logic              completion_result_ready;
+
   writeback_result_t writeback_result;
-  logic writeback_result_valid;
-  logic writeback_result_ready;
+  logic              writeback_result_valid;
+  logic              writeback_result_ready;
 
   commit_t commit;
   logic commit_valid;
@@ -114,13 +123,24 @@ module riscv32_core
   redirect_req_t selected_redirect_req;
   logic selected_redirect_req_valid;
 
+  logic decode_accept_allowed;
+  logic execute_issue_allowed;
+  logic decode_execute_flush;
+  logic writeback_flush;
+  logic raw_hazard_present;
+  logic serializing_hazard_present;
+  logic structural_hazard_present;
+  logic lsu_busy;
+  logic execute_redirect_occurred;
+  logic commit_redirect_occurred;
+
   always_comb begin
-    execute_packet             = '0;
-    execute_packet.uop         = decoded_uop;
-    execute_packet.rs1_value   = rs1_value;
-    execute_packet.rs2_value   = rs2_value;
-    execute_packet.csr_rdata   = csr_read_data;
-    execute_packet.csr_illegal = csr_read_illegal;
+    decoded_execute_packet             = '0;
+    decoded_execute_packet.uop         = decoded_uop;
+    decoded_execute_packet.rs1_value   = rs1_value;
+    decoded_execute_packet.rs2_value   = rs2_value;
+    decoded_execute_packet.csr_rdata   = csr_read_data;
+    decoded_execute_packet.csr_illegal = csr_read_illegal;
   end
 
   riscv32_ifu #(
@@ -244,9 +264,51 @@ module riscv32_core
       .mepc_o                        (csr_mepc)
   );
 
+  // RAW检测发生在操作数被ID/EX寄存器采样之前。无转发首版会等生产者离开WB；
+  // 串行化CSR/system指令则要求后端排空，并阻止年轻指令越过它。
+  assign lsu_busy = !lsu_req_ready;
+
+  riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
+      .clk_i                            (clk_i),
+      .rst_ni                           (rst_ni),
+      .decoded_uop_i                    (decoded_uop),
+      .decoded_uop_valid_i              (decoded_uop_valid),
+      .execute_uop_i                    (execute_packet.uop),
+      .execute_uop_valid_i              (execute_packet_valid),
+      .writeback_result_i               (writeback_result),
+      .writeback_result_valid_i         (writeback_result_valid),
+      .lsu_busy_i                       (lsu_busy),
+      .execute_redirect_occurred_i      (execute_redirect_occurred),
+      .commit_redirect_occurred_i       (commit_redirect_occurred),
+      .decode_accept_allowed_o          (decode_accept_allowed),
+      .execute_issue_allowed_o          (execute_issue_allowed),
+      .decode_execute_flush_o           (decode_execute_flush),
+      .writeback_flush_o                (writeback_flush),
+      .raw_hazard_present_o             (raw_hazard_present),
+      .serializing_hazard_present_o     (serializing_hazard_present),
+      .structural_hazard_present_o      (structural_hazard_present)
+  );
+
+  // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由IFU/I-cache持有，
+  // 不会出现“stage没有保存，但上游认为已经交付”的消息丢失。
+  assign decoded_execute_packet_valid = decoded_uop_valid && decode_accept_allowed;
+  assign decoded_uop_ready = decoded_execute_packet_ready && decode_accept_allowed;
+
+  riscv32_decode_execute_stage u_decode_execute_stage (
+      .clk_i                         (clk_i),
+      .rst_ni                        (rst_ni),
+      .decoded_execute_packet_i      (decoded_execute_packet),
+      .decoded_execute_packet_valid_i(decoded_execute_packet_valid),
+      .decoded_execute_packet_ready_o(decoded_execute_packet_ready),
+      .execute_packet_o              (execute_packet),
+      .execute_packet_valid_o        (execute_packet_valid),
+      .execute_packet_ready_i        (execute_packet_ready && execute_issue_allowed),
+      .flush_i                       (decode_execute_flush)
+  );
+
   riscv32_exu u_exu (
       .execute_packet_i      (execute_packet),
-      .execute_packet_valid_i(decoded_uop_valid && lsu_req_ready),
+      .execute_packet_valid_i(execute_packet_valid && execute_issue_allowed),
       .execute_packet_ready_o(execute_packet_ready),
       .exu_result_o          (exu_result),
       .exu_result_valid_o    (exu_result_valid),
@@ -255,10 +317,6 @@ module riscv32_core
       .lsu_req_valid_o       (lsu_req_valid),
       .lsu_req_ready_i       (lsu_req_ready)
   );
-
-  // This checkpoint retires in order and has no ROB. Hold younger decode work
-  // while the LSU owns the single in-flight instruction slot.
-  assign decoded_uop_ready = execute_packet_ready && lsu_req_ready;
 
   riscv32_lsu u_lsu (
       .clk_i                   (clk_i),
@@ -297,9 +355,23 @@ module riscv32_core
       .lsu_writeback_i         (lsu_writeback),
       .lsu_writeback_valid_i   (lsu_writeback_valid),
       .lsu_writeback_ready_o   (lsu_writeback_ready),
-      .writeback_result_o      (writeback_result),
-      .writeback_result_valid_o(writeback_result_valid),
-      .writeback_result_ready_i(writeback_result_ready)
+      .writeback_result_o      (completion_result),
+      .writeback_result_valid_o(completion_result_valid),
+      .writeback_result_ready_i(completion_result_ready)
+  );
+
+  // EXU/LSU completion先进入WB弹性寄存器，再由commit产生唯一架构事件。
+  // 这既切断执行到寄存器堆的长组合路径，也让Difftest只观察稳定的退休级payload。
+  riscv32_writeback_stage u_writeback_stage (
+      .clk_i                    (clk_i),
+      .rst_ni                   (rst_ni),
+      .completion_result_i      (completion_result),
+      .completion_result_valid_i(completion_result_valid),
+      .completion_result_ready_o(completion_result_ready),
+      .writeback_result_o       (writeback_result),
+      .writeback_result_valid_o (writeback_result_valid),
+      .writeback_result_ready_i (writeback_result_ready),
+      .flush_i                  (writeback_flush)
   );
 
   riscv32_commit u_commit (
@@ -346,6 +418,13 @@ module riscv32_core
       .exu_completion_occurred_i(exu_result_valid && exu_result_ready),
       .lsu_completion_occurred_i(lsu_writeback_valid && lsu_writeback_ready),
       .instruction_retirement_occurred_i(retired_instruction_occurred),
+      .pipeline_raw_hazard_waiting_i(raw_hazard_present),
+      .pipeline_serializing_waiting_i(serializing_hazard_present),
+      .pipeline_structural_waiting_i(structural_hazard_present),
+      .pipeline_control_flush_occurred_i(selected_redirect_req_valid),
+      .pipeline_execute_instruction_discarded_i(
+          commit_redirect_occurred && execute_packet_valid
+      ),
       .lsu_request_occurred_i(lsu_req_valid && lsu_req_ready),
       .lsu_request_memory_cmd_i(lsu_req.uop.mem_ctrl.cmd),
       .lsu_read_address_occurred_i(data_axi4_manager_o.ar_valid && data_axi4_manager_i.ar_ready),
@@ -391,10 +470,16 @@ module riscv32_core
   );
 
   assign redirect_req[EXU_REDIRECT_INDEX] = exu_result.redirect_req;
-  assign redirect_req_valid[EXU_REDIRECT_INDEX] = exu_result_valid && exu_result_ready &&
-                                                   exu_result.redirect_valid;
+  assign execute_redirect_occurred = exu_result_valid && exu_result_ready &&
+                                     exu_result.redirect_valid;
+  assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
   assign redirect_req[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
   assign redirect_req_valid[FENCE_I_REDIRECT_INDEX] = committed_fence_i_occurred;
+
+  // trap/mret和fence.i都在提交边界恢复控制流。它们必须清除同拍可能到达WB的年轻结果；
+  // 普通EX分支redirect只清除更年轻的ID/EX内容，不能清除分支自身的完成结果。
+  assign commit_redirect_occurred = redirect_req_valid[COMMIT_REDIRECT_INDEX] ||
+                                    redirect_req_valid[FENCE_I_REDIRECT_INDEX];
 
   riscv32_redirect_arbiter #(
       .SOURCE_COUNT(REDIRECT_SOURCE_COUNT)

@@ -38,8 +38,8 @@ module riscv32_completion_mux
   assign lsu_writeback_ready_o = writeback_result_ready_i;
   assign exu_result_ready_o    = writeback_result_ready_i && !lsu_writeback_valid_i;
 
-  // P0 has one instruction in flight, so exu_result_valid_i and lsu_writeback_valid_i are
-  // mutually exclusive. NOTE(P5): replace this mux with a multi-port completion
-  // network when independent execution units can complete concurrently.
+  // 首版顺序流水线在LSU busy期间阻止其他指令进入EX，因此EXU和LSU completion仍然互斥。
+  // 后续允许load后继续执行独立指令时，必须用带年龄信息的仲裁或ROB completion端口替代
+  // 这一固定优先级mux，不能让年轻EXU结果越过较老LSU结果提交。
 
 endmodule

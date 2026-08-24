@@ -25,9 +25,12 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_arch_regfile.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_pmu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_csr_file.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_idu.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_decode_execute_stage.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_pipeline_hazard_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_exu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_lsu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_completion_mux.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_writeback_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_commit.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_trap_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_redirect_arbiter.sv
