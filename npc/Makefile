@@ -5,10 +5,10 @@
 # ============================================================
 
 PROJECT ?= riscv32
-# RV32I默认使用性能配置：1KiB direct-mapped、8B line。实测表明，当前blocking
-# I-cache中扩大容量比继续加长line更有效；8B line同时限制完整refill占用时间。
-# RV64顺序核暂时保留原有64B/16B实验基线，避免本次RV32I调整改变另一配置的结果。
-NPC_ICACHE_WAY_COUNT ?= 1
+# 默认使用2-way I-cache。RV32I采用1KiB/8B line性能配置；同容量下2-way可以减少
+# 冲突miss，并且64B课程面积配置的实测总面积没有增加。RV64顺序核仍保留64B/16B
+# 几何基线，但与RV32共用同一相联度，避免维护第二套cache控制逻辑。
+NPC_ICACHE_WAY_COUNT ?= 2
 NPC_ICACHE_CAPACITY_BYTES ?= $(if $(filter rv64-sequential,$(NPC_CONFIG)),64,1024)
 NPC_ICACHE_LINE_BYTES ?= $(if $(filter rv64-sequential,$(NPC_CONFIG)),16,8)
 NPC_SDRAM_NATIVE_READ_BURST ?= 1

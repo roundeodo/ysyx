@@ -6,7 +6,7 @@
 
 关联决策：当前计划P1、D004和D005；历史计划D024
 
-最后更新：2026-08-22
+最后更新：2026-08-24
 
 ## 1. 问题和目标
 
@@ -28,15 +28,18 @@ AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点�
 
 ## B4课程面积配置与长期配置的边界
 
-当前RV32课程默认配置为64B容量、direct-mapped、8B line。该配置的目的不是替代本文后续
-记录的长期8KiB/2-way目标，而是在DFF/锁存器实现小容量array的阶段同时满足以下约束：
+当前RV32课程面积复现配置为64B容量、2-way、8B line。该配置的目的不是替代本文后续
+记录的长期8KiB起步目标，而是在DFF/锁存器实现小容量array的阶段同时满足以下约束：
 
 - Nangate45综合总面积低于23000 um^2；
 - 保留真实同步array读、tag比较、blocking miss和AXI4 refill协议，不用组合存储器或综合
   选项伪造面积结果；
 - 在当前单MSHR结构下，避免16B及更长line的refill尾部长期阻塞下一次lookup。
 
-实测64B/8B配置面积为22708.952 um^2。早期PSRAM路径的MicroBench `test` Total为
+同一版RTL下，64B/8B配置从1-way改为2-way后，面积由22708.952 um^2变为
+22522.220 um^2，减少186.732 um^2。这个极小标准单元阵列中，set数量减半所减少的选择
+逻辑超过了并行tag比较和替换状态的开销；不能据此推断采用SRAM宏的大容量2-way也会更小。
+早期PSRAM路径的MicroBench `test` Total为
 563.649ms；切换到AXI SDRAM并让2-beat refill映射为一条物理连续读后，Total降为71.005ms。
 同一SDRAM下的BL1基线为96.100ms，说明当前瓶颈既包括blocking miss占用，也包括下层重复
 地址、命令和首数据等待。进入流水线和非阻塞cache阶段后，必须重新探索容量、路数和line
@@ -51,14 +54,14 @@ AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点�
 | 属性 | 参数或派生关系 | 当前课程值 | 长期目标 | 说明 |
 | --- | --- | ---: | ---: | --- |
 | 容量 | `ICACHE_CAPACITY_BYTES` | 64 B | 8 KiB起步 | 当前array由标准单元实现，长期改用SRAM宏 |
-| 路数 | `ICACHE_WAY_COUNT` | 1 | 2或更多 | 当前直接映射删除了无效替换状态，长期按目标workload重新探索 |
+| 路数 | `ICACHE_WAY_COUNT` | 2 | 2或更多 | 当前使用双路并行tag比较和每set轮转替换状态 |
 | Cache line | `ICACHE_LINE_BYTES` | 8 B | 32或64 B | 当前单MSHR会被长line的refill尾部阻塞，长期先解除该瓶颈 |
 | 单次取指字节数 | `ICACHE_FETCH_BYTES` | 4 B | 参数化扩宽 | 当前匹配不支持压缩指令的单发射RV32I前端 |
-| Set数量 | `CAPACITY_BYTES / (WAYS * LINE_BYTES)` | 8 | 参数派生 | 由容量、路数和line大小唯一派生 |
+| Set数量 | `CAPACITY_BYTES / (WAYS * LINE_BYTES)` | 4 | 参数派生 | 由容量、路数和line大小唯一派生 |
 | 每行取指word数 | `LINE_BYTES / FETCH_BYTES` | 2 | 参数派生 | 由line大小和取指粒度唯一派生 |
 | Offset位数 | `$clog2(LINE_BYTES)` | 3 | 参数派生 | 选择cache line内的一个字节 |
-| Set index位数 | `$clog2(SETS)` | 3 | 参数派生 | 选择一个set |
-| Tag位数 | `PADDR_WIDTH - OFFSET_BITS - SET_INDEX_BITS` | 26 | 参数派生 | 区分映射到同一set的不同cache line |
+| Set index位数 | `$clog2(SETS)` | 2 | 参数派生 | 选择一个set |
+| Tag位数 | `PADDR_WIDTH - OFFSET_BITS - SET_INDEX_BITS` | 27 | 参数派生 | 区分映射到同一set的不同cache line |
 | 未完成miss数 | `ICACHE_MSHR_ENTRIES` | 1 | 至少2 | 当前采用blocking cache，长期支持hit-under-miss和多miss并发 |
 
 构建配置值放在`riscv_config_pkg`中，共享派生类型放在`riscv32_pkg`中；模块局部派生量
