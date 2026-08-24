@@ -58,17 +58,19 @@ module riscv32_pipeline_hazard_controller
   logic control_recovery_occurred;
 
   always_comb begin
-    execute_writes_rs1 = execute_uop_valid_i && execute_writes_rd_i &&
+    execute_writes_rs1 = decoded_uop_valid_i && execute_uop_valid_i && execute_writes_rd_i &&
                          (execute_rd_i != '0) && decoded_uses_rs1_i &&
                          (execute_rd_i == decoded_rs1_i);
-    execute_writes_rs2 = execute_uop_valid_i && execute_writes_rd_i &&
+    execute_writes_rs2 = decoded_uop_valid_i && execute_uop_valid_i && execute_writes_rd_i &&
                          (execute_rd_i != '0) && decoded_uses_rs2_i &&
                          (execute_rd_i == decoded_rs2_i);
 
-    writeback_writes_rs1 = writeback_result_valid_i && writeback_writes_rd_i &&
+    writeback_writes_rs1 = decoded_uop_valid_i && writeback_result_valid_i &&
+                           writeback_writes_rd_i &&
                            (writeback_rd_i != '0) && decoded_uses_rs1_i &&
                            (writeback_rd_i == decoded_rs1_i);
-    writeback_writes_rs2 = writeback_result_valid_i && writeback_writes_rd_i &&
+    writeback_writes_rs2 = decoded_uop_valid_i && writeback_result_valid_i &&
+                           writeback_writes_rd_i &&
                            (writeback_rd_i != '0) && decoded_uses_rs2_i &&
                            (writeback_rd_i == decoded_rs2_i);
 

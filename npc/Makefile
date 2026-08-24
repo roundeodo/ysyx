@@ -18,7 +18,7 @@ $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore icache-calibrate-penalty cachesim-explore-calibrated
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore icache-calibrate-penalty cachesim-explore-calibrated
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -467,6 +467,10 @@ test-pipeline: $(PIPELINE_TEST_BINARY)
 test-pipeline-configs:
 	$(MAKE) test-pipeline PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) test-pipeline PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+
+.PHONY: formal-pipeline
+formal-pipeline:
+	sby -f tests/formal/riscv32_pipeline_control.sby
 
 test-uncached: $(UNCACHED_TEST_BINARY)
 	$(UNCACHED_TEST_BINARY)
