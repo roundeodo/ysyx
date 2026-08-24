@@ -18,7 +18,7 @@ module riscv32_core
     input  axi4_target_to_manager_t data_axi4_manager_i
 );
   localparam int unsigned REDIRECT_SOURCE_COUNT = 4;
-  localparam int unsigned DECODE_DIRECT_JUMP_REDIRECT_INDEX = 0;
+  localparam int unsigned FETCH_PREDICTION_REDIRECT_INDEX = 0;
   localparam int unsigned EXU_REDIRECT_INDEX = 1;
   localparam int unsigned FENCE_I_REDIRECT_INDEX = 2;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 3;
@@ -63,6 +63,9 @@ module riscv32_core
   fetch_entry_t ifu_fetch_entry;
   logic ifu_fetch_entry_valid;
   logic ifu_fetch_entry_ready;
+  fetch_entry_t predicted_fetch_entry;
+  redirect_req_t fetch_prediction_redirect_req;
+  logic fetch_prediction_redirect_req_valid;
   fetch_entry_t idu_fetch_entry;
   logic idu_fetch_entry_valid;
   logic idu_fetch_entry_ready;
@@ -70,9 +73,6 @@ module riscv32_core
   decoded_uop_t decoded_uop;
   logic decoded_uop_valid;
   logic decoded_uop_ready;
-  branch_prediction_t decode_direct_jump_prediction;
-  redirect_req_t decode_direct_jump_redirect_req;
-  logic decode_direct_jump_redirect_req_valid;
   logic decoded_uop_handshake_occurred;
 
   // IDU和寄存器堆组合生成待进入ID/EX的payload；decode_execute_stage输出才是
@@ -142,6 +142,7 @@ module riscv32_core
   logic lsu_transaction_active;
   logic execute_redirect_occurred;
   logic commit_redirect_occurred;
+  logic frontend_recovery_occurred;
   logic execute_forwarding_available;
   logic writeback_forwarding_available;
   logic rs1_execute_forwarding_selected;
@@ -152,7 +153,6 @@ module riscv32_core
   always_comb begin
     decoded_execute_packet             = '0;
     decoded_execute_packet.uop         = decoded_uop;
-    decoded_execute_packet.uop.prediction = decode_direct_jump_prediction;
     decoded_execute_packet.rs1_value   = rs1_value;
     decoded_execute_packet.rs2_value   = rs2_value;
     decoded_execute_packet.csr_rdata   = csr_read_data;
@@ -217,13 +217,25 @@ module riscv32_core
   ) u_fetch_buffer (
       .clk_i                  (clk_i),
       .rst_ni                 (rst_ni),
-      .ifu_fetch_entry_i      (ifu_fetch_entry),
+      .ifu_fetch_entry_i      (predicted_fetch_entry),
       .ifu_fetch_entry_valid_i(ifu_fetch_entry_valid),
       .ifu_fetch_entry_ready_o(ifu_fetch_entry_ready),
       .idu_fetch_entry_o      (idu_fetch_entry),
       .idu_fetch_entry_valid_o(idu_fetch_entry_valid),
       .idu_fetch_entry_ready_i(idu_fetch_entry_ready),
-      .flush_i                (selected_redirect_req_valid)
+      .flush_i                (frontend_recovery_occurred)
+  );
+
+  // 预测器位于I-cache响应与fetch buffer之间。预测命中只选择后续取指PC，不清空已经
+  // 按程序顺序进入队列的老指令；只有EX纠错或提交级redirect才执行前端恢复清空。
+  riscv32_fetch_control_flow_predictor u_fetch_control_flow_predictor (
+      .clk_i                              (clk_i),
+      .rst_ni                             (rst_ni),
+      .fetch_entry_i                      (ifu_fetch_entry),
+      .fetch_entry_handshake_occurred_i   (ifu_fetch_entry_valid && ifu_fetch_entry_ready),
+      .predicted_fetch_entry_o            (predicted_fetch_entry),
+      .prediction_redirect_req_o          (fetch_prediction_redirect_req),
+      .prediction_redirect_req_valid_o    (fetch_prediction_redirect_req_valid)
   );
 
   riscv32_icache_refill_axi4_master u_icache_refill_axi4_master (
@@ -287,14 +299,6 @@ module riscv32_core
   );
 
   assign decoded_uop_handshake_occurred = decoded_uop_valid && decoded_uop_ready;
-
-  riscv32_decode_direct_jump_resolver u_decode_direct_jump_resolver (
-      .decoded_uop_i                    (decoded_uop),
-      .decoded_uop_handshake_occurred_i (decoded_uop_handshake_occurred),
-      .direct_jump_prediction_o         (decode_direct_jump_prediction),
-      .direct_jump_redirect_req_o       (decode_direct_jump_redirect_req),
-      .direct_jump_redirect_req_valid_o (decode_direct_jump_redirect_req_valid)
-  );
 
   riscv32_csr_file u_csr_file (
       .clk_i                         (clk_i),
@@ -495,9 +499,9 @@ module riscv32_core
       .pipeline_structural_waiting_i(structural_hazard_present && decoded_uop_valid),
       .frontend_supply_waiting_i(!decoded_uop_valid && !structural_hazard_present &&
                                  !commit_redirect_occurred),
-      .pipeline_control_flush_occurred_i(selected_redirect_req_valid),
+      .pipeline_control_flush_occurred_i(frontend_recovery_occurred),
       .pipeline_execute_instruction_discarded_i(commit_redirect_occurred && execute_packet_valid),
-      .decode_direct_jump_redirect_occurred_i(decode_direct_jump_redirect_req_valid),
+      .fetch_prediction_redirect_occurred_i(fetch_prediction_redirect_req_valid),
       .execute_misprediction_redirect_occurred_i(execute_redirect_occurred),
       .control_flow_resolution_occurred_i(
           exu_result_valid && exu_result_ready &&
@@ -553,9 +557,9 @@ module riscv32_core
   assign execute_redirect_occurred = exu_result_valid && exu_result_ready &&
                                      exu_result.redirect_valid;
   assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
-  assign redirect_req[DECODE_DIRECT_JUMP_REDIRECT_INDEX] = decode_direct_jump_redirect_req;
-  assign redirect_req_valid[DECODE_DIRECT_JUMP_REDIRECT_INDEX] =
-      decode_direct_jump_redirect_req_valid;
+  assign redirect_req[FETCH_PREDICTION_REDIRECT_INDEX] = fetch_prediction_redirect_req;
+  assign redirect_req_valid[FETCH_PREDICTION_REDIRECT_INDEX] =
+      fetch_prediction_redirect_req_valid;
   assign redirect_req[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
   assign redirect_req_valid[FENCE_I_REDIRECT_INDEX] = committed_fence_i_occurred;
 
@@ -563,6 +567,7 @@ module riscv32_core
   // 普通EX分支redirect只清除更年轻的ID/EX内容，不能清除分支自身的完成结果。
   assign commit_redirect_occurred = redirect_req_valid[COMMIT_REDIRECT_INDEX] ||
                                     redirect_req_valid[FENCE_I_REDIRECT_INDEX];
+  assign frontend_recovery_occurred = execute_redirect_occurred || commit_redirect_occurred;
 
   riscv32_redirect_arbiter #(
       .SOURCE_COUNT(REDIRECT_SOURCE_COUNT)
