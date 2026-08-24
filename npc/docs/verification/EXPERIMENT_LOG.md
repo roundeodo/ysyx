@@ -935,6 +935,13 @@ cause和tval进入commit，年轻异常没有被接受，并在提交redirect后
 | `make test-lsu-configs PROJECT=riscv32` | RV32/RV64通过 |
 | `make test-pipeline-configs PROJECT=riscv32` | RV32/RV64通过 |
 | `make test-privileged-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make regression-p3-f-rv32 PROJECT=riscv32` | 35/35 DiffTest通过 |
+| `make regression-p3-f-rv64 PROJECT=riscv32` | 35/35 DiffTest通过 |
 
 当前没有MMU和U/S-mode，因此页故障以及U/S-mode ECALL仅保留cause编码，不会由RTL产生；
 中断仲裁也不属于本次同步异常改动。
+
+AM使用提交的`EBREAK`作为宿主仿真终止标记，而RTL仍按架构把该指令标记为断点异常。DPI回调
+在提交沿设置仿真结束状态，因此C++执行循环必须先检查结束状态，再决定是否让NEMU继续执行
+终止标记。这样既保留硬件断点异常语义，又避免把宿主退出约定之后的PC重定向拿去做一次
+没有意义的DiffTest比较。
