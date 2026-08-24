@@ -19,6 +19,14 @@ module riscv32_pipeline_control_tb;
   logic                ifu_fetch_entry_valid;
   logic                ifu_fetch_entry_ready;
 
+  fetch_entry_t fetch_buffer_input_entry;
+  logic         fetch_buffer_input_valid;
+  logic         fetch_buffer_input_ready;
+  fetch_entry_t fetch_buffer_output_entry;
+  logic         fetch_buffer_output_valid;
+  logic         fetch_buffer_output_ready;
+  logic         fetch_buffer_flush;
+
   execute_packet_t   decoded_execute_packet;
   logic              decoded_execute_packet_valid;
   logic              decoded_execute_packet_ready;
@@ -56,6 +64,12 @@ module riscv32_pipeline_control_tb;
   logic              raw_hazard_present;
   logic              serializing_hazard_present;
   logic              structural_hazard_present;
+  logic              execute_forwarding_available;
+  logic              writeback_forwarding_available;
+  logic              rs1_execute_forwarding_selected;
+  logic              rs1_writeback_forwarding_selected;
+  logic              rs2_execute_forwarding_selected;
+  logic              rs2_writeback_forwarding_selected;
 
   riscv32_ifu #(
       .PC_START(IFU_TEST_START_PC)
@@ -85,6 +99,20 @@ module riscv32_pipeline_control_tb;
       .execute_packet_valid_o        (execute_packet_valid),
       .execute_packet_ready_i        (execute_packet_ready),
       .flush_i                       (decode_execute_flush)
+  );
+
+  riscv32_fetch_buffer #(
+      .ENTRY_COUNT(2)
+  ) u_fetch_buffer (
+      .clk_i                  (clk),
+      .rst_ni                 (rst_ni),
+      .ifu_fetch_entry_i      (fetch_buffer_input_entry),
+      .ifu_fetch_entry_valid_i(fetch_buffer_input_valid),
+      .ifu_fetch_entry_ready_o(fetch_buffer_input_ready),
+      .idu_fetch_entry_o      (fetch_buffer_output_entry),
+      .idu_fetch_entry_valid_o(fetch_buffer_output_valid),
+      .idu_fetch_entry_ready_i(fetch_buffer_output_ready),
+      .flush_i                (fetch_buffer_flush)
   );
 
   riscv32_writeback_stage u_writeback_stage (
@@ -137,10 +165,12 @@ module riscv32_pipeline_control_tb;
       .execute_writes_rd_i         (hazard_execute_uop.writes_rd),
       .execute_rd_i                (hazard_execute_uop.rd),
       .execute_serializing_i       (hazard_execute_uop.serializing),
+      .execute_forwarding_available_i(execute_forwarding_available),
       .writeback_result_valid_i    (hazard_writeback_result_valid),
       .writeback_writes_rd_i       (hazard_writeback_result.uop.writes_rd),
       .writeback_rd_i              (hazard_writeback_result.uop.rd),
       .writeback_serializing_i     (hazard_writeback_result.uop.serializing),
+      .writeback_forwarding_available_i(writeback_forwarding_available),
       .lsu_busy_i                  (lsu_busy),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
@@ -150,7 +180,11 @@ module riscv32_pipeline_control_tb;
       .writeback_flush_o           (hazard_writeback_flush),
       .raw_hazard_present_o        (raw_hazard_present),
       .serializing_hazard_present_o(serializing_hazard_present),
-      .structural_hazard_present_o (structural_hazard_present)
+      .structural_hazard_present_o (structural_hazard_present),
+      .rs1_execute_forwarding_selected_o(rs1_execute_forwarding_selected),
+      .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
+      .rs2_execute_forwarding_selected_o(rs2_execute_forwarding_selected),
+      .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
 
   always #5 clk = ~clk;
@@ -209,6 +243,24 @@ module riscv32_pipeline_control_tb;
     lsu_busy                      = 1'b0;
     execute_redirect_occurred     = 1'b0;
     commit_redirect_occurred      = 1'b0;
+    execute_forwarding_available  = 1'b0;
+    writeback_forwarding_available = 1'b0;
+  endtask
+
+  function automatic fetch_entry_t make_fetch_entry(input program_counter_t pc,
+                                                      input instruction_t instruction);
+    fetch_entry_t entry;
+    entry             = '0;
+    entry.pc          = pc;
+    entry.instruction = instruction;
+    return entry;
+  endfunction
+
+  task automatic clear_fetch_buffer_inputs;
+    fetch_buffer_input_entry  = '0;
+    fetch_buffer_input_valid  = 1'b0;
+    fetch_buffer_output_ready = 1'b0;
+    fetch_buffer_flush        = 1'b0;
   endtask
 
   task automatic check_decode_execute_stage;
@@ -326,6 +378,12 @@ module riscv32_pipeline_control_tb;
     assert (raw_hazard_present && !decode_accept_allowed)
     else $fatal(1, "execute-stage rs1 RAW hazard was not detected");
 
+    execute_forwarding_available = 1'b1;
+    #1;
+    assert (!raw_hazard_present && decode_accept_allowed &&
+            rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
+    else $fatal(1, "available execute result was not selected for rs1 forwarding");
+
     clear_hazard_inputs();
     hazard_decoded_uop_valid              = 1'b1;
     hazard_decoded_uop.uses_rs2           = 1'b1;
@@ -336,6 +394,35 @@ module riscv32_pipeline_control_tb;
     #1;
     assert (raw_hazard_present && !decode_accept_allowed)
     else $fatal(1, "writeback-stage rs2 RAW hazard was not detected");
+
+    writeback_forwarding_available = 1'b1;
+    #1;
+    assert (!raw_hazard_present && decode_accept_allowed &&
+            rs2_writeback_forwarding_selected && !rs2_execute_forwarding_selected)
+    else $fatal(1, "available writeback result was not selected for rs2 forwarding");
+
+    // EX是更近的生产者。即使WB中存在同rd的旧值，只要EX结果尚不可用就必须停顿。
+    clear_hazard_inputs();
+    hazard_decoded_uop_valid              = 1'b1;
+    hazard_decoded_uop.uses_rs1           = 1'b1;
+    hazard_decoded_uop.rs1                = arch_reg_idx_t'(11);
+    hazard_execute_uop_valid              = 1'b1;
+    hazard_execute_uop.writes_rd          = 1'b1;
+    hazard_execute_uop.rd                 = arch_reg_idx_t'(11);
+    hazard_writeback_result_valid         = 1'b1;
+    hazard_writeback_result.uop.writes_rd = 1'b1;
+    hazard_writeback_result.uop.rd        = arch_reg_idx_t'(11);
+    writeback_forwarding_available        = 1'b1;
+    #1;
+    assert (raw_hazard_present && !decode_accept_allowed &&
+            !rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
+    else $fatal(1, "pipeline forwarded a stale WB value past an unavailable EX producer");
+
+    execute_forwarding_available = 1'b1;
+    #1;
+    assert (!raw_hazard_present && decode_accept_allowed &&
+            rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
+    else $fatal(1, "pipeline did not prioritize the newest EX producer");
 
     clear_hazard_inputs();
     hazard_decoded_uop_valid       = 1'b1;
@@ -377,6 +464,74 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "commit redirect did not discard all younger work");
 
     clear_hazard_inputs();
+  endtask
+
+  task automatic check_fetch_buffer;
+    fetch_entry_t first_entry;
+    fetch_entry_t second_entry;
+    fetch_entry_t third_entry;
+
+    first_entry  = make_fetch_entry(program_counter_t'('h8000_0000), instruction_t'(32'h0010_0093));
+    second_entry = make_fetch_entry(program_counter_t'('h8000_0004), instruction_t'(32'h0020_0113));
+    third_entry  = make_fetch_entry(program_counter_t'('h8000_0008), instruction_t'(32'h0030_0193));
+
+    // IDU停顿时连续接收两项，第三项只有在同拍出队腾出空间时才能被接收。
+    @(negedge clk);
+    fetch_buffer_input_entry = first_entry;
+    fetch_buffer_input_valid = 1'b1;
+    #1;
+    assert (fetch_buffer_input_ready && !fetch_buffer_output_valid)
+    else $fatal(1, "empty fetch buffer did not accept its first entry");
+    @(posedge clk);
+
+    @(negedge clk);
+    fetch_buffer_input_entry = second_entry;
+    #1;
+    assert (fetch_buffer_input_ready && fetch_buffer_output_valid &&
+            (fetch_buffer_output_entry == first_entry))
+    else $fatal(1, "fetch buffer did not retain the first entry while accepting the second");
+    @(posedge clk);
+
+    @(negedge clk);
+    fetch_buffer_input_entry  = third_entry;
+    fetch_buffer_output_ready = 1'b0;
+    #1;
+    assert (!fetch_buffer_input_ready && fetch_buffer_output_valid &&
+            (fetch_buffer_output_entry == first_entry))
+    else $fatal(1, "full fetch buffer accepted an entry without available capacity");
+
+    fetch_buffer_output_ready = 1'b1;
+    #1;
+    assert (fetch_buffer_input_ready)
+    else $fatal(1, "full fetch buffer did not allow simultaneous dequeue and enqueue");
+    @(posedge clk);
+
+    @(negedge clk);
+    fetch_buffer_input_valid = 1'b0;
+    #1;
+    assert (fetch_buffer_output_valid && (fetch_buffer_output_entry == second_entry))
+    else $fatal(1, "fetch buffer changed instruction order after simultaneous transfer");
+    @(posedge clk);
+
+    @(negedge clk);
+    #1;
+    assert (fetch_buffer_output_valid && (fetch_buffer_output_entry == third_entry))
+    else $fatal(1, "fetch buffer lost the replacement entry");
+
+    fetch_buffer_output_ready = 1'b0;
+    fetch_buffer_flush        = 1'b1;
+    #1;
+    assert (!fetch_buffer_input_ready)
+    else $fatal(1, "fetch buffer accepted a new entry during redirect flush");
+    @(posedge clk);
+
+    @(negedge clk);
+    fetch_buffer_flush = 1'b0;
+    #1;
+    assert (!fetch_buffer_output_valid)
+    else $fatal(1, "fetch buffer exposed a wrong-path entry after flush");
+
+    clear_fetch_buffer_inputs();
   endtask
 
   // 同一时刻可观察到三个不同年龄的异常：WB中的老load fault、ID/EX中的年轻非法指令，
@@ -609,6 +764,7 @@ module riscv32_pipeline_control_tb;
     writeback_flush              = 1'b0;
     clear_ifu_inputs();
     clear_hazard_inputs();
+    clear_fetch_buffer_inputs();
 
     repeat (2) @(posedge clk);
     rst_ni = 1'b1;
@@ -616,6 +772,7 @@ module riscv32_pipeline_control_tb;
     check_decode_execute_stage();
     check_writeback_stage();
     check_hazard_controller();
+    check_fetch_buffer();
     check_precise_exception_age_priority();
     check_ifu_zero_bubble_lookup();
 

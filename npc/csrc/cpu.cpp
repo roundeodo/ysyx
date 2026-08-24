@@ -373,11 +373,9 @@ void cpu_exec(uint64_t n) {
     trace_inst(event.pc, event.instruction);
     ftrace_update(event.pc, event.instruction, event.next_pc);
 
-    // AM uses EBREAK as a host-visible simulation terminator.  The DPI callback
-    // runs on this commit edge and sets npc_state before single_cycle() returns.
-    // Do not ask the reference model to execute that terminal marker: the RTL
-    // has already taken the architectural breakpoint trap, while the simulator
-    // deliberately ends at this commit boundary.
+    // AM把EBREAK约定为宿主可见的仿真终止标记。DPI回调在提交沿更新npc_state，
+    // 并且发生在single_cycle()返回之前。此时RTL已经按架构产生断点异常，而仿真器
+    // 选择在该提交边界结束，因此不能再要求reference执行这个终止标记。
     if (npc_state == NPC_END || npc_state == NPC_ABORT) {
       break;
     }

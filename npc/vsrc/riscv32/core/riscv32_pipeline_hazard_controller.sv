@@ -1,5 +1,5 @@
-// 首版顺序流水线的冒险策略模块。该模块只产生允许、阻塞和清空决策，不保存payload。
-// 后续加入forwarding时，应在这里缩小RAW阻塞条件，而不是修改IDU或流水级寄存器协议。
+// 顺序流水线的冒险与前递选择模块。该模块只产生允许、阻塞、清空和数据选择决策，
+// 不保存payload。比较器集中在这里，避免冒险检测和前递网络分别重复一套寄存器相关判断。
 module riscv32_pipeline_hazard_controller
   import riscv32_pkg::*;
 (
@@ -17,11 +17,13 @@ module riscv32_pipeline_hazard_controller
     input logic          execute_writes_rd_i,
     input arch_reg_idx_t execute_rd_i,
     input logic          execute_serializing_i,
+    input logic          execute_forwarding_available_i,
 
     input logic          writeback_result_valid_i,
     input logic          writeback_writes_rd_i,
     input arch_reg_idx_t writeback_rd_i,
     input logic          writeback_serializing_i,
+    input logic          writeback_forwarding_available_i,
 
     // 当前LSU是blocking单事务单元。busy期间不允许年轻指令进入ID/EX，既避免
     // completion端口冲突，也避免在未保存LSU目的寄存器的情况下漏检load-use RAW。
@@ -37,13 +39,20 @@ module riscv32_pipeline_hazard_controller
 
     output logic raw_hazard_present_o,
     output logic serializing_hazard_present_o,
-    output logic structural_hazard_present_o
+    output logic structural_hazard_present_o,
+
+    output logic rs1_execute_forwarding_selected_o,
+    output logic rs1_writeback_forwarding_selected_o,
+    output logic rs2_execute_forwarding_selected_o,
+    output logic rs2_writeback_forwarding_selected_o
 );
 
   logic execute_writes_rs1;
   logic execute_writes_rs2;
   logic writeback_writes_rs1;
   logic writeback_writes_rs2;
+  logic rs1_value_unavailable;
+  logic rs2_value_unavailable;
   logic older_serializing_instruction_present;
   logic older_instruction_present;
   logic control_recovery_occurred;
@@ -62,11 +71,30 @@ module riscv32_pipeline_hazard_controller
     writeback_writes_rs2 = writeback_result_valid_i && writeback_writes_rd_i &&
                            (writeback_rd_i != '0) && decoded_uses_rs2_i &&
                            (writeback_rd_i == decoded_rs2_i);
+
+    // 同一架构寄存器可能同时被EX和WB中的两条老指令写入。EX中的生产者年龄更近，
+    // 必须优先；如果它的结果尚不可用，不能错误前递WB中的更旧值。
+    rs1_execute_forwarding_selected_o = execute_writes_rs1 &&
+                                        execute_forwarding_available_i;
+    rs1_writeback_forwarding_selected_o = !execute_writes_rs1 &&
+                                          writeback_writes_rs1 &&
+                                          writeback_forwarding_available_i;
+    rs2_execute_forwarding_selected_o = execute_writes_rs2 &&
+                                        execute_forwarding_available_i;
+    rs2_writeback_forwarding_selected_o = !execute_writes_rs2 &&
+                                          writeback_writes_rs2 &&
+                                          writeback_forwarding_available_i;
+
+    rs1_value_unavailable = (execute_writes_rs1 && !execute_forwarding_available_i) ||
+                            (!execute_writes_rs1 && writeback_writes_rs1 &&
+                             !writeback_forwarding_available_i);
+    rs2_value_unavailable = (execute_writes_rs2 && !execute_forwarding_available_i) ||
+                            (!execute_writes_rs2 && writeback_writes_rs2 &&
+                             !writeback_forwarding_available_i);
   end
 
   assign raw_hazard_present_o = decoded_uop_valid_i &&
-                                (execute_writes_rs1 || execute_writes_rs2 ||
-                                 writeback_writes_rs1 || writeback_writes_rs2);
+                                (rs1_value_unavailable || rs2_value_unavailable);
 
   assign older_instruction_present = execute_uop_valid_i || writeback_result_valid_i || lsu_busy_i;
   assign older_serializing_instruction_present =
@@ -102,6 +130,21 @@ module riscv32_pipeline_hazard_controller
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     control_recovery_occurred |-> decode_execute_flush_o)
   else $error("pipeline recovery did not flush the ID/EX stage");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    !(rs1_execute_forwarding_selected_o && rs1_writeback_forwarding_selected_o) &&
+    !(rs2_execute_forwarding_selected_o && rs2_writeback_forwarding_selected_o))
+  else $error("pipeline selected two forwarding producers for one source operand");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (decoded_uop_valid_i && execute_writes_rs1 && !execute_forwarding_available_i)
+    |-> raw_hazard_present_o)
+  else $error("pipeline accepted stale rs1 data while the newest EX producer was unavailable");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (decoded_uop_valid_i && execute_writes_rs2 && !execute_forwarding_available_i)
+    |-> raw_hazard_present_o)
+  else $error("pipeline accepted stale rs2 data while the newest EX producer was unavailable");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 

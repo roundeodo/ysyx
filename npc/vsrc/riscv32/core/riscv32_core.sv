@@ -56,8 +56,12 @@ module riscv32_core
   logic icache_invalidate_pending_q;
   logic icache_invalidate_pending_d;
 
-  // 当前阻塞前端只有一个lookup在途。I-cache响应通道已经在反压期间保持payload，
-  // 因此IFU可直接把完成的fetch entry交给IDU，无需重复保存一份相同payload。
+  // IFU维持一个I-cache lookup在途；两项fetch queue保存已完成响应并吸收短暂后端反压。
+  // 队列不是分支预测器，也不能掩盖无限停顿；其作用是让命中I-cache在后端短暂停顿时
+  // 继续逐拍预取，并把I-cache响应路径与IDU冒险判断隔开。
+  fetch_entry_t ifu_fetch_entry;
+  logic ifu_fetch_entry_valid;
+  logic ifu_fetch_entry_ready;
   fetch_entry_t idu_fetch_entry;
   logic idu_fetch_entry_valid;
   logic idu_fetch_entry_ready;
@@ -133,6 +137,12 @@ module riscv32_core
   logic lsu_transaction_active;
   logic execute_redirect_occurred;
   logic commit_redirect_occurred;
+  logic execute_forwarding_available;
+  logic writeback_forwarding_available;
+  logic rs1_execute_forwarding_selected;
+  logic rs1_writeback_forwarding_selected;
+  logic rs2_execute_forwarding_selected;
+  logic rs2_writeback_forwarding_selected;
 
   always_comb begin
     decoded_execute_packet             = '0;
@@ -141,6 +151,20 @@ module riscv32_core
     decoded_execute_packet.rs2_value   = rs2_value;
     decoded_execute_packet.csr_rdata   = csr_read_data;
     decoded_execute_packet.csr_illegal = csr_read_illegal;
+
+    // 最新生产者优先。hazard controller保证EX命中但结果不可用时不会退而使用更旧WB值。
+    if (rs1_writeback_forwarding_selected) begin
+      decoded_execute_packet.rs1_value = writeback_result.result;
+    end
+    if (rs1_execute_forwarding_selected) begin
+      decoded_execute_packet.rs1_value = exu_result.result;
+    end
+    if (rs2_writeback_forwarding_selected) begin
+      decoded_execute_packet.rs2_value = writeback_result.result;
+    end
+    if (rs2_execute_forwarding_selected) begin
+      decoded_execute_packet.rs2_value = exu_result.result;
+    end
   end
 
   riscv32_ifu #(
@@ -156,9 +180,9 @@ module riscv32_core
       .icache_lookup_resp_i      (icache_lookup_resp),
       .icache_lookup_resp_valid_i(icache_lookup_resp_valid),
       .icache_lookup_resp_ready_o(icache_lookup_resp_ready),
-      .fetch_entry_o             (idu_fetch_entry),
-      .fetch_entry_valid_o       (idu_fetch_entry_valid),
-      .fetch_entry_ready_i       (idu_fetch_entry_ready)
+      .fetch_entry_o             (ifu_fetch_entry),
+      .fetch_entry_valid_o       (ifu_fetch_entry_valid),
+      .fetch_entry_ready_i       (ifu_fetch_entry_ready)
   );
 
   riscv32_icache u_icache (
@@ -180,6 +204,20 @@ module riscv32_core
       .refill_resp_valid_i(icache_refill_resp_valid),
       .refill_resp_ready_o(icache_refill_resp_ready),
       .event_o            (icache_event)
+  );
+
+  riscv32_fetch_buffer #(
+      .ENTRY_COUNT(2)
+  ) u_fetch_buffer (
+      .clk_i                  (clk_i),
+      .rst_ni                 (rst_ni),
+      .ifu_fetch_entry_i      (ifu_fetch_entry),
+      .ifu_fetch_entry_valid_i(ifu_fetch_entry_valid),
+      .ifu_fetch_entry_ready_o(ifu_fetch_entry_ready),
+      .idu_fetch_entry_o      (idu_fetch_entry),
+      .idu_fetch_entry_valid_o(idu_fetch_entry_valid),
+      .idu_fetch_entry_ready_i(idu_fetch_entry_ready),
+      .flush_i                (selected_redirect_req_valid)
   );
 
   riscv32_icache_refill_axi4_master u_icache_refill_axi4_master (
@@ -222,7 +260,7 @@ module riscv32_core
   end
 
   riscv32_idu u_idu (
-      // IDU反压经IFU直接传回I-cache响应ready；I-cache负责保持尚未消费的响应。
+      // IDU反压先由fetch queue吸收；队列填满后才会向IFU和I-cache传播。
       .fetch_entry_i      (idu_fetch_entry),
       .fetch_entry_valid_i(idu_fetch_entry_valid),
       .fetch_entry_ready_o(idu_fetch_entry_ready),
@@ -263,8 +301,14 @@ module riscv32_core
       .mepc_o                        (csr_mepc)
   );
 
-  // RAW检测发生在操作数被ID/EX寄存器采样之前。无转发首版会等生产者离开WB；
-  // 串行化CSR/system指令则要求后端排空，并阻止年轻指令越过它。
+  // 非LSU执行结果在EX组合完成后可直接前递；WB结果在提交当拍也可前递。load结果只有
+  // 到达LSU completion/WB后才可用，因此load-use仍由RAW逻辑停顿。串行化指令继续排空后端。
+  assign execute_forwarding_available = exu_result_valid && exu_result.uop.writes_rd &&
+                                        !exu_result.uop.exception_valid;
+  assign writeback_forwarding_available = writeback_result_valid &&
+                                          writeback_result.uop.writes_rd &&
+                                          !writeback_result.uop.exception_valid;
+
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i                       (clk_i),
       .rst_ni                      (rst_ni),
@@ -278,10 +322,12 @@ module riscv32_core
       .execute_writes_rd_i         (execute_packet.uop.writes_rd),
       .execute_rd_i                (execute_packet.uop.rd),
       .execute_serializing_i       (execute_packet.uop.serializing),
+      .execute_forwarding_available_i(execute_forwarding_available),
       .writeback_result_valid_i    (writeback_result_valid),
       .writeback_writes_rd_i       (writeback_result.uop.writes_rd),
       .writeback_rd_i              (writeback_result.uop.rd),
       .writeback_serializing_i     (writeback_result.uop.serializing),
+      .writeback_forwarding_available_i(writeback_forwarding_available),
       .lsu_busy_i                  (lsu_transaction_active),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
@@ -291,7 +337,11 @@ module riscv32_core
       .writeback_flush_o           (writeback_flush),
       .raw_hazard_present_o        (raw_hazard_present),
       .serializing_hazard_present_o(serializing_hazard_present),
-      .structural_hazard_present_o (structural_hazard_present)
+      .structural_hazard_present_o (structural_hazard_present),
+      .rs1_execute_forwarding_selected_o(rs1_execute_forwarding_selected),
+      .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
+      .rs2_execute_forwarding_selected_o(rs2_execute_forwarding_selected),
+      .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
 
   // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由IFU/I-cache持有，
@@ -414,7 +464,7 @@ module riscv32_core
       .ifu_instruction_request_waiting_i(icache_lookup_req_valid && !icache_lookup_req_ready),
       .ifu_instruction_response_occurred_i(icache_lookup_resp_valid && icache_lookup_resp_ready),
       .ifu_instruction_response_discarded_occurred_i(
-          icache_lookup_resp_valid && icache_lookup_resp_ready && !idu_fetch_entry_valid
+          icache_lookup_resp_valid && icache_lookup_resp_ready && !ifu_fetch_entry_valid
       ),
       .ifu_instruction_delivery_occurred_i(idu_fetch_entry_valid && idu_fetch_entry_ready),
       .ifu_downstream_waiting_i(idu_fetch_entry_valid && !idu_fetch_entry_ready),
