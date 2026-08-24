@@ -964,6 +964,7 @@ hazard controller增加EX和WB两个前递来源。EX是更新的生产者，优
 | `make test-pipeline-configs PROJECT=riscv32` | RV32/RV64通过 |
 | `make formal-pipeline` | BMC深度20通过 |
 | `make regression-p3-f-rv32 PROJECT=riscv32` | 35/35 DiffTest通过 |
+| `make regression-p3-f-rv64 PROJECT=riscv32` | 35/35 DiffTest通过 |
 | `make perf PROJECT=riscv32 NPC_CONFIG=rv32-baseline PERF_SCALE=test` | MicroBench PASS |
 
 MicroBench同一PMU测量窗口对比：
