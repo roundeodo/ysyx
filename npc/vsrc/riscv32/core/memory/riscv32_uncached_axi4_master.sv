@@ -74,7 +74,10 @@ module riscv32_uncached_axi4_master
       (axi_manager_i.b.resp != AXI4_RESP_OKAY) &&
       (axi_manager_i.b.resp != AXI4_RESP_EXOKAY);
 
-  // 第一段：组合输出。请求上下文先锁存，因此valid受反压时所有AXI payload保持稳定。
+  // 第一段：组合输出。IDLE时把新本地请求直接送到AXI，删除“先锁存、下一拍再发送”
+  // 的固定空拍；若AXI当拍未握手，请求上下文会在时钟沿锁存，后续发送状态继续保持
+  // payload稳定。data_memory_req_ready_o不依赖AXI ready，因此这条直通路径不会形成
+  // ready组合环。
   // AXI R/B响应直接通过本地ready/valid边界交给LSU；当LSU反压时，r_ready/b_ready
   // 同步拉低，由AXI target保持payload，不再在adapter内复制一份response寄存器。
   // AW和W分别使用pending位，允许两个独立channel以任意先后顺序完成握手。
@@ -85,6 +88,31 @@ module riscv32_uncached_axi4_master
     axi_manager_o            = '0;
 
     unique case (state_q)
+      UNCACHED_IDLE: begin
+        if (data_memory_req_valid_i) begin
+          if (data_memory_req_i.cmd == MEM_CMD_LOAD) begin
+            axi_manager_o.ar.addr  = data_memory_req_i.addr;
+            axi_manager_o.ar.id    = READ_TRANSACTION_ID;
+            axi_manager_o.ar.len   = 8'd0;
+            axi_manager_o.ar.size  = 3'(data_memory_req_i.size);
+            axi_manager_o.ar.burst = AXI4_BURST_INCR;
+            axi_manager_o.ar_valid = 1'b1;
+          end else begin
+            axi_manager_o.aw.addr  = data_memory_req_i.addr;
+            axi_manager_o.aw.id    = WRITE_TRANSACTION_ID;
+            axi_manager_o.aw.len   = 8'd0;
+            axi_manager_o.aw.size  = 3'(data_memory_req_i.size);
+            axi_manager_o.aw.burst = AXI4_BURST_INCR;
+            axi_manager_o.aw_valid = 1'b1;
+
+            axi_manager_o.w.data  = axi4_data_t'(data_memory_req_i.write_data);
+            axi_manager_o.w.strb  = axi4_strb_t'(data_memory_req_i.byte_strobe);
+            axi_manager_o.w.last  = 1'b1;
+            axi_manager_o.w_valid = 1'b1;
+          end
+        end
+      end
+
       UNCACHED_SEND_READ_ADDRESS: begin
         axi_manager_o.ar.addr  = request_context_q.addr;
         axi_manager_o.ar.id    = READ_TRANSACTION_ID;
@@ -144,11 +172,13 @@ module riscv32_uncached_axi4_master
           request_context_d.byte_strobe    = data_memory_req_i.byte_strobe;
           request_context_d.transaction_id = data_memory_req_i.transaction_id;
           if (data_memory_req_i.cmd == MEM_CMD_LOAD) begin
-            state_d = UNCACHED_SEND_READ_ADDRESS;
+            state_d = axi_read_address_handshake ? UNCACHED_RECEIVE_READ_DATA :
+                                                   UNCACHED_SEND_READ_ADDRESS;
           end else begin
-            write_address_pending_d = 1'b1;
-            write_data_pending_d    = 1'b1;
-            state_d                 = UNCACHED_SEND_WRITE_ADDRESS_DATA;
+            write_address_pending_d = !axi_write_address_handshake;
+            write_data_pending_d    = !axi_write_data_handshake;
+            state_d = (axi_write_address_handshake && axi_write_data_handshake) ?
+                      UNCACHED_RECEIVE_WRITE_RESPONSE : UNCACHED_SEND_WRITE_ADDRESS_DATA;
           end
         end
       end
