@@ -73,7 +73,6 @@ module riscv32_core
   decoded_uop_t decoded_uop;
   logic decoded_uop_valid;
   logic decoded_uop_ready;
-  logic decoded_uop_handshake_occurred;
 
   // IDU和寄存器堆组合生成待进入ID/EX的payload；decode_execute_stage输出才是
   // 当前EX级指令。两个名称显式区分流水级边界两侧，避免把组合译码结果误当成寄存状态。
@@ -297,8 +296,6 @@ module riscv32_core
       .rs2_addr_i        (decoded_uop.rs2),
       .rs2_data_o        (rs2_value)
   );
-
-  assign decoded_uop_handshake_occurred = decoded_uop_valid && decoded_uop_ready;
 
   riscv32_csr_file u_csr_file (
       .clk_i                         (clk_i),
