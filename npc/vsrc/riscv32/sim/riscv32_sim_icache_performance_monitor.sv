@@ -35,12 +35,14 @@ module riscv32_sim_icache_performance_monitor
   logic [63:0] refill_elapsed_cycle_count_q;
   logic        lookup_timer_active_q;
   logic        lookup_classified_as_miss_q;
+  logic        lookup_response_already_counted_q;
   logic        refill_timer_active_q;
 
   logic lookup_response_available_for_active_request;
 
   assign lookup_response_available_for_active_request =
       icache_event_i.lookup_response_present &&
+      !lookup_response_already_counted_q &&
       (lookup_timer_active_q || icache_event_i.lookup_occurred);
 
   // 向综合性能监视器导出原始整数计数。理想流水线估算在统一位置组合退休数、
@@ -100,6 +102,7 @@ module riscv32_sim_icache_performance_monitor
       refill_elapsed_cycle_count_q           <= '0;
       lookup_timer_active_q                  <= 1'b0;
       lookup_classified_as_miss_q            <= 1'b0;
+      lookup_response_already_counted_q      <= 1'b0;
       refill_timer_active_q                  <= 1'b0;
     end else begin
       lookup_count_q                    <= lookup_count_q + 64'(icache_event_i.lookup_occurred);
@@ -142,15 +145,19 @@ module riscv32_sim_icache_performance_monitor
         lookup_elapsed_cycle_count_q <= '0;
         lookup_timer_active_q        <= 1'b0;
         lookup_classified_as_miss_q  <= 1'b0;
+        lookup_response_already_counted_q <= 1'b1;
       end
 
-      // 支持旧响应结束与下一请求接收同拍发生。当前请求若同拍已有响应，则其
-      // 延迟已经按1拍统计，不再留下活动计时器。
+      // response present在下游反压期间会保持多拍，不能把每一拍都视为新响应。
+      // 旧响应首次present后设置already_counted；其最终握手与下一请求接收同拍时，
+      // lookup_occurred启动新计时器并清除此标志。这样连续命中即使valid不降也能逐事务计数。
+      // 只有在“本拍新请求本拍产生响应”这种零延迟接口情况下，才不留下活动计时器。
       if (icache_event_i.lookup_occurred &&
-          (!icache_event_i.lookup_response_present || lookup_timer_active_q)) begin
+          (!lookup_response_available_for_active_request || lookup_timer_active_q)) begin
         lookup_elapsed_cycle_count_q <= '0;
         lookup_timer_active_q        <= 1'b1;
         lookup_classified_as_miss_q  <= 1'b0;
+        lookup_response_already_counted_q <= 1'b0;
       end
 
       if (icache_event_i.refill_transaction_completed_occurred) begin
@@ -223,7 +230,8 @@ module riscv32_sim_icache_performance_monitor
                 !icache_event_i.lookup_response_present))
       else $error("I-cache AMAT timer observed more than one outstanding lookup");
 
-      assert (!icache_event_i.miss_occurred || lookup_timer_active_q)
+      assert (!icache_event_i.miss_occurred || lookup_timer_active_q ||
+              icache_event_i.lookup_occurred)
       else $error("I-cache AMAT timer observed a miss without an active lookup");
 
       assert (!icache_event_i.refill_transaction_completed_occurred ||
