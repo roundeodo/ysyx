@@ -80,9 +80,12 @@ package riscv_config_pkg;
   localparam int unsigned LOAD_QUEUE_COUNT = 16;
   localparam int unsigned STORE_QUEUE_COUNT = 16;
   localparam int unsigned MEM_TXN_COUNT = 16;
-  // 当前阻塞式前端同一时刻只有一个lookup在途，因此一位请求身份和一位epoch即可
-  // 区分当前请求与redirect前的旧请求。未来增加多个在途取指时，必须按最大在途数
-  // 同步增大这两个配置，不能在子模块中私自加宽。
+  // 当前前端同一时刻只有一个lookup在途，因此一位frontend tag足以区分
+  // 相邻请求。epoch的位宽不能只按在途请求数决定：同一条分支可先在ID级
+  // 产生预测redirect，再在EX级产生修正redirect。若epoch只有1位，两次递增会
+  // 回绕到旧值，使本应作废的顺序取指响应被误判为当前响应。当前单在途前端在
+  // 旧响应排空前最多发生这两次redirect，因此使用4个epoch值。未来增加多个在途
+  // 取指时，必须重新证明tag和epoch的不回绕窗口，不能在子模块中私自加宽。
   localparam int unsigned FRONTEND_TAG_COUNT = 2;
   localparam int unsigned PREDICTOR_META_WIDTH = 32;
   //
@@ -93,7 +96,7 @@ package riscv_config_pkg;
   localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
   localparam int unsigned ICACHE_MSHR_COUNT = 1;
-  localparam int unsigned FETCH_EPOCH_COUNT = 2;
+  localparam int unsigned FETCH_EPOCH_COUNT = 4;
   //
   // 命名规则：数量使用*_COUNT，位宽使用*_WIDTH，容量明确写出单位*_BYTES。
   // 不再使用*_NUM、*_ENTRIES和*_W表达同一类概念。这里的单发射和单MSHR是P2基线，
