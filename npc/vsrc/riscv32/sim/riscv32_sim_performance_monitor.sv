@@ -39,103 +39,96 @@ module riscv32_sim_performance_monitor
     input logic [63:0] icache_hit_latency_cycle_sum_i,
     input logic [63:0] icache_miss_response_latency_cycle_sum_i
 );
-  logic [63:0] active_cycle_count_q;
-  logic [63:0] decoded_instruction_count_q;
-  logic [63:0] retired_instruction_count_q;
-  logic [63:0] exu_completion_count_q;
-  logic [63:0] lsu_completion_count_q;
-  logic [63:0] pipeline_raw_hazard_wait_cycle_count_q;
-  logic [63:0] pipeline_serializing_wait_cycle_count_q;
-  logic [63:0] pipeline_structural_wait_cycle_count_q;
-  logic [63:0] pipeline_control_flush_count_q;
-  logic [63:0] pipeline_execute_discard_count_q;
+  logic     [63:0] active_cycle_count_q;
+  logic     [63:0] decoded_instruction_count_q;
+  logic     [63:0] retired_instruction_count_q;
+  logic     [63:0] exu_completion_count_q;
+  logic     [63:0] lsu_completion_count_q;
+  logic     [63:0] pipeline_raw_hazard_wait_cycle_count_q;
+  logic     [63:0] pipeline_serializing_wait_cycle_count_q;
+  logic     [63:0] pipeline_structural_wait_cycle_count_q;
+  logic     [63:0] pipeline_control_flush_count_q;
+  logic     [63:0] pipeline_execute_discard_count_q;
 
-  logic [63:0] integer_instruction_count_q;
-  logic [63:0] branch_instruction_count_q;
-  logic [63:0] memory_instruction_count_q;
-  logic [63:0] load_instruction_count_q;
-  logic [63:0] store_instruction_count_q;
-  logic [63:0] csr_instruction_count_q;
-  logic [63:0] system_instruction_count_q;
-  logic [63:0] unclassified_instruction_count_q;
+  logic     [63:0] integer_instruction_count_q;
+  logic     [63:0] branch_instruction_count_q;
+  logic     [63:0] memory_instruction_count_q;
+  logic     [63:0] load_instruction_count_q;
+  logic     [63:0] store_instruction_count_q;
+  logic     [63:0] csr_instruction_count_q;
+  logic     [63:0] system_instruction_count_q;
+  logic     [63:0] unclassified_instruction_count_q;
 
-  logic [63:0] integer_execution_cycle_sum_q;
-  logic [63:0] branch_execution_cycle_sum_q;
-  logic [63:0] memory_execution_cycle_sum_q;
-  logic [63:0] csr_execution_cycle_sum_q;
-  logic [63:0] system_execution_cycle_sum_q;
-  logic [63:0] unclassified_execution_cycle_sum_q;
+  logic     [63:0] integer_execution_cycle_sum_q;
+  logic     [63:0] branch_execution_cycle_sum_q;
+  logic     [63:0] memory_execution_cycle_sum_q;
+  logic     [63:0] csr_execution_cycle_sum_q;
+  logic     [63:0] system_execution_cycle_sum_q;
+  logic     [63:0] unclassified_execution_cycle_sum_q;
 
-  logic        instruction_execution_active_q;
-  fu_type_e    active_instruction_fu_type_q;
-  logic [63:0] active_instruction_elapsed_cycle_count_q;
+  logic            instruction_execution_active_q;
+  fu_type_e        active_instruction_fu_type_q;
+  logic     [63:0] active_instruction_elapsed_cycle_count_q;
 
-  logic [63:0] ifu_instruction_request_count_q;
-  logic [63:0] ifu_instruction_response_count_q;
-  logic [63:0] ifu_instruction_delivery_count_q;
-  logic [63:0] ifu_discarded_response_count_q;
-  logic [63:0] ifu_request_wait_cycle_count_q;
-  logic [63:0] ifu_response_wait_cycle_count_q;
-  logic [63:0] ifu_downstream_wait_cycle_count_q;
-  logic [63:0] ifu_response_latency_cycle_sum_q;
-  logic [63:0] ifu_response_elapsed_cycle_count_q;
-  logic        ifu_response_pending_q;
+  logic     [63:0] ifu_instruction_request_count_q;
+  logic     [63:0] ifu_instruction_response_count_q;
+  logic     [63:0] ifu_instruction_delivery_count_q;
+  logic     [63:0] ifu_discarded_response_count_q;
+  logic     [63:0] ifu_request_wait_cycle_count_q;
+  logic     [63:0] ifu_response_wait_cycle_count_q;
+  logic     [63:0] ifu_downstream_wait_cycle_count_q;
+  logic     [63:0] ifu_response_latency_cycle_sum_q;
+  logic     [63:0] ifu_response_elapsed_cycle_count_q;
+  logic            ifu_response_pending_q;
 
-  logic [63:0] lsu_request_count_q;
-  logic [63:0] lsu_load_operation_count_q;
-  logic [63:0] lsu_store_operation_count_q;
-  logic [63:0] lsu_load_operation_latency_cycle_sum_q;
-  logic [63:0] lsu_store_operation_latency_cycle_sum_q;
-  logic [63:0] lsu_operation_elapsed_cycle_count_q;
-  mem_cmd_e    active_lsu_memory_cmd_q;
-  logic        lsu_operation_active_q;
+  logic     [63:0] lsu_request_count_q;
+  logic     [63:0] lsu_load_operation_count_q;
+  logic     [63:0] lsu_store_operation_count_q;
+  logic     [63:0] lsu_load_operation_latency_cycle_sum_q;
+  logic     [63:0] lsu_store_operation_latency_cycle_sum_q;
+  logic     [63:0] lsu_operation_elapsed_cycle_count_q;
+  mem_cmd_e        active_lsu_memory_cmd_q;
+  logic            lsu_operation_active_q;
 
-  logic [63:0] lsu_read_bus_transaction_count_q;
-  logic [63:0] lsu_read_bus_latency_cycle_sum_q;
-  logic [63:0] lsu_read_bus_elapsed_cycle_count_q;
-  logic        lsu_read_response_pending_q;
+  logic     [63:0] lsu_read_bus_transaction_count_q;
+  logic     [63:0] lsu_read_bus_latency_cycle_sum_q;
+  logic     [63:0] lsu_read_bus_elapsed_cycle_count_q;
+  logic            lsu_read_response_pending_q;
 
-  logic [63:0] lsu_write_bus_transaction_count_q;
-  logic [63:0] lsu_write_bus_latency_cycle_sum_q;
-  logic [63:0] lsu_write_bus_elapsed_cycle_count_q;
-  logic        lsu_write_response_pending_q;
-  logic        lsu_write_address_handshake_occurred_q;
-  logic        lsu_write_data_handshake_occurred_q;
+  logic     [63:0] lsu_write_bus_transaction_count_q;
+  logic     [63:0] lsu_write_bus_latency_cycle_sum_q;
+  logic     [63:0] lsu_write_bus_elapsed_cycle_count_q;
+  logic            lsu_write_response_pending_q;
+  logic            lsu_write_address_handshake_occurred_q;
+  logic            lsu_write_data_handshake_occurred_q;
 
-  logic instruction_completion_occurred;
-  logic lsu_write_request_channels_handshake_occurred;
+  logic            instruction_completion_occurred;
+  logic            lsu_write_request_channels_handshake_occurred;
 
-  assign instruction_completion_occurred = exu_completion_occurred_i ||
-                                            lsu_completion_occurred_i;
+  assign instruction_completion_occurred = exu_completion_occurred_i || lsu_completion_occurred_i;
 
   assign lsu_write_request_channels_handshake_occurred =
       (lsu_write_address_handshake_occurred_q || lsu_write_address_occurred_i) &&
       (lsu_write_data_handshake_occurred_q || lsu_write_data_occurred_i);
 
-  function automatic real calculate_ratio(
-      input logic [63:0] numerator,
-      input logic [63:0] denominator
-  );
+  function automatic real calculate_ratio(input logic [63:0] numerator,
+                                          input logic [63:0] denominator);
     if (denominator == 0) begin
       return 0.0;
     end
     return real'(numerator) / real'(denominator);
   endfunction
 
-  function automatic real calculate_percentage(
-      input logic [63:0] event_count,
-      input logic [63:0] total_count
-  );
+  function automatic real calculate_percentage(input logic [63:0] event_count,
+                                               input logic [63:0] total_count);
     if (total_count == 0) begin
       return 0.0;
     end
     return (100.0 * real'(event_count)) / real'(total_count);
   endfunction
 
-  function automatic real calculate_average_cycles(
-      input logic [63:0] cycle_sum,
-      input logic [63:0] event_count
-  );
+  function automatic real calculate_average_cycles(input logic [63:0] cycle_sum,
+                                                   input logic [63:0] event_count);
     if (event_count == 0) begin
       return 0.0;
     end
@@ -153,12 +146,11 @@ module riscv32_sim_performance_monitor
     real average_hit_latency;
     real miss_response_cycle_sum;
 
-    if ((icache_cacheable_hit_count_i == 0) ||
-        (icache_cacheable_miss_response_count_i == 0)) begin
+    if ((icache_cacheable_hit_count_i == 0) || (icache_cacheable_miss_response_count_i == 0)) begin
       return 0.0;
     end
-    average_hit_latency = real'(icache_hit_latency_cycle_sum_i) /
-                          real'(icache_cacheable_hit_count_i);
+    average_hit_latency     = real'(icache_hit_latency_cycle_sum_i) /
+                              real'(icache_cacheable_hit_count_i);
     miss_response_cycle_sum = real'(icache_miss_response_latency_cycle_sum_i);
     return miss_response_cycle_sum -
            real'(icache_cacheable_miss_response_count_i) * average_hit_latency;
@@ -167,8 +159,7 @@ module riscv32_sim_performance_monitor
   function automatic real calculate_oracle_single_cycle_data_memory_cycle_count();
     // 这不是某个可实现D-cache的性能模型。它把每条load/store的执行时间强制缩短到一拍，
     // 只用于给数据供给优化建立绝对上限，不包含miss、写回、端口冲突和uncached访问。
-    return real'(active_cycle_count_q) -
-           calculate_memory_execution_excess_cycles();
+    return real'(active_cycle_count_q) - calculate_memory_execution_excess_cycles();
   endfunction
 
   function automatic real calculate_ideal_single_issue_pipeline_cycle_count();
@@ -180,8 +171,7 @@ module riscv32_sim_performance_monitor
   endfunction
 
   function automatic real calculate_ideal_pipeline_and_oracle_data_memory_cycle_count();
-    return real'(retired_instruction_count_q) +
-           calculate_icache_miss_penalty_cycle_sum();
+    return real'(retired_instruction_count_q) + calculate_icache_miss_penalty_cycle_sum();
   endfunction
 
   function automatic real calculate_speedup(input real projected_cycle_count);
@@ -191,29 +181,23 @@ module riscv32_sim_performance_monitor
     return real'(active_cycle_count_q) / projected_cycle_count;
   endfunction
 
-  task automatic add_instruction_execution_cycles(
-      input fu_type_e    instruction_fu_type,
-      input logic [63:0] execution_cycle_count
-  );
+  task automatic add_instruction_execution_cycles(input fu_type_e instruction_fu_type,
+                                                  input logic [63:0] execution_cycle_count);
     unique case (instruction_fu_type)
       FU_INT: begin
-        integer_execution_cycle_sum_q <= integer_execution_cycle_sum_q +
-                                         execution_cycle_count;
+        integer_execution_cycle_sum_q <= integer_execution_cycle_sum_q + execution_cycle_count;
       end
       FU_BRANCH: begin
-        branch_execution_cycle_sum_q <= branch_execution_cycle_sum_q +
-                                        execution_cycle_count;
+        branch_execution_cycle_sum_q <= branch_execution_cycle_sum_q + execution_cycle_count;
       end
       FU_LSU: begin
-        memory_execution_cycle_sum_q <= memory_execution_cycle_sum_q +
-                                        execution_cycle_count;
+        memory_execution_cycle_sum_q <= memory_execution_cycle_sum_q + execution_cycle_count;
       end
       FU_CSR: begin
         csr_execution_cycle_sum_q <= csr_execution_cycle_sum_q + execution_cycle_count;
       end
       FU_SYSTEM: begin
-        system_execution_cycle_sum_q <= system_execution_cycle_sum_q +
-                                        execution_cycle_count;
+        system_execution_cycle_sum_q <= system_execution_cycle_sum_q + execution_cycle_count;
       end
       default: begin
         unclassified_execution_cycle_sum_q <= unclassified_execution_cycle_sum_q +
@@ -226,24 +210,24 @@ module riscv32_sim_performance_monitor
   // READY is never counted as another instruction or bus transaction.
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      active_cycle_count_q               <= '0;
-      decoded_instruction_count_q        <= '0;
-      retired_instruction_count_q        <= '0;
-      exu_completion_count_q             <= '0;
-      lsu_completion_count_q             <= '0;
-      pipeline_raw_hazard_wait_cycle_count_q   <= '0;
-      pipeline_serializing_wait_cycle_count_q  <= '0;
-      pipeline_structural_wait_cycle_count_q   <= '0;
-      pipeline_control_flush_count_q           <= '0;
-      pipeline_execute_discard_count_q         <= '0;
-      integer_instruction_count_q        <= '0;
-      branch_instruction_count_q         <= '0;
-      memory_instruction_count_q         <= '0;
-      load_instruction_count_q           <= '0;
-      store_instruction_count_q          <= '0;
-      csr_instruction_count_q            <= '0;
-      system_instruction_count_q         <= '0;
-      unclassified_instruction_count_q   <= '0;
+      active_cycle_count_q                    <= '0;
+      decoded_instruction_count_q             <= '0;
+      retired_instruction_count_q             <= '0;
+      exu_completion_count_q                  <= '0;
+      lsu_completion_count_q                  <= '0;
+      pipeline_raw_hazard_wait_cycle_count_q  <= '0;
+      pipeline_serializing_wait_cycle_count_q <= '0;
+      pipeline_structural_wait_cycle_count_q  <= '0;
+      pipeline_control_flush_count_q          <= '0;
+      pipeline_execute_discard_count_q        <= '0;
+      integer_instruction_count_q             <= '0;
+      branch_instruction_count_q              <= '0;
+      memory_instruction_count_q              <= '0;
+      load_instruction_count_q                <= '0;
+      store_instruction_count_q               <= '0;
+      csr_instruction_count_q                 <= '0;
+      system_instruction_count_q              <= '0;
+      unclassified_instruction_count_q        <= '0;
     end else begin
       active_cycle_count_q <= active_cycle_count_q + 64'd1;
 
@@ -251,7 +235,7 @@ module riscv32_sim_performance_monitor
         decoded_instruction_count_q <= decoded_instruction_count_q + 64'd1;
         unique case (decoded_fu_type_i)
           FU_INT:    integer_instruction_count_q <= integer_instruction_count_q + 64'd1;
-          FU_BRANCH: branch_instruction_count_q  <= branch_instruction_count_q + 64'd1;
+          FU_BRANCH: branch_instruction_count_q <= branch_instruction_count_q + 64'd1;
           FU_LSU: begin
             memory_instruction_count_q <= memory_instruction_count_q + 64'd1;
             if (decoded_memory_cmd_i == MEM_CMD_LOAD) begin
@@ -260,7 +244,7 @@ module riscv32_sim_performance_monitor
               store_instruction_count_q <= store_instruction_count_q + 64'd1;
             end
           end
-          FU_CSR:    csr_instruction_count_q    <= csr_instruction_count_q + 64'd1;
+          FU_CSR:    csr_instruction_count_q <= csr_instruction_count_q + 64'd1;
           FU_SYSTEM: system_instruction_count_q <= system_instruction_count_q + 64'd1;
           default: begin
             unclassified_instruction_count_q <= unclassified_instruction_count_q + 64'd1;
@@ -277,16 +261,13 @@ module riscv32_sim_performance_monitor
         lsu_completion_count_q <= lsu_completion_count_q + 64'd1;
       end
       if (pipeline_raw_hazard_waiting_i) begin
-        pipeline_raw_hazard_wait_cycle_count_q <=
-            pipeline_raw_hazard_wait_cycle_count_q + 64'd1;
+        pipeline_raw_hazard_wait_cycle_count_q <= pipeline_raw_hazard_wait_cycle_count_q + 64'd1;
       end
       if (pipeline_serializing_waiting_i) begin
-        pipeline_serializing_wait_cycle_count_q <=
-            pipeline_serializing_wait_cycle_count_q + 64'd1;
+        pipeline_serializing_wait_cycle_count_q <= pipeline_serializing_wait_cycle_count_q + 64'd1;
       end
       if (pipeline_structural_waiting_i) begin
-        pipeline_structural_wait_cycle_count_q <=
-            pipeline_structural_wait_cycle_count_q + 64'd1;
+        pipeline_structural_wait_cycle_count_q <= pipeline_structural_wait_cycle_count_q + 64'd1;
       end
       if (pipeline_control_flush_occurred_i) begin
         pipeline_control_flush_count_q <= pipeline_control_flush_count_q + 64'd1;
@@ -302,15 +283,15 @@ module riscv32_sim_performance_monitor
   // 的两个事件视为同一条组合完成指令。未来乱序核需要改成按ROB tag索引的时间戳表。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      instruction_execution_active_q             <= 1'b0;
-      active_instruction_fu_type_q               <= FU_NONE;
-      active_instruction_elapsed_cycle_count_q   <= '0;
-      integer_execution_cycle_sum_q              <= '0;
-      branch_execution_cycle_sum_q               <= '0;
-      memory_execution_cycle_sum_q               <= '0;
-      csr_execution_cycle_sum_q                  <= '0;
-      system_execution_cycle_sum_q               <= '0;
-      unclassified_execution_cycle_sum_q         <= '0;
+      instruction_execution_active_q           <= 1'b0;
+      active_instruction_fu_type_q             <= FU_NONE;
+      active_instruction_elapsed_cycle_count_q <= '0;
+      integer_execution_cycle_sum_q            <= '0;
+      branch_execution_cycle_sum_q             <= '0;
+      memory_execution_cycle_sum_q             <= '0;
+      csr_execution_cycle_sum_q                <= '0;
+      system_execution_cycle_sum_q             <= '0;
+      unclassified_execution_cycle_sum_q       <= '0;
     end else begin
       if (instruction_execution_active_q && instruction_completion_occurred) begin
         add_instruction_execution_cycles(active_instruction_fu_type_q,
@@ -338,16 +319,16 @@ module riscv32_sim_performance_monitor
   // a response cycle, so their percentages are independent diagnostic rates.
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      ifu_instruction_request_count_q             <= '0;
-      ifu_instruction_response_count_q            <= '0;
-      ifu_instruction_delivery_count_q            <= '0;
-      ifu_discarded_response_count_q               <= '0;
-      ifu_request_wait_cycle_count_q               <= '0;
-      ifu_response_wait_cycle_count_q              <= '0;
-      ifu_downstream_wait_cycle_count_q            <= '0;
-      ifu_response_latency_cycle_sum_q             <= '0;
-      ifu_response_elapsed_cycle_count_q           <= '0;
-      ifu_response_pending_q                       <= 1'b0;
+      ifu_instruction_request_count_q    <= '0;
+      ifu_instruction_response_count_q   <= '0;
+      ifu_instruction_delivery_count_q   <= '0;
+      ifu_discarded_response_count_q     <= '0;
+      ifu_request_wait_cycle_count_q     <= '0;
+      ifu_response_wait_cycle_count_q    <= '0;
+      ifu_downstream_wait_cycle_count_q  <= '0;
+      ifu_response_latency_cycle_sum_q   <= '0;
+      ifu_response_elapsed_cycle_count_q <= '0;
+      ifu_response_pending_q             <= 1'b0;
     end else begin
       if (ifu_instruction_request_waiting_i) begin
         ifu_request_wait_cycle_count_q <= ifu_request_wait_cycle_count_q + 64'd1;
@@ -363,22 +344,22 @@ module riscv32_sim_performance_monitor
       end
 
       if (ifu_instruction_request_occurred_i) begin
-        ifu_instruction_request_count_q           <= ifu_instruction_request_count_q + 64'd1;
-        ifu_response_pending_q                     <= 1'b1;
-        ifu_response_elapsed_cycle_count_q         <= '0;
+        ifu_instruction_request_count_q    <= ifu_instruction_request_count_q + 64'd1;
+        ifu_response_pending_q             <= 1'b1;
+        ifu_response_elapsed_cycle_count_q <= '0;
       end
 
       if (ifu_response_pending_q) begin
-        ifu_response_wait_cycle_count_q      <= ifu_response_wait_cycle_count_q + 64'd1;
-        ifu_response_elapsed_cycle_count_q   <= ifu_response_elapsed_cycle_count_q + 64'd1;
+        ifu_response_wait_cycle_count_q    <= ifu_response_wait_cycle_count_q + 64'd1;
+        ifu_response_elapsed_cycle_count_q <= ifu_response_elapsed_cycle_count_q + 64'd1;
       end
 
       if (ifu_instruction_response_occurred_i) begin
-        ifu_instruction_response_count_q    <= ifu_instruction_response_count_q + 64'd1;
-        ifu_response_latency_cycle_sum_q    <= ifu_response_latency_cycle_sum_q +
-                                               ifu_response_elapsed_cycle_count_q + 64'd1;
-        ifu_response_pending_q              <= 1'b0;
-        ifu_response_elapsed_cycle_count_q  <= '0;
+        ifu_instruction_response_count_q   <= ifu_instruction_response_count_q + 64'd1;
+        ifu_response_latency_cycle_sum_q   <= ifu_response_latency_cycle_sum_q +
+                                              ifu_response_elapsed_cycle_count_q + 64'd1;
+        ifu_response_pending_q             <= 1'b0;
+        ifu_response_elapsed_cycle_count_q <= '0;
       end
     end
   end
@@ -388,44 +369,42 @@ module riscv32_sim_performance_monitor
   // peripheral, and completion backpressure, which is the latency seen by this core.
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      lsu_request_count_q                      <= '0;
-      lsu_load_operation_count_q               <= '0;
-      lsu_store_operation_count_q              <= '0;
-      lsu_load_operation_latency_cycle_sum_q   <= '0;
-      lsu_store_operation_latency_cycle_sum_q  <= '0;
-      lsu_operation_elapsed_cycle_count_q      <= '0;
-      active_lsu_memory_cmd_q                  <= MEM_CMD_NONE;
-      lsu_operation_active_q                   <= 1'b0;
+      lsu_request_count_q                     <= '0;
+      lsu_load_operation_count_q              <= '0;
+      lsu_store_operation_count_q             <= '0;
+      lsu_load_operation_latency_cycle_sum_q  <= '0;
+      lsu_store_operation_latency_cycle_sum_q <= '0;
+      lsu_operation_elapsed_cycle_count_q     <= '0;
+      active_lsu_memory_cmd_q                 <= MEM_CMD_NONE;
+      lsu_operation_active_q                  <= 1'b0;
     end else if (lsu_request_occurred_i && lsu_completion_occurred_i) begin
       lsu_request_count_q <= lsu_request_count_q + 64'd1;
       if (lsu_request_memory_cmd_i == MEM_CMD_LOAD) begin
-        lsu_load_operation_count_q <= lsu_load_operation_count_q + 64'd1;
-        lsu_load_operation_latency_cycle_sum_q <=
-            lsu_load_operation_latency_cycle_sum_q + 64'd1;
+        lsu_load_operation_count_q             <= lsu_load_operation_count_q + 64'd1;
+        lsu_load_operation_latency_cycle_sum_q <= lsu_load_operation_latency_cycle_sum_q + 64'd1;
       end else if (lsu_request_memory_cmd_i == MEM_CMD_STORE) begin
-        lsu_store_operation_count_q <= lsu_store_operation_count_q + 64'd1;
-        lsu_store_operation_latency_cycle_sum_q <=
-            lsu_store_operation_latency_cycle_sum_q + 64'd1;
+        lsu_store_operation_count_q             <= lsu_store_operation_count_q + 64'd1;
+        lsu_store_operation_latency_cycle_sum_q <= lsu_store_operation_latency_cycle_sum_q + 64'd1;
       end
       active_lsu_memory_cmd_q             <= MEM_CMD_NONE;
       lsu_operation_elapsed_cycle_count_q <= '0;
       lsu_operation_active_q              <= 1'b0;
     end else if (lsu_request_occurred_i) begin
-      lsu_request_count_q                  <= lsu_request_count_q + 64'd1;
-      active_lsu_memory_cmd_q              <= lsu_request_memory_cmd_i;
-      lsu_operation_elapsed_cycle_count_q  <= '0;
-      lsu_operation_active_q               <= 1'b1;
+      lsu_request_count_q                 <= lsu_request_count_q + 64'd1;
+      active_lsu_memory_cmd_q             <= lsu_request_memory_cmd_i;
+      lsu_operation_elapsed_cycle_count_q <= '0;
+      lsu_operation_active_q              <= 1'b1;
     end else if (lsu_operation_active_q && lsu_completion_occurred_i) begin
       if (active_lsu_memory_cmd_q == MEM_CMD_LOAD) begin
-        lsu_load_operation_count_q <= lsu_load_operation_count_q + 64'd1;
-        lsu_load_operation_latency_cycle_sum_q <=
-            lsu_load_operation_latency_cycle_sum_q +
-            lsu_operation_elapsed_cycle_count_q + 64'd1;
+        lsu_load_operation_count_q             <= lsu_load_operation_count_q + 64'd1;
+        lsu_load_operation_latency_cycle_sum_q <= 
+                                                  lsu_load_operation_latency_cycle_sum_q +
+                                                  lsu_operation_elapsed_cycle_count_q + 64'd1;
       end else if (active_lsu_memory_cmd_q == MEM_CMD_STORE) begin
-        lsu_store_operation_count_q <= lsu_store_operation_count_q + 64'd1;
-        lsu_store_operation_latency_cycle_sum_q <=
-            lsu_store_operation_latency_cycle_sum_q +
-            lsu_operation_elapsed_cycle_count_q + 64'd1;
+        lsu_store_operation_count_q             <= lsu_store_operation_count_q + 64'd1;
+        lsu_store_operation_latency_cycle_sum_q <= 
+                                                   lsu_store_operation_latency_cycle_sum_q +
+                                                   lsu_operation_elapsed_cycle_count_q + 64'd1;
       end
       active_lsu_memory_cmd_q             <= MEM_CMD_NONE;
       lsu_operation_elapsed_cycle_count_q <= '0;
@@ -438,10 +417,10 @@ module riscv32_sim_performance_monitor
   // Read-bus latency starts at AR handshake and ends at R handshake.
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      lsu_read_bus_transaction_count_q       <= '0;
-      lsu_read_bus_latency_cycle_sum_q       <= '0;
-      lsu_read_bus_elapsed_cycle_count_q     <= '0;
-      lsu_read_response_pending_q            <= 1'b0;
+      lsu_read_bus_transaction_count_q   <= '0;
+      lsu_read_bus_latency_cycle_sum_q   <= '0;
+      lsu_read_bus_elapsed_cycle_count_q <= '0;
+      lsu_read_response_pending_q        <= 1'b0;
     end else if (lsu_read_address_occurred_i && lsu_read_response_occurred_i) begin
       lsu_read_bus_transaction_count_q   <= lsu_read_bus_transaction_count_q + 64'd1;
       lsu_read_bus_latency_cycle_sum_q   <= lsu_read_bus_latency_cycle_sum_q + 64'd1;
@@ -451,9 +430,9 @@ module riscv32_sim_performance_monitor
       lsu_read_bus_elapsed_cycle_count_q <= '0;
       lsu_read_response_pending_q        <= 1'b1;
     end else if (lsu_read_response_pending_q && lsu_read_response_occurred_i) begin
-      lsu_read_bus_transaction_count_q <= lsu_read_bus_transaction_count_q + 64'd1;
-      lsu_read_bus_latency_cycle_sum_q <= lsu_read_bus_latency_cycle_sum_q +
-                                          lsu_read_bus_elapsed_cycle_count_q + 64'd1;
+      lsu_read_bus_transaction_count_q   <= lsu_read_bus_transaction_count_q + 64'd1;
+      lsu_read_bus_latency_cycle_sum_q   <= lsu_read_bus_latency_cycle_sum_q +
+                                            lsu_read_bus_elapsed_cycle_count_q + 64'd1;
       lsu_read_bus_elapsed_cycle_count_q <= '0;
       lsu_read_response_pending_q        <= 1'b0;
     end else if (lsu_read_response_pending_q) begin
@@ -465,10 +444,10 @@ module riscv32_sim_performance_monitor
   // both have handshaken, regardless of which channel completed first.
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      lsu_write_bus_transaction_count_q     <= '0;
-      lsu_write_bus_latency_cycle_sum_q     <= '0;
-      lsu_write_bus_elapsed_cycle_count_q   <= '0;
-      lsu_write_response_pending_q          <= 1'b0;
+      lsu_write_bus_transaction_count_q      <= '0;
+      lsu_write_bus_latency_cycle_sum_q      <= '0;
+      lsu_write_bus_elapsed_cycle_count_q    <= '0;
+      lsu_write_response_pending_q           <= 1'b0;
       lsu_write_address_handshake_occurred_q <= 1'b0;
       lsu_write_data_handshake_occurred_q    <= 1'b0;
     end else begin
@@ -487,11 +466,11 @@ module riscv32_sim_performance_monitor
       end
 
       if (lsu_write_response_occurred_i) begin
-        lsu_write_bus_transaction_count_q <= lsu_write_bus_transaction_count_q + 64'd1;
-        lsu_write_bus_latency_cycle_sum_q <= lsu_write_bus_latency_cycle_sum_q +
-                                             lsu_write_bus_elapsed_cycle_count_q + 64'd1;
-        lsu_write_bus_elapsed_cycle_count_q <= '0;
-        lsu_write_response_pending_q        <= 1'b0;
+        lsu_write_bus_transaction_count_q      <= lsu_write_bus_transaction_count_q + 64'd1;
+        lsu_write_bus_latency_cycle_sum_q      <= lsu_write_bus_latency_cycle_sum_q +
+                                                  lsu_write_bus_elapsed_cycle_count_q + 64'd1;
+        lsu_write_bus_elapsed_cycle_count_q    <= '0;
+        lsu_write_response_pending_q           <= 1'b0;
         lsu_write_address_handshake_occurred_q <= 1'b0;
         lsu_write_data_handshake_occurred_q    <= 1'b0;
       end
@@ -504,8 +483,8 @@ module riscv32_sim_performance_monitor
     $display("active core cycles                 : %0d", active_cycle_count_q);
     $display("decoded instructions               : %0d", decoded_instruction_count_q);
     $display("retired instructions               : %0d", retired_instruction_count_q);
-    $display("IPC                                : %.6f",
-             calculate_ratio(retired_instruction_count_q, active_cycle_count_q));
+    $display("IPC                                : %.6f", calculate_ratio(
+             retired_instruction_count_q, active_cycle_count_q));
     $display("");
     $display("instruction class        count       ratio       average execution cycles");
     $display("integer              %10d  %8.3f%%  %12.3f", integer_instruction_count_q,
@@ -517,10 +496,10 @@ module riscv32_sim_performance_monitor
     $display("load/store           %10d  %8.3f%%  %12.3f", memory_instruction_count_q,
              calculate_percentage(memory_instruction_count_q, decoded_instruction_count_q),
              calculate_average_cycles(memory_execution_cycle_sum_q, memory_instruction_count_q));
-    $display("  load               %10d  %8.3f%%", load_instruction_count_q,
-             calculate_percentage(load_instruction_count_q, decoded_instruction_count_q));
-    $display("  store              %10d  %8.3f%%", store_instruction_count_q,
-             calculate_percentage(store_instruction_count_q, decoded_instruction_count_q));
+    $display("  load               %10d  %8.3f%%", load_instruction_count_q, calculate_percentage(
+             load_instruction_count_q, decoded_instruction_count_q));
+    $display("  store              %10d  %8.3f%%", store_instruction_count_q, calculate_percentage(
+             store_instruction_count_q, decoded_instruction_count_q));
     $display("CSR                   %10d  %8.3f%%  %12.3f", csr_instruction_count_q,
              calculate_percentage(csr_instruction_count_q, decoded_instruction_count_q),
              calculate_average_cycles(csr_execution_cycle_sum_q, csr_instruction_count_q));
@@ -535,30 +514,27 @@ module riscv32_sim_performance_monitor
     $display("IFU requests / responses / deliveries : %0d / %0d / %0d",
              ifu_instruction_request_count_q, ifu_instruction_response_count_q,
              ifu_instruction_delivery_count_q);
-    $display("IFU average response latency           : %.3f cycles",
-             calculate_average_cycles(ifu_response_latency_cycle_sum_q,
-                                      ifu_instruction_response_count_q));
+    $display("IFU average response latency           : %.3f cycles", calculate_average_cycles(
+             ifu_response_latency_cycle_sum_q, ifu_instruction_response_count_q));
     $display("IFU AR backpressure cycles             : %0d (%.3f%%)",
-             ifu_request_wait_cycle_count_q,
-             calculate_percentage(ifu_request_wait_cycle_count_q, active_cycle_count_q));
+             ifu_request_wait_cycle_count_q, calculate_percentage(ifu_request_wait_cycle_count_q,
+                                                                  active_cycle_count_q));
     $display("IFU response-wait cycles               : %0d (%.3f%%)",
-             ifu_response_wait_cycle_count_q,
-             calculate_percentage(ifu_response_wait_cycle_count_q, active_cycle_count_q));
+             ifu_response_wait_cycle_count_q, calculate_percentage(ifu_response_wait_cycle_count_q,
+                                                                   active_cycle_count_q));
     $display("IFU downstream-backpressure cycles     : %0d (%.3f%%)",
-             ifu_downstream_wait_cycle_count_q,
-             calculate_percentage(ifu_downstream_wait_cycle_count_q, active_cycle_count_q));
+             ifu_downstream_wait_cycle_count_q, calculate_percentage(
+             ifu_downstream_wait_cycle_count_q, active_cycle_count_q));
     $display("IFU discarded wrong-path responses     : %0d", ifu_discarded_response_count_q);
     $display("");
     $display("LSU requests / completions             : %0d / %0d", lsu_request_count_q,
              lsu_completion_count_q);
     $display("LSU load operation average latency     : %.3f cycles (%0d operations)",
              calculate_average_cycles(lsu_load_operation_latency_cycle_sum_q,
-                                      lsu_load_operation_count_q),
-             lsu_load_operation_count_q);
+                                      lsu_load_operation_count_q), lsu_load_operation_count_q);
     $display("LSU store operation average latency    : %.3f cycles (%0d operations)",
              calculate_average_cycles(lsu_store_operation_latency_cycle_sum_q,
-                                      lsu_store_operation_count_q),
-             lsu_store_operation_count_q);
+                                      lsu_store_operation_count_q), lsu_store_operation_count_q);
     $display("LSU AXI read average latency           : %.3f cycles (%0d transactions)",
              calculate_average_cycles(lsu_read_bus_latency_cycle_sum_q,
                                       lsu_read_bus_transaction_count_q),
@@ -571,19 +547,16 @@ module riscv32_sim_performance_monitor
              lsu_completion_count_q);
     $display("");
     $display("pipeline RAW-hazard wait cycles       : %0d (%.3f%%)",
-             pipeline_raw_hazard_wait_cycle_count_q,
-             calculate_percentage(pipeline_raw_hazard_wait_cycle_count_q,
-                                  active_cycle_count_q));
+             pipeline_raw_hazard_wait_cycle_count_q, calculate_percentage(
+             pipeline_raw_hazard_wait_cycle_count_q, active_cycle_count_q));
     $display("pipeline serializing wait cycles      : %0d (%.3f%%)",
-             pipeline_serializing_wait_cycle_count_q,
-             calculate_percentage(pipeline_serializing_wait_cycle_count_q,
-                                  active_cycle_count_q));
+             pipeline_serializing_wait_cycle_count_q, calculate_percentage(
+             pipeline_serializing_wait_cycle_count_q, active_cycle_count_q));
     $display("pipeline LSU structural wait cycles   : %0d (%.3f%%)",
-             pipeline_structural_wait_cycle_count_q,
-             calculate_percentage(pipeline_structural_wait_cycle_count_q,
-                                  active_cycle_count_q));
-    $display("pipeline control flushes / EX discards: %0d / %0d",
-             pipeline_control_flush_count_q, pipeline_execute_discard_count_q);
+             pipeline_structural_wait_cycle_count_q, calculate_percentage(
+             pipeline_structural_wait_cycle_count_q, active_cycle_count_q));
+    $display("pipeline control flushes / EX discards: %0d / %0d", pipeline_control_flush_count_q,
+             pipeline_execute_discard_count_q);
     $display("");
     $display("idealized upper-bound estimates");
     $display("memory execution excess cycles        : %.3f",
@@ -591,14 +564,14 @@ module riscv32_sim_performance_monitor
     $display("I-cache critical miss excess cycles   : %.3f",
              calculate_icache_miss_penalty_cycle_sum());
     $display("oracle 1-cycle data memory / speedup   : %.3f / %.3fx",
-             calculate_oracle_single_cycle_data_memory_cycle_count(),
-             calculate_speedup(calculate_oracle_single_cycle_data_memory_cycle_count()));
+             calculate_oracle_single_cycle_data_memory_cycle_count(), calculate_speedup(
+             calculate_oracle_single_cycle_data_memory_cycle_count()));
     $display("ideal single-issue pipeline cycles     : %.3f / %.3fx",
-             calculate_ideal_single_issue_pipeline_cycle_count(),
-             calculate_speedup(calculate_ideal_single_issue_pipeline_cycle_count()));
+             calculate_ideal_single_issue_pipeline_cycle_count(), calculate_speedup(
+             calculate_ideal_single_issue_pipeline_cycle_count()));
     $display("ideal pipeline + oracle data memory    : %.3f / %.3fx",
-             calculate_ideal_pipeline_and_oracle_data_memory_cycle_count(),
-             calculate_speedup(calculate_ideal_pipeline_and_oracle_data_memory_cycle_count()));
+             calculate_ideal_pipeline_and_oracle_data_memory_cycle_count(), calculate_speedup(
+             calculate_ideal_pipeline_and_oracle_data_memory_cycle_count()));
     $display("==========================================================");
 
     if (decoded_instruction_count_q != ifu_instruction_delivery_count_q) begin

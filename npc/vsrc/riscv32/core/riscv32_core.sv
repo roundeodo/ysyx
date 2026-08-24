@@ -71,10 +71,10 @@ module riscv32_core
   xlen_data_t rs1_value;
   xlen_data_t rs2_value;
   execute_packet_t decoded_execute_packet;
-  logic            decoded_execute_packet_valid;
-  logic            decoded_execute_packet_ready;
+  logic decoded_execute_packet_valid;
+  logic decoded_execute_packet_ready;
   execute_packet_t execute_packet;
-  logic            execute_packet_valid;
+  logic execute_packet_valid;
   logic execute_packet_ready;
 
   execute_result_t exu_result;
@@ -90,12 +90,12 @@ module riscv32_core
   logic lsu_writeback_ready;
 
   writeback_result_t completion_result;
-  logic              completion_result_valid;
-  logic              completion_result_ready;
+  logic completion_result_valid;
+  logic completion_result_ready;
 
   writeback_result_t writeback_result;
-  logic              writeback_result_valid;
-  logic              writeback_result_ready;
+  logic writeback_result_valid;
+  logic writeback_result_ready;
 
   commit_t commit;
   logic commit_valid;
@@ -266,30 +266,30 @@ module riscv32_core
   // RAW检测发生在操作数被ID/EX寄存器采样之前。无转发首版会等生产者离开WB；
   // 串行化CSR/system指令则要求后端排空，并阻止年轻指令越过它。
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
-      .clk_i                            (clk_i),
-      .rst_ni                           (rst_ni),
-      .decoded_uop_i                    (decoded_uop),
-      .decoded_uop_valid_i              (decoded_uop_valid),
-      .execute_uop_i                    (execute_packet.uop),
-      .execute_uop_valid_i              (execute_packet_valid),
-      .writeback_result_i               (writeback_result),
-      .writeback_result_valid_i         (writeback_result_valid),
-      .lsu_busy_i                       (lsu_transaction_active),
-      .execute_redirect_occurred_i      (execute_redirect_occurred),
-      .commit_redirect_occurred_i       (commit_redirect_occurred),
-      .decode_accept_allowed_o          (decode_accept_allowed),
-      .execute_issue_allowed_o          (execute_issue_allowed),
-      .decode_execute_flush_o           (decode_execute_flush),
-      .writeback_flush_o                (writeback_flush),
-      .raw_hazard_present_o             (raw_hazard_present),
-      .serializing_hazard_present_o     (serializing_hazard_present),
-      .structural_hazard_present_o      (structural_hazard_present)
+      .clk_i                       (clk_i),
+      .rst_ni                      (rst_ni),
+      .decoded_uop_i               (decoded_uop),
+      .decoded_uop_valid_i         (decoded_uop_valid),
+      .execute_uop_i               (execute_packet.uop),
+      .execute_uop_valid_i         (execute_packet_valid),
+      .writeback_result_i          (writeback_result),
+      .writeback_result_valid_i    (writeback_result_valid),
+      .lsu_busy_i                  (lsu_transaction_active),
+      .execute_redirect_occurred_i (execute_redirect_occurred),
+      .commit_redirect_occurred_i  (commit_redirect_occurred),
+      .decode_accept_allowed_o     (decode_accept_allowed),
+      .execute_issue_allowed_o     (execute_issue_allowed),
+      .decode_execute_flush_o      (decode_execute_flush),
+      .writeback_flush_o           (writeback_flush),
+      .raw_hazard_present_o        (raw_hazard_present),
+      .serializing_hazard_present_o(serializing_hazard_present),
+      .structural_hazard_present_o (structural_hazard_present)
   );
 
   // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由IFU/I-cache持有，
   // 不会出现“stage没有保存，但上游认为已经交付”的消息丢失。
   assign decoded_execute_packet_valid = decoded_uop_valid && decode_accept_allowed;
-  assign decoded_uop_ready = decoded_execute_packet_ready && decode_accept_allowed;
+  assign decoded_uop_ready            = decoded_execute_packet_ready && decode_accept_allowed;
 
   riscv32_decode_execute_stage u_decode_execute_stage (
       .clk_i                         (clk_i),
@@ -420,9 +420,7 @@ module riscv32_core
       .pipeline_serializing_waiting_i(serializing_hazard_present),
       .pipeline_structural_waiting_i(structural_hazard_present && decoded_uop_valid),
       .pipeline_control_flush_occurred_i(selected_redirect_req_valid),
-      .pipeline_execute_instruction_discarded_i(
-          commit_redirect_occurred && execute_packet_valid
-      ),
+      .pipeline_execute_instruction_discarded_i(commit_redirect_occurred && execute_packet_valid),
       .lsu_request_occurred_i(lsu_req_valid && lsu_req_ready),
       .lsu_request_memory_cmd_i(lsu_req.uop.mem_ctrl.cmd),
       .lsu_read_address_occurred_i(data_axi4_manager_o.ar_valid && data_axi4_manager_i.ar_ready),
@@ -431,13 +429,9 @@ module riscv32_core
       .lsu_write_data_occurred_i(data_axi4_manager_o.w_valid && data_axi4_manager_i.w_ready),
       .lsu_write_response_occurred_i(data_axi4_manager_i.b_valid && data_axi4_manager_o.b_ready),
       .icache_cacheable_hit_count_i(sim_icache_cacheable_hit_count),
-      .icache_cacheable_miss_response_count_i(
-          sim_icache_cacheable_miss_response_count
-      ),
+      .icache_cacheable_miss_response_count_i(sim_icache_cacheable_miss_response_count),
       .icache_hit_latency_cycle_sum_i(sim_icache_hit_latency_cycle_sum),
-      .icache_miss_response_latency_cycle_sum_i(
-          sim_icache_miss_response_latency_cycle_sum
-      )
+      .icache_miss_response_latency_cycle_sum_i(sim_icache_miss_response_latency_cycle_sum)
   );
 
   // Cache性能统计只存在于仿真配置。它观察I-cache定义的语义事件，不从AXI
@@ -496,17 +490,17 @@ module riscv32_core
   a_icache_invalidate_request_held_until_done :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (icache_invalidate_req && !icache_invalidate_done) |=> icache_invalidate_req)
-    else $error("core withdrew I-cache invalidate request before completion");
+  else $error("core withdrew I-cache invalidate request before completion");
 
   a_icache_invalidate_done_has_request :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     icache_invalidate_done |-> icache_invalidate_req)
-    else $error("core observed I-cache invalidate completion without a request");
+  else $error("core observed I-cache invalidate completion without a request");
 
   a_icache_invalidate_pending_means_busy :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     icache_invalidate_pending_q |-> icache_busy)
-    else $error("I-cache dropped busy while an invalidate transaction was pending");
+  else $error("I-cache dropped busy while an invalidate transaction was pending");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 

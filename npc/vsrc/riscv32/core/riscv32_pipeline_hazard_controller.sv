@@ -73,8 +73,7 @@ module riscv32_pipeline_hazard_controller
        (decoded_uop_i.serializing && older_instruction_present));
 
   assign structural_hazard_present_o = lsu_busy_i;
-  assign control_recovery_occurred = execute_redirect_occurred_i ||
-                                     commit_redirect_occurred_i;
+  assign control_recovery_occurred = execute_redirect_occurred_i || commit_redirect_occurred_i;
 
   assign decode_accept_allowed_o = !raw_hazard_present_o &&
                                    !serializing_hazard_present_o &&
@@ -83,13 +82,13 @@ module riscv32_pipeline_hazard_controller
 
   // EX级redirect来自当前正在执行的分支自身，不能阻止该分支进入WB；commit级redirect
   // 来自更老指令，必须阻止当前年轻EX指令产生completion或访存副作用。
-  assign execute_issue_allowed_o = !structural_hazard_present_o &&
-                                   !commit_redirect_occurred_i;
+  assign execute_issue_allowed_o = !structural_hazard_present_o && !commit_redirect_occurred_i;
 
   assign decode_execute_flush_o = control_recovery_occurred;
-  assign writeback_flush_o      = commit_redirect_occurred_i;
+  assign writeback_flush_o = commit_redirect_occurred_i;
 
 `ifndef SYNTHESIS
+  /* verilator lint_off SYNCASYNCNET */
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     raw_hazard_present_o |-> !decode_accept_allowed_o)
   else $error("pipeline accepted a decoded instruction with an unresolved RAW hazard");
@@ -97,6 +96,7 @@ module riscv32_pipeline_hazard_controller
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     control_recovery_occurred |-> decode_execute_flush_o)
   else $error("pipeline recovery did not flush the ID/EX stage");
+  /* verilator lint_on SYNCASYNCNET */
 `endif
 
 endmodule

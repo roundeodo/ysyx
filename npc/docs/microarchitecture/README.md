@@ -43,5 +43,7 @@
 
 - [`ICACHE_DESIGN_RECORD.md`](ICACHE_DESIGN_RECORD.md)：第一版I-cache检查点及其向高性能
   前端演进的路径。
+- [`PIPELINE_DESIGN_RECORD.md`](PIPELINE_DESIGN_RECORD.md)：顺序流水级边界、RAW/结构/
+  控制冒险、精确flush和后续forwarding路线。
 - [`EXPERIMENT_LOG.md`](../verification/EXPERIMENT_LOG.md)：I-cache接入前基线和后续实验结果。
 - [`LEARNING_JOURNAL.md`](../learning/LEARNING_JOURNAL.md)：可复用经验和尚未证实的假设。

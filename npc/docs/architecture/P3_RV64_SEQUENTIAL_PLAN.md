@@ -1,8 +1,8 @@
 # P3 RV64 顺序处理器实施计划
 
-状态：P3-E/P3-F/P3-G 已完成，等待基线提交后进入 P3-H
+状态：P3-E/P3-F/P3-G 已完成，P3-H 首版顺序流水线已实现并进入性能验证
 
-最后更新：2026-08-20
+最后更新：2026-08-24
 
 ## 1. 阶段目标
 
@@ -366,10 +366,16 @@ RV64关键终点位于架构寄存器堆写回路径；这为P3-H拆分执行/�
 
 ### P3-H：顺序流水化
 
-状态：未开始；P3-G技术退出条件已满足，创建基线提交后开始。
+状态：首版已实现，正在执行完整双配置回归和MicroBench性能验证。
 
 在相同 RV64 ISA、cache、LSU、CSR、commit 和验证接口上引入分级流水线，再实现旁路、冒险、
 flush 和精确异常。流水化不能创建第二套译码或第二套架构状态。
+
+当前实现加入`decode_execute_stage`和`writeback_stage`两个弹性寄存器；IFU/I-cache已有的
+valid/ready保持承担前端边界。hazard controller首版采用无forwarding RAW停顿、blocking
+LSU结构停顿和串行化排空；EX redirect只清除年轻ID/EX内容，commit trap/`mret`/`fence.i`
+同时阻止年轻completion进入WB。详细契约见
+[`PIPELINE_DESIGN_RECORD.md`](../microarchitecture/PIPELINE_DESIGN_RECORD.md)。
 
 ## 5. 推荐的单步验证纪律
 
@@ -387,6 +393,6 @@ flush 和精确异常。流水化不能创建第二套译码或第二套架构�
 
 ## 6. 当前第一项任务
 
-P3-E、P3-F和P3-G的实现与验证均已完成。下一步先审阅并提交
-`YSYX_RV64_SEQUENTIAL`多周期基线，再进入P3-H设计顺序流水级边界、旁路、冒险控制和
-精确flush；提交前不改变当前流水级边界。
+完成P3-H首版的RV64整机DiffTest与MicroBench记录，然后依据RAW、控制flush和LSU结构等待
+计数实现forwarding。forwarding只能改变冒险控制和操作数选择，不能改变commit、异常或
+AXI/cache契约。

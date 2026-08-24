@@ -24,11 +24,11 @@ module riscv32_writeback_stage
   logic              writeback_result_valid_d;
   logic              stage_can_accept;
 
-  assign stage_can_accept = !writeback_result_valid_q || writeback_result_ready_i;
+  assign stage_can_accept          = !writeback_result_valid_q || writeback_result_ready_i;
 
   assign completion_result_ready_o = stage_can_accept && !flush_i;
-  assign writeback_result_o         = writeback_result_q;
-  assign writeback_result_valid_o   = writeback_result_valid_q;
+  assign writeback_result_o        = writeback_result_q;
+  assign writeback_result_valid_o  = writeback_result_valid_q;
 
   always_comb begin
     writeback_result_valid_d = writeback_result_valid_q;
@@ -57,14 +57,17 @@ module riscv32_writeback_stage
   end
 
 `ifndef SYNTHESIS
+  /* verilator lint_off SYNCASYNCNET */
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (writeback_result_valid_o && !writeback_result_ready_i && !flush_i)
-    |=> (writeback_result_valid_o && $stable(writeback_result_o)))
+    |=> (writeback_result_valid_o && $stable(
+      writeback_result_o
+  )))
   else $error("WB stage changed payload while backpressured");
 
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    flush_i |=> !writeback_result_valid_o)
+  assert property (@(posedge clk_i) disable iff (!rst_ni) flush_i |=> !writeback_result_valid_o)
   else $error("WB stage retained a younger completion after commit redirect");
+  /* verilator lint_on SYNCASYNCNET */
 `endif
 
 endmodule

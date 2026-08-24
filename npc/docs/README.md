@@ -23,6 +23,7 @@
 
 - [完整AXI4互连架构](interconnect/AXI4_ARCHITECTURE.md)：当前主链边界、事务能力和后续扩展规则。
 - [I-cache设计空间探索](verification/CACHE_DESIGN_SPACE_EXPLORATION.md)：NEMU itrace、3C模型、AMAT/TMT和cachesim命令。
+- [顺序流水线设计记录](microarchitecture/PIPELINE_DESIGN_RECORD.md)：流水级payload、冒险控制、flush和精确提交契约。
 
 - 最终产品和架构路线：[`architecture/ARCHITECTURE_PLAN.md`](architecture/ARCHITECTURE_PLAN.md)
 - P2配置和宽度解耦：[`architecture/P2_CONFIGURATION_PLAN.md`](architecture/P2_CONFIGURATION_PLAN.md)

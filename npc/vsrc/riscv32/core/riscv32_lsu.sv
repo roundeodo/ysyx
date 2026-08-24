@@ -62,36 +62,35 @@ module riscv32_lsu
   logic data_memory_req_handshake;
   logic data_memory_resp_handshake;
 
-  localparam int unsigned CORE_BYTE_OFFSET_WIDTH =
-      (CORE_DATA_BYTE_COUNT > 1) ? $clog2(CORE_DATA_BYTE_COUNT) : 1;
+  localparam int unsigned CORE_BYTE_OFFSET_WIDTH = (CORE_DATA_BYTE_COUNT > 1) ? $clog2(
+      CORE_DATA_BYTE_COUNT
+  ) : 1;
 
   // store路径属于core存储端口，load格式化结果属于GPR数据域。二者当前同宽只是
   // RV32基线配置，使用不同语义类型后可以独立调整XLEN和存储beat宽度。
-  logic                   is_load;
-  logic                   is_store;
-  logic                   has_memory_access;
-  logic                   is_halfword_access;
-  logic                   is_word_access;
-  logic                   is_doubleword_access;
-  logic                   address_misaligned;
-  logic                   complete_locally;
-  logic [CORE_BYTE_OFFSET_WIDTH-1:0] byte_offset;
-  core_data_t                          store_write_data;
+  logic                                           is_load;
+  logic                                           is_store;
+  logic                                           has_memory_access;
+  logic                                           is_halfword_access;
+  logic                                           is_word_access;
+  logic                                           is_doubleword_access;
+  logic                                           address_misaligned;
+  logic                                           complete_locally;
+  logic              [CORE_BYTE_OFFSET_WIDTH-1:0] byte_offset;
+  core_data_t                                     store_write_data;
   // strobe描述core数据口每个字节通道是否写入，它取决于CORE_DATA_WIDTH，而不是XLEN。
-  core_byte_strobe_t                   store_byte_strobe;
-  logic [7:0]                          selected_byte;
-  logic [15:0]                         selected_halfword;
-  logic [31:0]                         selected_word;
-  xlen_data_t                          formatted_load_data;
+  core_byte_strobe_t                              store_byte_strobe;
+  logic              [                       7:0] selected_byte;
+  logic              [                      15:0] selected_halfword;
+  logic              [                      31:0] selected_word;
+  xlen_data_t                                     formatted_load_data;
 
-  assign lsu_req_handshake = lsu_req_valid_i && lsu_req_ready_o;
+  assign lsu_req_handshake          = lsu_req_valid_i && lsu_req_ready_o;
   // 该状态只描述已经被LSU接收但尚未完成的存储事务，不从ready反推，因而不会
   // 把当前输入valid重新反馈到流水线允许信号中形成组合环。
-  assign lsu_transaction_active_o = state_q != LSU_IDLE;
-  assign data_memory_req_handshake =
-      data_memory_req_valid_o && data_memory_req_ready_i;
-  assign data_memory_resp_handshake =
-      data_memory_resp_valid_i && data_memory_resp_ready_o;
+  assign lsu_transaction_active_o   = state_q != LSU_IDLE;
+  assign data_memory_req_handshake  = data_memory_req_valid_o && data_memory_req_ready_i;
+  assign data_memory_resp_handshake = data_memory_resp_valid_i && data_memory_resp_ready_o;
 
   // IDLE时直接使用输入实现零额外入口延迟；请求被接受后，从紧凑上下文重建LSU仍需
   // 使用的字段。未重建字段保持0，因为它们不参与memory response或架构提交。
@@ -103,32 +102,32 @@ module riscv32_lsu
     if (state_q == LSU_IDLE) begin
       active_lsu_req = lsu_req_i;
     end else begin
-      active_lsu_req.uop.pc           = pending_lsu_context_q.pc;
-      active_lsu_req.uop.instruction  = pending_lsu_context_q.instruction;
-      active_lsu_req.uop.rd           = pending_lsu_context_q.rd;
-      active_lsu_req.uop.writes_rd    = pending_lsu_context_q.writes_rd;
-      active_lsu_req.uop.mem_ctrl     = pending_lsu_context_q.mem_ctrl;
-      active_lsu_req.next_pc          = pending_lsu_context_q.next_pc;
-      active_lsu_req.effective_addr   = pending_lsu_context_q.effective_addr;
-      active_lsu_req.store_data       = pending_lsu_context_q.store_data;
+      active_lsu_req.uop.pc          = pending_lsu_context_q.pc;
+      active_lsu_req.uop.instruction = pending_lsu_context_q.instruction;
+      active_lsu_req.uop.rd          = pending_lsu_context_q.rd;
+      active_lsu_req.uop.writes_rd   = pending_lsu_context_q.writes_rd;
+      active_lsu_req.uop.mem_ctrl    = pending_lsu_context_q.mem_ctrl;
+      active_lsu_req.next_pc         = pending_lsu_context_q.next_pc;
+      active_lsu_req.effective_addr  = pending_lsu_context_q.effective_addr;
+      active_lsu_req.store_data      = pending_lsu_context_q.store_data;
     end
 
-    byte_offset = active_lsu_req.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0];
-    is_load            = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
-    is_store           = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
-    has_memory_access  = is_load || is_store;
-    is_halfword_access = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_HALF;
-    is_word_access     = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_WORD;
+    byte_offset          = active_lsu_req.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0];
+    is_load              = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
+    is_store             = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
+    has_memory_access    = is_load || is_store;
+    is_halfword_access   = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_HALF;
+    is_word_access       = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_WORD;
     is_doubleword_access = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_DOUBLE;
 
     address_misaligned = has_memory_access &&
                          ((is_halfword_access && byte_offset[0]) ||
-                          (is_word_access &&
-                           (active_lsu_req.effective_addr[1:0] != 2'b00)) ||
-                          (is_doubleword_access &&
-                           (active_lsu_req.effective_addr[2:0] != 3'b000)));
-    complete_locally = active_lsu_req.uop.exception_valid ||
-                       address_misaligned || !has_memory_access;
+                         (is_word_access &&
+                         (active_lsu_req.effective_addr[1:0] != 2'b00)) ||
+                         (is_doubleword_access &&
+                         (active_lsu_req.effective_addr[2:0] != 3'b000)));
+    complete_locally   = active_lsu_req.uop.exception_valid ||
+                         address_misaligned || !has_memory_access;
 
     // strobe只覆盖本条store写入的字节。WORD不能使用'1，否则64位存储口会误写8字节。
     store_write_data  = '0;
@@ -136,18 +135,15 @@ module riscv32_lsu
     unique case (active_lsu_req.uop.mem_ctrl.size)
       MEM_SIZE_BYTE: begin
         store_byte_strobe = core_byte_strobe_t'(1) << byte_offset;
-        store_write_data = core_data_t'(active_lsu_req.store_data[7:0])
-                           << (byte_offset * 8);
+        store_write_data  = core_data_t'(active_lsu_req.store_data[7:0]) << (byte_offset * 8);
       end
       MEM_SIZE_HALF: begin
         store_byte_strobe = core_byte_strobe_t'(2'b11) << byte_offset;
-        store_write_data = core_data_t'(active_lsu_req.store_data[15:0])
-                           << (byte_offset * 8);
+        store_write_data  = core_data_t'(active_lsu_req.store_data[15:0]) << (byte_offset * 8);
       end
       MEM_SIZE_WORD: begin
         store_byte_strobe = core_byte_strobe_t'(4'b1111) << byte_offset;
-        store_write_data = core_data_t'(active_lsu_req.store_data[31:0])
-                           << (byte_offset * 8);
+        store_write_data  = core_data_t'(active_lsu_req.store_data[31:0]) << (byte_offset * 8);
       end
       MEM_SIZE_DOUBLE: begin
         // RV64的SD覆盖完整core beat。RV32中的同一编码已经由IDU标记为非法，
@@ -176,12 +172,12 @@ module riscv32_lsu
   // 存储层返回完整数据字。LSU根据原始地址低位选择byte/halfword并完成符号扩展。
   // RV64下LW将bit 31符号扩展，LWU零扩展；不能把总线返回宽度直接当作load结果宽度。
   always_comb begin
-    selected_byte = 8'(data_memory_resp_i.read_data >>
-                       (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
-    selected_halfword = 16'(data_memory_resp_i.read_data >>
-                            (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
-    selected_word = 32'(data_memory_resp_i.read_data >>
-                        (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
+    selected_byte       = 8'(data_memory_resp_i.read_data >>
+                          (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
+    selected_halfword   = 16'(data_memory_resp_i.read_data >>
+                          (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
+    selected_word       = 32'(data_memory_resp_i.read_data >>
+                          (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
     formatted_load_data = '0;
 
     unique case (pending_lsu_context_q.mem_ctrl.size)
@@ -220,33 +216,33 @@ module riscv32_lsu
     if (!active_lsu_req.uop.exception_valid && address_misaligned) begin
       local_writeback.uop.exception_valid = 1'b1;
       local_writeback.uop.exception_cause = is_load
-          ? EXC_LOAD_ADDR_MISALIGNED : EXC_STORE_ADDR_MISALIGNED;
-      local_writeback.uop.exception_tval = active_lsu_req.effective_addr;
+                                            ? EXC_LOAD_ADDR_MISALIGNED : EXC_STORE_ADDR_MISALIGNED;
+      local_writeback.uop.exception_tval  = active_lsu_req.effective_addr;
     end
   end
 
   // access_fault来自D-cache、uncached adapter或系统互联，LSU在这里转换成架构异常。
   always_comb begin
-    memory_writeback              = '0;
+    memory_writeback                 = '0;
     memory_writeback.uop.pc          = pending_lsu_context_q.pc;
     memory_writeback.uop.instruction = pending_lsu_context_q.instruction;
     memory_writeback.uop.rd          = pending_lsu_context_q.rd;
     memory_writeback.uop.writes_rd   = pending_lsu_context_q.writes_rd;
     memory_writeback.uop.mem_ctrl    = pending_lsu_context_q.mem_ctrl;
-    memory_writeback.result       = is_load ? formatted_load_data : '0;
-    memory_writeback.next_pc      = pending_lsu_context_q.next_pc;
-    memory_writeback.memory_addr  = pending_lsu_context_q.effective_addr;
-    memory_writeback.memory_rdata = is_load ? core_data_t'(formatted_load_data) : '0;
-    memory_writeback.memory_wdata = is_store ? store_write_data : '0;
-    memory_writeback.memory_wmask = is_store ? store_byte_strobe : '0;
+    memory_writeback.result          = is_load ? formatted_load_data : '0;
+    memory_writeback.next_pc         = pending_lsu_context_q.next_pc;
+    memory_writeback.memory_addr     = pending_lsu_context_q.effective_addr;
+    memory_writeback.memory_rdata    = is_load ? core_data_t'(formatted_load_data) : '0;
+    memory_writeback.memory_wdata    = is_store ? store_write_data : '0;
+    memory_writeback.memory_wmask    = is_store ? store_byte_strobe : '0;
 
     if (data_memory_resp_i.access_fault) begin
       memory_writeback.uop.exception_valid = 1'b1;
       memory_writeback.uop.exception_cause = is_load
-          ? EXC_LOAD_ACCESS_FAULT : EXC_STORE_ACCESS_FAULT;
-      memory_writeback.uop.exception_tval = pending_lsu_context_q.effective_addr;
-      memory_writeback.result             = '0;
-      memory_writeback.memory_rdata       = '0;
+                                             ? EXC_LOAD_ACCESS_FAULT : EXC_STORE_ACCESS_FAULT;
+      memory_writeback.uop.exception_tval  = pending_lsu_context_q.effective_addr;
+      memory_writeback.result              = '0;
+      memory_writeback.memory_rdata        = '0;
     end
   end
 
@@ -280,8 +276,8 @@ module riscv32_lsu
 
       LSU_WAIT_MEMORY_RESPONSE: begin
         data_memory_resp_ready_o = lsu_writeback_ready_i;
-        lsu_writeback_o           = memory_writeback;
-        lsu_writeback_valid_o     = data_memory_resp_valid_i;
+        lsu_writeback_o          = memory_writeback;
+        lsu_writeback_valid_o    = data_memory_resp_valid_i;
       end
 
       default: ;

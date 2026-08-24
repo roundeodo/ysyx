@@ -18,7 +18,7 @@ $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore icache-calibrate-penalty cachesim-explore-calibrated
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs test-uncached-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore icache-calibrate-penalty cachesim-explore-calibrated
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -54,6 +54,7 @@ CONFIG_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_config_test
 IDU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_idu_test
 EXU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_exu_test
 LSU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_lsu_test
+PIPELINE_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_pipeline_test
 UNCACHED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_uncached_test
 SOC_WIDTH_CONVERTER_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_soc_width_converter_test
 PRIVILEGED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_privileged_test
@@ -69,6 +70,7 @@ CONFIG_TEST_BINARY := $(BUILD_DIR)/config_elaboration_test
 IDU_TEST_BINARY    := $(BUILD_DIR)/idu_decode_test
 EXU_TEST_BINARY    := $(BUILD_DIR)/exu_alu_test
 LSU_TEST_BINARY    := $(BUILD_DIR)/lsu_test
+PIPELINE_TEST_BINARY := $(BUILD_DIR)/pipeline_control_test
 UNCACHED_TEST_BINARY := $(BUILD_DIR)/uncached_axi4_test
 SOC_WIDTH_CONVERTER_TEST_BINARY := $(BUILD_DIR)/soc_width_converter_test
 PRIVILEGED_TEST_BINARY := $(BUILD_DIR)/privileged_test
@@ -213,6 +215,15 @@ LSU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
 	$(RTL_DIR)/core/riscv32_lsu.sv \
 	$(abspath ./tests/rtl/riscv32_lsu_tb.sv)
+
+PIPELINE_TEST_SOURCES := \
+	$(RTL_DIR)/common/riscv_config_pkg.sv \
+	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv32_pkg.sv \
+	$(RTL_DIR)/core/riscv32_decode_execute_stage.sv \
+	$(RTL_DIR)/core/riscv32_pipeline_hazard_controller.sv \
+	$(RTL_DIR)/core/riscv32_writeback_stage.sv \
+	$(abspath ./tests/rtl/riscv32_pipeline_control_tb.sv)
 
 UNCACHED_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
@@ -363,6 +374,15 @@ $(LSU_TEST_BINARY): $(LSU_TEST_SOURCES) | $(BUILD_DIR)
 		--Mdir $(LSU_TEST_OBJ_DIR) \
 		-o $(LSU_TEST_BINARY)
 
+$(PIPELINE_TEST_BINARY): $(PIPELINE_TEST_SOURCES) | $(BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
+		-Wno-UNUSEDSIGNAL \
+		$(NPC_CONFIG_DEFINE) \
+		--top-module riscv32_pipeline_control_tb \
+		$(PIPELINE_TEST_SOURCES) \
+		--Mdir $(PIPELINE_TEST_OBJ_DIR) \
+		-o $(PIPELINE_TEST_BINARY)
+
 $(UNCACHED_TEST_BINARY): $(UNCACHED_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
@@ -406,7 +426,7 @@ $(AXI_DELAYER_TEST_BINARY): $(AXI_DELAYER_TEST_SOURCES) | $(AXI_DELAYER_TEST_BUI
 		--Mdir $(AXI_DELAYER_TEST_OBJ_DIR) \
 		-o $(AXI_DELAYER_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-uncached test-uncached-configs test-soc-width-converter test-sdram-axi test-axi-delayer test-privileged test-privileged-configs
+.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-pipeline test-pipeline-configs test-uncached test-uncached-configs test-soc-width-converter test-sdram-axi test-axi-delayer test-privileged test-privileged-configs
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
@@ -436,6 +456,13 @@ test-lsu: $(LSU_TEST_BINARY)
 test-lsu-configs:
 	$(MAKE) test-lsu PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) test-lsu PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+
+test-pipeline: $(PIPELINE_TEST_BINARY)
+	$(PIPELINE_TEST_BINARY)
+
+test-pipeline-configs:
+	$(MAKE) test-pipeline PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) test-pipeline PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 test-uncached: $(UNCACHED_TEST_BINARY)
 	$(UNCACHED_TEST_BINARY)
@@ -504,6 +531,7 @@ regression-p3-g:
 	$(MAKE) test-idu-configs PROJECT=$(PROJECT)
 	$(MAKE) test-exu-configs PROJECT=$(PROJECT)
 	$(MAKE) test-lsu-configs PROJECT=$(PROJECT)
+	$(MAKE) test-pipeline-configs PROJECT=$(PROJECT)
 	$(MAKE) test-uncached-configs PROJECT=$(PROJECT)
 	$(MAKE) test-privileged-configs PROJECT=$(PROJECT)
 	$(MAKE) test-soc-width-converter PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
@@ -954,6 +982,7 @@ help:
 	@echo "  test-idu-configs  Run directed IDU tests for RV32 and RV64"
 	@echo "  test-exu-configs  Run directed EXU tests for RV32 and RV64"
 	@echo "  test-lsu-configs  Run directed LSU tests for RV32 and RV64"
+	@echo "  test-pipeline-configs  Test pipeline registers, hazards, and redirects"
 	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
 	@echo "  test-sdram-axi  Test AXI transaction classification and native SDRAM BL8 reads"

@@ -274,8 +274,7 @@ cpu-tests和standalone NEMU DiffTest；P3开始前需要冻结RV64软件、ISA�
 
 ### P3：RV64 顺序功能基线
 
-状态：P3-A至P3-G已完成。当前等待提交`YSYX_RV64_SEQUENTIAL`多周期基线，随后进入
-P3-H顺序流水化。
+状态：P3-A至P3-G已完成，P3-H首版顺序流水线已实现并进入性能验证。
 
 P3先在现有多周期核上完成`YSYX_RV64_SEQUENTIAL`功能基线，再进行顺序流水化。首版范围
 冻结为RV64I、Zicsr、Zifencei和M-mode；物理地址保持32位，正式memory AXI提升为64位，
@@ -284,8 +283,9 @@ P3先在现有多周期核上完成`YSYX_RV64_SEQUENTIAL`功能基线，再进�
 
 当前已完成正式双配置入口、RV64I译码、`*W`执行语义、`LWU/LD/SD`、同宽64位memory
 AXI、ysyxSoC边界的AXI64到AXI32转换，以及CSR、异常、提交、PMU、RV64软件环境、
-DiffTest和双配置综合/STA基线。下一步先创建可回退的多周期基线提交，再在相同ISA、cache、
-LSU、CSR和commit接口上划分顺序流水级，实现反压、旁路、冒险处理、精确flush和精确异常。
+DiffTest和双配置综合/STA基线。P3-H已在相同接口上加入ID/EX和completion/WB弹性寄存器，
+实现无旁路RAW停顿、blocking LSU结构停顿、串行化、按redirect来源区分的精确flush和
+commit/DiffTest稳定边界。下一检查点是forwarding与控制冒险性能优化，不创建第二套架构态。
 
 详细的文件顺序、退出条件和验证矩阵见
 [`P3_RV64_SEQUENTIAL_PLAN.md`](P3_RV64_SEQUENTIAL_PLAN.md)。

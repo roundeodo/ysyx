@@ -24,7 +24,7 @@ module riscv32_decode_execute_stage
   logic            execute_packet_valid_d;
   logic            stage_can_accept;
 
-  assign stage_can_accept = !execute_packet_valid_q || execute_packet_ready_i;
+  assign stage_can_accept               = !execute_packet_valid_q || execute_packet_ready_i;
 
   // flush期间不向IDU返回ready，避免上游把一条实际未保存的指令误认为已经交付。
   assign decoded_execute_packet_ready_o = stage_can_accept && !flush_i;
@@ -60,14 +60,17 @@ module riscv32_decode_execute_stage
   end
 
 `ifndef SYNTHESIS
+  /* verilator lint_off SYNCASYNCNET */
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (execute_packet_valid_o && !execute_packet_ready_i && !flush_i)
-    |=> (execute_packet_valid_o && $stable(execute_packet_o)))
+    |=> (execute_packet_valid_o && $stable(
+      execute_packet_o
+  )))
   else $error("ID/EX stage changed payload while backpressured");
 
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    flush_i |=> !execute_packet_valid_o)
+  assert property (@(posedge clk_i) disable iff (!rst_ni) flush_i |=> !execute_packet_valid_o)
   else $error("ID/EX stage retained a flushed instruction");
+  /* verilator lint_on SYNCASYNCNET */
 `endif
 
 endmodule
