@@ -34,6 +34,7 @@ module riscv32_sim_performance_monitor
     // 而JAL/JALR与条件分支的可预测性也不同。
     input logic             control_flow_resolution_occurred_i,
     input control_flow_op_e resolved_control_flow_op_i,
+    input program_counter_t resolved_control_flow_pc_i,
     input logic             resolved_control_flow_taken_i,
     input xlen_data_t       resolved_control_flow_immediate_i,
 
@@ -77,6 +78,12 @@ module riscv32_sim_performance_monitor
   logic     [63:0] indirect_jump_count_q;
   logic     [63:0] always_not_taken_prediction_error_count_q;
   logic     [63:0] btfnt_prediction_error_count_q;
+  // 仿真专用设计空间模型，不进入可综合core。两种BHT都使用两位饱和计数器，
+  // 以真实分支PC索引，从而把容量冲突和热身开销计入候选方案评估。
+  logic [1:0] bht_16_counter_array_q[16];
+  logic [1:0] bht_64_counter_array_q[64];
+  logic [63:0] bht_16_prediction_error_count_q;
+  logic [63:0] bht_64_prediction_error_count_q;
 
   logic     [63:0] integer_instruction_count_q;
   logic     [63:0] branch_instruction_count_q;
@@ -161,6 +168,14 @@ module riscv32_sim_performance_monitor
       return 0.0;
     end
     return real'(cycle_sum) / real'(event_count);
+  endfunction
+
+  function automatic logic [1:0] update_bht_counter(input logic [1:0] counter,
+                                                    input logic       branch_taken);
+    if (branch_taken) begin
+      return (counter == 2'b11) ? counter : counter + 2'b01;
+    end
+    return (counter == 2'b00) ? counter : counter - 2'b01;
   endfunction
 
   function automatic real calculate_memory_execution_excess_cycles();
@@ -384,6 +399,40 @@ module riscv32_sim_performance_monitor
           default: ;
         endcase
       end
+    end
+  end
+
+  // 两种候选BHT从弱不跳转状态启动。这里只模拟条件分支方向；JAL仍可由静态预译码
+  // 准确处理，JALR在没有BTB/RAS时仍算一次错误，最终报告会单独把它加回。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      bht_16_prediction_error_count_q <= '0;
+      bht_64_prediction_error_count_q <= '0;
+      for (int unsigned entry = 0; entry < 16; entry++) begin
+        bht_16_counter_array_q[entry] <= 2'b01;
+      end
+      for (int unsigned entry = 0; entry < 64; entry++) begin
+        bht_64_counter_array_q[entry] <= 2'b01;
+      end
+    end else if (control_flow_resolution_occurred_i &&
+                 (resolved_control_flow_op_i == CF_BRANCH)) begin
+      if (bht_16_counter_array_q[resolved_control_flow_pc_i[5:2]][1] !=
+          resolved_control_flow_taken_i) begin
+        bht_16_prediction_error_count_q <= bht_16_prediction_error_count_q + 64'd1;
+      end
+      if (bht_64_counter_array_q[resolved_control_flow_pc_i[7:2]][1] !=
+          resolved_control_flow_taken_i) begin
+        bht_64_prediction_error_count_q <= bht_64_prediction_error_count_q + 64'd1;
+      end
+
+      bht_16_counter_array_q[resolved_control_flow_pc_i[5:2]] <= update_bht_counter(
+          bht_16_counter_array_q[resolved_control_flow_pc_i[5:2]],
+          resolved_control_flow_taken_i
+      );
+      bht_64_counter_array_q[resolved_control_flow_pc_i[7:2]] <= update_bht_counter(
+          bht_64_counter_array_q[resolved_control_flow_pc_i[7:2]],
+          resolved_control_flow_taken_i
+      );
     end
   end
 
@@ -740,6 +789,12 @@ module riscv32_sim_performance_monitor
              calculate_percentage(btfnt_prediction_error_count_q,
                                   conditional_branch_count_q + direct_jump_count_q +
                                   indirect_jump_count_q));
+    $display("16-entry BHT+JAL errors              : %0d (conditional %0d + JALR %0d)",
+             bht_16_prediction_error_count_q + indirect_jump_count_q,
+             bht_16_prediction_error_count_q, indirect_jump_count_q);
+    $display("64-entry BHT+JAL errors              : %0d (conditional %0d + JALR %0d)",
+             bht_64_prediction_error_count_q + indirect_jump_count_q,
+             bht_64_prediction_error_count_q, indirect_jump_count_q);
     $display("");
     $display("idealized upper-bound estimates");
     $display("memory execution excess cycles        : %.3f",

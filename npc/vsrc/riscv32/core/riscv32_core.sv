@@ -505,6 +505,7 @@ module riscv32_core
           (exu_result.uop.fu_type == FU_BRANCH) && !exu_result.uop.exception_valid
       ),
       .resolved_control_flow_op_i(exu_result.uop.branch_ctrl.op),
+      .resolved_control_flow_pc_i(exu_result.uop.pc),
       .resolved_control_flow_taken_i(
           exu_result.next_pc !=
           (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES))
