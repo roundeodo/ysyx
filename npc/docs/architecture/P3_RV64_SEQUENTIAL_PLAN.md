@@ -1,6 +1,6 @@
 # P3 RV64 顺序处理器实施计划
 
-状态：P3-E/P3-F/P3-G 已完成，P3-H 首版顺序流水线已实现并进入性能验证
+状态：P3-E/P3-F/P3-G 已完成，P3-H 首版顺序流水线已通过双配置功能验证
 
 最后更新：2026-08-24
 
@@ -366,7 +366,7 @@ RV64关键终点位于架构寄存器堆写回路径；这为P3-H拆分执行/�
 
 ### P3-H：顺序流水化
 
-状态：首版已实现，正在执行完整双配置回归和MicroBench性能验证。
+状态：首版已完成（2026-08-24）。
 
 在相同 RV64 ISA、cache、LSU、CSR、commit 和验证接口上引入分级流水线，再实现旁路、冒险、
 flush 和精确异常。流水化不能创建第二套译码或第二套架构状态。
@@ -376,6 +376,11 @@ valid/ready保持承担前端边界。hazard controller首版采用无forwarding
 LSU结构停顿和串行化排空；EX redirect只清除年轻ID/EX内容，commit trap/`mret`/`fence.i`
 同时阻止年轻completion进入WB。详细契约见
 [`PIPELINE_DESIGN_RECORD.md`](../microarchitecture/PIPELINE_DESIGN_RECORD.md)。
+
+RV32和RV64各35项CPU/异常DiffTest全部通过，双配置lint、流水级定向测试和LSU定向测试
+通过。RV32 MicroBench `test`通过，PMU窗口退休430203条指令、执行2157726周期，IPC为
+0.199377。当前结果是无forwarding、无分支预测和blocking LSU的保守正确性基线，不是
+流水线性能终点。
 
 ## 5. 推荐的单步验证纪律
 
@@ -393,6 +398,6 @@ LSU结构停顿和串行化排空；EX redirect只清除年轻ID/EX内容，comm
 
 ## 6. 当前第一项任务
 
-完成P3-H首版的RV64整机DiffTest与MicroBench记录，然后依据RAW、控制flush和LSU结构等待
-计数实现forwarding。forwarding只能改变冒险控制和操作数选择，不能改变commit、异常或
-AXI/cache契约。
+依据RAW、控制flush和LSU结构等待计数实现forwarding。forwarding只能改变冒险控制和操作数
+选择，不能改变commit、异常或AXI/cache契约。随后增加分支预测；D-cache仍按架构计划在
+顺序流水线稳定后实现。

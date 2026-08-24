@@ -1,8 +1,23 @@
 module riscv32_pipeline_control_tb;
+  import riscv32_addr_map_pkg::*;
   import riscv32_pkg::*;
 
-  logic              clk;
-  logic              rst_ni;
+  localparam program_counter_t IFU_TEST_START_PC = program_counter_t'('h8000_0000);
+
+  logic clk;
+  logic rst_ni;
+
+  redirect_req_t       ifu_redirect_req;
+  logic                ifu_redirect_req_valid;
+  icache_lookup_req_t  icache_lookup_req;
+  logic                icache_lookup_req_valid;
+  logic                icache_lookup_req_ready;
+  icache_lookup_resp_t icache_lookup_resp;
+  logic                icache_lookup_resp_valid;
+  logic                icache_lookup_resp_ready;
+  fetch_entry_t        ifu_fetch_entry;
+  logic                ifu_fetch_entry_valid;
+  logic                ifu_fetch_entry_ready;
 
   execute_packet_t   decoded_execute_packet;
   logic              decoded_execute_packet_valid;
@@ -36,6 +51,24 @@ module riscv32_pipeline_control_tb;
   logic              raw_hazard_present;
   logic              serializing_hazard_present;
   logic              structural_hazard_present;
+
+  riscv32_ifu #(
+      .PC_START(IFU_TEST_START_PC)
+  ) u_ifu (
+      .clk_i                     (clk),
+      .rst_ni                    (rst_ni),
+      .redirect_req_i            (ifu_redirect_req),
+      .redirect_req_valid_i      (ifu_redirect_req_valid),
+      .icache_lookup_req_o       (icache_lookup_req),
+      .icache_lookup_req_valid_o (icache_lookup_req_valid),
+      .icache_lookup_req_ready_i (icache_lookup_req_ready),
+      .icache_lookup_resp_i      (icache_lookup_resp),
+      .icache_lookup_resp_valid_i(icache_lookup_resp_valid),
+      .icache_lookup_resp_ready_o(icache_lookup_resp_ready),
+      .fetch_entry_o             (ifu_fetch_entry),
+      .fetch_entry_valid_o       (ifu_fetch_entry_valid),
+      .fetch_entry_ready_i       (ifu_fetch_entry_ready)
+  );
 
   riscv32_decode_execute_stage u_decode_execute_stage (
       .clk_i                         (clk),
@@ -115,6 +148,26 @@ module riscv32_pipeline_control_tb;
     writeback.result        = result;
     return writeback;
   endfunction
+
+  function automatic icache_lookup_resp_t make_lookup_response(
+      input icache_lookup_req_t request, input instruction_t instruction);
+    icache_lookup_resp_t response;
+    response              = '0;
+    response.fetch_addr   = request.fetch_addr;
+    response.fetch_data   = instruction;
+    response.frontend_tag = request.frontend_tag;
+    response.fetch_epoch  = request.fetch_epoch;
+    return response;
+  endfunction
+
+  task automatic clear_ifu_inputs;
+    ifu_redirect_req         = '0;
+    ifu_redirect_req_valid   = 1'b0;
+    icache_lookup_req_ready  = 1'b0;
+    icache_lookup_resp       = '0;
+    icache_lookup_resp_valid = 1'b0;
+    ifu_fetch_entry_ready    = 1'b0;
+  endtask
 
   task automatic clear_hazard_inputs;
     hazard_decoded_uop            = '0;
@@ -296,6 +349,127 @@ module riscv32_pipeline_control_tb;
     clear_hazard_inputs();
   endtask
 
+  task automatic check_ifu_zero_bubble_lookup;
+    icache_lookup_req_t active_request;
+    icache_lookup_req_t next_request;
+    icache_lookup_req_t stalled_request;
+    fetch_entry_t       stalled_fetch_entry;
+    redirect_req_t      redirect_request;
+
+    // 接收复位后的第一条请求。此前ready保持为0，因此IFU仍应稳定呈现复位PC。
+    @(negedge clk);
+    icache_lookup_req_ready = 1'b1;
+    ifu_fetch_entry_ready   = 1'b1;
+    #1;
+    assert (icache_lookup_req_valid &&
+            (icache_lookup_req.fetch_addr == phys_addr_t'(IFU_TEST_START_PC)))
+    else $fatal(1, "IFU did not present the reset-vector lookup");
+    active_request = icache_lookup_req;
+
+    @(posedge clk);
+
+    // 模拟同步I-cache连续命中。每个响应出现时，IFU都必须同拍呈现下一条PC请求；
+    // request ready保持为1，因此旧响应和新请求在每个循环周期同时握手。
+    for (int unsigned instruction_index = 0; instruction_index < 6; instruction_index++) begin
+      @(negedge clk);
+      icache_lookup_resp = make_lookup_response(
+          active_request, instruction_t'(32'h0000_0013 + instruction_index)
+      );
+      icache_lookup_resp_valid = 1'b1;
+      #1;
+      assert (ifu_fetch_entry_valid && icache_lookup_resp_ready)
+      else $fatal(1, "IFU did not deliver a current I-cache response");
+      assert (ifu_fetch_entry.pc == program_counter_t'(active_request.fetch_addr))
+      else $fatal(1, "IFU delivered a response with the wrong PC");
+      assert (icache_lookup_req_valid &&
+              (icache_lookup_req.fetch_addr ==
+               active_request.fetch_addr + phys_addr_t'(INSTRUCTION_BYTES)))
+      else $fatal(1, "IFU inserted a request bubble after an I-cache hit");
+
+      next_request = icache_lookup_req;
+      @(posedge clk);
+      active_request = next_request;
+    end
+
+    // IDU反压时，当前响应必须由I-cache通道保持，且IFU不能越过尚未交付的响应。
+    @(negedge clk);
+    icache_lookup_resp = make_lookup_response(active_request, instruction_t'(32'h0000_0093));
+    ifu_fetch_entry_ready = 1'b0;
+    #1;
+    stalled_fetch_entry = ifu_fetch_entry;
+    assert (ifu_fetch_entry_valid && !icache_lookup_resp_ready && !icache_lookup_req_valid)
+    else $fatal(1, "IFU advanced while its response was backpressured");
+
+    @(posedge clk);
+    @(negedge clk);
+    #1;
+    assert (ifu_fetch_entry_valid && (ifu_fetch_entry == stalled_fetch_entry) &&
+            !icache_lookup_resp_ready && !icache_lookup_req_valid)
+    else $fatal(1, "IFU response changed while downstream was stalled");
+
+    ifu_fetch_entry_ready = 1'b1;
+    #1;
+    assert (icache_lookup_resp_ready && icache_lookup_req_valid)
+    else $fatal(1, "IFU did not resume zero-bubble lookup after downstream stall");
+    next_request = icache_lookup_req;
+    @(posedge clk);
+    active_request = next_request;
+
+    // critical word可以先交付，但阻塞式miss可能仍占用I-cache。下一请求虽然当拍呈现，
+    // ready=0时必须在响应离开后继续由SEND状态稳定保持，不能丢失或改变payload。
+    @(negedge clk);
+    icache_lookup_resp       = make_lookup_response(active_request, instruction_t'(32'h0000_0113));
+    icache_lookup_req_ready  = 1'b0;
+    icache_lookup_resp_valid = 1'b1;
+    #1;
+    assert (ifu_fetch_entry_valid && icache_lookup_resp_ready && icache_lookup_req_valid)
+    else $fatal(1, "IFU did not present the next request with an early response");
+    stalled_request = icache_lookup_req;
+
+    @(posedge clk);
+    @(negedge clk);
+    icache_lookup_resp_valid = 1'b0;
+    #1;
+    assert (icache_lookup_req_valid && (icache_lookup_req == stalled_request))
+    else $fatal(1, "IFU lost a next request rejected during early response delivery");
+
+    icache_lookup_req_ready = 1'b1;
+    @(posedge clk);
+    active_request = stalled_request;
+
+    // redirect发生在旧请求等待响应期间：更新epoch和目标PC，但仍排空已经发出的旧响应。
+    @(negedge clk);
+    redirect_request                 = '0;
+    redirect_request.target_pc       = program_counter_t'('h8000_1000);
+    redirect_request.source_pc       = program_counter_t'(active_request.fetch_addr);
+    redirect_request.reason          = REDIRECT_BRANCH_MISPREDICT;
+    ifu_redirect_req                 = redirect_request;
+    ifu_redirect_req_valid           = 1'b1;
+    #1;
+    assert (!icache_lookup_req_valid)
+    else $fatal(1, "IFU presented a sequential request during redirect");
+
+    @(posedge clk);
+    @(negedge clk);
+    ifu_redirect_req_valid   = 1'b0;
+    icache_lookup_resp       = make_lookup_response(active_request, instruction_t'(32'h0000_0193));
+    icache_lookup_resp_valid = 1'b1;
+    #1;
+    assert (!ifu_fetch_entry_valid && icache_lookup_resp_ready && !icache_lookup_req_valid)
+    else $fatal(1, "IFU did not discard the old-epoch response after redirect");
+
+    @(posedge clk);
+    @(negedge clk);
+    icache_lookup_resp_valid = 1'b0;
+    #1;
+    assert (icache_lookup_req_valid &&
+            (icache_lookup_req.fetch_addr == phys_addr_t'(redirect_request.target_pc)) &&
+            (icache_lookup_req.fetch_epoch != active_request.fetch_epoch))
+    else $fatal(1, "IFU did not restart from the redirect target with a new epoch");
+
+    clear_ifu_inputs();
+  endtask
+
   initial begin
     clk                          = 1'b0;
     rst_ni                       = 1'b0;
@@ -307,6 +481,7 @@ module riscv32_pipeline_control_tb;
     completion_result_valid      = 1'b0;
     writeback_result_ready       = 1'b1;
     writeback_flush              = 1'b0;
+    clear_ifu_inputs();
     clear_hazard_inputs();
 
     repeat (2) @(posedge clk);
@@ -315,6 +490,7 @@ module riscv32_pipeline_control_tb;
     check_decode_execute_stage();
     check_writeback_stage();
     check_hazard_controller();
+    check_ifu_zero_bubble_lookup();
 
     $display("pipeline control tests passed: XLEN=%0d", XLEN);
     $finish;

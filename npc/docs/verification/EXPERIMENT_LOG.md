@@ -825,3 +825,47 @@ D-cache模型，并单独统计dirty eviction、writeback流量和写回占用�
 
 默认构建配置由`1KiB/1-way/8B line`切换为`1KiB/2-way/8B line`。课程面积结果可用
 `NPC_ICACHE_CAPACITY_BYTES=64 NPC_ICACHE_WAY_COUNT=2 NPC_ICACHE_LINE_BYTES=8`复现。
+
+## 2026-08-24 - 首版顺序流水线功能基线
+
+在不改变I-cache、LSU、CSR、commit和DiffTest语义契约的前提下，增加ID/EX与
+completion/WB两个弹性流水寄存器。冒险控制首版使用无forwarding RAW停顿、blocking LSU
+结构停顿和串行化排空；EX级控制转移清除年轻ID/EX内容，commit级trap、`mret`和`fence.i`
+同时阻止年轻completion进入WB。IFU继续使用epoch丢弃已发出但属于旧控制流的取指响应。
+
+验证结果：
+
+| 验证项 | 结果 |
+| --- | --- |
+| `make test-pipeline-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make test-lsu-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make lint-configs PROJECT=riscv32` | RV32/RV64通过，仅保留既有未使用字段警告 |
+| `make regression-p3-f-rv32 PROJECT=riscv32` | 35/35通过 |
+| `make regression-p3-f-rv64 PROJECT=riscv32` | 35/35通过 |
+| `make perf PERF_SCALE=test PROJECT=riscv32 NPC_CONFIG=rv32-baseline` | MicroBench PASS |
+
+MicroBench `test`的PMU窗口和整机计数如下：
+
+| 指标 | 数值 |
+| --- | ---: |
+| PMU窗口退休指令 | 430203 |
+| PMU窗口周期 | 2157726 |
+| PMU窗口IPC | 0.199377 |
+| 整机退休指令 | 832832 |
+| 整机active周期 | 3907196 |
+| 整机IPC | 0.213153 |
+| RAW等待周期 | 210273（5.382%） |
+| 串行化等待周期 | 33（0.001%） |
+| LSU结构等待周期 | 1429031（36.574%） |
+| 控制flush | 177775次 |
+| I-cache命中率 | 99.109% |
+| I-cache AMAT | 1.228周期 |
+
+首版流水线的IPC低于此前多周期基线并不表示流水寄存器无效：当前为保证正确性，尚未实现
+forwarding和分支预测，并且blocking LSU在整个事务期间阻止年轻指令执行。计数表明首要
+限制是LSU结构等待，其次是taken控制流冲刷和RAW等待。该版本用于建立可回归的正确性基线；
+后续必须逐项实现forwarding、控制流预测和数据供给优化，并使用同一测试口径比较。
+
+调试期间还修复了架构寄存器堆写入时序：原实现把commit写请求再延迟半个周期，导致流水化
+后DiffTest在commit事件上观察到旧GPR值。寄存器堆现改为在commit上升沿直接写入，架构事件
+与DiffTest观察点重新一致。

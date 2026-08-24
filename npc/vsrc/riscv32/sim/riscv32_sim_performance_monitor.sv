@@ -344,9 +344,7 @@ module riscv32_sim_performance_monitor
       end
 
       if (ifu_instruction_request_occurred_i) begin
-        ifu_instruction_request_count_q    <= ifu_instruction_request_count_q + 64'd1;
-        ifu_response_pending_q             <= 1'b1;
-        ifu_response_elapsed_cycle_count_q <= '0;
+        ifu_instruction_request_count_q <= ifu_instruction_request_count_q + 64'd1;
       end
 
       if (ifu_response_pending_q) begin
@@ -355,12 +353,33 @@ module riscv32_sim_performance_monitor
       end
 
       if (ifu_instruction_response_occurred_i) begin
-        ifu_instruction_response_count_q   <= ifu_instruction_response_count_q + 64'd1;
-        ifu_response_latency_cycle_sum_q   <= ifu_response_latency_cycle_sum_q +
-                                              ifu_response_elapsed_cycle_count_q + 64'd1;
-        ifu_response_pending_q             <= 1'b0;
-        ifu_response_elapsed_cycle_count_q <= '0;
+        ifu_instruction_response_count_q <= ifu_instruction_response_count_q + 64'd1;
+        ifu_response_latency_cycle_sum_q <= ifu_response_latency_cycle_sum_q +
+                                            ifu_response_elapsed_cycle_count_q + 64'd1;
       end
+
+      // 零气泡IFU允许旧响应离开和下一请求进入同拍发生。此时旧事务的延迟统计结束，
+      // 但新事务已经开始，因此pending必须继续保持为1，并从0重新计算新事务延迟。
+      // 将四种组合集中处理，避免两个独立if对pending/elapsed产生覆盖顺序依赖。
+      unique case ({ifu_instruction_request_occurred_i,
+                    ifu_instruction_response_occurred_i})
+        2'b10: begin
+          ifu_response_pending_q             <= 1'b1;
+          ifu_response_elapsed_cycle_count_q <= '0;
+        end
+
+        2'b01: begin
+          ifu_response_pending_q             <= 1'b0;
+          ifu_response_elapsed_cycle_count_q <= '0;
+        end
+
+        2'b11: begin
+          ifu_response_pending_q             <= 1'b1;
+          ifu_response_elapsed_cycle_count_q <= '0;
+        end
+
+        default: ;
+      endcase
     end
   end
 
@@ -397,12 +416,12 @@ module riscv32_sim_performance_monitor
     end else if (lsu_operation_active_q && lsu_completion_occurred_i) begin
       if (active_lsu_memory_cmd_q == MEM_CMD_LOAD) begin
         lsu_load_operation_count_q             <= lsu_load_operation_count_q + 64'd1;
-        lsu_load_operation_latency_cycle_sum_q <= 
+        lsu_load_operation_latency_cycle_sum_q <=
                                                   lsu_load_operation_latency_cycle_sum_q +
                                                   lsu_operation_elapsed_cycle_count_q + 64'd1;
       end else if (active_lsu_memory_cmd_q == MEM_CMD_STORE) begin
         lsu_store_operation_count_q             <= lsu_store_operation_count_q + 64'd1;
-        lsu_store_operation_latency_cycle_sum_q <= 
+        lsu_store_operation_latency_cycle_sum_q <=
                                                    lsu_store_operation_latency_cycle_sum_q +
                                                    lsu_operation_elapsed_cycle_count_q + 64'd1;
       end

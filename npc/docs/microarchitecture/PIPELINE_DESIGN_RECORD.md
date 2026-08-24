@@ -138,3 +138,12 @@ make regression-p3-f-rv64 PROJECT=riscv32
 ```
 
 MicroBench用于比较流水化前后的周期、IPC和各类停顿占比，不能只比较宿主机仿真耗时。
+
+2026-08-24验证结果：RV32和RV64各35项CPU/异常DiffTest全部通过；RV32 MicroBench
+`test`通过。PMU测量窗口退休430203条指令、执行2157726周期，IPC为0.199377。完整运行中，
+RAW等待为210273周期，blocking LSU结构等待为1429031周期，控制flush为177775次。
+
+首版流水线没有forwarding，所有命中ID/EX或WB目的寄存器的RAW都停顿；taken控制流在EX
+解析且没有预测；LSU事务期间不允许年轻指令继续进入执行。因此该结果证明流水级、反压、
+flush、精确提交和DiffTest边界正确，不代表最终流水线性能。下一次优化必须先减少上述三类
+可观测停顿，再用相同MicroBench口径比较收益。
