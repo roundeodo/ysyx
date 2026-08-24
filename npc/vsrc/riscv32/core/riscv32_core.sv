@@ -233,7 +233,6 @@ module riscv32_core
 
   riscv32_arch_regfile u_arch_regfile (
       .clk_i             (clk_i),
-      .rst_ni            (rst_ni),
       .gpr_write_data_i  (gpr_write_data),
       .gpr_write_addr_i  (gpr_write_addr),
       .gpr_write_enable_i(gpr_write_enable),
@@ -419,7 +418,7 @@ module riscv32_core
       .instruction_retirement_occurred_i(retired_instruction_occurred),
       .pipeline_raw_hazard_waiting_i(raw_hazard_present),
       .pipeline_serializing_waiting_i(serializing_hazard_present),
-      .pipeline_structural_waiting_i(structural_hazard_present),
+      .pipeline_structural_waiting_i(structural_hazard_present && decoded_uop_valid),
       .pipeline_control_flush_occurred_i(selected_redirect_req_valid),
       .pipeline_execute_instruction_discarded_i(
           commit_redirect_occurred && execute_packet_valid

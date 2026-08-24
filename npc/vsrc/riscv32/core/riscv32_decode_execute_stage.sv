@@ -16,7 +16,7 @@ module riscv32_decode_execute_stage
 
     // flush只删除尚未产生架构副作用的年轻指令。当前输出仍可在本周期被EXU消费，
     // 因而EX级产生redirect的分支自身能够进入WB，下一拍stage中只留下bubble。
-  input logic flush_i
+    input logic flush_i
 );
 
   execute_packet_t execute_packet_q;

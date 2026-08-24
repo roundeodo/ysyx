@@ -8,6 +8,7 @@ module riscv32_lsu_tb;
   lsu_req_t lsu_req;
   logic     lsu_req_valid;
   logic     lsu_req_ready;
+  logic     lsu_transaction_active;
 
   data_memory_req_t data_memory_req;
   logic             data_memory_req_valid;
@@ -27,6 +28,7 @@ module riscv32_lsu_tb;
       .lsu_req_i                (lsu_req),
       .lsu_req_valid_i          (lsu_req_valid),
       .lsu_req_ready_o          (lsu_req_ready),
+      .lsu_transaction_active_o (lsu_transaction_active),
       .data_memory_req_o        (data_memory_req),
       .data_memory_req_valid_o  (data_memory_req_valid),
       .data_memory_req_ready_i  (data_memory_req_ready),
