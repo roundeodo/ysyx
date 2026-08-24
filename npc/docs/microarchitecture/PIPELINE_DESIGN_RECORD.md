@@ -61,6 +61,25 @@ input_ready      = stage_can_accept && !flush
 当`stage_valid=1`且`downstream_ready=0`时，valid和payload必须保持不变。payload本身不复位，
 只有valid位复位；valid为0时payload没有语义，这可以避免宽payload复位网络。
 
+### 2.1 IFU同周期请求换手
+
+I-cache命中响应被IDU接收的同一周期，IFU直接在lookup请求通道呈现下一条顺序PC。若
+I-cache的`ready`为1，旧响应离开和新请求进入在同一周期完成，IFU继续保持一个lookup在途；
+若`ready`为0，IFU在下一周期进入发送状态并稳定保持相同的PC、前端tag和epoch。该路径没有
+增加fetch queue、MSHR或宽payload寄存器，只消除了原来每次响应后固定回到发送状态造成的
+一周期空泡。
+
+redirect优先于顺序请求。redirect与响应交付同拍发生时，IFU禁止发送旧控制流的`PC+4`，
+保存redirect目标并增加epoch；已经发出的旧请求仍完成协议握手，但旧epoch响应只会被排空，
+不会进入IDU。当前结构仍限制为一个lookup在途，不具备多请求并行、hit-under-miss或预测
+取指能力，这些功能需要显式request queue和返回匹配，不能继续扩展当前两状态FSM实现。
+
+在RV32、64B/2-way/8B line课程面积配置下做同代码基线A/B综合：严格串行IFU面积为
+25372.676 um^2，同周期换手后为25627.770 um^2，增加255.094 um^2（1.01%）；两者时序
+单元面积均为11747.890 um^2，说明代价来自组合控制和选择逻辑，没有增加状态存储。两者均
+通过300MHz约束，当前关键路径仍位于后端`execute_packet`寄存器输入。完整流水线core目前
+超过25000 um^2课程限制2.51%，需要后续针对全核流水寄存器和控制逻辑继续优化。
+
 ## 3. 冒险处理
 
 ### 3.1 RAW数据冒险
@@ -140,10 +159,12 @@ make regression-p3-f-rv64 PROJECT=riscv32
 MicroBench用于比较流水化前后的周期、IPC和各类停顿占比，不能只比较宿主机仿真耗时。
 
 2026-08-24验证结果：RV32和RV64各35项CPU/异常DiffTest全部通过；RV32 MicroBench
-`test`通过。PMU测量窗口退休430203条指令、执行2157726周期，IPC为0.199377。完整运行中，
-RAW等待为210273周期，blocking LSU结构等待为1429031周期，控制flush为177775次。
+`test`通过。首版串行IFU的PMU窗口执行2157726周期、IPC为0.199377；加入同周期请求换手后，
+同一测量窗口执行1971267周期、IPC为0.218236，周期减少186459（8.64%），IPC提升9.46%。
+该优化不增加在途请求数或存储项，只删除固定前端空泡。
 
-首版流水线没有forwarding，所有命中ID/EX或WB目的寄存器的RAW都停顿；taken控制流在EX
-解析且没有预测；LSU事务期间不允许年轻指令继续进入执行。因此该结果证明流水级、反压、
-flush、精确提交和DiffTest边界正确，不代表最终流水线性能。下一次优化必须先减少上述三类
-可观测停顿，再用相同MicroBench口径比较收益。
+当前流水线仍没有forwarding，所有命中ID/EX或WB目的寄存器的RAW都停顿；taken控制流在EX
+解析且没有预测；LSU事务期间不允许年轻指令继续进入执行。同周期取指换手后，MicroBench
+完整运行中仍有711592个RAW等待周期、1426390个LSU结构等待周期和177815次控制flush；
+IFU下游反压占59.314%。因此下一步应减少后端RAW、blocking LSU和错误路径取指，而不是继续
+在单在途IFU FSM中叠加状态。
