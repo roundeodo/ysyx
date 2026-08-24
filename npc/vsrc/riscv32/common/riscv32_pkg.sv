@@ -246,7 +246,9 @@ package riscv32_pkg;
     REDIRECT_MRET              = 3'd3,
     REDIRECT_MEMORY_REPLAY     = 3'd4,
     REDIRECT_DEBUG             = 3'd5,
-    REDIRECT_FENCE_I           = 3'd6
+    REDIRECT_FENCE_I           = 3'd6,
+    // 译码级静态预测只恢复前端，不表示预测错误。真正的mispredict仍由EX级产生。
+    REDIRECT_BRANCH_PREDICTION = 3'd7
   } redirect_reason_e;
 
   typedef enum logic [1:0] {

@@ -28,8 +28,12 @@ module riscv32_exu
   logic             branch_condition_met;
   logic             branch_taken;
   program_counter_t branch_target;
+  program_counter_t sequential_next_pc;
+  program_counter_t actual_next_pc;
+  program_counter_t predicted_next_pc;
   logic             branch_target_misaligned;
-  logic             branch_redirect_valid;
+  logic             branch_prediction_mismatch;
+  logic             branch_mispredict_redirect_valid;
   execute_result_t  exu_result;
 
   always_comb begin
@@ -135,9 +139,17 @@ module riscv32_exu
   end
 
   // 基础RV32I/RV64I未实现C扩展，所有控制流目标都必须4字节对齐。
+  assign sequential_next_pc = execute_packet_i.uop.pc +
+                              program_counter_t'(INSTRUCTION_BYTES);
+  assign actual_next_pc = branch_taken ? branch_target : sequential_next_pc;
+  assign predicted_next_pc = execute_packet_i.uop.prediction.predicted_taken ?
+                             execute_packet_i.uop.prediction.predicted_target :
+                             sequential_next_pc;
   assign branch_target_misaligned = branch_taken && (branch_target[1:0] != 2'b00);
-  assign branch_redirect_valid = branch_taken && !execute_packet_i.uop.exception_valid &&
-                                 !branch_target_misaligned;
+  assign branch_prediction_mismatch = actual_next_pc != predicted_next_pc;
+  assign branch_mispredict_redirect_valid =
+      (execute_packet_i.uop.fu_type == FU_BRANCH) && branch_prediction_mismatch &&
+      !execute_packet_i.uop.exception_valid && !branch_target_misaligned;
 
   always_comb begin
     exu_result                              = '0;
@@ -145,10 +157,10 @@ module riscv32_exu
     exu_result.result                       = alu_result;
     // 不要使用32'd4，也不要使用I-cache line/取指口宽度。顺序下一条指令的位置由ISA指令
     // 长度决定；cache一次返回多少字节属于前端微架构，两者必须解耦。
-    exu_result.next_pc                      = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
+    exu_result.next_pc                      = sequential_next_pc;
     exu_result.csr_wdata                    = csr_wdata;
-    exu_result.redirect_valid               = branch_redirect_valid;
-    exu_result.redirect_req.target_pc       = branch_target;
+    exu_result.redirect_valid               = branch_mispredict_redirect_valid;
+    exu_result.redirect_req.target_pc       = actual_next_pc;
     exu_result.redirect_req.source_pc       = execute_packet_i.uop.pc;
     exu_result.redirect_req.reason          = REDIRECT_BRANCH_MISPREDICT;
     exu_result.redirect_req.flush_inclusive = 1'b0;
@@ -170,8 +182,9 @@ module riscv32_exu
       exu_result.redirect_valid            = 1'b0;
     end
 
-    if (branch_redirect_valid) begin
-      exu_result.next_pc = branch_target;
+    if (execute_packet_i.uop.fu_type == FU_BRANCH) begin
+      // next_pc始终记录真实架构后继；redirect只表示预测后继与它不一致。
+      exu_result.next_pc = actual_next_pc;
     end
 
     unique case (execute_packet_i.uop.fu_type)

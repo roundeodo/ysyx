@@ -17,10 +17,11 @@ module riscv32_core
     output axi4_manager_to_target_t data_axi4_manager_o,
     input  axi4_target_to_manager_t data_axi4_manager_i
 );
-  localparam int unsigned REDIRECT_SOURCE_COUNT = 3;
-  localparam int unsigned EXU_REDIRECT_INDEX = 0;
-  localparam int unsigned FENCE_I_REDIRECT_INDEX = 1;
-  localparam int unsigned COMMIT_REDIRECT_INDEX = 2;
+  localparam int unsigned REDIRECT_SOURCE_COUNT = 4;
+  localparam int unsigned DECODE_PREDICTION_REDIRECT_INDEX = 0;
+  localparam int unsigned EXU_REDIRECT_INDEX = 1;
+  localparam int unsigned FENCE_I_REDIRECT_INDEX = 2;
+  localparam int unsigned COMMIT_REDIRECT_INDEX = 3;
 
   icache_lookup_req_t icache_lookup_req;
   logic icache_lookup_req_valid;
@@ -69,6 +70,10 @@ module riscv32_core
   decoded_uop_t decoded_uop;
   logic decoded_uop_valid;
   logic decoded_uop_ready;
+  branch_prediction_t decode_prediction;
+  redirect_req_t decode_prediction_redirect_req;
+  logic decode_prediction_redirect_req_valid;
+  logic decoded_uop_handshake_occurred;
 
   // IDU和寄存器堆组合生成待进入ID/EX的payload；decode_execute_stage输出才是
   // 当前EX级指令。两个名称显式区分流水级边界两侧，避免把组合译码结果误当成寄存状态。
@@ -147,6 +152,7 @@ module riscv32_core
   always_comb begin
     decoded_execute_packet             = '0;
     decoded_execute_packet.uop         = decoded_uop;
+    decoded_execute_packet.uop.prediction = decode_prediction;
     decoded_execute_packet.rs1_value   = rs1_value;
     decoded_execute_packet.rs2_value   = rs2_value;
     decoded_execute_packet.csr_rdata   = csr_read_data;
@@ -278,6 +284,16 @@ module riscv32_core
       .rs1_data_o        (rs1_value),
       .rs2_addr_i        (decoded_uop.rs2),
       .rs2_data_o        (rs2_value)
+  );
+
+  assign decoded_uop_handshake_occurred = decoded_uop_valid && decoded_uop_ready;
+
+  riscv32_decode_control_flow_predictor u_decode_control_flow_predictor (
+      .decoded_uop_i                       (decoded_uop),
+      .decoded_uop_handshake_occurred_i    (decoded_uop_handshake_occurred),
+      .prediction_o                        (decode_prediction),
+      .predicted_redirect_req_o            (decode_prediction_redirect_req),
+      .predicted_redirect_req_valid_o      (decode_prediction_redirect_req_valid)
   );
 
   riscv32_csr_file u_csr_file (
@@ -533,6 +549,9 @@ module riscv32_core
   assign execute_redirect_occurred = exu_result_valid && exu_result_ready &&
                                      exu_result.redirect_valid;
   assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
+  assign redirect_req[DECODE_PREDICTION_REDIRECT_INDEX] = decode_prediction_redirect_req;
+  assign redirect_req_valid[DECODE_PREDICTION_REDIRECT_INDEX] =
+      decode_prediction_redirect_req_valid;
   assign redirect_req[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
   assign redirect_req_valid[FENCE_I_REDIRECT_INDEX] = committed_fence_i_occurred;
 
