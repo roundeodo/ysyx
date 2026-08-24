@@ -116,10 +116,10 @@ module riscv32_fetch_control_flow_predictor
     predicted_fetch_entry_o                             = fetch_entry_i;
     predicted_fetch_entry_o.prediction                  = '0;
     predicted_fetch_entry_o.prediction.predicted_taken  = predicted_taken;
-    predicted_fetch_entry_o.prediction.predicted_target = predicted_taken ?
-                                                                  predicted_target_pc :
-                                                                  fetch_entry_i.pc +
-                                                                  program_counter_t'(INSTRUCTION_BYTES);
+    // 当前只预测PC-relative的B/J控制流，EX能够由指令PC和立即数重算同一目标，因此
+    // 不把XLEN位目标地址逐级寄存到流水线中。predicted_target字段留给后续需要记录
+    // 动态目标的BTB/JALR预测器；本预测器只携带1 bit方向结果。
+    predicted_fetch_entry_o.prediction.predicted_target = '0;
 
     prediction_redirect_req_o                 = '0;
     prediction_redirect_req_o.target_pc       = predicted_target_pc;

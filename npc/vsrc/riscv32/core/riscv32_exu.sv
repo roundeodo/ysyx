@@ -142,9 +142,11 @@ module riscv32_exu
   assign sequential_next_pc = execute_packet_i.uop.pc +
                               program_counter_t'(INSTRUCTION_BYTES);
   assign actual_next_pc = branch_taken ? branch_target : sequential_next_pc;
+  // 当前前端只预测PC-relative的B/J指令。其目标在EX中已由pc+imm精确重算，流水线
+  // 只需携带predicted_taken，不必为每条指令保存一份XLEN位的冗余目标地址。
+  // 将来加入BTB并预测JALR等动态目标时，再改为比较BTB携带的predicted_target。
   assign predicted_next_pc = execute_packet_i.uop.prediction.predicted_taken ?
-                             execute_packet_i.uop.prediction.predicted_target :
-                             sequential_next_pc;
+                             branch_target : sequential_next_pc;
   assign branch_target_misaligned = branch_taken && (branch_target[1:0] != 2'b00);
   assign branch_prediction_mismatch = actual_next_pc != predicted_next_pc;
   assign branch_mispredict_redirect_valid =
