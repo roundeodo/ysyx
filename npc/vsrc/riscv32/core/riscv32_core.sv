@@ -553,7 +553,9 @@ module riscv32_core
       .pipeline_control_flush_occurred_i(frontend_recovery_occurred),
       .pipeline_execute_instruction_discarded_i(commit_redirect_occurred && execute_packet_valid),
       .fetch_prediction_redirect_occurred_i(fetch_prediction_redirect_req_valid),
-      .execute_misprediction_redirect_occurred_i(execute_redirect_occurred),
+      // 性能分类必须在EX结果有效的原始拍采样op；registered redirect晚一拍，
+      // 若用它与当前exu_result配对，会把纠错归到下一条无关指令。
+      .execute_misprediction_redirect_occurred_i(execute_redirect_resolution_occurred),
       .control_flow_resolution_occurred_i(
           exu_result_valid && exu_result_ready &&
           (exu_result.uop.fu_type == FU_BRANCH) && !exu_result.uop.exception_valid
