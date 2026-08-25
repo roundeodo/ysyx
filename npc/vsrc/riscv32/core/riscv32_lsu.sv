@@ -12,6 +12,7 @@ module riscv32_lsu
     input  logic     lsu_req_valid_i,
     output logic     lsu_req_ready_o,
     output logic     lsu_transaction_active_o,
+    output logic     lsu_transaction_completion_occurred_o,
 
     output data_memory_req_t data_memory_req_o,
     output logic             data_memory_req_valid_o,
@@ -91,6 +92,10 @@ module riscv32_lsu
   assign lsu_transaction_active_o   = state_q != LSU_IDLE;
   assign data_memory_req_handshake  = data_memory_req_valid_o && data_memory_req_ready_i;
   assign data_memory_resp_handshake = data_memory_resp_valid_i && data_memory_resp_ready_o;
+  // 只从已锁存的WAIT状态和存储响应握手产生完成事件。不能从lsu_writeback_valid_o
+  // 反推该事件，否则IDLE本地完成直通路径会把同拍的新EX请求反馈到冒险控制，形成组合环。
+  assign lsu_transaction_completion_occurred_o =
+      (state_q == LSU_WAIT_MEMORY_RESPONSE) && data_memory_resp_handshake;
 
   // IDLE时直接使用输入实现零额外入口延迟；请求被接受后，从紧凑上下文重建LSU仍需
   // 使用的字段。未重建字段保持0，因为它们不参与memory response或架构提交。

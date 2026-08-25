@@ -160,7 +160,7 @@ module riscv32_core
   logic serializing_hazard_present;
   logic structural_hazard_present;
   logic lsu_transaction_active;
-  logic lsu_completion_handshake;
+  logic lsu_transaction_completion_occurred;
   logic lsu_blocks_pipeline;
   redirect_req_t execute_redirect_req_at_resolution;
   logic execute_redirect_resolution_occurred;
@@ -409,8 +409,8 @@ module riscv32_core
   // 指令要到下一拍才执行，不会与较老访存在completion端口相遇；异常访存若在WB
   // 触发redirect，也会在年轻指令产生副作用前将其flush。这样删除了每次访存完成后
   // 固定存在的一拍结构空泡，而没有引入乱序提交或新的payload寄存器。
-  assign lsu_completion_handshake = lsu_writeback_valid && lsu_writeback_ready;
-  assign lsu_blocks_pipeline = lsu_transaction_active && !lsu_completion_handshake;
+  assign lsu_blocks_pipeline = lsu_transaction_active &&
+                               !lsu_transaction_completion_occurred;
 
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i                       (clk_i),
@@ -483,6 +483,7 @@ module riscv32_core
       .lsu_req_valid_i         (lsu_req_valid),
       .lsu_req_ready_o         (lsu_req_ready),
       .lsu_transaction_active_o(lsu_transaction_active),
+      .lsu_transaction_completion_occurred_o(lsu_transaction_completion_occurred),
       .lsu_writeback_o         (lsu_writeback),
       .lsu_writeback_valid_o   (lsu_writeback_valid),
       .lsu_writeback_ready_i   (lsu_writeback_ready),
@@ -739,7 +740,7 @@ module riscv32_core
 
   a_lsu_completion_release_has_no_same_cycle_ex_completion :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    lsu_completion_handshake |-> !exu_result_valid)
+    lsu_transaction_completion_occurred |-> !exu_result_valid)
   else $error("LSU completion release collided with an EX completion");
   /* verilator lint_on SYNCASYNCNET */
 `endif
