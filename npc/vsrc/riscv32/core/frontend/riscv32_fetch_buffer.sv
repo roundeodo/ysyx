@@ -54,15 +54,15 @@ module riscv32_fetch_buffer
   assign queue_empty = entry_count_q == entry_count_t'(0);
   assign queue_full  = entry_count_q == entry_count_t'(ENTRY_COUNT);
 
-  // 满队列在同拍出队时仍可接收新entry，因此队列填满后也能维持每拍一入一出。
+  // 入口ready只依赖寄存的队列占用量，不依赖本拍IDU是否出队。这样EX级冒险判断不会经
+  // IDU ready、队列出队条件和IFU response握手一路反馈到下一取指PC。两项队列在解除长
+  // 阻塞后仍可连续向IDU提供已有entry；被释放的槽位从下一拍开始接收新的IFU响应。
   // flush不能组合压低当前输出valid，否则产生redirect的年轻指令可能反向改变自身valid；
   // 后端冒险控制会在redirect当拍拒绝该entry，队列随后在时钟沿统一清空。
   always_comb begin
     idu_fetch_entry_o       = entry_array_q[read_entry_index_q];
     idu_fetch_entry_valid_o = !queue_empty;
-    ifu_fetch_entry_ready_o = !flush_i &&
-                              (!queue_full || (idu_fetch_entry_valid_o &&
-                                               idu_fetch_entry_ready_i));
+    ifu_fetch_entry_ready_o = !flush_i && !queue_full;
 
     ifu_fetch_entry_handshake_occurred = ifu_fetch_entry_valid_i && ifu_fetch_entry_ready_o;
     idu_fetch_entry_handshake_occurred = idu_fetch_entry_valid_o && idu_fetch_entry_ready_i;
@@ -122,9 +122,8 @@ module riscv32_fetch_buffer
   else $error("fetch buffer dequeued while empty");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (queue_full && !idu_fetch_entry_handshake_occurred)
-    |-> !ifu_fetch_entry_handshake_occurred)
-  else $error("fetch buffer enqueued while full without a simultaneous dequeue");
+    queue_full |-> !ifu_fetch_entry_handshake_occurred)
+  else $error("fetch buffer accepted an entry while full");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (idu_fetch_entry_valid_o && !idu_fetch_entry_ready_i && !flush_i)

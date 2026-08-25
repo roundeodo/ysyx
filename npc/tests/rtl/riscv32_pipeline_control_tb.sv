@@ -747,7 +747,9 @@ module riscv32_pipeline_control_tb;
     second_entry = make_fetch_entry(program_counter_t'('h8000_0004), instruction_t'(32'h0020_0113));
     third_entry  = make_fetch_entry(program_counter_t'('h8000_0008), instruction_t'(32'h0030_0193));
 
-    // IDU停顿时连续接收两项，第三项只有在同拍出队腾出空间时才能被接收。
+    // IDU停顿时连续接收两项。满队列的入口ready只依赖寄存占用量，不组合依赖本拍
+    // 出队；这会切断EX冒险到IFU的跨级ready路径。首项出队后的下一拍即可补入第三项，
+    // 队列中剩余的第二项保证IDU供给不中断。
     @(negedge clk);
     fetch_buffer_input_entry = first_entry;
     fetch_buffer_input_valid = 1'b1;
@@ -774,18 +776,19 @@ module riscv32_pipeline_control_tb;
 
     fetch_buffer_output_ready = 1'b1;
     #1;
-    assert (fetch_buffer_input_ready)
-    else $fatal(1, "full fetch buffer did not allow simultaneous dequeue and enqueue");
+    assert (!fetch_buffer_input_ready)
+    else $fatal(1, "full fetch buffer ready retained a downstream combinational dependency");
+    @(posedge clk);
+
+    @(negedge clk);
+    #1;
+    assert (fetch_buffer_input_ready && fetch_buffer_output_valid &&
+            (fetch_buffer_output_entry == second_entry))
+    else $fatal(1, "fetch buffer did not restore input capacity after dequeue");
     @(posedge clk);
 
     @(negedge clk);
     fetch_buffer_input_valid = 1'b0;
-    #1;
-    assert (fetch_buffer_output_valid && (fetch_buffer_output_entry == second_entry))
-    else $fatal(1, "fetch buffer changed instruction order after simultaneous transfer");
-    @(posedge clk);
-
-    @(negedge clk);
     #1;
     assert (fetch_buffer_output_valid && (fetch_buffer_output_entry == third_entry))
     else $fatal(1, "fetch buffer lost the replacement entry");
