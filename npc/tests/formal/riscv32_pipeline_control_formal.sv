@@ -229,10 +229,13 @@ module riscv32_pipeline_control_formal;
                       (lsu_pending_rd == decoded_rs2);
 
     if (rst_ni) begin
-      assert ($onehot0({rs1_execute_forwarding_selected, rs1_lsu_forwarding_selected,
-                        rs1_writeback_forwarding_selected}));
-      assert ($onehot0({rs2_execute_forwarding_selected, rs2_lsu_forwarding_selected,
-                        rs2_writeback_forwarding_selected}));
+      // yosys-slang当前不支持$onehot0，三项选择显式展开为两两互斥。
+      assert (!(rs1_execute_forwarding_selected && rs1_lsu_forwarding_selected));
+      assert (!(rs1_execute_forwarding_selected && rs1_writeback_forwarding_selected));
+      assert (!(rs1_lsu_forwarding_selected && rs1_writeback_forwarding_selected));
+      assert (!(rs2_execute_forwarding_selected && rs2_lsu_forwarding_selected));
+      assert (!(rs2_execute_forwarding_selected && rs2_writeback_forwarding_selected));
+      assert (!(rs2_lsu_forwarding_selected && rs2_writeback_forwarding_selected));
       assert (decoded_uop_valid ||
               !(rs1_execute_forwarding_selected || rs1_lsu_forwarding_selected ||
                 rs1_writeback_forwarding_selected || rs2_execute_forwarding_selected ||
