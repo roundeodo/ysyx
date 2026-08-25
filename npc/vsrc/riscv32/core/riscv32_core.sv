@@ -160,6 +160,8 @@ module riscv32_core
   logic serializing_hazard_present;
   logic structural_hazard_present;
   logic lsu_transaction_active;
+  logic lsu_completion_handshake;
+  logic lsu_blocks_pipeline;
   redirect_req_t execute_redirect_req_at_resolution;
   logic execute_redirect_resolution_occurred;
   logic execute_redirect_occurred;
@@ -403,6 +405,13 @@ module riscv32_core
                                           writeback_result.uop.writes_rd &&
                                           !writeback_result.uop.exception_valid;
 
+  // LSU completion已在本拍被WB接收时，允许下一条指令在同一边沿进入ID/EX。下一条
+  // 指令要到下一拍才执行，不会与较老访存在completion端口相遇；异常访存若在WB
+  // 触发redirect，也会在年轻指令产生副作用前将其flush。这样删除了每次访存完成后
+  // 固定存在的一拍结构空泡，而没有引入乱序提交或新的payload寄存器。
+  assign lsu_completion_handshake = lsu_writeback_valid && lsu_writeback_ready;
+  assign lsu_blocks_pipeline = lsu_transaction_active && !lsu_completion_handshake;
+
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i                       (clk_i),
       .rst_ni                      (rst_ni),
@@ -422,7 +431,7 @@ module riscv32_core
       .writeback_rd_i              (writeback_result.uop.rd),
       .writeback_serializing_i     (writeback_result.uop.serializing),
       .writeback_forwarding_available_i(writeback_forwarding_available),
-      .lsu_busy_i                  (lsu_transaction_active),
+      .lsu_busy_i                  (lsu_blocks_pipeline),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -727,6 +736,11 @@ module riscv32_core
     execute_redirect_occurred |->
       (decode_execute_flush && !execute_issue_allowed && !lsu_req_valid))
   else $error("registered execute redirect allowed a wrong-path EX side effect");
+
+  a_lsu_completion_release_has_no_same_cycle_ex_completion :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    lsu_completion_handshake |-> !exu_result_valid)
+  else $error("LSU completion release collided with an EX completion");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 
