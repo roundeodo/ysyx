@@ -9,6 +9,8 @@ module riscv32_lsu_tb;
   logic              lsu_req_valid;
   logic              lsu_req_ready;
   logic              lsu_transaction_active;
+  logic              lsu_pending_writes_rd;
+  arch_reg_idx_t     lsu_pending_rd;
 
   data_memory_req_t  data_memory_req;
   logic              data_memory_req_valid;
@@ -29,6 +31,8 @@ module riscv32_lsu_tb;
       .lsu_req_valid_i         (lsu_req_valid),
       .lsu_req_ready_o         (lsu_req_ready),
       .lsu_transaction_active_o(lsu_transaction_active),
+      .lsu_pending_writes_rd_o (lsu_pending_writes_rd),
+      .lsu_pending_rd_o        (lsu_pending_rd),
       .data_memory_req_o       (data_memory_req),
       .data_memory_req_valid_o (data_memory_req_valid),
       .data_memory_req_ready_i (data_memory_req_ready),
@@ -294,6 +298,69 @@ module riscv32_lsu_tb;
     data_memory_resp_valid = 1'b0;
   endtask
 
+  task automatic check_consecutive_load_rollover;
+    lsu_req_t first_load;
+    lsu_req_t second_load;
+
+    first_load        = make_memory_request(MEM_CMD_LOAD, MEM_SIZE_WORD, 1'b0,
+                                            effective_addr_t'(32'h8000_0100), '0);
+    first_load.uop.rd = arch_reg_idx_t'(6);
+    second_load       = make_memory_request(MEM_CMD_LOAD, MEM_SIZE_WORD, 1'b0,
+                                            effective_addr_t'(32'h8000_0200), '0);
+    second_load.uop.rd = arch_reg_idx_t'(7);
+
+    @(negedge clk);
+    lsu_req               = first_load;
+    lsu_req_valid         = 1'b1;
+    data_memory_req_ready = 1'b1;
+    #1;
+    assert (lsu_req_ready && data_memory_req_valid)
+    else $fatal(1, "LSU did not accept the first rollover load");
+
+    @(posedge clk);
+    #1;
+    assert (lsu_transaction_active && lsu_pending_writes_rd &&
+            (lsu_pending_rd == arch_reg_idx_t'(6)))
+    else $fatal(1, "LSU did not retain the first rollover load identity");
+
+    @(negedge clk);
+    lsu_req                       = second_load;
+    data_memory_resp              = '0;
+    data_memory_resp.read_data    = core_data_t'(32'h1111_1111);
+    data_memory_resp_valid        = 1'b1;
+    lsu_writeback_ready           = 1'b1;
+    data_memory_req_ready         = 1'b1;
+    #1;
+    assert (data_memory_resp_ready && lsu_writeback_valid &&
+            lsu_req_ready && data_memory_req_valid)
+    else $fatal(1, "LSU did not complete the old load and issue the next load together");
+    assert ((lsu_writeback.uop.rd == arch_reg_idx_t'(6)) &&
+            (lsu_writeback.result == xlen_data_t'(32'h1111_1111)) &&
+            (data_memory_req.addr == phys_addr_t'(32'h8000_0200)))
+    else $fatal(1, "LSU rollover mixed the old response with the new request payload");
+
+    @(posedge clk);
+    #1;
+    lsu_req_valid          = 1'b0;
+    data_memory_resp_valid = 1'b0;
+    assert (lsu_transaction_active && (lsu_pending_rd == arch_reg_idx_t'(7)))
+    else $fatal(1, "LSU did not replace the completed context with the second load");
+
+    @(negedge clk);
+    data_memory_resp           = '0;
+    data_memory_resp.read_data = core_data_t'(32'h2222_2222);
+    data_memory_resp_valid     = 1'b1;
+    #1;
+    assert (data_memory_resp_ready && lsu_writeback_valid &&
+            (lsu_writeback.uop.rd == arch_reg_idx_t'(7)) &&
+            (lsu_writeback.result == xlen_data_t'(32'h2222_2222)))
+    else $fatal(1, "LSU did not complete the second rollover load");
+
+    @(posedge clk);
+    #1;
+    data_memory_resp_valid = 1'b0;
+  endtask
+
   initial begin
     clk                    = 1'b0;
     rst_ni                 = 1'b0;
@@ -352,6 +419,7 @@ module riscv32_lsu_tb;
 `endif
 
     check_response_backpressure();
+    check_consecutive_load_rollover();
 
     $display("LSU directed memory test passed for XLEN=%0d", XLEN);
     $finish;

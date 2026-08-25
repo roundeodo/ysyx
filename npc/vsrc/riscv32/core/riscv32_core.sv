@@ -163,6 +163,8 @@ module riscv32_core
   logic serializing_hazard_present;
   logic structural_hazard_present;
   logic lsu_transaction_active;
+  logic lsu_pending_writes_rd;
+  arch_reg_idx_t lsu_pending_rd;
   redirect_req_t execute_redirect_req_at_resolution;
   logic execute_redirect_resolution_occurred;
   logic execute_redirect_occurred;
@@ -171,8 +173,10 @@ module riscv32_core
   logic execute_forwarding_available;
   logic writeback_forwarding_available;
   logic rs1_execute_forwarding_selected;
+  logic rs1_lsu_forwarding_selected;
   logic rs1_writeback_forwarding_selected;
   logic rs2_execute_forwarding_selected;
+  logic rs2_lsu_forwarding_selected;
   logic rs2_writeback_forwarding_selected;
 
   always_comb begin
@@ -187,11 +191,17 @@ module riscv32_core
     if (rs1_writeback_forwarding_selected) begin
       decoded_execute_packet.rs1_value = writeback_result.result;
     end
+    if (rs1_lsu_forwarding_selected) begin
+      decoded_execute_packet.rs1_value = lsu_writeback.result;
+    end
     if (rs1_execute_forwarding_selected) begin
       decoded_execute_packet.rs1_value = exu_result.result;
     end
     if (rs2_writeback_forwarding_selected) begin
       decoded_execute_packet.rs2_value = writeback_result.result;
+    end
+    if (rs2_lsu_forwarding_selected) begin
+      decoded_execute_packet.rs2_value = lsu_writeback.result;
     end
     if (rs2_execute_forwarding_selected) begin
       decoded_execute_packet.rs2_value = exu_result.result;
@@ -439,6 +449,10 @@ module riscv32_core
       .writeback_serializing_i     (writeback_result.uop.serializing),
       .writeback_forwarding_available_i(writeback_forwarding_available),
       .lsu_busy_i                  (lsu_transaction_active),
+      .lsu_pending_writes_rd_i     (lsu_pending_writes_rd),
+      .lsu_pending_rd_i            (lsu_pending_rd),
+      .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
+                                    !lsu_writeback.uop.exception_valid),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -449,8 +463,10 @@ module riscv32_core
       .serializing_hazard_present_o(serializing_hazard_present),
       .structural_hazard_present_o (structural_hazard_present),
       .rs1_execute_forwarding_selected_o(rs1_execute_forwarding_selected),
+      .rs1_lsu_forwarding_selected_o(rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o(rs2_execute_forwarding_selected),
+      .rs2_lsu_forwarding_selected_o(rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
 
@@ -490,6 +506,8 @@ module riscv32_core
       .lsu_req_valid_i         (lsu_req_valid),
       .lsu_req_ready_o         (lsu_req_ready),
       .lsu_transaction_active_o(lsu_transaction_active),
+      .lsu_pending_writes_rd_o (lsu_pending_writes_rd),
+      .lsu_pending_rd_o        (lsu_pending_rd),
       .lsu_writeback_o         (lsu_writeback),
       .lsu_writeback_valid_o   (lsu_writeback_valid),
       .lsu_writeback_ready_i   (lsu_writeback_ready),
@@ -526,6 +544,7 @@ module riscv32_core
       .lsu_writeback_i         (lsu_writeback),
       .lsu_writeback_valid_i   (lsu_writeback_valid),
       .lsu_writeback_ready_o   (lsu_writeback_ready),
+      .older_lsu_transaction_active_i(lsu_transaction_active),
       .writeback_result_o      (completion_result),
       .writeback_result_valid_o(completion_result_valid),
       .writeback_result_ready_i(completion_result_ready)

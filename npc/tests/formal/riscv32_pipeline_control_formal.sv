@@ -141,6 +141,9 @@ module riscv32_pipeline_control_formal;
   (* anyseq *) logic          writeback_serializing;
   (* anyseq *) logic          writeback_forwarding_available;
   (* anyseq *) logic          lsu_busy;
+  (* anyseq *) logic          lsu_pending_writes_rd;
+  (* anyseq *) arch_reg_idx_t lsu_pending_rd;
+  (* anyseq *) logic          lsu_forwarding_available;
   (* anyseq *) logic          execute_redirect_occurred;
   (* anyseq *) logic          commit_redirect_occurred;
 
@@ -152,14 +155,18 @@ module riscv32_pipeline_control_formal;
   logic serializing_hazard_present;
   logic structural_hazard_present;
   logic rs1_execute_forwarding_selected;
+  logic rs1_lsu_forwarding_selected;
   logic rs1_writeback_forwarding_selected;
   logic rs2_execute_forwarding_selected;
+  logic rs2_lsu_forwarding_selected;
   logic rs2_writeback_forwarding_selected;
 
   logic execute_matches_rs1;
   logic execute_matches_rs2;
   logic writeback_matches_rs1;
   logic writeback_matches_rs2;
+  logic lsu_matches_rs1;
+  logic lsu_matches_rs2;
 
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i                              (clk_i),
@@ -181,6 +188,9 @@ module riscv32_pipeline_control_formal;
       .writeback_serializing_i            (writeback_serializing),
       .writeback_forwarding_available_i   (writeback_forwarding_available),
       .lsu_busy_i                         (lsu_busy),
+      .lsu_pending_writes_rd_i            (lsu_pending_writes_rd),
+      .lsu_pending_rd_i                   (lsu_pending_rd),
+      .lsu_forwarding_available_i         (lsu_forwarding_available),
       .execute_redirect_occurred_i        (execute_redirect_occurred),
       .commit_redirect_occurred_i         (commit_redirect_occurred),
       .decode_accept_allowed_o            (decode_accept_allowed),
@@ -191,8 +201,10 @@ module riscv32_pipeline_control_formal;
       .serializing_hazard_present_o       (serializing_hazard_present),
       .structural_hazard_present_o        (structural_hazard_present),
       .rs1_execute_forwarding_selected_o  (rs1_execute_forwarding_selected),
+      .rs1_lsu_forwarding_selected_o      (rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o  (rs2_execute_forwarding_selected),
+      .rs2_lsu_forwarding_selected_o      (rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
 
@@ -209,18 +221,31 @@ module riscv32_pipeline_control_formal;
     writeback_matches_rs2 = decoded_uop_valid && decoded_uses_rs2 && writeback_result_valid &&
                             writeback_writes_rd && (writeback_rd != '0) &&
                             (writeback_rd == decoded_rs2);
+    lsu_matches_rs1 = decoded_uop_valid && decoded_uses_rs1 && lsu_busy &&
+                      lsu_pending_writes_rd && (lsu_pending_rd != '0) &&
+                      (lsu_pending_rd == decoded_rs1);
+    lsu_matches_rs2 = decoded_uop_valid && decoded_uses_rs2 && lsu_busy &&
+                      lsu_pending_writes_rd && (lsu_pending_rd != '0) &&
+                      (lsu_pending_rd == decoded_rs2);
 
     if (rst_ni) begin
-      assert (!(rs1_execute_forwarding_selected && rs1_writeback_forwarding_selected));
-      assert (!(rs2_execute_forwarding_selected && rs2_writeback_forwarding_selected));
+      assert ($onehot0({rs1_execute_forwarding_selected, rs1_lsu_forwarding_selected,
+                        rs1_writeback_forwarding_selected}));
+      assert ($onehot0({rs2_execute_forwarding_selected, rs2_lsu_forwarding_selected,
+                        rs2_writeback_forwarding_selected}));
       assert (decoded_uop_valid ||
-              !(rs1_execute_forwarding_selected || rs1_writeback_forwarding_selected ||
-                rs2_execute_forwarding_selected || rs2_writeback_forwarding_selected));
+              !(rs1_execute_forwarding_selected || rs1_lsu_forwarding_selected ||
+                rs1_writeback_forwarding_selected || rs2_execute_forwarding_selected ||
+                rs2_lsu_forwarding_selected || rs2_writeback_forwarding_selected));
 
       if (execute_matches_rs1) begin
         assert (rs1_execute_forwarding_selected == execute_forwarding_available);
         assert (!rs1_writeback_forwarding_selected);
         assert (execute_forwarding_available || raw_hazard_present);
+      end else if (lsu_matches_rs1) begin
+        assert (rs1_lsu_forwarding_selected == lsu_forwarding_available);
+        assert (!rs1_writeback_forwarding_selected);
+        assert (lsu_forwarding_available || raw_hazard_present);
       end else if (writeback_matches_rs1) begin
         assert (rs1_writeback_forwarding_selected == writeback_forwarding_available);
         assert (writeback_forwarding_available || raw_hazard_present);
@@ -230,14 +255,20 @@ module riscv32_pipeline_control_formal;
         assert (rs2_execute_forwarding_selected == execute_forwarding_available);
         assert (!rs2_writeback_forwarding_selected);
         assert (execute_forwarding_available || raw_hazard_present);
+      end else if (lsu_matches_rs2) begin
+        assert (rs2_lsu_forwarding_selected == lsu_forwarding_available);
+        assert (!rs2_writeback_forwarding_selected);
+        assert (lsu_forwarding_available || raw_hazard_present);
       end else if (writeback_matches_rs2) begin
         assert (rs2_writeback_forwarding_selected == writeback_forwarding_available);
         assert (writeback_forwarding_available || raw_hazard_present);
       end
 
-      assert (!(raw_hazard_present || serializing_hazard_present ||
-                structural_hazard_present || execute_redirect_occurred ||
+      assert (!(raw_hazard_present || serializing_hazard_present || execute_redirect_occurred ||
                 commit_redirect_occurred) || !decode_accept_allowed);
+      assert ((raw_hazard_present || serializing_hazard_present ||
+                execute_redirect_occurred || commit_redirect_occurred) ||
+              (decode_accept_allowed && execute_issue_allowed));
       assert (!commit_redirect_occurred || !execute_issue_allowed);
       assert (!(execute_redirect_occurred || commit_redirect_occurred) ||
               decode_execute_flush);
