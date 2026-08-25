@@ -19,14 +19,6 @@ module riscv32_pipeline_hazard_controller
     input logic          execute_serializing_i,
     input logic          execute_forwarding_available_i,
 
-    // 单项completion queue中的EX结果比在途LSU年轻、比当前EX年老。它是独立的
-    // 流水级生产者，不能只在数据mux中处理而遗漏RAW和串行化判断。
-    input logic          buffered_exu_result_present_i,
-    input logic          buffered_exu_writes_rd_i,
-    input arch_reg_idx_t buffered_exu_rd_i,
-    input logic          buffered_exu_serializing_i,
-    input logic          buffered_exu_forwarding_available_i,
-
     input logic          writeback_result_valid_i,
     input logic          writeback_writes_rd_i,
     input arch_reg_idx_t writeback_rd_i,
@@ -53,19 +45,15 @@ module riscv32_pipeline_hazard_controller
     output logic structural_hazard_present_o,
 
     output logic rs1_execute_forwarding_selected_o,
-    output logic rs1_buffered_exu_forwarding_selected_o,
     output logic rs1_lsu_forwarding_selected_o,
     output logic rs1_writeback_forwarding_selected_o,
     output logic rs2_execute_forwarding_selected_o,
-    output logic rs2_buffered_exu_forwarding_selected_o,
     output logic rs2_lsu_forwarding_selected_o,
     output logic rs2_writeback_forwarding_selected_o
 );
 
   logic execute_writes_rs1;
   logic execute_writes_rs2;
-  logic buffered_exu_writes_rs1;
-  logic buffered_exu_writes_rs2;
   logic writeback_writes_rs1;
   logic writeback_writes_rs2;
   logic lsu_writes_rs1;
@@ -83,13 +71,6 @@ module riscv32_pipeline_hazard_controller
     execute_writes_rs2 = decoded_uop_valid_i && execute_uop_valid_i && execute_writes_rd_i &&
                          (execute_rd_i != '0) && decoded_uses_rs2_i &&
                          (execute_rd_i == decoded_rs2_i);
-
-    buffered_exu_writes_rs1 = decoded_uop_valid_i && buffered_exu_result_present_i &&
-                              buffered_exu_writes_rd_i && (buffered_exu_rd_i != '0) &&
-                              decoded_uses_rs1_i && (buffered_exu_rd_i == decoded_rs1_i);
-    buffered_exu_writes_rs2 = decoded_uop_valid_i && buffered_exu_result_present_i &&
-                              buffered_exu_writes_rd_i && (buffered_exu_rd_i != '0) &&
-                              decoded_uses_rs2_i && (buffered_exu_rd_i == decoded_rs2_i);
 
     writeback_writes_rs1 = decoded_uop_valid_i && writeback_result_valid_i &&
                            writeback_writes_rd_i &&
@@ -111,47 +92,31 @@ module riscv32_pipeline_hazard_controller
     // 必须优先；如果它的结果尚不可用，不能错误前递WB中的更旧值。
     rs1_execute_forwarding_selected_o = execute_writes_rs1 &&
                                         execute_forwarding_available_i;
-    rs1_buffered_exu_forwarding_selected_o = !execute_writes_rs1 &&
-                                              buffered_exu_writes_rs1 &&
-                                              buffered_exu_forwarding_available_i;
-    rs1_lsu_forwarding_selected_o = !execute_writes_rs1 && !buffered_exu_writes_rs1 &&
-                                    lsu_writes_rs1 &&
+    rs1_lsu_forwarding_selected_o = !execute_writes_rs1 && lsu_writes_rs1 &&
                                     lsu_forwarding_available_i;
     rs1_writeback_forwarding_selected_o = !execute_writes_rs1 &&
-                                          !buffered_exu_writes_rs1 && !lsu_writes_rs1 &&
+                                          !lsu_writes_rs1 &&
                                           writeback_writes_rs1 &&
                                           writeback_forwarding_available_i;
     rs2_execute_forwarding_selected_o = execute_writes_rs2 &&
                                         execute_forwarding_available_i;
-    rs2_buffered_exu_forwarding_selected_o = !execute_writes_rs2 &&
-                                              buffered_exu_writes_rs2 &&
-                                              buffered_exu_forwarding_available_i;
-    rs2_lsu_forwarding_selected_o = !execute_writes_rs2 && !buffered_exu_writes_rs2 &&
-                                    lsu_writes_rs2 &&
+    rs2_lsu_forwarding_selected_o = !execute_writes_rs2 && lsu_writes_rs2 &&
                                     lsu_forwarding_available_i;
     rs2_writeback_forwarding_selected_o = !execute_writes_rs2 &&
-                                          !buffered_exu_writes_rs2 && !lsu_writes_rs2 &&
+                                          !lsu_writes_rs2 &&
                                           writeback_writes_rs2 &&
                                           writeback_forwarding_available_i;
 
     rs1_value_unavailable = (execute_writes_rs1 && !execute_forwarding_available_i) ||
-                            (!execute_writes_rs1 && buffered_exu_writes_rs1 &&
-                             !buffered_exu_forwarding_available_i) ||
-                            (!execute_writes_rs1 && !buffered_exu_writes_rs1 &&
-                             lsu_writes_rs1 &&
+                            (!execute_writes_rs1 && lsu_writes_rs1 &&
                              !lsu_forwarding_available_i) ||
-                            (!execute_writes_rs1 && !buffered_exu_writes_rs1 &&
-                             !lsu_writes_rs1 &&
+                            (!execute_writes_rs1 && !lsu_writes_rs1 &&
                              writeback_writes_rs1 &&
                              !writeback_forwarding_available_i);
     rs2_value_unavailable = (execute_writes_rs2 && !execute_forwarding_available_i) ||
-                            (!execute_writes_rs2 && buffered_exu_writes_rs2 &&
-                             !buffered_exu_forwarding_available_i) ||
-                            (!execute_writes_rs2 && !buffered_exu_writes_rs2 &&
-                             lsu_writes_rs2 &&
+                            (!execute_writes_rs2 && lsu_writes_rs2 &&
                              !lsu_forwarding_available_i) ||
-                            (!execute_writes_rs2 && !buffered_exu_writes_rs2 &&
-                             !lsu_writes_rs2 &&
+                            (!execute_writes_rs2 && !lsu_writes_rs2 &&
                              writeback_writes_rs2 &&
                              !writeback_forwarding_available_i);
   end
@@ -159,11 +124,10 @@ module riscv32_pipeline_hazard_controller
   assign raw_hazard_present_o = decoded_uop_valid_i &&
                                 (rs1_value_unavailable || rs2_value_unavailable);
 
-  assign older_instruction_present = execute_uop_valid_i || buffered_exu_result_present_i ||
-                                     writeback_result_valid_i || lsu_busy_i;
+  assign older_instruction_present = execute_uop_valid_i || writeback_result_valid_i ||
+                                     lsu_busy_i;
   assign older_serializing_instruction_present =
       (execute_uop_valid_i && execute_serializing_i) ||
-      (buffered_exu_result_present_i && buffered_exu_serializing_i) ||
       (writeback_result_valid_i && writeback_serializing_i);
 
   // 串行化指令必须等所有老指令离开后端后才能进入；进入后又阻止年轻指令，直到自己提交。
@@ -178,9 +142,9 @@ module riscv32_pipeline_hazard_controller
                                    !serializing_hazard_present_o &&
                                    !control_recovery_occurred;
 
-  // LSU自身的ready和completion年龄门控决定EX能否离开；hazard controller不再用busy阻止
-  // 独立指令提前驻留EX。恢复事件仍必须禁止任何年轻completion或访存副作用。
-  assign execute_issue_allowed_o = !control_recovery_occurred;
+  // 当前没有ROB或带年龄的完成队列。在老LSU事务结束前，年轻指令可以驻留ID/EX，
+  // 但不能进入执行并越过老访存提交。
+  assign execute_issue_allowed_o = !lsu_busy_i && !control_recovery_occurred;
 
   assign decode_execute_flush_o = control_recovery_occurred;
   assign writeback_flush_o = commit_redirect_occurred_i;
@@ -196,11 +160,9 @@ module riscv32_pipeline_hazard_controller
   else $error("pipeline recovery did not flush the ID/EX stage");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    $onehot0({rs1_execute_forwarding_selected_o, rs1_buffered_exu_forwarding_selected_o,
-              rs1_lsu_forwarding_selected_o,
+    $onehot0({rs1_execute_forwarding_selected_o, rs1_lsu_forwarding_selected_o,
               rs1_writeback_forwarding_selected_o}) &&
-    $onehot0({rs2_execute_forwarding_selected_o, rs2_buffered_exu_forwarding_selected_o,
-              rs2_lsu_forwarding_selected_o,
+    $onehot0({rs2_execute_forwarding_selected_o, rs2_lsu_forwarding_selected_o,
               rs2_writeback_forwarding_selected_o}))
   else $error("pipeline selected multiple forwarding producers for one source operand");
 
@@ -215,24 +177,12 @@ module riscv32_pipeline_hazard_controller
   else $error("pipeline accepted stale rs2 data while the newest EX producer was unavailable");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs1 && buffered_exu_writes_rs1 &&
-     !buffered_exu_forwarding_available_i) |-> raw_hazard_present_o)
-  else $error("pipeline accepted stale rs1 data while a buffered EX producer was unavailable");
-
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs1 && !buffered_exu_writes_rs1 &&
-     lsu_writes_rs1 &&
+    (decoded_uop_valid_i && !execute_writes_rs1 && lsu_writes_rs1 &&
      !lsu_forwarding_available_i) |-> raw_hazard_present_o)
   else $error("pipeline accepted stale rs1 data while an LSU producer was pending");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs2 && buffered_exu_writes_rs2 &&
-     !buffered_exu_forwarding_available_i) |-> raw_hazard_present_o)
-  else $error("pipeline accepted stale rs2 data while a buffered EX producer was unavailable");
-
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs2 && !buffered_exu_writes_rs2 &&
-     lsu_writes_rs2 &&
+    (decoded_uop_valid_i && !execute_writes_rs2 && lsu_writes_rs2 &&
      !lsu_forwarding_available_i) |-> raw_hazard_present_o)
   else $error("pipeline accepted stale rs2 data while an LSU producer was pending");
   /* verilator lint_on SYNCASYNCNET */

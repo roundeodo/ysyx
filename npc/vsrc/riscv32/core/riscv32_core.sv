@@ -121,9 +121,6 @@ module riscv32_core
   logic lsu_writeback_valid;
   logic lsu_writeback_ready;
 
-  execute_result_t buffered_exu_result;
-  logic            buffered_exu_result_present;
-
   writeback_result_t completion_result;
   logic completion_result_valid;
   logic completion_result_ready;
@@ -174,17 +171,13 @@ module riscv32_core
   logic commit_redirect_occurred;
   logic frontend_recovery_occurred;
   logic execute_forwarding_available;
-  logic buffered_exu_forwarding_available;
   logic writeback_forwarding_available;
   logic rs1_execute_forwarding_selected;
-  logic rs1_buffered_exu_forwarding_selected;
   logic rs1_lsu_forwarding_selected;
   logic rs1_writeback_forwarding_selected;
   logic rs2_execute_forwarding_selected;
-  logic rs2_buffered_exu_forwarding_selected;
   logic rs2_lsu_forwarding_selected;
   logic rs2_writeback_forwarding_selected;
-  logic lsu_request_issue_allowed;
 
   always_comb begin
     decoded_execute_packet             = '0;
@@ -201,9 +194,6 @@ module riscv32_core
     if (rs1_lsu_forwarding_selected) begin
       decoded_execute_packet.rs1_value = lsu_writeback.result;
     end
-    if (rs1_buffered_exu_forwarding_selected) begin
-      decoded_execute_packet.rs1_value = buffered_exu_result.result;
-    end
     if (rs1_execute_forwarding_selected) begin
       decoded_execute_packet.rs1_value = exu_result.result;
     end
@@ -212,9 +202,6 @@ module riscv32_core
     end
     if (rs2_lsu_forwarding_selected) begin
       decoded_execute_packet.rs2_value = lsu_writeback.result;
-    end
-    if (rs2_buffered_exu_forwarding_selected) begin
-      decoded_execute_packet.rs2_value = buffered_exu_result.result;
     end
     if (rs2_execute_forwarding_selected) begin
       decoded_execute_packet.rs2_value = exu_result.result;
@@ -438,9 +425,6 @@ module riscv32_core
   // 到达LSU completion/WB后才可用，因此load-use仍由RAW逻辑停顿。串行化指令继续排空后端。
   assign execute_forwarding_available = exu_result_valid && exu_result.uop.writes_rd &&
                                         !exu_result.uop.exception_valid;
-  assign buffered_exu_forwarding_available = buffered_exu_result_present &&
-                                             buffered_exu_result.uop.writes_rd &&
-                                             !buffered_exu_result.uop.exception_valid;
   assign writeback_forwarding_available = writeback_result_valid &&
                                           writeback_result.uop.writes_rd &&
                                           !writeback_result.uop.exception_valid;
@@ -459,11 +443,6 @@ module riscv32_core
       .execute_rd_i                (execute_packet.uop.rd),
       .execute_serializing_i       (execute_packet.uop.serializing),
       .execute_forwarding_available_i(execute_forwarding_available),
-      .buffered_exu_result_present_i(buffered_exu_result_present),
-      .buffered_exu_writes_rd_i    (buffered_exu_result.uop.writes_rd),
-      .buffered_exu_rd_i           (buffered_exu_result.uop.rd),
-      .buffered_exu_serializing_i  (buffered_exu_result.uop.serializing),
-      .buffered_exu_forwarding_available_i(buffered_exu_forwarding_available),
       .writeback_result_valid_i    (writeback_result_valid),
       .writeback_writes_rd_i       (writeback_result.uop.writes_rd),
       .writeback_rd_i              (writeback_result.uop.rd),
@@ -484,11 +463,9 @@ module riscv32_core
       .serializing_hazard_present_o(serializing_hazard_present),
       .structural_hazard_present_o (structural_hazard_present),
       .rs1_execute_forwarding_selected_o(rs1_execute_forwarding_selected),
-      .rs1_buffered_exu_forwarding_selected_o(rs1_buffered_exu_forwarding_selected),
       .rs1_lsu_forwarding_selected_o(rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o(rs2_execute_forwarding_selected),
-      .rs2_buffered_exu_forwarding_selected_o(rs2_buffered_exu_forwarding_selected),
       .rs2_lsu_forwarding_selected_o(rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
@@ -519,19 +496,14 @@ module riscv32_core
       .exu_result_ready_i    (exu_result_ready),
       .lsu_req_o             (lsu_req),
       .lsu_req_valid_o       (lsu_req_valid),
-      .lsu_req_ready_i       (lsu_req_ready && lsu_request_issue_allowed)
+      .lsu_req_ready_i       (lsu_req_ready)
   );
-
-  // 单项completion queue只能表达“一个老LSU + 一个年轻EX”的年龄关系。年轻EX尚未
-  // 交付时若再让LSU rollover接收下一条访存，单一lsu_transaction_active将无法区分
-  // 新访存其实比缓冲EX更年轻。这里在发起边界阻止该情况，维持严格顺序提交。
-  assign lsu_request_issue_allowed = !buffered_exu_result_present;
 
   riscv32_lsu u_lsu (
       .clk_i                   (clk_i),
       .rst_ni                  (rst_ni),
       .lsu_req_i               (lsu_req),
-      .lsu_req_valid_i         (lsu_req_valid && lsu_request_issue_allowed),
+      .lsu_req_valid_i         (lsu_req_valid),
       .lsu_req_ready_o         (lsu_req_ready),
       .lsu_transaction_active_o(lsu_transaction_active),
       .lsu_pending_writes_rd_o (lsu_pending_writes_rd),
@@ -565,22 +537,16 @@ module riscv32_core
       .axi_manager_i               (data_axi4_manager_i)
   );
 
-  riscv32_completion_queue u_completion_queue (
-      .clk_i                   (clk_i),
-      .rst_ni                  (rst_ni),
+  riscv32_completion_mux u_completion_mux (
       .exu_result_i            (exu_result),
       .exu_result_valid_i      (exu_result_valid),
       .exu_result_ready_o      (exu_result_ready),
       .lsu_writeback_i         (lsu_writeback),
       .lsu_writeback_valid_i   (lsu_writeback_valid),
       .lsu_writeback_ready_o   (lsu_writeback_ready),
-      .older_lsu_transaction_active_i(lsu_transaction_active),
-      .buffered_exu_result_o   (buffered_exu_result),
-      .buffered_exu_result_present_o(buffered_exu_result_present),
       .writeback_result_o      (completion_result),
       .writeback_result_valid_o(completion_result_valid),
-      .writeback_result_ready_i(completion_result_ready),
-      .flush_i                 (commit_redirect_occurred)
+      .writeback_result_ready_i(completion_result_ready)
   );
 
   // EXU/LSU completion先进入WB弹性寄存器，再由commit产生唯一架构事件。
@@ -805,12 +771,6 @@ module riscv32_core
     execute_redirect_occurred |->
       (decode_execute_flush && !execute_issue_allowed && !lsu_req_valid))
   else $error("registered execute redirect allowed a wrong-path EX side effect");
-
-  a_buffered_exu_completion_blocks_younger_lsu_issue :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    buffered_exu_result_present && lsu_req_valid |->
-      !(lsu_req_ready && lsu_request_issue_allowed))
-  else $error("pipeline issued a younger LSU request ahead of a buffered EX completion");
 
   /* verilator lint_on SYNCASYNCNET */
 `endif

@@ -67,20 +67,6 @@ module riscv32_pipeline_control_tb;
   logic              writeback_result_ready;
   logic              writeback_flush;
 
-  execute_result_t   queue_exu_result;
-  logic              queue_exu_result_valid;
-  logic              queue_exu_result_ready;
-  writeback_result_t queue_lsu_writeback;
-  logic              queue_lsu_writeback_valid;
-  logic              queue_lsu_writeback_ready;
-  logic              queue_older_lsu_transaction_active;
-  execute_result_t   queue_buffered_exu_result;
-  logic              queue_buffered_exu_result_present;
-  writeback_result_t queue_writeback_result;
-  logic              queue_writeback_result_valid;
-  logic              queue_writeback_result_ready;
-  logic              queue_flush;
-
   commit_t           staged_commit;
   logic              staged_commit_valid;
   redirect_req_t     staged_trap_redirect;
@@ -90,9 +76,6 @@ module riscv32_pipeline_control_tb;
   logic              hazard_decoded_uop_valid;
   decoded_uop_t      hazard_execute_uop;
   logic              hazard_execute_uop_valid;
-  execute_result_t   hazard_buffered_exu_result;
-  logic              hazard_buffered_exu_result_present;
-  logic              buffered_exu_forwarding_available;
   writeback_result_t hazard_writeback_result;
   logic              hazard_writeback_result_valid;
   logic              lsu_busy;
@@ -111,11 +94,9 @@ module riscv32_pipeline_control_tb;
   logic              execute_forwarding_available;
   logic              writeback_forwarding_available;
   logic              rs1_execute_forwarding_selected;
-  logic              rs1_buffered_exu_forwarding_selected;
   logic              rs1_lsu_forwarding_selected;
   logic              rs1_writeback_forwarding_selected;
   logic              rs2_execute_forwarding_selected;
-  logic              rs2_buffered_exu_forwarding_selected;
   logic              rs2_lsu_forwarding_selected;
   logic              rs2_writeback_forwarding_selected;
 
@@ -193,24 +174,6 @@ module riscv32_pipeline_control_tb;
       .invalidate_i                         (predictor_invalidate)
   );
 
-  riscv32_completion_queue u_completion_queue (
-      .clk_i                             (clk),
-      .rst_ni                            (rst_ni),
-      .exu_result_i                      (queue_exu_result),
-      .exu_result_valid_i                (queue_exu_result_valid),
-      .exu_result_ready_o                (queue_exu_result_ready),
-      .lsu_writeback_i                   (queue_lsu_writeback),
-      .lsu_writeback_valid_i             (queue_lsu_writeback_valid),
-      .lsu_writeback_ready_o             (queue_lsu_writeback_ready),
-      .older_lsu_transaction_active_i    (queue_older_lsu_transaction_active),
-      .buffered_exu_result_o             (queue_buffered_exu_result),
-      .buffered_exu_result_present_o     (queue_buffered_exu_result_present),
-      .writeback_result_o                (queue_writeback_result),
-      .writeback_result_valid_o          (queue_writeback_result_valid),
-      .writeback_result_ready_i          (queue_writeback_result_ready),
-      .flush_i                           (queue_flush)
-  );
-
   assign predictor_selected_lookup_pc = predictor_test_override ?
                                         predictor_lookup_pc :
                                         ifu_predictor_lookup_pc;
@@ -266,11 +229,6 @@ module riscv32_pipeline_control_tb;
       .execute_rd_i                (hazard_execute_uop.rd),
       .execute_serializing_i       (hazard_execute_uop.serializing),
       .execute_forwarding_available_i(execute_forwarding_available),
-      .buffered_exu_result_present_i(hazard_buffered_exu_result_present),
-      .buffered_exu_writes_rd_i    (hazard_buffered_exu_result.uop.writes_rd),
-      .buffered_exu_rd_i           (hazard_buffered_exu_result.uop.rd),
-      .buffered_exu_serializing_i  (hazard_buffered_exu_result.uop.serializing),
-      .buffered_exu_forwarding_available_i(buffered_exu_forwarding_available),
       .writeback_result_valid_i    (hazard_writeback_result_valid),
       .writeback_writes_rd_i       (hazard_writeback_result.uop.writes_rd),
       .writeback_rd_i              (hazard_writeback_result.uop.rd),
@@ -290,11 +248,9 @@ module riscv32_pipeline_control_tb;
       .serializing_hazard_present_o(serializing_hazard_present),
       .structural_hazard_present_o (structural_hazard_present),
       .rs1_execute_forwarding_selected_o(rs1_execute_forwarding_selected),
-      .rs1_buffered_exu_forwarding_selected_o(rs1_buffered_exu_forwarding_selected),
       .rs1_lsu_forwarding_selected_o(rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o(rs2_execute_forwarding_selected),
-      .rs2_buffered_exu_forwarding_selected_o(rs2_buffered_exu_forwarding_selected),
       .rs2_lsu_forwarding_selected_o(rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
@@ -363,8 +319,6 @@ module riscv32_pipeline_control_tb;
     hazard_decoded_uop_valid      = 1'b0;
     hazard_execute_uop            = '0;
     hazard_execute_uop_valid      = 1'b0;
-    hazard_buffered_exu_result    = '0;
-    hazard_buffered_exu_result_present = 1'b0;
     hazard_writeback_result       = '0;
     hazard_writeback_result_valid = 1'b0;
     lsu_busy                      = 1'b0;
@@ -374,18 +328,7 @@ module riscv32_pipeline_control_tb;
     execute_redirect_occurred     = 1'b0;
     commit_redirect_occurred      = 1'b0;
     execute_forwarding_available  = 1'b0;
-    buffered_exu_forwarding_available = 1'b0;
     writeback_forwarding_available = 1'b0;
-  endtask
-
-  task automatic clear_completion_queue_inputs;
-    queue_exu_result                   = '0;
-    queue_exu_result_valid             = 1'b0;
-    queue_lsu_writeback                = '0;
-    queue_lsu_writeback_valid          = 1'b0;
-    queue_older_lsu_transaction_active = 1'b0;
-    queue_writeback_result_ready       = 1'b1;
-    queue_flush                        = 1'b0;
   endtask
 
   function automatic fetch_entry_t make_fetch_entry(input program_counter_t pc,
@@ -675,74 +618,6 @@ module riscv32_pipeline_control_tb;
     completion_result_valid = 1'b0;
   endtask
 
-  task automatic check_completion_queue;
-    execute_result_t   younger_exu_result;
-    writeback_result_t older_lsu_result;
-
-    younger_exu_result = make_execute_result(
-        program_counter_t'('h8000_0044), arch_reg_idx_t'(7), xlen_data_t'('h1234));
-    older_lsu_result = make_writeback_result(
-        program_counter_t'('h8000_0040), arch_reg_idx_t'(6), xlen_data_t'('h5678));
-
-    // 老LSU等待期间，完成队列必须吸收一条年轻EX结果，但不能提前交给WB。
-    @(negedge clk);
-    clear_completion_queue_inputs();
-    queue_older_lsu_transaction_active = 1'b1;
-    queue_exu_result                   = younger_exu_result;
-    queue_exu_result_valid             = 1'b1;
-    #1;
-    assert (queue_exu_result_ready && !queue_writeback_result_valid)
-    else $fatal(1, "completion queue did not buffer a young EX result behind an old LSU");
-
-    @(posedge clk);
-    @(negedge clk);
-    queue_exu_result_valid    = 1'b0;
-    queue_lsu_writeback       = older_lsu_result;
-    queue_lsu_writeback_valid = 1'b1;
-    #1;
-    assert (queue_buffered_exu_result_present && queue_lsu_writeback_ready &&
-            queue_writeback_result_valid &&
-            (queue_writeback_result.uop.pc == older_lsu_result.uop.pc))
-    else $fatal(1, "completion queue did not preserve old-LSU-first completion order");
-
-    // 老LSU离开后的下一拍才允许交付缓冲结果。
-    @(posedge clk);
-    @(negedge clk);
-    queue_lsu_writeback_valid          = 1'b0;
-    queue_older_lsu_transaction_active = 1'b0;
-    #1;
-    assert (queue_writeback_result_valid &&
-            (queue_writeback_result.uop.pc == younger_exu_result.uop.pc) &&
-            (queue_writeback_result.result == younger_exu_result.result))
-    else $fatal(1, "completion queue did not release the buffered EX result after the old LSU");
-
-    @(posedge clk);
-    @(negedge clk);
-    #1;
-    assert (!queue_buffered_exu_result_present)
-    else $fatal(1, "completion queue retained an EX result after delivery");
-
-    // 提交级恢复必须删除尚未进入WB的年轻结果。
-    queue_older_lsu_transaction_active = 1'b1;
-    queue_exu_result_valid             = 1'b1;
-    @(posedge clk);
-    @(negedge clk);
-    queue_exu_result_valid = 1'b0;
-    queue_flush            = 1'b1;
-    #1;
-    assert (queue_buffered_exu_result_present && !queue_exu_result_ready)
-    else $fatal(1, "completion queue did not block new work during flush");
-
-    @(posedge clk);
-    @(negedge clk);
-    queue_flush = 1'b0;
-    #1;
-    assert (!queue_buffered_exu_result_present)
-    else $fatal(1, "completion queue retained a young result after flush");
-
-    clear_completion_queue_inputs();
-  endtask
-
   task automatic check_hazard_controller;
     @(negedge clk);
     clear_hazard_inputs();
@@ -806,29 +681,6 @@ module riscv32_pipeline_control_tb;
             rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
     else $fatal(1, "pipeline did not prioritize the newest EX producer");
 
-    // completion queue中的结果是EX与LSU之间的真实生产者。它必须压过更老LSU/WB，
-    // 但仍低于当前EX中的更新值。
-    clear_hazard_inputs();
-    hazard_decoded_uop_valid                    = 1'b1;
-    hazard_decoded_uop.uses_rs1                 = 1'b1;
-    hazard_decoded_uop.rs1                      = arch_reg_idx_t'(12);
-    hazard_buffered_exu_result_present          = 1'b1;
-    hazard_buffered_exu_result.uop.writes_rd    = 1'b1;
-    hazard_buffered_exu_result.uop.rd           = arch_reg_idx_t'(12);
-    hazard_writeback_result_valid               = 1'b1;
-    hazard_writeback_result.uop.writes_rd       = 1'b1;
-    hazard_writeback_result.uop.rd              = arch_reg_idx_t'(12);
-    writeback_forwarding_available              = 1'b1;
-    #1;
-    assert (raw_hazard_present && !rs1_writeback_forwarding_selected)
-    else $fatal(1, "pipeline forwarded an old WB value past a buffered EX producer");
-
-    buffered_exu_forwarding_available = 1'b1;
-    #1;
-    assert (!raw_hazard_present && rs1_buffered_exu_forwarding_selected &&
-            !rs1_writeback_forwarding_selected)
-    else $fatal(1, "pipeline did not forward the buffered EX producer");
-
     clear_hazard_inputs();
     hazard_decoded_uop_valid       = 1'b1;
     hazard_decoded_uop.serializing = 1'b1;
@@ -849,8 +701,8 @@ module riscv32_pipeline_control_tb;
     hazard_decoded_uop_valid = 1'b1;
     lsu_busy                 = 1'b1;
     #1;
-    assert (structural_hazard_present && decode_accept_allowed && execute_issue_allowed)
-    else $fatal(1, "independent instruction was globally blocked by an older LSU transaction");
+    assert (structural_hazard_present && decode_accept_allowed && !execute_issue_allowed)
+    else $fatal(1, "pipeline issued a younger instruction ahead of an older LSU transaction");
 
     // 在途load是位于EX与WB之间的最新生产者。数据未返回时依赖指令停在ID；返回当拍
     // 可直接从LSU completion前递，不必额外等待写回寄存器堆。
@@ -1005,7 +857,6 @@ module riscv32_pipeline_control_tb;
     @(negedge clk);
     clear_hazard_inputs();
     writeback_flush              = 1'b0;
-    clear_completion_queue_inputs();
     decode_execute_flush         = 1'b0;
     completion_result            = older_lsu_exception;
     completion_result_valid      = 1'b1;
@@ -1211,7 +1062,6 @@ module riscv32_pipeline_control_tb;
 
     check_decode_execute_stage();
     check_writeback_stage();
-    check_completion_queue();
     check_hazard_controller();
     check_fetch_buffer();
     check_fetch_control_flow_predictor();

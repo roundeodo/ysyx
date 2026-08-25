@@ -1,4 +1,4 @@
-// Completion/WB流水级寄存器。EXU和LSU仍通过completion mux共享单个顺序写回口；
+// Completion/WB流水级寄存器。EXU和LSU通过顺序completion mux共享单个写回口；
 // 本模块把完成结果与提交组合逻辑隔开，并在提交级恢复时拒绝年轻结果进入WB。
 module riscv32_writeback_stage
   import riscv32_pkg::*;

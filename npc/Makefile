@@ -299,7 +299,7 @@ PIPELINE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
 	$(RTL_DIR)/core/riscv32_decode_execute_stage.sv \
 	$(RTL_DIR)/core/riscv32_pipeline_hazard_controller.sv \
-	$(RTL_DIR)/core/riscv32_completion_queue.sv \
+	$(RTL_DIR)/core/riscv32_completion_mux.sv \
 	$(RTL_DIR)/core/riscv32_writeback_stage.sv \
 	$(RTL_DIR)/core/riscv32_commit.sv \
 	$(RTL_DIR)/core/riscv32_trap_controller.sv \
