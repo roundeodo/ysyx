@@ -17,10 +17,22 @@ module riscv32_fetch_control_flow_predictor
 
     input program_counter_t lookup_pc_i,
     output branch_prediction_t lookup_prediction_o,
+    output fetch_control_flow_prediction_context_t lookup_context_o,
     output program_counter_t lookup_next_pc_o,
+
+    // I-cache响应返回后，只预译码能在没有寄存器值时确定后继PC的控制流。请求时保存的
+    // BHT/RAS上下文保证响应被反压时输出保持稳定，不让训练更新改变valid payload。
+    input fetch_entry_t response_fetch_entry_i,
+    input fetch_control_flow_prediction_context_t response_context_i,
+    input logic response_fetch_entry_valid_i,
+    input logic response_fetch_entry_ready_i,
+    output fetch_entry_t corrected_fetch_entry_o,
+    output redirect_req_t fetch_correction_req_o,
+    output logic fetch_correction_req_valid_o,
 
     input program_counter_t resolved_control_flow_pc_i,
     input program_counter_t resolved_control_flow_target_i,
+    input xlen_data_t        resolved_control_flow_imm_i,
     input control_flow_op_e resolved_control_flow_op_i,
     input arch_reg_idx_t    resolved_control_flow_rs1_i,
     input arch_reg_idx_t    resolved_control_flow_rd_i,
@@ -76,6 +88,23 @@ module riscv32_fetch_control_flow_predictor
   logic predicted_taken;
   program_counter_t predicted_target_pc;
 
+  logic [6:0] response_opcode;
+  logic [4:0] response_rd;
+  logic [2:0] response_funct3;
+  logic [4:0] response_rs1;
+  xlen_data_t response_b_type_immediate;
+  xlen_data_t response_i_type_immediate;
+  xlen_data_t response_j_type_immediate;
+  logic response_conditional_branch_present;
+  logic response_direct_jump_present;
+  logic response_return_present;
+  branch_prediction_t response_corrected_prediction;
+  program_counter_t response_sequential_pc;
+  program_counter_t response_direct_target_pc;
+  program_counter_t response_original_next_pc;
+  program_counter_t response_corrected_next_pc;
+  logic response_prediction_correction_needed;
+
   branch_target_index_t resolved_branch_target_index;
   branch_target_way_index_t resolved_branch_target_write_way;
   logic resolved_branch_target_hit_present;
@@ -117,6 +146,18 @@ module riscv32_fetch_control_flow_predictor
   function automatic logic is_link_register(input arch_reg_idx_t register_index);
     return (register_index == arch_reg_idx_t'(1)) ||
            (register_index == arch_reg_idx_t'(5));
+  endfunction
+
+  function automatic logic branch_funct3_is_valid(input logic [2:0] funct3);
+    unique case (funct3)
+      3'b000,
+      3'b001,
+      3'b100,
+      3'b101,
+      3'b110,
+      3'b111: return 1'b1;
+      default: return 1'b0;
+    endcase
   endfunction
 
   function automatic return_stack_index_t increment_return_stack_index(
@@ -176,6 +217,14 @@ module riscv32_fetch_control_flow_predictor
   assign return_stack_top_index = decrement_return_stack_index(return_stack_write_index_q);
   assign return_stack_top_pc = return_stack_pc_array_q[return_stack_top_index];
 
+  always_comb begin
+    lookup_context_o                                    = '0;
+    lookup_context_o.conditional_branch_predicted_taken =
+        conditional_branch_predicted_taken;
+    lookup_context_o.return_target_present = return_stack_entry_count_q != '0;
+    lookup_context_o.return_target = return_stack_top_pc;
+  end
+
   // BTB miss默认顺序取指。return优先采用RAS；RAS为空时退回BTB记录的上一次目标，
   // 错误目标仍会由EX按请求随身携带的prediction精确检查并恢复。
   always_comb begin
@@ -213,6 +262,98 @@ module riscv32_fetch_control_flow_predictor
     lookup_next_pc_o = predicted_taken ?
                        predicted_target_pc :
                        lookup_pc_i + program_counter_t'(INSTRUCTION_BYTES);
+  end
+
+  // 第二层预测只处理无需读取GPR即可确定目标的控制流：JAL、条件分支和标准ret。
+  // 一般JALR的目标依赖rs1，仍保留请求侧BTB预测并由EXU最终检查。该层不会训练状态，
+  // 只利用请求时冻结的BHT/RAS上下文，因此在fetch buffer反压期间不会改变输出payload。
+  assign response_opcode = response_fetch_entry_i.instruction[6:0];
+  assign response_rd = response_fetch_entry_i.instruction[11:7];
+  assign response_funct3 = response_fetch_entry_i.instruction[14:12];
+  assign response_rs1 = response_fetch_entry_i.instruction[19:15];
+  assign response_i_type_immediate = {
+    {(XLEN - 12) {response_fetch_entry_i.instruction[31]}},
+    response_fetch_entry_i.instruction[31:20]
+  };
+  assign response_b_type_immediate = {
+    {(XLEN - 13) {response_fetch_entry_i.instruction[31]}},
+    response_fetch_entry_i.instruction[31],
+    response_fetch_entry_i.instruction[7],
+    response_fetch_entry_i.instruction[30:25],
+    response_fetch_entry_i.instruction[11:8],
+    1'b0
+  };
+  assign response_j_type_immediate = {
+    {(XLEN - 21) {response_fetch_entry_i.instruction[31]}},
+    response_fetch_entry_i.instruction[31],
+    response_fetch_entry_i.instruction[19:12],
+    response_fetch_entry_i.instruction[20],
+    response_fetch_entry_i.instruction[30:21],
+    1'b0
+  };
+
+  assign response_conditional_branch_present =
+      (response_opcode == OPCODE_BRANCH) && branch_funct3_is_valid(response_funct3);
+  assign response_direct_jump_present = response_opcode == OPCODE_JAL;
+  // 只把imm=0的JALR识别成标准return。对x1/x5加非零偏移时，RAS栈顶并不等于目标。
+  assign response_return_present =
+      (response_opcode == OPCODE_JALR) && (response_funct3 == 3'b000) &&
+      is_link_register(arch_reg_idx_t'(response_rs1)) &&
+      (!is_link_register(arch_reg_idx_t'(response_rd)) ||
+       (response_rd != response_rs1)) &&
+      (response_i_type_immediate == '0);
+
+  always_comb begin
+    corrected_fetch_entry_o         = response_fetch_entry_i;
+    response_corrected_prediction   = response_fetch_entry_i.prediction;
+    response_sequential_pc          = response_fetch_entry_i.pc +
+                                      program_counter_t'(INSTRUCTION_BYTES);
+    response_direct_target_pc       = '0;
+
+    if (!response_fetch_entry_i.exception_valid) begin
+      if (response_direct_jump_present) begin
+        response_direct_target_pc = response_fetch_entry_i.pc +
+                                    program_counter_t'(response_j_type_immediate);
+        response_corrected_prediction.predicted_taken =
+            response_direct_target_pc[1:0] == 2'b00;
+        response_corrected_prediction.predicted_target =
+            response_corrected_prediction.predicted_taken ? response_direct_target_pc : '0;
+      end else if (response_conditional_branch_present) begin
+        response_direct_target_pc = response_fetch_entry_i.pc +
+                                    program_counter_t'(response_b_type_immediate);
+        response_corrected_prediction.predicted_taken =
+            response_context_i.conditional_branch_predicted_taken &&
+            (response_direct_target_pc[1:0] == 2'b00);
+        response_corrected_prediction.predicted_target =
+            response_corrected_prediction.predicted_taken ? response_direct_target_pc : '0;
+      end else if (response_return_present && response_context_i.return_target_present) begin
+        response_corrected_prediction.predicted_taken =
+            response_context_i.return_target[1:0] == 2'b00;
+        response_corrected_prediction.predicted_target =
+            response_corrected_prediction.predicted_taken ? response_context_i.return_target : '0;
+      end
+    end
+
+    corrected_fetch_entry_o.prediction = response_corrected_prediction;
+    response_original_next_pc = response_fetch_entry_i.prediction.predicted_taken ?
+                                response_fetch_entry_i.prediction.predicted_target :
+                                response_sequential_pc;
+    response_corrected_next_pc = response_corrected_prediction.predicted_taken ?
+                                 response_corrected_prediction.predicted_target :
+                                 response_sequential_pc;
+    response_prediction_correction_needed =
+        response_corrected_next_pc != response_original_next_pc;
+
+    fetch_correction_req_o                 = '0;
+    fetch_correction_req_o.target_pc       = response_corrected_next_pc;
+    fetch_correction_req_o.source_pc       = response_fetch_entry_i.pc;
+    fetch_correction_req_o.flush_inclusive = 1'b0;
+    fetch_correction_req_o.reason          = REDIRECT_FETCH_CORRECTION;
+    // 纠正事件必须和当前fetch entry进入fetch buffer是同一次握手。若下游反压，IFU继续
+    // 保持响应和请求上下文；不能先改变epoch，否则会把尚未交付的当前指令当作旧路径丢弃。
+    fetch_correction_req_valid_o = response_fetch_entry_valid_i &&
+                                   response_fetch_entry_ready_i &&
+                                   response_prediction_correction_needed;
   end
 
   // 训练优先更新同PC的已有way，其次占用第一个invalid way；set已满时才采用本set的
@@ -255,7 +396,8 @@ module riscv32_fetch_control_flow_predictor
   assign resolved_return_instruction_present =
       (resolved_control_flow_op_i == CF_JALR) && resolved_rs1_is_link_register &&
       (!resolved_rd_is_link_register ||
-       (resolved_control_flow_rd_i != resolved_control_flow_rs1_i));
+       (resolved_control_flow_rd_i != resolved_control_flow_rs1_i)) &&
+      (resolved_control_flow_imm_i == '0);
   assign resolved_return_stack_push = resolved_control_flow_occurred_i &&
       resolved_control_flow_taken_i && resolved_rd_is_link_register &&
       ((resolved_control_flow_op_i == CF_JAL) ||
@@ -383,6 +525,12 @@ module riscv32_fetch_control_flow_predictor
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     $onehot0(lookup_branch_target_hit_way_vector))
   else $error("multiple BTB ways matched the same lookup PC");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    fetch_correction_req_valid_o |->
+      (response_fetch_entry_valid_i && response_fetch_entry_ready_i &&
+       (fetch_correction_req_o.target_pc[1:0] == 2'b00)))
+  else $error("fetch correction was emitted without a valid aligned response handshake");
 `endif
 
 endmodule

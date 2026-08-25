@@ -31,10 +31,19 @@ module riscv32_pipeline_control_tb;
   program_counter_t ifu_predictor_lookup_pc;
   program_counter_t predictor_selected_lookup_pc;
   branch_prediction_t predictor_lookup_prediction;
+  fetch_control_flow_prediction_context_t predictor_lookup_context;
   program_counter_t predictor_lookup_next_pc;
+  fetch_entry_t predictor_response_fetch_entry;
+  fetch_control_flow_prediction_context_t predictor_response_context;
+  logic predictor_response_fetch_entry_valid;
+  logic predictor_response_fetch_entry_ready;
+  fetch_entry_t predictor_corrected_fetch_entry;
+  redirect_req_t predictor_fetch_correction_req;
+  logic predictor_fetch_correction_req_valid;
   logic             predictor_test_override;
   program_counter_t predictor_resolved_control_flow_pc;
   program_counter_t predictor_resolved_control_flow_target;
+  xlen_data_t        predictor_resolved_control_flow_imm;
   control_flow_op_e predictor_resolved_control_flow_op;
   arch_reg_idx_t    predictor_resolved_control_flow_rs1;
   arch_reg_idx_t    predictor_resolved_control_flow_rd;
@@ -95,6 +104,7 @@ module riscv32_pipeline_control_tb;
       .redirect_req_valid_i      (ifu_redirect_req_valid),
       .next_pc_predictor_lookup_pc_o(ifu_predictor_lookup_pc),
       .next_pc_predictor_prediction_i(predictor_lookup_prediction),
+      .next_pc_predictor_context_i(predictor_lookup_context),
       .next_pc_predictor_next_pc_i(predictor_lookup_next_pc),
       .icache_lookup_req_o       (icache_lookup_req),
       .icache_lookup_req_valid_o (icache_lookup_req_valid),
@@ -104,7 +114,8 @@ module riscv32_pipeline_control_tb;
       .icache_lookup_resp_ready_o(icache_lookup_resp_ready),
       .fetch_entry_o             (ifu_fetch_entry),
       .fetch_entry_valid_o       (ifu_fetch_entry_valid),
-      .fetch_entry_ready_i       (ifu_fetch_entry_ready)
+      .fetch_entry_ready_i       (ifu_fetch_entry_ready),
+      .fetch_prediction_context_o()
   );
 
   riscv32_decode_execute_stage u_decode_execute_stage (
@@ -138,9 +149,18 @@ module riscv32_pipeline_control_tb;
       .rst_ni                               (rst_ni),
       .lookup_pc_i                          (predictor_selected_lookup_pc),
       .lookup_prediction_o                  (predictor_lookup_prediction),
+      .lookup_context_o                     (predictor_lookup_context),
       .lookup_next_pc_o                     (predictor_lookup_next_pc),
+      .response_fetch_entry_i              (predictor_response_fetch_entry),
+      .response_context_i                  (predictor_response_context),
+      .response_fetch_entry_valid_i        (predictor_response_fetch_entry_valid),
+      .response_fetch_entry_ready_i        (predictor_response_fetch_entry_ready),
+      .corrected_fetch_entry_o             (predictor_corrected_fetch_entry),
+      .fetch_correction_req_o              (predictor_fetch_correction_req),
+      .fetch_correction_req_valid_o        (predictor_fetch_correction_req_valid),
       .resolved_control_flow_pc_i          (predictor_resolved_control_flow_pc),
       .resolved_control_flow_target_i      (predictor_resolved_control_flow_target),
+      .resolved_control_flow_imm_i         (predictor_resolved_control_flow_imm),
       .resolved_control_flow_op_i          (predictor_resolved_control_flow_op),
       .resolved_control_flow_rs1_i         (predictor_resolved_control_flow_rs1),
       .resolved_control_flow_rd_i          (predictor_resolved_control_flow_rd),
@@ -304,8 +324,13 @@ module riscv32_pipeline_control_tb;
   task automatic clear_predictor_inputs;
     predictor_lookup_pc                     = '0;
     predictor_test_override                 = 1'b1;
+    predictor_response_fetch_entry          = '0;
+    predictor_response_context              = '0;
+    predictor_response_fetch_entry_valid    = 1'b0;
+    predictor_response_fetch_entry_ready    = 1'b0;
     predictor_resolved_control_flow_pc       = '0;
     predictor_resolved_control_flow_target   = '0;
+    predictor_resolved_control_flow_imm      = '0;
     predictor_resolved_control_flow_op       = CF_NONE;
     predictor_resolved_control_flow_rs1      = '0;
     predictor_resolved_control_flow_rd       = '0;
@@ -328,6 +353,27 @@ module riscv32_pipeline_control_tb;
     assert (!predictor_lookup_prediction.predicted_taken &&
             (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
       else $fatal(1, "cold BTB lookup did not select the sequential PC");
+
+    // 请求侧BTB冷失效时，返回级预译码仍能从JAL立即数得到精确目标。只有当前entry
+    // 真正被下游接收时才发出纠正，避免反压期间提前改变IFU epoch。
+    predictor_response_fetch_entry = make_fetch_entry(JAL_PC, instruction_t'(32'h0080_006f));
+    predictor_response_fetch_entry.prediction = predictor_lookup_prediction;
+    predictor_response_fetch_entry_valid = 1'b1;
+    predictor_response_fetch_entry_ready = 1'b0;
+    #1;
+    assert (predictor_corrected_fetch_entry.prediction.predicted_taken &&
+            (predictor_corrected_fetch_entry.prediction.predicted_target == JAL_TARGET) &&
+            !predictor_fetch_correction_req_valid)
+      else $fatal(1, "response JAL predecode ignored backpressure or computed a wrong target");
+
+    predictor_response_fetch_entry_ready = 1'b1;
+    #1;
+    assert (predictor_fetch_correction_req_valid &&
+            (predictor_fetch_correction_req.target_pc == JAL_TARGET) &&
+            (predictor_fetch_correction_req.reason == REDIRECT_FETCH_CORRECTION))
+      else $fatal(1, "response JAL predecode did not emit the required fetch correction");
+    predictor_response_fetch_entry_valid = 1'b0;
+    predictor_response_fetch_entry_ready = 1'b0;
 
     // JAL在EX解析后把类型和目标写入BTB，后续请求同一PC应直接给出taken目标。
     predictor_resolved_control_flow_pc       = JAL_PC;
@@ -375,6 +421,20 @@ module riscv32_pipeline_control_tb;
             (predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES)))
       else $fatal(1, "BHT saturating counter did not learn repeated not-taken outcomes");
 
+    // 即使BTB没有目标项，响应预译码也可用请求时冻结的BHT方向和B立即数纠正后继PC。
+    predictor_response_fetch_entry =
+        make_fetch_entry(program_counter_t'('h8000_0600), instruction_t'(32'h0000_0463));
+    predictor_response_context = '0;
+    predictor_response_context.conditional_branch_predicted_taken = 1'b1;
+    predictor_response_fetch_entry_valid = 1'b1;
+    predictor_response_fetch_entry_ready = 1'b1;
+    #1;
+    assert (predictor_fetch_correction_req_valid &&
+            (predictor_fetch_correction_req.target_pc == program_counter_t'('h8000_0608)))
+      else $fatal(1, "response branch predecode did not apply the saved BHT direction");
+    predictor_response_fetch_entry_valid = 1'b0;
+    predictor_response_fetch_entry_ready = 1'b0;
+
     // return本身必须先在BTB中被识别为return。此时RAS为空，解析该return的pop不会
     // 改变栈状态；随后解析call，把PC+4压入RAS，再查询return的请求侧预测。
     predictor_resolved_control_flow_pc       = BRANCH_PC;
@@ -405,6 +465,22 @@ module riscv32_pipeline_control_tb;
             (predictor_lookup_next_pc ==
              CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
       else $fatal(1, "return-address stack did not predict the resolved call return target");
+
+    // cold BTB下的标准ret可以在指令返回时采用请求时保存的RAS目标；一般JALR因目标
+    // 依赖rs1值，不在该层猜测。
+    predictor_response_fetch_entry =
+        make_fetch_entry(program_counter_t'('h8000_0700), instruction_t'(32'h0000_8067));
+    predictor_response_context = '0;
+    predictor_response_context.return_target_present = 1'b1;
+    predictor_response_context.return_target = program_counter_t'('h8000_070c);
+    predictor_response_fetch_entry_valid = 1'b1;
+    predictor_response_fetch_entry_ready = 1'b1;
+    #1;
+    assert (predictor_fetch_correction_req_valid &&
+            (predictor_fetch_correction_req.target_pc == program_counter_t'('h8000_070c)))
+      else $fatal(1, "response return predecode did not apply the saved RAS target");
+    predictor_response_fetch_entry_valid = 1'b0;
+    predictor_response_fetch_entry_ready = 1'b0;
 
     // fence.i必须清除BTB可见性，防止软件改写指令后继续使用旧目标。
     predictor_invalidate = 1'b1;

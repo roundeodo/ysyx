@@ -246,7 +246,8 @@ package riscv32_pkg;
     REDIRECT_MRET              = 3'd3,
     REDIRECT_MEMORY_REPLAY     = 3'd4,
     REDIRECT_DEBUG             = 3'd5,
-    REDIRECT_FENCE_I           = 3'd6
+    REDIRECT_FENCE_I           = 3'd6,
+    REDIRECT_FETCH_CORRECTION  = 3'd7
   } redirect_reason_e;
 
   typedef enum logic [1:0] {
@@ -512,6 +513,15 @@ package riscv32_pkg;
     logic             predicted_taken;
     program_counter_t predicted_target;
   } branch_prediction_t;
+
+  // 请求侧预测时还不知道返回指令的opcode，因此把BHT方向和RAS栈顶作为请求上下文
+  // 保存到IFU。该上下文只跟随唯一在途的I-cache lookup，不进入fetch buffer和执行流水线，
+  // 避免为所有在途指令重复保存只供响应预译码使用的预测元数据。
+  typedef struct packed {
+    logic             conditional_branch_predicted_taken;
+    logic             return_target_present;
+    program_counter_t return_target;
+  } fetch_control_flow_prediction_context_t;
 
   typedef struct packed {
     // fetch entry是架构取指信息，不是总线payload。
