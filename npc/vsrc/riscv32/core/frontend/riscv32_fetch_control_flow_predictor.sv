@@ -75,10 +75,19 @@ module riscv32_fetch_control_flow_predictor
     branch_target_kind_e kind;
   } branch_target_entry_t;
 
+  typedef struct packed {
+    logic                  present;
+    branch_history_index_t entry_index;
+    logic                  branch_taken;
+  } branch_history_update_t;
+
   branch_target_entry_t branch_target_entry_array_q[BTB_SET_COUNT][BTB_WAY_COUNT];
   branch_target_way_index_t branch_target_replacement_way_q[BTB_SET_COUNT];
   logic [1:0] branch_history_counter_array_q[BHT_ENTRY_COUNT];
   program_counter_t return_stack_pc_array_q[RAS_ENTRY_COUNT];
+
+  branch_history_update_t branch_history_update_d;
+  branch_history_update_t branch_history_update_q;
 
   branch_target_index_t lookup_branch_target_index;
   branch_target_tag_t lookup_branch_target_tag;
@@ -86,6 +95,7 @@ module riscv32_fetch_control_flow_predictor
   logic [BTB_WAY_COUNT-1:0] lookup_branch_target_hit_way_vector;
   logic lookup_branch_target_present;
   branch_history_index_t lookup_branch_history_index;
+  logic [1:0] lookup_branch_history_counter;
   logic conditional_branch_predicted_taken;
   logic predicted_taken;
   program_counter_t predicted_target_pc;
@@ -205,8 +215,19 @@ module riscv32_fetch_control_flow_predictor
   )-1:$clog2(
       INSTRUCTION_BYTES
   )];
-  assign conditional_branch_predicted_taken =
-      branch_history_counter_array_q[lookup_branch_history_index][1];
+
+  // BHT训练请求先寄存一级，切断“EX控制流解析 -> BHT数组写口”的长组合路径。查询侧在
+  // 索引相同时旁路尚未落入数组的训练结果，使连续访问同一BHT entry时仍看到最新状态。
+  always_comb begin
+    lookup_branch_history_counter = branch_history_counter_array_q[lookup_branch_history_index];
+    if (branch_history_update_q.present &&
+        (branch_history_update_q.entry_index == lookup_branch_history_index)) begin
+      lookup_branch_history_counter = update_branch_history_counter(
+          lookup_branch_history_counter, branch_history_update_q.branch_taken
+      );
+    end
+  end
+  assign conditional_branch_predicted_taken = lookup_branch_history_counter[1];
 
   assign return_stack_top_index = decrement_return_stack_index(return_stack_write_index_q);
   assign return_stack_top_pc = return_stack_pc_array_q[return_stack_top_index];
@@ -387,6 +408,14 @@ module riscv32_fetch_control_flow_predictor
       INSTRUCTION_BYTES
   )];
 
+  always_comb begin
+    branch_history_update_d              = '0;
+    branch_history_update_d.present      = resolved_control_flow_occurred_i &&
+                                           (resolved_control_flow_op_i == CF_BRANCH);
+    branch_history_update_d.entry_index  = resolved_branch_history_index;
+    branch_history_update_d.branch_taken = resolved_control_flow_taken_i;
+  end
+
   assign resolved_rd_is_link_register = is_link_register(resolved_control_flow_rd_i);
   assign resolved_rs1_is_link_register = is_link_register(resolved_control_flow_rs1_i);
   // RISC-V用x1/x5的rd/rs1组合向硬件提示call、return和协程式pop+push。
@@ -457,19 +486,28 @@ module riscv32_fetch_control_flow_predictor
     end
   end
 
+  // 训练流水寄存器只保存BHT写口需要的信息。它可以每拍接收一次更新，不降低连续分支
+  // 的训练吞吐；BTB和RAS仍在解析周期更新，因为它们不在当前最慢的BHT写入路径上。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      branch_history_update_q <= '0;
+    end else begin
+      branch_history_update_q <= branch_history_update_d;
+    end
+  end
+
   // 00/01预测不跳，10/11预测跳转。只用已解析条件分支训练方向，不让JAL/JALR
-  // 污染方向历史。
+  // 污染方向历史。数组写入比控制流解析晚一拍，查询旁路保持预测状态的可见时序不变。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       for (int unsigned entry = 0; entry < BHT_ENTRY_COUNT; entry++) begin
         branch_history_counter_array_q[entry] <= 2'b01;
       end
-    end else if (resolved_control_flow_occurred_i &&
-                 (resolved_control_flow_op_i == CF_BRANCH)) begin
-      branch_history_counter_array_q[resolved_branch_history_index] <=
+    end else if (branch_history_update_q.present) begin
+      branch_history_counter_array_q[branch_history_update_q.entry_index] <=
           update_branch_history_counter(
-          branch_history_counter_array_q[resolved_branch_history_index],
-          resolved_control_flow_taken_i
+          branch_history_counter_array_q[branch_history_update_q.entry_index],
+          branch_history_update_q.branch_taken
       );
     end
   end
