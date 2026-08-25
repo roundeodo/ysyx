@@ -49,9 +49,15 @@ module riscv32_icache_miss_unit
     output icache_tag_t       metadata_write_tag_o,
     output logic              metadata_write_line_present_o,
 
-    // 占用状态供I-cache顶层阻塞新lookup；事件脉冲供PMU统计miss和refill行为。
-    output logic          miss_transaction_present_o,
-    output icache_event_t event_o
+    // 当前回填line的进度允许I-cache读取已经落入data array的word。这里不复制
+    // cache line数据，只暴露MSHR已有的地址/way和逐word完成状态。
+    output phys_addr_t                              active_refill_line_base_addr_o,
+    output icache_way_index_t                       active_refill_way_index_o,
+    output logic [ICACHE_WORDS_PER_LINE-1:0]        refill_word_present_vector_o,
+
+    // 占用状态供I-cache限制新lookup；事件脉冲供PMU统计miss和refill行为。
+    output logic                                    miss_transaction_present_o,
+    output icache_event_t                           event_o
 );
 
   // 单MSHR的状态、上下文寄存器和握手派生信号。
@@ -100,6 +106,11 @@ module riscv32_icache_miss_unit
   logic lookup_resp_access_fault_q, lookup_resp_access_fault_d;
   logic lookup_resp_present_q, lookup_resp_present_d;
   logic lookup_response_generated_q, lookup_response_generated_d;
+
+  // 每一位表示对应word已经在更早的周期成功写入data array。该向量只保存完成状态，
+  // 不保存第二份数据，因此开销随line中的word数增长，而不是随整条line的数据位数增长。
+  logic [ICACHE_WORDS_PER_LINE-1:0] refill_word_present_vector_q;
+  logic [ICACHE_WORDS_PER_LINE-1:0] refill_word_present_vector_d;
 
   // 以下信号只描述当前周期发生的事件，不保存跨周期状态。
   logic miss_req_handshake;
@@ -151,6 +162,10 @@ module riscv32_icache_miss_unit
     metadata_write_way_index_o    = miss_context_q.replacement_way_index;
     metadata_write_tag_o          = refill_tag;
     metadata_write_line_present_o = 1'b0;
+    active_refill_line_base_addr_o = miss_context_q.lookup_req.fetch_addr;
+    active_refill_line_base_addr_o[ICACHE_LINE_OFFSET_W-1:0] = '0;
+    active_refill_way_index_o      = miss_context_q.replacement_way_index;
+    refill_word_present_vector_o   = refill_word_present_vector_q;
     miss_transaction_present_o    = (state_q != MISS_IDLE);
 
     unique case (state_q)
@@ -208,6 +223,7 @@ module riscv32_icache_miss_unit
     lookup_resp_access_fault_d     = lookup_resp_access_fault_q;
     lookup_resp_present_d          = lookup_resp_present_q;
     lookup_response_generated_d    = lookup_response_generated_q;
+    refill_word_present_vector_d   = refill_word_present_vector_q;
 
     // IFU接收响应只清空响应缓冲，不立即释放MSHR。若剩余line尚未refill完成，状态机
     // 仍留在RECEIVE；这正是critical-word-first能与后续beat传输重叠的基础。
@@ -227,6 +243,7 @@ module riscv32_icache_miss_unit
           lookup_resp_access_fault_d  = 1'b0;
           lookup_resp_present_d       = 1'b0;
           lookup_response_generated_d = 1'b0;
+          refill_word_present_vector_d = '0;
           state_d                     = MISS_SEND_REFILL_REQUEST;
         end
       end
@@ -242,6 +259,14 @@ module riscv32_icache_miss_unit
         if (refill_resp_handshake) begin
           // 当前beat已由本模块接收，把错误永久累计到本次事务。
           refill_access_fault_seen_d = refill_access_fault_seen_q || refill_resp_i.access_fault;
+
+          // 只有真正写入data array的word才能对后续lookup可见。任一beat报错后清空
+          // 可见向量，阻止新的回填旁路请求；此前已交付的critical word无需撤销。
+          if (refill_resp_i.access_fault) begin
+            refill_word_present_vector_d = '0;
+          end else if (data_write_valid_o) begin
+            refill_word_present_vector_d[refill_resp_i.word_index] = 1'b1;
+          end
 
           // critical word握手后立即生成唯一一次lookup response，不等待整条line完成。
           if (!lookup_response_generated_q && current_refill_word_is_critical) begin
@@ -286,6 +311,7 @@ module riscv32_icache_miss_unit
         lookup_resp_access_fault_d  = 1'b0;
         lookup_resp_present_d       = 1'b0;
         lookup_response_generated_d = 1'b0;
+        refill_word_present_vector_d = '0;
       end
     endcase
   end
@@ -316,9 +342,11 @@ module riscv32_icache_miss_unit
     if (!rst_ni) begin
       lookup_resp_present_q       <= 1'b0;
       lookup_response_generated_q <= 1'b0;
+      refill_word_present_vector_q <= '0;
     end else begin
       lookup_resp_present_q       <= lookup_resp_present_d;
       lookup_response_generated_q <= lookup_response_generated_d;
+      refill_word_present_vector_q <= refill_word_present_vector_d;
     end
   end
 
