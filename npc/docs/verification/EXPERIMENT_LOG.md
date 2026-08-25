@@ -1078,3 +1078,29 @@ round-robin不会固定饿死数据侧。
 0.284193 IPC、27541.640 um^2等数字不能用于评价本版本。当前单MSHR和完整line返回后才恢复
 LSU仍是阻塞式检查点；面向AI目标的store buffer、writeback queue、hit-under-miss、多MSHR、
 banked array和按ID多在途互联尚未实现。
+
+## 2026-08-25 - Branchsim首轮分支预测探索
+
+- Commit：`uncommitted`
+- 架构决策：`D008`
+- 工作负载和规模：MicroBench / `test`
+- 构建配置：RV32 NEMU退休控制流trace
+- 命令：`make branchsim-trace BRANCH_TRACE_SCALE=test && make branchsim-explore`
+- 功能结果：MicroBench通过，Branchsim定向测试通过
+
+| 指标 | 当前16项bimodal+JAL | gshare256/history4+BTB32+RAS8 |
+| --- | ---: | ---: |
+| 退休指令 | 727206 | 727206 |
+| 控制流指令 | 193720 | 193720 |
+| 预测错误 | 16077 | 9705 |
+| MPKI | 22.108 | 13.346 |
+| 5级单发射理想IPC | 0.9577 | 0.9740 |
+| 预测状态存储估算 | 32 bit | 2568 bit |
+
+当前11125条JALR在无目标预测时全部出错，是首要控制流缺口。RAS8减少约3727次返回错误；
+BTB32+RAS8将JALR目标错误降至5632次。BTB继续扩大到64/128项没有收益，256项只减少1次，
+因此不应继续用容量换取无效状态。gshare256/history4把条件分支方向错误从4952降至4073。
+
+结果文件：`result/branch/branchsim_riscv32_test_exploration.csv`。本trace包含启动和测试框架，
+且Branchsim不模拟错误路径污染、预测训练时序和真实存储阻塞；最终RTL决策仍需train、AI
+runtime代表性trace、RTL PMU、综合和STA共同确认。

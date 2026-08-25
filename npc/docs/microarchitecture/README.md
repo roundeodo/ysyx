@@ -45,6 +45,8 @@
   前端演进的路径。
 - [`DCACHE_DESIGN_RECORD.md`](DCACHE_DESIGN_RECORD.md)：首版write-back/write-allocate
   D-cache、PMA路由、I/D共享内存仲裁和面向AI负载的后续演进边界。
+- [`BRANCH_PREDICTION_DESIGN_RECORD.md`](BRANCH_PREDICTION_DESIGN_RECORD.md)：退休控制流
+  trace、Branchsim设计空间探索以及方向、间接目标和返回预测的演进依据。
 - [`PIPELINE_DESIGN_RECORD.md`](PIPELINE_DESIGN_RECORD.md)：顺序流水级边界、RAW/结构/
   控制冒险、精确flush和后续forwarding路线。
 - [`EXPERIMENT_LOG.md`](../verification/EXPERIMENT_LOG.md)：I-cache接入前基线和后续实验结果。

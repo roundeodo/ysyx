@@ -407,6 +407,13 @@ miss处理和直接AXI burst refill/writeback；writeback queue、store buffer�
 AW/W/B通道。该结构满足当前单端口SRAM/DRAM和单在途顺序核；AI目标配置必须进一步评估
 多bank L1、多个AXI ID、独立I/D端口或L2互联，不能无限扩展这一单在途仲裁器。
 
+### D008：分开建设方向、间接目标和返回预测
+
+当前16项bimodal BHT只解决条件分支方向，JAL使用立即数直接形成目标，JALR仍由EX纠错。
+Branchsim首轮结果表明，单纯扩大BHT的收益明显低于加入RAS和小型BTB。下一版前端采用
+参数化方向预测器、32项JALR BTB和8项RAS；gshare是否替换bimodal由train及AI workload
+trace、综合面积和STA共同决定。长期乱序核必须增加FTQ历史检查点和错误预测历史恢复。
+
 ## 15. 变更流程
 
 修改冻结决策时必须：
