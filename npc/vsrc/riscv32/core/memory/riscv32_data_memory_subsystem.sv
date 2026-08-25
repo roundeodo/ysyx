@@ -199,14 +199,16 @@ module riscv32_data_memory_subsystem
   );
 
   // clean写回在没有LSU事务时也会使用D-cache AXI端口，因此不能只按route_state选择。
-  // 正常事务由握手时锁存的route_state决定；IDLE中的uncached请求保留首拍AXI旁路。
+  // 普通事务只使用请求握手后锁存的route_state选择AXI来源。D-cache首拍仅启动array
+  // lookup，uncached adapter首拍仅锁存请求，两者都不会在IDLE首拍发出有效AXI请求；
+  // 因此不能用当前请求的PMA结果组合选择AXI输出，否则会重新形成EX -> LSU -> PMA ->
+  // data AXI output的长路径。
   always_comb begin
     axi_manager_o = '0;
     dcache_axi_response = '0;
     uncached_axi_response = '0;
 
-    if (dcache_clean_req_i || route_state_q == DATA_ROUTE_DCACHE ||
-        (route_state_q == DATA_ROUTE_IDLE && dcache_req_valid)) begin
+    if (dcache_clean_req_i || route_state_q == DATA_ROUTE_DCACHE) begin
       axi_manager_o = dcache_axi_manager;
       dcache_axi_response = axi_manager_i;
     end else begin
