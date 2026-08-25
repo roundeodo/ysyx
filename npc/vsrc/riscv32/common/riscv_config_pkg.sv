@@ -87,7 +87,6 @@ package riscv_config_pkg;
   // 旧响应排空前最多发生这两次redirect，因此使用4个epoch值。未来增加多个在途
   // 取指时，必须重新证明tag和epoch的不回绕窗口，不能在子模块中私自加宽。
   localparam int unsigned FRONTEND_TAG_COUNT = 2;
-  localparam int unsigned PREDICTOR_META_WIDTH = 32;
   //
   // I-cache容量、路数与line大小由Makefile唯一选择；set数量、tag/offset宽度、
   // data array深度和AXI4 burst长度全部由下游派生，禁止逐模块修改。

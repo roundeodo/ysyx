@@ -9,9 +9,9 @@ PROJECT ?= riscv32
 # ISA语义和模块协议，只改变被实例化的微架构资源。默认值来自同一workload、同一
 # NanGate45流程的A/B实验；命令行仍可覆盖参数继续探索设计空间。
 ifeq ($(NPC_CONFIG),rv32-course-area)
-NPC_ICACHE_WAY_COUNT      ?= 2
+NPC_ICACHE_WAY_COUNT      ?= 1
 NPC_ICACHE_CAPACITY_BYTES ?= 64
-NPC_ICACHE_LINE_BYTES     ?= 8
+NPC_ICACHE_LINE_BYTES     ?= 16
 NPC_DCACHE_ENABLE         ?= 0
 NPC_DCACHE_WAY_COUNT      ?= 2
 NPC_DCACHE_CAPACITY_BYTES ?= 256

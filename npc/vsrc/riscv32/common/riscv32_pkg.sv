@@ -507,11 +507,12 @@ package riscv32_pkg;
   // access fault是否单独计数必须在设计记录中冻结，不能让两个监视器使用不同定义。
 
   // Frontend payloads
-  // predictor_meta is opaque outside the predictor and branch-recovery path.
+  // 当前BHT只预测方向，B/J目标可由EX重新计算；RAS目标必须随指令保存以检查目标错误。
+  // 不预留未使用的固定宽度预测器元数据。未来引入TAGE/BTB checkpoint时，应根据
+  // 恢复算法定义有明确生产者和消费者的metadata类型，再加入前端payload。
   typedef struct packed {
-    logic                            predicted_taken;
-    program_counter_t                predicted_target;
-    logic [PREDICTOR_META_WIDTH-1:0] predictor_meta;
+    logic             predicted_taken;
+    program_counter_t predicted_target;
   } branch_prediction_t;
 
   typedef struct packed {
