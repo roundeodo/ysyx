@@ -1,7 +1,7 @@
 // 取指响应处的低成本控制流预测器。
 //
 // 预测发生在指令进入fetch buffer之前，比ID/EX级恢复更早。JAL恒预测跳转；条件分支
-// 使用16项、每项2 bit的饱和方向计数器；常规JALR仍由EX解析，ret使用8项返回地址栈
+// 使用16项、每项2 bit的饱和方向计数器；常规JALR仍由EX解析，ret使用4项返回地址栈
 // 预测目标。EX独立计算真实后继PC并纠错，预测器只在控制流指令真正完成后更新状态。
 module riscv32_fetch_control_flow_predictor
   import riscv32_pkg::*;
@@ -25,7 +25,10 @@ module riscv32_fetch_control_flow_predictor
 );
   localparam int unsigned BRANCH_HISTORY_ENTRY_COUNT = 16;
   localparam int unsigned BRANCH_HISTORY_INDEX_WIDTH = $clog2(BRANCH_HISTORY_ENTRY_COUNT);
-  localparam int unsigned RETURN_STACK_ENTRY_COUNT   = 8;
+  // microbench控制流trace中RAS4与RAS8只相差250次预测错误；在当前标准单元映射下，
+  // RAS8的256个数据位会实现为触发器和选择逻辑，面积收益比不合理，因此选择RAS4。
+  // 该容量仍局限在预测器内部，将来替换成独立预测存储宏时不会改变前端接口。
+  localparam int unsigned RETURN_STACK_ENTRY_COUNT   = 4;
   localparam int unsigned RETURN_STACK_INDEX_WIDTH   = $clog2(RETURN_STACK_ENTRY_COUNT);
   localparam int unsigned RETURN_STACK_COUNT_WIDTH   = $clog2(RETURN_STACK_ENTRY_COUNT + 1);
 

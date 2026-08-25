@@ -66,6 +66,9 @@ module riscv32_sim_performance_monitor
   logic     [63:0] pipeline_execute_discard_count_q;
   logic     [63:0] fetch_prediction_redirect_count_q;
   logic     [63:0] execute_misprediction_redirect_count_q;
+  logic     [63:0] conditional_branch_correction_count_q;
+  logic     [63:0] direct_jump_correction_count_q;
+  logic     [63:0] indirect_jump_correction_count_q;
   logic            control_recovery_pending_q;
 
   logic     [63:0] conditional_branch_count_q;
@@ -268,6 +271,9 @@ module riscv32_sim_performance_monitor
       pipeline_execute_discard_count_q                    <= '0;
       fetch_prediction_redirect_count_q                   <= '0;
       execute_misprediction_redirect_count_q              <= '0;
+      conditional_branch_correction_count_q               <= '0;
+      direct_jump_correction_count_q                      <= '0;
+      indirect_jump_correction_count_q                    <= '0;
       conditional_branch_count_q              <= '0;
       conditional_branch_taken_count_q        <= '0;
       backward_branch_count_q                 <= '0;
@@ -348,6 +354,15 @@ module riscv32_sim_performance_monitor
       if (execute_misprediction_redirect_occurred_i) begin
         execute_misprediction_redirect_count_q <=
             execute_misprediction_redirect_count_q + 64'd1;
+        // 纠错事件和控制流完成来自同一个EX握手，因此可直接按实际op分类。
+        // 这组计数反映RTL预测器真实表现，不受离线trace链接地址差异影响。
+        unique case (resolved_control_flow_op_i)
+          CF_BRANCH: conditional_branch_correction_count_q <=
+              conditional_branch_correction_count_q + 64'd1;
+          CF_JAL: direct_jump_correction_count_q <= direct_jump_correction_count_q + 64'd1;
+          CF_JALR: indirect_jump_correction_count_q <= indirect_jump_correction_count_q + 64'd1;
+          default: ;
+        endcase
       end
 
       if (control_flow_resolution_occurred_i) begin
@@ -765,6 +780,9 @@ module riscv32_sim_performance_monitor
     $display("recovery redirects / fetch predictions / EX corrections: %0d / %0d / %0d",
              pipeline_control_flush_count_q, fetch_prediction_redirect_count_q,
              execute_misprediction_redirect_count_q);
+    $display("actual EX corrections by branch / JAL / JALR          : %0d / %0d / %0d",
+             conditional_branch_correction_count_q, direct_jump_correction_count_q,
+             indirect_jump_correction_count_q);
     $display("pipeline execute discards             : %0d", pipeline_execute_discard_count_q);
     $display("");
     $display("resolved control-flow profile");
