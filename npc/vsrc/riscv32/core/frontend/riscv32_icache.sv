@@ -391,11 +391,13 @@ module riscv32_icache
       lookup_s1_present_d = lookup_req_handshake;
       lookup_uses_refill_word_s1_d = 1'b0;
       if (lookup_req_handshake) begin
-        lookup_s1_d      = lookup_req_i;
-        lookup_executable_s1_d = lookup_memory_attr.executable;
-        lookup_cacheable_s1_d  = lookup_memory_attr.cacheable;
-        lookup_uses_refill_word_s1_d = miss_transaction_present;
-        lookup_refill_way_index_s1_d = active_refill_way_index;
+        lookup_s1_d                       = lookup_req_i;
+        lookup_executable_s1_d            = lookup_memory_attr.executable;
+        lookup_cacheable_s1_d             = lookup_memory_attr.cacheable;
+        lookup_uses_refill_word_s1_d = miss_transaction_present &&
+                                               lookup_req_matches_active_refill_line &&
+                                               lookup_req_refill_word_present;
+        lookup_refill_way_index_s1_d       = active_refill_way_index;
       end
     end
   end
@@ -658,6 +660,17 @@ module riscv32_icache
            (lookup_req_matches_active_refill_line && lookup_req_refill_word_present))
   )
   else $error("I-cache accepted a conflicting same-set lookup while refill was active");
+
+  a_s1_refill_word_classification_matches_accepted_lookup :
+  assert property (
+      @(posedge clk_i) disable iff (!rst_ni)
+      lookup_req_handshake |=>
+          (lookup_s1_present_q &&
+           (lookup_uses_refill_word_s1_q ==
+            $past(miss_transaction_present && lookup_req_matches_active_refill_line &&
+                  lookup_req_refill_word_present)))
+  )
+  else $error("I-cache S1 refill-word classification does not match the accepted lookup");
 
   a_refill_word_s1_request_never_dispatches_second_miss :
   assert property (
