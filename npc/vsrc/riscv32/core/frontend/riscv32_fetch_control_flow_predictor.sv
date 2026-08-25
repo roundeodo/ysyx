@@ -7,9 +7,10 @@
 module riscv32_fetch_control_flow_predictor
   import riscv32_pkg::*;
 #(
-    parameter int unsigned BRANCH_HISTORY_ENTRY_COUNT = 16,
-    parameter int unsigned BRANCH_TARGET_ENTRY_COUNT  = 32,
-    parameter int unsigned RETURN_STACK_ENTRY_COUNT   = 4
+    parameter int unsigned BHT_ENTRY_COUNT = BRANCH_HISTORY_ENTRY_COUNT,
+    parameter int unsigned BTB_ENTRY_COUNT = BRANCH_TARGET_ENTRY_COUNT,
+    parameter int unsigned BTB_WAY_COUNT   = BRANCH_TARGET_WAY_COUNT,
+    parameter int unsigned RAS_ENTRY_COUNT = RETURN_STACK_ENTRY_COUNT
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -29,15 +30,19 @@ module riscv32_fetch_control_flow_predictor
     // fence.i使可能被软件改写的指令重新可见；保存旧控制流目标的BTB也必须同步失效。
     input logic invalidate_i
 );
-  localparam int unsigned BRANCH_HISTORY_INDEX_WIDTH = $clog2(BRANCH_HISTORY_ENTRY_COUNT);
-  localparam int unsigned BRANCH_TARGET_INDEX_WIDTH  = $clog2(BRANCH_TARGET_ENTRY_COUNT);
+  localparam int unsigned BTB_SET_COUNT = BTB_ENTRY_COUNT / BTB_WAY_COUNT;
+  localparam int unsigned BRANCH_HISTORY_INDEX_WIDTH = $clog2(BHT_ENTRY_COUNT);
+  localparam int unsigned BRANCH_TARGET_INDEX_WIDTH  = $clog2(BTB_SET_COUNT);
   localparam int unsigned BRANCH_TARGET_TAG_WIDTH =
       XLEN - BRANCH_TARGET_INDEX_WIDTH - $clog2(INSTRUCTION_BYTES);
-  localparam int unsigned RETURN_STACK_INDEX_WIDTH = $clog2(RETURN_STACK_ENTRY_COUNT);
-  localparam int unsigned RETURN_STACK_COUNT_WIDTH = $clog2(RETURN_STACK_ENTRY_COUNT + 1);
+  localparam int unsigned BRANCH_TARGET_WAY_INDEX_WIDTH =
+      (BTB_WAY_COUNT > 1) ? $clog2(BTB_WAY_COUNT) : 1;
+  localparam int unsigned RETURN_STACK_INDEX_WIDTH = $clog2(RAS_ENTRY_COUNT);
+  localparam int unsigned RETURN_STACK_COUNT_WIDTH = $clog2(RAS_ENTRY_COUNT + 1);
 
   typedef logic [BRANCH_HISTORY_INDEX_WIDTH-1:0] branch_history_index_t;
   typedef logic [BRANCH_TARGET_INDEX_WIDTH-1:0]  branch_target_index_t;
+  typedef logic [BRANCH_TARGET_WAY_INDEX_WIDTH-1:0] branch_target_way_index_t;
   typedef logic [BRANCH_TARGET_TAG_WIDTH-1:0]    branch_target_tag_t;
   typedef logic [RETURN_STACK_INDEX_WIDTH-1:0]   return_stack_index_t;
   typedef logic [RETURN_STACK_COUNT_WIDTH-1:0]   return_stack_count_t;
@@ -56,13 +61,15 @@ module riscv32_fetch_control_flow_predictor
     branch_target_kind_e kind;
   } branch_target_entry_t;
 
-  branch_target_entry_t branch_target_entry_array_q[BRANCH_TARGET_ENTRY_COUNT];
-  logic [1:0] branch_history_counter_array_q[BRANCH_HISTORY_ENTRY_COUNT];
-  program_counter_t return_stack_pc_array_q[RETURN_STACK_ENTRY_COUNT];
+  branch_target_entry_t branch_target_entry_array_q[BTB_SET_COUNT][BTB_WAY_COUNT];
+  branch_target_way_index_t branch_target_replacement_way_q[BTB_SET_COUNT];
+  logic [1:0] branch_history_counter_array_q[BHT_ENTRY_COUNT];
+  program_counter_t return_stack_pc_array_q[RAS_ENTRY_COUNT];
 
   branch_target_index_t lookup_branch_target_index;
   branch_target_tag_t lookup_branch_target_tag;
   branch_target_entry_t lookup_branch_target_entry;
+  logic [BTB_WAY_COUNT-1:0] lookup_branch_target_hit_way_vector;
   logic lookup_branch_target_present;
   branch_history_index_t lookup_branch_history_index;
   logic conditional_branch_predicted_taken;
@@ -70,6 +77,9 @@ module riscv32_fetch_control_flow_predictor
   program_counter_t predicted_target_pc;
 
   branch_target_index_t resolved_branch_target_index;
+  branch_target_way_index_t resolved_branch_target_write_way;
+  logic resolved_branch_target_hit_present;
+  logic resolved_invalid_way_present;
   branch_target_tag_t resolved_branch_target_tag;
   branch_history_index_t resolved_branch_history_index;
   branch_target_kind_e resolved_branch_target_kind;
@@ -85,16 +95,21 @@ module riscv32_fetch_control_flow_predictor
   program_counter_t return_stack_top_pc;
 
   initial begin
-    if ((BRANCH_HISTORY_ENTRY_COUNT < 2) ||
-        ((BRANCH_HISTORY_ENTRY_COUNT & (BRANCH_HISTORY_ENTRY_COUNT - 1)) != 0)) begin
+    if ((BHT_ENTRY_COUNT < 2) ||
+        ((BHT_ENTRY_COUNT & (BHT_ENTRY_COUNT - 1)) != 0)) begin
       $fatal(1, "branch history entry count must be a power of two and at least 2");
     end
-    if ((BRANCH_TARGET_ENTRY_COUNT < 2) ||
-        ((BRANCH_TARGET_ENTRY_COUNT & (BRANCH_TARGET_ENTRY_COUNT - 1)) != 0)) begin
+    if ((BTB_ENTRY_COUNT < 2) ||
+        ((BTB_ENTRY_COUNT & (BTB_ENTRY_COUNT - 1)) != 0)) begin
       $fatal(1, "branch target entry count must be a power of two and at least 2");
     end
-    if ((RETURN_STACK_ENTRY_COUNT < 2) ||
-        ((RETURN_STACK_ENTRY_COUNT & (RETURN_STACK_ENTRY_COUNT - 1)) != 0)) begin
+    if ((BTB_WAY_COUNT < 1) ||
+        ((BTB_WAY_COUNT & (BTB_WAY_COUNT - 1)) != 0) ||
+        (BTB_WAY_COUNT >= BTB_ENTRY_COUNT)) begin
+      $fatal(1, "branch target way count must be a power of two smaller than entry count");
+    end
+    if ((RAS_ENTRY_COUNT < 2) ||
+        ((RAS_ENTRY_COUNT & (RAS_ENTRY_COUNT - 1)) != 0)) begin
       $fatal(1, "return stack entry count must be a power of two and at least 2");
     end
   end
@@ -107,7 +122,7 @@ module riscv32_fetch_control_flow_predictor
   function automatic return_stack_index_t increment_return_stack_index(
       input return_stack_index_t current_index
   );
-    return (current_index == return_stack_index_t'(RETURN_STACK_ENTRY_COUNT - 1)) ?
+    return (current_index == return_stack_index_t'(RAS_ENTRY_COUNT - 1)) ?
            '0 : current_index + return_stack_index_t'(1);
   endfunction
 
@@ -115,7 +130,7 @@ module riscv32_fetch_control_flow_predictor
       input return_stack_index_t current_index
   );
     return (current_index == '0) ?
-           return_stack_index_t'(RETURN_STACK_ENTRY_COUNT - 1) :
+           return_stack_index_t'(RAS_ENTRY_COUNT - 1) :
            current_index - return_stack_index_t'(1);
   endfunction
 
@@ -129,16 +144,28 @@ module riscv32_fetch_control_flow_predictor
     return (current_counter == 2'b00) ? current_counter : current_counter - 2'b01;
   endfunction
 
-  // BTB使用指令地址低位直接索引，其余PC位作为tag。数组保存的是“哪个PC、属于哪类
-  // 控制流、预测目标是什么”，而不是仅凭低位索引无条件采用历史目标。
+  // BTB使用PC低位选择set，并行比较set内各way的tag。两路组织相对同容量direct-map
+  // 只增加一个tag比较器、选择器和每set一位替换状态，却能消除热点控制流的索引冲突。
+  // 每个entry保存“哪个PC、属于哪类控制流、预测目标是什么”，不能只凭索引采用旧目标。
   assign lookup_branch_target_index =
       lookup_pc_i[BRANCH_TARGET_INDEX_WIDTH+$clog2(INSTRUCTION_BYTES)-1:
                   $clog2(INSTRUCTION_BYTES)];
   assign lookup_branch_target_tag =
       lookup_pc_i[XLEN-1:BRANCH_TARGET_INDEX_WIDTH+$clog2(INSTRUCTION_BYTES)];
-  assign lookup_branch_target_entry = branch_target_entry_array_q[lookup_branch_target_index];
-  assign lookup_branch_target_present = lookup_branch_target_entry.present &&
-      (lookup_branch_target_entry.pc_tag == lookup_branch_target_tag);
+  always_comb begin
+    lookup_branch_target_entry          = '0;
+    lookup_branch_target_hit_way_vector = '0;
+    for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
+      if (branch_target_entry_array_q[lookup_branch_target_index][way_index].present &&
+          (branch_target_entry_array_q[lookup_branch_target_index][way_index].pc_tag ==
+           lookup_branch_target_tag)) begin
+        lookup_branch_target_hit_way_vector[way_index] = 1'b1;
+        lookup_branch_target_entry =
+            branch_target_entry_array_q[lookup_branch_target_index][way_index];
+      end
+    end
+    lookup_branch_target_present = |lookup_branch_target_hit_way_vector;
+  end
 
   assign lookup_branch_history_index =
       lookup_pc_i[BRANCH_HISTORY_INDEX_WIDTH+$clog2(INSTRUCTION_BYTES)-1:
@@ -188,6 +215,30 @@ module riscv32_fetch_control_flow_predictor
                        lookup_pc_i + program_counter_t'(INSTRUCTION_BYTES);
   end
 
+  // 训练优先更新同PC的已有way，其次占用第一个invalid way；set已满时才采用本set的
+  // round-robin替换位置。这样重复执行同一控制流不会制造重复entry，也不会无故推进替换状态。
+  always_comb begin
+    resolved_branch_target_write_way  = branch_target_replacement_way_q[
+        resolved_branch_target_index
+    ];
+    resolved_branch_target_hit_present = 1'b0;
+    resolved_invalid_way_present       = 1'b0;
+
+    for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
+      if (branch_target_entry_array_q[resolved_branch_target_index][way_index].present &&
+          (branch_target_entry_array_q[resolved_branch_target_index][way_index].pc_tag ==
+           resolved_branch_target_tag)) begin
+        resolved_branch_target_write_way = branch_target_way_index_t'(way_index);
+        resolved_branch_target_hit_present = 1'b1;
+      end else if (!branch_target_entry_array_q[resolved_branch_target_index][way_index].present &&
+                   !resolved_invalid_way_present &&
+                   !resolved_branch_target_hit_present) begin
+        resolved_branch_target_write_way = branch_target_way_index_t'(way_index);
+        resolved_invalid_way_present = 1'b1;
+      end
+    end
+  end
+
   assign resolved_branch_target_index =
       resolved_control_flow_pc_i[BRANCH_TARGET_INDEX_WIDTH+$clog2(INSTRUCTION_BYTES)-1:
                                  $clog2(INSTRUCTION_BYTES)];
@@ -228,17 +279,35 @@ module riscv32_fetch_control_flow_predictor
   // payload在present=0时不可见，因此不为大数组增加无意义的复位网络。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni || invalidate_i) begin
-      for (int unsigned entry = 0; entry < BRANCH_TARGET_ENTRY_COUNT; entry++) begin
-        branch_target_entry_array_q[entry].present <= 1'b0;
+      for (int unsigned set_index = 0; set_index < BTB_SET_COUNT; set_index++) begin
+        branch_target_replacement_way_q[set_index] <= '0;
+        for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
+          branch_target_entry_array_q[set_index][way_index].present <= 1'b0;
+        end
       end
     end else if (resolved_control_flow_occurred_i) begin
-      branch_target_entry_array_q[resolved_branch_target_index].present <= 1'b1;
-      branch_target_entry_array_q[resolved_branch_target_index].pc_tag <=
+      branch_target_entry_array_q[resolved_branch_target_index][
+          resolved_branch_target_write_way
+      ].present <= 1'b1;
+      branch_target_entry_array_q[resolved_branch_target_index][
+          resolved_branch_target_write_way
+      ].pc_tag <=
           resolved_branch_target_tag;
-      branch_target_entry_array_q[resolved_branch_target_index].target_pc <=
+      branch_target_entry_array_q[resolved_branch_target_index][
+          resolved_branch_target_write_way
+      ].target_pc <=
           resolved_control_flow_target_i;
-      branch_target_entry_array_q[resolved_branch_target_index].kind <=
+      branch_target_entry_array_q[resolved_branch_target_index][
+          resolved_branch_target_write_way
+      ].kind <=
           resolved_branch_target_kind;
+
+      if (!resolved_branch_target_hit_present && !resolved_invalid_way_present) begin
+        branch_target_replacement_way_q[resolved_branch_target_index] <=
+            (resolved_branch_target_write_way ==
+             branch_target_way_index_t'(BTB_WAY_COUNT - 1)) ?
+            '0 : resolved_branch_target_write_way + branch_target_way_index_t'(1);
+      end
     end
   end
 
@@ -246,7 +315,7 @@ module riscv32_fetch_control_flow_predictor
   // 污染方向历史。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      for (int unsigned entry = 0; entry < BRANCH_HISTORY_ENTRY_COUNT; entry++) begin
+      for (int unsigned entry = 0; entry < BHT_ENTRY_COUNT; entry++) begin
         branch_history_counter_array_q[entry] <= 2'b01;
       end
     end else if (resolved_control_flow_occurred_i &&
@@ -271,7 +340,7 @@ module riscv32_fetch_control_flow_predictor
           return_stack_pc_array_q[return_stack_write_index_q] <=
               resolved_control_flow_pc_i + program_counter_t'(INSTRUCTION_BYTES);
           return_stack_write_index_q <= increment_return_stack_index(return_stack_write_index_q);
-          if (return_stack_entry_count_q != return_stack_count_t'(RETURN_STACK_ENTRY_COUNT)) begin
+          if (return_stack_entry_count_q != return_stack_count_t'(RAS_ENTRY_COUNT)) begin
             return_stack_entry_count_q <= return_stack_entry_count_q + return_stack_count_t'(1);
           end
         end
@@ -308,8 +377,12 @@ module riscv32_fetch_control_flow_predictor
   else $error("fetch predictor emitted an invalid taken prediction");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    return_stack_entry_count_q <= return_stack_count_t'(RETURN_STACK_ENTRY_COUNT))
+    return_stack_entry_count_q <= return_stack_count_t'(RAS_ENTRY_COUNT))
   else $error("return-address stack entry count exceeded its capacity");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    $onehot0(lookup_branch_target_hit_way_vector))
+  else $error("multiple BTB ways matched the same lookup PC");
 `endif
 
 endmodule

@@ -25,6 +25,7 @@ struct BranchsimConfiguration {
   uint64_t direction_entry_count = 16;
   uint64_t global_history_bit_count = 4;
   uint64_t target_entry_count = 0;
+  uint64_t target_way_count = 1;
   uint64_t return_stack_entry_count = 0;
 };
 
@@ -44,10 +45,18 @@ struct BranchsimControlFlowRecord {
   uint32_t reserved;
 };
 
+enum class TargetKind : uint8_t {
+  kConditionalBranch,
+  kDirectJump,
+  kIndirectJump,
+  kReturn,
+};
+
 struct TargetBufferEntry {
   bool present = false;
   uint64_t program_counter = 0;
   uint64_t target_program_counter = 0;
+  TargetKind kind = TargetKind::kConditionalBranch;
 };
 
 struct BranchsimStatistics {
@@ -63,6 +72,10 @@ struct BranchsimStatistics {
   uint64_t direct_jump_error_count = 0;
   uint64_t indirect_target_error_count = 0;
   uint64_t target_buffer_hit_count = 0;
+  uint64_t target_buffer_miss_count = 0;
+  uint64_t conditional_target_buffer_miss_count = 0;
+  uint64_t direct_jump_target_buffer_miss_count = 0;
+  uint64_t indirect_jump_target_buffer_miss_count = 0;
   uint64_t return_stack_prediction_count = 0;
   uint64_t correct_indirect_target_count = 0;
 };
@@ -178,6 +191,16 @@ void ValidateConfiguration(const BranchsimConfiguration &configuration) {
       !IsPowerOfTwo(configuration.target_entry_count)) {
     throw std::runtime_error("target entry count must be zero or a power of two");
   }
+  if (!IsPowerOfTwo(configuration.target_way_count) ||
+      (configuration.target_entry_count != 0 &&
+       configuration.target_way_count > configuration.target_entry_count)) {
+    throw std::runtime_error(
+        "target way count must be a power of two no larger than target entries");
+  }
+  if (configuration.target_entry_count != 0 &&
+      configuration.target_entry_count % configuration.target_way_count != 0) {
+    throw std::runtime_error("target entries must be divisible by target ways");
+  }
 }
 
 std::vector<BranchsimControlFlowRecord> ReadTrace(
@@ -227,12 +250,13 @@ class DirectionPredictor {
                            : 0,
                        1) {}
 
-  bool Predict(uint64_t program_counter, uint32_t instruction) const {
+  bool Predict(uint64_t program_counter,
+               uint64_t conditional_branch_target) const {
     switch (configuration_.predictor_kind) {
       case PredictorKind::kSequential:
         return false;
       case PredictorKind::kBackwardTakenForwardNotTaken:
-        return DecodeConditionalBranchImmediate(instruction) < 0;
+        return conditional_branch_target < program_counter;
       case PredictorKind::kBimodal:
       case PredictorKind::kGshare:
         return counter_array_[CalculateIndex(program_counter)] >= 2;
@@ -279,47 +303,75 @@ class DirectionPredictor {
   uint64_t global_branch_history_ = 0;
 };
 
-class IndirectTargetPredictor {
+class NextPcPredictor {
  public:
-  explicit IndirectTargetPredictor(const BranchsimConfiguration &configuration)
+  explicit NextPcPredictor(const BranchsimConfiguration &configuration)
       : target_buffer_(configuration.target_entry_count),
+        target_way_count_(configuration.target_way_count),
+        target_set_count_(configuration.target_entry_count == 0
+                              ? 0
+                              : configuration.target_entry_count /
+                                    configuration.target_way_count),
+        replacement_way_array_(target_set_count_, 0),
         return_stack_capacity_(configuration.return_stack_entry_count) {}
 
-  bool Predict(uint64_t program_counter, bool return_stack_pop_requested,
-               uint64_t *target_program_counter, bool *used_return_stack,
-               bool *target_buffer_hit) const {
-    *used_return_stack = false;
-    *target_buffer_hit = false;
-
-    if (return_stack_pop_requested && !return_stack_.empty()) {
-      *target_program_counter = return_stack_.back();
-      *used_return_stack = true;
-      return true;
-    }
+  const TargetBufferEntry *LookupTargetBuffer(uint64_t program_counter) const {
     if (target_buffer_.empty()) {
-      return false;
+      return nullptr;
     }
+    const uint64_t set_index =
+        (program_counter >> 2) & (target_set_count_ - 1);
+    for (uint64_t way_index = 0; way_index < target_way_count_; ++way_index) {
+      const TargetBufferEntry &entry =
+          target_buffer_[set_index * target_way_count_ + way_index];
+      if (entry.present && entry.program_counter == program_counter) {
+        return &entry;
+      }
+    }
+    return nullptr;
+  }
 
-    const TargetBufferEntry &entry =
-        target_buffer_[(program_counter >> 2) & (target_buffer_.size() - 1)];
-    if (!entry.present || entry.program_counter != program_counter) {
-      return false;
+  uint64_t PredictTarget(const TargetBufferEntry &entry,
+                         bool *used_return_stack) const {
+    *used_return_stack = false;
+    if (entry.kind == TargetKind::kReturn && !return_stack_.empty()) {
+      *used_return_stack = true;
+      return return_stack_.back();
     }
-    *target_program_counter = entry.target_program_counter;
-    *target_buffer_hit = true;
-    return true;
+    return entry.target_program_counter;
   }
 
   void UpdateTargetBuffer(uint64_t program_counter,
-                          uint64_t target_program_counter) {
+                          uint64_t target_program_counter,
+                          TargetKind kind) {
     if (target_buffer_.empty()) {
       return;
     }
+    const uint64_t set_index =
+        (program_counter >> 2) & (target_set_count_ - 1);
+    uint64_t selected_way = target_way_count_;
+    for (uint64_t way_index = 0; way_index < target_way_count_; ++way_index) {
+      const TargetBufferEntry &candidate =
+          target_buffer_[set_index * target_way_count_ + way_index];
+      if (candidate.present && candidate.program_counter == program_counter) {
+        selected_way = way_index;
+        break;
+      }
+      if (!candidate.present && selected_way == target_way_count_) {
+        selected_way = way_index;
+      }
+    }
+    if (selected_way == target_way_count_) {
+      selected_way = replacement_way_array_[set_index];
+      replacement_way_array_[set_index] =
+          (replacement_way_array_[set_index] + 1) % target_way_count_;
+    }
     TargetBufferEntry &entry =
-        target_buffer_[(program_counter >> 2) & (target_buffer_.size() - 1)];
+        target_buffer_[set_index * target_way_count_ + selected_way];
     entry.present = true;
     entry.program_counter = program_counter;
     entry.target_program_counter = target_program_counter;
+    entry.kind = kind;
   }
 
   void UpdateReturnStack(bool pop_requested, bool push_requested,
@@ -338,6 +390,9 @@ class IndirectTargetPredictor {
 
  private:
   std::vector<TargetBufferEntry> target_buffer_;
+  uint64_t target_way_count_ = 1;
+  uint64_t target_set_count_ = 0;
+  std::vector<uint64_t> replacement_way_array_;
   uint64_t return_stack_capacity_ = 0;
   std::vector<uint64_t> return_stack_;
 };
@@ -351,11 +406,20 @@ BranchsimStatistics Simulate(
   statistics.control_flow_count = header.control_flow_count;
 
   DirectionPredictor direction_predictor(configuration);
-  IndirectTargetPredictor indirect_target_predictor(configuration);
+  NextPcPredictor next_pc_predictor(configuration);
 
   for (const BranchsimControlFlowRecord &record : record_array) {
     const uint32_t opcode = record.instruction & 0x7fu;
     const uint64_t sequential_program_counter = record.program_counter + 4;
+    const TargetBufferEntry *target_buffer_entry =
+        configuration.predictor_kind == PredictorKind::kSequential
+            ? nullptr
+            : next_pc_predictor.LookupTargetBuffer(record.program_counter);
+    const bool target_buffer_hit = target_buffer_entry != nullptr;
+    statistics.target_buffer_hit_count +=
+        static_cast<uint64_t>(target_buffer_hit);
+    statistics.target_buffer_miss_count +=
+        static_cast<uint64_t>(!target_buffer_hit);
 
     if (opcode == kConditionalBranchOpcode) {
       statistics.conditional_branch_count++;
@@ -363,19 +427,28 @@ BranchsimStatistics Simulate(
           record.next_program_counter != sequential_program_counter;
       statistics.conditional_taken_count += static_cast<uint64_t>(branch_taken);
 
-      const bool predicted_taken =
-          direction_predictor.Predict(record.program_counter, record.instruction);
+      const uint64_t conditional_branch_target = static_cast<uint64_t>(
+          static_cast<int64_t>(record.program_counter) +
+          DecodeConditionalBranchImmediate(record.instruction));
+      statistics.conditional_target_buffer_miss_count +=
+          static_cast<uint64_t>(!target_buffer_hit);
+      const bool predicted_taken = target_buffer_hit &&
+          target_buffer_entry->kind == TargetKind::kConditionalBranch &&
+          direction_predictor.Predict(record.program_counter,
+                                      conditional_branch_target);
       if (predicted_taken != branch_taken) {
         statistics.conditional_direction_error_count++;
       } else if (predicted_taken) {
-        const uint64_t predicted_target = static_cast<uint64_t>(
-            static_cast<int64_t>(record.program_counter) +
-            DecodeConditionalBranchImmediate(record.instruction));
+        const uint64_t predicted_target =
+            target_buffer_entry->target_program_counter;
         if (predicted_target != record.next_program_counter) {
           statistics.conditional_direction_error_count++;
         }
       }
       direction_predictor.Update(record.program_counter, branch_taken);
+      next_pc_predictor.UpdateTargetBuffer(record.program_counter,
+                                           conditional_branch_target,
+                                           TargetKind::kConditionalBranch);
       continue;
     }
 
@@ -385,17 +458,21 @@ BranchsimStatistics Simulate(
       const bool call_occurred = IsLinkRegister(destination_register);
       statistics.call_count += static_cast<uint64_t>(call_occurred);
 
-      if (configuration.predictor_kind == PredictorKind::kSequential) {
+      const uint64_t direct_jump_target = static_cast<uint64_t>(
+          static_cast<int64_t>(record.program_counter) +
+          DecodeDirectJumpImmediate(record.instruction));
+      statistics.direct_jump_target_buffer_miss_count +=
+          static_cast<uint64_t>(!target_buffer_hit);
+      if (!target_buffer_hit ||
+          target_buffer_entry->kind != TargetKind::kDirectJump ||
+          target_buffer_entry->target_program_counter !=
+              record.next_program_counter) {
         statistics.direct_jump_error_count++;
-      } else {
-        const uint64_t predicted_target = static_cast<uint64_t>(
-            static_cast<int64_t>(record.program_counter) +
-            DecodeDirectJumpImmediate(record.instruction));
-        if (predicted_target != record.next_program_counter) {
-          statistics.direct_jump_error_count++;
-        }
       }
-      indirect_target_predictor.UpdateReturnStack(
+      next_pc_predictor.UpdateTargetBuffer(record.program_counter,
+                                           direct_jump_target,
+                                           TargetKind::kDirectJump);
+      next_pc_predictor.UpdateReturnStack(
           false, call_occurred, sequential_program_counter);
       continue;
     }
@@ -415,18 +492,20 @@ BranchsimStatistics Simulate(
       statistics.return_count +=
           static_cast<uint64_t>(return_stack_pop_requested);
 
-      uint64_t predicted_target = 0;
+      statistics.indirect_jump_target_buffer_miss_count +=
+          static_cast<uint64_t>(!target_buffer_hit);
+      uint64_t predicted_target = sequential_program_counter;
       bool used_return_stack = false;
-      bool target_buffer_hit = false;
-      const bool target_prediction_present =
-          configuration.predictor_kind != PredictorKind::kSequential &&
-          indirect_target_predictor.Predict(
-              record.program_counter, return_stack_pop_requested,
-              &predicted_target, &used_return_stack, &target_buffer_hit);
+      const bool target_prediction_present = target_buffer_hit &&
+          (target_buffer_entry->kind == TargetKind::kIndirectJump ||
+           target_buffer_entry->kind == TargetKind::kReturn);
+      if (target_prediction_present) {
+        predicted_target =
+            next_pc_predictor.PredictTarget(*target_buffer_entry,
+                                            &used_return_stack);
+      }
       statistics.return_stack_prediction_count +=
           static_cast<uint64_t>(used_return_stack);
-      statistics.target_buffer_hit_count +=
-          static_cast<uint64_t>(target_buffer_hit);
       if (target_prediction_present &&
           predicted_target == record.next_program_counter) {
         statistics.correct_indirect_target_count++;
@@ -434,9 +513,11 @@ BranchsimStatistics Simulate(
         statistics.indirect_target_error_count++;
       }
 
-      indirect_target_predictor.UpdateTargetBuffer(record.program_counter,
-                                                    record.next_program_counter);
-      indirect_target_predictor.UpdateReturnStack(
+      next_pc_predictor.UpdateTargetBuffer(
+          record.program_counter, record.next_program_counter,
+          return_stack_pop_requested ? TargetKind::kReturn
+                                     : TargetKind::kIndirectJump);
+      next_pc_predictor.UpdateReturnStack(
           return_stack_pop_requested, return_stack_push_requested,
           sequential_program_counter);
       continue;
@@ -486,12 +567,17 @@ uint64_t CalculateStorageBitCount(const BranchsimConfiguration &configuration,
     bit_count += configuration.global_history_bit_count;
   }
   if (configuration.target_entry_count != 0) {
+    const uint64_t target_set_count =
+        configuration.target_entry_count / configuration.target_way_count;
     const uint32_t index_bit_count =
-        IntegerLog2(configuration.target_entry_count);
+        IntegerLog2(target_set_count);
     const uint32_t tag_bit_count = address_bit_count - index_bit_count - 2;
-    const uint32_t target_bit_count = address_bit_count - 2;
+    const uint32_t target_bit_count = address_bit_count;
     bit_count += configuration.target_entry_count *
-                 (1 + tag_bit_count + target_bit_count);
+                 (1 + tag_bit_count + target_bit_count + 2);
+    if (configuration.target_way_count > 1) {
+      bit_count += target_set_count * IntegerLog2(configuration.target_way_count);
+    }
   }
   if (configuration.return_stack_entry_count != 0) {
     bit_count += configuration.return_stack_entry_count * address_bit_count;
@@ -529,6 +615,13 @@ void PrintStatistics(const BranchsimStatistics &statistics,
             << statistics.direct_jump_error_count << '\n';
   std::cout << "  indirect target errors     : "
             << statistics.indirect_target_error_count << '\n';
+  std::cout << "  BTB hits / misses          : "
+            << statistics.target_buffer_hit_count << " / "
+            << statistics.target_buffer_miss_count << '\n';
+  std::cout << "  BTB misses branch/JAL/JALR : "
+            << statistics.conditional_target_buffer_miss_count << " / "
+            << statistics.direct_jump_target_buffer_miss_count << " / "
+            << statistics.indirect_jump_target_buffer_miss_count << '\n';
   std::cout << "  total mispredictions       : " << misprediction_count
             << '\n';
 
@@ -558,6 +651,7 @@ void PrintStatistics(const BranchsimStatistics &statistics,
   std::cout << "history_bits=" << configuration.global_history_bit_count
             << '\n';
   std::cout << "btb_entries=" << configuration.target_entry_count << '\n';
+  std::cout << "btb_ways=" << configuration.target_way_count << '\n';
   std::cout << "ras_entries=" << configuration.return_stack_entry_count << '\n';
   std::cout << "instructions=" << statistics.instruction_count << '\n';
   std::cout << "control_flow=" << statistics.control_flow_count << '\n';
@@ -574,6 +668,16 @@ void PrintStatistics(const BranchsimStatistics &statistics,
             << '\n';
   std::cout << "indirect_target_errors="
             << statistics.indirect_target_error_count << '\n';
+  std::cout << "btb_hits=" << statistics.target_buffer_hit_count << '\n';
+  std::cout << "btb_misses=" << statistics.target_buffer_miss_count << '\n';
+  std::cout << "conditional_btb_misses="
+            << statistics.conditional_target_buffer_miss_count << '\n';
+  std::cout << "direct_jump_btb_misses="
+            << statistics.direct_jump_target_buffer_miss_count << '\n';
+  std::cout << "indirect_jump_btb_misses="
+            << statistics.indirect_jump_target_buffer_miss_count << '\n';
+  std::cout << "ras_predictions="
+            << statistics.return_stack_prediction_count << '\n';
   std::cout << "mispredictions=" << misprediction_count << '\n';
   std::cout << "accuracy="
             << 1.0 - CalculateRatio(misprediction_count,
@@ -597,7 +701,7 @@ void PrintUsage(const char *program_name) {
       << "Usage: " << program_name
       << " --trace FILE [--predictor sequential|btfnt|bimodal|gshare]"
          " [--direction-entries N] [--history-bits N]"
-         " [--btb-entries N] [--ras-entries N]\n";
+         " [--btb-entries N] [--btb-ways N] [--ras-entries N]\n";
 }
 
 }  // namespace
@@ -629,6 +733,8 @@ int main(int argc, char **argv) {
             ParseUnsigned(value, argument);
       } else if (argument == "--btb-entries") {
         configuration.target_entry_count = ParseUnsigned(value, argument);
+      } else if (argument == "--btb-ways") {
+        configuration.target_way_count = ParseUnsigned(value, argument);
       } else if (argument == "--ras-entries") {
         configuration.return_stack_entry_count = ParseUnsigned(value, argument);
       } else {

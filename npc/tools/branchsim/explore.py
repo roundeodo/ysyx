@@ -13,6 +13,7 @@ RESULT_KEYS = (
     "direction_entries",
     "history_bits",
     "btb_entries",
+    "btb_ways",
     "ras_entries",
     "instructions",
     "control_flow",
@@ -25,6 +26,12 @@ RESULT_KEYS = (
     "direction_errors",
     "direct_jump_errors",
     "indirect_target_errors",
+    "btb_hits",
+    "btb_misses",
+    "conditional_btb_misses",
+    "direct_jump_btb_misses",
+    "indirect_jump_btb_misses",
+    "ras_predictions",
     "mispredictions",
     "accuracy",
     "mpki",
@@ -40,7 +47,7 @@ def parse_integer_list(text: str):
 
 
 def run_configuration(binary, trace, configuration):
-    predictor, direction_entries, history_bits, btb_entries, ras_entries = configuration
+    predictor, direction_entries, history_bits, btb_entries, btb_ways, ras_entries = configuration
     command = [
         str(binary),
         "--trace",
@@ -53,6 +60,8 @@ def run_configuration(binary, trace, configuration):
         str(history_bits),
         "--btb-entries",
         str(btb_entries),
+        "--btb-ways",
+        str(btb_ways),
         "--ras-entries",
         str(ras_entries),
     ]
@@ -72,17 +81,19 @@ def run_configuration(binary, trace, configuration):
 
 def build_configuration_array(args):
     configuration_array = [
-        ("sequential", 1, 1, 0, 0),
-        ("btfnt", 1, 1, 0, 0),
+        ("sequential", 1, 1, 0, 1, 0),
+        ("btfnt", 1, 1, 0, 1, 0),
     ]
 
     target_configuration_array = list(
-        itertools.product(args.btb_entries, args.ras_entries)
+        itertools.product(args.btb_entries, args.btb_ways, args.ras_entries)
     )
     for direction_entries in args.direction_entries:
-        for btb_entries, ras_entries in target_configuration_array:
+        for btb_entries, btb_ways, ras_entries in target_configuration_array:
+            if btb_entries == 0 or btb_ways > btb_entries:
+                continue
             configuration_array.append(
-                ("bimodal", direction_entries, 1, btb_entries, ras_entries)
+                ("bimodal", direction_entries, 1, btb_entries, btb_ways, ras_entries)
             )
             maximum_history_bits = direction_entries.bit_length() - 1
             for history_bits in args.history_bits:
@@ -93,6 +104,7 @@ def build_configuration_array(args):
                             direction_entries,
                             history_bits,
                             btb_entries,
+                            btb_ways,
                             ras_entries,
                         )
                     )
@@ -108,6 +120,7 @@ def main() -> int:
     parser.add_argument("--direction-entries", default="16,32,64,128,256")
     parser.add_argument("--history-bits", default="2,4,6,8")
     parser.add_argument("--btb-entries", default="0,32,64")
+    parser.add_argument("--btb-ways", default="1,2")
     parser.add_argument("--ras-entries", default="0,8")
     parser.add_argument("--jobs", type=int, default=4)
     parser.add_argument("--output", required=True, type=pathlib.Path)
@@ -116,6 +129,7 @@ def main() -> int:
     args.direction_entries = parse_integer_list(args.direction_entries)
     args.history_bits = parse_integer_list(args.history_bits)
     args.btb_entries = parse_integer_list(args.btb_entries)
+    args.btb_ways = parse_integer_list(args.btb_ways)
     args.ras_entries = parse_integer_list(args.ras_entries)
 
     configuration_array = build_configuration_array(args)
@@ -149,7 +163,8 @@ def main() -> int:
             "  "
             f"{result['predictor']:10s} BHT={result['direction_entries']:>4s} "
             f"hist={result['history_bits']:>2s} "
-            f"BTB={result['btb_entries']:>3s} RAS={result['ras_entries']:>2s} "
+            f"BTB={result['btb_entries']:>3s}x{result['btb_ways']} "
+            f"RAS={result['ras_entries']:>2s} "
             f"misp={result['mispredictions']:>8s} "
             f"MPKI={float(result['mpki']):8.3f} "
             f"storage={result['storage_bits']:>7s} bits"

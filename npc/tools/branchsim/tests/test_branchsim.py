@@ -77,9 +77,10 @@ def main() -> int:
         require_equal(sequential, "control_flow", "6")
         require_equal(sequential, "mispredictions", "5")
 
+        # 请求侧预测器在BTB miss时不知道当前PC是控制流，只能采用PC+4。
         btfnt = run_branchsim(binary, trace, "--predictor", "btfnt")
-        require_equal(btfnt, "direction_errors", "1")
-        require_equal(btfnt, "mispredictions", "2")
+        require_equal(btfnt, "direction_errors", "3")
+        require_equal(btfnt, "mispredictions", "5")
 
         bimodal = run_branchsim(
             binary,
@@ -89,21 +90,25 @@ def main() -> int:
             "--direction-entries",
             "16",
         )
-        require_equal(bimodal, "direction_errors", "2")
-        require_equal(bimodal, "mispredictions", "3")
+        require_equal(bimodal, "direction_errors", "3")
+        require_equal(bimodal, "mispredictions", "5")
 
-        bimodal_with_ras = run_branchsim(
+        bimodal_with_btb_and_ras = run_branchsim(
             binary,
             trace,
             "--predictor",
             "bimodal",
             "--direction-entries",
             "16",
+            "--btb-entries",
+            "16",
             "--ras-entries",
             "4",
         )
-        require_equal(bimodal_with_ras, "indirect_target_errors", "0")
-        require_equal(bimodal_with_ras, "mispredictions", "2")
+        require_equal(bimodal_with_btb_and_ras, "direction_errors", "2")
+        require_equal(bimodal_with_btb_and_ras, "direct_jump_errors", "1")
+        require_equal(bimodal_with_btb_and_ras, "indirect_target_errors", "1")
+        require_equal(bimodal_with_btb_and_ras, "mispredictions", "4")
 
     print("branchsim directed tests passed")
     return 0

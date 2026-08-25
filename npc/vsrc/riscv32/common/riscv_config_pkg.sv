@@ -87,6 +87,12 @@ package riscv_config_pkg;
   // 旧响应排空前最多发生这两次redirect，因此使用4个epoch值。未来增加多个在途
   // 取指时，必须重新证明tag和epoch的不回绕窗口，不能在子模块中私自加宽。
   localparam int unsigned FRONTEND_TAG_COUNT = 2;
+  // 请求侧next-PC predictor的容量也属于命名配置。BTB_ENTRY_COUNT是总表项数，
+  // BTB_WAY_COUNT是每个set的路数；改变二者不能改变IFU携带prediction的协议。
+  localparam int unsigned BRANCH_HISTORY_ENTRY_COUNT = `YSYX_BRANCH_HISTORY_ENTRY_COUNT;
+  localparam int unsigned BRANCH_TARGET_ENTRY_COUNT  = `YSYX_BRANCH_TARGET_ENTRY_COUNT;
+  localparam int unsigned BRANCH_TARGET_WAY_COUNT    = `YSYX_BRANCH_TARGET_WAY_COUNT;
+  localparam int unsigned RETURN_STACK_ENTRY_COUNT   = `YSYX_RETURN_STACK_ENTRY_COUNT;
   //
   // I-cache容量、路数与line大小由Makefile唯一选择；set数量、tag/offset宽度、
   // data array深度和AXI4 burst长度全部由下游派生，禁止逐模块修改。
