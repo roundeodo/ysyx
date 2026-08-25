@@ -439,6 +439,7 @@ module riscv32_core
       .decoded_rs2_i               (decoded_uop.rs2),
       .decoded_serializing_i       (decoded_uop.serializing),
       .execute_uop_valid_i         (execute_packet_valid),
+      .execute_uop_is_lsu_i        (execute_packet.uop.fu_type == FU_LSU),
       .execute_writes_rd_i         (execute_packet.uop.writes_rd),
       .execute_rd_i                (execute_packet.uop.rd),
       .execute_serializing_i       (execute_packet.uop.serializing),
@@ -453,6 +454,7 @@ module riscv32_core
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
                                     !lsu_writeback.uop.exception_valid),
+      .lsu_completion_occurred_i   (lsu_writeback_valid && lsu_writeback_ready),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),

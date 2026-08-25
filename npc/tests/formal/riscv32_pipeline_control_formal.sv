@@ -132,6 +132,7 @@ module riscv32_pipeline_control_formal;
   (* anyseq *) arch_reg_idx_t decoded_rs2;
   (* anyseq *) logic          decoded_serializing;
   (* anyseq *) logic          execute_uop_valid;
+  (* anyseq *) logic          execute_uop_is_lsu;
   (* anyseq *) logic          execute_writes_rd;
   (* anyseq *) arch_reg_idx_t execute_rd;
   (* anyseq *) logic          execute_serializing;
@@ -145,6 +146,7 @@ module riscv32_pipeline_control_formal;
   (* anyseq *) logic          lsu_pending_writes_rd;
   (* anyseq *) arch_reg_idx_t lsu_pending_rd;
   (* anyseq *) logic          lsu_forwarding_available;
+  (* anyseq *) logic          lsu_completion_occurred;
   (* anyseq *) logic          execute_redirect_occurred;
   (* anyseq *) logic          commit_redirect_occurred;
 
@@ -179,6 +181,7 @@ module riscv32_pipeline_control_formal;
       .decoded_rs2_i                      (decoded_rs2),
       .decoded_serializing_i              (decoded_serializing),
       .execute_uop_valid_i                (execute_uop_valid),
+      .execute_uop_is_lsu_i               (execute_uop_is_lsu),
       .execute_writes_rd_i                (execute_writes_rd),
       .execute_rd_i                       (execute_rd),
       .execute_serializing_i              (execute_serializing),
@@ -192,6 +195,7 @@ module riscv32_pipeline_control_formal;
       .lsu_pending_writes_rd_i            (lsu_pending_writes_rd),
       .lsu_pending_rd_i                   (lsu_pending_rd),
       .lsu_forwarding_available_i         (lsu_forwarding_available),
+      .lsu_completion_occurred_i          (lsu_completion_occurred),
       .execute_redirect_occurred_i        (execute_redirect_occurred),
       .commit_redirect_occurred_i         (commit_redirect_occurred),
       .decode_accept_allowed_o            (decode_accept_allowed),
@@ -271,10 +275,11 @@ module riscv32_pipeline_control_formal;
 
       assert (!(raw_hazard_present || serializing_hazard_present || execute_redirect_occurred ||
                 commit_redirect_occurred) || !decode_accept_allowed);
-      assert ((raw_hazard_present || serializing_hazard_present || lsu_busy ||
+      assert ((raw_hazard_present || serializing_hazard_present || structural_hazard_present ||
                 execute_redirect_occurred || commit_redirect_occurred) ||
               (decode_accept_allowed && execute_issue_allowed));
-      assert (!lsu_busy || !execute_issue_allowed);
+      assert (!lsu_busy || !execute_issue_allowed ||
+              (execute_uop_valid && execute_uop_is_lsu && lsu_completion_occurred));
       assert (!commit_redirect_occurred || !execute_issue_allowed);
       assert (!(execute_redirect_occurred || commit_redirect_occurred) ||
               decode_execute_flush);
