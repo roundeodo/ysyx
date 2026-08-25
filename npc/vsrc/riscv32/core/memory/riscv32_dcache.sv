@@ -107,6 +107,7 @@ module riscv32_dcache
 
   riscv32_dcache_data_array u_data_array (
       .clk_i                    (clk_i),
+      .rst_ni                   (rst_ni),
       .read_enable_i            (data_read_enable),
       .read_set_index_i         (data_read_set_index),
       .read_word_index_i        (data_read_word_index),

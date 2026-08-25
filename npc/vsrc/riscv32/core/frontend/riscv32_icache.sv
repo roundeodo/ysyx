@@ -378,12 +378,12 @@ module riscv32_icache
   assign lookup_req_handshake = lookup_req_valid_i && lookup_req_ready_o;
 
   always_comb begin
-    lookup_s1_d         = lookup_s1_q;
-    lookup_executable_s1_d = lookup_executable_s1_q;
-    lookup_cacheable_s1_d  = lookup_cacheable_s1_q;
-    lookup_uses_refill_word_s1_d = lookup_uses_refill_word_s1_q;
-    lookup_refill_way_index_s1_d = lookup_refill_way_index_s1_q;
-    lookup_s1_present_d = lookup_s1_present_q;
+    lookup_s1_d                    = lookup_s1_q;
+    lookup_executable_s1_d         = lookup_executable_s1_q;
+    lookup_cacheable_s1_d          = lookup_cacheable_s1_q;
+    lookup_uses_refill_word_s1_d   = lookup_uses_refill_word_s1_q;
+    lookup_refill_way_index_s1_d   = lookup_refill_way_index_s1_q;
+    lookup_s1_present_d            = lookup_s1_present_q;
 
     if (miss_req_handshake) begin
       lookup_s1_present_d = 1'b0;
@@ -391,32 +391,32 @@ module riscv32_icache
       lookup_s1_present_d = lookup_req_handshake;
       lookup_uses_refill_word_s1_d = 1'b0;
       if (lookup_req_handshake) begin
-        lookup_s1_d                       = lookup_req_i;
-        lookup_executable_s1_d            = lookup_memory_attr.executable;
-        lookup_cacheable_s1_d             = lookup_memory_attr.cacheable;
+        lookup_s1_d                  = lookup_req_i;
+        lookup_executable_s1_d       = lookup_memory_attr.executable;
+        lookup_cacheable_s1_d        = lookup_memory_attr.cacheable;
         lookup_uses_refill_word_s1_d = miss_transaction_present &&
-                                               lookup_req_matches_active_refill_line &&
-                                               lookup_req_refill_word_present;
-        lookup_refill_way_index_s1_d       = active_refill_way_index;
+                                          lookup_req_matches_active_refill_line &&
+                                          lookup_req_refill_word_present;
+        lookup_refill_way_index_s1_d = active_refill_way_index;
       end
     end
   end
 
   always_ff @(posedge clk_i) begin
     if (!rst_ni) begin
-      lookup_s1_q         <= '0;
-      lookup_executable_s1_q <= 1'b0;
-      lookup_cacheable_s1_q  <= 1'b0;
+      lookup_s1_q                  <= '0;
+      lookup_executable_s1_q       <= 1'b0;
+      lookup_cacheable_s1_q        <= 1'b0;
       lookup_uses_refill_word_s1_q <= 1'b0;
       lookup_refill_way_index_s1_q <= '0;
-      lookup_s1_present_q <= 1'b0;
+      lookup_s1_present_q          <= 1'b0;
     end else begin
-      lookup_s1_q         <= lookup_s1_d;
-      lookup_executable_s1_q <= lookup_executable_s1_d;
-      lookup_cacheable_s1_q  <= lookup_cacheable_s1_d;
+      lookup_s1_q                  <= lookup_s1_d;
+      lookup_executable_s1_q       <= lookup_executable_s1_d;
+      lookup_cacheable_s1_q        <= lookup_cacheable_s1_d;
       lookup_uses_refill_word_s1_q <= lookup_uses_refill_word_s1_d;
       lookup_refill_way_index_s1_q <= lookup_refill_way_index_s1_d;
-      lookup_s1_present_q <= lookup_s1_present_d;
+      lookup_s1_present_q          <= lookup_s1_present_d;
     end
   end
 
