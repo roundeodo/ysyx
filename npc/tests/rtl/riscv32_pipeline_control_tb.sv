@@ -27,17 +27,20 @@ module riscv32_pipeline_control_tb;
   logic         fetch_buffer_output_ready;
   logic         fetch_buffer_flush;
 
-  fetch_entry_t   predictor_fetch_entry;
-  logic           predictor_fetch_entry_handshake_occurred;
+  program_counter_t predictor_lookup_pc;
+  program_counter_t ifu_predictor_lookup_pc;
+  program_counter_t predictor_selected_lookup_pc;
+  branch_prediction_t predictor_lookup_prediction;
+  program_counter_t predictor_lookup_next_pc;
+  logic             predictor_test_override;
   program_counter_t predictor_resolved_control_flow_pc;
+  program_counter_t predictor_resolved_control_flow_target;
   control_flow_op_e predictor_resolved_control_flow_op;
   arch_reg_idx_t    predictor_resolved_control_flow_rs1;
   arch_reg_idx_t    predictor_resolved_control_flow_rd;
   logic             predictor_resolved_control_flow_occurred;
   logic             predictor_resolved_control_flow_taken;
-  fetch_entry_t     predictor_output_entry;
-  redirect_req_t   predictor_redirect_req;
-  logic            predictor_redirect_req_valid;
+  logic             predictor_invalidate;
 
   execute_packet_t   decoded_execute_packet;
   logic              decoded_execute_packet_valid;
@@ -90,6 +93,9 @@ module riscv32_pipeline_control_tb;
       .rst_ni                    (rst_ni),
       .redirect_req_i            (ifu_redirect_req),
       .redirect_req_valid_i      (ifu_redirect_req_valid),
+      .next_pc_predictor_lookup_pc_o(ifu_predictor_lookup_pc),
+      .next_pc_predictor_prediction_i(predictor_lookup_prediction),
+      .next_pc_predictor_next_pc_i(predictor_lookup_next_pc),
       .icache_lookup_req_o       (icache_lookup_req),
       .icache_lookup_req_valid_o (icache_lookup_req_valid),
       .icache_lookup_req_ready_i (icache_lookup_req_ready),
@@ -130,18 +136,22 @@ module riscv32_pipeline_control_tb;
   riscv32_fetch_control_flow_predictor u_fetch_control_flow_predictor (
       .clk_i                                (clk),
       .rst_ni                               (rst_ni),
-      .fetch_entry_i                        (predictor_fetch_entry),
-      .fetch_entry_handshake_occurred_i     (predictor_fetch_entry_handshake_occurred),
+      .lookup_pc_i                          (predictor_selected_lookup_pc),
+      .lookup_prediction_o                  (predictor_lookup_prediction),
+      .lookup_next_pc_o                     (predictor_lookup_next_pc),
       .resolved_control_flow_pc_i          (predictor_resolved_control_flow_pc),
+      .resolved_control_flow_target_i      (predictor_resolved_control_flow_target),
       .resolved_control_flow_op_i          (predictor_resolved_control_flow_op),
       .resolved_control_flow_rs1_i         (predictor_resolved_control_flow_rs1),
       .resolved_control_flow_rd_i          (predictor_resolved_control_flow_rd),
       .resolved_control_flow_occurred_i    (predictor_resolved_control_flow_occurred),
       .resolved_control_flow_taken_i       (predictor_resolved_control_flow_taken),
-      .predicted_fetch_entry_o              (predictor_output_entry),
-      .prediction_redirect_req_o            (predictor_redirect_req),
-      .prediction_redirect_req_valid_o      (predictor_redirect_req_valid)
+      .invalidate_i                         (predictor_invalidate)
   );
+
+  assign predictor_selected_lookup_pc = predictor_test_override ?
+                                        predictor_lookup_pc :
+                                        ifu_predictor_lookup_pc;
 
   riscv32_writeback_stage u_writeback_stage (
       .clk_i                    (clk),
@@ -284,44 +294,6 @@ module riscv32_pipeline_control_tb;
     return entry;
   endfunction
 
-  function automatic instruction_t make_branch_instruction(input logic signed [12:0] immediate);
-    instruction_t instruction;
-    instruction = '0;
-    instruction[31]    = immediate[12];
-    instruction[30:25] = immediate[10:5];
-    instruction[14:12] = 3'b000;
-    instruction[11:8]  = immediate[4:1];
-    instruction[7]     = immediate[11];
-    instruction[6:0]   = OPCODE_BRANCH;
-    return instruction;
-  endfunction
-
-  function automatic instruction_t make_jal_instruction(input logic signed [20:0] immediate);
-    instruction_t instruction;
-    instruction = '0;
-    instruction[31]    = immediate[20];
-    instruction[30:21] = immediate[10:1];
-    instruction[20]    = immediate[11];
-    instruction[19:12] = immediate[19:12];
-    instruction[6:0]   = OPCODE_JAL;
-    return instruction;
-  endfunction
-
-  function automatic instruction_t make_jalr_instruction(
-      input arch_reg_idx_t destination_register,
-      input arch_reg_idx_t source_register,
-      input logic signed [11:0] immediate
-  );
-    instruction_t instruction;
-    instruction        = '0;
-    instruction[31:20] = immediate;
-    instruction[19:15] = source_register;
-    instruction[14:12] = 3'b000;
-    instruction[11:7]  = destination_register;
-    instruction[6:0]   = OPCODE_JALR;
-    return instruction;
-  endfunction
-
   task automatic clear_fetch_buffer_inputs;
     fetch_buffer_input_entry  = '0;
     fetch_buffer_input_valid  = 1'b0;
@@ -330,121 +302,118 @@ module riscv32_pipeline_control_tb;
   endtask
 
   task automatic clear_predictor_inputs;
-    predictor_fetch_entry                    = '0;
-    predictor_fetch_entry_handshake_occurred = 1'b0;
+    predictor_lookup_pc                     = '0;
+    predictor_test_override                 = 1'b1;
     predictor_resolved_control_flow_pc       = '0;
+    predictor_resolved_control_flow_target   = '0;
     predictor_resolved_control_flow_op       = CF_NONE;
     predictor_resolved_control_flow_rs1      = '0;
     predictor_resolved_control_flow_rd       = '0;
     predictor_resolved_control_flow_occurred = 1'b0;
     predictor_resolved_control_flow_taken    = 1'b0;
+    predictor_invalidate                     = 1'b0;
   endtask
 
   task automatic check_fetch_control_flow_predictor;
     localparam program_counter_t JAL_PC     = program_counter_t'('h8000_0100);
     localparam program_counter_t BRANCH_PC  = program_counter_t'('h8000_0200);
     localparam program_counter_t CALL_PC    = program_counter_t'('h8000_0300);
-    instruction_t branch_instruction;
+    localparam program_counter_t JAL_TARGET    = JAL_PC + program_counter_t'(8);
+    localparam program_counter_t BRANCH_TARGET = BRANCH_PC + program_counter_t'(8);
 
-    branch_instruction = make_branch_instruction(13'sd8);
-
-    // JAL目标由当前指令立即数直接形成，不需要BTB。只有该fetch entry实际进入
-    // fetch buffer时才允许redirect，反压期间不能重复改变IFU的取指PC。
+    // 请求侧预测器尚未见过该PC时只能顺序取指，不能凭尚未返回的指令识别JAL。
     @(negedge clk);
-    predictor_fetch_entry = make_fetch_entry(JAL_PC, make_jal_instruction(21'sd8));
+    predictor_lookup_pc = JAL_PC;
     #1;
-    assert (predictor_output_entry.prediction.predicted_taken &&
-            (predictor_output_entry.prediction.predicted_target == '0) &&
-            !predictor_redirect_req_valid)
-      else $fatal(1, "fetch predictor did not predecode JAL without firing under backpressure");
+    assert (!predictor_lookup_prediction.predicted_taken &&
+            (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+      else $fatal(1, "cold BTB lookup did not select the sequential PC");
 
-    predictor_fetch_entry_handshake_occurred = 1'b1;
-    #1;
-    assert (predictor_redirect_req_valid &&
-            (predictor_redirect_req.target_pc == JAL_PC + 8) &&
-            (predictor_redirect_req.reason == REDIRECT_FETCH_PREDICTION))
-      else $fatal(1, "fetch predictor did not redirect an accepted JAL");
-
-    // BHT复位为弱不跳转；尚未解析过的条件分支必须先走顺序路径。
-    predictor_fetch_entry = make_fetch_entry(BRANCH_PC, branch_instruction);
-    #1;
-    assert (!predictor_output_entry.prediction.predicted_taken &&
-            !predictor_redirect_req_valid &&
-            (predictor_output_entry.prediction.predicted_target == '0))
-      else $fatal(1, "fresh BHT entry did not start at weak-not-taken");
-
-    // 同一PC的真实taken结果在EX级训练方向表。两次训练把计数器从01推进到11。
-    predictor_fetch_entry_handshake_occurred = 1'b0;
-    predictor_resolved_control_flow_pc       = BRANCH_PC;
-    predictor_resolved_control_flow_op       = CF_BRANCH;
-    predictor_resolved_control_flow_occurred = 1'b1;
-    predictor_resolved_control_flow_taken    = 1'b1;
-    repeat (2) @(posedge clk);
-
-    @(negedge clk);
-    predictor_resolved_control_flow_occurred = 1'b0;
-    predictor_fetch_entry_handshake_occurred = 1'b1;
-    #1;
-    assert (predictor_output_entry.prediction.predicted_taken &&
-            predictor_redirect_req_valid &&
-            (predictor_redirect_req.target_pc == BRANCH_PC + 8))
-      else $fatal(1, "trained BHT entry did not predict the conditional branch taken");
-
-    // 两次not-taken训练把11退回01，预测应恢复顺序执行。
-    predictor_fetch_entry_handshake_occurred = 1'b0;
-    predictor_resolved_control_flow_occurred = 1'b1;
-    predictor_resolved_control_flow_taken    = 1'b0;
-    repeat (2) @(posedge clk);
-
-    @(negedge clk);
-    predictor_resolved_control_flow_occurred = 1'b0;
-    #1;
-    assert (!predictor_output_entry.prediction.predicted_taken)
-      else $fatal(1, "BHT saturating counter did not learn repeated not-taken outcomes");
-
-    // 保留funct3、已有取指异常和非4字节对齐目标都不能触发前端预测。
-    predictor_fetch_entry.instruction        = branch_instruction;
-    predictor_fetch_entry.instruction[14:12] = 3'b010;
-    #1;
-    assert (!predictor_output_entry.prediction.predicted_taken)
-      else $fatal(1, "reserved branch encoding produced a prediction");
-
-    predictor_fetch_entry = make_fetch_entry(BRANCH_PC, make_jal_instruction(21'sd8));
-    predictor_fetch_entry.exception_valid = 1'b1;
-    #1;
-    assert (!predictor_output_entry.prediction.predicted_taken)
-      else $fatal(1, "exceptional fetch entry produced a prediction");
-
-    predictor_fetch_entry = make_fetch_entry(BRANCH_PC, make_jal_instruction(21'sd2));
-    #1;
-    assert (!predictor_output_entry.prediction.predicted_taken)
-      else $fatal(1, "misaligned direct-jump target produced a prediction");
-
-    // 已完成的call把PC+4压入RAS；随后ret在进入fetch buffer时直接预测该动态目标。
-    predictor_fetch_entry_handshake_occurred = 1'b0;
-    predictor_resolved_control_flow_pc       = CALL_PC;
+    // JAL在EX解析后把类型和目标写入BTB，后续请求同一PC应直接给出taken目标。
+    predictor_resolved_control_flow_pc       = JAL_PC;
+    predictor_resolved_control_flow_target   = JAL_TARGET;
     predictor_resolved_control_flow_op       = CF_JAL;
-    predictor_resolved_control_flow_rs1      = '0;
-    predictor_resolved_control_flow_rd       = arch_reg_idx_t'(1);
+    predictor_resolved_control_flow_rd       = arch_reg_idx_t'(0);
     predictor_resolved_control_flow_occurred = 1'b1;
     predictor_resolved_control_flow_taken    = 1'b1;
     @(posedge clk);
 
     @(negedge clk);
     predictor_resolved_control_flow_occurred = 1'b0;
-    predictor_fetch_entry = make_fetch_entry(
-        BRANCH_PC,
-        make_jalr_instruction(arch_reg_idx_t'(0), arch_reg_idx_t'(1), 12'sd0)
-    );
-    predictor_fetch_entry_handshake_occurred = 1'b1;
     #1;
-    assert (predictor_output_entry.prediction.predicted_taken &&
-            (predictor_output_entry.prediction.predicted_target ==
+    assert (predictor_lookup_prediction.predicted_taken &&
+            (predictor_lookup_prediction.predicted_target == JAL_TARGET) &&
+            (predictor_lookup_next_pc == JAL_TARGET))
+      else $fatal(1, "trained JAL BTB entry did not predict its target");
+
+    // 条件分支第一次解析会同时建立BTB项并把BHT从01推进到10，此后预测taken。
+    predictor_lookup_pc                       = BRANCH_PC;
+    predictor_resolved_control_flow_pc       = BRANCH_PC;
+    predictor_resolved_control_flow_target   = BRANCH_TARGET;
+    predictor_resolved_control_flow_op       = CF_BRANCH;
+    predictor_resolved_control_flow_rd       = '0;
+    predictor_resolved_control_flow_occurred = 1'b1;
+    predictor_resolved_control_flow_taken    = 1'b1;
+    @(posedge clk);
+
+    @(negedge clk);
+    predictor_resolved_control_flow_occurred = 1'b0;
+    #1;
+    assert (predictor_lookup_prediction.predicted_taken &&
+            (predictor_lookup_prediction.predicted_target == BRANCH_TARGET))
+      else $fatal(1, "trained BHT entry did not predict the conditional branch taken");
+
+    // 一次not-taken训练把10退回01，预测应恢复顺序执行，但BTB项仍然存在。
+    predictor_resolved_control_flow_occurred = 1'b1;
+    predictor_resolved_control_flow_taken    = 1'b0;
+    @(posedge clk);
+
+    @(negedge clk);
+    predictor_resolved_control_flow_occurred = 1'b0;
+    #1;
+    assert (!predictor_lookup_prediction.predicted_taken &&
+            (predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES)))
+      else $fatal(1, "BHT saturating counter did not learn repeated not-taken outcomes");
+
+    // return本身必须先在BTB中被识别为return。此时RAS为空，解析该return的pop不会
+    // 改变栈状态；随后解析call，把PC+4压入RAS，再查询return的请求侧预测。
+    predictor_resolved_control_flow_pc       = BRANCH_PC;
+    predictor_resolved_control_flow_target   = program_counter_t'('h8000_0500);
+    predictor_resolved_control_flow_op       = CF_JALR;
+    predictor_resolved_control_flow_rs1      = arch_reg_idx_t'(1);
+    predictor_resolved_control_flow_rd       = arch_reg_idx_t'(0);
+    predictor_resolved_control_flow_occurred = 1'b1;
+    predictor_resolved_control_flow_taken    = 1'b1;
+    @(posedge clk);
+
+    @(negedge clk);
+    predictor_resolved_control_flow_pc       = CALL_PC;
+    predictor_resolved_control_flow_target   = program_counter_t'('h8000_0400);
+    predictor_resolved_control_flow_op       = CF_JAL;
+    predictor_resolved_control_flow_rs1      = '0;
+    predictor_resolved_control_flow_rd       = arch_reg_idx_t'(1);
+    predictor_resolved_control_flow_occurred = 1'b1;
+    @(posedge clk);
+
+    @(negedge clk);
+    predictor_resolved_control_flow_occurred = 1'b0;
+    predictor_lookup_pc                     = BRANCH_PC;
+    #1;
+    assert (predictor_lookup_prediction.predicted_taken &&
+            (predictor_lookup_prediction.predicted_target ==
              CALL_PC + program_counter_t'(INSTRUCTION_BYTES)) &&
-            predictor_redirect_req_valid &&
-            (predictor_redirect_req.target_pc ==
+            (predictor_lookup_next_pc ==
              CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
       else $fatal(1, "return-address stack did not predict the resolved call return target");
+
+    // fence.i必须清除BTB可见性，防止软件改写指令后继续使用旧目标。
+    predictor_invalidate = 1'b1;
+    @(posedge clk);
+    @(negedge clk);
+    predictor_invalidate = 1'b0;
+    #1;
+    assert (!predictor_lookup_prediction.predicted_taken)
+      else $fatal(1, "fence.i predictor invalidation left a visible BTB entry");
 
     clear_predictor_inputs();
   endtask
@@ -824,6 +793,8 @@ module riscv32_pipeline_control_tb;
     icache_lookup_req_t stalled_request;
     fetch_entry_t       stalled_fetch_entry;
     redirect_req_t      redirect_request;
+
+    predictor_test_override = 1'b0;
 
     // 接收复位后的第一条请求。此前ready保持为0，因此IFU仍应稳定呈现复位PC。
     @(negedge clk);
