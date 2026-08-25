@@ -129,8 +129,13 @@ module riscv32_ifu
       end
 
       IFU_WAIT_LOOKUP_RESPONSE: begin
-        fetch_entry_valid_o        = icache_lookup_resp_valid_i && lookup_response_is_current;
-        icache_lookup_resp_ready_o = lookup_response_is_current ? fetch_entry_ready_i : 1'b1;
+        // All redirect sources are registered or originate at commit. A redirect
+        // therefore makes the currently returned lookup younger than the chosen
+        // recovery point; drain it without presenting it to the fetch buffer.
+        fetch_entry_valid_o = icache_lookup_resp_valid_i && lookup_response_is_current &&
+                              !redirect_req_valid_i;
+        icache_lookup_resp_ready_o = (!lookup_response_is_current || redirect_req_valid_i) ?
+                                     1'b1 : fetch_entry_ready_i;
 
         // 只在当前响应确实会交付给IDU时提前呈现下一顺序请求。redirect优先级更高，
         // 发生redirect的当拍不能继续发送旧控制流的PC+4。请求若被反压，状态更新逻辑
@@ -289,8 +294,8 @@ module riscv32_ifu
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == IFU_WAIT_LOOKUP_RESPONSE && redirect_req_valid_i)
-    |-> !icache_lookup_req_valid_o)
-  else $error("IFU presented an old sequential lookup during redirect");
+    |-> (!icache_lookup_req_valid_o && !fetch_entry_valid_o && icache_lookup_resp_ready_o))
+  else $error("IFU did not suppress old-path traffic during redirect");
 `endif
 
 endmodule

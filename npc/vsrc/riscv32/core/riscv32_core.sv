@@ -83,8 +83,10 @@ module riscv32_core
   program_counter_t next_pc_predictor_next_pc;
   fetch_control_flow_prediction_context_t ifu_fetch_prediction_context;
   fetch_entry_t corrected_ifu_fetch_entry;
-  redirect_req_t fetch_correction_redirect_req;
-  logic fetch_correction_redirect_occurred;
+  redirect_req_t response_fetch_correction_req;
+  logic response_fetch_correction_occurred;
+  redirect_req_t registered_fetch_correction_req;
+  logic registered_fetch_correction_occurred;
   program_counter_t resolved_control_flow_target;
   logic fetch_taken_prediction_occurred;
   fetch_entry_t idu_fetch_entry;
@@ -160,8 +162,6 @@ module riscv32_core
   logic serializing_hazard_present;
   logic structural_hazard_present;
   logic lsu_transaction_active;
-  logic lsu_transaction_completion_occurred;
-  logic lsu_blocks_pipeline;
   redirect_req_t execute_redirect_req_at_resolution;
   logic execute_redirect_resolution_occurred;
   logic execute_redirect_occurred;
@@ -274,8 +274,8 @@ module riscv32_core
       .response_fetch_entry_valid_i       (ifu_fetch_entry_valid),
       .response_fetch_entry_ready_i       (ifu_fetch_entry_ready),
       .corrected_fetch_entry_o            (corrected_ifu_fetch_entry),
-      .fetch_correction_req_o             (fetch_correction_redirect_req),
-      .fetch_correction_req_valid_o       (fetch_correction_redirect_occurred),
+      .fetch_correction_req_o             (response_fetch_correction_req),
+      .fetch_correction_req_valid_o       (response_fetch_correction_occurred),
       .resolved_control_flow_pc_i         (exu_result.uop.pc),
       .resolved_control_flow_target_i     (resolved_control_flow_target),
       .resolved_control_flow_imm_i        (exu_result.uop.imm),
@@ -292,6 +292,19 @@ module riscv32_core
            (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
       .invalidate_i                       (committed_fence_i_occurred)
+  );
+
+  // Response predecode remains useful for a cold JAL/branch/return, but its
+  // recovery is registered before returning to IFU. Request-side BTB/BHT/RAS
+  // hits are unaffected; only a prediction correction pays this extra cycle.
+  riscv32_fetch_correction_stage u_fetch_correction_stage (
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
+      .fetch_correction_req_i                    (response_fetch_correction_req),
+      .fetch_correction_req_valid_i              (response_fetch_correction_occurred),
+      .flush_i                                   (frontend_recovery_occurred),
+      .registered_fetch_correction_req_o         (registered_fetch_correction_req),
+      .registered_fetch_correction_req_valid_o   (registered_fetch_correction_occurred)
   );
 
   // 该事件统计最终随fetch entry进入队列的taken预测。返回级纠正可能覆盖请求侧BTB结果，
@@ -405,13 +418,6 @@ module riscv32_core
                                           writeback_result.uop.writes_rd &&
                                           !writeback_result.uop.exception_valid;
 
-  // LSU completion已在本拍被WB接收时，允许下一条指令在同一边沿进入ID/EX。下一条
-  // 指令要到下一拍才执行，不会与较老访存在completion端口相遇；异常访存若在WB
-  // 触发redirect，也会在年轻指令产生副作用前将其flush。这样删除了每次访存完成后
-  // 固定存在的一拍结构空泡，而没有引入乱序提交或新的payload寄存器。
-  assign lsu_blocks_pipeline = lsu_transaction_active &&
-                               !lsu_transaction_completion_occurred;
-
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i                       (clk_i),
       .rst_ni                      (rst_ni),
@@ -431,7 +437,7 @@ module riscv32_core
       .writeback_rd_i              (writeback_result.uop.rd),
       .writeback_serializing_i     (writeback_result.uop.serializing),
       .writeback_forwarding_available_i(writeback_forwarding_available),
-      .lsu_busy_i                  (lsu_blocks_pipeline),
+      .lsu_busy_i                  (lsu_transaction_active),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -483,7 +489,6 @@ module riscv32_core
       .lsu_req_valid_i         (lsu_req_valid),
       .lsu_req_ready_o         (lsu_req_ready),
       .lsu_transaction_active_o(lsu_transaction_active),
-      .lsu_transaction_completion_occurred_o(lsu_transaction_completion_occurred),
       .lsu_writeback_o         (lsu_writeback),
       .lsu_writeback_valid_o   (lsu_writeback_valid),
       .lsu_writeback_ready_i   (lsu_writeback_ready),
@@ -667,9 +672,9 @@ module riscv32_core
   );
 
   assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
-  assign redirect_req[FETCH_CORRECTION_REDIRECT_INDEX] = fetch_correction_redirect_req;
+  assign redirect_req[FETCH_CORRECTION_REDIRECT_INDEX] = registered_fetch_correction_req;
   assign redirect_req_valid[FETCH_CORRECTION_REDIRECT_INDEX] =
-      fetch_correction_redirect_occurred;
+      registered_fetch_correction_occurred;
   assign redirect_req[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
   assign redirect_req_valid[FENCE_I_REDIRECT_INDEX] = committed_fence_i_occurred;
 
@@ -738,10 +743,6 @@ module riscv32_core
       (decode_execute_flush && !execute_issue_allowed && !lsu_req_valid))
   else $error("registered execute redirect allowed a wrong-path EX side effect");
 
-  a_lsu_completion_release_has_no_same_cycle_ex_completion :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    lsu_transaction_completion_occurred |-> !exu_result_valid)
-  else $error("LSU completion release collided with an EX completion");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 
