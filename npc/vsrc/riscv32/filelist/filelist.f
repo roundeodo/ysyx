@@ -18,8 +18,14 @@ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv
 
-// 非缓存数据访存路径。
+// 数据存储子系统：同步阵列、write-back miss路径、PMA路由和uncached旁路。
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_line_axi4_master.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache.sv
 ${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_uncached_axi4_master.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_data_memory_subsystem.sv
 
 // 处理器核。
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_arch_regfile.sv

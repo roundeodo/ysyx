@@ -54,8 +54,21 @@ module riscv32_core
   logic icache_invalidate_req;
   logic icache_invalidate_done;
   logic icache_busy;
-  logic icache_invalidate_pending_q;
-  logic icache_invalidate_pending_d;
+  logic dcache_clean_req;
+  logic dcache_clean_done;
+  logic dcache_clean_access_fault;
+  logic dcache_busy;
+  logic fence_i_maintenance_active;
+  logic frontend_memory_access_allowed;
+
+  typedef enum logic [1:0] {
+    FENCE_I_MAINTENANCE_IDLE,
+    FENCE_I_CLEAN_DCACHE,
+    FENCE_I_INVALIDATE_ICACHE
+  } fence_i_maintenance_state_e;
+
+  fence_i_maintenance_state_e fence_i_maintenance_state_q;
+  fence_i_maintenance_state_e fence_i_maintenance_state_d;
 
   // IFU维持一个I-cache lookup在途；两项fetch queue保存已完成响应并吸收短暂后端反压。
   // 队列不是分支预测器，也不能掩盖无限停顿；其作用是让命中I-cache在后端短暂停顿时
@@ -181,7 +194,7 @@ module riscv32_core
       .redirect_req_valid_i      (selected_redirect_req_valid),
       .icache_lookup_req_o       (icache_lookup_req),
       .icache_lookup_req_valid_o (icache_lookup_req_valid),
-      .icache_lookup_req_ready_i (icache_lookup_req_ready),
+      .icache_lookup_req_ready_i (icache_lookup_req_ready && frontend_memory_access_allowed),
       .icache_lookup_resp_i      (icache_lookup_resp),
       .icache_lookup_resp_valid_i(icache_lookup_resp_valid),
       .icache_lookup_resp_ready_o(icache_lookup_resp_ready),
@@ -194,7 +207,7 @@ module riscv32_core
       .clk_i              (clk_i),
       .rst_ni             (rst_ni),
       .lookup_req_i       (icache_lookup_req),
-      .lookup_req_valid_i (icache_lookup_req_valid),
+      .lookup_req_valid_i (icache_lookup_req_valid && frontend_memory_access_allowed),
       .lookup_req_ready_o (icache_lookup_req_ready),
       .lookup_resp_o      (icache_lookup_resp),
       .lookup_resp_valid_o(icache_lookup_resp_valid),
@@ -259,29 +272,43 @@ module riscv32_core
       .axi_manager_i      (instruction_axi4_manager_i)
   );
 
-  // fence.i只能在提交边界使I-cache失效，避免未提交指令修改前端状态。
-  // 提交事件是单拍脉冲，但失效是多拍事务，因此pending必须保持请求直到I-cache返回done。
-  // 当前顺序核可在提交当拍发出redirect并阻止新取指；未来乱序核仍应由ROB提交端生成
-  // fence.i事件，并在收到失效完成响应后才允许后续指令提交。
+  // write-back D-cache加入后，fence.i必须先把脏数据写回内存，再失效I-cache。
+  // 顺序相反会让I-cache从内存重新取回旧指令。维护期间停止接收新lookup，但允许已经
+  // 发出的响应继续排空；未来乱序核应由ROB提交端发起同一维护事务并等待完成。
   assign committed_fence_i_occurred = commit_valid && !commit.trap_taken && (commit.system_op == SYS_FENCE_I);
-  assign icache_invalidate_req = committed_fence_i_occurred || icache_invalidate_pending_q;
+  assign fence_i_maintenance_active = fence_i_maintenance_state_q != FENCE_I_MAINTENANCE_IDLE;
+  assign frontend_memory_access_allowed = !fence_i_maintenance_active &&
+                                          !committed_fence_i_occurred;
+  assign dcache_clean_req = fence_i_maintenance_state_q == FENCE_I_CLEAN_DCACHE;
+  assign icache_invalidate_req = fence_i_maintenance_state_q == FENCE_I_INVALIDATE_ICACHE;
 
   always_comb begin
-    icache_invalidate_pending_d = icache_invalidate_pending_q;
-
-    if (icache_invalidate_done) begin
-      icache_invalidate_pending_d = 1'b0;
-    end
-    if (committed_fence_i_occurred) begin
-      icache_invalidate_pending_d = 1'b1;
-    end
+    fence_i_maintenance_state_d = fence_i_maintenance_state_q;
+    unique case (fence_i_maintenance_state_q)
+      FENCE_I_MAINTENANCE_IDLE: begin
+        if (committed_fence_i_occurred) begin
+          fence_i_maintenance_state_d = FENCE_I_CLEAN_DCACHE;
+        end
+      end
+      FENCE_I_CLEAN_DCACHE: begin
+        if (dcache_clean_done) begin
+          fence_i_maintenance_state_d = FENCE_I_INVALIDATE_ICACHE;
+        end
+      end
+      FENCE_I_INVALIDATE_ICACHE: begin
+        if (icache_invalidate_done) begin
+          fence_i_maintenance_state_d = FENCE_I_MAINTENANCE_IDLE;
+        end
+      end
+      default: fence_i_maintenance_state_d = FENCE_I_MAINTENANCE_IDLE;
+    endcase
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      icache_invalidate_pending_q <= 1'b0;
+      fence_i_maintenance_state_q <= FENCE_I_MAINTENANCE_IDLE;
     end else begin
-      icache_invalidate_pending_q <= icache_invalidate_pending_d;
+      fence_i_maintenance_state_q <= fence_i_maintenance_state_d;
     end
   end
 
@@ -417,17 +444,21 @@ module riscv32_core
       .data_memory_resp_ready_o(data_memory_resp_ready)
   );
 
-  riscv32_uncached_axi4_master u_uncached_axi4_master (
-      .clk_i                   (clk_i),
-      .rst_ni                  (rst_ni),
-      .data_memory_req_i       (data_memory_req),
-      .data_memory_req_valid_i (data_memory_req_valid),
-      .data_memory_req_ready_o (data_memory_req_ready),
-      .data_memory_resp_o      (data_memory_resp),
-      .data_memory_resp_valid_o(data_memory_resp_valid),
-      .data_memory_resp_ready_i(data_memory_resp_ready),
-      .axi_manager_o           (data_axi4_manager_o),
-      .axi_manager_i           (data_axi4_manager_i)
+  riscv32_data_memory_subsystem u_data_memory_subsystem (
+      .clk_i                       (clk_i),
+      .rst_ni                      (rst_ni),
+      .data_memory_req_i           (data_memory_req),
+      .data_memory_req_valid_i     (data_memory_req_valid),
+      .data_memory_req_ready_o     (data_memory_req_ready),
+      .data_memory_resp_o          (data_memory_resp),
+      .data_memory_resp_valid_o    (data_memory_resp_valid),
+      .data_memory_resp_ready_i    (data_memory_resp_ready),
+      .dcache_clean_req_i          (dcache_clean_req),
+      .dcache_clean_done_o         (dcache_clean_done),
+      .dcache_clean_access_fault_o (dcache_clean_access_fault),
+      .dcache_busy_o               (dcache_busy),
+      .axi_manager_o               (data_axi4_manager_o),
+      .axi_manager_i               (data_axi4_manager_i)
   );
 
   riscv32_completion_mux u_completion_mux (
@@ -486,8 +517,13 @@ module riscv32_core
   riscv32_sim_performance_monitor u_sim_performance_monitor (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
-      .ifu_instruction_request_occurred_i(icache_lookup_req_valid && icache_lookup_req_ready),
-      .ifu_instruction_request_waiting_i(icache_lookup_req_valid && !icache_lookup_req_ready),
+      .ifu_instruction_request_occurred_i(
+          icache_lookup_req_valid && icache_lookup_req_ready && frontend_memory_access_allowed
+      ),
+      .ifu_instruction_request_waiting_i(
+          icache_lookup_req_valid &&
+          (!icache_lookup_req_ready || !frontend_memory_access_allowed)
+      ),
       .ifu_instruction_response_occurred_i(icache_lookup_resp_valid && icache_lookup_resp_ready),
       .ifu_instruction_response_discarded_occurred_i(
           icache_lookup_resp_valid && icache_lookup_resp_ready && !ifu_fetch_entry_valid
@@ -589,7 +625,12 @@ module riscv32_core
   // rst_ni是状态寄存器的异步复位，同时也是SVA的disable条件。Verilator会把后者
   // 视为同步使用并报告SYNCASYNCNET；该诊断不代表复位网络存在功能冲突。
   /* verilator lint_off SYNCASYNCNET */
-  // I-cache失效采用请求保持到完成的协议。busy是状态观测，不参与任何控制反馈。
+  // fence.i维护请求按D-cache clean、I-cache invalidate的固定顺序保持到完成。
+  a_dcache_clean_request_held_until_done :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (dcache_clean_req && !dcache_clean_done) |=> dcache_clean_req)
+  else $error("core withdrew D-cache clean request before completion");
+
   a_icache_invalidate_request_held_until_done :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (icache_invalidate_req && !icache_invalidate_done) |=> icache_invalidate_req)
@@ -600,10 +641,20 @@ module riscv32_core
     icache_invalidate_done |-> icache_invalidate_req)
   else $error("core observed I-cache invalidate completion without a request");
 
-  a_icache_invalidate_pending_means_busy :
+  a_icache_invalidate_request_means_busy :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    icache_invalidate_pending_q |-> icache_busy)
+    icache_invalidate_req |-> icache_busy)
   else $error("I-cache dropped busy while an invalidate transaction was pending");
+
+  a_dcache_clean_request_means_busy :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    dcache_clean_req |-> dcache_busy)
+  else $error("D-cache dropped busy while a clean transaction was pending");
+
+  a_dcache_clean_fault_is_reported :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    !dcache_clean_access_fault)
+  else $error("D-cache writeback failed during fence.i maintenance");
 
   // 精确异常只允许在commit成为架构事件。该拍必须阻止更年轻的EX指令发出副作用，
   // 并同时清空ID/EX与可能同拍进入WB的年轻completion。

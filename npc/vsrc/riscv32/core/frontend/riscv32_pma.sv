@@ -96,6 +96,7 @@ module riscv32_pma
   end
 
   // pma_attr_t字段的含义：
+  //   readable/writable：数据侧访问权限；未映射地址两者均为0；
   //   executable：允许IFU从该区域取指；为0时I-cache返回取指访问异常；
   //   cacheable ：允许把该区域读出的整条cache line留在I-cache；
   //   idempotent：重复读取不会改变设备状态，允许未来进行投机取指或重复refill。
@@ -107,18 +108,39 @@ module riscv32_pma
   always_comb begin
     memory_attr_o = '0;
 
-    if (lookup_addr_in_any_uncached_memory) begin
+    if (lookup_addr_in_sram) begin
+      memory_attr_o.readable                  = 1'b1;
+      memory_attr_o.writable                  = 1'b1;
       memory_attr_o.executable                = 1'b1;
       memory_attr_o.cacheable                 = 1'b0;
       memory_attr_o.idempotent                = 1'b1;
       memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_any_cacheable_memory) begin
+    end else if (lookup_addr_in_mrom) begin
+      memory_attr_o.readable                  = 1'b1;
+      memory_attr_o.writable                  = 1'b0;
+      memory_attr_o.executable                = 1'b1;
+      memory_attr_o.cacheable                 = 1'b0;
+      memory_attr_o.idempotent                = 1'b1;
+      memory_attr_o.width_conversion_supported = 1'b1;
+    end else if (lookup_addr_in_flash) begin
+      // Flash映射是只读XIP窗口；擦写必须通过SPI控制器寄存器完成。
+      memory_attr_o.readable                  = 1'b1;
+      memory_attr_o.writable                  = 1'b0;
+      memory_attr_o.executable                = 1'b1;
+      memory_attr_o.cacheable                 = 1'b1;
+      memory_attr_o.idempotent                = 1'b1;
+      memory_attr_o.width_conversion_supported = 1'b1;
+    end else if (lookup_addr_in_psram || lookup_addr_in_sdram ||
+                 lookup_addr_in_chiplink_memory) begin
+      memory_attr_o.readable                  = 1'b1;
+      memory_attr_o.writable                  = 1'b1;
       memory_attr_o.executable                = 1'b1;
       memory_attr_o.cacheable                 = 1'b1;
       memory_attr_o.idempotent                = 1'b1;
       memory_attr_o.width_conversion_supported = 1'b1;
     end else if (lookup_addr_in_any_mmio) begin
-      memory_attr_o = '0;
+      memory_attr_o.readable = 1'b1;
+      memory_attr_o.writable = 1'b1;
     end
 
   end

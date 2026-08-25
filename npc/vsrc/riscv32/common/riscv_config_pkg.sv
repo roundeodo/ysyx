@@ -96,6 +96,12 @@ package riscv_config_pkg;
   localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
   localparam int unsigned ICACHE_MSHR_COUNT = 1;
+  // 当前D-cache检查点采用阻塞式单miss结构，但容量、相联度和line大小均由构建配置
+  // 决定。接口不绑定单MSHR，后续增加load/store queue、多个MSHR和bank时无需改LSU。
+  localparam int unsigned DCACHE_CAPACITY_BYTES = `YSYX_DCACHE_CAPACITY_BYTES;
+  localparam int unsigned DCACHE_WAY_COUNT = `YSYX_DCACHE_WAY_COUNT;
+  localparam int unsigned DCACHE_LINE_BYTES = `YSYX_DCACHE_LINE_BYTES;
+  localparam int unsigned DCACHE_MSHR_COUNT = 1;
   localparam int unsigned FETCH_EPOCH_COUNT = 4;
   //
   // 命名规则：数量使用*_COUNT，位宽使用*_WIDTH，容量明确写出单位*_BYTES。

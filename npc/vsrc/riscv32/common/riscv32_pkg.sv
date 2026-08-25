@@ -333,6 +333,8 @@ package riscv32_pkg;
   // lookup响应保留fetch_addr，因为IFU需要把返回数据与PC重新关联；I-cache只返回
   // 原始取指数据，不在cache中构造fetch_entry_t，也不负责分支预测或异常提交。
   typedef struct packed {
+    logic readable;
+    logic writable;
     logic executable;
     logic cacheable;
     logic idempotent;
@@ -439,6 +441,67 @@ package riscv32_pkg;
     logic        access_fault;
     mem_txn_id_t transaction_id;
   } data_memory_resp_t;
+
+  // D-cache几何只从全局构建配置派生。cache word等于core数据beat，因此LSU保持
+  // 语义请求，D-cache的line组织和AXI burst细节不会传播回执行流水线。
+  localparam int unsigned DCACHE_SET_COUNT =
+      DCACHE_CAPACITY_BYTES / (DCACHE_WAY_COUNT * DCACHE_LINE_BYTES);
+  localparam int unsigned DCACHE_WORD_BYTES = CORE_DATA_BYTE_COUNT;
+  localparam int unsigned DCACHE_WORDS_PER_LINE = DCACHE_LINE_BYTES / DCACHE_WORD_BYTES;
+  localparam int unsigned DCACHE_SET_INDEX_BITS =
+      (DCACHE_SET_COUNT > 1) ? $clog2(DCACHE_SET_COUNT) : 0;
+  localparam int unsigned DCACHE_WORD_INDEX_BITS =
+      (DCACHE_WORDS_PER_LINE > 1) ? $clog2(DCACHE_WORDS_PER_LINE) : 0;
+  localparam int unsigned DCACHE_SET_INDEX_W =
+      (DCACHE_SET_INDEX_BITS > 0) ? DCACHE_SET_INDEX_BITS : 1;
+  localparam int unsigned DCACHE_WORD_INDEX_W =
+      (DCACHE_WORD_INDEX_BITS > 0) ? DCACHE_WORD_INDEX_BITS : 1;
+  localparam int unsigned DCACHE_WAY_INDEX_W =
+      (DCACHE_WAY_COUNT > 1) ? $clog2(DCACHE_WAY_COUNT) : 1;
+  localparam int unsigned DCACHE_LINE_OFFSET_W = $clog2(DCACHE_LINE_BYTES);
+  localparam int unsigned DCACHE_TAG_W =
+      PADDR_WIDTH - DCACHE_LINE_OFFSET_W - DCACHE_SET_INDEX_BITS;
+
+  typedef logic [DCACHE_SET_INDEX_W-1:0]  dcache_set_index_t;
+  typedef logic [DCACHE_WORD_INDEX_W-1:0] dcache_word_index_t;
+  typedef logic [DCACHE_WAY_INDEX_W-1:0]  dcache_way_index_t;
+  typedef logic [DCACHE_TAG_W-1:0]        dcache_tag_t;
+  typedef logic [DCACHE_LINE_BYTES*8-1:0] dcache_line_data_t;
+
+  typedef struct packed {
+    data_memory_req_t  memory_req;
+    dcache_set_index_t set_index;
+    dcache_word_index_t word_index;
+    dcache_tag_t       requested_tag;
+    dcache_way_index_t replacement_way_index;
+    dcache_tag_t       victim_tag;
+    logic              victim_present;
+    logic              victim_dirty;
+  } dcache_miss_req_t;
+
+  typedef struct packed {
+    phys_addr_t line_base_addr;
+    mem_txn_id_t transaction_id;
+  } dcache_refill_req_t;
+
+  typedef struct packed {
+    core_data_t         word_data;
+    dcache_word_index_t word_index;
+    logic               last_word;
+    logic               access_fault;
+    mem_txn_id_t        transaction_id;
+  } dcache_refill_resp_t;
+
+  typedef struct packed {
+    phys_addr_t        line_base_addr;
+    dcache_line_data_t line_data;
+    mem_txn_id_t       transaction_id;
+  } dcache_writeback_req_t;
+
+  typedef struct packed {
+    logic        access_fault;
+    mem_txn_id_t transaction_id;
+  } dcache_writeback_resp_t;
 
   // 后续扩展事件时先写清楚计数关系。例如lookup = hit + miss + uncached access；
   // access fault是否单独计数必须在设计记录中冻结，不能让两个监视器使用不同定义。
