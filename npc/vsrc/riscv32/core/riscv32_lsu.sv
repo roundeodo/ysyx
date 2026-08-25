@@ -204,8 +204,10 @@ module riscv32_lsu
       data_memory_req_o.addr        = phys_addr_t'(lsu_req_i.effective_addr);
       data_memory_req_o.cmd         = lsu_req_i.uop.mem_ctrl.cmd;
       data_memory_req_o.size        = lsu_req_i.uop.mem_ctrl.size;
-      data_memory_req_o.write_data  = request_store_write_data(lsu_req_i);
-      data_memory_req_o.byte_strobe = request_store_byte_strobe(lsu_req_i);
+      data_memory_req_o.write_data  = (lsu_req_i.uop.mem_ctrl.cmd == MEM_CMD_STORE) ?
+                                      request_store_write_data(lsu_req_i) : '0;
+      data_memory_req_o.byte_strobe = (lsu_req_i.uop.mem_ctrl.cmd == MEM_CMD_STORE) ?
+                                      request_store_byte_strobe(lsu_req_i) : '0;
     end
   end
 
