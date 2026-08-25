@@ -1201,3 +1201,38 @@ lookup的前端反馈路径。
 接收的流水边界，并配合store buffer避免新增级数直接变成每条store的等待；前端需要请求侧
 next-line prediction、多个带tag/epoch的在途fetch和选择性squash。两个方向都必须保持
 valid-ready协议和每拍请求吞吐，再用IPC、Fmax和面积联合判断，而不能只看流水级数量。
+
+## 2026-08-25 - active-refill word复用与RV32I面积预算校准
+
+- Commit：`uncommitted`
+- 工作负载：MicroBench / `test`
+- 固定条件：RV32I、direct-map、16 B line、D-cache关闭、相同AXI延迟模型和NanGate45流程
+- RTL变化：单MSHR refill进行时，允许读取当前line中已经写入data array的word；不增加
+  第二MSHR，不复制cache-line数据，不改变IFU lookup和AXI4 refill协议
+
+64 B配置在优化前后对比：
+
+| 指标 | 优化前 | active-refill复用后 | 变化 |
+| --- | ---: | ---: | ---: |
+| PMU周期 | 4811915 | 4679472 | -2.75% |
+| PMU IPC | 0.089403 | 0.091934 | +2.83% |
+| Scored time | 48.230 ms | 46.902 ms | -2.75% |
+| 面积 | 28076.832 um^2 | 28068.320 um^2 | -8.512 um^2 |
+| Fmax | 532.716 MHz | 536.113 MHz | +0.64% |
+
+相同优化RTL上的容量A/B：
+
+| 容量/路数/line | PMU周期 | IPC | 前端停顿 | I-cache命中率 | 面积 | Fmax | `IPC * Fmax` |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 64B/1-way/16B | 4679472 | 0.091934 | 46.872% | 85.999% | 28068.320 um^2 | 536.113 MHz | 49.287 MIPS |
+| 128B/1-way/16B | 3692103 | 0.116519 | 41.471% | 90.575% | 31222.282 um^2 | 547.646 MHz | 63.811 MIPS |
+
+128 B增加3153.962 um^2（11.24%），但PMU周期减少21.10%、IPC提升26.74%，综合吞吐代理
+提升29.47%，且关键路径仍是`u_ifu.next_fetch_request_pc_q`反馈而不是I-cache容量路径。
+因此RV32I工程面积评审线从初始30000调整为32000 um^2，并把128B配置设为当前
+`rv32-course-area`默认值。官方RV32E/NanGate45的25000/23000 um^2继续作为原始课程对照，
+不与当前RV32I结果混为同一口径。
+
+当前仍有41.471%前端供给停顿和30.611% LSU结构阻塞。下一项前端优化应切断预测/redirect/
+next-PC反馈长路径并增加可标识的在途取指，而不是继续无条件增大阻塞式I-cache；数据侧结构
+必须另做无D-cache、小缓冲和D-cache候选的同口径A/B。

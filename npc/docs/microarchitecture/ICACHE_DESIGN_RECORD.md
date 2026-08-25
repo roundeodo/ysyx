@@ -6,7 +6,7 @@
 
 关联决策：当前计划P1、D004和D005；历史计划D024
 
-最后更新：2026-08-24
+最后更新：2026-08-25
 
 ## 1. 问题和目标
 
@@ -17,7 +17,7 @@
 
 - 保持当前RV32I功能行为和valid/ready反压契约。
 - 流水线和miss机构可用时，每周期接受一个lookup请求。
-- lookup命中采用固定的两周期延迟。
+- lookup命中采用固定的一周期响应延迟，并允许稳定命中时每周期接受一个请求。
 - cache line大于一条指令，并优先填充请求对应的word。
 - redirect后丢弃过期前端响应，同时不得违反下层总线协议。
 - 只缓存可执行、可缓存、幂等的存储区域。
@@ -28,22 +28,19 @@ AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点�
 
 ## B4课程面积配置与长期配置的边界
 
-当前RV32课程面积复现配置为64B容量、2-way、8B line。该配置的目的不是替代本文后续
-记录的长期8KiB起步目标，而是在DFF/锁存器实现小容量array的阶段同时满足以下约束：
+当前RV32I工程评审配置为128B容量、direct-map、16B line。该配置的目的不是替代本文后续
+记录的长期8KiB起步目标，而是在DFF/锁存器实现小容量array的阶段获得可解释的性能面积点：
 
-- Nangate45综合总面积低于23000 um^2；
+- Nangate45综合总面积低于当前RV32I的32000 um^2工程评审线；
 - 保留真实同步array读、tag比较、blocking miss和AXI4 refill协议，不用组合存储器或综合
   选项伪造面积结果；
-- 在当前单MSHR结构下，避免16B及更长line的refill尾部长期阻塞下一次lookup。
+- 在当前单MSHR结构下，允许已写入当前refill line的word被后续顺序取指直接读取，减少
+  critical word返回后仍等待整行完成造成的阻塞。
 
-同一版RTL下，64B/8B配置从1-way改为2-way后，面积由22708.952 um^2变为
-22522.220 um^2，减少186.732 um^2。这个极小标准单元阵列中，set数量减半所减少的选择
-逻辑超过了并行tag比较和替换状态的开销；不能据此推断采用SRAM宏的大容量2-way也会更小。
-早期PSRAM路径的MicroBench `test` Total为
-563.649ms；切换到AXI SDRAM并让2-beat refill映射为一条物理连续读后，Total降为71.005ms。
-同一SDRAM下的BL1基线为96.100ms，说明当前瓶颈既包括blocking miss占用，也包括下层重复
-地址、命令和首数据等待。进入流水线和非阻塞cache阶段后，必须重新探索容量、路数和line
-大小，不能把课程配置直接当成目标AI处理器配置。
+同一版RTL、MicroBench `test`和NanGate45流程下，64B/direct/16B的面积、IPC和Fmax分别为
+28068.320 um^2、0.091934和536.113 MHz；128B/direct/16B分别为31222.282 um^2、
+0.116519和547.646 MHz。增加11.24%面积换来29.47%的综合吞吐代理提升，因此选择128B。
+这一结论只适用于当前标准单元小容量array和课程workload，不能推断采用SRAM宏的长期配置。
 
 ## 2. 当前课程配置与长期配置
 
@@ -53,15 +50,15 @@ AXI4 INCR burst；多ID并发和乱序返回留到后续非阻塞cache检查点�
 
 | 属性 | 参数或派生关系 | 当前课程值 | 长期目标 | 说明 |
 | --- | --- | ---: | ---: | --- |
-| 容量 | `ICACHE_CAPACITY_BYTES` | 64 B | 8 KiB起步 | 当前array由标准单元实现，长期改用SRAM宏 |
-| 路数 | `ICACHE_WAY_COUNT` | 2 | 2或更多 | 当前使用双路并行tag比较和每set轮转替换状态 |
-| Cache line | `ICACHE_LINE_BYTES` | 8 B | 32或64 B | 当前单MSHR会被长line的refill尾部阻塞，长期先解除该瓶颈 |
+| 容量 | `ICACHE_CAPACITY_BYTES` | 128 B | 8 KiB起步 | 当前array由标准单元实现，长期改用SRAM宏 |
+| 路数 | `ICACHE_WAY_COUNT` | 1 | 2或更多 | 当前direct-map用最小tag比较和替换成本换取容量 |
+| Cache line | `ICACHE_LINE_BYTES` | 16 B | 32或64 B | 当前配置在命中率和refill尾部之间取得实测平衡 |
 | 单次取指字节数 | `ICACHE_FETCH_BYTES` | 4 B | 参数化扩宽 | 当前匹配不支持压缩指令的单发射RV32I前端 |
-| Set数量 | `CAPACITY_BYTES / (WAYS * LINE_BYTES)` | 4 | 参数派生 | 由容量、路数和line大小唯一派生 |
-| 每行取指word数 | `LINE_BYTES / FETCH_BYTES` | 2 | 参数派生 | 由line大小和取指粒度唯一派生 |
-| Offset位数 | `$clog2(LINE_BYTES)` | 3 | 参数派生 | 选择cache line内的一个字节 |
-| Set index位数 | `$clog2(SETS)` | 2 | 参数派生 | 选择一个set |
-| Tag位数 | `PADDR_WIDTH - OFFSET_BITS - SET_INDEX_BITS` | 27 | 参数派生 | 区分映射到同一set的不同cache line |
+| Set数量 | `CAPACITY_BYTES / (WAYS * LINE_BYTES)` | 8 | 参数派生 | 由容量、路数和line大小唯一派生 |
+| 每行取指word数 | `LINE_BYTES / FETCH_BYTES` | 4 | 参数派生 | 由line大小和取指粒度唯一派生 |
+| Offset位数 | `$clog2(LINE_BYTES)` | 4 | 参数派生 | 选择cache line内的一个字节 |
+| Set index位数 | `$clog2(SETS)` | 3 | 参数派生 | 选择一个set |
+| Tag位数 | `PADDR_WIDTH - OFFSET_BITS - SET_INDEX_BITS` | 25 | 参数派生 | 区分映射到同一set的不同cache line |
 | 未完成miss数 | `ICACHE_MSHR_ENTRIES` | 1 | 至少2 | 当前采用blocking cache，长期支持hit-under-miss和多miss并发 |
 
 构建配置值放在`riscv_config_pkg`中，共享派生类型放在`riscv32_pkg`中；模块局部派生量
@@ -133,15 +130,16 @@ I-cache RTL。
 - 在阵列输出旁保存原始PC、cache tag、frontend epoch、`frontend_tag`和PMA属性。
 - 下游反压期间，metadata和data必须保持属于同一请求且同步移动。
 
-### S2：比较和选择
+### 响应组合级：比较和选择
 
-- 两路并行比较：`way_present && way_tag == request_tag`。
-- 零路匹配表示miss，恰好一路匹配表示hit，两路同时匹配必须触发数据损坏断言。
+- 每路并行比较：`way_present && way_tag == request_tag`。
+- 零路匹配表示miss，恰好一路匹配表示hit，多路同时匹配必须触发数据损坏断言。
 - 命中时选择请求word并通过响应通道返回。
 - miss时选择victim、分配单miss unit并阻塞新的miss。
 
-稳定命中吞吐目标是每周期一个lookup；从S0接受到响应可用的命中延迟目标是两周期。
-未来可以加入way prediction，但第一版始终并行比较两路tag。
+S0握手所在上升沿启动同步array读取；该沿后S1身份寄存器和array输出寄存器同时更新，比较与
+响应在随后一个周期内可用。因此从请求接受到响应可用是一周期延迟，并不存在独立的S2
+寄存器。稳定命中吞吐为每周期一个lookup；多路配置始终并行比较各way tag。
 
 ## 6. 替换和Refill
 
@@ -160,10 +158,11 @@ lookup/refill，不能仅依据收到请求。
 refill beat返回后立即写data word，metadata最后提交，从而防止lookup命中尚未完整填充的
 cache line。early restart在关键word到达后立即返回，同时miss unit继续填充其余word。
 
-第一版early restart不代表支持hit-under-miss。关键指令可以在剩余word填充时离开I-cache，
-所以后端执行能够和剩余refill重叠；但是在单miss表项释放前，lookup请求接口仍然阻塞。
-若要在refill期间接受后续hit，必须在单独检查点解决多个在途lookup的身份区分、阵列端口
-冲突，并通常需要增加MSHR。
+当前实现除early restart外，还允许后续lookup读取“正在refill的同一line中已经写入”的
+word。miss unit输出当前line基址、victim way和`refill_word_present_vector`；I-cache只有在
+请求属于该line且目标word对应present位为1时才接受请求，并从已写入的victim way读取。
+这条路径不复制cache-line数据，也不允许另一条line分配第二个miss，因此只是单MSHR下的
+active-refill word reuse，不等价于通用hit-under-miss或非阻塞cache。
 
 ## 7. Redirect和Fence语义
 

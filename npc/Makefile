@@ -10,7 +10,7 @@ PROJECT ?= riscv32
 # NanGate45流程的A/B实验；命令行仍可覆盖参数继续探索设计空间。
 ifeq ($(NPC_CONFIG),rv32-course-area)
 NPC_ICACHE_WAY_COUNT      ?= 1
-NPC_ICACHE_CAPACITY_BYTES ?= 64
+NPC_ICACHE_CAPACITY_BYTES ?= 128
 NPC_ICACHE_LINE_BYTES     ?= 16
 NPC_DCACHE_ENABLE         ?= 0
 NPC_DCACHE_WAY_COUNT      ?= 2
