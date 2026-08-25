@@ -111,9 +111,10 @@ module riscv32_pipeline_control_formal;
     if (rst_ni) begin
       assert (expected_entry_count_q <= 2'd2);
       assert (fetch_entry_to_idu_valid == (expected_entry_count_q != 2'd0));
+      // DUT刻意不使用IDU本拍ready组合旁路入口ready，以切断后端冒险判断到IFU的长路径。
+      // 因而队列满时，即使本拍同时出队，也要到下一拍才能重新接收IFU entry。
       assert (fetch_entry_from_ifu_ready ==
-              (!fetch_queue_flush &&
-               ((expected_entry_count_q != 2'd2) || fetch_entry_to_idu_ready)));
+              (!fetch_queue_flush && (expected_entry_count_q != 2'd2)));
       if (fetch_entry_to_idu_valid) begin
         assert (fetch_entry_to_idu.pc[7:0] == expected_first_token_q);
       end
