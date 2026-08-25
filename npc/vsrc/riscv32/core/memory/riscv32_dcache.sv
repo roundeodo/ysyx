@@ -23,6 +23,8 @@ module riscv32_dcache
     output logic clean_access_fault_o,
     output logic cache_busy_o,
 
+    output dcache_event_t event_o,
+
     output axi4_manager_to_target_t axi_manager_o,
     input  axi4_target_to_manager_t axi_manager_i
 );
@@ -500,6 +502,32 @@ module riscv32_dcache
   end
 
   assign cache_busy_o = lookup_s1_present_q || miss_transaction_present || clean_blocks_lookup;
+
+  // 性能事件直接取自协议握手和cache状态动作。保持这组信号为纯观察路径，既能
+  // 区分命中延迟与缺失代价，也不会把监视器引入功能或时序控制。
+  always_comb begin
+    event_o                                         = '0;
+    event_o.lookup_occurred                         = lookup_req_handshake;
+    event_o.lookup_is_store                         = data_memory_req_i.cmd == MEM_CMD_STORE;
+    event_o.lookup_response_present                 = data_memory_resp_valid_o;
+    event_o.lookup_response_is_cache_hit            = local_resp_valid && !miss_resp_valid;
+    event_o.lookup_request_waiting                  = data_memory_req_valid_i &&
+                                                      !data_memory_req_ready_o;
+    event_o.miss_occurred                           = miss_req_handshake;
+    event_o.dirty_victim_miss_occurred              = miss_req_handshake &&
+                                                      miss_req.victim_present &&
+                                                      miss_req.victim_dirty;
+    event_o.refill_request_occurred                 = refill_req_valid && refill_req_ready;
+    event_o.refill_word_occurred                    = refill_resp_valid && refill_resp_ready;
+    event_o.refill_transaction_completed_occurred   = refill_resp_valid &&
+                                                      refill_resp_ready &&
+                                                      refill_resp.last_word;
+    event_o.line_install_occurred                   = line_install_occurred;
+    event_o.writeback_request_occurred              = writeback_req_valid &&
+                                                      writeback_req_ready;
+    event_o.writeback_response_occurred             = writeback_resp_valid &&
+                                                      writeback_resp_ready;
+  end
 
 `ifndef SYNTHESIS
   initial begin

@@ -46,6 +46,7 @@ module riscv32_core
   logic data_memory_resp_ready;
 
   icache_event_t icache_event;
+  dcache_event_t dcache_event;
 `ifdef NPC_ENABLE_SIM_MONITOR
   logic [63:0] sim_icache_cacheable_hit_count;
   logic [63:0] sim_icache_cacheable_miss_response_count;
@@ -513,6 +514,7 @@ module riscv32_core
       .dcache_clean_done_o         (dcache_clean_done),
       .dcache_clean_access_fault_o (dcache_clean_access_fault),
       .dcache_busy_o               (dcache_busy),
+      .dcache_event_o              (dcache_event),
       .axi_manager_o               (data_axi4_manager_o),
       .axi_manager_i               (data_axi4_manager_i)
   );
@@ -638,6 +640,14 @@ module riscv32_core
       .cacheable_miss_response_count_o  (sim_icache_cacheable_miss_response_count),
       .hit_latency_cycle_sum_o          (sim_icache_hit_latency_cycle_sum),
       .miss_response_latency_cycle_sum_o(sim_icache_miss_response_latency_cycle_sum)
+  );
+
+  // D-cache监视器直接消费cache语义事件，不根据AXI beat反推hit/miss。这样一条
+  // cache-line refill仍然只对应一次需求miss，并可独立观察脏替换写回成本。
+  riscv32_sim_dcache_performance_monitor u_sim_dcache_performance_monitor (
+      .clk_i         (clk_i),
+      .rst_ni        (rst_ni),
+      .dcache_event_i(dcache_event)
   );
 `endif
 

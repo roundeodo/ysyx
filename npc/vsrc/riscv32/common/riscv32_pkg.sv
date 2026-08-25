@@ -502,8 +502,26 @@ package riscv32_pkg;
     mem_txn_id_t transaction_id;
   } dcache_writeback_resp_t;
 
-  // 后续扩展事件时先写清楚计数关系。例如lookup = hit + miss + uncached access；
-  // access fault是否单独计数必须在设计记录中冻结，不能让两个监视器使用不同定义。
+  // D-cache事件接口只允许从cache流向仿真监视器，不得参与ready或stall控制。
+  // occurred字段均表示本周期确实完成了对应握手或状态动作，而不是valid曾经出现。
+  // lookup只统计进入D-cache的cacheable请求；uncached和访问错误由数据存储子系统另行处理。
+  typedef struct packed {
+    logic lookup_occurred;
+    logic lookup_is_store;
+    // 响应首次present是D-cache访问延迟的终点；不等待LSU最终握手，避免把下游反压
+    // 误计为cache访问时间。监视器负责保证一个响应只统计一次。
+    logic lookup_response_present;
+    logic lookup_response_is_cache_hit;
+    logic lookup_request_waiting;
+    logic miss_occurred;
+    logic dirty_victim_miss_occurred;
+    logic refill_request_occurred;
+    logic refill_word_occurred;
+    logic refill_transaction_completed_occurred;
+    logic line_install_occurred;
+    logic writeback_request_occurred;
+    logic writeback_response_occurred;
+  } dcache_event_t;
 
   // Frontend payloads
   // prediction记录IFU发出该指令请求时真正采用的后继选择。EX必须同时比较方向和目标；

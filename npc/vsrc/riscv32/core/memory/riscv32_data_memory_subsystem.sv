@@ -22,6 +22,8 @@ module riscv32_data_memory_subsystem
     output logic dcache_clean_access_fault_o,
     output logic dcache_busy_o,
 
+    output dcache_event_t dcache_event_o,
+
     output axi4_manager_to_target_t axi_manager_o,
     input  axi4_target_to_manager_t axi_manager_i
 );
@@ -171,6 +173,7 @@ module riscv32_data_memory_subsystem
           .clean_done_o                (dcache_clean_done_o),
           .clean_access_fault_o        (dcache_clean_access_fault_o),
           .cache_busy_o                (dcache_busy_o),
+          .event_o                     (dcache_event_o),
           .axi_manager_o               (dcache_axi_manager),
           .axi_manager_i               (dcache_axi_response)
       );
@@ -181,6 +184,7 @@ module riscv32_data_memory_subsystem
       assign dcache_clean_done_o         = dcache_clean_req_i;
       assign dcache_clean_access_fault_o = 1'b0;
       assign dcache_busy_o               = 1'b0;
+      assign dcache_event_o              = '0;
       assign dcache_axi_manager          = '0;
     end
   endgenerate
