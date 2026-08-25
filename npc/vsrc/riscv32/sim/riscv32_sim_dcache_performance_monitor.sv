@@ -19,6 +19,8 @@ module riscv32_sim_dcache_performance_monitor
   logic [63:0] load_miss_count_q;
   logic [63:0] store_miss_count_q;
   logic [63:0] miss_response_count_q;
+  logic [63:0] clean_miss_response_count_q;
+  logic [63:0] dirty_miss_response_count_q;
   logic [63:0] dirty_victim_miss_count_q;
   logic [63:0] refill_request_count_q;
   logic [63:0] refill_word_count_q;
@@ -29,6 +31,8 @@ module riscv32_sim_dcache_performance_monitor
   logic [63:0] lookup_request_wait_cycle_count_q;
   logic [63:0] hit_latency_cycle_sum_q;
   logic [63:0] miss_response_latency_cycle_sum_q;
+  logic [63:0] clean_miss_response_latency_cycle_sum_q;
+  logic [63:0] dirty_miss_response_latency_cycle_sum_q;
 
   // 当前阻塞式D-cache最多只有一个需求lookup在途。未来引入MSHR后，计时器必须
   // 按transaction_id分项保存，不能继续使用这个标量状态。
@@ -36,6 +40,7 @@ module riscv32_sim_dcache_performance_monitor
   logic        lookup_timer_active_q;
   logic        active_lookup_is_store_q;
   logic        lookup_classified_as_miss_q;
+  logic        active_miss_has_dirty_victim_q;
   logic        lookup_response_counted_q;
 
   logic lookup_response_available_for_active_request;
@@ -88,6 +93,8 @@ module riscv32_sim_dcache_performance_monitor
       load_miss_count_q                    <= '0;
       store_miss_count_q                   <= '0;
       miss_response_count_q                <= '0;
+      clean_miss_response_count_q          <= '0;
+      dirty_miss_response_count_q          <= '0;
       dirty_victim_miss_count_q            <= '0;
       refill_request_count_q               <= '0;
       refill_word_count_q                  <= '0;
@@ -98,10 +105,13 @@ module riscv32_sim_dcache_performance_monitor
       lookup_request_wait_cycle_count_q    <= '0;
       hit_latency_cycle_sum_q              <= '0;
       miss_response_latency_cycle_sum_q    <= '0;
+      clean_miss_response_latency_cycle_sum_q <= '0;
+      dirty_miss_response_latency_cycle_sum_q <= '0;
       lookup_elapsed_cycle_count_q         <= '0;
       lookup_timer_active_q                <= 1'b0;
       active_lookup_is_store_q             <= 1'b0;
       lookup_classified_as_miss_q          <= 1'b0;
+      active_miss_has_dirty_victim_q       <= 1'b0;
       lookup_response_counted_q            <= 1'b0;
     end else begin
       lookup_request_wait_cycle_count_q <= lookup_request_wait_cycle_count_q +
@@ -135,6 +145,10 @@ module riscv32_sim_dcache_performance_monitor
         end
       end
 
+      if (dcache_event_i.dirty_victim_miss_occurred) begin
+        active_miss_has_dirty_victim_q <= 1'b1;
+      end
+
       if (lookup_response_available_for_active_request) begin
         if (dcache_event_i.lookup_response_is_cache_hit) begin
           hit_count_q             <= hit_count_q + 64'd1;
@@ -149,11 +163,24 @@ module riscv32_sim_dcache_performance_monitor
           miss_response_count_q         <= miss_response_count_q + 64'd1;
           miss_response_latency_cycle_sum_q <= miss_response_latency_cycle_sum_q +
                                                 lookup_elapsed_cycle_count_q + 64'd1;
+          if (active_miss_has_dirty_victim_q ||
+              dcache_event_i.dirty_victim_miss_occurred) begin
+            dirty_miss_response_count_q <= dirty_miss_response_count_q + 64'd1;
+            dirty_miss_response_latency_cycle_sum_q <=
+                dirty_miss_response_latency_cycle_sum_q +
+                lookup_elapsed_cycle_count_q + 64'd1;
+          end else begin
+            clean_miss_response_count_q <= clean_miss_response_count_q + 64'd1;
+            clean_miss_response_latency_cycle_sum_q <=
+                clean_miss_response_latency_cycle_sum_q +
+                lookup_elapsed_cycle_count_q + 64'd1;
+          end
         end
 
         lookup_elapsed_cycle_count_q <= '0;
         lookup_timer_active_q        <= 1'b0;
         lookup_classified_as_miss_q  <= 1'b0;
+        active_miss_has_dirty_victim_q <= 1'b0;
         lookup_response_counted_q    <= 1'b1;
       end
 
@@ -165,6 +192,7 @@ module riscv32_sim_dcache_performance_monitor
         lookup_timer_active_q         <= 1'b1;
         active_lookup_is_store_q      <= dcache_event_i.lookup_is_store;
         lookup_classified_as_miss_q   <= 1'b0;
+        active_miss_has_dirty_victim_q <= 1'b0;
         lookup_response_counted_q     <= 1'b0;
         if (dcache_event_i.lookup_is_store) begin
           store_lookup_count_q <= store_lookup_count_q + 64'd1;
@@ -192,6 +220,14 @@ module riscv32_sim_dcache_performance_monitor
       $display("average miss response latency              : %.3f cycles",
                calculate_average_cycles(miss_response_latency_cycle_sum_q,
                                         miss_response_count_q));
+      $display("  clean-victim miss latency                : %.3f cycles (%0d)",
+               calculate_average_cycles(clean_miss_response_latency_cycle_sum_q,
+                                        clean_miss_response_count_q),
+               clean_miss_response_count_q);
+      $display("  dirty-victim miss latency                : %.3f cycles (%0d)",
+               calculate_average_cycles(dirty_miss_response_latency_cycle_sum_q,
+                                        dirty_miss_response_count_q),
+               dirty_miss_response_count_q);
       $display("average miss penalty                       : %.3f cycles",
                calculate_miss_penalty());
       $display("D-cache AMAT                               : %.3f cycles",
@@ -230,6 +266,10 @@ module riscv32_sim_dcache_performance_monitor
 
       assert (miss_response_count_q <= miss_count_q)
       else $error("D-cache returned more miss responses than allocated misses");
+
+      assert ((clean_miss_response_count_q + dirty_miss_response_count_q) ==
+              miss_response_count_q)
+      else $error("D-cache clean/dirty miss response classification is inconsistent");
 
       assert (line_install_count_q <= refill_transaction_count_q)
       else $error("D-cache installed more lines than completed refill transactions");
