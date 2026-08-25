@@ -416,7 +416,7 @@ trace、综合面积和STA共同决定。长期乱序核必须增加FTQ历史检
 
 ### D009：课程面积签核与AI扩展采用两个命名配置
 
-`YSYX_RV32_BASELINE`首先完成课程检查点。该配置以NanGate45标准单元综合面积不超过
+`rv32-course-area`首先完成课程检查点。该配置以NanGate45标准单元综合面积不超过
 25000 um^2为硬约束，在功能回归通过的前提下，最大化同一工作负载上的`IPC * Fmax`。
 架构选择不能只比较IPC，也不能只比较面积；每个候选方案必须使用相同commit、工作负载、
 存储延迟、I-cache参数和综合约束，记录周期、IPC、Fmax、面积以及主要停顿原因。
@@ -427,6 +427,13 @@ core面积为156409.064 um^2，是课程上限的6.26倍。因此课程签核配
 这不是否定数据缓存，而是拒绝在没有SRAM macro的面积模型中用触发器和锁存器实现1 KiB
 双路阵列。课程配置后续先恢复小容量I-cache并移除完整D-cache数据阵列，再在剩余面积内对
 前递、控制流预测、小型store buffer或数据缓冲等候选方案做受控A/B和Pareto选择。
+
+当前`rv32-course-area`采用64 B、2-way、8 B line I-cache并关闭D-cache。MicroBench `test`
+的PMU IPC为0.081232，前端供给停顿占54.403%，I-cache命中率为79.204%，AMAT为6.812周期；
+将所有数据访问理想化后的加速上限只有1.230x。因此该配置的首要性能问题是I-cache容量，
+不是数据侧。NanGate45、300 MHz综合面积为27541.108 um^2，WNS为+0.810 ns，仍比25000
+um^2上限高10.16%。后续必须先通过RV32E寄存器规模和流水payload等结构优化回收面积，再
+用同一工作负载比较扩大I-cache、保留低成本预测器和增加小型数据缓冲的每面积收益。
 
 最终AI配置继续保留D-cache模块边界，并以SRAM macro、banked array、store buffer、
 writeback queue和多MSHR为演进方向。课程配置不保留某个结构，只代表它不满足当前物理约束，

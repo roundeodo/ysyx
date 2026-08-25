@@ -1134,3 +1134,35 @@ I-cache，而当前综合使用1 KiB I-cache。当前可确认的结论只有：
 单元实现达到课程25000 um^2上限的6.26倍，不能用于课程面积签核。下一项实验必须在同一
 commit上建立可关闭D-cache的命名配置，并对小容量I-cache、无D-cache基线以及低成本数据
 缓冲候选方案进行严格A/B。
+
+## 2026-08-25 - 关闭D-cache的课程面积受控基线
+
+- Commit：`uncommitted`
+- 架构决策：`D009`
+- 工作负载和规模：MicroBench / `test`
+- 构建配置：`rv32-course-area`，64 B/2-way/8 B line I-cache，D-cache关闭
+- 性能命令：`make perf PROJECT=riscv32 NPC_CONFIG=rv32-course-area PERF_SCALE=test`
+- 综合命令：`make sta PROJECT=riscv32 NPC_CONFIG=rv32-course-area`
+- 功能结果：MicroBench全部通过，`HIT GOOD TRAP`
+- 综合结果：NanGate45、300 MHz；WNS=+0.810 ns，TNS=0，面积=27541.108 um^2，
+  估算Fmax=396.417 MHz
+
+| 指标 | 结果 |
+| --- | ---: |
+| PMU退休指令 | 430203 |
+| PMU周期 | 5295945 |
+| PMU IPC | 0.081232 |
+| Scored time | 53.093 ms |
+| 前端供给停顿 | 54.403% |
+| LSU结构停顿 | 18.385% |
+| 控制恢复停顿 | 10.845% |
+| I-cache命中率 | 79.204% |
+| I-cache AMAT | 6.812 cycles |
+| 理想消除数据访存延迟的加速上限 | 1.230x |
+
+该配置关闭D-cache后仍超过25000 um^2上限2541.108 um^2，即10.16%。2320个DFF_X1占约
+10486.4 um^2，512个DLH_X1占1361.92 um^2；后者对应64 B I-cache数据存储。性能上，
+极小I-cache造成的前端停顿已经远高于数据侧停顿，因此下一轮不能先加入D-cache。应先通过
+RV32E寄存器规模、流水payload去冗余等结构调整回收面积，再将回收的面积按“减少周期数/
+新增面积”投入I-cache容量、控制流预测或小型数据缓冲。任何候选方案都必须重新运行相同
+MicroBench和STA，不能用不同I-cache容量的历史数字直接相减。

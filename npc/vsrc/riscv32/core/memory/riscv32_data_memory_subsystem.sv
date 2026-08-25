@@ -3,6 +3,7 @@
 // 路由选择在请求握手时锁定到响应完成，不能根据后续地址重新组合选择。cacheable普通
 // 内存进入D-cache；MMIO和低延迟片上存储走uncached；未映射或权限不允许的访问本地报错。
 module riscv32_data_memory_subsystem
+  import riscv_config_pkg::*;
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 (

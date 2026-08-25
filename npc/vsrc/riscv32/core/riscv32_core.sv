@@ -1,6 +1,7 @@
 // Synthesizable processor core. Simulation memory, DPI, and shared-system
 // arbitration are intentionally outside this module.
 module riscv32_core
+  import riscv_config_pkg::*;
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 #(
