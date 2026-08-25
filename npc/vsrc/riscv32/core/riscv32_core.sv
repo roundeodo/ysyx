@@ -184,6 +184,7 @@ module riscv32_core
   logic rs2_buffered_exu_forwarding_selected;
   logic rs2_lsu_forwarding_selected;
   logic rs2_writeback_forwarding_selected;
+  logic lsu_request_issue_allowed;
 
   always_comb begin
     decoded_execute_packet             = '0;
@@ -518,14 +519,19 @@ module riscv32_core
       .exu_result_ready_i    (exu_result_ready),
       .lsu_req_o             (lsu_req),
       .lsu_req_valid_o       (lsu_req_valid),
-      .lsu_req_ready_i       (lsu_req_ready)
+      .lsu_req_ready_i       (lsu_req_ready && lsu_request_issue_allowed)
   );
+
+  // 单项completion queue只能表达“一个老LSU + 一个年轻EX”的年龄关系。年轻EX尚未
+  // 交付时若再让LSU rollover接收下一条访存，单一lsu_transaction_active将无法区分
+  // 新访存其实比缓冲EX更年轻。这里在发起边界阻止该情况，维持严格顺序提交。
+  assign lsu_request_issue_allowed = !buffered_exu_result_present;
 
   riscv32_lsu u_lsu (
       .clk_i                   (clk_i),
       .rst_ni                  (rst_ni),
       .lsu_req_i               (lsu_req),
-      .lsu_req_valid_i         (lsu_req_valid),
+      .lsu_req_valid_i         (lsu_req_valid && lsu_request_issue_allowed),
       .lsu_req_ready_o         (lsu_req_ready),
       .lsu_transaction_active_o(lsu_transaction_active),
       .lsu_pending_writes_rd_o (lsu_pending_writes_rd),
@@ -799,6 +805,12 @@ module riscv32_core
     execute_redirect_occurred |->
       (decode_execute_flush && !execute_issue_allowed && !lsu_req_valid))
   else $error("registered execute redirect allowed a wrong-path EX side effect");
+
+  a_buffered_exu_completion_blocks_younger_lsu_issue :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    buffered_exu_result_present && lsu_req_valid |->
+      !(lsu_req_ready && lsu_request_issue_allowed))
+  else $error("pipeline issued a younger LSU request ahead of a buffered EX completion");
 
   /* verilator lint_on SYNCASYNCNET */
 `endif
