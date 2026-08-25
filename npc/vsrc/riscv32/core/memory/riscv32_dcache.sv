@@ -5,6 +5,7 @@
 // 增加bank、多MSHR、writeback queue和store buffer，而不是把AXI塞回LSU。
 module riscv32_dcache
   import riscv32_pkg::*;
+  import riscv32_addr_map_pkg::*;
   import riscv32_axi4_pkg::*;
 (
     input logic clk_i,

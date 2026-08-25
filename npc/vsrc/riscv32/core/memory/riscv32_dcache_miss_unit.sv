@@ -4,6 +4,7 @@
 // MSHR时应把本上下文扩展成队列，而不是让LSU或AXI ID承担cache内部状态。
 module riscv32_dcache_miss_unit
   import riscv32_pkg::*;
+  import riscv32_addr_map_pkg::*;
 (
     input logic clk_i,
     input logic rst_ni,
