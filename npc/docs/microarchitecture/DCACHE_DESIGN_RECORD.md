@@ -105,11 +105,11 @@ KV-cache元数据、量化解码、张量描述符以及加速器DMA控制。后
 store buffer、writeback queue、critical-word-first和多MSHR。两个配置的区别是物理实现和
 资源预算，不改变LSU语义请求、PMA和AXI系统边界。
 
-关闭D-cache后的受控课程配置采用64 B、2-way、8 B line I-cache。MicroBench `test`中，
-前端供给停顿占54.403%，LSU结构停顿占18.385%；I-cache命中率只有79.204%，而理想消除
-所有数据访问延迟的加速上限为1.230x。这说明当前课程配置不能根据“存在memory wall”就直接
-分配面积给D-cache：在极小I-cache下，前端首先耗尽了发射机会。后续候选结构必须用相同
-I-cache参数做A/B，分别计算减少的周期数和增加的标准单元面积。
+关闭D-cache后的当前RV32I工程配置采用128 B、direct-map、16 B line I-cache。MicroBench
+`test`中，前端供给停顿占41.471%，LSU结构停顿占30.611%，I-cache命中率为90.575%。这说明
+增大I-cache后数据侧已经成为共同瓶颈，但仍不能仅根据“存在memory wall”直接分配面积给
+D-cache。后续候选结构必须固定I-cache参数做A/B，分别计算减少的周期数、增加的标准单元
+面积和Fmax变化。
 
 ## 9. RV32I受控面积探索结论
 

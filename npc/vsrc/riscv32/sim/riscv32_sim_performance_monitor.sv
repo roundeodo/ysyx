@@ -26,7 +26,7 @@ module riscv32_sim_performance_monitor
     input logic frontend_supply_waiting_i,
     input logic pipeline_control_flush_occurred_i,
     input logic pipeline_execute_instruction_discarded_i,
-    input logic fetch_prediction_redirect_occurred_i,
+    input logic fetch_taken_prediction_occurred_i,
     input logic execute_misprediction_redirect_occurred_i,
 
     // 控制流结果在EX级真正完成握手时采样。预测收益必须按实际执行过的控制流指令
@@ -64,7 +64,7 @@ module riscv32_sim_performance_monitor
   logic     [63:0] other_no_issue_cycle_count_q;
   logic     [63:0] pipeline_control_flush_count_q;
   logic     [63:0] pipeline_execute_discard_count_q;
-  logic     [63:0] fetch_prediction_redirect_count_q;
+  logic     [63:0] fetch_taken_prediction_count_q;
   logic     [63:0] execute_misprediction_redirect_count_q;
   logic     [63:0] conditional_branch_correction_count_q;
   logic     [63:0] direct_jump_correction_count_q;
@@ -269,7 +269,7 @@ module riscv32_sim_performance_monitor
       other_no_issue_cycle_count_q                        <= '0;
       pipeline_control_flush_count_q                      <= '0;
       pipeline_execute_discard_count_q                    <= '0;
-      fetch_prediction_redirect_count_q                   <= '0;
+      fetch_taken_prediction_count_q                      <= '0;
       execute_misprediction_redirect_count_q              <= '0;
       conditional_branch_correction_count_q               <= '0;
       direct_jump_correction_count_q                      <= '0;
@@ -348,8 +348,8 @@ module riscv32_sim_performance_monitor
       if (pipeline_execute_instruction_discarded_i) begin
         pipeline_execute_discard_count_q <= pipeline_execute_discard_count_q + 64'd1;
       end
-      if (fetch_prediction_redirect_occurred_i) begin
-        fetch_prediction_redirect_count_q <= fetch_prediction_redirect_count_q + 64'd1;
+      if (fetch_taken_prediction_occurred_i) begin
+        fetch_taken_prediction_count_q <= fetch_taken_prediction_count_q + 64'd1;
       end
       if (execute_misprediction_redirect_occurred_i) begin
         execute_misprediction_redirect_count_q <=
@@ -777,8 +777,8 @@ module riscv32_sim_performance_monitor
     $display("  other empty issue slots             : %0d (%.3f%%)",
              other_no_issue_cycle_count_q,
              calculate_percentage(other_no_issue_cycle_count_q, active_cycle_count_q));
-    $display("recovery redirects / fetch predictions / EX corrections: %0d / %0d / %0d",
-             pipeline_control_flush_count_q, fetch_prediction_redirect_count_q,
+    $display("recovery redirects / taken fetch predictions / EX corrections: %0d / %0d / %0d",
+             pipeline_control_flush_count_q, fetch_taken_prediction_count_q,
              execute_misprediction_redirect_count_q);
     $display("actual EX corrections by branch / JAL / JALR          : %0d / %0d / %0d",
              conditional_branch_correction_count_q, direct_jump_correction_count_q,

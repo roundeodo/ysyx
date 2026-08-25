@@ -12,6 +12,12 @@ module riscv32_ifu
     input redirect_req_t redirect_req_i,
     input logic          redirect_req_valid_i,
 
+    // 请求侧预测器是组合查询接口。IFU用即将发出的请求PC查询，并在请求握手时保存
+    // prediction；响应回来后不再重新译码指令或计算next PC。
+    output program_counter_t   next_pc_predictor_lookup_pc_o,
+    input  branch_prediction_t next_pc_predictor_prediction_i,
+    input  program_counter_t   next_pc_predictor_next_pc_i,
+
     // IFU只描述取指语义，不感知cache组织、refill顺序或AXI4通道。
     output icache_lookup_req_t  icache_lookup_req_o,
     output logic                icache_lookup_req_valid_o,
@@ -54,6 +60,11 @@ module riscv32_ifu
   fetch_epoch_t current_fetch_epoch_q;
   fetch_epoch_t current_fetch_epoch_d;
 
+  // 当前唯一在途lookup所采用的预测。它与请求PC、tag和epoch在同一次请求握手时采样，
+  // 因此I-cache响应回来时可以直接附到对应fetch entry，供EX精确检查实际后继PC。
+  branch_prediction_t lookup_prediction_q;
+  branch_prediction_t lookup_prediction_d;
+
   // I-cache响应在这里组合转换为前端entry；IFU不重复保存payload。
   // IFU负责PC和请求身份，I-cache负责命中、refill以及反压期间的响应保持。
   fetch_entry_t lookup_response_fetch_entry;
@@ -64,6 +75,11 @@ module riscv32_ifu
 
   assign lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
   assign lookup_response_handshake = icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
+
+  // SEND状态查询当前待发送PC；WAIT状态预先查询当前响应交付后将发送的预测后继PC。
+  // 这样I-cache响应只负责触发下一请求握手，不再位于预测组合路径上。
+  assign next_pc_predictor_lookup_pc_o =
+      (state_q == IFU_SEND_LOOKUP) ? lookup_pc_q : next_fetch_request_pc_q;
 
   // 响应是否属于当前控制流只由请求携带的epoch决定。不能用组合redirect压低valid，
   // 否则当前响应经过IDU/EXU产生redirect后会反向改变自身valid，构成组合环。
@@ -77,7 +93,7 @@ module riscv32_ifu
     lookup_response_fetch_entry.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
     lookup_response_fetch_entry.instruction     = icache_lookup_resp_i.fetch_data;
     lookup_response_fetch_entry.frontend_tag    = icache_lookup_resp_i.frontend_tag;
-    lookup_response_fetch_entry.prediction      = '0;
+    lookup_response_fetch_entry.prediction      = lookup_prediction_q;
     lookup_response_fetch_entry.exception_valid = icache_lookup_resp_i.access_fault;
     lookup_response_fetch_entry.exception_cause = EXC_INSTR_ACCESS_FAULT;
     lookup_response_fetch_entry.exception_tval  = xlen_data_t'(icache_lookup_resp_i.fetch_addr);
@@ -140,6 +156,7 @@ module riscv32_ifu
     next_frontend_tag_d      = next_frontend_tag_q;
     lookup_fetch_epoch_d     = lookup_fetch_epoch_q;
     current_fetch_epoch_d    = current_fetch_epoch_q;
+    lookup_prediction_d      = lookup_prediction_q;
 
     if (redirect_req_valid_i) begin
       next_fetch_request_pc_d = redirect_req_i.target_pc;
@@ -149,8 +166,9 @@ module riscv32_ifu
     unique case (state_q)
       IFU_SEND_LOOKUP: begin
         if (lookup_request_handshake) begin
-          state_d             = IFU_WAIT_LOOKUP_RESPONSE;
-          next_frontend_tag_d = next_frontend_tag_q + frontend_tag_t'(1);
+          state_d                = IFU_WAIT_LOOKUP_RESPONSE;
+          next_frontend_tag_d    = next_frontend_tag_q + frontend_tag_t'(1);
+          lookup_prediction_d    = next_pc_predictor_prediction_i;
           // redirect可能与上一条lookup响应握手同拍出现。此时状态在时钟沿后已经回到
           // SEND_LOOKUP，但lookup_pc_q/lookup_fetch_epoch_q仍属于旧控制流；即使随后旧请求
           // 被I-cache接受，也只能等待并丢弃它的响应，不能用lookup_pc_q + 4覆盖已经保存
@@ -159,8 +177,7 @@ module riscv32_ifu
               (lookup_fetch_epoch_q == current_fetch_epoch_q)) begin
             // ICACHE_FETCH_BYTES描述一次cache lookup返回多少字节，不等于ISA顺序PC步长。
             // 将二者解耦后，扩大cache line或未来一次取多条指令都不会让PC错误跳过指令。
-            next_fetch_request_pc_d =
-                lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES);
+            next_fetch_request_pc_d = next_pc_predictor_next_pc_i;
           end
         end
       end
@@ -170,9 +187,9 @@ module riscv32_ifu
             // 当前响应与下一顺序请求同拍完成。新请求已经成为唯一在途请求，因此继续
             // 停留在WAIT状态，并为再下一条顺序指令准备PC和tag。
             lookup_pc_d              = next_fetch_request_pc_q;
-            next_fetch_request_pc_d  =
-                next_fetch_request_pc_q + program_counter_t'(INSTRUCTION_BYTES);
+            next_fetch_request_pc_d  = next_pc_predictor_next_pc_i;
             lookup_fetch_epoch_d     = current_fetch_epoch_q;
+            lookup_prediction_d      = next_pc_predictor_prediction_i;
             next_frontend_tag_d      = next_frontend_tag_q + frontend_tag_t'(1);
             state_d                  = IFU_WAIT_LOOKUP_RESPONSE;
           end else begin
@@ -193,6 +210,7 @@ module riscv32_ifu
         next_frontend_tag_d      = '0;
         lookup_fetch_epoch_d     = '0;
         current_fetch_epoch_d    = '0;
+        lookup_prediction_d      = '0;
       end
     endcase
   end
@@ -214,12 +232,14 @@ module riscv32_ifu
       next_frontend_tag_q      <= '0;
       lookup_fetch_epoch_q     <= '0;
       current_fetch_epoch_q    <= '0;
+      lookup_prediction_q      <= '0;
     end else begin
       lookup_pc_q              <= lookup_pc_d;
       next_fetch_request_pc_q  <= next_fetch_request_pc_d;
       next_frontend_tag_q      <= next_frontend_tag_d;
       lookup_fetch_epoch_q     <= lookup_fetch_epoch_d;
       current_fetch_epoch_q    <= current_fetch_epoch_d;
+      lookup_prediction_q      <= lookup_prediction_d;
     end
   end
 

@@ -246,9 +246,7 @@ package riscv32_pkg;
     REDIRECT_MRET              = 3'd3,
     REDIRECT_MEMORY_REPLAY     = 3'd4,
     REDIRECT_DEBUG             = 3'd5,
-    REDIRECT_FENCE_I           = 3'd6,
-    // 静态预测只改变后续取指PC，不清除fetch buffer中更老的顺序指令。
-    REDIRECT_FETCH_PREDICTION = 3'd7
+    REDIRECT_FENCE_I           = 3'd6
   } redirect_reason_e;
 
   typedef enum logic [1:0] {
@@ -507,9 +505,9 @@ package riscv32_pkg;
   // access fault是否单独计数必须在设计记录中冻结，不能让两个监视器使用不同定义。
 
   // Frontend payloads
-  // 当前BHT只预测方向，B/J目标可由EX重新计算；RAS目标必须随指令保存以检查目标错误。
-  // 不预留未使用的固定宽度预测器元数据。未来引入TAGE/BTB checkpoint时，应根据
-  // 恢复算法定义有明确生产者和消费者的metadata类型，再加入前端payload。
+  // prediction记录IFU发出该指令请求时真正采用的后继选择。EX必须同时比较方向和目标；
+  // 即使B/J目标可重新计算，也不能用重算结果替代predicted_target，否则BTB旧目标或别名
+  // 无法触发恢复。未来引入TAGE checkpoint时，再增加有明确消费者的metadata。
   typedef struct packed {
     logic             predicted_taken;
     program_counter_t predicted_target;

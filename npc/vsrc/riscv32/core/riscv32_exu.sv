@@ -142,11 +142,10 @@ module riscv32_exu
   assign sequential_next_pc = execute_packet_i.uop.pc +
                               program_counter_t'(INSTRUCTION_BYTES);
   assign actual_next_pc = branch_taken ? branch_target : sequential_next_pc;
-  // B/J目标可由EX根据pc+imm重算；RAS预测的JALR目标来自动态调用历史，必须使用前端
-  // 随uop携带的predicted_target。这样方向正确但返回地址错误时仍会触发redirect。
+  // predicted_target必须是IFU请求时真正采用的目标。对所有taken预测都使用该值，才能
+  // 发现BTB别名、旧目标以及RAS目标错误；用EX重算目标替代它会掩盖取错路径。
   assign predicted_next_pc = execute_packet_i.uop.prediction.predicted_taken ?
-                             ((execute_packet_i.uop.branch_ctrl.op == CF_JALR) ?
-                              execute_packet_i.uop.prediction.predicted_target : branch_target) :
+                             execute_packet_i.uop.prediction.predicted_target :
                              sequential_next_pc;
   assign branch_target_misaligned = branch_taken && (branch_target[1:0] != 2'b00);
   assign branch_prediction_mismatch = actual_next_pc != predicted_next_pc;

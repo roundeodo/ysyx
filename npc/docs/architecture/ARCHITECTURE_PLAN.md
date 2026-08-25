@@ -245,12 +245,13 @@ SoC AXI、APB 或 TileLink 只存在于系统边界和 adapter 中。IFU、LSU �
 
 状态：RTL实现完成，验证收口中。
 
-- 当前检查点：8 KiB、2-way、32 B line、blocking miss；
+- 当前RV32I工程检查点：128 B、direct-map、16 B line、单MSHR；长期AI配置从8 KiB、
+  2-way和SRAM macro起步重新探索；
 - meta/data/miss/refill/PMA分离，refill通过完整AXI4 INCR burst取回cache line；
 - 参数合法性检查、随机延迟、redirect 和 `fence.i`；
 - 记录命中率、平均取指延迟、WNS 和面积。
 
-已经完成公共类型、PMA、tag/data array、AXI4 refill、blocking miss unit、S0/S1/S2 lookup、
+已经完成公共类型、PMA、tag/data array、AXI4 refill、blocking miss unit、S0/S1/响应组合级lookup、
 fetch buffer、IFU/core接线、PMU事件和`fence.i`路径。P1退出条件仍包括定向验证、完整功能
 回归、microbench A/B以及综合/STA记录，不能以lint和dummy通过替代。
 

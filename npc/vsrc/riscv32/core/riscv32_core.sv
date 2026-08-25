@@ -18,11 +18,10 @@ module riscv32_core
     output axi4_manager_to_target_t data_axi4_manager_o,
     input  axi4_target_to_manager_t data_axi4_manager_i
 );
-  localparam int unsigned REDIRECT_SOURCE_COUNT = 4;
-  localparam int unsigned FETCH_PREDICTION_REDIRECT_INDEX = 0;
-  localparam int unsigned EXU_REDIRECT_INDEX = 1;
-  localparam int unsigned FENCE_I_REDIRECT_INDEX = 2;
-  localparam int unsigned COMMIT_REDIRECT_INDEX = 3;
+  localparam int unsigned REDIRECT_SOURCE_COUNT = 3;
+  localparam int unsigned EXU_REDIRECT_INDEX = 0;
+  localparam int unsigned FENCE_I_REDIRECT_INDEX = 1;
+  localparam int unsigned COMMIT_REDIRECT_INDEX = 2;
 
   icache_lookup_req_t icache_lookup_req;
   logic icache_lookup_req_valid;
@@ -77,9 +76,11 @@ module riscv32_core
   fetch_entry_t ifu_fetch_entry;
   logic ifu_fetch_entry_valid;
   logic ifu_fetch_entry_ready;
-  fetch_entry_t predicted_fetch_entry;
-  redirect_req_t fetch_prediction_redirect_req;
-  logic fetch_prediction_redirect_req_valid;
+  program_counter_t next_pc_predictor_lookup_pc;
+  branch_prediction_t next_pc_predictor_prediction;
+  program_counter_t next_pc_predictor_next_pc;
+  program_counter_t resolved_control_flow_target;
+  logic fetch_taken_prediction_occurred;
   fetch_entry_t idu_fetch_entry;
   logic idu_fetch_entry_valid;
   logic idu_fetch_entry_ready;
@@ -195,6 +196,9 @@ module riscv32_core
       .rst_ni                    (rst_ni),
       .redirect_req_i            (selected_redirect_req),
       .redirect_req_valid_i      (selected_redirect_req_valid),
+      .next_pc_predictor_lookup_pc_o(next_pc_predictor_lookup_pc),
+      .next_pc_predictor_prediction_i(next_pc_predictor_prediction),
+      .next_pc_predictor_next_pc_i(next_pc_predictor_next_pc),
       .icache_lookup_req_o       (icache_lookup_req),
       .icache_lookup_req_valid_o (icache_lookup_req_valid),
       .icache_lookup_req_ready_i (icache_lookup_req_ready && frontend_memory_access_allowed),
@@ -232,7 +236,7 @@ module riscv32_core
   ) u_fetch_buffer (
       .clk_i                  (clk_i),
       .rst_ni                 (rst_ni),
-      .ifu_fetch_entry_i      (predicted_fetch_entry),
+      .ifu_fetch_entry_i      (ifu_fetch_entry),
       .ifu_fetch_entry_valid_i(ifu_fetch_entry_valid),
       .ifu_fetch_entry_ready_o(ifu_fetch_entry_ready),
       .idu_fetch_entry_o      (idu_fetch_entry),
@@ -241,14 +245,21 @@ module riscv32_core
       .flush_i                (frontend_recovery_occurred)
   );
 
-  // 预测器位于I-cache响应与fetch buffer之间。预测命中只选择后续取指PC，不清空已经
-  // 按程序顺序进入队列的老指令；只有EX纠错或提交级redirect才执行前端恢复清空。
+  // 请求侧预测器在I-cache请求握手时决定预测后继PC。IFU把该prediction与请求一起保存，
+  // 响应返回时直接附到fetch entry；正确预测不再产生redirect或清空fetch buffer。
+  assign resolved_control_flow_target =
+      (exu_result.uop.branch_ctrl.op == CF_JALR) ?
+      exu_result.next_pc :
+      exu_result.uop.pc + program_counter_t'(exu_result.uop.imm);
+
   riscv32_fetch_control_flow_predictor u_fetch_control_flow_predictor (
       .clk_i                              (clk_i),
       .rst_ni                             (rst_ni),
-      .fetch_entry_i                      (ifu_fetch_entry),
-      .fetch_entry_handshake_occurred_i   (ifu_fetch_entry_valid && ifu_fetch_entry_ready),
+      .lookup_pc_i                        (next_pc_predictor_lookup_pc),
+      .lookup_prediction_o                (next_pc_predictor_prediction),
+      .lookup_next_pc_o                   (next_pc_predictor_next_pc),
       .resolved_control_flow_pc_i         (exu_result.uop.pc),
+      .resolved_control_flow_target_i     (resolved_control_flow_target),
       .resolved_control_flow_op_i         (exu_result.uop.branch_ctrl.op),
       .resolved_control_flow_rs1_i        (exu_result.uop.rs1),
       .resolved_control_flow_rd_i         (exu_result.uop.rd),
@@ -261,10 +272,13 @@ module riscv32_core
           (exu_result.next_pc !=
            (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
-      .predicted_fetch_entry_o            (predicted_fetch_entry),
-      .prediction_redirect_req_o          (fetch_prediction_redirect_req),
-      .prediction_redirect_req_valid_o    (fetch_prediction_redirect_req_valid)
+      .invalidate_i                       (committed_fence_i_occurred)
   );
+
+  // 该事件表示IFU真正接受了一个采用taken预测的请求，不是一次前端恢复或flush。
+  assign fetch_taken_prediction_occurred =
+      icache_lookup_req_valid && icache_lookup_req_ready &&
+      frontend_memory_access_allowed && next_pc_predictor_prediction.predicted_taken;
 
   riscv32_icache_refill_axi4_master u_icache_refill_axi4_master (
       .clk_i              (clk_i),
@@ -552,7 +566,7 @@ module riscv32_core
                                  !commit_redirect_occurred),
       .pipeline_control_flush_occurred_i(frontend_recovery_occurred),
       .pipeline_execute_instruction_discarded_i(commit_redirect_occurred && execute_packet_valid),
-      .fetch_prediction_redirect_occurred_i(fetch_prediction_redirect_req_valid),
+      .fetch_taken_prediction_occurred_i(fetch_taken_prediction_occurred),
       // 性能分类必须在EX结果有效的原始拍采样op；registered redirect晚一拍，
       // 若用它与当前exu_result配对，会把纠错归到下一条无关指令。
       .execute_misprediction_redirect_occurred_i(execute_redirect_resolution_occurred),
@@ -625,9 +639,6 @@ module riscv32_core
   );
 
   assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
-  assign redirect_req[FETCH_PREDICTION_REDIRECT_INDEX] = fetch_prediction_redirect_req;
-  assign redirect_req_valid[FETCH_PREDICTION_REDIRECT_INDEX] =
-      fetch_prediction_redirect_req_valid;
   assign redirect_req[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
   assign redirect_req_valid[FENCE_I_REDIRECT_INDEX] = committed_fence_i_occurred;
 
