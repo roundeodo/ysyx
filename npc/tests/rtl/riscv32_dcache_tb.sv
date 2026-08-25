@@ -218,6 +218,48 @@ module riscv32_dcache_tb;
     clean_req = 1'b0;
   endtask
 
+  // 连续发出store hit和同地址load。第二个请求必须与store响应同拍握手，下一拍
+  // 返回的数据必须经过显式read-during-write bypass看到刚写入的值。
+  task automatic issue_store_then_load_without_gap(
+      input phys_addr_t addr,
+      input core_data_t store_data,
+      output core_data_t load_data
+  );
+    @(negedge clk);
+    data_memory_req = '0;
+    data_memory_req.addr = addr;
+    data_memory_req.cmd = MEM_CMD_STORE;
+    data_memory_req.size = TEST_WORD_SIZE;
+    data_memory_req.write_data = store_data;
+    data_memory_req.byte_strobe = '1;
+    data_memory_req.transaction_id = mem_txn_id_t'(3);
+    data_memory_req_valid = 1'b1;
+
+    while (!data_memory_req_ready) @(negedge clk);
+    @(negedge clk);
+    assert (data_memory_resp_valid &&
+            data_memory_resp.transaction_id == mem_txn_id_t'(3))
+      else $fatal(1, "D-cache store hit did not respond before rollover lookup");
+
+    data_memory_req = '0;
+    data_memory_req.addr = addr;
+    data_memory_req.cmd = MEM_CMD_LOAD;
+    data_memory_req.size = TEST_WORD_SIZE;
+    data_memory_req.transaction_id = mem_txn_id_t'(4);
+    assert (data_memory_req_ready)
+      else $fatal(1, "D-cache inserted a fixed bubble after a store hit");
+
+    @(negedge clk);
+    data_memory_req_valid = 1'b0;
+    assert (data_memory_resp_valid &&
+            data_memory_resp.transaction_id == mem_txn_id_t'(4))
+      else $fatal(1, "D-cache rollover load did not respond on the next cycle");
+    assert (!data_memory_resp.access_fault)
+      else $fatal(1, "D-cache rollover load returned an unexpected access fault");
+    load_data = data_memory_resp.read_data;
+    @(negedge clk);
+  endtask
+
   initial begin
     core_data_t read_data;
     core_data_t original_a;
@@ -260,11 +302,9 @@ module riscv32_dcache_tb;
     assert (read_address_handshake_count == read_count_after_first_miss)
       else $fatal(1, "D-cache hit incorrectly issued an AXI read");
 
-    issue_memory_request(TEST_ADDR_A, MEM_CMD_STORE, stored_a, '1,
-                         mem_txn_id_t'(3), read_data);
+    issue_store_then_load_without_gap(TEST_ADDR_A, stored_a, read_data);
     assert (write_address_handshake_count == 0)
       else $fatal(1, "write-back D-cache wrote a store hit to AXI immediately");
-    issue_memory_request(TEST_ADDR_A, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(4), read_data);
     assert (read_data == stored_a)
       else $fatal(1, "D-cache load did not observe a preceding store hit");
 

@@ -513,6 +513,9 @@ package riscv32_pkg;
     logic lookup_response_present;
     logic lookup_response_is_cache_hit;
     logic lookup_request_waiting;
+    // store hit交付旧响应的同拍又接收了下一请求。该事件用于量化显式
+    // read-during-write bypass实际消除的气泡数。
+    logic store_hit_and_next_lookup_occurred;
     logic miss_occurred;
     logic dirty_victim_miss_occurred;
     logic refill_request_occurred;

@@ -43,6 +43,21 @@ module riscv32_dcache
     return dcache_tag_t'(addr >> (DCACHE_LINE_OFFSET_W + DCACHE_SET_INDEX_BITS));
   endfunction
 
+  function automatic core_data_t merge_store_bytes(
+      input core_data_t original_word,
+      input core_data_t store_word,
+      input core_byte_strobe_t byte_strobe
+  );
+    core_data_t merged_word;
+    merged_word = original_word;
+    for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
+      if (byte_strobe[byte_index]) begin
+        merged_word[byte_index*8+:8] = store_word[byte_index*8+:8];
+      end
+    end
+    return merged_word;
+  endfunction
+
   // S0握手同时启动同步array read；S1保存请求身份并在下一拍完成tag compare。
   data_memory_req_t lookup_s1_q;
   logic lookup_s1_present_q, lookup_s1_present_d;
@@ -104,14 +119,38 @@ module riscv32_dcache
   );
 
   logic [DCACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
+  logic [DCACHE_WAY_COUNT-1:0] lookup_line_dirty_vector;
   logic lookup_hit;
   dcache_way_index_t lookup_hit_way_index;
   core_data_t lookup_hit_word_data;
   dcache_way_index_t replacement_way_index;
   logic replacement_invalid_way_found;
 
+  // store hit写array的同拍允许下一请求启动同步读。宏的read-during-write语义可能是
+  // old-data，因此显式保存刚提交的store，并只在紧随其后的S1访问中覆盖对应byte。
+  // 同set不同tag的下一请求若miss，也必须看到该way已经变dirty，避免替换时漏写回。
+  logic store_write_bypass_present_q;
+  dcache_set_index_t store_write_bypass_set_index_q;
+  dcache_way_index_t store_write_bypass_way_index_q;
+  dcache_word_index_t store_write_bypass_word_index_q;
+  core_data_t store_write_bypass_data_q;
+  core_byte_strobe_t store_write_bypass_byte_strobe_q;
+  logic store_write_bypass_matches_lookup_line;
+  logic store_write_bypass_matches_lookup_word;
+
+  assign store_write_bypass_matches_lookup_line =
+      store_write_bypass_present_q &&
+      (store_write_bypass_set_index_q == get_set_index(lookup_s1_q.addr));
+  assign store_write_bypass_matches_lookup_word =
+      store_write_bypass_matches_lookup_line &&
+      (store_write_bypass_word_index_q == get_word_index(lookup_s1_q.addr));
+
   always_comb begin
     lookup_way_hit_vector = '0;
+    lookup_line_dirty_vector = array_read_line_dirty_vector;
+    if (store_write_bypass_matches_lookup_line) begin
+      lookup_line_dirty_vector[store_write_bypass_way_index_q] = 1'b1;
+    end
     lookup_hit = 1'b0;
     lookup_hit_way_index = '0;
     lookup_hit_word_data = '0;
@@ -124,6 +163,14 @@ module riscv32_dcache
         lookup_hit = 1'b1;
         lookup_hit_way_index = dcache_way_index_t'(way_index);
         lookup_hit_word_data = array_read_word_data_array[way_index];
+        if (store_write_bypass_matches_lookup_word &&
+            store_write_bypass_way_index_q == dcache_way_index_t'(way_index)) begin
+          lookup_hit_word_data = merge_store_bytes(
+              array_read_word_data_array[way_index],
+              store_write_bypass_data_q,
+              store_write_bypass_byte_strobe_q
+          );
+        end
       end
     end
   end
@@ -408,15 +455,15 @@ module riscv32_dcache
     miss_req.replacement_way_index = replacement_way_index;
     miss_req.victim_tag = array_read_tag_array[replacement_way_index];
     miss_req.victim_present = array_read_line_present_vector[replacement_way_index];
-    miss_req.victim_dirty = array_read_line_dirty_vector[replacement_way_index];
+    miss_req.victim_dirty = lookup_line_dirty_vector[replacement_way_index];
     miss_req_valid = lookup_s1_present_q && !lookup_hit && !clean_blocks_lookup;
   end
   assign miss_req_handshake = miss_req_valid && miss_req_ready;
 
-  // hit load允许同拍接收下一请求；store hit后不做同拍读，以免依赖SRAM读写冲突模式。
+  // 所有hit响应都允许同拍启动下一lookup。store后的显式bypass定义了SRAM
+  // read-during-write行为，因此连续load/store不再为了宏语义固定空转一拍。
   assign data_memory_req_ready_o =
-      (!lookup_s1_present_q ||
-       (local_resp_handshake && lookup_s1_q.cmd != MEM_CMD_STORE)) &&
+      (!lookup_s1_present_q || local_resp_handshake) &&
       !miss_transaction_present && !clean_blocks_lookup;
   assign lookup_req_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
 
@@ -426,8 +473,6 @@ module riscv32_dcache
       lookup_s1_present_d = 1'b0;
     end else if (data_memory_req_ready_o) begin
       lookup_s1_present_d = lookup_req_handshake;
-    end else if (store_hit_write_occurred) begin
-      lookup_s1_present_d = 1'b0;
     end
   end
 
@@ -438,6 +483,21 @@ module riscv32_dcache
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) lookup_s1_present_q <= 1'b0;
     else lookup_s1_present_q <= lookup_s1_present_d;
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      store_write_bypass_present_q <= 1'b0;
+    end else begin
+      store_write_bypass_present_q <= store_hit_write_occurred && lookup_req_handshake;
+      if (store_hit_write_occurred && lookup_req_handshake) begin
+        store_write_bypass_set_index_q <= get_set_index(lookup_s1_q.addr);
+        store_write_bypass_way_index_q <= lookup_hit_way_index;
+        store_write_bypass_word_index_q <= get_word_index(lookup_s1_q.addr);
+        store_write_bypass_data_q <= lookup_s1_q.write_data;
+        store_write_bypass_byte_strobe_q <= lookup_s1_q.byte_strobe;
+      end
+    end
   end
 
   // array端口仲裁：miss victim读取优先，其次clean set读取，最后是正常lookup。
@@ -513,6 +573,8 @@ module riscv32_dcache
     event_o.lookup_response_is_cache_hit            = local_resp_valid && !miss_resp_valid;
     event_o.lookup_request_waiting                  = data_memory_req_valid_i &&
                                                       !data_memory_req_ready_o;
+    event_o.store_hit_and_next_lookup_occurred      = store_hit_write_occurred &&
+                                                      lookup_req_handshake;
     event_o.miss_occurred                           = miss_req_handshake;
     event_o.dirty_victim_miss_occurred              = miss_req_handshake &&
                                                       miss_req.victim_present &&

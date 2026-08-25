@@ -29,6 +29,7 @@ module riscv32_sim_dcache_performance_monitor
   logic [63:0] writeback_request_count_q;
   logic [63:0] writeback_response_count_q;
   logic [63:0] lookup_request_wait_cycle_count_q;
+  logic [63:0] store_hit_and_next_lookup_count_q;
   logic [63:0] hit_latency_cycle_sum_q;
   logic [63:0] miss_response_latency_cycle_sum_q;
   logic [63:0] clean_miss_response_latency_cycle_sum_q;
@@ -103,6 +104,7 @@ module riscv32_sim_dcache_performance_monitor
       writeback_request_count_q            <= '0;
       writeback_response_count_q           <= '0;
       lookup_request_wait_cycle_count_q    <= '0;
+      store_hit_and_next_lookup_count_q    <= '0;
       hit_latency_cycle_sum_q              <= '0;
       miss_response_latency_cycle_sum_q    <= '0;
       clean_miss_response_latency_cycle_sum_q <= '0;
@@ -116,6 +118,11 @@ module riscv32_sim_dcache_performance_monitor
     end else begin
       lookup_request_wait_cycle_count_q <= lookup_request_wait_cycle_count_q +
                                              64'(dcache_event_i.lookup_request_waiting);
+      store_hit_and_next_lookup_count_q <= store_hit_and_next_lookup_count_q +
+                                             64'(
+                                                 dcache_event_i.
+                                                 store_hit_and_next_lookup_occurred
+                                             );
       dirty_victim_miss_count_q         <= dirty_victim_miss_count_q +
                                              64'(dcache_event_i.dirty_victim_miss_occurred);
       refill_request_count_q            <= refill_request_count_q +
@@ -243,6 +250,8 @@ module riscv32_sim_dcache_performance_monitor
                line_install_count_q, writeback_request_count_q, writeback_response_count_q);
       $display("lookup request waiting cycles              : %0d",
                lookup_request_wait_cycle_count_q);
+      $display("store-hit same-cycle next lookups          : %0d",
+               store_hit_and_next_lookup_count_q);
       $display("==========================================================");
     end
   end
