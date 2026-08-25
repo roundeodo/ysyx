@@ -323,13 +323,15 @@ module riscv32_lsu
         lsu_writeback_o          = memory_writeback;
         lsu_writeback_valid_o    = data_memory_resp_valid_i;
 
-        // 顺序核只在老response确定能够离开LSU时接收下一条访存，而且新请求必须同拍被
-        // 存储层接收。这样只有一个pending上下文，不增加队列，也不会覆盖尚未完成的请求。
+        // 老response离开时，pending上下文可在同一时钟沿改写为下一条访存。上游ready
+        // 只依赖这个本地槽位即将释放，不依赖data_memory_req_ready_i；若存储层没有同拍
+        // 接收新请求，下一状态转入SEND并从已锁存上下文重发。这样切断存储系统到前端的
+        // 组合ready路径，同时保留存储层可接收时的同拍快速滚动。
         // 本地异常不能在这里滚动，因为本拍唯一completion口已经属于老response。
         if (data_memory_resp_valid_i && lsu_writeback_ready_i &&
             lsu_req_valid_i && !incoming_complete_locally) begin
           data_memory_req_valid_o = 1'b1;
-          lsu_req_ready_o         = data_memory_req_ready_i;
+          lsu_req_ready_o         = 1'b1;
         end
       end
 
@@ -361,9 +363,14 @@ module riscv32_lsu
 
       LSU_WAIT_MEMORY_RESPONSE: begin
         if (data_memory_resp_handshake) begin
-          // 新请求与老响应同拍握手时直接保持WAIT，下一拍pending上下文已经换成新请求。
-          // 否则返回IDLE，后续请求继续使用原有零入口延迟路径。
-          state_d = lsu_req_handshake ? LSU_WAIT_MEMORY_RESPONSE : LSU_IDLE;
+          if (lsu_req_handshake) begin
+            // 存储层同拍接收新请求时继续等待其response；被反压时先进入SEND，不能因为
+            // 上游握手已经完成而丢失刚写入pending上下文的新请求。
+            state_d = data_memory_req_handshake ? LSU_WAIT_MEMORY_RESPONSE :
+                                                  LSU_SEND_MEMORY_REQUEST;
+          end else begin
+            state_d = LSU_IDLE;
+          end
         end
       end
 
@@ -414,8 +421,15 @@ module riscv32_lsu
   a_rolled_request_replaces_only_completed_context :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == LSU_WAIT_MEMORY_RESPONSE && lsu_req_handshake)
-    |-> (data_memory_resp_handshake && data_memory_req_handshake))
-  else $error("LSU replaced a pending context without completing the old response and issuing the new request");
+    |-> data_memory_resp_handshake)
+  else $error("LSU replaced a pending context before the old response completed");
+
+  a_backpressured_rolled_request_is_reissued :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_WAIT_MEMORY_RESPONSE && lsu_req_handshake &&
+     !data_memory_req_handshake)
+    |=> (state_q == LSU_SEND_MEMORY_REQUEST && data_memory_req_valid_o))
+  else $error("LSU lost a rolled request rejected by the data-memory subsystem");
 
   a_exception_writeback_has_no_register_write :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

@@ -607,6 +607,7 @@ module riscv32_core
       ),
       .ifu_instruction_delivery_occurred_i(idu_fetch_entry_valid && idu_fetch_entry_ready),
       .ifu_downstream_waiting_i(idu_fetch_entry_valid && !idu_fetch_entry_ready),
+      .icache_miss_occurred_i(icache_event.miss_occurred),
       .instruction_decode_occurred_i(decoded_uop_valid && decoded_uop_ready),
       .decoded_fu_type_i(decoded_uop.fu_type),
       .decoded_memory_cmd_i(decoded_uop.mem_ctrl.cmd),

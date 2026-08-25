@@ -12,6 +12,7 @@ module riscv32_sim_performance_monitor
     input logic ifu_instruction_response_discarded_occurred_i,
     input logic ifu_instruction_delivery_occurred_i,
     input logic ifu_downstream_waiting_i,
+    input logic icache_miss_occurred_i,
 
     input logic     instruction_decode_occurred_i,
     input fu_type_e decoded_fu_type_i,
@@ -61,6 +62,10 @@ module riscv32_sim_performance_monitor
   logic     [63:0] raw_dependency_stall_cycle_count_q;
   logic     [63:0] serializing_stall_cycle_count_q;
   logic     [63:0] frontend_supply_stall_cycle_count_q;
+  logic     [63:0] frontend_request_backpressure_stall_cycle_count_q;
+  logic     [63:0] frontend_cache_miss_service_stall_cycle_count_q;
+  logic     [63:0] frontend_lookup_response_stall_cycle_count_q;
+  logic     [63:0] frontend_request_launch_or_delivery_gap_cycle_count_q;
   logic     [63:0] other_no_issue_cycle_count_q;
   logic     [63:0] pipeline_control_flush_count_q;
   logic     [63:0] pipeline_execute_discard_count_q;
@@ -118,6 +123,7 @@ module riscv32_sim_performance_monitor
   logic     [63:0] ifu_response_latency_cycle_sum_q;
   logic     [63:0] ifu_response_elapsed_cycle_count_q;
   logic            ifu_response_pending_q;
+  logic            icache_miss_service_pending_q;
 
   logic     [63:0] lsu_request_count_q;
   logic     [63:0] lsu_load_operation_count_q;
@@ -266,6 +272,10 @@ module riscv32_sim_performance_monitor
       raw_dependency_stall_cycle_count_q                  <= '0;
       serializing_stall_cycle_count_q                     <= '0;
       frontend_supply_stall_cycle_count_q                 <= '0;
+      frontend_request_backpressure_stall_cycle_count_q   <= '0;
+      frontend_cache_miss_service_stall_cycle_count_q     <= '0;
+      frontend_lookup_response_stall_cycle_count_q        <= '0;
+      frontend_request_launch_or_delivery_gap_cycle_count_q <= '0;
       other_no_issue_cycle_count_q                        <= '0;
       pipeline_control_flush_count_q                      <= '0;
       pipeline_execute_discard_count_q                    <= '0;
@@ -338,6 +348,22 @@ module riscv32_sim_performance_monitor
           serializing_stall_cycle_count_q <= serializing_stall_cycle_count_q + 64'd1;
         end else if (frontend_supply_waiting_i) begin
           frontend_supply_stall_cycle_count_q <= frontend_supply_stall_cycle_count_q + 64'd1;
+          // Frontend子分类仍保持互斥。优先记录当前真正阻止请求前进的反压；
+          // miss一旦被I-cache确认，直到对应响应返回都归入miss服务；其余在途
+          // lookup属于正常tag/data流水等待。没有事务在途时才归入请求启动或交付间隙。
+          if (ifu_instruction_request_waiting_i) begin
+            frontend_request_backpressure_stall_cycle_count_q <=
+                frontend_request_backpressure_stall_cycle_count_q + 64'd1;
+          end else if (icache_miss_service_pending_q || icache_miss_occurred_i) begin
+            frontend_cache_miss_service_stall_cycle_count_q <=
+                frontend_cache_miss_service_stall_cycle_count_q + 64'd1;
+          end else if (ifu_response_pending_q || ifu_instruction_request_occurred_i) begin
+            frontend_lookup_response_stall_cycle_count_q <=
+                frontend_lookup_response_stall_cycle_count_q + 64'd1;
+          end else begin
+            frontend_request_launch_or_delivery_gap_cycle_count_q <=
+                frontend_request_launch_or_delivery_gap_cycle_count_q + 64'd1;
+          end
         end else begin
           other_no_issue_cycle_count_q <= other_no_issue_cycle_count_q + 64'd1;
         end
@@ -448,6 +474,19 @@ module riscv32_sim_performance_monitor
           bht_64_counter_array_q[resolved_control_flow_pc_i[7:2]],
           resolved_control_flow_taken_i
       );
+    end
+  end
+
+  // I-cache在lookup流水线末端才知道hit/miss。miss事件置位后，该标志保持到
+  // 对应lookup响应真正与IFU握手，用于把普通lookup延迟和下层存储服务延迟分开。
+  // 响应优先于同拍miss，避免已经完成的事务在下一拍仍被误认为正在服务。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      icache_miss_service_pending_q <= 1'b0;
+    end else if (ifu_instruction_response_occurred_i) begin
+      icache_miss_service_pending_q <= 1'b0;
+    end else if (icache_miss_occurred_i) begin
+      icache_miss_service_pending_q <= 1'b1;
     end
   end
 
@@ -774,6 +813,22 @@ module riscv32_sim_performance_monitor
     $display("  frontend supply stalls              : %0d (%.3f%%)",
              frontend_supply_stall_cycle_count_q,
              calculate_percentage(frontend_supply_stall_cycle_count_q, active_cycle_count_q));
+    $display("    request backpressure              : %0d (%.3f%%)",
+             frontend_request_backpressure_stall_cycle_count_q,
+             calculate_percentage(frontend_request_backpressure_stall_cycle_count_q,
+                                  active_cycle_count_q));
+    $display("    I-cache miss service              : %0d (%.3f%%)",
+             frontend_cache_miss_service_stall_cycle_count_q,
+             calculate_percentage(frontend_cache_miss_service_stall_cycle_count_q,
+                                  active_cycle_count_q));
+    $display("    lookup response in flight         : %0d (%.3f%%)",
+             frontend_lookup_response_stall_cycle_count_q,
+             calculate_percentage(frontend_lookup_response_stall_cycle_count_q,
+                                  active_cycle_count_q));
+    $display("    request launch or delivery gap    : %0d (%.3f%%)",
+             frontend_request_launch_or_delivery_gap_cycle_count_q,
+             calculate_percentage(frontend_request_launch_or_delivery_gap_cycle_count_q,
+                                  active_cycle_count_q));
     $display("  other empty issue slots             : %0d (%.3f%%)",
              other_no_issue_cycle_count_q,
              calculate_percentage(other_no_issue_cycle_count_q, active_cycle_count_q));
@@ -852,6 +907,13 @@ module riscv32_sim_performance_monitor
         serializing_stall_cycle_count_q + frontend_supply_stall_cycle_count_q +
         other_no_issue_cycle_count_q) begin
       $display("PERF CHECK: exclusive issue-slot categories do not cover all active cycles");
+    end
+    if (frontend_supply_stall_cycle_count_q !=
+        frontend_request_backpressure_stall_cycle_count_q +
+        frontend_cache_miss_service_stall_cycle_count_q +
+        frontend_lookup_response_stall_cycle_count_q +
+        frontend_request_launch_or_delivery_gap_cycle_count_q) begin
+      $display("PERF CHECK: frontend stall subcategories do not cover all frontend stalls");
     end
   end
 

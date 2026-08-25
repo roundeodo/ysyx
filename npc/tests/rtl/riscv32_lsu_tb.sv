@@ -361,6 +361,74 @@ module riscv32_lsu_tb;
     data_memory_resp_valid = 1'b0;
   endtask
 
+  task automatic check_rollover_request_backpressure;
+    lsu_req_t first_load;
+    lsu_req_t second_load;
+
+    first_load        = make_memory_request(MEM_CMD_LOAD, MEM_SIZE_WORD, 1'b0,
+                                            effective_addr_t'(32'h8000_0300), '0);
+    first_load.uop.rd = arch_reg_idx_t'(8);
+    second_load       = make_memory_request(MEM_CMD_LOAD, MEM_SIZE_WORD, 1'b0,
+                                            effective_addr_t'(32'h8000_0400), '0);
+    second_load.uop.rd = arch_reg_idx_t'(9);
+
+    @(negedge clk);
+    lsu_req                  = first_load;
+    lsu_req_valid            = 1'b1;
+    data_memory_req_ready    = 1'b1;
+    data_memory_resp_valid   = 1'b0;
+    lsu_writeback_ready      = 1'b1;
+    #1;
+    assert (lsu_req_ready && data_memory_req_valid)
+    else $fatal(1, "LSU did not accept the first backpressured-rollover load");
+
+    @(posedge clk);
+    @(negedge clk);
+    lsu_req                       = second_load;
+    data_memory_resp              = '0;
+    data_memory_resp.read_data    = core_data_t'(32'h3333_3333);
+    data_memory_resp_valid        = 1'b1;
+    data_memory_req_ready         = 1'b0;
+    #1;
+    assert (data_memory_resp_ready && lsu_writeback_valid &&
+            lsu_req_ready && data_memory_req_valid)
+    else $fatal(1, "LSU coupled rollover acceptance to downstream request ready");
+    assert ((lsu_writeback.uop.rd == arch_reg_idx_t'(8)) &&
+            (data_memory_req.addr == phys_addr_t'(32'h8000_0400)))
+    else $fatal(1, "LSU mixed response and request payloads during backpressured rollover");
+
+    @(posedge clk);
+    #1;
+    lsu_req_valid          = 1'b0;
+    data_memory_resp_valid = 1'b0;
+    assert (lsu_transaction_active && data_memory_req_valid &&
+            !lsu_req_ready && (lsu_pending_rd == arch_reg_idx_t'(9)) &&
+            (data_memory_req.addr == phys_addr_t'(32'h8000_0400)))
+    else $fatal(1, "LSU did not retain the backpressured rollover request");
+
+    @(negedge clk);
+    data_memory_req_ready = 1'b1;
+    #1;
+    assert (data_memory_req_valid)
+    else $fatal(1, "LSU did not reissue the retained rollover request");
+
+    @(posedge clk);
+    @(negedge clk);
+    data_memory_req_ready         = 1'b0;
+    data_memory_resp              = '0;
+    data_memory_resp.read_data    = core_data_t'(32'h4444_4444);
+    data_memory_resp_valid        = 1'b1;
+    #1;
+    assert (data_memory_resp_ready && lsu_writeback_valid &&
+            (lsu_writeback.uop.rd == arch_reg_idx_t'(9)) &&
+            (lsu_writeback.result == xlen_data_t'(32'h4444_4444)))
+    else $fatal(1, "LSU did not complete the retained rollover request");
+
+    @(posedge clk);
+    #1;
+    data_memory_resp_valid = 1'b0;
+  endtask
+
   initial begin
     clk                    = 1'b0;
     rst_ni                 = 1'b0;
@@ -420,6 +488,7 @@ module riscv32_lsu_tb;
 
     check_response_backpressure();
     check_consecutive_load_rollover();
+    check_rollover_request_backpressure();
 
     $display("LSU directed memory test passed for XLEN=%0d", XLEN);
     $finish;
