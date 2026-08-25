@@ -637,9 +637,11 @@ module riscv32_pipeline_control_tb;
     hazard_decoded_uop_valid  = 1'b1;
     execute_redirect_occurred = 1'b1;
     #1;
-    assert (!decode_accept_allowed && execute_issue_allowed &&
+    // EX redirect已经经过窄寄存级；该事件出现时，当前EX槽位属于错误路径上的年轻指令，
+    // 必须同时阻止decode接收和execute发射。产生redirect的老指令已在前一拍完成。
+    assert (!decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && !hazard_writeback_flush)
-    else $fatal(1, "execute redirect did not preserve the redirecting instruction");
+    else $fatal(1, "registered execute redirect did not block younger execute work");
 
     clear_hazard_inputs();
     hazard_decoded_uop_valid = 1'b1;

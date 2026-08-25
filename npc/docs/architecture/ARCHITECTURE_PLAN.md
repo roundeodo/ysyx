@@ -409,10 +409,11 @@ AW/W/B通道。该结构满足当前单端口SRAM/DRAM和单在途顺序核；AI
 
 ### D008：分开建设方向、间接目标和返回预测
 
-当前16项bimodal BHT只解决条件分支方向，JAL使用立即数直接形成目标，JALR仍由EX纠错。
-Branchsim首轮结果表明，单纯扩大BHT的收益明显低于加入RAS和小型BTB。下一版前端采用
-参数化方向预测器、32项JALR BTB和8项RAS；gshare是否替换bimodal由train及AI workload
-trace、综合面积和STA共同决定。长期乱序核必须增加FTQ历史检查点和错误预测历史恢复。
+当前RTL使用16项bimodal BHT、JAL立即数目标和4项RAS。RAS4到RAS8在MicroBench trace中
+只额外减少250次错误；BHT16到BHT64的总周期理想收益不足1%，因此不继续用容量换取小收益。
+32项JALR BTB不在当前响应侧直接加入，因为它既不能切断前端关键路径，也会用触发器保存
+tag和target。下一阶段将BTB作为请求侧next-line predictor的一部分，与多个在途fetch tag、
+选择性squash和FTQ式恢复元数据共同设计。长期乱序核仍必须支持历史检查点和错误预测恢复。
 
 ### D009：课程面积签核与AI扩展采用两个命名配置
 
@@ -432,12 +433,34 @@ core面积为156409.064 um^2，是课程上限的6.26倍。因此课程签核配
 的PMU IPC为0.081232，前端供给停顿占54.403%，I-cache命中率为79.204%，AMAT为6.812周期；
 将所有数据访问理想化后的加速上限只有1.230x。因此该配置的首要性能问题是I-cache容量，
 不是数据侧。NanGate45、300 MHz综合面积为27541.108 um^2，WNS为+0.810 ns，仍比25000
-um^2上限高10.16%。后续必须先通过RV32E寄存器规模和流水payload等结构优化回收面积，再
-用同一工作负载比较扩大I-cache、保留低成本预测器和增加小型数据缓冲的每面积收益。
+um^2上限高10.16%。后续不再退回RV32E来换面积；课程和性能配置都保持标准RV32I的32个
+架构寄存器。面积优化只允许删除冗余payload、无收益的预测容量和不必要的组合旁路，不能
+改变ISA语义。
 
 最终AI配置继续保留D-cache模块边界，并以SRAM macro、banked array、store buffer、
 writeback queue和多MSHR为演进方向。课程配置不保留某个结构，只代表它不满足当前物理约束，
 不能覆盖最终AI CPU的架构目标。
+
+### D010：RV32I性能基线采用受控小缓存组合
+
+同一MicroBench和STA流程表明，`256 B/direct/16 B line` I-cache配合
+`256 B/2-way/16 B line` D-cache获得当前最高综合吞吐代理：测量IPC为0.334515，Fmax为
+498.001 MHz，面积为59696.784 um^2。D-cache相对同容量direct-map只增加1.35%面积，却提高
+10.4% IPC，因此关联度有数据支持；继续增大BHT没有同等级收益。
+
+`rv32-baseline`固定为该组合，`rv32-course-area`保留无D-cache的小面积对照。当前阶段允许
+超出25000 um^2，但每一项资源都必须用周期、Fmax和面积解释。后续优先级为：请求侧预测与
+多在途取指、D-cache/AXI时序切分、SRAM宏映射；不是继续扩大阻塞式cache或响应侧预测表。
+
+### D011：保留面向高性能扩展的边界，删除无收益实现
+
+必须保留：IFU/LSU语义级valid-ready接口、typed uop和异常信息、commit精确状态边界、PMA、
+I/D cache array与miss/refill分层、预测lookup/update边界、统一redirect仲裁以及AXI4系统边界。
+这些边界分别支撑未来FTQ/ROB、非阻塞cache、LSQ和多ID互联。
+
+不应保留：没有A/B收益的超深RAS或大BHT、把AXI组合ready/valid贯穿执行级的捷径、仅为旧
+实现存在的重复payload、以及不能被PMU或验证使用的综合状态。仿真性能监视器继续由宏隔离，
+不进入可综合core；架构CSR只保留软件可见且实现完整的项目。
 
 ## 15. 变更流程
 

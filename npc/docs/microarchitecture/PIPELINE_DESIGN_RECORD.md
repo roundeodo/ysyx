@@ -192,10 +192,20 @@ EX指令发出completion或访存请求，并清空ID/EX、completion/WB以及�
 7. 只有顺序流水线的精确异常和回归稳定后，才引入rename、ROB和乱序调度。
 
 性能计数必须使用互斥优先级归因，不能把IFU response-wait或downstream-backpressure等通道
-占用周期直接相加。这些占用可与LSU阻塞重叠。当前MicroBench中I-cache命中率约99%，命中
-延迟为1拍，且命中路径可连续每拍接受lookup；因此前端不是第一瓶颈。当前最大互斥瓶颈是
-blocking LSU。若允许年轻指令直接越过它，将破坏当前顺序completion和精确异常，必须先加入
-D-cache/store buffer、目的寄存器身份保存和有序完成机制。
+占用周期直接相加，这些占用可与LSU阻塞重叠。最新平衡配置使用256 B direct-map I-cache和
+256 B/2-way阻塞式D-cache。MicroBench中互斥停顿约为：LSU结构31.8%、前端27.6%、控制
+恢复9.0%、RAW 1.1%。因此当前已经不是单一瓶颈：D-cache显著降低数据等待后，前端吞吐和
+控制恢复重新暴露出来。
+
+流水级寄存器的存在不等于能够达到1 GHz。当前标准单元STA中，无D-cache配置的关键路径
+穿过I-cache命中响应、控制流预测、下一PC选择和下一次array读地址，约1.788 ns；加入
+256 B/2-way D-cache后最紧路径转到D-cache/AXI输出边界，约1.675 ns。1 GHz要求数据路径
+接近1 ns且还要保留setup、skew和不确定度余量，因此必须重新切分这些具体路径。
+
+不能只在I-cache响应后盲目增加一级寄存器：当前IFU只有一个lookup在途，这会使请求吞吐降为
+约每两拍一条。正确方案是请求侧next-line prediction、多个带tag/epoch的在途lookup、选择性
+squash和弹性响应级一起实现。D-cache侧则需要array输出/AXI边界弹性级，并最终把tag/data
+array映射为SRAM宏；这些变化保持现有语义请求和AXI协议边界，不把总线细节重新塞回IFU/LSU。
 
 本轮结构取舍参考以下公开设计，但只采用经过本核A/B数据支持的部分：
 

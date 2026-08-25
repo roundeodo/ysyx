@@ -110,3 +110,23 @@ store buffer、writeback queue、critical-word-first和多MSHR。两个配置的
 所有数据访问延迟的加速上限为1.230x。这说明当前课程配置不能根据“存在memory wall”就直接
 分配面积给D-cache：在极小I-cache下，前端首先耗尽了发射机会。后续候选结构必须用相同
 I-cache参数做A/B，分别计算减少的周期数和增加的标准单元面积。
+
+## 9. RV32I受控面积探索结论
+
+在相同MicroBench `test`、相同延迟模型和NanGate45流程下，把I-cache固定为256 B、
+direct-map、16 B line后得到：
+
+| D-cache配置 | 测量IPC | Fmax | 面积 | `IPC * Fmax` |
+| --- | ---: | ---: | ---: | ---: |
+| 关闭 | 0.221131 | 547.909 MHz | 37175.894 um^2 | 121.15 MIPS |
+| 128 B/direct | 0.271584 | 518.547 MHz | 50174.516 um^2 | 140.82 MIPS |
+| 256 B/direct | 0.303015 | 506.811 MHz | 58899.848 um^2 | 153.57 MIPS |
+| 256 B/2-way | 0.334515 | 498.001 MHz | 59696.784 um^2 | 166.59 MIPS |
+
+256 B/2-way相对256 B/direct只增加796.936 um^2（1.35%），测量IPC提高10.4%，综合后的
+吞吐代理提高8.5%，因此选为`rv32-baseline`。128 B配置中增加关联度只有约1.75%的IPC收益，
+不采用。关闭D-cache的配置每面积吞吐最高，继续作为面积敏感对照，但不再作为性能默认值。
+
+该面积是数组被标准单元展开后的结果，不代表SRAM宏实现。必须保留D-cache、miss unit、
+line AXI master和I/D仲裁边界，因为它们是后续store buffer、多MSHR、banking和LSQ的结构
+基础；可以删除的是无实测收益的额外容量、额外路数和组合旁路，而不是这些协议边界。

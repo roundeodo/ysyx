@@ -5,16 +5,36 @@
 # ============================================================
 
 PROJECT ?= riscv32
-# rv32-baseline用于性能开发，rv32-course-area用于25000 um^2课程签核。两者共享
-# RV32I语义和模块协议，只改变被实例化的微架构资源。
-NPC_ICACHE_WAY_COUNT ?= 2
-NPC_ICACHE_CAPACITY_BYTES ?= $(if $(filter rv32-course-area rv64-sequential,$(NPC_CONFIG)),64,1024)
-NPC_ICACHE_LINE_BYTES ?= $(if $(filter rv64-sequential,$(NPC_CONFIG)),16,8)
-# 完整D-cache保留在性能和AI扩展配置中；课程面积配置默认不实例化其标准单元阵列。
-NPC_DCACHE_ENABLE ?= $(if $(filter rv32-course-area,$(NPC_CONFIG)),0,1)
-NPC_DCACHE_WAY_COUNT ?= 2
+# rv32-baseline用于RV32I性能开发，rv32-course-area保留课程面积对照。两者共享
+# ISA语义和模块协议，只改变被实例化的微架构资源。默认值来自同一workload、同一
+# NanGate45流程的A/B实验；命令行仍可覆盖参数继续探索设计空间。
+ifeq ($(NPC_CONFIG),rv32-course-area)
+NPC_ICACHE_WAY_COUNT      ?= 2
+NPC_ICACHE_CAPACITY_BYTES ?= 64
+NPC_ICACHE_LINE_BYTES     ?= 8
+NPC_DCACHE_ENABLE         ?= 0
+NPC_DCACHE_WAY_COUNT      ?= 2
+NPC_DCACHE_CAPACITY_BYTES ?= 256
+NPC_DCACHE_LINE_BYTES     ?= 16
+else ifeq ($(NPC_CONFIG),rv64-sequential)
+NPC_ICACHE_WAY_COUNT      ?= 2
+NPC_ICACHE_CAPACITY_BYTES ?= 64
+NPC_ICACHE_LINE_BYTES     ?= 16
+NPC_DCACHE_ENABLE         ?= 1
+NPC_DCACHE_WAY_COUNT      ?= 2
 NPC_DCACHE_CAPACITY_BYTES ?= 1024
-NPC_DCACHE_LINE_BYTES ?= 32
+NPC_DCACHE_LINE_BYTES     ?= 32
+else
+# RV32I平衡点：I-cache扩大到256 B后前端miss显著下降；256 B/2-way D-cache相对
+# 同容量direct-map只增加约1.35%面积，却把MicroBench测量IPC再提高约10.4%。
+NPC_ICACHE_WAY_COUNT      ?= 1
+NPC_ICACHE_CAPACITY_BYTES ?= 256
+NPC_ICACHE_LINE_BYTES     ?= 16
+NPC_DCACHE_ENABLE         ?= 1
+NPC_DCACHE_WAY_COUNT      ?= 2
+NPC_DCACHE_CAPACITY_BYTES ?= 256
+NPC_DCACHE_LINE_BYTES     ?= 16
+endif
 NPC_SDRAM_NATIVE_READ_BURST ?= 1
 
 ifeq ($(filter $(NPC_DCACHE_ENABLE),0 1),)
