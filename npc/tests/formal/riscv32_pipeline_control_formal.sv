@@ -135,6 +135,11 @@ module riscv32_pipeline_control_formal;
   (* anyseq *) arch_reg_idx_t execute_rd;
   (* anyseq *) logic          execute_serializing;
   (* anyseq *) logic          execute_forwarding_available;
+  (* anyseq *) logic          buffered_exu_result_present;
+  (* anyseq *) logic          buffered_exu_writes_rd;
+  (* anyseq *) arch_reg_idx_t buffered_exu_rd;
+  (* anyseq *) logic          buffered_exu_serializing;
+  (* anyseq *) logic          buffered_exu_forwarding_available;
   (* anyseq *) logic          writeback_result_valid;
   (* anyseq *) logic          writeback_writes_rd;
   (* anyseq *) arch_reg_idx_t writeback_rd;
@@ -155,14 +160,18 @@ module riscv32_pipeline_control_formal;
   logic serializing_hazard_present;
   logic structural_hazard_present;
   logic rs1_execute_forwarding_selected;
+  logic rs1_buffered_exu_forwarding_selected;
   logic rs1_lsu_forwarding_selected;
   logic rs1_writeback_forwarding_selected;
   logic rs2_execute_forwarding_selected;
+  logic rs2_buffered_exu_forwarding_selected;
   logic rs2_lsu_forwarding_selected;
   logic rs2_writeback_forwarding_selected;
 
   logic execute_matches_rs1;
   logic execute_matches_rs2;
+  logic buffered_exu_matches_rs1;
+  logic buffered_exu_matches_rs2;
   logic writeback_matches_rs1;
   logic writeback_matches_rs2;
   logic lsu_matches_rs1;
@@ -182,6 +191,11 @@ module riscv32_pipeline_control_formal;
       .execute_rd_i                       (execute_rd),
       .execute_serializing_i              (execute_serializing),
       .execute_forwarding_available_i     (execute_forwarding_available),
+      .buffered_exu_result_present_i      (buffered_exu_result_present),
+      .buffered_exu_writes_rd_i           (buffered_exu_writes_rd),
+      .buffered_exu_rd_i                  (buffered_exu_rd),
+      .buffered_exu_serializing_i         (buffered_exu_serializing),
+      .buffered_exu_forwarding_available_i(buffered_exu_forwarding_available),
       .writeback_result_valid_i           (writeback_result_valid),
       .writeback_writes_rd_i              (writeback_writes_rd),
       .writeback_rd_i                     (writeback_rd),
@@ -201,9 +215,11 @@ module riscv32_pipeline_control_formal;
       .serializing_hazard_present_o       (serializing_hazard_present),
       .structural_hazard_present_o        (structural_hazard_present),
       .rs1_execute_forwarding_selected_o  (rs1_execute_forwarding_selected),
+      .rs1_buffered_exu_forwarding_selected_o(rs1_buffered_exu_forwarding_selected),
       .rs1_lsu_forwarding_selected_o      (rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o  (rs2_execute_forwarding_selected),
+      .rs2_buffered_exu_forwarding_selected_o(rs2_buffered_exu_forwarding_selected),
       .rs2_lsu_forwarding_selected_o      (rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
@@ -215,6 +231,12 @@ module riscv32_pipeline_control_formal;
     execute_matches_rs2 = decoded_uop_valid && decoded_uses_rs2 && execute_uop_valid &&
                           execute_writes_rd && (execute_rd != '0) &&
                           (execute_rd == decoded_rs2);
+    buffered_exu_matches_rs1 = decoded_uop_valid && decoded_uses_rs1 &&
+                               buffered_exu_result_present && buffered_exu_writes_rd &&
+                               (buffered_exu_rd != '0) && (buffered_exu_rd == decoded_rs1);
+    buffered_exu_matches_rs2 = decoded_uop_valid && decoded_uses_rs2 &&
+                               buffered_exu_result_present && buffered_exu_writes_rd &&
+                               (buffered_exu_rd != '0) && (buffered_exu_rd == decoded_rs2);
     writeback_matches_rs1 = decoded_uop_valid && decoded_uses_rs1 && writeback_result_valid &&
                             writeback_writes_rd && (writeback_rd != '0) &&
                             (writeback_rd == decoded_rs1);
@@ -231,20 +253,34 @@ module riscv32_pipeline_control_formal;
     if (rst_ni) begin
       // yosys-slang当前不支持$onehot0，三项选择显式展开为两两互斥。
       assert (!(rs1_execute_forwarding_selected && rs1_lsu_forwarding_selected));
+      assert (!(rs1_execute_forwarding_selected && rs1_buffered_exu_forwarding_selected));
       assert (!(rs1_execute_forwarding_selected && rs1_writeback_forwarding_selected));
+      assert (!(rs1_buffered_exu_forwarding_selected && rs1_lsu_forwarding_selected));
+      assert (!(rs1_buffered_exu_forwarding_selected && rs1_writeback_forwarding_selected));
       assert (!(rs1_lsu_forwarding_selected && rs1_writeback_forwarding_selected));
       assert (!(rs2_execute_forwarding_selected && rs2_lsu_forwarding_selected));
+      assert (!(rs2_execute_forwarding_selected && rs2_buffered_exu_forwarding_selected));
       assert (!(rs2_execute_forwarding_selected && rs2_writeback_forwarding_selected));
+      assert (!(rs2_buffered_exu_forwarding_selected && rs2_lsu_forwarding_selected));
+      assert (!(rs2_buffered_exu_forwarding_selected && rs2_writeback_forwarding_selected));
       assert (!(rs2_lsu_forwarding_selected && rs2_writeback_forwarding_selected));
       assert (decoded_uop_valid ||
-              !(rs1_execute_forwarding_selected || rs1_lsu_forwarding_selected ||
+              !(rs1_execute_forwarding_selected || rs1_buffered_exu_forwarding_selected ||
+                rs1_lsu_forwarding_selected ||
                 rs1_writeback_forwarding_selected || rs2_execute_forwarding_selected ||
-                rs2_lsu_forwarding_selected || rs2_writeback_forwarding_selected));
+                rs2_buffered_exu_forwarding_selected || rs2_lsu_forwarding_selected ||
+                rs2_writeback_forwarding_selected));
 
       if (execute_matches_rs1) begin
         assert (rs1_execute_forwarding_selected == execute_forwarding_available);
+        assert (!rs1_buffered_exu_forwarding_selected);
         assert (!rs1_writeback_forwarding_selected);
         assert (execute_forwarding_available || raw_hazard_present);
+      end else if (buffered_exu_matches_rs1) begin
+        assert (rs1_buffered_exu_forwarding_selected == buffered_exu_forwarding_available);
+        assert (!rs1_lsu_forwarding_selected);
+        assert (!rs1_writeback_forwarding_selected);
+        assert (buffered_exu_forwarding_available || raw_hazard_present);
       end else if (lsu_matches_rs1) begin
         assert (rs1_lsu_forwarding_selected == lsu_forwarding_available);
         assert (!rs1_writeback_forwarding_selected);
@@ -256,8 +292,14 @@ module riscv32_pipeline_control_formal;
 
       if (execute_matches_rs2) begin
         assert (rs2_execute_forwarding_selected == execute_forwarding_available);
+        assert (!rs2_buffered_exu_forwarding_selected);
         assert (!rs2_writeback_forwarding_selected);
         assert (execute_forwarding_available || raw_hazard_present);
+      end else if (buffered_exu_matches_rs2) begin
+        assert (rs2_buffered_exu_forwarding_selected == buffered_exu_forwarding_available);
+        assert (!rs2_lsu_forwarding_selected);
+        assert (!rs2_writeback_forwarding_selected);
+        assert (buffered_exu_forwarding_available || raw_hazard_present);
       end else if (lsu_matches_rs2) begin
         assert (rs2_lsu_forwarding_selected == lsu_forwarding_available);
         assert (!rs2_writeback_forwarding_selected);
