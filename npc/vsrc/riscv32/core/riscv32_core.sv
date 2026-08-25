@@ -163,7 +163,6 @@ module riscv32_core
   logic serializing_hazard_present;
   logic structural_hazard_present;
   logic lsu_transaction_active;
-  logic lsu_memory_response_valid;
   logic lsu_pending_writes_rd;
   arch_reg_idx_t lsu_pending_rd;
   redirect_req_t execute_redirect_req_at_resolution;
@@ -440,7 +439,6 @@ module riscv32_core
       .decoded_rs2_i               (decoded_uop.rs2),
       .decoded_serializing_i       (decoded_uop.serializing),
       .execute_uop_valid_i         (execute_packet_valid),
-      .execute_uop_is_lsu_i        (execute_packet.uop.fu_type == FU_LSU),
       .execute_writes_rd_i         (execute_packet.uop.writes_rd),
       .execute_rd_i                (execute_packet.uop.rd),
       .execute_serializing_i       (execute_packet.uop.serializing),
@@ -455,7 +453,6 @@ module riscv32_core
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
                                     !lsu_writeback.uop.exception_valid),
-      .lsu_completion_occurred_i   (lsu_memory_response_valid && lsu_writeback_ready),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -509,7 +506,6 @@ module riscv32_core
       .lsu_req_valid_i         (lsu_req_valid),
       .lsu_req_ready_o         (lsu_req_ready),
       .lsu_transaction_active_o(lsu_transaction_active),
-      .lsu_memory_response_valid_o(lsu_memory_response_valid),
       .lsu_pending_writes_rd_o (lsu_pending_writes_rd),
       .lsu_pending_rd_o        (lsu_pending_rd),
       .lsu_writeback_o         (lsu_writeback),

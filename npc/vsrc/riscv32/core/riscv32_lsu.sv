@@ -12,7 +12,6 @@ module riscv32_lsu
     input  logic     lsu_req_valid_i,
     output logic     lsu_req_ready_o,
     output logic     lsu_transaction_active_o,
-    output logic     lsu_memory_response_valid_o,
     output logic     lsu_pending_writes_rd_o,
     output arch_reg_idx_t lsu_pending_rd_o,
 
@@ -133,10 +132,6 @@ module riscv32_lsu
   // 该状态只描述已经被LSU接收但尚未完成的存储事务，不从ready反推，因而不会
   // 把当前输入valid重新反馈到流水线允许信号中形成组合环。
   assign lsu_transaction_active_o   = state_q != LSU_IDLE;
-  // 只表示已发出的存储事务正在返回，不包含IDLE中的本地异常完成。冒险控制器用它判断
-  // 老LSU是否会在本拍释放上下文，避免由当前lsu_req反向形成组合允许环路。
-  assign lsu_memory_response_valid_o = (state_q == LSU_WAIT_MEMORY_RESPONSE) &&
-                                       data_memory_resp_valid_i;
   // 这两个信号描述尚未完成的老访存生产者。hazard controller用它们阻止load-use读取
   // 旧寄存器值；response有效时可以直接从lsu_writeback前递，不必额外等待WB寄存级。
   assign lsu_pending_writes_rd_o    = (state_q != LSU_IDLE) &&

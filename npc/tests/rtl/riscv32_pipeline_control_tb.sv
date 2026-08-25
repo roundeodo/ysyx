@@ -76,14 +76,12 @@ module riscv32_pipeline_control_tb;
   logic              hazard_decoded_uop_valid;
   decoded_uop_t      hazard_execute_uop;
   logic              hazard_execute_uop_valid;
-  logic              hazard_execute_uop_is_lsu;
   writeback_result_t hazard_writeback_result;
   logic              hazard_writeback_result_valid;
   logic              lsu_busy;
   logic              lsu_pending_writes_rd;
   arch_reg_idx_t     lsu_pending_rd;
   logic              lsu_forwarding_available;
-  logic              lsu_completion_occurred;
   logic              execute_redirect_occurred;
   logic              commit_redirect_occurred;
   logic              decode_accept_allowed;
@@ -227,7 +225,6 @@ module riscv32_pipeline_control_tb;
       .decoded_rs2_i               (hazard_decoded_uop.rs2),
       .decoded_serializing_i       (hazard_decoded_uop.serializing),
       .execute_uop_valid_i         (hazard_execute_uop_valid),
-      .execute_uop_is_lsu_i        (hazard_execute_uop_is_lsu),
       .execute_writes_rd_i         (hazard_execute_uop.writes_rd),
       .execute_rd_i                (hazard_execute_uop.rd),
       .execute_serializing_i       (hazard_execute_uop.serializing),
@@ -241,7 +238,6 @@ module riscv32_pipeline_control_tb;
       .lsu_pending_writes_rd_i     (lsu_pending_writes_rd),
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_forwarding_available),
-      .lsu_completion_occurred_i   (lsu_completion_occurred),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -323,14 +319,12 @@ module riscv32_pipeline_control_tb;
     hazard_decoded_uop_valid      = 1'b0;
     hazard_execute_uop            = '0;
     hazard_execute_uop_valid      = 1'b0;
-    hazard_execute_uop_is_lsu     = 1'b0;
     hazard_writeback_result       = '0;
     hazard_writeback_result_valid = 1'b0;
     lsu_busy                      = 1'b0;
     lsu_pending_writes_rd         = 1'b0;
     lsu_pending_rd                = '0;
     lsu_forwarding_available      = 1'b0;
-    lsu_completion_occurred       = 1'b0;
     execute_redirect_occurred     = 1'b0;
     commit_redirect_occurred      = 1'b0;
     execute_forwarding_available  = 1'b0;
@@ -709,20 +703,6 @@ module riscv32_pipeline_control_tb;
     #1;
     assert (structural_hazard_present && decode_accept_allowed && !execute_issue_allowed)
     else $fatal(1, "pipeline issued a younger instruction ahead of an older LSU transaction");
-
-    // 老LSU完成与下一条LSU发射可以同拍发生；这只复用LSU现有的单槽位rollover，
-    // 不允许非访存指令越过老结果，也不需要额外completion队列。
-    hazard_execute_uop_valid  = 1'b1;
-    hazard_execute_uop_is_lsu = 1'b1;
-    lsu_completion_occurred   = 1'b1;
-    #1;
-    assert (!structural_hazard_present && execute_issue_allowed)
-    else $fatal(1, "pipeline did not permit an ordered LSU-to-LSU rollover");
-
-    hazard_execute_uop_is_lsu = 1'b0;
-    #1;
-    assert (structural_hazard_present && !execute_issue_allowed)
-    else $fatal(1, "pipeline allowed a non-LSU instruction to cross an LSU completion");
 
     // 在途load是位于EX与WB之间的最新生产者。数据未返回时依赖指令停在ID；返回当拍
     // 可直接从LSU completion前递，不必额外等待写回寄存器堆。

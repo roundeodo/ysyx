@@ -14,7 +14,6 @@ module riscv32_pipeline_hazard_controller
     input logic          decoded_serializing_i,
 
     input logic          execute_uop_valid_i,
-    input logic          execute_uop_is_lsu_i,
     input logic          execute_writes_rd_i,
     input arch_reg_idx_t execute_rd_i,
     input logic          execute_serializing_i,
@@ -32,7 +31,6 @@ module riscv32_pipeline_hazard_controller
     input logic          lsu_pending_writes_rd_i,
     input arch_reg_idx_t lsu_pending_rd_i,
     input logic          lsu_forwarding_available_i,
-    input logic          lsu_completion_occurred_i,
 
     input logic execute_redirect_occurred_i,
     input logic commit_redirect_occurred_i,
@@ -65,7 +63,6 @@ module riscv32_pipeline_hazard_controller
   logic older_serializing_instruction_present;
   logic older_instruction_present;
   logic control_recovery_occurred;
-  logic lsu_rollover_issue_allowed;
 
   always_comb begin
     execute_writes_rs1 = decoded_uop_valid_i && execute_uop_valid_i && execute_writes_rd_i &&
@@ -140,21 +137,15 @@ module riscv32_pipeline_hazard_controller
 
   assign control_recovery_occurred = execute_redirect_occurred_i || commit_redirect_occurred_i;
 
-  // 当前只有一个顺序completion口，年轻的非访存指令不能与老LSU结果同拍完成。
-  // 但若EX槽位本身也是LSU，老结果握手会在本拍释放LSU上下文；新请求可由LSU现有的
-  // rollover通路同拍接收，不需要增加请求队列，也不会改变程序顺序。
-  assign lsu_rollover_issue_allowed = execute_uop_valid_i && execute_uop_is_lsu_i &&
-                                      lsu_completion_occurred_i;
-  assign structural_hazard_present_o = lsu_busy_i && !lsu_rollover_issue_allowed;
+  assign structural_hazard_present_o = lsu_busy_i;
 
   assign decode_accept_allowed_o = !raw_hazard_present_o &&
                                    !serializing_hazard_present_o &&
                                    !control_recovery_occurred;
 
-  // 当前没有ROB或带年龄的完成队列。在老LSU事务结束前，年轻的非访存指令只能驻留
-  // ID/EX；连续访存则可在老completion离开的同一拍滚动进入LSU。
-  assign execute_issue_allowed_o = (!lsu_busy_i || lsu_rollover_issue_allowed) &&
-                                   !control_recovery_occurred;
+  // 当前没有ROB或带年龄的完成队列。在老LSU事务结束前，年轻指令只能驻留ID/EX；
+  // 不能把LSU完成信号组合反馈到发射允许路径，否则会显著拉长核心关键路径。
+  assign execute_issue_allowed_o = !lsu_busy_i && !control_recovery_occurred;
 
   assign decode_execute_flush_o = control_recovery_occurred;
   assign writeback_flush_o = commit_redirect_occurred_i;
@@ -170,8 +161,7 @@ module riscv32_pipeline_hazard_controller
   else $error("pipeline recovery did not flush the ID/EX stage");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (lsu_busy_i && execute_issue_allowed_o)
-    |-> (execute_uop_valid_i && execute_uop_is_lsu_i && lsu_completion_occurred_i))
+    lsu_busy_i |-> !execute_issue_allowed_o)
   else $error("pipeline issued a younger instruction before an older LSU completed");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
