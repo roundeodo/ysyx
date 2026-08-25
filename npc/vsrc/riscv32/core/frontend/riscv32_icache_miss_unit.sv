@@ -7,6 +7,7 @@
 // 改变IFU接口。
 module riscv32_icache_miss_unit
   import riscv32_pkg::*;
+  import riscv32_addr_map_pkg::*;
 (
     input logic clk_i,
     input logic rst_ni,
