@@ -96,6 +96,9 @@ package riscv_config_pkg;
   localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
   localparam int unsigned ICACHE_MSHR_COUNT = 1;
+  // 课程面积配置在elaboration时完全移除D-cache实例；这不是运行时旁路，也不会为
+  // 未实例化的array保留触发器。LSU/PMA/AXI协议保持不变，cacheable请求改走uncached路径。
+  localparam bit DCACHE_ENABLED = (`YSYX_DCACHE_ENABLE != 0);
   // 当前D-cache检查点采用阻塞式单miss结构，但容量、相联度和line大小均由构建配置
   // 决定。接口不绑定单MSHR，后续增加load/store queue、多个MSHR和bank时无需改LSU。
   localparam int unsigned DCACHE_CAPACITY_BYTES = `YSYX_DCACHE_CAPACITY_BYTES;

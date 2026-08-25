@@ -88,4 +88,19 @@ KV-cache元数据、量化解码、张量描述符以及加速器DMA控制。后
 - `make test-core-merge-configs PROJECT=riscv32`：RV32/RV64均通过I/D同时请求、AR反压、burst
   响应来源锁定和round-robin定向测试。
 - RV32/RV64 standalone `dummy`均`HIT GOOD TRAP`。
-- 完整MicroBench性能和接入D-cache后的面积/STA尚未重新测量，不在本记录中沿用接入前结果。
+- MicroBench `test`通过。相对相同PMU窗口的接入前记录，退休指令均为430203条，周期从
+  1513766降到867290，IPC从0.284193升到0.496031，scored time从15.261 ms降到8.784 ms。
+- 当前1 KiB、2-way I-cache和1 KiB、2-way、32 B line D-cache共同采用标准单元实现时，
+  NanGate45综合面积为156409.064 um^2，其中时序单元占70598.262 um^2。300 MHz约束下
+  WNS为+0.173 ns、TNS为0，报告频率为316.423 MHz。
+
+## 8. 面积结论
+
+这版D-cache证明了协议、功能和性能收益，但不满足课程25000 um^2硬约束。综合网表中包含
+15111个触发器和8192个锁存器，说明cache data array被展开为标准单元存储；因此不能通过
+删少量控制逻辑把面积降回目标范围。
+
+课程签核配置不实例化这套完整D-cache，并恢复小容量I-cache后再进行面积受控的架构探索。
+最终AI配置继续使用本模块边界，但data/tag array必须映射到SRAM macro；在此基础上再评估
+store buffer、writeback queue、critical-word-first和多MSHR。两个配置的区别是物理实现和
+资源预算，不改变LSU语义请求、PMA和AXI系统边界。

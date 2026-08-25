@@ -20,6 +20,11 @@ module riscv_config_elaboration_tb;
     assert (YSYX_SOC_AXI_DATA_WIDTH == 32);
 `endif
 
+`ifdef YSYX_RV32_COURSE_AREA
+    assert (!DCACHE_ENABLED);
+    assert (ICACHE_CAPACITY_BYTES == 64);
+`endif
+
     $finish;
   end
 endmodule : riscv_config_elaboration_tb

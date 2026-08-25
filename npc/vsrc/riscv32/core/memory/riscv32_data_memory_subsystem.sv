@@ -74,7 +74,7 @@ module riscv32_data_memory_subsystem
 
     if (!request_access_allowed) begin
       selected_request_route = DATA_ROUTE_ACCESS_FAULT;
-    end else if (request_memory_attr.cacheable) begin
+    end else if (DCACHE_ENABLED && request_memory_attr.cacheable) begin
       selected_request_route = DATA_ROUTE_DCACHE;
     end else begin
       selected_request_route = DATA_ROUTE_UNCACHED;
@@ -155,22 +155,34 @@ module riscv32_data_memory_subsystem
     fault_transaction_id_q <= fault_transaction_id_d;
   end
 
-  riscv32_dcache u_dcache (
-      .clk_i                       (clk_i),
-      .rst_ni                      (rst_ni),
-      .data_memory_req_i           (dcache_req),
-      .data_memory_req_valid_i     (dcache_req_valid),
-      .data_memory_req_ready_o     (dcache_req_ready),
-      .data_memory_resp_o          (dcache_resp),
-      .data_memory_resp_valid_o    (dcache_resp_valid),
-      .data_memory_resp_ready_i    (dcache_resp_ready),
-      .clean_req_i                 (dcache_clean_req_i),
-      .clean_done_o                (dcache_clean_done_o),
-      .clean_access_fault_o        (dcache_clean_access_fault_o),
-      .cache_busy_o                (dcache_busy_o),
-      .axi_manager_o               (dcache_axi_manager),
-      .axi_manager_i               (dcache_axi_response)
-  );
+  generate
+    if (DCACHE_ENABLED) begin : gen_dcache
+      riscv32_dcache u_dcache (
+          .clk_i                       (clk_i),
+          .rst_ni                      (rst_ni),
+          .data_memory_req_i           (dcache_req),
+          .data_memory_req_valid_i     (dcache_req_valid),
+          .data_memory_req_ready_o     (dcache_req_ready),
+          .data_memory_resp_o          (dcache_resp),
+          .data_memory_resp_valid_o    (dcache_resp_valid),
+          .data_memory_resp_ready_i    (dcache_resp_ready),
+          .clean_req_i                 (dcache_clean_req_i),
+          .clean_done_o                (dcache_clean_done_o),
+          .clean_access_fault_o        (dcache_clean_access_fault_o),
+          .cache_busy_o                (dcache_busy_o),
+          .axi_manager_o               (dcache_axi_manager),
+          .axi_manager_i               (dcache_axi_response)
+      );
+    end else begin : gen_no_dcache
+      assign dcache_req_ready            = 1'b0;
+      assign dcache_resp                 = '0;
+      assign dcache_resp_valid           = 1'b0;
+      assign dcache_clean_done_o         = dcache_clean_req_i;
+      assign dcache_clean_access_fault_o = 1'b0;
+      assign dcache_busy_o               = 1'b0;
+      assign dcache_axi_manager          = '0;
+    end
+  endgenerate
 
   riscv32_uncached_axi4_master u_uncached_axi4_master (
       .clk_i                    (clk_i),

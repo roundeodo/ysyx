@@ -287,7 +287,9 @@ module riscv32_core
     unique case (fence_i_maintenance_state_q)
       FENCE_I_MAINTENANCE_IDLE: begin
         if (committed_fence_i_occurred) begin
-          fence_i_maintenance_state_d = FENCE_I_CLEAN_DCACHE;
+          // 无D-cache配置直接进入I-cache失效；有D-cache时必须先写回dirty line。
+          fence_i_maintenance_state_d = DCACHE_ENABLED ? FENCE_I_CLEAN_DCACHE :
+                                                        FENCE_I_INVALIDATE_ICACHE;
         end
       end
       FENCE_I_CLEAN_DCACHE: begin

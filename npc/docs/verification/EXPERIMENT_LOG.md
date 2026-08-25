@@ -1104,3 +1104,33 @@ BTB32+RAS8将JALR目标错误降至5632次。BTB继续扩大到64/128项没有�
 结果文件：`result/branch/branchsim_riscv32_test_exploration.csv`。本trace包含启动和测试框架，
 且Branchsim不模拟错误路径污染、预测训练时序和真实存储阻塞；最终RTL决策仍需train、AI
 runtime代表性trace、RTL PMU、综合和STA共同确认。
+
+## 2026-08-25 - D-cache性能与标准单元面积检查
+
+- Commit：`uncommitted`
+- 架构决策：`D006`、`D007`、`D009`
+- 工作负载和规模：MicroBench / `test`
+- 构建配置：RV32、1 KiB/2-way/8 B line I-cache、1 KiB/2-way/32 B line D-cache
+- 性能命令：`make perf PROJECT=riscv32 NPC_CONFIG=rv32-baseline PERF_SCALE=test`
+- 综合命令：`make sta PROJECT=riscv32 NPC_CONFIG=rv32-baseline STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench/npc/result/sta/NanGate45-rv32-baseline-icache-1024b-way-2-line-8b-dcache-1024b-way-2-line-32b`
+- 功能结果：MicroBench全部通过，`HIT GOOD TRAP`
+- 综合结果：NanGate45、300 MHz；WNS=+0.173 ns，TNS=0，面积=156409.064 um^2
+
+| 指标 | 接入D-cache前 | 当前D-cache | 变化 |
+| --- | ---: | ---: | ---: |
+| PMU退休指令 | 430203 | 430203 | 0 |
+| PMU周期 | 1513766 | 867290 | -42.71% |
+| PMU IPC | 0.284193 | 0.496031 | +74.54% |
+| Scored time | 15.261 ms | 8.784 ms | -42.44% |
+| load平均延迟 | 12.341 cycles | 3.652 cycles | -8.689 cycles |
+| store平均延迟 | 6.799 cycles | 7.948 cycles | +1.149 cycles |
+
+当前完整运行active周期为2141585，退休844557条指令，IPC为0.394361。发射槽归因中，
+LSU结构阻塞仍占34.309%，控制恢复占11.539%，前端供给占12.343%。D-cache明显缓解了
+memory wall，但阻塞式单MSHR、store完成路径和共享内存端口仍限制吞吐。
+
+面积结论不能通过接入前27541.640 um^2直接计算D-cache增量，因为该旧综合使用64 B
+I-cache，而当前综合使用1 KiB I-cache。当前可确认的结论只有：这套1 KiB I/D cache标准
+单元实现达到课程25000 um^2上限的6.26倍，不能用于课程面积签核。下一项实验必须在同一
+commit上建立可关闭D-cache的命名配置，并对小容量I-cache、无D-cache基线以及低成本数据
+缓冲候选方案进行严格A/B。

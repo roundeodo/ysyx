@@ -2,8 +2,8 @@
 
 状态：当前设计权威
 
-当前实现基线：参数化RV32I/RV64I、单发射顺序流水线、精确顺序提交、2-way I/D cache；
-core系统边界统一使用完整AXI4
+当前实现基线：参数化RV32I/RV64I、单发射顺序流水线、精确顺序提交、参数化I/D cache；
+core系统边界统一使用完整AXI4。课程面积签核配置与AI扩展配置分别管理。
 
 最终产品目标：RV64 异构 AI SoC 主处理器
 
@@ -413,6 +413,24 @@ AW/W/B通道。该结构满足当前单端口SRAM/DRAM和单在途顺序核；AI
 Branchsim首轮结果表明，单纯扩大BHT的收益明显低于加入RAS和小型BTB。下一版前端采用
 参数化方向预测器、32项JALR BTB和8项RAS；gshare是否替换bimodal由train及AI workload
 trace、综合面积和STA共同决定。长期乱序核必须增加FTQ历史检查点和错误预测历史恢复。
+
+### D009：课程面积签核与AI扩展采用两个命名配置
+
+`YSYX_RV32_BASELINE`首先完成课程检查点。该配置以NanGate45标准单元综合面积不超过
+25000 um^2为硬约束，在功能回归通过的前提下，最大化同一工作负载上的`IPC * Fmax`。
+架构选择不能只比较IPC，也不能只比较面积；每个候选方案必须使用相同commit、工作负载、
+存储延迟、I-cache参数和综合约束，记录周期、IPC、Fmax、面积以及主要停顿原因。
+
+当前1 KiB、2-way、32 B line阻塞式D-cache使MicroBench `test`的PMU IPC从0.284193提升到
+0.496031，PMU周期从1513766降到867290；但与1 KiB、2-way I-cache共同以标准单元综合时，
+core面积为156409.064 um^2，是课程上限的6.26倍。因此课程签核配置不采用这套D-cache实现。
+这不是否定数据缓存，而是拒绝在没有SRAM macro的面积模型中用触发器和锁存器实现1 KiB
+双路阵列。课程配置后续先恢复小容量I-cache并移除完整D-cache数据阵列，再在剩余面积内对
+前递、控制流预测、小型store buffer或数据缓冲等候选方案做受控A/B和Pareto选择。
+
+最终AI配置继续保留D-cache模块边界，并以SRAM macro、banked array、store buffer、
+writeback queue和多MSHR为演进方向。课程配置不保留某个结构，只代表它不满足当前物理约束，
+不能覆盖最终AI CPU的架构目标。
 
 ## 15. 变更流程
 
