@@ -37,9 +37,17 @@ module riscv32_data_memory_subsystem
 
   data_route_state_e route_state_q, route_state_d;
   data_route_state_e selected_request_route;
+  data_memory_req_t selected_data_request;
+  logic selected_data_request_valid;
+  logic selected_data_request_ready;
   pma_attr_t request_memory_attr;
   logic request_access_allowed;
   mem_txn_id_t fault_transaction_id_q, fault_transaction_id_d;
+
+  // 当前事务返回的同一拍允许LSU交付下一条访存。这个单项队列只切断响应到下一
+  // 请求之间的结构阻塞；空队列时请求仍然直接送往目标，不增加正常访问延迟。
+  data_memory_req_t queued_data_request_q, queued_data_request_d;
+  logic queued_data_request_present_q, queued_data_request_present_d;
 
   data_memory_req_t dcache_req;
   logic dcache_req_valid;
@@ -59,17 +67,23 @@ module riscv32_data_memory_subsystem
   axi4_manager_to_target_t uncached_axi_manager;
   axi4_target_to_manager_t uncached_axi_response;
 
-  logic local_req_handshake;
+  logic selected_request_handshake;
+  logic incoming_request_handshake;
   logic local_resp_handshake;
 
+  assign selected_data_request = queued_data_request_present_q ? queued_data_request_q :
+                                                                  data_memory_req_i;
+  assign selected_data_request_valid = queued_data_request_present_q ||
+                                       data_memory_req_valid_i;
+
   riscv32_pma u_data_pma (
-      .lookup_addr_i(data_memory_req_i.addr),
+      .lookup_addr_i(selected_data_request.addr),
       .memory_attr_o(request_memory_attr)
   );
 
   always_comb begin
     request_access_allowed = 1'b0;
-    unique case (data_memory_req_i.cmd)
+    unique case (selected_data_request.cmd)
       MEM_CMD_LOAD: request_access_allowed = request_memory_attr.readable;
       MEM_CMD_STORE: request_access_allowed = request_memory_attr.writable;
       default: request_access_allowed = 1'b0;
@@ -84,27 +98,28 @@ module riscv32_data_memory_subsystem
     end
   end
 
-  assign dcache_req = data_memory_req_i;
-  assign uncached_req = data_memory_req_i;
+  assign dcache_req = selected_data_request;
+  assign uncached_req = selected_data_request;
   assign dcache_req_valid = route_state_q == DATA_ROUTE_IDLE &&
-                            !dcache_clean_req_i && data_memory_req_valid_i &&
+                            !dcache_clean_req_i && selected_data_request_valid &&
                             selected_request_route == DATA_ROUTE_DCACHE;
   assign uncached_req_valid = route_state_q == DATA_ROUTE_IDLE &&
-                              !dcache_clean_req_i && data_memory_req_valid_i &&
+                              !dcache_clean_req_i && selected_data_request_valid &&
                               selected_request_route == DATA_ROUTE_UNCACHED;
 
   always_comb begin
-    data_memory_req_ready_o = 1'b0;
+    selected_data_request_ready = 1'b0;
     if (route_state_q == DATA_ROUTE_IDLE && !dcache_clean_req_i) begin
       unique case (selected_request_route)
-        DATA_ROUTE_DCACHE: data_memory_req_ready_o = dcache_req_ready;
-        DATA_ROUTE_UNCACHED: data_memory_req_ready_o = uncached_req_ready;
-        DATA_ROUTE_ACCESS_FAULT: data_memory_req_ready_o = 1'b1;
+        DATA_ROUTE_DCACHE: selected_data_request_ready = dcache_req_ready;
+        DATA_ROUTE_UNCACHED: selected_data_request_ready = uncached_req_ready;
+        DATA_ROUTE_ACCESS_FAULT: selected_data_request_ready = 1'b1;
         default: ;
       endcase
     end
   end
-  assign local_req_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
+  assign selected_request_handshake = selected_data_request_valid &&
+                                      selected_data_request_ready;
 
   always_comb begin
     data_memory_resp_o = '0;
@@ -136,16 +151,47 @@ module riscv32_data_memory_subsystem
   end
   assign local_resp_handshake = data_memory_resp_valid_o && data_memory_resp_ready_i;
 
+  // 空闲且队列为空时采用直通ready。已有事务完成时，空队列可以在同一拍接收下一
+  // 请求；该请求先进入队列，避免上游在下游尚未重新进入IDLE时被迫保持整个执行包。
+  always_comb begin
+    data_memory_req_ready_o = 1'b0;
+    if (!dcache_clean_req_i) begin
+      if (route_state_q == DATA_ROUTE_IDLE && !queued_data_request_present_q) begin
+        data_memory_req_ready_o = selected_data_request_ready;
+      end else if (route_state_q != DATA_ROUTE_IDLE &&
+                   !queued_data_request_present_q && local_resp_handshake) begin
+        data_memory_req_ready_o = 1'b1;
+      end
+    end
+  end
+  assign incoming_request_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
+
   always_comb begin
     route_state_d = route_state_q;
     fault_transaction_id_d = fault_transaction_id_q;
-    if (route_state_q == DATA_ROUTE_IDLE && local_req_handshake) begin
+    if (route_state_q == DATA_ROUTE_IDLE && selected_request_handshake) begin
       route_state_d = selected_request_route;
       if (selected_request_route == DATA_ROUTE_ACCESS_FAULT) begin
-        fault_transaction_id_d = data_memory_req_i.transaction_id;
+        fault_transaction_id_d = selected_data_request.transaction_id;
       end
     end else if (route_state_q != DATA_ROUTE_IDLE && local_resp_handshake) begin
       route_state_d = DATA_ROUTE_IDLE;
+    end
+  end
+
+  always_comb begin
+    queued_data_request_d = queued_data_request_q;
+    queued_data_request_present_d = queued_data_request_present_q;
+
+    if (route_state_q == DATA_ROUTE_IDLE && queued_data_request_present_q &&
+        selected_request_handshake) begin
+      queued_data_request_present_d = 1'b0;
+    end
+
+    if (route_state_q != DATA_ROUTE_IDLE && local_resp_handshake &&
+        incoming_request_handshake) begin
+      queued_data_request_d = data_memory_req_i;
+      queued_data_request_present_d = 1'b1;
     end
   end
 
@@ -156,6 +202,16 @@ module riscv32_data_memory_subsystem
 
   always_ff @(posedge clk_i) begin
     fault_transaction_id_q <= fault_transaction_id_d;
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      queued_data_request_q <= '0;
+      queued_data_request_present_q <= 1'b0;
+    end else begin
+      queued_data_request_q <= queued_data_request_d;
+      queued_data_request_present_q <= queued_data_request_present_d;
+    end
   end
 
   generate
@@ -230,6 +286,18 @@ module riscv32_data_memory_subsystem
     data_memory_req_valid_i && !data_memory_req_ready_o |=>
       (data_memory_req_valid_i && $stable(data_memory_req_i)))
   else $error("data memory request changed while the subsystem was stalled");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    queued_data_request_present_q && !selected_request_handshake |=>
+      (queued_data_request_present_q && $stable(queued_data_request_q)))
+  else $error("queued data memory request changed before it reached its target");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    route_state_q != DATA_ROUTE_IDLE && local_resp_handshake &&
+      incoming_request_handshake |=>
+        (queued_data_request_present_q &&
+         queued_data_request_q == $past(data_memory_req_i)))
+  else $error("next data memory request was not preserved across response rollover");
 `endif
 
 endmodule
