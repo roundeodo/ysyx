@@ -1,6 +1,6 @@
 # 顺序流水线设计记录
 
-最后更新：2026-08-24
+最后更新：2026-08-25
 
 ## 1. 检查点目标
 
@@ -13,9 +13,10 @@
 - trap、`mret`和`fence.i`仍在commit边界恢复，保持精确架构状态；
 - DiffTest只观察commit事件，不观察流水级内部的推测状态。
 
-当前检查点已经实现EX/WB到ID/EX的标量操作数forwarding，以及IFU到IDU之间的两项
-fetch queue；尚未实现分支预测、非阻塞LSU、多发射或乱序执行。这些功能必须建立在当前
-正确性边界之上逐项加入，不能通过第二套译码或第二套架构寄存器状态绕开现有契约。
+当前检查点已经实现EX/WB到ID/EX的标量操作数forwarding、IFU到IDU之间的两项fetch
+queue，以及16项两位饱和计数器BHT和直接跳转预译码。尚未实现非阻塞LSU、D-cache、
+多发射或乱序执行。这些功能必须建立在当前正确性边界之上逐项加入，不能通过第二套译码
+或第二套架构寄存器状态绕开现有契约。
 
 ## 2. 当前数据通路
 
@@ -77,10 +78,18 @@ IDU短暂停顿时继续交付最多两个已取回结果；队列满后必须�
 
 redirect优先于顺序请求。redirect与响应交付同拍发生时，IFU禁止发送旧控制流的`PC+4`，
 保存redirect目标并增加epoch；已经发出的旧请求仍完成协议握手，但旧epoch响应只会被排空，
-不会进入IDU。当前结构仍限制为一个lookup在途，不具备多请求并行、hit-under-miss或预测
-取指能力，这些功能需要显式request queue和返回匹配，不能继续扩展当前两状态FSM实现。
+不会进入IDU。取指结果进入fetch queue之前经过控制流预测器：条件分支查16项两位饱和
+计数器BHT，`jal`静态预测taken，`jalr`等待EX解析。预测redirect只在对应取指结果真正入队
+时发出，避免反压期间对同一条指令重复redirect。EX完成条件分支时训练BHT；EX发现方向错误
+时仍通过原有恢复redirect冲刷错误路径。当前结构仍限制为一个lookup在途，不具备多请求并行
+或hit-under-miss；这些功能需要显式request queue和返回匹配，不能继续扩展当前两状态FSM。
 有限深度队列不能保证后端任意长停顿时仍每拍取指；当前能够保证的是：I-cache本地命中、
 lookup端口ready、无redirect且fetch queue有空间时，前端可以连续每拍交付一条指令。
+
+当前预测器只预测PC相对的branch和`jal`，因此流水payload只保存`predicted_taken`，EX根据
+branch target或顺序PC重建预测next PC，不携带32位动态target。这一约束为课程配置节省
+946.960 um^2。未来加入BTB或预测`jalr`时，target必须重新成为逐指令预测元数据，不能继续
+从立即数重建。
 
 在RV32、64B/2-way/8B line课程面积配置下做同代码基线A/B综合：严格串行IFU面积为
 25372.676 um^2，同周期换手后为25627.770 um^2，增加255.094 um^2（1.01%）；两者时序
@@ -114,8 +123,8 @@ CSR、system和其他标记为`serializing`的指令必须等待更老的ID/EX�
 
 ## 4. 控制冒险和flush范围
 
-当前前端按顺序PC取指，没有方向预测；taken branch、`jal`和`jalr`在EXU完成握手时产生
-redirect。redirect来源决定flush范围：
+当前前端使用16项BHT预测条件分支，并静态预测`jal` taken；`jalr`仍在EXU完成握手时解析。
+预测正确时不发生流水线flush，预测错误时由EXU发出恢复redirect。redirect来源决定flush范围：
 
 | redirect来源 | redirect指令所在位置 | 必须清除 | 必须保留 |
 | --- | --- | --- | --- |
@@ -176,10 +185,28 @@ EX指令发出completion或访存请求，并清空ID/EX、completion/WB以及�
 
 1. 已增加EX/WB到ID/EX操作数的forwarding，普通ALU依赖不再固定等待commit；
 2. 已增加两项fetch queue，隔离短时IDU反压；
-3. 对load-use保留必要停顿，并在加入D-cache后根据真实返回时刻唤醒；
-4. 增加静态或动态分支预测，用前端tag和epoch完成错误路径恢复；
-5. 把blocking LSU升级为带队列的接口，再考虑独立completion仲裁；
-6. 只有顺序流水线的精确异常和回归稳定后，才引入rename、ROB和乱序调度。
+3. 已增加16项BHT和直接跳转预译码，用前端tag和epoch完成错误路径恢复；
+4. 已让uncached AXI master在idle首拍直接发出AR或AW/W，删除每次访存固定的一拍空泡；
+5. 对load-use保留必要停顿，并在加入D-cache后根据真实返回时刻唤醒；
+6. 把blocking LSU升级为D-cache、store buffer和有序完成接口，再考虑多个在途事务；
+7. 只有顺序流水线的精确异常和回归稳定后，才引入rename、ROB和乱序调度。
+
+性能计数必须使用互斥优先级归因，不能把IFU response-wait或downstream-backpressure等通道
+占用周期直接相加。这些占用可与LSU阻塞重叠。当前MicroBench中I-cache命中率约99%，命中
+延迟为1拍，且命中路径可连续每拍接受lookup；因此前端不是第一瓶颈。当前最大互斥瓶颈是
+blocking LSU。若允许年轻指令直接越过它，将破坏当前顺序completion和精确异常，必须先加入
+D-cache/store buffer、目的寄存器身份保存和有序完成机制。
+
+本轮结构取舍参考以下公开设计，但只采用经过本核A/B数据支持的部分：
+
+- ysyx B5要求先区分指令供给、数据供给和冒险阻塞，再量化优化收益；
+- Ibex使用带feedthrough的prefetch FIFO，并在I-cache miss时提前转发critical word；
+- CV32E40P使用小型prefetch buffer吸收前端延迟，普通ALU结果支持前递，load-use仍需等待；
+- CVA6前端把BHT、BTB预测结果作为逐指令元数据传递，并在后端解析后恢复。
+
+对应到当前核：两项fetch queue和EX/WB forwarding已经实现；16项BHT经过A/B后保留；动态
+target、64项BHT和更深I-cache命中流水线因面积或收益证据不足暂不采用。开源项目的模块名称
+和参数不能直接替代本核计数器、时序和面积数据。
 
 ## 7. 验证
 
@@ -222,3 +249,16 @@ MicroBench用于比较流水化前后的周期、IPC和各类停顿占比，不�
 11.31%。完整运行中RAW等待为255742周期，LSU结构等待为1438484周期，控制flush为178314次，
 IFU下游反压占50.252%。当前最大瓶颈已经是blocking LSU；队列不能消除持续后端停顿，下一步
 应优先缩短数据访问占用，再加入分支预测减少错误路径取指。
+
+2026-08-25在相同1KiB/2-way/8B line I-cache和MicroBench `test`下逐项优化：16项BHT和
+`jal`预译码把PMU窗口从1770976周期降至1593126周期，IPC从0.242918升至0.270037；再加入
+uncached AXI idle首拍直通后降至1513766周期，IPC升至0.284193，计分时间为15.261 ms。
+完整运行的互斥空发射槽归因为：LSU结构阻塞47.943%、控制恢复9.033%、前端供给9.709%、
+未解决RAW 1.440%。I-cache命中率99.062%、命中延迟1拍、AMAT 1.260拍。由此确定下一项主要
+性能工程是D-cache和有序访存解耦，而不是继续增加fetch queue或盲目加深I-cache命中流水线。
+
+在64B/2-way/8B line课程面积配置下，加入压缩预测元数据后的core面积为27375.656 um^2；
+uncached AXI idle首拍直通后为27541.640 um^2，增加165.984 um^2。300MHz约束下TNS为0，
+报告中最紧的core输出路径约431.896MHz。该直通路径带来约4.9%的MicroBench计分时间收益，
+但也把AXI输出边界推成时序关注点；后续若提高目标频率，应在保持请求零空泡的前提下使用
+skid buffer或重新切分总线边界，而不是恢复固定首拍空泡。
