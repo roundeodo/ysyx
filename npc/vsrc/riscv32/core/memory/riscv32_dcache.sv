@@ -61,6 +61,7 @@ module riscv32_dcache
   // S0握手同时启动同步array read；S1保存请求身份并在下一拍完成tag compare。
   data_memory_req_t lookup_s1_q;
   logic lookup_s1_present_q, lookup_s1_present_d;
+  logic lookup_array_read_window;
   logic lookup_req_handshake;
 
   logic tag_read_enable;
@@ -465,6 +466,11 @@ module riscv32_dcache
   assign data_memory_req_ready_o =
       (!lookup_s1_present_q || local_resp_handshake) &&
       !miss_transaction_present && !clean_blocks_lookup;
+  // 阵列地址和请求身份在同一个时钟沿采样，但阵列读使能不需要等待上游valid。
+  // 只要lookup槽有接收窗口就预读当前输入地址；若valid=0，读出的内容不会被
+  // lookup_s1_present_q引用。这样从同步阵列D端移除了“EX有效 -> PMA/路由 ->
+  // valid/ready握手”的组合级联，同时保持请求是否被接受仍只由握手决定。
+  assign lookup_array_read_window = data_memory_req_ready_o;
   assign lookup_req_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
 
   always_comb begin
@@ -501,13 +507,15 @@ module riscv32_dcache
   end
 
   // array端口仲裁：miss victim读取优先，其次clean set读取，最后是正常lookup。
+  // 正常端口按接收窗口预读，而不是等valid参与握手后再打开读口。空窗口预读只
+  // 改变未被引用的array输出，不会创建请求，也不会产生cache命中或存储副作用。
   always_comb begin
     tag_read_enable = 1'b0;
     tag_read_set_index = '0;
     if (clean_state_q == CLEAN_READ_SET) begin
       tag_read_enable = 1'b1;
       tag_read_set_index = clean_set_index_q;
-    end else if (lookup_req_handshake) begin
+    end else if (lookup_array_read_window) begin
       tag_read_enable = 1'b1;
       tag_read_set_index = get_set_index(data_memory_req_i.addr);
     end
@@ -519,7 +527,7 @@ module riscv32_dcache
       data_read_enable = 1'b1;
       data_read_set_index = miss_victim_read_set_index;
       data_read_word_index = miss_victim_read_word_index;
-    end else if (lookup_req_handshake) begin
+    end else if (lookup_array_read_window) begin
       data_read_enable = 1'b1;
       data_read_set_index = get_set_index(data_memory_req_i.addr);
       data_read_word_index = get_word_index(data_memory_req_i.addr);
@@ -616,6 +624,10 @@ module riscv32_dcache
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     $onehot0(lookup_way_hit_vector))
   else $error("D-cache found the same line in multiple ways");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    lookup_req_handshake |-> (tag_read_enable && data_read_enable))
+  else $error("D-cache accepted a lookup without sampling both arrays");
 `endif
 
 endmodule
