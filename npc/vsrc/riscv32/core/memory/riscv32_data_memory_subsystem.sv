@@ -100,16 +100,19 @@ module riscv32_data_memory_subsystem
 
   assign dcache_req = selected_data_request;
   assign uncached_req = selected_data_request;
-  assign dcache_req_valid = route_state_q == DATA_ROUTE_IDLE &&
+  // IDLE是普通直通窗口；当前响应完成的同一拍也是滚动窗口。目标若能接收，下一请求
+  // 直接进入目标而不经过队列。D-cache利用该路径实现连续load hit每拍启动一次lookup。
+  assign dcache_req_valid = (route_state_q == DATA_ROUTE_IDLE || local_resp_handshake) &&
                             !dcache_clean_req_i && selected_data_request_valid &&
                             selected_request_route == DATA_ROUTE_DCACHE;
-  assign uncached_req_valid = route_state_q == DATA_ROUTE_IDLE &&
+  assign uncached_req_valid = (route_state_q == DATA_ROUTE_IDLE || local_resp_handshake) &&
                               !dcache_clean_req_i && selected_data_request_valid &&
                               selected_request_route == DATA_ROUTE_UNCACHED;
 
   always_comb begin
     selected_data_request_ready = 1'b0;
-    if (route_state_q == DATA_ROUTE_IDLE && !dcache_clean_req_i) begin
+    if ((route_state_q == DATA_ROUTE_IDLE || local_resp_handshake) &&
+        !dcache_clean_req_i) begin
       unique case (selected_request_route)
         DATA_ROUTE_DCACHE: selected_data_request_ready = dcache_req_ready;
         DATA_ROUTE_UNCACHED: selected_data_request_ready = uncached_req_ready;
@@ -175,7 +178,13 @@ module riscv32_data_memory_subsystem
         fault_transaction_id_d = selected_data_request.transaction_id;
       end
     end else if (route_state_q != DATA_ROUTE_IDLE && local_resp_handshake) begin
-      route_state_d = DATA_ROUTE_IDLE;
+      // 若下一请求已被目标直接接收，就在时钟沿把路由所有权切到新事务；否则先回到
+      // IDLE，无法直通的请求由下方单项队列保存。
+      route_state_d = selected_request_handshake ? selected_request_route : DATA_ROUTE_IDLE;
+      if (selected_request_handshake &&
+          selected_request_route == DATA_ROUTE_ACCESS_FAULT) begin
+        fault_transaction_id_d = selected_data_request.transaction_id;
+      end
     end
   end
 
@@ -189,7 +198,7 @@ module riscv32_data_memory_subsystem
     end
 
     if (route_state_q != DATA_ROUTE_IDLE && local_resp_handshake &&
-        incoming_request_handshake) begin
+        incoming_request_handshake && !selected_request_handshake) begin
       queued_data_request_d = data_memory_req_i;
       queued_data_request_present_d = 1'b1;
     end
@@ -294,7 +303,7 @@ module riscv32_data_memory_subsystem
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     route_state_q != DATA_ROUTE_IDLE && local_resp_handshake &&
-      incoming_request_handshake |=>
+      incoming_request_handshake && !selected_request_handshake |=>
         (queued_data_request_present_q &&
          queued_data_request_q == $past(data_memory_req_i)))
   else $error("next data memory request was not preserved across response rollover");
