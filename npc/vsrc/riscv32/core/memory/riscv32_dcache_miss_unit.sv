@@ -90,6 +90,8 @@ module riscv32_dcache_miss_unit
   core_data_t requested_word_data_q, requested_word_data_d;
   logic transaction_access_fault_q, transaction_access_fault_d;
   logic clean_access_fault_q, clean_access_fault_d;
+  // dirty victim的B响应可以与新line的AR/R并行，因此必须独立记录它是否尚未返回。
+  logic writeback_response_pending_q, writeback_response_pending_d;
 
   logic miss_req_handshake;
   logic clean_req_handshake;
@@ -97,7 +99,8 @@ module riscv32_dcache_miss_unit
   logic refill_resp_handshake;
   logic writeback_req_handshake;
   logic writeback_resp_handshake;
-  logic refill_fault_after_handshake;
+  logic transaction_fault_after_bus_handshakes;
+  logic writeback_response_completed_after_handshake;
   logic victim_last_word;
   phys_addr_t victim_line_base_addr;
   phys_addr_t requested_line_base_addr;
@@ -124,8 +127,12 @@ module riscv32_dcache_miss_unit
   assign refill_resp_handshake = refill_resp_valid_i && refill_resp_ready_o;
   assign writeback_req_handshake = writeback_req_valid_o && writeback_req_ready_i;
   assign writeback_resp_handshake = writeback_resp_valid_i && writeback_resp_ready_o;
-  assign refill_fault_after_handshake = transaction_access_fault_q ||
-                                        (refill_resp_handshake && refill_resp_i.access_fault);
+  assign transaction_fault_after_bus_handshakes =
+      transaction_access_fault_q ||
+      (refill_resp_handshake && refill_resp_i.access_fault) ||
+      (writeback_resp_handshake && writeback_resp_i.access_fault);
+  assign writeback_response_completed_after_handshake =
+      !writeback_response_pending_q || writeback_resp_handshake;
   assign victim_last_word =
       victim_word_index_q == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1);
   assign victim_line_base_addr =
@@ -184,7 +191,8 @@ module riscv32_dcache_miss_unit
     writeback_req_o.transaction_id = clean_operation_q ? '0 :
                                          miss_context_q.memory_req.transaction_id;
     writeback_req_valid_o = 1'b0;
-    writeback_resp_ready_o = 1'b0;
+    // B通道独立于refill状态。只要已发出的writeback尚未返回，就持续准备接收响应。
+    writeback_resp_ready_o = writeback_response_pending_q;
 
     unique case (state_q)
       MISS_READ_VICTIM_WORD: begin
@@ -193,10 +201,6 @@ module riscv32_dcache_miss_unit
 
       MISS_SEND_WRITEBACK: begin
         writeback_req_valid_o = 1'b1;
-      end
-
-      MISS_WAIT_WRITEBACK_RESPONSE: begin
-        writeback_resp_ready_o = 1'b1;
       end
 
       MISS_INVALIDATE_VICTIM: begin
@@ -258,11 +262,23 @@ module riscv32_dcache_miss_unit
     requested_word_data_d = requested_word_data_q;
     transaction_access_fault_d = transaction_access_fault_q;
     clean_access_fault_d = clean_access_fault_q;
+    writeback_response_pending_d = writeback_response_pending_q;
+
+    // dirty miss期间B响应可能在INVALIDATE、SEND_REFILL或RECEIVE_REFILL任一状态返回。
+    // 先统一保存结果，再由当前状态决定何时提交line或异常响应。
+    if (writeback_resp_handshake) begin
+      writeback_response_pending_d = 1'b0;
+      if (writeback_resp_i.access_fault) begin
+        if (clean_operation_q) clean_access_fault_d = 1'b1;
+        else transaction_access_fault_d = 1'b1;
+      end
+    end
 
     unique case (state_q)
       MISS_IDLE: begin
         transaction_access_fault_d = 1'b0;
         clean_access_fault_d = 1'b0;
+        writeback_response_pending_d = 1'b0;
         victim_word_index_d = '0;
         if (clean_req_handshake) begin
           clean_operation_d = 1'b1;
@@ -297,22 +313,26 @@ module riscv32_dcache_miss_unit
       end
 
       MISS_SEND_WRITEBACK: begin
-        if (writeback_req_handshake) state_d = MISS_WAIT_WRITEBACK_RESPONSE;
+        if (writeback_req_handshake) begin
+          writeback_response_pending_d = 1'b1;
+          // clean必须等B响应后才能清dirty；普通miss可立即使用独立AR/R通道refill。
+          state_d = clean_operation_q ? MISS_WAIT_WRITEBACK_RESPONSE :
+                                        MISS_INVALIDATE_VICTIM;
+        end
       end
 
       MISS_WAIT_WRITEBACK_RESPONSE: begin
         if (writeback_resp_handshake) begin
-          if (writeback_resp_i.access_fault) begin
-            if (clean_operation_q) begin
+          if (clean_operation_q) begin
+            if (writeback_resp_i.access_fault) begin
               clean_access_fault_d = 1'b1;
               state_d = MISS_COMPLETE_CLEAN;
             end else begin
-              transaction_access_fault_d = 1'b1;
-              state_d = MISS_RETURN_RESPONSE;
+              state_d = MISS_UPDATE_CLEAN_METADATA;
             end
           end else begin
-            state_d = clean_operation_q ? MISS_UPDATE_CLEAN_METADATA :
-                                          MISS_INVALIDATE_VICTIM;
+            state_d = transaction_fault_after_bus_handshakes ? MISS_RETURN_RESPONSE :
+                                                               MISS_INSTALL_LINE;
           end
         end
       end
@@ -327,13 +347,17 @@ module riscv32_dcache_miss_unit
 
       MISS_RECEIVE_REFILL: begin
         if (refill_resp_handshake) begin
-          transaction_access_fault_d = refill_fault_after_handshake;
+          transaction_access_fault_d = transaction_fault_after_bus_handshakes;
           if (refill_resp_i.word_index == miss_context_q.word_index) begin
             requested_word_data_d = refill_word_after_store_merge;
           end
           if (refill_resp_i.last_word) begin
-            state_d = refill_fault_after_handshake ? MISS_RETURN_RESPONSE :
-                                                     MISS_INSTALL_LINE;
+            if (!writeback_response_completed_after_handshake) begin
+              state_d = MISS_WAIT_WRITEBACK_RESPONSE;
+            end else begin
+              state_d = transaction_fault_after_bus_handshakes ? MISS_RETURN_RESPONSE :
+                                                                 MISS_INSTALL_LINE;
+            end
           end
         end
       end
@@ -381,10 +405,12 @@ module riscv32_dcache_miss_unit
       clean_operation_q <= 1'b0;
       transaction_access_fault_q <= 1'b0;
       clean_access_fault_q <= 1'b0;
+      writeback_response_pending_q <= 1'b0;
     end else begin
       clean_operation_q <= clean_operation_d;
       transaction_access_fault_q <= transaction_access_fault_d;
       clean_access_fault_q <= clean_access_fault_d;
+      writeback_response_pending_q <= writeback_response_pending_d;
     end
   end
 
@@ -401,6 +427,11 @@ module riscv32_dcache_miss_unit
     refill_resp_handshake && refill_resp_i.last_word |->
       (refill_resp_i.word_index == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1)))
   else $error("D-cache refill RLAST arrived at an unexpected word index");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    state_q == MISS_INSTALL_LINE |->
+      (!writeback_response_pending_q && !transaction_access_fault_q))
+  else $error("D-cache installed a line before all bus responses completed successfully");
 `endif
 
 endmodule

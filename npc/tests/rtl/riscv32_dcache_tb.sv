@@ -26,6 +26,7 @@ module riscv32_dcache_tb;
   logic clean_done;
   logic clean_access_fault;
   logic cache_busy;
+  dcache_event_t dcache_event;
 
   axi4_manager_to_target_t axi_manager;
   axi4_target_to_manager_t axi_target;
@@ -45,6 +46,7 @@ module riscv32_dcache_tb;
 
   int unsigned read_address_handshake_count;
   int unsigned write_address_handshake_count;
+  logic dirty_miss_read_write_overlap_observed_q;
 
   riscv32_dcache u_dut (
       .clk_i                    (clk),
@@ -59,6 +61,7 @@ module riscv32_dcache_tb;
       .clean_done_o             (clean_done),
       .clean_access_fault_o     (clean_access_fault),
       .cache_busy_o             (cache_busy),
+      .event_o                  (dcache_event),
       .axi_manager_o            (axi_manager),
       .axi_manager_i            (axi_target)
   );
@@ -119,6 +122,16 @@ module riscv32_dcache_tb;
           read_beat_index_q <= read_beat_index_q + 8'd1;
         end
       end
+    end
+  end
+
+  // dirty victim尚在W/B通道推进时，新line的AR已经完成握手，证明两个方向没有串行化。
+  always_ff @(posedge clk or negedge rst_ni) begin
+    if (!rst_ni) begin
+      dirty_miss_read_write_overlap_observed_q <= 1'b0;
+    end else if (axi_manager.ar_valid && axi_target.ar_ready &&
+                 (write_transaction_present_q || write_response_present_q)) begin
+      dirty_miss_read_write_overlap_observed_q <= 1'b1;
     end
   end
 
@@ -263,6 +276,8 @@ module riscv32_dcache_tb;
       else $fatal(1, "D-cache refill returned incorrect data for line C");
     assert (write_address_handshake_count == 1)
       else $fatal(1, "dirty conflict victim was not written back exactly once");
+    assert (dirty_miss_read_write_overlap_observed_q)
+      else $fatal(1, "dirty miss serialized refill behind the complete writeback response");
     assert (core_data_t'(read_memory_word(axi4_addr_t'(TEST_ADDR_A))) == stored_a)
       else $fatal(1, "dirty victim writeback did not update backing memory");
 
