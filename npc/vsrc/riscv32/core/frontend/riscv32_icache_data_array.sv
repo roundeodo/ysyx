@@ -67,9 +67,9 @@ module riscv32_icache_data_array
   // present位决定。这里使用显式staging加低电平透明锁存阵列，降低小容量数据阵列由
   // 标准单元实现时的面积；未来换成SRAM宏时，只需在本模块内部替换存储体和端口时序。
   //
-  // 第一版blocking cache可禁止lookup与refill写同一set。未来early restart和hit-under-
-  // miss需要定义冲突策略，并优先考虑refill data bypass而不是依赖SRAM read-during-write
-  // 的工艺相关行为。
+  // 顶层允许refill期间查询不同set，也允许读取当前line中更早周期已经写入的word；仍禁止
+  // 对正在refill的同set其他line发起array read。这样支持低成本hit-under-miss，同时不
+  // 依赖SRAM同地址read-during-write的工艺相关行为。
   //
   // 这里不是循环写完整条line。每次refill response握手只携带一个word及其word index，
   // miss unit连续驱动本写口，逐word填满cache line。
@@ -98,8 +98,8 @@ module riscv32_icache_data_array
     end
   end
 
-  // v1由I-cache顶层保证lookup与refill不会在同一拍访问同一个set。data array不在
-  // 本地重复实现冲突检测；未来若支持hit-under-miss，应在顶层定义refill bypass。
+  // I-cache顶层负责同set冲突策略，data array不在本地重复比较地址。若未来允许同set
+  // hit-under-miss，需要增加明确的refill bypass或双端口SRAM语义。
 
   // directed test至少覆盖以下顺序：
   // 1. 向way0的一个set/word写入指定数据；

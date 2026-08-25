@@ -31,9 +31,8 @@ module riscv32_icache_refill_axi4_master
   refill_adapter_state_e state_q;
   refill_adapter_state_e state_d;
 
-  // adapter在AR握手后只需记住burst长度和本地事务身份。多word refill从critical
-  // word发起WRAP burst，current_word_addr随返回beat在cache line边界回绕，因此无需
-  // 再保存line_base_addr和critical_word_index两份等价地址状态。
+  // adapter在AR握手后只需记住burst长度和本地事务身份。line_base_addr与
+  // critical_word_index已经折叠进current_word_addr，避免为同一地址保存两份状态。
   typedef struct packed {
     icache_refill_word_count_t        requested_word_count;
     icache_refill_transaction_index_t transaction_index;
@@ -87,9 +86,7 @@ module riscv32_icache_refill_axi4_master
             refill_transaction_context_q.requested_word_count - 1'b1
         );
         axi_manager_o.ar.size  = 3'($clog2(ICACHE_FETCH_BYTES));
-        axi_manager_o.ar.burst =
-            refill_transaction_context_q.requested_word_count ==
-                icache_refill_word_count_t'(1) ? AXI4_BURST_INCR : AXI4_BURST_WRAP;
+        axi_manager_o.ar.burst = AXI4_BURST_INCR;
         axi_manager_o.ar_valid = 1'b1;
       end
 
@@ -123,10 +120,15 @@ module riscv32_icache_refill_axi4_master
               refill_req_i.requested_word_count;
           refill_transaction_context_d.transaction_index =
               refill_req_i.transaction_index;
-          received_word_index_d = refill_req_i.critical_word_index;
-          current_word_addr_d =
-              refill_req_i.line_base_addr +
-              MEM_AXI_ADDR_WIDTH'(refill_req_i.critical_word_index * ICACHE_FETCH_BYTES);
+          if (refill_req_i.requested_word_count == icache_refill_word_count_t'(1)) begin
+            received_word_index_d = refill_req_i.critical_word_index;
+            current_word_addr_d =
+                refill_req_i.line_base_addr +
+                MEM_AXI_ADDR_WIDTH'(refill_req_i.critical_word_index * ICACHE_FETCH_BYTES);
+          end else begin
+            received_word_index_d = '0;
+            current_word_addr_d   = refill_req_i.line_base_addr;
+          end
           state_d = REFILL_SEND_READ_ADDRESS;
         end
       end
@@ -142,21 +144,9 @@ module riscv32_icache_refill_axi4_master
           if (axi_manager_i.r.last) begin
             state_d = REFILL_IDLE;
           end else begin
-            if (received_word_index_q ==
-                icache_word_index_t'(
-                    refill_transaction_context_q.requested_word_count - 1'b1
-                )) begin
-              received_word_index_d = '0;
-              current_word_addr_d =
-                  current_word_addr_q - MEM_AXI_ADDR_WIDTH'(
-                      (refill_transaction_context_q.requested_word_count - 1'b1) *
-                      ICACHE_FETCH_BYTES
-                  );
-            end else begin
-              received_word_index_d = received_word_index_q + icache_word_index_t'(1);
-              current_word_addr_d =
-                  current_word_addr_q + MEM_AXI_ADDR_WIDTH'(ICACHE_FETCH_BYTES);
-            end
+            received_word_index_d = received_word_index_q + icache_word_index_t'(1);
+            current_word_addr_d =
+                current_word_addr_q + MEM_AXI_ADDR_WIDTH'(ICACHE_FETCH_BYTES);
           end
         end
       end
@@ -192,12 +182,6 @@ module riscv32_icache_refill_axi4_master
       else $fatal(1, "I-cache fetch byte count must be a power of two");
     assert ((MEM_AXI_DATA_BYTE_COUNT & (MEM_AXI_DATA_BYTE_COUNT - 1)) == 0)
       else $fatal(1, "AXI data byte count must be a power of two");
-    assert ((ICACHE_WORDS_PER_LINE == 1) ||
-            (ICACHE_WORDS_PER_LINE == 2) ||
-            (ICACHE_WORDS_PER_LINE == 4) ||
-            (ICACHE_WORDS_PER_LINE == 8) ||
-            (ICACHE_WORDS_PER_LINE == 16))
-      else $fatal(1, "AXI WRAP refill requires 2, 4, 8, or 16 words per line");
   end
 `endif
 
