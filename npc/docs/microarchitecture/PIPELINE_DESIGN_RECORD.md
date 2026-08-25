@@ -199,13 +199,18 @@ EX指令发出completion或访存请求，并清空ID/EX、completion/WB以及�
 
 流水级寄存器的存在不等于能够达到1 GHz。当前标准单元STA中，无D-cache配置的关键路径
 穿过I-cache命中响应、控制流预测、下一PC选择和下一次array读地址，约1.788 ns；加入
-256 B/2-way D-cache后最紧路径转到D-cache/AXI输出边界，约1.675 ns。1 GHz要求数据路径
-接近1 ns且还要保留setup、skew和不确定度余量，因此必须重新切分这些具体路径。
+256 B/2-way D-cache后的初次最紧路径从EX级经过LSU请求形成、PMA和路由选择穿到data AXI
+输出。删除请求首拍不会使用的AXI组合选择后，报告频率从498.001 MHz提高到524.833 MHz，
+而IPC保持0.334515；新的最差路径从EX/LSU进入D-cache同步data array读寄存器，数据到达
+时间为1.870 ns。1 GHz要求组合路径接近1 ns且还要保留setup、skew和不确定度余量，因此
+必须按这些具体路径重新划分流水，而不是只统计模块之间是否已经存在寄存器。
 
 不能只在I-cache响应后盲目增加一级寄存器：当前IFU只有一个lookup在途，这会使请求吞吐降为
 约每两拍一条。正确方案是请求侧next-line prediction、多个带tag/epoch的在途lookup、选择性
-squash和弹性响应级一起实现。D-cache侧则需要array输出/AXI边界弹性级，并最终把tag/data
-array映射为SRAM宏；这些变化保持现有语义请求和AXI协议边界，不把总线细节重新塞回IFU/LSU。
+squash和弹性响应级一起实现。D-cache侧不能只在输入前增加固定延迟寄存器，而要把AGU、
+PMA/route和array lookup切成可连续接收请求的流水边界，并用store buffer解除store提交后的
+长等待；最终把tag/data array映射为SRAM宏。这些变化保持现有语义请求和AXI协议边界，不把
+总线细节重新塞回IFU/LSU。
 
 本轮结构取舍参考以下公开设计，但只采用经过本核A/B数据支持的部分：
 

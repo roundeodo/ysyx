@@ -1186,7 +1186,18 @@ commit上建立可关闭D-cache的命名配置，并对小容量I-cache、无D-c
 理想收益不足1%，RAS4扩到RAS8在trace中只减少250次错误，因此两者均不扩容。
 
 最终配置的完整运行互斥停顿为：LSU结构31.757%、前端27.631%、控制恢复8.965%、RAW
-1.130%。当前不再存在单一绝对瓶颈。STA关键路径约1.675 ns，落在D-cache/AXI输出边界；
-无D-cache时约1.788 ns的关键路径落在I-cache命中响应到下一lookup的前端反馈路径。达到
-1 GHz不能只增加任意流水寄存器，必须分别完成请求侧next-line prediction和多在途fetch，
-以及D-cache/AXI边界弹性切分，保证增加级数后仍能保持每拍请求吞吐。
+1.130%。当前不再存在单一绝对瓶颈。初次STA报告的498.001 MHz关键路径从EX级
+`execute_packet`经过LSU请求形成、PMA和当前请求路由选择，一直穿到data AXI输出。进一步
+检查协议时序后确认：D-cache和uncached adapter在接收请求的首拍都只锁存请求或启动array
+read，不会在这一拍产生有效AXI请求，因此按当前PMA结果选择AXI输出是无收益组合旁路。
+
+删除这条旁路后，MicroBench测量IPC保持0.334515，面积从59696.784 um^2变为
+59704.764 um^2，STA频率从498.001 MHz提高到524.833 MHz，`IPC * Fmax`从166.59提高到
+175.57 MIPS。新的关键路径从EX/LSU请求形成进入D-cache同步data array读寄存器，数据到达
+时间为1.870 ns。无D-cache时约1.788 ns的关键路径则位于I-cache响应、预测、下一PC和下一
+lookup的前端反馈路径。
+
+达到1 GHz不能只增加任意流水寄存器。数据侧需要把AGU/LSU请求和cache lookup切成可连续
+接收的流水边界，并配合store buffer避免新增级数直接变成每条store的等待；前端需要请求侧
+next-line prediction、多个带tag/epoch的在途fetch和选择性squash。两个方向都必须保持
+valid-ready协议和每拍请求吞吐，再用IPC、Fmax和面积联合判断，而不能只看流水级数量。

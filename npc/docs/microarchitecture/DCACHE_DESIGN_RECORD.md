@@ -127,6 +127,13 @@ direct-map、16 B line后得到：
 吞吐代理提高8.5%，因此选为`rv32-baseline`。128 B配置中增加关联度只有约1.75%的IPC收益，
 不采用。关闭D-cache的配置每面积吞吐最高，继续作为面积敏感对照，但不再作为性能默认值。
 
+首次综合中，当前请求的PMA结果还组合参与D-cache/uncached AXI输出选择，形成从EX经过LSU、
+PMA和路由到core输出的长路径。但两个下游在请求握手首拍都不会发出有效AXI请求，该选择没有
+吞吐或延迟收益。改为只使用握手后锁存的route state选择普通事务后，IPC保持0.334515，
+Fmax从498.001 MHz提高到524.833 MHz，面积为59704.764 um^2。新关键路径进入D-cache同步
+data array读寄存器，说明下一步必须联合设计AGU/cache请求流水和store buffer；仅插入固定
+一拍的输入寄存器会增加每条访存延迟，不能直接视为有效优化。
+
 该面积是数组被标准单元展开后的结果，不代表SRAM宏实现。必须保留D-cache、miss unit、
 line AXI master和I/D仲裁边界，因为它们是后续store buffer、多MSHR、banking和LSQ的结构
 基础；可以删除的是无实测收益的额外容量、额外路数和组合旁路，而不是这些协议边界。
