@@ -116,9 +116,9 @@ module riscv32_pipeline_hazard_controller
                                    !structural_hazard_present_o &&
                                    !control_recovery_occurred;
 
-  // EX级redirect来自当前正在执行的分支自身，不能阻止该分支进入WB；commit级redirect
-  // 来自更老指令，必须阻止当前年轻EX指令产生completion或访存副作用。
-  assign execute_issue_allowed_o = !structural_hazard_present_o && !commit_redirect_occurred_i;
+  // EX恢复事件已经经过窄寄存级：事件有效时，当前EX指令比产生redirect的分支更年轻，
+  // 必须阻止其产生completion或访存副作用。commit级redirect同样阻止所有年轻工作。
+  assign execute_issue_allowed_o = !structural_hazard_present_o && !control_recovery_occurred;
 
   assign decode_execute_flush_o = control_recovery_occurred;
   assign writeback_flush_o = commit_redirect_occurred_i;

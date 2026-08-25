@@ -29,9 +29,12 @@ module riscv32_pipeline_control_tb;
 
   fetch_entry_t   predictor_fetch_entry;
   logic           predictor_fetch_entry_handshake_occurred;
-  program_counter_t predictor_resolved_branch_pc;
-  logic             predictor_resolved_branch_occurred;
-  logic             predictor_resolved_branch_taken;
+  program_counter_t predictor_resolved_control_flow_pc;
+  control_flow_op_e predictor_resolved_control_flow_op;
+  arch_reg_idx_t    predictor_resolved_control_flow_rs1;
+  arch_reg_idx_t    predictor_resolved_control_flow_rd;
+  logic             predictor_resolved_control_flow_occurred;
+  logic             predictor_resolved_control_flow_taken;
   fetch_entry_t     predictor_output_entry;
   redirect_req_t   predictor_redirect_req;
   logic            predictor_redirect_req_valid;
@@ -129,9 +132,12 @@ module riscv32_pipeline_control_tb;
       .rst_ni                               (rst_ni),
       .fetch_entry_i                        (predictor_fetch_entry),
       .fetch_entry_handshake_occurred_i     (predictor_fetch_entry_handshake_occurred),
-      .resolved_conditional_branch_pc_i     (predictor_resolved_branch_pc),
-      .resolved_conditional_branch_occurred_i(predictor_resolved_branch_occurred),
-      .resolved_conditional_branch_taken_i  (predictor_resolved_branch_taken),
+      .resolved_control_flow_pc_i          (predictor_resolved_control_flow_pc),
+      .resolved_control_flow_op_i          (predictor_resolved_control_flow_op),
+      .resolved_control_flow_rs1_i         (predictor_resolved_control_flow_rs1),
+      .resolved_control_flow_rd_i          (predictor_resolved_control_flow_rd),
+      .resolved_control_flow_occurred_i    (predictor_resolved_control_flow_occurred),
+      .resolved_control_flow_taken_i       (predictor_resolved_control_flow_taken),
       .predicted_fetch_entry_o              (predictor_output_entry),
       .prediction_redirect_req_o            (predictor_redirect_req),
       .prediction_redirect_req_valid_o      (predictor_redirect_req_valid)
@@ -301,6 +307,21 @@ module riscv32_pipeline_control_tb;
     return instruction;
   endfunction
 
+  function automatic instruction_t make_jalr_instruction(
+      input arch_reg_idx_t destination_register,
+      input arch_reg_idx_t source_register,
+      input logic signed [11:0] immediate
+  );
+    instruction_t instruction;
+    instruction        = '0;
+    instruction[31:20] = immediate;
+    instruction[19:15] = source_register;
+    instruction[14:12] = 3'b000;
+    instruction[11:7]  = destination_register;
+    instruction[6:0]   = OPCODE_JALR;
+    return instruction;
+  endfunction
+
   task automatic clear_fetch_buffer_inputs;
     fetch_buffer_input_entry  = '0;
     fetch_buffer_input_valid  = 1'b0;
@@ -309,16 +330,20 @@ module riscv32_pipeline_control_tb;
   endtask
 
   task automatic clear_predictor_inputs;
-    predictor_fetch_entry                      = '0;
-    predictor_fetch_entry_handshake_occurred   = 1'b0;
-    predictor_resolved_branch_pc               = '0;
-    predictor_resolved_branch_occurred          = 1'b0;
-    predictor_resolved_branch_taken             = 1'b0;
+    predictor_fetch_entry                    = '0;
+    predictor_fetch_entry_handshake_occurred = 1'b0;
+    predictor_resolved_control_flow_pc       = '0;
+    predictor_resolved_control_flow_op       = CF_NONE;
+    predictor_resolved_control_flow_rs1      = '0;
+    predictor_resolved_control_flow_rd       = '0;
+    predictor_resolved_control_flow_occurred = 1'b0;
+    predictor_resolved_control_flow_taken    = 1'b0;
   endtask
 
   task automatic check_fetch_control_flow_predictor;
-    localparam program_counter_t JAL_PC    = program_counter_t'('h8000_0100);
-    localparam program_counter_t BRANCH_PC = program_counter_t'('h8000_0200);
+    localparam program_counter_t JAL_PC     = program_counter_t'('h8000_0100);
+    localparam program_counter_t BRANCH_PC  = program_counter_t'('h8000_0200);
+    localparam program_counter_t CALL_PC    = program_counter_t'('h8000_0300);
     instruction_t branch_instruction;
 
     branch_instruction = make_branch_instruction(13'sd8);
@@ -350,13 +375,14 @@ module riscv32_pipeline_control_tb;
 
     // 同一PC的真实taken结果在EX级训练方向表。两次训练把计数器从01推进到11。
     predictor_fetch_entry_handshake_occurred = 1'b0;
-    predictor_resolved_branch_pc              = BRANCH_PC;
-    predictor_resolved_branch_occurred         = 1'b1;
-    predictor_resolved_branch_taken            = 1'b1;
+    predictor_resolved_control_flow_pc       = BRANCH_PC;
+    predictor_resolved_control_flow_op       = CF_BRANCH;
+    predictor_resolved_control_flow_occurred = 1'b1;
+    predictor_resolved_control_flow_taken    = 1'b1;
     repeat (2) @(posedge clk);
 
     @(negedge clk);
-    predictor_resolved_branch_occurred        = 1'b0;
+    predictor_resolved_control_flow_occurred = 1'b0;
     predictor_fetch_entry_handshake_occurred = 1'b1;
     #1;
     assert (predictor_output_entry.prediction.predicted_taken &&
@@ -366,12 +392,12 @@ module riscv32_pipeline_control_tb;
 
     // 两次not-taken训练把11退回01，预测应恢复顺序执行。
     predictor_fetch_entry_handshake_occurred = 1'b0;
-    predictor_resolved_branch_occurred        = 1'b1;
-    predictor_resolved_branch_taken           = 1'b0;
+    predictor_resolved_control_flow_occurred = 1'b1;
+    predictor_resolved_control_flow_taken    = 1'b0;
     repeat (2) @(posedge clk);
 
     @(negedge clk);
-    predictor_resolved_branch_occurred = 1'b0;
+    predictor_resolved_control_flow_occurred = 1'b0;
     #1;
     assert (!predictor_output_entry.prediction.predicted_taken)
       else $fatal(1, "BHT saturating counter did not learn repeated not-taken outcomes");
@@ -394,10 +420,31 @@ module riscv32_pipeline_control_tb;
     assert (!predictor_output_entry.prediction.predicted_taken)
       else $fatal(1, "misaligned direct-jump target produced a prediction");
 
-    predictor_fetch_entry = make_fetch_entry(BRANCH_PC, instruction_t'(32'h0000_0067));
+    // 已完成的call把PC+4压入RAS；随后ret在进入fetch buffer时直接预测该动态目标。
+    predictor_fetch_entry_handshake_occurred = 1'b0;
+    predictor_resolved_control_flow_pc       = CALL_PC;
+    predictor_resolved_control_flow_op       = CF_JAL;
+    predictor_resolved_control_flow_rs1      = '0;
+    predictor_resolved_control_flow_rd       = arch_reg_idx_t'(1);
+    predictor_resolved_control_flow_occurred = 1'b1;
+    predictor_resolved_control_flow_taken    = 1'b1;
+    @(posedge clk);
+
+    @(negedge clk);
+    predictor_resolved_control_flow_occurred = 1'b0;
+    predictor_fetch_entry = make_fetch_entry(
+        BRANCH_PC,
+        make_jalr_instruction(arch_reg_idx_t'(0), arch_reg_idx_t'(1), 12'sd0)
+    );
+    predictor_fetch_entry_handshake_occurred = 1'b1;
     #1;
-    assert (!predictor_output_entry.prediction.predicted_taken)
-      else $fatal(1, "JALR was predicted without a BTB or RAS target source");
+    assert (predictor_output_entry.prediction.predicted_taken &&
+            (predictor_output_entry.prediction.predicted_target ==
+             CALL_PC + program_counter_t'(INSTRUCTION_BYTES)) &&
+            predictor_redirect_req_valid &&
+            (predictor_redirect_req.target_pc ==
+             CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+      else $fatal(1, "return-address stack did not predict the resolved call return target");
 
     clear_predictor_inputs();
   endtask

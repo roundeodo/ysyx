@@ -153,6 +153,8 @@ module riscv32_core
   logic serializing_hazard_present;
   logic structural_hazard_present;
   logic lsu_transaction_active;
+  redirect_req_t execute_redirect_req_at_resolution;
+  logic execute_redirect_resolution_occurred;
   logic execute_redirect_occurred;
   logic commit_redirect_occurred;
   logic frontend_recovery_occurred;
@@ -246,14 +248,18 @@ module riscv32_core
       .rst_ni                             (rst_ni),
       .fetch_entry_i                      (ifu_fetch_entry),
       .fetch_entry_handshake_occurred_i   (ifu_fetch_entry_valid && ifu_fetch_entry_ready),
-      .resolved_conditional_branch_pc_i   (exu_result.uop.pc),
-      .resolved_conditional_branch_occurred_i(
+      .resolved_control_flow_pc_i         (exu_result.uop.pc),
+      .resolved_control_flow_op_i         (exu_result.uop.branch_ctrl.op),
+      .resolved_control_flow_rs1_i        (exu_result.uop.rs1),
+      .resolved_control_flow_rd_i         (exu_result.uop.rd),
+      .resolved_control_flow_occurred_i   (
           exu_result_valid && exu_result_ready &&
-          (exu_result.uop.branch_ctrl.op == CF_BRANCH) && !exu_result.uop.exception_valid
+          (exu_result.uop.fu_type == FU_BRANCH) && !exu_result.uop.exception_valid
       ),
-      .resolved_conditional_branch_taken_i(
-          exu_result.next_pc !=
-          (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES))
+      .resolved_control_flow_taken_i      (
+          (exu_result.uop.branch_ctrl.op != CF_BRANCH) ||
+          (exu_result.next_pc !=
+           (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
       .predicted_fetch_entry_o            (predicted_fetch_entry),
       .prediction_redirect_req_o          (fetch_prediction_redirect_req),
@@ -555,8 +561,9 @@ module riscv32_core
       .resolved_control_flow_op_i(exu_result.uop.branch_ctrl.op),
       .resolved_control_flow_pc_i(exu_result.uop.pc),
       .resolved_control_flow_taken_i(
-          exu_result.next_pc !=
-          (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES))
+          (exu_result.uop.branch_ctrl.op != CF_BRANCH) ||
+          (exu_result.next_pc !=
+           (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
       .resolved_control_flow_immediate_i(exu_result.uop.imm),
       .lsu_request_occurred_i(lsu_req_valid && lsu_req_ready),
@@ -599,9 +606,22 @@ module riscv32_core
       .redirect_req_valid_o(redirect_req_valid[COMMIT_REDIRECT_INDEX])
   );
 
-  assign redirect_req[EXU_REDIRECT_INDEX] = exu_result.redirect_req;
-  assign execute_redirect_occurred = exu_result_valid && exu_result_ready &&
-                                     exu_result.redirect_valid;
+  assign execute_redirect_req_at_resolution = exu_result.redirect_req;
+  assign execute_redirect_resolution_occurred = exu_result_valid && exu_result_ready &&
+                                                exu_result.redirect_valid;
+
+  // 只寄存低带宽的恢复事件，不寄存整个EX结果。它切断EX到IFU的反向控制关键路径；
+  // 下一拍hazard controller会阻止错误路径EX指令产生任何架构或访存副作用。
+  riscv32_execute_redirect_stage u_execute_redirect_stage (
+      .clk_i                            (clk_i),
+      .rst_ni                           (rst_ni),
+      .execute_redirect_req_i           (execute_redirect_req_at_resolution),
+      .execute_redirect_req_valid_i     (execute_redirect_resolution_occurred),
+      .flush_i                          (commit_redirect_occurred),
+      .registered_redirect_req_o        (redirect_req[EXU_REDIRECT_INDEX]),
+      .registered_redirect_req_valid_o  (execute_redirect_occurred)
+  );
+
   assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
   assign redirect_req[FETCH_PREDICTION_REDIRECT_INDEX] = fetch_prediction_redirect_req;
   assign redirect_req_valid[FETCH_PREDICTION_REDIRECT_INDEX] =
@@ -667,6 +687,12 @@ module riscv32_core
     (commit_redirect_occurred && decode_execute_flush && writeback_flush &&
      !execute_issue_allowed))
   else $error("committed exception did not block and flush younger pipeline work");
+
+  a_registered_execute_redirect_blocks_younger_execute :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    execute_redirect_occurred |->
+      (decode_execute_flush && !execute_issue_allowed && !lsu_req_valid))
+  else $error("registered execute redirect allowed a wrong-path EX side effect");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 
