@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <cpu/branchsim-trace.h>
 #include <cpu/cachesim-trace.h>
 #include <memory/paddr.h>
 #include <elf.h>
@@ -66,6 +67,7 @@ static char *diff_so_file = NULL;
 static char *img_file = NULL;
 static char *cachesim_trace_file = NULL;
 static char *cachesim_data_trace_file = NULL;
+static char *branchsim_trace_file = NULL;
 static int difftest_port = 1234;
 
 #ifdef CONFIG_FTRACE
@@ -256,6 +258,7 @@ static int parse_args(int argc, char *argv[]) {
     {"port"     , required_argument, NULL, 'p'},
     {"cachesim-trace", required_argument, NULL, 256},
     {"cachesim-data-trace", required_argument, NULL, 257},
+    {"branchsim-trace", required_argument, NULL, 258},
     #ifdef CONFIG_FTRACE
     {"elf"      , required_argument, NULL, 'e'},
     #endif
@@ -271,6 +274,7 @@ static int parse_args(int argc, char *argv[]) {
       case 'd': diff_so_file = optarg; break;
       case 256: cachesim_trace_file = optarg; break;
       case 257: cachesim_data_trace_file = optarg; break;
+      case 258: branchsim_trace_file = optarg; break;
       #ifdef CONFIG_FTRACE
       case 'e':
         elf_file = optarg;
@@ -287,6 +291,7 @@ static int parse_args(int argc, char *argv[]) {
         printf("\t-p,--port=PORT          run DiffTest with port PORT\n");
         printf("\t--cachesim-trace=FILE   write compact program-counter trace\n");
         printf("\t--cachesim-data-trace=FILE write compact architectural data trace\n");
+        printf("\t--branchsim-trace=FILE  write compact retired control-flow trace\n");
         #ifdef CONFIG_FTRACE
         printf("\t-e,--elf=FILE           load ELF file for ftrace\n");
         #endif
@@ -311,6 +316,7 @@ void init_monitor(int argc, char *argv[]) {
 
   init_cachesim_trace(cachesim_trace_file);
   init_cachesim_data_trace(cachesim_data_trace_file);
+  init_branchsim_trace(branchsim_trace_file);
   
   #ifdef CONFIG_FTRACE
   /* Parse ELF file and load function symbols for ftrace */

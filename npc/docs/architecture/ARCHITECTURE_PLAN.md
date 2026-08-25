@@ -2,11 +2,12 @@
 
 状态：当前设计权威
 
-当前实现基线：RV32I、多周期、单发射、顺序提交；core系统边界统一使用完整AXI4
+当前实现基线：参数化RV32I/RV64I、单发射顺序流水线、精确顺序提交、2-way I/D cache；
+core系统边界统一使用完整AXI4
 
 最终产品目标：RV64 异构 AI SoC 主处理器
 
-最后更新：2026-08-21
+最后更新：2026-08-25
 
 ## 1. 文档目的
 
@@ -285,8 +286,10 @@ P3先在现有多周期核上完成`YSYX_RV64_SEQUENTIAL`功能基线，再进�
 AXI、ysyxSoC边界的AXI64到AXI32转换，以及CSR、异常、提交、PMU、RV64软件环境、
 DiffTest和双配置综合/STA基线。P3-H已在相同接口上加入ID/EX和completion/WB弹性寄存器，
 实现无旁路RAW停顿、blocking LSU结构停顿、串行化、按redirect来源区分的精确flush和
-commit/DiffTest稳定边界。RV32和RV64各35项DiffTest以及RV32 MicroBench `test`均通过。
-下一检查点是forwarding与控制冒险性能优化，不创建第二套架构态。
+commit/DiffTest稳定边界。其后已加入EX/WB forwarding、16项BHT和直接跳转预测，并完成首版
+参数化write-back/write-allocate D-cache、PMA cacheability路由以及I/D共享AXI读口的事务级
+仲裁。RV32和RV64各35项DiffTest以及RV32 MicroBench `test`在D-cache接入前均通过；D-cache
+接入后的完整性能回归必须单独记录，不能沿用旧性能数字。
 
 详细的文件顺序、退出条件和验证矩阵见
 [`P3_RV64_SEQUENTIAL_PLAN.md`](P3_RV64_SEQUENTIAL_PLAN.md)。
@@ -296,7 +299,7 @@ commit/DiffTest稳定边界。RV32和RV64各35项DiffTest以及RV32 MicroBench `
 - M/S/U 特权级、Sv39、ITLB/DTLB 和 page fault；
 - 原子指令和多核/设备同步所需语义；
 - Linux 或等价完整 OS 启动；
-- D-cache、写缓冲和共享内存系统。
+- 把首版阻塞式D-cache升级为non-blocking cache、写回队列、store buffer和共享内存系统。
 
 ### P5：Width-1 OoO 骨架
 
@@ -383,16 +386,26 @@ npc/docs/
 原因：本项目的目标包括学习先进团队的工程方法。没有决策依据和验证证据的 RTL 不能形成
 可维护经验。
 
-### D006：先完成顺序流水线，再实现正式D-cache
+### D006：先完成顺序流水线，再实现正式D-cache（已执行）
 
 原因：RV32 MicroBench `test`计数表明，理想单发射流水线的收益上限约为1.336x；把所有
 load/store强制缩短到一拍的神谕数据存储器上限为1.669x，但后者不是可实现D-cache的性能
 预测。当前23000 um^2课程面积约束无法容纳由标准单元实现的有效容量D-cache。
 顺序流水线不依赖新增大容量阵列，并且是后续non-blocking cache、LSQ和内存级并行的前提。
-因此先在现有I-cache和uncached LSU接口上完成stall、forward、flush和精确异常，再在可使用
-SRAM宏的正式配置中加入参数化write-back/write-allocate D-cache、writeback buffer和MSHR。
+因此先在现有I-cache和uncached LSU接口上完成stall、forward、flush和精确异常，再加入
+参数化write-back/write-allocate D-cache。当前首版采用同步tag/data array、单MSHR、阻塞式
+miss处理和直接AXI burst refill/writeback；writeback queue、store buffer和多MSHR仍属于后续
+高性能检查点，不能因为接口已经预留就宣称已经实现。
 具体统计口径和数据见
 [`CACHE_DESIGN_SPACE_EXPLORATION.md`](../verification/CACHE_DESIGN_SPACE_EXPLORATION.md)。
+
+### D007：I-cache与数据侧在共享内存端口进行事务级仲裁
+
+当前SoC下游只有一个完整AXI manager入口。I-cache和数据子系统分别保留独立请求边界，在
+`riscv32_axi4_core_merge`统一仲裁：空闲时对同时出现的AR请求采用round-robin；AR一旦展示
+给下游便锁定来源，握手后继续锁定到`RLAST`，防止两个cache接收彼此的响应。数据侧独占
+AW/W/B通道。该结构满足当前单端口SRAM/DRAM和单在途顺序核；AI目标配置必须进一步评估
+多bank L1、多个AXI ID、独立I/D端口或L2互联，不能无限扩展这一单在途仲裁器。
 
 ## 15. 变更流程
 

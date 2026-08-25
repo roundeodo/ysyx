@@ -1052,3 +1052,29 @@ I-cache为99.062% hit、1拍hit latency、28.662拍critical miss latency和1.260
 验证结果：RV32 35/35 DiffTest通过；流水线BMC深度20通过；uncached AXI RV32/RV64定向测试
 通过。64B课程配置在300MHz约束下TNS为0，综合面积27541.640 um^2，最紧core输出路径报告
 频率431.896MHz。
+
+## 2026-08-25 - 首版D-cache与I/D共享内存仲裁
+
+加入默认1 KiB、2-way、32 B line的write-back/write-allocate阻塞式D-cache。LSU接口保持
+`data_memory_req_t`，PMA在D-cache、uncached和本地access fault之间选择；D-cache内部使用
+同步tag/data array、invalid-way优先加每set round-robin替换、单MSHR miss unit和AXI burst
+refill/writeback adapter。`fence.i`维护顺序改为先clean D-cache，再invalidate I-cache。
+
+共享内存端口继续由`riscv32_axi4_core_merge`统一处理。新增断言和定向测试，验证AR反压期间
+请求来源/payload稳定、AR握手后来源锁定到`RLAST`、R响应只到达一个上游，以及连续竞争时
+round-robin不会固定饿死数据侧。
+
+验证结果：
+
+| 验证项 | 结果 |
+| --- | --- |
+| `make test-dcache-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make test-core-merge-configs PROJECT=riscv32` | RV32/RV64通过 |
+| `make lint-npc PROJECT=riscv32 NPC_CONFIG=rv64-sequential` | 无错误，保留既有unused警告 |
+| RV32 standalone `dummy` | `HIT GOOD TRAP`，PC=`0x80000034` |
+| RV64 standalone `dummy` | `HIT GOOD TRAP`，PC=`0x8000002c` |
+
+本次只确认功能和协议闭环。D-cache接入后的MicroBench、面积与STA尚未重新运行，因此接入前
+0.284193 IPC、27541.640 um^2等数字不能用于评价本版本。当前单MSHR和完整line返回后才恢复
+LSU仍是阻塞式检查点；面向AI目标的store buffer、writeback queue、hit-under-miss、多MSHR、
+banked array和按ID多在途互联尚未实现。

@@ -23,7 +23,7 @@ $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-core-merge-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore icache-calibrate-penalty cachesim-explore-calibrated
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-core-merge-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore branchsim-build branchsim-test branchsim-trace branchsim-run branchsim-explore icache-calibrate-penalty cachesim-explore-calibrated
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -106,6 +106,13 @@ CACHESIM_TEST_SCRIPT := $(CACHESIM_DIR)/tests/test_cachesim.py
 CACHESIM_CALIBRATION_TEST_SCRIPT := $(CACHESIM_DIR)/tests/test_calibration.py
 CACHESIM_EXPLORE_SCRIPT := $(CACHESIM_DIR)/explore.py
 ICACHE_CALIBRATION_SCRIPT := $(abspath ./scripts/calibrate_icache_penalty.py)
+
+BRANCHSIM_DIR            := $(abspath ./tools/branchsim)
+BRANCHSIM_BUILD_DIR      := $(abspath ./build/tools/branchsim)
+BRANCHSIM_SOURCE         := $(BRANCHSIM_DIR)/branchsim.cpp
+BRANCHSIM_BINARY         := $(BRANCHSIM_BUILD_DIR)/branchsim
+BRANCHSIM_TEST_SCRIPT    := $(BRANCHSIM_DIR)/tests/test_branchsim.py
+BRANCHSIM_EXPLORE_SCRIPT := $(BRANCHSIM_DIR)/explore.py
 
 # 只收录能够在standalone内存环境中验证RV32I/RV64I、Zicsr和异常闭环的测试。
 # unalign要求硬件透明处理非对齐访问，与当前“产生misaligned异常”的架构契约冲突；
@@ -928,6 +935,83 @@ dcachesim-explore: $(CACHESIM_BINARY)
 		--output $(DCACHE_SCAN_OUTPUT)
 
 # ============================================================
+# Branch-predictor simulation and design-space exploration
+# ============================================================
+
+# branch trace只保存已退休控制流，不保存错误路径。它适合比较预测算法的方向/目标
+# 准确率和理想恢复代价；真实流水线中的训练时序、取指带宽与flush周期仍由RTL PMU校准。
+BRANCH_TRACE_ARCH       ?= riscv32-nemu
+BRANCH_TRACE_ISA        = $(if $(filter riscv64-nemu,$(BRANCH_TRACE_ARCH)),riscv64,riscv32)
+BRANCH_TRACE_SCALE      ?= test
+BRANCH_TRACE_IMAGE      ?= $(MICROBENCH_DIR)/build/microbench-$(BRANCH_TRACE_ARCH).bin
+BRANCH_TRACE_FILE       ?= $(abspath ./result/branch/$(BRANCH_TRACE_ISA)_microbench_$(BRANCH_TRACE_SCALE)_control_flow.bin)
+BRANCH_TRACE_IMAGE_PATH = $(abspath $(BRANCH_TRACE_IMAGE))
+BRANCH_TRACE_PATH       = $(abspath $(BRANCH_TRACE_FILE))
+
+BRANCH_PREDICTOR          ?= bimodal
+BRANCH_DIRECTION_ENTRIES  ?= 16
+BRANCH_HISTORY_BITS       ?= 4
+BRANCH_BTB_ENTRIES         ?= 0
+BRANCH_RAS_ENTRIES         ?= 0
+BRANCH_SCAN_DIRECTION_ENTRIES ?= 16,32,64,128,256
+BRANCH_SCAN_HISTORY_BITS      ?= 2,4,6,8
+BRANCH_SCAN_BTB_ENTRIES        ?= 0,32,64
+BRANCH_SCAN_RAS_ENTRIES        ?= 0,8
+BRANCH_SCAN_JOBS               ?= 4
+BRANCH_SCAN_OUTPUT             ?= $(abspath ./result/branch/branchsim_$(BRANCH_TRACE_ISA)_$(BRANCH_TRACE_SCALE)_exploration.csv)
+
+$(BRANCHSIM_BUILD_DIR):
+	mkdir -p $@
+
+$(BRANCHSIM_BINARY): $(BRANCHSIM_SOURCE) | $(BRANCHSIM_BUILD_DIR)
+	$(CXX) -std=c++17 -O3 -Wall -Wextra -Wpedantic -Werror $< -o $@
+
+.PHONY: branchsim-build branchsim-test branchsim-trace branchsim-run branchsim-explore
+branchsim-build: $(BRANCHSIM_BINARY)
+
+branchsim-test: $(BRANCHSIM_BINARY)
+	python3 $(BRANCHSIM_TEST_SCRIPT) $(BRANCHSIM_BINARY)
+
+branchsim-trace:
+	@test "$(BRANCH_TRACE_ARCH)" = "riscv32-nemu" -o \
+	      "$(BRANCH_TRACE_ARCH)" = "riscv64-nemu" || \
+		(echo "BRANCH_TRACE_ARCH must be riscv32-nemu or riscv64-nemu"; exit 1)
+	$(MAKE) -C $(NEMU_DIR) \
+		$(if $(filter riscv64-nemu,$(BRANCH_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
+	$(MAKE) -C $(MICROBENCH_DIR) ARCH=$(BRANCH_TRACE_ARCH) clean
+	$(MAKE) -C $(MICROBENCH_DIR) \
+		ARCH=$(BRANCH_TRACE_ARCH) mainargs=$(BRANCH_TRACE_SCALE) insert-arg
+	mkdir -p $(dir $(BRANCH_TRACE_PATH))
+	$(MAKE) -C $(NEMU_DIR) run \
+		ARGS="--branchsim-trace=$(BRANCH_TRACE_PATH) -b" \
+		IMG=$(BRANCH_TRACE_IMAGE_PATH)
+	@echo "NEMU retired control-flow trace: $(BRANCH_TRACE_PATH)"
+
+branchsim-run: $(BRANCHSIM_BINARY)
+	@test -f "$(BRANCH_TRACE_PATH)" || \
+		(echo "branch trace file not found: $(BRANCH_TRACE_PATH)"; exit 1)
+	$(BRANCHSIM_BINARY) \
+		--trace $(BRANCH_TRACE_PATH) \
+		--predictor $(BRANCH_PREDICTOR) \
+		--direction-entries $(BRANCH_DIRECTION_ENTRIES) \
+		--history-bits $(BRANCH_HISTORY_BITS) \
+		--btb-entries $(BRANCH_BTB_ENTRIES) \
+		--ras-entries $(BRANCH_RAS_ENTRIES)
+
+branchsim-explore: $(BRANCHSIM_BINARY)
+	@test -f "$(BRANCH_TRACE_PATH)" || \
+		(echo "branch trace file not found: $(BRANCH_TRACE_PATH)"; exit 1)
+	python3 $(BRANCHSIM_EXPLORE_SCRIPT) \
+		--binary $(BRANCHSIM_BINARY) \
+		--trace $(BRANCH_TRACE_PATH) \
+		--direction-entries $(BRANCH_SCAN_DIRECTION_ENTRIES) \
+		--history-bits $(BRANCH_SCAN_HISTORY_BITS) \
+		--btb-entries $(BRANCH_SCAN_BTB_ENTRIES) \
+		--ras-entries $(BRANCH_SCAN_RAS_ENTRIES) \
+		--jobs $(BRANCH_SCAN_JOBS) \
+		--output $(BRANCH_SCAN_OUTPUT)
+
+# ============================================================
 # Reproducible performance evaluation
 # ============================================================
 
@@ -1052,6 +1136,8 @@ help:
 	@echo "  test-lsu-configs  Run directed LSU tests for RV32 and RV64"
 	@echo "  test-pipeline-configs  Test pipeline registers, hazards, and redirects"
 	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
+	@echo "  test-dcache-configs  Test D-cache hit, refill, writeback, and clean in RV32/RV64"
+	@echo "  test-core-merge-configs  Test I/D shared AXI read arbitration in RV32/RV64"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
 	@echo "  test-sdram-axi  Test AXI transaction classification and native SDRAM BL8 reads"
 	@echo "  test-axi-delayer  Test per-beat AXI read timing and independent write timing"
@@ -1085,6 +1171,10 @@ help:
 	@echo "  dcachesim-trace  Generate an architectural load/store trace with NEMU"
 	@echo "  dcachesim-run    Evaluate one write-back/write-allocate D-cache"
 	@echo "  dcachesim-explore  Scan D-cache capacity, line size, and associativity"
+	@echo "  branchsim-test   Build and test the branch predictor simulator"
+	@echo "  branchsim-trace  Generate a retired control-flow trace with NEMU"
+	@echo "  branchsim-run    Evaluate one direction/target predictor"
+	@echo "  branchsim-explore  Scan BHT, gshare, BTB, and RAS parameters"
 	@echo "  icache-calibrate-penalty  Measure per-line-size miss penalties in RTL"
 	@echo "  cachesim-explore-calibrated  Explore using the RTL calibration CSV"
 	@echo "  lint-npc      Lint the standalone NPC"
