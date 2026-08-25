@@ -143,7 +143,7 @@ module riscv32_dcache
     end
   end
 
-  always_ff @(posedge clk_i) begin
+  always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       for (int unsigned set_index = 0; set_index < DCACHE_SET_COUNT; set_index++) begin
         replacement_next_way_q[set_index] <= '0;

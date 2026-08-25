@@ -23,7 +23,7 @@ $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
 SUPPORTED_NPC_CONFIGS := rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore icache-calibrate-penalty cachesim-explore-calibrated
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-core-merge-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore icache-calibrate-penalty cachesim-explore-calibrated
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -62,6 +62,7 @@ LSU_TEST_OBJ_DIR    := $(BUILD_DIR)/obj_dir_lsu_test
 PIPELINE_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_pipeline_test
 UNCACHED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_uncached_test
 DCACHE_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_dcache_test
+CORE_MERGE_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_core_merge_test
 SOC_WIDTH_CONVERTER_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_soc_width_converter_test
 PRIVILEGED_TEST_OBJ_DIR := $(BUILD_DIR)/obj_dir_privileged_test
 SDRAM_AXI_TEST_BUILD_DIR := $(abspath ./build/tests/sdram_axi)
@@ -79,6 +80,7 @@ LSU_TEST_BINARY    := $(BUILD_DIR)/lsu_test
 PIPELINE_TEST_BINARY := $(BUILD_DIR)/pipeline_control_test
 UNCACHED_TEST_BINARY := $(BUILD_DIR)/uncached_axi4_test
 DCACHE_TEST_BINARY := $(BUILD_DIR)/dcache_test
+CORE_MERGE_TEST_BINARY := $(BUILD_DIR)/core_merge_test
 SOC_WIDTH_CONVERTER_TEST_BINARY := $(BUILD_DIR)/soc_width_converter_test
 PRIVILEGED_TEST_BINARY := $(BUILD_DIR)/privileged_test
 SDRAM_AXI_TEST_BINARY  := $(SDRAM_AXI_TEST_BUILD_DIR)/sdram_axi_test
@@ -257,6 +259,12 @@ DCACHE_TEST_SOURCES := \
 	$(RTL_DIR)/core/memory/riscv32_dcache.sv \
 	$(abspath ./tests/rtl/riscv32_dcache_tb.sv)
 
+CORE_MERGE_TEST_SOURCES := \
+	$(RTL_DIR)/common/riscv_config_pkg.sv \
+	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
+	$(RTL_DIR)/system/riscv32_axi4_core_merge.sv \
+	$(abspath ./tests/rtl/riscv32_axi4_core_merge_tb.sv)
+
 SOC_WIDTH_CONVERTER_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
@@ -425,6 +433,15 @@ $(DCACHE_TEST_BINARY): $(DCACHE_TEST_SOURCES) | $(BUILD_DIR)
 		--Mdir $(DCACHE_TEST_OBJ_DIR) \
 		-o $(DCACHE_TEST_BINARY)
 
+$(CORE_MERGE_TEST_BINARY): $(CORE_MERGE_TEST_SOURCES) | $(BUILD_DIR)
+	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
+		-Wno-UNUSEDSIGNAL \
+		$(NPC_CONFIG_DEFINE) \
+		--top-module riscv32_axi4_core_merge_tb \
+		$(CORE_MERGE_TEST_SOURCES) \
+		--Mdir $(CORE_MERGE_TEST_OBJ_DIR) \
+		-o $(CORE_MERGE_TEST_BINARY)
+
 $(SOC_WIDTH_CONVERTER_TEST_BINARY): $(SOC_WIDTH_CONVERTER_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
@@ -459,7 +476,7 @@ $(AXI_DELAYER_TEST_BINARY): $(AXI_DELAYER_TEST_SOURCES) | $(AXI_DELAYER_TEST_BUI
 		--Mdir $(AXI_DELAYER_TEST_OBJ_DIR) \
 		-o $(AXI_DELAYER_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-pipeline test-pipeline-configs test-uncached test-uncached-configs test-dcache test-dcache-configs test-soc-width-converter test-sdram-axi test-axi-delayer test-privileged test-privileged-configs
+.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-pipeline test-pipeline-configs test-uncached test-uncached-configs test-dcache test-dcache-configs test-core-merge test-core-merge-configs test-soc-width-converter test-sdram-axi test-axi-delayer test-privileged test-privileged-configs
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
@@ -514,6 +531,13 @@ test-dcache: $(DCACHE_TEST_BINARY)
 test-dcache-configs:
 	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+
+test-core-merge: $(CORE_MERGE_TEST_BINARY)
+	$(CORE_MERGE_TEST_BINARY)
+
+test-core-merge-configs:
+	$(MAKE) test-core-merge PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) test-core-merge PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 test-soc-width-converter: $(SOC_WIDTH_CONVERTER_TEST_BINARY)
 	$(SOC_WIDTH_CONVERTER_TEST_BINARY)
