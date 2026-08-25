@@ -199,6 +199,15 @@ module riscv32_dcache_miss_unit
         victim_read_enable_o = 1'b1;
       end
 
+      // data array是同步读口。捕获当前word的同时发起下一个word的读取，使dirty
+      // victim采集在首拍启动后达到每拍一个word，避免READ/CAPTURE交替产生固定空拍。
+      MISS_CAPTURE_VICTIM_WORD: begin
+        if (!victim_last_word) begin
+          victim_read_enable_o = 1'b1;
+          victim_read_word_index_o = victim_word_index_q + dcache_word_index_t'(1);
+        end
+      end
+
       MISS_SEND_WRITEBACK: begin
         writeback_req_valid_o = 1'b1;
       end
@@ -308,7 +317,7 @@ module riscv32_dcache_miss_unit
           state_d = MISS_SEND_WRITEBACK;
         end else begin
           victim_word_index_d = victim_word_index_q + dcache_word_index_t'(1);
-          state_d = MISS_READ_VICTIM_WORD;
+          state_d = MISS_CAPTURE_VICTIM_WORD;
         end
       end
 
