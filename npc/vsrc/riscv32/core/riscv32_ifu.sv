@@ -276,10 +276,17 @@ module riscv32_ifu
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == IFU_WAIT_LOOKUP_RESPONSE
-     && icache_lookup_resp_valid_i && lookup_response_is_current)
+     && icache_lookup_resp_valid_i && lookup_response_is_current
+     && !redirect_req_valid_i)
     |-> (fetch_entry_valid_o
          && (icache_lookup_resp_ready_o == fetch_entry_ready_i)))
   else $error("IFU current response was not coupled to IDU delivery");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == IFU_WAIT_LOOKUP_RESPONSE
+     && icache_lookup_resp_valid_i && redirect_req_valid_i)
+    |-> (icache_lookup_resp_ready_o && !fetch_entry_valid_o))
+  else $error("IFU did not discard the lookup response superseded by redirect");
 
   // 当前响应能够交付且没有redirect时，下一顺序请求必须在同一拍呈现。该断言检查
   // 固定请求气泡不会再次被引入，但不要求I-cache必须接收请求；active miss仍可反压。
