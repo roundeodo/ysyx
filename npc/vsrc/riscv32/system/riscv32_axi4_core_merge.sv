@@ -194,4 +194,31 @@ module riscv32_axi4_core_merge
     end
   end
 
+`ifndef SYNTHESIS
+  // 共享SRAM当前只允许一个读burst在途。AR一旦受阻，仲裁结果和地址必须保持；
+  // AR握手后，请求来源必须锁定到RLAST，防止I-cache和D-cache串接彼此的响应。
+  a_downstream_read_address_stable_while_blocked :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    downstream_manager_o.ar_valid && !downstream_manager_i.ar_ready |=>
+      (downstream_manager_o.ar_valid && $stable(downstream_manager_o.ar)))
+  else $error("shared AXI read address changed while downstream was stalled");
+
+  a_read_requester_stable_until_last_response :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    read_transaction_present_q && !read_last_handshake |=>
+      (read_transaction_present_q && $stable(read_transaction_requester_q)))
+  else $error("shared AXI read requester changed before RLAST");
+
+  a_read_response_has_exactly_one_destination :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    downstream_manager_i.r_valid && read_transaction_present_q |->
+      $onehot({instruction_manager_o.r_valid, data_manager_o.r_valid}))
+  else $error("shared AXI read response was not routed to exactly one requester");
+
+  a_instruction_and_data_read_responses_are_exclusive :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    !(instruction_manager_o.r_valid && data_manager_o.r_valid))
+  else $error("shared AXI read response reached both requesters");
+`endif
+
 endmodule

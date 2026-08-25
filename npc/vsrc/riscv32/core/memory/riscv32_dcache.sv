@@ -42,10 +42,9 @@ module riscv32_dcache
   endfunction
 
   // S0握手同时启动同步array read；S1保存请求身份并在下一拍完成tag compare。
-  data_memory_req_t lookup_s1_q, lookup_s1_d;
+  data_memory_req_t lookup_s1_q;
   logic lookup_s1_present_q, lookup_s1_present_d;
   logic lookup_req_handshake;
-  logic lookup_s1_completed;
 
   logic tag_read_enable;
   dcache_set_index_t tag_read_set_index;
@@ -411,7 +410,6 @@ module riscv32_dcache
     miss_req_valid = lookup_s1_present_q && !lookup_hit && !clean_blocks_lookup;
   end
   assign miss_req_handshake = miss_req_valid && miss_req_ready;
-  assign lookup_s1_completed = local_resp_handshake || miss_req_handshake;
 
   // hit load允许同拍接收下一请求；store hit后不做同拍读，以免依赖SRAM读写冲突模式。
   assign data_memory_req_ready_o =
@@ -421,13 +419,11 @@ module riscv32_dcache
   assign lookup_req_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
 
   always_comb begin
-    lookup_s1_d = lookup_s1_q;
     lookup_s1_present_d = lookup_s1_present_q;
     if (miss_req_handshake) begin
       lookup_s1_present_d = 1'b0;
     end else if (data_memory_req_ready_o) begin
       lookup_s1_present_d = lookup_req_handshake;
-      if (lookup_req_handshake) lookup_s1_d = data_memory_req_i;
     end else if (store_hit_write_occurred) begin
       lookup_s1_present_d = 1'b0;
     end

@@ -48,8 +48,6 @@ module riscv32_pma
   logic lookup_addr_in_sdram;
   logic lookup_addr_in_chiplink_memory;
   logic lookup_addr_in_any_mmio;
-  logic lookup_addr_in_any_uncached_memory;
-  logic lookup_addr_in_any_cacheable_memory;
   // 这里不使用模糊的统一MMIO大区间，因为0x1000_0000附近存在未分配空洞；
   // 未分配地址必须保留默认非法属性，不能因为高位相同就误判成合法设备。
   always_comb begin
@@ -86,12 +84,6 @@ module riscv32_pma
                               lookup_addr_in_spi_registers || lookup_addr_in_gpio ||
                               lookup_addr_in_ps2 || lookup_addr_in_vga ||
                               lookup_addr_in_chiplink_mmio;
-
-    lookup_addr_in_any_uncached_memory = lookup_addr_in_sram || lookup_addr_in_mrom;
-
-    lookup_addr_in_any_cacheable_memory = lookup_addr_in_flash || lookup_addr_in_psram ||
-                                          lookup_addr_in_sdram ||
-                                          lookup_addr_in_chiplink_memory;
 
   end
 
