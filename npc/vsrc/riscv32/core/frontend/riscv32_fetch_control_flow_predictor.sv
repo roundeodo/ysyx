@@ -144,13 +144,16 @@ module riscv32_fetch_control_flow_predictor
   logic resolved_rd_is_link_register;
   logic resolved_rs1_is_link_register;
   logic resolved_return_instruction_present;
-  logic resolved_return_stack_push;
-  logic resolved_return_stack_pop;
+  logic incoming_rd_is_link_register;
+  logic incoming_rs1_is_link_register;
+  logic incoming_return_instruction_present;
+  logic incoming_return_stack_push;
+  logic incoming_return_stack_pop;
 
   return_stack_index_t return_stack_write_index_q;
   return_stack_index_t return_stack_top_index;
   return_stack_count_t return_stack_entry_count_q;
-  program_counter_t return_stack_top_pc;
+  program_counter_t return_stack_top_pc_q;
 
   initial begin
     if ((BHT_ENTRY_COUNT < 2) || ((BHT_ENTRY_COUNT & (BHT_ENTRY_COUNT - 1)) != 0)) begin
@@ -215,7 +218,7 @@ module riscv32_fetch_control_flow_predictor
   )];
 
   // 两路组织相对同容量direct-map只增加一个tag比较器、目标选择器和每set一位替换
-  // 状态。待写BTB表项显式旁路到查询口，避免训练流水线制造额外一次目标预测缺失。
+  // 状态。训练结果在真正写入数组后才对查询可见，避免待写训练旁路进入每拍取指快路径。
   assign lookup_branch_target_tag = lookup_request_pc_i[XLEN-1:BRANCH_TARGET_INDEX_WIDTH+$clog2(
       INSTRUCTION_BYTES
   )];
@@ -225,11 +228,6 @@ module riscv32_fetch_control_flow_predictor
     for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
       lookup_way_entry_array[way_index] =
           branch_target_entry_array_q[lookup_request_branch_target_index][way_index];
-      if (branch_target_update_q.present &&
-          (branch_target_update_q.set_index == lookup_request_branch_target_index) &&
-          (branch_target_update_q.way_index == branch_target_way_index_t'(way_index))) begin
-        lookup_way_entry_array[way_index] = branch_target_update_q.entry;
-      end
       if (lookup_way_entry_array[way_index].present &&
           (lookup_way_entry_array[way_index].pc_tag == lookup_branch_target_tag)) begin
         lookup_branch_target_hit_way_vector[way_index] = 1'b1;
@@ -239,25 +237,15 @@ module riscv32_fetch_control_flow_predictor
     lookup_branch_target_present = |lookup_branch_target_hit_way_vector;
   end
 
-  // BHT训练同样旁路到查询口，使循环分支立即看到最新饱和计数器值。
-  always_comb begin
-    lookup_branch_history_counter =
-        branch_history_counter_array_q[lookup_request_branch_history_index];
-    if (resolved_control_flow_update_q.present &&
-        (resolved_control_flow_update_q.op == CF_BRANCH) &&
-        (resolved_branch_history_index == lookup_request_branch_history_index)) begin
-      lookup_branch_history_counter = update_branch_history_counter(
-          branch_history_counter_array_q[lookup_request_branch_history_index],
-          resolved_control_flow_update_q.taken
-      );
-    end
-  end
+  // 方向训练写入数组后再对查询可见，避免训练比较逻辑进入每拍取指快路径。
+  assign lookup_branch_history_counter =
+      branch_history_counter_array_q[lookup_request_branch_history_index];
   assign conditional_branch_predicted_taken = lookup_branch_history_counter[1];
 
   assign return_stack_top_index = decrement_return_stack_index(return_stack_write_index_q);
-  assign return_stack_top_pc = return_stack_pc_array_q[return_stack_top_index];
   assign lookup_return_target_present = return_stack_entry_count_q != '0;
-  assign lookup_return_target = return_stack_top_pc;
+  // 查询只读取专用栈顶寄存器，不再用动态索引从整个RAS数组选出一个32位目标。
+  assign lookup_return_target = return_stack_top_pc_q;
 
   // BTB miss默认顺序取指。return优先采用RAS；RAS为空时退回BTB记录的上一次目标，
   // 错误目标仍会由EX按请求随身携带的prediction精确检查并恢复。
@@ -412,21 +400,27 @@ module riscv32_fetch_control_flow_predictor
       (!resolved_rd_is_link_register ||
        (resolved_control_flow_update_q.rd != resolved_control_flow_update_q.rs1)) &&
       (resolved_control_flow_update_q.immediate == '0);
-  assign resolved_return_stack_push = resolved_control_flow_update_q.present &&
-      resolved_control_flow_update_q.taken && resolved_rd_is_link_register &&
-      ((resolved_control_flow_update_q.op == CF_JAL) ||
-       (resolved_control_flow_update_q.op == CF_JALR));
-  assign resolved_return_stack_pop = resolved_control_flow_update_q.present &&
-      resolved_control_flow_update_q.taken && resolved_return_instruction_present;
+  // RAS与完整控制流训练包在同一个EX边界并行采样，避免在预测器内部再串联一级
+  // 完整训练寄存器。数组写入级只接收一种明确的栈操作和预先计算的return PC。
+  assign incoming_rd_is_link_register  = is_link_register(resolved_control_flow_rd_i);
+  assign incoming_rs1_is_link_register = is_link_register(resolved_control_flow_rs1_i);
+  assign incoming_return_instruction_present =
+      (resolved_control_flow_op_i == CF_JALR) && incoming_rs1_is_link_register &&
+      (!incoming_rd_is_link_register ||
+       (resolved_control_flow_rd_i != resolved_control_flow_rs1_i)) &&
+      (resolved_control_flow_imm_i == '0);
+  assign incoming_return_stack_push = resolved_control_flow_occurred_i &&
+      resolved_control_flow_taken_i && incoming_rd_is_link_register &&
+      ((resolved_control_flow_op_i == CF_JAL) || (resolved_control_flow_op_i == CF_JALR));
+  assign incoming_return_stack_pop = resolved_control_flow_occurred_i &&
+      resolved_control_flow_taken_i && incoming_return_instruction_present;
 
-  // 训练译码级只产生一种明确的栈操作。return_pc在这里预先计算，数组写入级
-  // 不再携带完整控制流训练包，也不再重复判断JAL/JALR和链接寄存器。
   always_comb begin
     return_stack_update_d           = '0;
     return_stack_update_d.return_pc =
-        resolved_control_flow_update_q.pc + program_counter_t'(INSTRUCTION_BYTES);
+        resolved_control_flow_pc_i + program_counter_t'(INSTRUCTION_BYTES);
 
-    unique case ({resolved_return_stack_pop, resolved_return_stack_push})
+    unique case ({incoming_return_stack_pop, incoming_return_stack_push})
       2'b01: return_stack_update_d.op = RETURN_STACK_UPDATE_PUSH;
       2'b10: return_stack_update_d.op = RETURN_STACK_UPDATE_POP;
       2'b11: return_stack_update_d.op = RETURN_STACK_UPDATE_POP_PUSH;
@@ -508,15 +502,18 @@ module riscv32_fetch_control_flow_predictor
     if (!rst_ni) begin
       return_stack_write_index_q <= '0;
       return_stack_entry_count_q <= '0;
+      return_stack_top_pc_q      <= '0;
     end else if (invalidate_i) begin
       return_stack_write_index_q <= '0;
       return_stack_entry_count_q <= '0;
+      return_stack_top_pc_q      <= '0;
     end else begin
       unique case (return_stack_update_q.op)
         RETURN_STACK_UPDATE_PUSH: begin
           return_stack_pc_array_q[return_stack_write_index_q] <=
               return_stack_update_q.return_pc;
           return_stack_write_index_q                          <= increment_return_stack_index(return_stack_write_index_q);
+          return_stack_top_pc_q                               <= return_stack_update_q.return_pc;
           if (return_stack_entry_count_q != return_stack_count_t'(RAS_ENTRY_COUNT)) begin
             return_stack_entry_count_q <= return_stack_entry_count_q + return_stack_count_t'(1);
           end
@@ -526,6 +523,15 @@ module riscv32_fetch_control_flow_predictor
           if (return_stack_entry_count_q != '0) begin
             return_stack_write_index_q <= decrement_return_stack_index(return_stack_write_index_q);
             return_stack_entry_count_q <= return_stack_entry_count_q - return_stack_count_t'(1);
+            if (return_stack_entry_count_q == return_stack_count_t'(1)) begin
+              return_stack_top_pc_q <= '0;
+            end else begin
+              return_stack_top_pc_q <= return_stack_pc_array_q[
+                  decrement_return_stack_index(decrement_return_stack_index(
+                      return_stack_write_index_q
+                  ))
+              ];
+            end
           end
         end
 
@@ -533,11 +539,13 @@ module riscv32_fetch_control_flow_predictor
           if (return_stack_entry_count_q != '0) begin
             return_stack_pc_array_q[return_stack_top_index] <=
                 return_stack_update_q.return_pc;
+            return_stack_top_pc_q <= return_stack_update_q.return_pc;
           end else begin
             return_stack_pc_array_q[return_stack_write_index_q] <=
                 return_stack_update_q.return_pc;
             return_stack_write_index_q                          <= increment_return_stack_index(return_stack_write_index_q);
             return_stack_entry_count_q                          <= return_stack_count_t'(1);
+            return_stack_top_pc_q                               <= return_stack_update_q.return_pc;
           end
         end
 
