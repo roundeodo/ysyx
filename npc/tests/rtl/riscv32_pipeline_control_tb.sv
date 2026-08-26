@@ -468,7 +468,9 @@ module riscv32_pipeline_control_tb;
     @(posedge clk);
     @(negedge clk);
     predictor_resolved_control_flow_occurred = 1'b0;
-    // BTB选择结果先进入训练事务寄存器，再写入数组；查询快路径不旁路待写事务。
+    // BTB训练依次经过解析事件、set快照和写事务寄存器，再写入数组。这里等待写入
+    // 真正可见；训练延迟不改变预测查询吞吐，也不参与精确控制流恢复。
+    @(posedge clk);
     @(posedge clk);
     @(posedge clk);
     query_predictor(JAL_PC);
@@ -487,6 +489,7 @@ module riscv32_pipeline_control_tb;
     @(posedge clk);
     @(negedge clk);
     predictor_resolved_control_flow_occurred = 1'b0;
+    @(posedge clk);
     @(posedge clk);
     @(posedge clk);
     query_predictor(BRANCH_PC);
@@ -523,8 +526,9 @@ module riscv32_pipeline_control_tb;
     @(posedge clk);
     @(negedge clk);
     predictor_resolved_control_flow_occurred = 1'b0;
-    // RAS先接收已译码训练事务，再由独立写口更新数组；预测状态不是架构状态，
-    // 允许这一拍训练延迟，EX仍负责对任何尚未训练的return做精确恢复。
+    // RAS先接收已译码训练事务，再由独立写口更新数组；BTB还经过set快照级。
+    // 预测状态不是架构状态，允许训练延迟，EX仍对尚未训练的return做精确恢复。
+    @(posedge clk);
     @(posedge clk);
     query_predictor(RETURN_PC);
     assert (predictor_lookup_prediction.predicted_taken &&

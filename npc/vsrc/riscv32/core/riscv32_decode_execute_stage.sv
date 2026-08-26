@@ -36,21 +36,20 @@ module riscv32_decode_execute_stage
                                            decoded_execute_packet_ready_o;
   assign output_handshake                = execute_packet_valid_q && execute_packet_ready_i;
 
-  // payload没有架构有效性，也无需复位或flush。把它与valid寄存器分开后，控制恢复只
-  // 清有效位，不会进入宽payload的时钟门控和写入mux；flush周期发生的payload写入无语义。
+  // payload没有架构有效性，也无需复位或flush。物理数据采样只由本级主槽、skid槽和
+  // 下游消费状态决定，不使用input_handshake。这样flush以及上游valid不会进入宽payload
+  // 的时钟门控和写入mux；没有对应valid的物理写入不具备任何流水线语义。
   always_ff @(posedge clk_i) begin
     if (output_handshake) begin
       if (skid_execute_packet_valid_q) begin
         execute_packet_q <= skid_execute_packet_q;
-      end else if (input_handshake) begin
-        execute_packet_q <= decoded_execute_packet_i;
-      end
-    end else if (input_handshake) begin
-      if (!execute_packet_valid_q) begin
-        execute_packet_q <= decoded_execute_packet_i;
       end else begin
-        skid_execute_packet_q <= decoded_execute_packet_i;
+        execute_packet_q <= decoded_execute_packet_i;
       end
+    end else if (!execute_packet_valid_q) begin
+      execute_packet_q <= decoded_execute_packet_i;
+    end else if (!skid_execute_packet_valid_q) begin
+      skid_execute_packet_q <= decoded_execute_packet_i;
     end
   end
 
