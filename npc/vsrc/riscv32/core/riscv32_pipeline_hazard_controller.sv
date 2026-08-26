@@ -32,9 +32,8 @@ module riscv32_pipeline_hazard_controller
     input arch_reg_idx_t lsu_pending_rd_i,
     input logic          lsu_forwarding_available_i,
 
-    // EX解析事件由当前EX指令产生，只清除年轻级，不能反向取消该指令自身。
-    input logic execute_redirect_resolution_occurred_i,
-    // 寄存后的redirect在下一拍应用到前端，此时必须阻止尚存的错误路径EX指令。
+    // EX解析结果先经过redirect寄存器。下一拍应用到前端时，同时阻止并清除已经进入
+    // ID/EX的错误路径指令，避免把EX分支比较组合路径反向接到所有年轻流水级寄存器。
     input logic frontend_redirect_applied_i,
     input logic commit_redirect_occurred_i,
 
@@ -138,8 +137,7 @@ module riscv32_pipeline_hazard_controller
       (older_serializing_instruction_present ||
        (decoded_serializing_i && older_instruction_present));
 
-  assign control_recovery_occurred = execute_redirect_resolution_occurred_i ||
-                                     frontend_redirect_applied_i ||
+  assign control_recovery_occurred = frontend_redirect_applied_i ||
                                      commit_redirect_occurred_i;
 
   assign structural_hazard_present_o = lsu_busy_i;

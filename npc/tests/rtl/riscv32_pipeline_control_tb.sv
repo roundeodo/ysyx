@@ -76,7 +76,7 @@ module riscv32_pipeline_control_tb;
   logic              lsu_pending_writes_rd;
   arch_reg_idx_t     lsu_pending_rd;
   logic              lsu_forwarding_available;
-  logic              execute_redirect_occurred;
+  logic              frontend_redirect_applied;
   logic              commit_redirect_occurred;
   logic              decode_accept_allowed;
   logic              execute_issue_allowed;
@@ -220,8 +220,7 @@ module riscv32_pipeline_control_tb;
       .lsu_pending_writes_rd_i     (lsu_pending_writes_rd),
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_forwarding_available),
-      .execute_redirect_resolution_occurred_i(execute_redirect_occurred),
-      .frontend_redirect_applied_i (1'b0),
+      .frontend_redirect_applied_i (frontend_redirect_applied),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
       .execute_issue_allowed_o     (execute_issue_allowed),
@@ -309,7 +308,7 @@ module riscv32_pipeline_control_tb;
     lsu_pending_writes_rd         = 1'b0;
     lsu_pending_rd                = '0;
     lsu_forwarding_available      = 1'b0;
-    execute_redirect_occurred     = 1'b0;
+    frontend_redirect_applied     = 1'b0;
     commit_redirect_occurred      = 1'b0;
     execute_forwarding_available  = 1'b0;
     writeback_forwarding_available = 1'b0;
@@ -674,14 +673,14 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "pipeline did not prioritize the younger EX producer over pending LSU");
 
     clear_hazard_inputs();
-    hazard_decoded_uop_valid  = 1'b1;
-    execute_redirect_occurred = 1'b1;
+    clear_hazard_inputs();
+    hazard_decoded_uop_valid = 1'b1;
+    frontend_redirect_applied = 1'b1;
     #1;
-    // EX redirect已经经过窄寄存级；该事件出现时，当前EX槽位属于错误路径上的年轻指令，
-    // 必须同时阻止decode接收和execute发射。产生redirect的老指令已在前一拍完成。
+    // redirect经过寄存边界并应用到前端时，残留的旧路径EX内容必须停止执行。
     assert (!decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && !hazard_writeback_flush)
-    else $fatal(1, "registered execute redirect did not block younger execute work");
+    else $fatal(1, "registered frontend redirect did not block stale execute work");
 
     clear_hazard_inputs();
     hazard_decoded_uop_valid = 1'b1;

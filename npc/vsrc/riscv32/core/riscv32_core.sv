@@ -447,7 +447,6 @@ module riscv32_core
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
                                     !lsu_writeback.uop.exception_valid),
-      .execute_redirect_resolution_occurred_i(execute_redirect_resolution_occurred),
       .frontend_redirect_applied_i (selected_redirect_req_valid),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -728,9 +727,9 @@ module riscv32_core
 
   // trap/mret和fence.i都在提交边界恢复控制流。它们必须清除同拍可能到达WB的年轻结果；
   // 普通EX分支redirect只清除更年轻的ID/EX内容，不能清除分支自身的完成结果。
-  // 原始EX/commit事件立即阻止并清除年轻后端指令；所有redirect在下一拍经过统一寄存边界
-  // 到达IFU。fetch buffer只使用这个寄存事件，避免commit/EX组合逻辑进入前端ready路径。
-  // hazard controller也观察寄存事件，确保redirect应用当拍没有旧fetch entry越过ID边界。
+  // commit异常必须在退休边界立即清除更年轻WB结果。EX分支redirect则先经过统一寄存边界，
+  // 下一拍同时阻止错误路径ID/EX内容执行并恢复IFU；这样不会把分支比较组合逻辑接到
+  // decode/fetch队列的状态输入，也不会让寄存边界中的错误路径指令产生副作用。
   assign commit_redirect_occurred = commit_redirect_resolution_occurred ||
                                     committed_fence_i_occurred;
   assign frontend_recovery_occurred = selected_redirect_req_valid;
