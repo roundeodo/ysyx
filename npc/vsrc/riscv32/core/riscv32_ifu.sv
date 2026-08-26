@@ -10,8 +10,8 @@ module riscv32_ifu
     input redirect_req_t redirect_req_i,
     input logic          redirect_req_valid_i,
 
-    // 预测查询先于I-cache访问运行。预测器返回当前PC的next-PC后，IFU一方面把该PC和
-    // prediction放入窄请求队列，另一方面同拍把预测next-PC送回预测器，形成每拍一次查询。
+    // IFU用fetch_pc_q驱动小容量组合预测器。预测握手沿同时把PC/prediction放入窄请求
+    // 队列并把fetch_pc_q推进到预测后继，从而保持每拍一次预测且不形成跨模块组合递推。
     output program_counter_t   next_pc_predictor_lookup_request_pc_o,
     output fetch_epoch_t       next_pc_predictor_lookup_request_epoch_o,
     output logic               next_pc_predictor_lookup_request_valid_o,
@@ -58,11 +58,7 @@ module riscv32_ifu
   logic lookup_queue_enqueue_occurred;
   logic lookup_queue_dequeue_occurred;
 
-  // predictor_request_pending_q保存复位入口或最新redirect目标。正常顺序流不经过该
-  // 寄存器：预测响应和下一预测请求同拍握手，从而保持一拍一个next-PC的吞吐。
-  logic             predictor_request_pending_q, predictor_request_pending_d;
-  program_counter_t predictor_pending_pc_q, predictor_pending_pc_d;
-  fetch_epoch_t     predictor_pending_epoch_q, predictor_pending_epoch_d;
+  program_counter_t predictor_fetch_pc_q, predictor_fetch_pc_d;
   fetch_epoch_t     current_fetch_epoch_q, current_fetch_epoch_d;
   frontend_tag_t    next_frontend_tag_q, next_frontend_tag_d;
 
@@ -103,28 +99,16 @@ module riscv32_ifu
                              next_pc_predictor_lookup_response_pc_i +
                              program_counter_t'(INSTRUCTION_BYTES);
 
-  // redirect使预测器丢弃当前查询级，并在下一拍从新epoch的目标PC重新启动。正常流中，
-  // response_ready只取决于窄请求队列空间，不再依赖I-cache、fetch buffer或后端ready。
+  // redirect禁止本拍预测握手，并在时钟沿把fetch PC切到新epoch目标。正常流中，预测
+  // ready只取决于窄请求队列空间，不再依赖I-cache、fetch buffer或后端ready。
   assign next_pc_predictor_flush_o = redirect_req_valid_i;
   assign next_pc_predictor_lookup_response_ready_o =
       !redirect_req_valid_i && predictor_lookup_response_is_current &&
       lookup_queue_enqueue_ready;
-
-  always_comb begin
-    next_pc_predictor_lookup_request_pc_o    = predictor_pending_pc_q;
-    next_pc_predictor_lookup_request_epoch_o = predictor_pending_epoch_q;
-    next_pc_predictor_lookup_request_valid_o =
-        predictor_request_pending_q && !redirect_req_valid_i;
-
-    if (!predictor_request_pending_q &&
-        next_pc_predictor_lookup_response_valid_i &&
-        predictor_lookup_response_is_current && lookup_queue_enqueue_ready &&
-        !redirect_req_valid_i) begin
-      next_pc_predictor_lookup_request_pc_o    = predicted_next_pc;
-      next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q;
-      next_pc_predictor_lookup_request_valid_o = 1'b1;
-    end
-  end
+  assign next_pc_predictor_lookup_request_pc_o    = predictor_fetch_pc_q;
+  assign next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q;
+  assign next_pc_predictor_lookup_request_valid_o =
+      lookup_queue_enqueue_ready && !redirect_req_valid_i;
 
   assign predictor_lookup_request_handshake =
       next_pc_predictor_lookup_request_valid_o &&
@@ -134,19 +118,15 @@ module riscv32_ifu
       next_pc_predictor_lookup_response_ready_o;
 
   always_comb begin
-    predictor_request_pending_d = predictor_request_pending_q;
-    predictor_pending_pc_d      = predictor_pending_pc_q;
-    predictor_pending_epoch_d   = predictor_pending_epoch_q;
-    current_fetch_epoch_d       = current_fetch_epoch_q;
-    next_frontend_tag_d         = next_frontend_tag_q;
+    predictor_fetch_pc_d  = predictor_fetch_pc_q;
+    current_fetch_epoch_d = current_fetch_epoch_q;
+    next_frontend_tag_d   = next_frontend_tag_q;
 
     if (redirect_req_valid_i) begin
-      current_fetch_epoch_d       = current_fetch_epoch_q + fetch_epoch_t'(1);
-      predictor_request_pending_d = 1'b1;
-      predictor_pending_pc_d      = redirect_req_i.target_pc;
-      predictor_pending_epoch_d   = current_fetch_epoch_q + fetch_epoch_t'(1);
-    end else if (predictor_request_pending_q && predictor_lookup_request_handshake) begin
-      predictor_request_pending_d = 1'b0;
+      current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
+      predictor_fetch_pc_d  = redirect_req_i.target_pc;
+    end else if (predictor_lookup_response_handshake) begin
+      predictor_fetch_pc_d = predicted_next_pc;
     end
 
     if (lookup_queue_enqueue_occurred) begin
@@ -162,38 +142,49 @@ module riscv32_ifu
     lookup_queue_write_index_d = lookup_queue_write_index_q;
     lookup_queue_entry_count_d = lookup_queue_entry_count_q;
 
-    unique case ({lookup_queue_enqueue_occurred, lookup_queue_dequeue_occurred})
-      2'b01: begin
+    if (redirect_req_valid_i) begin
+      // 当前已经呈现在I-cache端口的front不能在反压时撤销；其后的旧epoch请求尚未
+      // 对外可见，可以立即删除。若front本拍握手，则旧队列全部清空。
+      if (lookup_queue_entry_count_q == '0) begin
+        lookup_queue_entry_count_d = '0;
+      end else if (lookup_queue_dequeue_occurred) begin
         lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
-        lookup_queue_entry_count_d = lookup_queue_entry_count_q - lookup_queue_count_t'(1);
+        lookup_queue_write_index_d = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+        lookup_queue_entry_count_d = '0;
+      end else begin
+        lookup_queue_write_index_d = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+        lookup_queue_entry_count_d = lookup_queue_count_t'(1);
       end
-      2'b10: begin
-        lookup_queue_write_index_d =
-            lookup_queue_write_index_q + lookup_queue_index_t'(1);
-        lookup_queue_entry_count_d = lookup_queue_entry_count_q + lookup_queue_count_t'(1);
-      end
-      2'b11: begin
-        lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
-        lookup_queue_write_index_d =
-            lookup_queue_write_index_q + lookup_queue_index_t'(1);
-      end
-      default: ;
-    endcase
+    end else begin
+      unique case ({lookup_queue_enqueue_occurred, lookup_queue_dequeue_occurred})
+        2'b01: begin
+          lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+          lookup_queue_entry_count_d = lookup_queue_entry_count_q - lookup_queue_count_t'(1);
+        end
+        2'b10: begin
+          lookup_queue_write_index_d =
+              lookup_queue_write_index_q + lookup_queue_index_t'(1);
+          lookup_queue_entry_count_d = lookup_queue_entry_count_q + lookup_queue_count_t'(1);
+        end
+        2'b11: begin
+          lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+          lookup_queue_write_index_d =
+              lookup_queue_write_index_q + lookup_queue_index_t'(1);
+        end
+        default: ;
+      endcase
+    end
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      predictor_request_pending_q <= 1'b1;
-      predictor_pending_pc_q      <= PC_START;
-      predictor_pending_epoch_q   <= '0;
-      current_fetch_epoch_q       <= '0;
-      next_frontend_tag_q         <= '0;
+      predictor_fetch_pc_q  <= PC_START;
+      current_fetch_epoch_q <= '0;
+      next_frontend_tag_q   <= '0;
     end else begin
-      predictor_request_pending_q <= predictor_request_pending_d;
-      predictor_pending_pc_q      <= predictor_pending_pc_d;
-      predictor_pending_epoch_q   <= predictor_pending_epoch_d;
-      current_fetch_epoch_q       <= current_fetch_epoch_d;
-      next_frontend_tag_q         <= next_frontend_tag_d;
+      predictor_fetch_pc_q  <= predictor_fetch_pc_d;
+      current_fetch_epoch_q <= current_fetch_epoch_d;
+      next_frontend_tag_q   <= next_frontend_tag_d;
     end
   end
 
@@ -274,6 +265,15 @@ module riscv32_ifu
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     predictor_lookup_response_handshake |-> predictor_lookup_request_handshake)
   else $error("IFU consumed a predictor response without launching its predicted successor");
+
+  a_predictor_request_stable_while_stalled :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (next_pc_predictor_lookup_request_valid_o &&
+     !next_pc_predictor_lookup_request_ready_i && !redirect_req_valid_i)
+    |=> (next_pc_predictor_lookup_request_valid_o &&
+         $stable(next_pc_predictor_lookup_request_pc_o) &&
+         $stable(next_pc_predictor_lookup_request_epoch_o)))
+  else $error("IFU changed a predictor request while stalled");
 
   a_icache_request_stable_while_stalled :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

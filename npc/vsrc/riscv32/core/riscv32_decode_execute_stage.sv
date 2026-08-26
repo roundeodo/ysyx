@@ -19,43 +19,51 @@ module riscv32_decode_execute_stage
     input logic flush_i
 );
 
+  // 主寄存器直接驱动EX；skid寄存器只在EX突然反压时保存同拍已经被ID接收的下一条
+  // 指令。上游ready只依赖本级skid valid，不再组合穿过EX、LSU、D-cache和WB。
+  // 下游连续ready时，主寄存器每拍用新payload替换已消费payload，吞吐仍为1条/拍。
   execute_packet_t execute_packet_q;
+  execute_packet_t skid_execute_packet_q;
   logic            execute_packet_valid_q;
-  logic            execute_packet_valid_d;
-  logic            stage_can_accept;
+  logic            skid_execute_packet_valid_q;
+  logic            input_handshake;
+  logic            output_handshake;
 
-  assign stage_can_accept = !execute_packet_valid_q || execute_packet_ready_i;
-
-  // flush期间不向IDU返回ready，避免上游把一条实际未保存的指令误认为已经交付。
-  assign decoded_execute_packet_ready_o = stage_can_accept && !flush_i;
+  assign decoded_execute_packet_ready_o = !skid_execute_packet_valid_q && !flush_i;
   assign execute_packet_o               = execute_packet_q;
   assign execute_packet_valid_o         = execute_packet_valid_q;
+  assign input_handshake                 = decoded_execute_packet_valid_i &&
+                                           decoded_execute_packet_ready_o;
+  assign output_handshake                = execute_packet_valid_q && execute_packet_ready_i;
 
-  always_comb begin
-    execute_packet_valid_d = execute_packet_valid_q;
-
-    if (stage_can_accept) begin
-      execute_packet_valid_d = decoded_execute_packet_valid_i;
-    end
-
-    // 恢复优先级高于正常流动：错误路径payload不得在flush边沿后继续有效。
-    if (flush_i) begin
-      execute_packet_valid_d = 1'b0;
-    end
-  end
-
-  // payload本身无需复位；valid=0时其数值没有语义，可避免宽payload异步复位网络。
-  always_ff @(posedge clk_i) begin
-    if (decoded_execute_packet_valid_i && decoded_execute_packet_ready_o) begin
-      execute_packet_q <= decoded_execute_packet_i;
-    end
-  end
-
+  // payload本身无需复位；对应valid=0时其数值没有语义。flush只清valid，避免给宽
+  // payload布置复位网络。四种流动情况均只在本级寄存器之间选择，不读取下游payload。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      execute_packet_valid_q <= 1'b0;
-    end else begin
-      execute_packet_valid_q <= execute_packet_valid_d;
+      execute_packet_valid_q      <= 1'b0;
+      skid_execute_packet_valid_q <= 1'b0;
+    end else if (flush_i) begin
+      execute_packet_valid_q      <= 1'b0;
+      skid_execute_packet_valid_q <= 1'b0;
+    end else if (output_handshake) begin
+      if (skid_execute_packet_valid_q) begin
+        execute_packet_q            <= skid_execute_packet_q;
+        execute_packet_valid_q      <= 1'b1;
+        skid_execute_packet_valid_q <= 1'b0;
+      end else if (input_handshake) begin
+        execute_packet_q       <= decoded_execute_packet_i;
+        execute_packet_valid_q <= 1'b1;
+      end else begin
+        execute_packet_valid_q <= 1'b0;
+      end
+    end else if (input_handshake) begin
+      if (!execute_packet_valid_q) begin
+        execute_packet_q       <= decoded_execute_packet_i;
+        execute_packet_valid_q <= 1'b1;
+      end else begin
+        skid_execute_packet_q       <= decoded_execute_packet_i;
+        skid_execute_packet_valid_q <= 1'b1;
+      end
     end
   end
 
@@ -68,6 +76,10 @@ module riscv32_decode_execute_stage
 
   assert property (@(posedge clk_i) disable iff (!rst_ni) flush_i |=> !execute_packet_valid_o)
   else $error("ID/EX stage retained a flushed instruction");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    skid_execute_packet_valid_q |-> execute_packet_valid_q)
+  else $error("ID/EX skid entry became valid without a primary entry");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 
