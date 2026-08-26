@@ -817,8 +817,10 @@ module riscv32_pipeline_control_tb;
     clear_completion_buffer_inputs();
     buffered_older_lsu_transaction_present = 1'b1;
     buffered_exu_result.uop.pc              = program_counter_t'('h8000_1004);
+    buffered_exu_result.uop.instruction     = instruction_t'(32'h1234_03b3);
     buffered_exu_result.uop.writes_rd       = 1'b1;
     buffered_exu_result.uop.rd              = arch_reg_idx_t'(7);
+    buffered_exu_result.uop.fu_type         = FU_INT;
     buffered_exu_result.result              = xlen_data_t'('h1234_5678);
     buffered_exu_result.next_pc             = program_counter_t'('h8000_1008);
     buffered_exu_result_valid               = 1'b1;
@@ -827,10 +829,12 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "completion buffer did not capture an EX result behind an older LSU");
 
     expected_deferred_result           = '0;
-    expected_deferred_result.uop       = buffered_exu_result.uop;
-    expected_deferred_result.result    = buffered_exu_result.result;
-    expected_deferred_result.next_pc   = buffered_exu_result.next_pc;
-    expected_deferred_result.csr_wdata = buffered_exu_result.csr_wdata;
+    expected_deferred_result.uop.pc          = buffered_exu_result.uop.pc;
+    expected_deferred_result.uop.instruction = buffered_exu_result.uop.instruction;
+    expected_deferred_result.uop.writes_rd   = buffered_exu_result.uop.writes_rd;
+    expected_deferred_result.uop.rd          = buffered_exu_result.uop.rd;
+    expected_deferred_result.result          = buffered_exu_result.result;
+    expected_deferred_result.next_pc         = buffered_exu_result.next_pc;
 
     @(posedge clk);
     @(negedge clk);
@@ -868,6 +872,38 @@ module riscv32_pipeline_control_tb;
     assert (!buffered_deferred_completion_present && !buffered_writeback_result_valid)
     else $fatal(1, "deferred completion remained after ordered writeback");
 
+    // 非串行化EX异常同样可以在老LSU之后排队，但只允许保留trap所需元数据，不能重建出
+    // GPR、CSR或memory副作用。
+    @(negedge clk);
+    clear_completion_buffer_inputs();
+    buffered_older_lsu_transaction_present   = 1'b1;
+    buffered_exu_result.uop.pc                = program_counter_t'('h8000_2004);
+    buffered_exu_result.uop.instruction       = instruction_t'(32'h0000_0067);
+    buffered_exu_result.uop.fu_type           = FU_BRANCH;
+    buffered_exu_result.uop.exception_valid   = 1'b1;
+    buffered_exu_result.uop.exception_cause   = EXC_INSTR_ADDR_MISALIGNED;
+    buffered_exu_result.uop.exception_tval    = xlen_data_t'('h8000_2002);
+    buffered_exu_result.next_pc               = program_counter_t'('h8000_2002);
+    buffered_exu_result_valid                 = 1'b1;
+    #1;
+    assert (buffered_exu_result_ready)
+    else $fatal(1, "completion buffer rejected a non-serializing EX exception");
+
+    @(posedge clk);
+    @(negedge clk);
+    buffered_exu_result_valid                 = 1'b0;
+    buffered_older_lsu_transaction_present   = 1'b0;
+    #1;
+    assert (buffered_writeback_result_valid &&
+            buffered_writeback_result.uop.exception_valid &&
+            (buffered_writeback_result.uop.exception_cause == EXC_INSTR_ADDR_MISALIGNED) &&
+            (buffered_writeback_result.uop.exception_tval == xlen_data_t'('h8000_2002)) &&
+            !buffered_writeback_result.uop.writes_rd &&
+            !buffered_writeback_result.uop.csr_ctrl.write_enable &&
+            (buffered_writeback_result.uop.mem_ctrl.cmd == MEM_CMD_NONE))
+    else $fatal(1, "deferred EX exception lost metadata or gained a side effect");
+
+    @(posedge clk);
     clear_completion_buffer_inputs();
   endtask
 

@@ -32,12 +32,28 @@ module riscv32_in_order_completion_buffer
     input logic flush_i
 );
 
-  writeback_result_t exu_writeback;
-  writeback_result_t deferred_completion_q;
-  logic              deferred_completion_present_q;
-  logic              deferred_completion_present_d;
-  logic              deferred_completion_handshake;
-  logic              capture_exu_completion;
+  // 延后槽只接收非LSU、非串行化的EX完成。执行之后，提交边界仍需要的只有指令身份、
+  // 架构后继、GPR写回和异常信息；译码控制、预测上下文、CSR及memory字段都已经没有
+  // 消费者。保存完整decoded_uop_t会把无用控制位实现成寄存器，面积收益不成立。
+  typedef struct packed {
+    program_counter_t pc;
+    instruction_t     instruction;
+    program_counter_t next_pc;
+    logic             writes_rd;
+    arch_reg_idx_t    rd;
+    xlen_data_t       result;
+    logic             exception_valid;
+    exception_cause_e exception_cause;
+    xlen_data_t       exception_tval;
+  } deferred_execute_completion_t;
+
+  writeback_result_t            exu_writeback;
+  writeback_result_t            deferred_writeback;
+  deferred_execute_completion_t deferred_execute_completion_q;
+  logic                         deferred_completion_present_q;
+  logic                         deferred_completion_present_d;
+  logic                         deferred_completion_handshake;
+  logic                         capture_exu_completion;
 
   always_comb begin
     exu_writeback           = '0;
@@ -45,6 +61,21 @@ module riscv32_in_order_completion_buffer
     exu_writeback.result    = exu_result_i.result;
     exu_writeback.next_pc   = exu_result_i.next_pc;
     exu_writeback.csr_wdata = exu_result_i.csr_wdata;
+  end
+
+  // 从紧凑槽重建既有WB协议。未保存字段明确为0：该槽不接收LSU/CSR/串行化指令，
+  // 因而这些字段在commit和hazard controller中都必须表现为“无对应副作用”。
+  always_comb begin
+    deferred_writeback                     = '0;
+    deferred_writeback.uop.pc              = deferred_execute_completion_q.pc;
+    deferred_writeback.uop.instruction     = deferred_execute_completion_q.instruction;
+    deferred_writeback.uop.writes_rd       = deferred_execute_completion_q.writes_rd;
+    deferred_writeback.uop.rd              = deferred_execute_completion_q.rd;
+    deferred_writeback.uop.exception_valid = deferred_execute_completion_q.exception_valid;
+    deferred_writeback.uop.exception_cause = deferred_execute_completion_q.exception_cause;
+    deferred_writeback.uop.exception_tval  = deferred_execute_completion_q.exception_tval;
+    deferred_writeback.result              = deferred_execute_completion_q.result;
+    deferred_writeback.next_pc             = deferred_execute_completion_q.next_pc;
   end
 
   // 输出优先级就是程序年龄顺序：老LSU、已经保存的年轻结果、当前EX结果。
@@ -55,7 +86,7 @@ module riscv32_in_order_completion_buffer
                                !deferred_completion_present_q;
 
     if (deferred_completion_present_q) begin
-      writeback_result_o       = deferred_completion_q;
+      writeback_result_o       = deferred_writeback;
       writeback_result_valid_o = 1'b1;
     end
 
@@ -97,7 +128,15 @@ module riscv32_in_order_completion_buffer
 
   always_ff @(posedge clk_i) begin
     if (capture_exu_completion) begin
-      deferred_completion_q <= exu_writeback;
+      deferred_execute_completion_q.pc              <= exu_result_i.uop.pc;
+      deferred_execute_completion_q.instruction     <= exu_result_i.uop.instruction;
+      deferred_execute_completion_q.next_pc         <= exu_result_i.next_pc;
+      deferred_execute_completion_q.writes_rd       <= exu_result_i.uop.writes_rd;
+      deferred_execute_completion_q.rd              <= exu_result_i.uop.rd;
+      deferred_execute_completion_q.result          <= exu_result_i.result;
+      deferred_execute_completion_q.exception_valid <= exu_result_i.uop.exception_valid;
+      deferred_execute_completion_q.exception_cause <= exu_result_i.uop.exception_cause;
+      deferred_execute_completion_q.exception_tval  <= exu_result_i.uop.exception_tval;
     end
   end
 
@@ -112,8 +151,13 @@ module riscv32_in_order_completion_buffer
 `ifndef SYNTHESIS
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     deferred_completion_present_q && !deferred_completion_handshake && !flush_i
-    |=> (deferred_completion_present_q && $stable(deferred_completion_q)))
+    |=> (deferred_completion_present_q && $stable(deferred_execute_completion_q)))
   else $error("deferred completion changed before ordered writeback");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    capture_exu_completion |->
+      ((exu_result_i.uop.fu_type != FU_LSU) && !exu_result_i.uop.serializing))
+  else $error("completion buffer captured an unsupported execution result");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     older_lsu_transaction_present_i && exu_result_valid_i &&
