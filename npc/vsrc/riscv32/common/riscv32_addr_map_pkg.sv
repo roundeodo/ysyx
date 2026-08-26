@@ -1,8 +1,9 @@
 // 当前ysyxSoC平台共用的物理地址映射。
 //
 // BASE_ADDR和LAST_ADDR描述实际实现的闭区间，SIZE_BYTES记录实现容量。
-// ADDR_MATCH_MASK只提供给使用`(addr & mask) == base`形式的路由器；PMA应调用
-// phys_addr_in_range()判断闭区间，避免把匹配掩码误解成地址空间大小。
+// 当前窗口均为按自身容量对齐的2次幂区间，因此ADDR_MATCH_MASK可以无损地
+// 用于PMA和路由器的地址匹配。未来若加入非2次幂或未按容量对齐的窗口，必须
+// 使用phys_addr_in_range()，或者把该窗口拆成若干个可精确匹配的掩码区间。
 package riscv32_addr_map_pkg;
 
   import riscv_config_pkg::*;
@@ -81,6 +82,17 @@ package riscv32_addr_map_pkg;
                                               input phys_addr_t range_base_addr,
                                               input phys_addr_t range_last_addr);
     return (lookup_addr >= range_base_addr) && (lookup_addr <= range_last_addr);
+  endfunction
+
+  // 对按容量对齐的2次幂地址窗口进行精确匹配。两侧都施加mask，避免调用者
+  // 将未对齐的base直接用于比较时产生不易察觉的错误。
+  function automatic logic phys_addr_matches_region(
+      input phys_addr_t lookup_addr,
+      input phys_addr_t region_base_addr,
+      input phys_addr_t region_match_mask
+  );
+    return (lookup_addr & region_match_mask) ==
+           (region_base_addr & region_match_mask);
   endfunction
 
 endpackage

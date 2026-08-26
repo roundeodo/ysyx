@@ -15,9 +15,10 @@ module riscv32_pma
     output pma_attr_t  memory_attr_o
 );
 
-  // 地址常量统一由riscv32_addr_map_pkg维护。PMA使用BASE_ADDR/LAST_ADDR判断
-  // 实际实现的区间；ADDR_MATCH_MASK只提供给总线路由器，不能在本模块复制常量。
-  // 因此本模块不需要自行计算或搜索任何mask，直接调用phys_addr_in_range()。
+  // 地址常量统一由riscv32_addr_map_pkg维护。当前所有窗口均为按容量对齐的
+  // 2次幂区间，因此掩码匹配与BASE_ADDR/LAST_ADDR闭区间判断严格等价。
+  // PMA使用公共掩码匹配函数，避免在取指和LSU关键路径上重复综合两组大小比较器。
+  // 若未来加入非规则窗口，应改用phys_addr_in_range()或拆分成多个规则窗口。
   // 当前有效区间为：
   //   CLINT          0x0200_0000 - 0x0200_ffff，设备空间；
   //   SRAM           0x0f00_0000 - 0x0f00_1fff，8 KiB；
@@ -51,34 +52,46 @@ module riscv32_pma
   // 这里不使用模糊的统一MMIO大区间，因为0x1000_0000附近存在未分配空洞；
   // 未分配地址必须保留默认非法属性，不能因为高位相同就误判成合法设备。
   always_comb begin
-    lookup_addr_in_clint = phys_addr_in_range(lookup_addr_i, CLINT_BASE_ADDR, CLINT_LAST_ADDR);
+    lookup_addr_in_clint =
+        phys_addr_matches_region(lookup_addr_i, CLINT_BASE_ADDR, CLINT_ADDR_MATCH_MASK);
 
-    lookup_addr_in_sram = phys_addr_in_range(lookup_addr_i, SRAM_BASE_ADDR, SRAM_LAST_ADDR);
+    lookup_addr_in_sram =
+        phys_addr_matches_region(lookup_addr_i, SRAM_BASE_ADDR, SRAM_ADDR_MATCH_MASK);
 
-    lookup_addr_in_uart = phys_addr_in_range(lookup_addr_i, UART_BASE_ADDR, UART_LAST_ADDR);
+    lookup_addr_in_uart =
+        phys_addr_matches_region(lookup_addr_i, UART_BASE_ADDR, UART_ADDR_MATCH_MASK);
 
     lookup_addr_in_spi_registers =
-        phys_addr_in_range(lookup_addr_i, SPI_REG_BASE_ADDR, SPI_REG_LAST_ADDR);
+        phys_addr_matches_region(lookup_addr_i, SPI_REG_BASE_ADDR, SPI_REG_ADDR_MATCH_MASK);
 
-    lookup_addr_in_gpio = phys_addr_in_range(lookup_addr_i, GPIO_BASE_ADDR, GPIO_LAST_ADDR);
+    lookup_addr_in_gpio =
+        phys_addr_matches_region(lookup_addr_i, GPIO_BASE_ADDR, GPIO_ADDR_MATCH_MASK);
 
-    lookup_addr_in_ps2 = phys_addr_in_range(lookup_addr_i, PS2_BASE_ADDR, PS2_LAST_ADDR);
+    lookup_addr_in_ps2 =
+        phys_addr_matches_region(lookup_addr_i, PS2_BASE_ADDR, PS2_ADDR_MATCH_MASK);
 
-    lookup_addr_in_mrom = phys_addr_in_range(lookup_addr_i, MROM_BASE_ADDR, MROM_LAST_ADDR);
+    lookup_addr_in_mrom =
+        phys_addr_matches_region(lookup_addr_i, MROM_BASE_ADDR, MROM_ADDR_MATCH_MASK);
 
-    lookup_addr_in_vga = phys_addr_in_range(lookup_addr_i, VGA_BASE_ADDR, VGA_LAST_ADDR);
+    lookup_addr_in_vga =
+        phys_addr_matches_region(lookup_addr_i, VGA_BASE_ADDR, VGA_ADDR_MATCH_MASK);
 
-    lookup_addr_in_flash = phys_addr_in_range(lookup_addr_i, FLASH_BASE_ADDR, FLASH_LAST_ADDR);
+    lookup_addr_in_flash =
+        phys_addr_matches_region(lookup_addr_i, FLASH_BASE_ADDR, FLASH_ADDR_MATCH_MASK);
 
     lookup_addr_in_chiplink_mmio = CHIPLINK_PRESENT &&
-        phys_addr_in_range(lookup_addr_i, CHIPLINK_MMIO_BASE_ADDR, CHIPLINK_MMIO_LAST_ADDR);
+        phys_addr_matches_region(lookup_addr_i, CHIPLINK_MMIO_BASE_ADDR,
+                                 CHIPLINK_MMIO_ADDR_MATCH_MASK);
 
-    lookup_addr_in_psram = phys_addr_in_range(lookup_addr_i, PSRAM_BASE_ADDR, PSRAM_LAST_ADDR);
+    lookup_addr_in_psram =
+        phys_addr_matches_region(lookup_addr_i, PSRAM_BASE_ADDR, PSRAM_ADDR_MATCH_MASK);
 
-    lookup_addr_in_sdram = phys_addr_in_range(lookup_addr_i, SDRAM_BASE_ADDR, SDRAM_LAST_ADDR);
+    lookup_addr_in_sdram =
+        phys_addr_matches_region(lookup_addr_i, SDRAM_BASE_ADDR, SDRAM_ADDR_MATCH_MASK);
 
     lookup_addr_in_chiplink_memory = CHIPLINK_PRESENT &&
-        phys_addr_in_range(lookup_addr_i, CHIPLINK_MEMORY_BASE_ADDR, CHIPLINK_MEMORY_LAST_ADDR);
+        phys_addr_matches_region(lookup_addr_i, CHIPLINK_MEMORY_BASE_ADDR,
+                                 CHIPLINK_MEMORY_ADDR_MATCH_MASK);
 
     lookup_addr_in_any_mmio = lookup_addr_in_clint || lookup_addr_in_uart ||
                               lookup_addr_in_spi_registers || lookup_addr_in_gpio ||
