@@ -188,7 +188,6 @@ module riscv32_icache
   logic local_lookup_resp_handshake;
   logic miss_req_handshake;
   logic lookup_req_matches_active_refill_line;
-  logic lookup_req_targets_active_refill_set;
   logic lookup_req_refill_word_present;
   logic lookup_req_allowed_during_refill;
 
@@ -223,24 +222,19 @@ module riscv32_icache
     return line_base_addr;
   endfunction
 
-  // 单MSHR不允许分配第二个miss，但当前refill不应阻塞所有可命中的取指：
-  // - 同一refill line中已经写入的word可通过victim way提前读取；
-  // - 不同set可以与refill并行查询，若命中则直接返回，若未命中则留在S1等待MSHR释放；
-  // - 同set其他line继续阻塞，避免依赖tag/data SRAM未定义的read-during-write语义。
-  // 这实现了低成本hit-under-miss，同时不引入第二个MSHR和响应乱序。
+  // 单MSHR不允许分配第二个miss。refill期间只接受当前line中已经写入的word，
+  // 通过锁存的victim way提前读取并交付；其他请求等待整条line安装完成。这样保留
+  // early restart，又不增加第二个MSHR、响应排序状态或额外的set比较ready路径。
   always_comb begin
     lookup_req_matches_active_refill_line =
         get_icache_line_base_addr(lookup_req_i.fetch_addr) == active_refill_line_base_addr;
-    lookup_req_targets_active_refill_set =
-        get_icache_set_index(lookup_req_i.fetch_addr) ==
-        get_icache_set_index(active_refill_line_base_addr);
     lookup_req_refill_word_present =
         refill_word_present_vector[get_icache_word_index(lookup_req_i.fetch_addr)];
     lookup_req_allowed_during_refill =
         !miss_transaction_present ||
         (lookup_memory_attr.cacheable &&
-         ((lookup_req_matches_active_refill_line && lookup_req_refill_word_present) ||
-          !lookup_req_targets_active_refill_set));
+         lookup_req_matches_active_refill_line &&
+         lookup_req_refill_word_present);
   end
   // S1并行比较全部way的present和tag，并把请求划分为四类互斥结果：
   // access fault、uncached访问、cache hit和cache miss。命中向量按低way优先选择数据；
@@ -651,15 +645,6 @@ module riscv32_icache
            (refill_metadata_write_valid && !refill_metadata_write_line_present))
   )
   else $error("I-cache present clear has no valid source");
-
-  a_active_refill_avoids_unavailable_same_set_lookup :
-  assert property (
-      @(posedge clk_i) disable iff (!rst_ni)
-      (miss_transaction_present && lookup_req_handshake) |->
-          ((!lookup_req_targets_active_refill_set) ||
-           (lookup_req_matches_active_refill_line && lookup_req_refill_word_present))
-  )
-  else $error("I-cache accepted a conflicting same-set lookup while refill was active");
 
   a_s1_refill_word_classification_matches_accepted_lookup :
   assert property (

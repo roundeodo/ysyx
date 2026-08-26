@@ -67,9 +67,8 @@ module riscv32_icache_data_array
   // present位决定。这里使用显式staging加低电平透明锁存阵列，降低小容量数据阵列由
   // 标准单元实现时的面积；未来换成SRAM宏时，只需在本模块内部替换存储体和端口时序。
   //
-  // 顶层允许refill期间查询不同set，也允许读取当前line中更早周期已经写入的word；仍禁止
-  // 对正在refill的同set其他line发起array read。这样支持低成本hit-under-miss，同时不
-  // 依赖SRAM同地址read-during-write的工艺相关行为。
+  // 顶层在refill期间只允许读取当前line中更早周期已经写入的word，其他lookup等待
+  // 整条line安装完成。该约束保留early restart，同时避免依赖SRAM同地址读写语义。
   //
   // 这里不是循环写完整条line。每次refill response握手只携带一个word及其word index，
   // miss unit连续驱动本写口，逐word填满cache line。

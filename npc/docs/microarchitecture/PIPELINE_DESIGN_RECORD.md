@@ -277,3 +277,29 @@ uncached AXI idle首拍直通后为27541.640 um^2，增加165.984 um^2。300MHz�
 报告中最紧的core输出路径约431.896MHz。该直通路径带来约4.9%的MicroBench计分时间收益，
 但也把AXI输出边界推成时序关注点；后续若提高目标频率，应在保持请求零空泡的前提下使用
 skid buffer或重新切分总线边界，而不是恢复固定首拍空泡。
+
+## 8. RV32基线的低面积结构优化与否决标准
+
+2026-08-26对`rv32-baseline`执行同配置A/B。当前保留的改动包括：LSU完成拍允许下一请求
+进入、fetch buffer的ready解耦、D-cache接收窗口预读阵列、删除数据子系统重复请求队列，
+以及把BHT训练反馈切成寄存路径。这些改动不增加cache容量，也不改变IFU、LSU语义请求或
+AXI4协议；最终NanGate45结果为69295.394 um^2、797.945 MHz。完整MicroBench `train`
+基线计分窗口退休186810217条指令，执行492988655周期，IPC为0.378934，Scored time为
+4929.979 ms；全程互斥停顿中前端占28.159%，LSU结构占20.817%，控制恢复占8.277%。
+
+随后评估单MSHR下的“不同set hit-under-miss”：refill存续期间允许不同set进入lookup，
+若命中则直接返回，若未命中则在S1等待MSHR释放；同set冲突继续阻塞。该方案不增加第二个
+MSHR，但给请求ready路径增加active-refill set比较。完整`train`只把计分窗口周期降到
+492654221，减少334434周期，即0.068%；Scored time从4929.979 ms降到4926.640 ms。
+与此同时，面积增至69549.424 um^2（+0.37%），Fmax降至767.625 MHz（-3.80%），
+`IPC * Fmax`从302.368降到291.076 MIPS（-3.73%）。因此该方案已经从RTL中删除。
+
+保留的refill优化仅限同一line中已经到达的word early restart。它直接复用refill写入的
+victim way，不增加set级hit-under-miss控制。后续若要真正解除I-cache miss阻塞，应使用
+明确的lookup队列、多个MSHR、返回标识和array端口仲裁，并重新评估面积、周期和关键路径；
+不能继续把更多比较器叠加到单MSHR的请求ready路径上。
+
+D-cache data array还尝试过“通用多维数组+byte strobe+低电平透明写锁存”。功能测试可以
+通过，但Yosys为动态way/word/byte局部写展开了大量process mux，综合规模失控，因此也已
+撤销。若以后用锁存阵列降低面积，必须按way、word和byte静态分bank，或直接推断/实例化
+目标工艺SRAM宏，不能依赖通用动态索引局部写综合出合理存储结构。

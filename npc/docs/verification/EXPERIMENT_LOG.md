@@ -1236,3 +1236,39 @@ valid-ready协议和每拍请求吞吐，再用IPC、Fmax和面积联合判断�
 当前仍有41.471%前端供给停顿和30.611% LSU结构阻塞。下一项前端优化应切断预测/redirect/
 next-PC反馈长路径并增加可标识的在途取指，而不是继续无条件增大阻塞式I-cache；数据侧结构
 必须另做无D-cache、小缓冲和D-cache候选的同口径A/B。
+
+## 2026-08-26 - 不同set hit-under-miss完整train否决实验
+
+- Commit：`uncommitted`
+- 工作负载和规模：MicroBench / `train`
+- 固定配置：`rv32-baseline`，256 B/direct/16 B line I-cache，
+  256 B/2-way/16 B line D-cache，BHT16、BTB16x2、RAS4
+- 性能命令：`make perf PROJECT=riscv32 NPC_CONFIG=rv32-baseline PERF_SCALE=train`
+- 综合约束：NanGate45、1000 MHz约束下计算可达频率
+- 功能结果：全部子测试通过，`HIT GOOD TRAP`
+
+候选方案在单MSHR refill期间允许不同set进入I-cache lookup；不同set命中直接返回，
+不同set miss留在S1等待当前MSHR结束，同set冲突仍阻塞。对照基线与候选使用相同镜像、
+cache/predictor参数、AXI延迟模型和综合流程。
+
+| 指标 | 保留基线 | 不同set hit-under-miss | 变化 |
+| --- | ---: | ---: | ---: |
+| PMU退休指令 | 186810217 | 186810217 | 0 |
+| PMU周期 | 492988655 | 492654221 | -0.068% |
+| PMU IPC | 0.378934 | 0.379191 | +0.068% |
+| Scored time | 4929.979 ms | 4926.640 ms | -0.068% |
+| 前端供给停顿 | 28.159% | 27.659% | -0.500个百分点 |
+| I-cache命中率 | 97.812% | 97.800% | -0.012个百分点 |
+| I-cache AMAT | 1.601 cycles | 1.614 cycles | +0.013 cycles |
+| 面积 | 69295.394 um^2 | 69549.424 um^2 | +0.37% |
+| Fmax | 797.945 MHz | 767.625 MHz | -3.80% |
+| `IPC * Fmax` | 302.368 MIPS | 291.076 MIPS | -3.73% |
+
+候选需要至少减少3.80%的周期才能抵消频率下降，实际只减少0.068%，因此否决并从RTL删除。
+完整train还表明，前端停顿的主要组成仍是I-cache miss service（22.429% active cycles），
+而不同set hit-under-miss几乎不能缩短它；当前程序在refill期间立即访问其他已缓存set的机会
+太少。保留同line已到达word early restart，因为它不增加额外set比较控制路径。
+
+同轮尝试的通用D-cache锁存data array虽然通过定向功能测试，但综合把动态索引和byte strobe
+局部写展开为大量process mux，未得到可接受的存储结构，实验在STA完成前终止并撤销。后续
+仅评估静态bank或目标SRAM宏实现，不把该写法作为面积优化候选。

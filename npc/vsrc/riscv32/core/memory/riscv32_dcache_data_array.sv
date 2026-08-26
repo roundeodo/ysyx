@@ -10,7 +10,6 @@ module riscv32_dcache_data_array
     parameter int unsigned WORDS_PER_LINE = DCACHE_WORDS_PER_LINE
 ) (
     input logic clk_i,
-    input logic rst_ni,
 
     input  logic               read_enable_i,
     input  dcache_set_index_t  read_set_index_i,
@@ -27,16 +26,6 @@ module riscv32_dcache_data_array
 
   core_data_t data_array_q[WAY_COUNT][WORDS_PER_LINE][SET_COUNT];
   core_data_t read_word_data_array_q[WAY_COUNT];
-
-  // 写事务先在上升沿进入staging寄存器，随后在低电平写入锁存阵列。这样保持
-  // 同步读接口和byte strobe语义不变，同时避免把整个小容量cache描述成带写使能
-  // 的触发器阵列。未来替换为带byte-enable的SRAM宏时，仅需修改本模块内部实现。
-  dcache_set_index_t staged_write_set_index_q;
-  dcache_way_index_t staged_write_way_index_q;
-  dcache_word_index_t staged_write_word_index_q;
-  core_data_t staged_write_word_data_q;
-  core_byte_strobe_t staged_write_byte_strobe_q;
-  logic staged_write_enable_q;
 
   // 同步读时序与真实单周期SRAM宏一致。顶层必须用S1 present限定这些保留型输出。
   always_ff @(posedge clk_i) begin
@@ -57,30 +46,10 @@ module riscv32_dcache_data_array
   // 必须在D-cache顶层增加refill/store bypass，不能依赖工艺相关的read-during-write行为。
   always_ff @(posedge clk_i) begin
     if (write_valid_i) begin
-      staged_write_set_index_q   <= write_set_index_i;
-      staged_write_way_index_q   <= write_way_index_i;
-      staged_write_word_index_q  <= write_word_index_i;
-      staged_write_word_data_q   <= write_word_data_i;
-      staged_write_byte_strobe_q <= write_byte_strobe_i;
-    end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      staged_write_enable_q <= 1'b0;
-    end else begin
-      staged_write_enable_q <= write_valid_i;
-    end
-  end
-
-  always_latch begin
-    if (!clk_i && staged_write_enable_q) begin
       for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
-        if (staged_write_byte_strobe_q[byte_index]) begin
-          data_array_q[staged_write_way_index_q]
-                      [staged_write_word_index_q]
-                      [staged_write_set_index_q]
-                      [byte_index*8+:8] = staged_write_word_data_q[byte_index*8+:8];
+        if (write_byte_strobe_i[byte_index]) begin
+          data_array_q[write_way_index_i][write_word_index_i][write_set_index_i]
+              [byte_index*8+:8] <= write_word_data_i[byte_index*8+:8];
         end
       end
     end
