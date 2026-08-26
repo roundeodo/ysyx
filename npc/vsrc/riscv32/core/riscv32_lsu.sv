@@ -34,7 +34,7 @@ module riscv32_lsu
   // store queue和transaction ID，而不能重新引入未寄存请求到存储系统的组合旁路。
   typedef enum logic [1:0] {
     LSU_IDLE,
-    LSU_SEND_MEMORY_REQUEST,
+    LSU_DISPATCH_REGISTERED_REQUEST,
     LSU_WAIT_MEMORY_RESPONSE
   } lsu_state_e;
 
@@ -50,6 +50,9 @@ module riscv32_lsu
     arch_reg_idx_t    rd;
     logic             writes_rd;
     mem_uop_ctrl_t    mem_ctrl;
+    logic             exception_valid;
+    exception_cause_e exception_cause;
+    xlen_data_t       exception_tval;
     program_counter_t next_pc;
     effective_addr_t  effective_addr;
     xlen_data_t       store_data;
@@ -137,26 +140,26 @@ module riscv32_lsu
   assign data_memory_req_handshake  = data_memory_req_valid_o && data_memory_req_ready_i;
   assign data_memory_resp_handshake = data_memory_resp_valid_i && data_memory_resp_ready_o;
 
-  // IDLE时使用输入判断本地异常和是否需要进入存储系统；普通访存一旦被接受，后续
-  // 只能从紧凑上下文重建请求。未重建字段保持0，因为它们不参与memory response
+  // 所有分类和请求生成只能读取入口寄存器。即使state_q为IDLE，也禁止把lsu_req_i
+  // 送入active_lsu_req；否则地址、size或异常字段仍会经过PMA和memory-ready链形成
+  // EX到LSU状态寄存器的长组合路径。未重建字段保持0，因为它们不参与memory response
   // 或架构提交。
   // byte_offset按core beat宽度选择字节通道；自然对齐仍按ISA访问大小判断：
   // half只检查bit 0，word检查bits[1:0]。
   // 不要用总线beat宽度替代ISA对齐规则；总线即使是64位，LW仍只要求4字节对齐。
   always_comb begin
     active_lsu_req = '0;
-    if (state_q == LSU_IDLE) begin
-      active_lsu_req = lsu_req_i;
-    end else begin
-      active_lsu_req.uop.pc          = pending_lsu_context_q.pc;
-      active_lsu_req.uop.instruction = pending_lsu_context_q.instruction;
-      active_lsu_req.uop.rd          = pending_lsu_context_q.rd;
-      active_lsu_req.uop.writes_rd   = pending_lsu_context_q.writes_rd;
-      active_lsu_req.uop.mem_ctrl    = pending_lsu_context_q.mem_ctrl;
-      active_lsu_req.next_pc         = pending_lsu_context_q.next_pc;
-      active_lsu_req.effective_addr  = pending_lsu_context_q.effective_addr;
-      active_lsu_req.store_data      = pending_lsu_context_q.store_data;
-    end
+    active_lsu_req.uop.pc              = pending_lsu_context_q.pc;
+    active_lsu_req.uop.instruction     = pending_lsu_context_q.instruction;
+    active_lsu_req.uop.rd              = pending_lsu_context_q.rd;
+    active_lsu_req.uop.writes_rd       = pending_lsu_context_q.writes_rd;
+    active_lsu_req.uop.mem_ctrl        = pending_lsu_context_q.mem_ctrl;
+    active_lsu_req.uop.exception_valid = pending_lsu_context_q.exception_valid;
+    active_lsu_req.uop.exception_cause = pending_lsu_context_q.exception_cause;
+    active_lsu_req.uop.exception_tval  = pending_lsu_context_q.exception_tval;
+    active_lsu_req.next_pc             = pending_lsu_context_q.next_pc;
+    active_lsu_req.effective_addr      = pending_lsu_context_q.effective_addr;
+    active_lsu_req.store_data          = pending_lsu_context_q.store_data;
 
     is_load              = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
     is_store             = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
@@ -273,9 +276,9 @@ module riscv32_lsu
     end
   end
 
-  // 第一段：输出逻辑。IDLE只接收并分类请求，不允许普通访存组合直通到存储层；
-  // SEND_MEMORY_REQUEST只使用已经寄存的pending上下文。这个无旁路边界用1拍入口延迟
-  // 换取更短的关键路径。本地异常仍可直接完成，因为它不会经过PMA和存储路由。
+  // 第一段：输出逻辑。IDLE只提供与请求内容无关的ready，不分类也不产生completion。
+  // DISPATCH_REGISTERED_REQUEST只使用已经寄存的pending上下文：本地异常在这里完成，
+  // 普通访存从这里发往存储层。这个无旁路边界用1拍入口延迟换取真实的时序切分。
   // 存储响应把completion的ready传回存储层，反压期间由存储层保持response payload。
   always_comb begin
     lsu_req_ready_o          = 1'b0;
@@ -286,17 +289,16 @@ module riscv32_lsu
 
     unique case (state_q)
       LSU_IDLE: begin
-        lsu_req_ready_o = !lsu_req_valid_i || !complete_locally || lsu_writeback_ready_i;
-        if (lsu_req_valid_i) begin
-          if (complete_locally) begin
-            lsu_writeback_o       = local_writeback;
-            lsu_writeback_valid_o = 1'b1;
-          end
-        end
+        lsu_req_ready_o = 1'b1;
       end
 
-      LSU_SEND_MEMORY_REQUEST: begin
-        data_memory_req_valid_o = 1'b1;
+      LSU_DISPATCH_REGISTERED_REQUEST: begin
+        if (complete_locally) begin
+          lsu_writeback_o       = local_writeback;
+          lsu_writeback_valid_o = 1'b1;
+        end else begin
+          data_memory_req_valid_o = 1'b1;
+        end
       end
 
       LSU_WAIT_MEMORY_RESPONSE: begin
@@ -316,13 +318,15 @@ module riscv32_lsu
 
     unique case (state_q)
       LSU_IDLE: begin
-        if (lsu_req_handshake && !complete_locally) begin
-          state_d = LSU_SEND_MEMORY_REQUEST;
+        if (lsu_req_handshake) begin
+          state_d = LSU_DISPATCH_REGISTERED_REQUEST;
         end
       end
 
-      LSU_SEND_MEMORY_REQUEST: begin
-        if (data_memory_req_handshake) begin
+      LSU_DISPATCH_REGISTERED_REQUEST: begin
+        if (complete_locally && lsu_writeback_ready_i) begin
+          state_d = LSU_IDLE;
+        end else if (!complete_locally && data_memory_req_handshake) begin
           state_d = LSU_WAIT_MEMORY_RESPONSE;
         end
       end
@@ -345,15 +349,18 @@ module riscv32_lsu
     else state_q <= state_d;
   end
 
-  // pending payload不复位。state_q=IDLE时它没有语义；仅在接受需要访问存储层的请求时
-  // 覆盖一次。这样既删除无关字段，也避免给纯数据payload构造异步复位网络。
+  // pending payload不复位。state_q=IDLE时它没有语义；每次入口握手都覆盖，包括需要
+  // 本地完成的异常请求。这样DISPATCH阶段的所有决策都只依赖寄存值。
   always_ff @(posedge clk_i) begin
-    if (lsu_req_handshake && !complete_locally) begin
+    if (lsu_req_handshake) begin
       pending_lsu_context_q.pc             <= lsu_req_i.uop.pc;
       pending_lsu_context_q.instruction    <= lsu_req_i.uop.instruction;
       pending_lsu_context_q.rd             <= lsu_req_i.uop.rd;
       pending_lsu_context_q.writes_rd      <= lsu_req_i.uop.writes_rd;
       pending_lsu_context_q.mem_ctrl       <= lsu_req_i.uop.mem_ctrl;
+      pending_lsu_context_q.exception_valid <= lsu_req_i.uop.exception_valid;
+      pending_lsu_context_q.exception_cause <= lsu_req_i.uop.exception_cause;
+      pending_lsu_context_q.exception_tval  <= lsu_req_i.uop.exception_tval;
       pending_lsu_context_q.next_pc        <= lsu_req_i.next_pc;
       pending_lsu_context_q.effective_addr <= lsu_req_i.effective_addr;
       pending_lsu_context_q.store_data     <= lsu_req_i.store_data;
@@ -367,13 +374,14 @@ module riscv32_lsu
   /* verilator lint_off SYNCASYNCNET */
   a_preexisting_exception_never_reaches_memory :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (state_q == LSU_IDLE && lsu_req_valid_i && lsu_req_i.uop.exception_valid)
+    (state_q == LSU_DISPATCH_REGISTERED_REQUEST &&
+     pending_lsu_context_q.exception_valid)
     |-> !data_memory_req_valid_o)
   else $error("LSU issued a memory request for an instruction with an older exception");
 
   a_misaligned_access_never_reaches_memory :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (state_q == LSU_IDLE && lsu_req_valid_i && address_misaligned)
+    (state_q == LSU_DISPATCH_REGISTERED_REQUEST && address_misaligned)
     |-> !data_memory_req_valid_o)
   else $error("LSU issued a memory request for a misaligned access");
 
@@ -385,15 +393,21 @@ module riscv32_lsu
 
   a_memory_request_is_registered_before_issue :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (state_q == LSU_IDLE && lsu_req_handshake && !complete_locally)
-    |=> (state_q == LSU_SEND_MEMORY_REQUEST && data_memory_req_valid_o))
+    (state_q == LSU_IDLE && lsu_req_handshake)
+    |=> (state_q == LSU_DISPATCH_REGISTERED_REQUEST))
   else $error("LSU did not issue a registered memory request after accepting it");
 
-  a_idle_memory_request_has_no_combinational_bypass :
+  a_idle_request_has_no_combinational_outputs :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (state_q == LSU_IDLE && lsu_req_valid_i && !complete_locally)
-    |-> !data_memory_req_valid_o)
-  else $error("LSU bypassed its request register and drove memory from EXU combinationally");
+    (state_q == LSU_IDLE)
+    |-> (!data_memory_req_valid_o && !lsu_writeback_valid_o && lsu_req_ready_o))
+  else $error("LSU IDLE outputs depended on an unregistered EXU request");
+
+  a_dispatch_has_one_completion_route :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_DISPATCH_REGISTERED_REQUEST)
+    |-> !(data_memory_req_valid_o && lsu_writeback_valid_o))
+  else $error("LSU dispatched one request to memory and local writeback simultaneously");
 
   a_memory_request_stable_while_backpressured :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

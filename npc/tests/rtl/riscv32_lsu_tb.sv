@@ -83,6 +83,28 @@ module riscv32_lsu_tb;
     else $fatal(1, "LSU did not issue the registered memory request");
   endtask
 
+  // 异常和未对齐请求同样必须先经过入口寄存器，不能为了减少一拍而重新建立
+  // execute_packet到writeback的组合旁路。
+  task automatic accept_registered_local_completion(input lsu_req_t request);
+    @(negedge clk);
+    lsu_req               = request;
+    lsu_req_valid         = 1'b1;
+    data_memory_req_ready = 1'b1;
+    lsu_writeback_ready   = 1'b1;
+    #1;
+    assert (lsu_req_ready && !data_memory_req_valid && !lsu_writeback_valid)
+    else $fatal(1, "LSU produced outputs before registering a local completion request");
+
+    @(posedge clk);
+    #1;
+    lsu_req_valid = 1'b0;
+
+    @(negedge clk);
+    #1;
+    assert (!lsu_req_ready && !data_memory_req_valid && lsu_writeback_valid)
+    else $fatal(1, "LSU did not produce the registered local completion");
+  endtask
+
   task automatic check_load(input mem_size_e access_size, input logic unsigned_load,
                             input effective_addr_t effective_addr,
                             input core_data_t returned_memory_data,
@@ -173,14 +195,10 @@ module riscv32_lsu_tb;
   task automatic check_misaligned_access(input mem_cmd_e command, input mem_size_e access_size,
                                          input effective_addr_t effective_addr,
                                          input exception_cause_e expected_cause);
-    @(negedge clk);
-    lsu_req               = make_memory_request(command, access_size, 1'b0, effective_addr,
-                            xlen_data_t'(64'h0123_4567_89ab_cdef));
-    lsu_req_valid         = 1'b1;
-    data_memory_req_ready = 1'b1;
-    lsu_writeback_ready   = 1'b1;
-    #1;
-    assert (lsu_req_ready && lsu_writeback_valid && !data_memory_req_valid)
+    accept_registered_local_completion(make_memory_request(
+        command, access_size, 1'b0, effective_addr, xlen_data_t'(64'h0123_4567_89ab_cdef)
+    ));
+    assert (lsu_writeback_valid && !data_memory_req_valid)
     else $fatal(1, "Misaligned access escaped to memory: XLEN=%0d size=%0d", XLEN, access_size);
     assert (lsu_writeback.uop.exception_valid &&
             (lsu_writeback.uop.exception_cause == expected_cause) &&
@@ -193,18 +211,17 @@ module riscv32_lsu_tb;
   endtask
 
   task automatic check_preexisting_exception_is_preserved;
-    @(negedge clk);
-    lsu_req                           = make_memory_request(
+    lsu_req_t exception_request;
+
+    exception_request                 = make_memory_request(
         MEM_CMD_LOAD, MEM_SIZE_WORD, 1'b0, effective_addr_t'(32'h8000_0000), '0
     );
-    lsu_req.uop.exception_valid       = 1'b1;
-    lsu_req.uop.exception_cause       = EXC_ILLEGAL_INSTRUCTION;
-    lsu_req.uop.exception_tval        = xlen_data_t'(32'hffff_ffff);
-    lsu_req_valid                     = 1'b1;
-    data_memory_req_ready             = 1'b1;
-    lsu_writeback_ready               = 1'b1;
-    #1;
-    assert (lsu_req_ready && lsu_writeback_valid && !data_memory_req_valid)
+    exception_request.uop.exception_valid = 1'b1;
+    exception_request.uop.exception_cause = EXC_ILLEGAL_INSTRUCTION;
+    exception_request.uop.exception_tval  = xlen_data_t'(32'hffff_ffff);
+    accept_registered_local_completion(exception_request);
+
+    assert (lsu_writeback_valid && !data_memory_req_valid)
       else $fatal(1, "LSU issued memory traffic for an instruction with an older exception");
     assert (lsu_writeback.uop.exception_valid &&
             (lsu_writeback.uop.exception_cause == EXC_ILLEGAL_INSTRUCTION) &&

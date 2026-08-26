@@ -80,10 +80,10 @@ module riscv32_ifu
   assign lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
   assign lookup_response_handshake = icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
 
-  // SEND状态查询当前待发送PC；WAIT状态预先查询当前响应交付后将发送的预测后继PC。
-  // 这样I-cache响应只负责触发下一请求握手，不再位于预测组合路径上。
-  assign next_pc_predictor_lookup_pc_o =
-      (state_q == IFU_SEND_LOOKUP) ? lookup_pc_q : next_fetch_request_pc_q;
+  // next_fetch_request_pc_q始终表示预测器应提前查询的下一条请求。正常SEND状态下它与
+  // lookup_pc_q相等；redirect使两者暂时不同时，lookup_pc_q携带旧epoch且返回结果会被
+  // 丢弃，因此无需用state_q在两个PC之间增加一层时序关键的多路器。
+  assign next_pc_predictor_lookup_pc_o = next_fetch_request_pc_q;
 
   // 响应是否属于当前控制流只由请求携带的epoch决定。不能用组合redirect压低valid，
   // 否则当前响应经过IDU/EXU产生redirect后会反向改变自身valid，构成组合环。
@@ -303,6 +303,14 @@ module riscv32_ifu
     (state_q == IFU_WAIT_LOOKUP_RESPONSE && redirect_req_valid_i)
     |-> (!icache_lookup_req_valid_o && !fetch_entry_valid_o && icache_lookup_resp_ready_o))
   else $error("IFU did not suppress old-path traffic during redirect");
+
+  // SEND状态若仍属于当前epoch，待发送PC与预测查询PC必须一致。redirect后允许暂时
+  // 不同，因为旧请求必须保持payload稳定，而预测器已经可以为新目标提前查询。
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == IFU_SEND_LOOKUP &&
+     (lookup_fetch_epoch_q == current_fetch_epoch_q) && !redirect_req_valid_i)
+    |-> (lookup_pc_q == next_fetch_request_pc_q))
+  else $error("IFU current request PC diverged from the predictor lookup PC");
 `endif
 
 endmodule
