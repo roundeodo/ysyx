@@ -1,7 +1,8 @@
 // 前端控制流预测器。
 //
-// 小容量BTB/BHT/RAS对IFU中已经寄存的fetch PC做组合查询。预测结果与请求同拍进入
-// IFU窄队列，时钟沿只推进fetch PC；最终控制流结果仍由EX精确校验。
+// 小容量BTB/BHT/RAS对IFU提供的fetch PC完成查询，结果先进入一级弹性寄存器再返回。
+// 该寄存边界切断“fetch PC -> 预测表 -> next PC -> fetch PC”的单周期自反馈路径；
+// 寄存器支持同拍消费旧响应并接收新请求，因此非跳转路径仍可保持每拍一次查询。
 module riscv32_fetch_control_flow_predictor
   import riscv32_pkg::*;
 #(
@@ -109,6 +110,13 @@ module riscv32_fetch_control_flow_predictor
     program_counter_t        return_pc;
   } return_stack_update_t;
 
+  typedef struct packed {
+    program_counter_t   pc;
+    fetch_epoch_t       epoch;
+    branch_prediction_t prediction;
+    program_counter_t   next_pc;
+  } lookup_response_t;
+
   branch_target_entry_t branch_target_entry_array_q[BTB_SET_COUNT][BTB_WAY_COUNT];
   branch_target_way_index_t branch_target_replacement_way_q[BTB_SET_COUNT];
   logic [1:0] branch_history_counter_array_q[BHT_ENTRY_COUNT];
@@ -119,6 +127,9 @@ module riscv32_fetch_control_flow_predictor
   branch_target_update_t branch_target_update_q;
   return_stack_update_t return_stack_update_d;
   return_stack_update_t return_stack_update_q;
+
+  lookup_response_t lookup_response_q;
+  logic             lookup_response_present_q;
 
   branch_target_index_t lookup_request_branch_target_index;
   branch_history_index_t lookup_request_branch_history_index;
@@ -133,6 +144,8 @@ module riscv32_fetch_control_flow_predictor
   logic conditional_branch_predicted_taken;
   logic predicted_taken;
   program_counter_t predicted_target_pc;
+  branch_prediction_t lookup_prediction;
+  program_counter_t   lookup_next_pc;
 
   branch_target_index_t resolved_branch_target_index;
   branch_target_way_index_t resolved_branch_target_write_way;
@@ -197,12 +210,15 @@ module riscv32_fetch_control_flow_predictor
     return (current_counter == 2'b00) ? current_counter : current_counter - 2'b01;
   endfunction
 
-  // 查询接口是无内部buffer的组合级。IFU在被反压时保持fetch PC和epoch，因此这里也
-  // 保持预测payload；握手沿由IFU同时保存请求、prediction并推进下一fetch PC。
-  assign lookup_request_ready_o  = lookup_response_ready_i && !flush_lookup_i;
-  assign lookup_response_pc_o    = lookup_request_pc_i;
-  assign lookup_response_epoch_o = lookup_request_epoch_i;
-  assign lookup_response_valid_o = lookup_request_valid_i && !flush_lookup_i;
+  // 一级弹性响应寄存器为空，或旧响应本拍会被IFU消费时，可以接收一个新请求。
+  // ready只依赖本地响应寄存器，不再把IFU/BTB组合路径闭合成PC自反馈回路。
+  assign lookup_request_ready_o =
+      (!lookup_response_present_q || lookup_response_ready_i) && !flush_lookup_i;
+  assign lookup_response_pc_o    = lookup_response_q.pc;
+  assign lookup_response_epoch_o = lookup_response_q.epoch;
+  assign lookup_prediction_o     = lookup_response_q.prediction;
+  assign lookup_next_pc_o        = lookup_response_q.next_pc;
+  assign lookup_response_valid_o = lookup_response_present_q;
 
   assign lookup_request_branch_target_index =
       lookup_request_pc_i[BRANCH_TARGET_INDEX_WIDTH+$clog2(
@@ -275,13 +291,32 @@ module riscv32_fetch_control_flow_predictor
       predicted_taken = 1'b0;
     end
 
-    lookup_prediction_o                  = '0;
-    lookup_prediction_o.predicted_taken  = predicted_taken;
-    lookup_prediction_o.predicted_target = predicted_taken ? predicted_target_pc : '0;
-    lookup_next_pc_o                     = predicted_taken ?
-                                           predicted_target_pc :
-                                           lookup_request_pc_i +
-                                           program_counter_t'(INSTRUCTION_BYTES);
+    lookup_prediction                  = '0;
+    lookup_prediction.predicted_taken  = predicted_taken;
+    lookup_prediction.predicted_target = predicted_taken ? predicted_target_pc : '0;
+    lookup_next_pc                     = predicted_taken ?
+                                         predicted_target_pc :
+                                         lookup_request_pc_i +
+                                         program_counter_t'(INSTRUCTION_BYTES);
+  end
+
+  // 查询payload只在请求握手时进入响应寄存器。响应被反压时，present和payload均保持；
+  // flush只丢弃在途预测，不清除BTB/BHT/RAS训练状态。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      lookup_response_q         <= '0;
+      lookup_response_present_q <= 1'b0;
+    end else if (flush_lookup_i) begin
+      lookup_response_present_q <= 1'b0;
+    end else if (lookup_request_ready_o) begin
+      lookup_response_present_q <= lookup_request_valid_i;
+      if (lookup_request_valid_i) begin
+        lookup_response_q.pc         <= lookup_request_pc_i;
+        lookup_response_q.epoch      <= lookup_request_epoch_i;
+        lookup_response_q.prediction <= lookup_prediction;
+        lookup_response_q.next_pc    <= lookup_next_pc;
+      end
+    end
   end
 
   // 训练优先更新同PC的已有way，其次占用第一个invalid way；set已满时才采用本set的

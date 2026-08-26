@@ -10,8 +10,8 @@ module riscv32_ifu
     input redirect_req_t redirect_req_i,
     input logic          redirect_req_valid_i,
 
-    // IFU用fetch_pc_q驱动小容量组合预测器。预测握手沿同时把PC/prediction放入窄请求
-    // 队列并把fetch_pc_q推进到预测后继，从而保持每拍一次预测且不形成跨模块组合递推。
+    // IFU顺序产生预测请求；预测器用一级寄存响应切断PC自反馈关键路径。非跳转响应被
+    // 消费时同拍发出下一顺序PC，taken响应则取消该拍PC+4请求并从目标PC重新开始。
     output program_counter_t   next_pc_predictor_lookup_request_pc_o,
     output fetch_epoch_t       next_pc_predictor_lookup_request_epoch_o,
     output logic               next_pc_predictor_lookup_request_valid_o,
@@ -65,6 +65,7 @@ module riscv32_ifu
   logic predictor_lookup_request_handshake;
   logic predictor_lookup_response_handshake;
   logic predictor_lookup_response_is_current;
+  logic predictor_taken_response_occurred;
   program_counter_t predicted_next_pc;
 
   // 每个被I-cache实际接收的frontend tag对应一份prediction。I-cache响应原样返回tag，
@@ -79,7 +80,8 @@ module riscv32_ifu
 
   assign lookup_queue_enqueue_ready =
       lookup_queue_entry_count_q < lookup_queue_count_t'(LOOKUP_QUEUE_ENTRY_COUNT);
-  assign lookup_queue_enqueue_occurred = predictor_lookup_response_handshake;
+  assign lookup_queue_enqueue_occurred =
+      predictor_lookup_response_handshake && predictor_lookup_response_is_current;
   assign lookup_queue_dequeue_occurred = icache_lookup_request_handshake;
 
   always_comb begin
@@ -103,12 +105,17 @@ module riscv32_ifu
   // ready只取决于窄请求队列空间，不再依赖I-cache、fetch buffer或后端ready。
   assign next_pc_predictor_flush_o = redirect_req_valid_i;
   assign next_pc_predictor_lookup_response_ready_o =
-      !redirect_req_valid_i && predictor_lookup_response_is_current &&
-      lookup_queue_enqueue_ready;
+      !redirect_req_valid_i &&
+      (!predictor_lookup_response_is_current || lookup_queue_enqueue_ready);
   assign next_pc_predictor_lookup_request_pc_o    = predictor_fetch_pc_q;
   assign next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q;
+  assign predictor_taken_response_occurred =
+      predictor_lookup_response_handshake &&
+      predictor_lookup_response_is_current &&
+      next_pc_predictor_prediction_i.predicted_taken;
   assign next_pc_predictor_lookup_request_valid_o =
-      lookup_queue_enqueue_ready && !redirect_req_valid_i;
+      lookup_queue_enqueue_ready && !redirect_req_valid_i &&
+      !predictor_taken_response_occurred;
 
   assign predictor_lookup_request_handshake =
       next_pc_predictor_lookup_request_valid_o &&
@@ -125,8 +132,14 @@ module riscv32_ifu
     if (redirect_req_valid_i) begin
       current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
       predictor_fetch_pc_d  = redirect_req_i.target_pc;
-    end else if (predictor_lookup_response_handshake) begin
+    end else if (predictor_taken_response_occurred) begin
+      // taken响应到达时，本拍没有接受顺序PC+4请求，所以下一拍可直接查询目标PC。
       predictor_fetch_pc_d = predicted_next_pc;
+    end else if (predictor_lookup_request_handshake) begin
+      // 预测查询流水化后，请求被接收时先按顺序路径前推；若该请求随后预测taken，
+      // 上面的高优先级分支会在响应拍改写为目标PC。
+      predictor_fetch_pc_d = predictor_fetch_pc_q +
+                             program_counter_t'(INSTRUCTION_BYTES);
     end
 
     if (lookup_queue_enqueue_occurred) begin
@@ -261,10 +274,17 @@ module riscv32_ifu
   end
 
 `ifndef SYNTHESIS
-  a_predictor_response_advances_stream :
+  a_nontaken_predictor_response_keeps_request_throughput :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    predictor_lookup_response_handshake |-> predictor_lookup_request_handshake)
-  else $error("IFU consumed a predictor response without launching its predicted successor");
+    (predictor_lookup_response_handshake && predictor_lookup_response_is_current &&
+     !next_pc_predictor_prediction_i.predicted_taken)
+    |-> predictor_lookup_request_handshake)
+  else $error("IFU inserted a bubble after a current non-taken prediction");
+
+  a_taken_predictor_response_blocks_wrong_sequential_request :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    predictor_taken_response_occurred |-> !predictor_lookup_request_handshake)
+  else $error("IFU launched a sequential request while accepting a taken prediction");
 
   a_predictor_request_stable_while_stalled :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
