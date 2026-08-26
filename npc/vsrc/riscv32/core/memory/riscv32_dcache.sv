@@ -22,6 +22,7 @@ module riscv32_dcache
     output logic clean_done_o,
     output logic clean_access_fault_o,
     output logic cache_busy_o,
+    output logic memory_transaction_present_o,
 
     output dcache_event_t event_o,
 
@@ -570,6 +571,10 @@ module riscv32_dcache
   end
 
   assign cache_busy_o = lookup_s1_present_q || miss_transaction_present || clean_blocks_lookup;
+  // 与cache_busy_o不同，本信号只表示miss/clean仍在占用line AXI通道。需求word可以
+  // 已经返回给LSU，但只要整行refill或writeback尚未结束，系统互联就必须继续把
+  // AXI响应送回D-cache，且不能让新的uncached事务抢占这个单端口数据总线。
+  assign memory_transaction_present_o = miss_transaction_present;
 
   // 性能事件直接取自协议握手和cache状态动作。保持这组信号为纯观察路径，既能
   // 区分命中延迟与缺失代价，也不会把监视器引入功能或时序控制。
