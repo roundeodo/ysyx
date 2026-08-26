@@ -287,9 +287,7 @@ module riscv32_core
       .event_o(icache_event)
   );
 
-  riscv32_fetch_buffer #(
-      .ENTRY_COUNT(2)
-  ) u_fetch_buffer (
+  riscv32_fetch_buffer u_fetch_buffer (
       .clk_i                  (clk_i),
       .rst_ni                 (rst_ni),
       .ifu_fetch_entry_i      (ifu_fetch_entry),

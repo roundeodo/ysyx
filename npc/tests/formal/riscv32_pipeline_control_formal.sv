@@ -31,9 +31,7 @@ module riscv32_pipeline_control_formal;
     fetch_entry_from_ifu.pc = program_counter_t'(fetch_entry_token_from_ifu);
   end
 
-  riscv32_fetch_buffer #(
-      .ENTRY_COUNT(2)
-  ) u_fetch_buffer (
+  riscv32_fetch_buffer u_fetch_buffer (
       .clk_i                  (clk_i),
       .rst_ni                 (rst_ni),
       .ifu_fetch_entry_i      (fetch_entry_from_ifu),

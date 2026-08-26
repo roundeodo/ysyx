@@ -156,9 +156,7 @@ module riscv32_pipeline_control_tb;
       .flush_i                       (decode_execute_flush)
   );
 
-  riscv32_fetch_buffer #(
-      .ENTRY_COUNT(2)
-  ) u_fetch_buffer (
+  riscv32_fetch_buffer u_fetch_buffer (
       .clk_i                  (clk),
       .rst_ni                 (rst_ni),
       .ifu_fetch_entry_i      (fetch_buffer_input_entry),
