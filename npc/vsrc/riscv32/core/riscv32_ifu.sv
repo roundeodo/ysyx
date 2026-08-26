@@ -14,8 +14,7 @@ module riscv32_ifu
 
     // 预测器与I-cache在core中原子接收同一请求，并原子返回同一PC的响应。IFU只消费
     // 已经完成配对的预测结果，不保存另一份可能与I-cache响应错位的预测payload。
-    input  branch_prediction_t next_pc_predictor_prediction_i,
-    input  program_counter_t   next_pc_predictor_next_pc_i,
+    input branch_prediction_t next_pc_predictor_prediction_i,
 
     // IFU只描述取指语义，不感知cache组织、refill顺序或AXI4通道。
     output icache_lookup_req_t  icache_lookup_req_o,
@@ -30,14 +29,15 @@ module riscv32_ifu
     input  logic         fetch_entry_ready_i
 );
 
-  // 当前前端只允许一个lookup在途，因此控制器只有“发送请求”和“等待响应”两个状态。
-  // 等待状态允许在当前响应交付的同一拍发送下一顺序请求：旧事务离开、新事务进入后，
-  // 在途数量仍为1，却消除了每个I-cache hit之间固定存在的一拍请求气泡。
+  // 当前前端只允许一个lookup在途。顺序流允许在当前响应交付的同一拍发送PC+4：
+  // 旧事务离开、新事务进入后，在途数量仍为1，不会为每个I-cache hit固定插入气泡。
+  // taken预测目标先寄存再发出，用一拍taken气泡换取预测器到I-cache之间的时序切分。
   // I-cache内部的hit、miss和refill过程不泄漏到IFU；响应保持由I-cache响应通道负责。
   // 将来支持多个lookup同时在途时，应增加request queue和response matching，而不是继续
   // 堆叠FSM状态。
-  typedef enum logic {
+  typedef enum logic [1:0] {
     IFU_SEND_LOOKUP,
+    IFU_SEND_PREDICTED_TARGET,
     IFU_WAIT_LOOKUP_RESPONSE
   } ifu_state_e;
 
@@ -51,6 +51,10 @@ module riscv32_ifu
   // 等旧响应按epoch丢弃后再发出，不能用redirect直接改写被反压的valid payload。
   program_counter_t pending_redirect_target_pc_q;
   program_counter_t pending_redirect_target_pc_d;
+  // taken目标单独寄存，避免BTB命中比较和目标选择在同一拍继续穿过IFU并驱动
+  // I-cache请求寄存器。顺序PC+4仍可同拍发出，只有预测taken时增加一拍请求气泡。
+  program_counter_t predicted_target_pc_q;
+  program_counter_t predicted_target_pc_d;
 
   frontend_tag_t next_frontend_tag_q;
   frontend_tag_t next_frontend_tag_d;
@@ -113,10 +117,15 @@ module riscv32_ifu
         icache_lookup_req_valid_o        = rst_ni;
       end
 
+      IFU_SEND_PREDICTED_TARGET: begin
+        icache_lookup_req_o.fetch_addr   = phys_addr_t'(predicted_target_pc_q);
+        icache_lookup_req_o.frontend_tag = next_frontend_tag_q;
+        icache_lookup_req_o.fetch_epoch  = lookup_fetch_epoch_q;
+        icache_lookup_req_valid_o        = rst_ni;
+      end
+
       IFU_WAIT_LOOKUP_RESPONSE: begin
-        // All redirect sources are registered or originate at commit. A redirect
-        // therefore makes the currently returned lookup younger than the chosen
-        // recovery point; drain it without presenting it to the fetch buffer.
+        // redirect使当前返回项属于已废弃控制流，因此直接排空而不交付fetch buffer。
         fetch_entry_valid_o = icache_lookup_resp_valid_i && lookup_response_is_current &&
                               !redirect_req_valid_i;
         icache_lookup_resp_ready_o = (!lookup_response_is_current || redirect_req_valid_i) ?
@@ -126,8 +135,10 @@ module riscv32_ifu
         // 发生redirect的当拍不能继续发送旧控制流的PC+4。请求若被反压，状态更新逻辑
         // 会把这里呈现的payload转存为SEND_LOOKUP状态使用的当前请求，保证协议稳定。
         if (lookup_response_handshake && lookup_response_is_current &&
-            !redirect_req_valid_i) begin
-          icache_lookup_req_o.fetch_addr   = phys_addr_t'(next_pc_predictor_next_pc_i);
+            !redirect_req_valid_i && !next_pc_predictor_prediction_i.predicted_taken) begin
+          icache_lookup_req_o.fetch_addr   = phys_addr_t'(
+              lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES)
+          );
           icache_lookup_req_o.frontend_tag = next_frontend_tag_q;
           icache_lookup_req_o.fetch_epoch  = current_fetch_epoch_q;
           icache_lookup_req_valid_o        = 1'b1;
@@ -144,6 +155,7 @@ module riscv32_ifu
     state_d                  = state_q;
     lookup_pc_d              = lookup_pc_q;
     pending_redirect_target_pc_d = pending_redirect_target_pc_q;
+    predicted_target_pc_d    = predicted_target_pc_q;
     next_frontend_tag_d      = next_frontend_tag_q;
     lookup_fetch_epoch_d     = lookup_fetch_epoch_q;
     current_fetch_epoch_d    = current_fetch_epoch_q;
@@ -160,6 +172,13 @@ module riscv32_ifu
           next_frontend_tag_d    = next_frontend_tag_q + frontend_tag_t'(1);
         end
       end
+      IFU_SEND_PREDICTED_TARGET: begin
+        if (lookup_request_handshake) begin
+          lookup_pc_d           = predicted_target_pc_q;
+          state_d               = IFU_WAIT_LOOKUP_RESPONSE;
+          next_frontend_tag_d   = next_frontend_tag_q + frontend_tag_t'(1);
+        end
+      end
       IFU_WAIT_LOOKUP_RESPONSE: begin
         if (lookup_response_handshake) begin
           if (!lookup_response_is_current || redirect_req_valid_i) begin
@@ -167,17 +186,23 @@ module riscv32_ifu
             lookup_pc_d          = pending_redirect_target_pc_d;
             lookup_fetch_epoch_d = current_fetch_epoch_d;
             state_d              = IFU_SEND_LOOKUP;
+          end else if (next_pc_predictor_prediction_i.predicted_taken) begin
+            // taken目标来自BTB/RAS的组合比较结果，先进入专用寄存器，下一拍再请求。
+            // 这样预测器复杂度不会限制I-cache请求寄存器的建立时间。
+            predicted_target_pc_d = next_pc_predictor_prediction_i.predicted_target;
+            lookup_fetch_epoch_d  = current_fetch_epoch_q;
+            state_d               = IFU_SEND_PREDICTED_TARGET;
           end else if (lookup_request_handshake) begin
             // 当前响应与下一顺序请求同拍完成。新请求已经成为唯一在途请求，因此继续
             // 停留在WAIT状态，并为再下一条顺序指令准备PC和tag。
-            lookup_pc_d          = next_pc_predictor_next_pc_i;
+            lookup_pc_d          = lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES);
             lookup_fetch_epoch_d = current_fetch_epoch_q;
             next_frontend_tag_d  = next_frontend_tag_q + frontend_tag_t'(1);
             state_d              = IFU_WAIT_LOOKUP_RESPONSE;
           end else begin
             // 响应已经离开，但下一请求未被I-cache接收。把本拍呈现的下一请求转为
             // SEND状态持有的payload，下一拍继续保持同一个预测后继PC直到握手。
-            lookup_pc_d          = next_pc_predictor_next_pc_i;
+            lookup_pc_d          = lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES);
             lookup_fetch_epoch_d = current_fetch_epoch_q;
             state_d              = IFU_SEND_LOOKUP;
           end
@@ -188,6 +213,7 @@ module riscv32_ifu
         state_d                  = IFU_SEND_LOOKUP;
         lookup_pc_d              = PC_START;
         pending_redirect_target_pc_d = PC_START;
+        predicted_target_pc_d    = PC_START;
         next_frontend_tag_d      = '0;
         lookup_fetch_epoch_d     = '0;
         current_fetch_epoch_d    = '0;
@@ -209,12 +235,14 @@ module riscv32_ifu
     if (!rst_ni) begin
       lookup_pc_q              <= PC_START;
       pending_redirect_target_pc_q <= PC_START;
+      predicted_target_pc_q    <= PC_START;
       next_frontend_tag_q      <= '0;
       lookup_fetch_epoch_q     <= '0;
       current_fetch_epoch_q    <= '0;
     end else begin
       lookup_pc_q              <= lookup_pc_d;
       pending_redirect_target_pc_q <= pending_redirect_target_pc_d;
+      predicted_target_pc_q    <= predicted_target_pc_d;
       next_frontend_tag_q      <= next_frontend_tag_d;
       lookup_fetch_epoch_q     <= lookup_fetch_epoch_d;
       current_fetch_epoch_q    <= current_fetch_epoch_d;
@@ -250,16 +278,26 @@ module riscv32_ifu
     |-> (icache_lookup_resp_ready_o && !fetch_entry_valid_o))
   else $error("IFU did not discard the lookup response superseded by redirect");
 
-  // 当前响应能够交付且没有redirect时，下一顺序请求必须在同一拍呈现。该断言检查
-  // 固定请求气泡不会再次被引入，但不要求I-cache必须接收请求；active miss仍可反压。
+  // 非taken响应能够交付且没有redirect时，下一顺序请求必须在同一拍呈现。taken目标
+  // 则先寄存以切断预测反馈关键路径，下一拍由IFU_SEND_PREDICTED_TARGET发出。
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == IFU_WAIT_LOOKUP_RESPONSE && icache_lookup_resp_valid_i &&
-     lookup_response_is_current && fetch_entry_ready_i && !redirect_req_valid_i)
+     lookup_response_is_current && fetch_entry_ready_i && !redirect_req_valid_i &&
+     !next_pc_predictor_prediction_i.predicted_taken)
     |-> (icache_lookup_req_valid_o &&
-         (icache_lookup_req_o.fetch_addr == phys_addr_t'(next_pc_predictor_next_pc_i)) &&
+         (icache_lookup_req_o.fetch_addr == phys_addr_t'(
+             lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES)
+         )) &&
          (icache_lookup_req_o.frontend_tag == next_frontend_tag_q) &&
          (icache_lookup_req_o.fetch_epoch == current_fetch_epoch_q)))
   else $error("IFU did not present the next sequential lookup with a delivered response");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lookup_response_handshake && lookup_response_is_current &&
+     !redirect_req_valid_i && next_pc_predictor_prediction_i.predicted_taken)
+    |=> (state_q == IFU_SEND_PREDICTED_TARGET &&
+         predicted_target_pc_q == $past(next_pc_predictor_prediction_i.predicted_target)))
+  else $error("IFU did not register a predicted taken target before issuing it");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == IFU_WAIT_LOOKUP_RESPONSE && redirect_req_valid_i)

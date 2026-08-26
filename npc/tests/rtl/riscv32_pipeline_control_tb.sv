@@ -35,7 +35,6 @@ module riscv32_pipeline_control_tb;
   logic             predictor_lookup_response_valid;
   logic             predictor_lookup_response_ready;
   branch_prediction_t ifu_predictor_prediction;
-  program_counter_t   ifu_predictor_next_pc;
   program_counter_t predictor_resolved_control_flow_pc;
   program_counter_t predictor_resolved_control_flow_target;
   xlen_data_t        predictor_resolved_control_flow_imm;
@@ -103,7 +102,6 @@ module riscv32_pipeline_control_tb;
       .redirect_req_i            (ifu_redirect_req),
       .redirect_req_valid_i      (ifu_redirect_req_valid),
       .next_pc_predictor_prediction_i(ifu_predictor_prediction),
-      .next_pc_predictor_next_pc_i(ifu_predictor_next_pc),
       .icache_lookup_req_o       (icache_lookup_req),
       .icache_lookup_req_valid_o (icache_lookup_req_valid),
       .icache_lookup_req_ready_i (icache_lookup_req_ready),
