@@ -15,10 +15,9 @@ module riscv32_pma
     output pma_attr_t  memory_attr_o
 );
 
-  // 地址常量统一由riscv32_addr_map_pkg维护。当前所有窗口均为按容量对齐的
-  // 2次幂区间，因此掩码匹配与BASE_ADDR/LAST_ADDR闭区间判断严格等价。
-  // PMA使用公共掩码匹配函数，避免在取指和LSU关键路径上重复综合两组大小比较器。
-  // 若未来加入非规则窗口，应改用phys_addr_in_range()或拆分成多个规则窗口。
+  // 地址常量统一由riscv32_addr_map_pkg维护。当前SoC物理地址为32位，先按高4位
+  // 选择互斥的大区域，再在该区域内检查实际窗口边界。这样不会改变地址语义，
+  // 但可让综合器共享高位译码，避免为所有窗口并行生成完整的32位范围比较器。
   // 当前有效区间为：
   //   CLINT          0x0200_0000 - 0x0200_ffff，设备空间；
   //   SRAM           0x0f00_0000 - 0x0f00_1fff，8 KiB；
@@ -34,70 +33,72 @@ module riscv32_pma
   //   SDRAM          0xa000_0000 - 0xa1ff_ffff，32 MiB；
   //   ChipLink MEM   0xc000_0000 - 0xffff_ffff，可选内存空间。
 
-  // 每个信号只表示lookup地址是否落入对应的已实现物理地址区间。
-  logic lookup_addr_in_clint;
-  logic lookup_addr_in_sram;
-  logic lookup_addr_in_uart;
-  logic lookup_addr_in_spi_registers;
-  logic lookup_addr_in_gpio;
-  logic lookup_addr_in_ps2;
-  logic lookup_addr_in_mrom;
-  logic lookup_addr_in_vga;
-  logic lookup_addr_in_flash;
-  logic lookup_addr_in_chiplink_mmio;
-  logic lookup_addr_in_psram;
-  logic lookup_addr_in_sdram;
-  logic lookup_addr_in_chiplink_memory;
-  logic lookup_addr_in_any_mmio;
-  // 这里不使用模糊的统一MMIO大区间，因为0x1000_0000附近存在未分配空洞；
-  // 未分配地址必须保留默认非法属性，不能因为高位相同就误判成合法设备。
+  typedef enum logic [2:0] {
+    PMA_REGION_UNMAPPED,
+    PMA_REGION_MMIO,
+    PMA_REGION_UNCACHED_RW_MEMORY,
+    PMA_REGION_UNCACHED_RO_MEMORY,
+    PMA_REGION_CACHEABLE_RW_MEMORY,
+    PMA_REGION_CACHEABLE_RO_MEMORY
+  } pma_region_class_e;
+
+  pma_region_class_e lookup_region_class;
+
+  // 每个case分支只处理一个互斥的256 MiB高位区域。小型MMIO窗口仍逐一检查，
+  // 因为0x1000_0000附近存在未分配空洞，不能把整段地址误判为合法设备。
   always_comb begin
-    lookup_addr_in_clint =
-        phys_addr_matches_region(lookup_addr_i, CLINT_BASE_ADDR, CLINT_ADDR_MATCH_MASK);
+    lookup_region_class = PMA_REGION_UNMAPPED;
 
-    lookup_addr_in_sram =
-        phys_addr_matches_region(lookup_addr_i, SRAM_BASE_ADDR, SRAM_ADDR_MATCH_MASK);
+    unique case (lookup_addr_i[31:28])
+      4'h0: begin
+        if (phys_addr_in_range(lookup_addr_i, CLINT_BASE_ADDR, CLINT_LAST_ADDR)) begin
+          lookup_region_class = PMA_REGION_MMIO;
+        end else if (phys_addr_in_range(lookup_addr_i, SRAM_BASE_ADDR, SRAM_LAST_ADDR)) begin
+          lookup_region_class = PMA_REGION_UNCACHED_RW_MEMORY;
+        end
+      end
 
-    lookup_addr_in_uart =
-        phys_addr_matches_region(lookup_addr_i, UART_BASE_ADDR, UART_ADDR_MATCH_MASK);
+      4'h1: begin
+        if (phys_addr_in_range(lookup_addr_i, UART_BASE_ADDR, UART_LAST_ADDR) ||
+            phys_addr_in_range(lookup_addr_i, SPI_REG_BASE_ADDR, SPI_REG_LAST_ADDR) ||
+            phys_addr_in_range(lookup_addr_i, GPIO_BASE_ADDR, GPIO_LAST_ADDR) ||
+            phys_addr_in_range(lookup_addr_i, PS2_BASE_ADDR, PS2_LAST_ADDR)) begin
+          lookup_region_class = PMA_REGION_MMIO;
+        end
+      end
 
-    lookup_addr_in_spi_registers =
-        phys_addr_matches_region(lookup_addr_i, SPI_REG_BASE_ADDR, SPI_REG_ADDR_MATCH_MASK);
+      4'h2: begin
+        if (phys_addr_in_range(lookup_addr_i, MROM_BASE_ADDR, MROM_LAST_ADDR)) begin
+          lookup_region_class = PMA_REGION_UNCACHED_RO_MEMORY;
+        end else if (phys_addr_in_range(lookup_addr_i, VGA_BASE_ADDR, VGA_LAST_ADDR)) begin
+          lookup_region_class = PMA_REGION_MMIO;
+        end
+      end
 
-    lookup_addr_in_gpio =
-        phys_addr_matches_region(lookup_addr_i, GPIO_BASE_ADDR, GPIO_ADDR_MATCH_MASK);
+      4'h3: lookup_region_class = PMA_REGION_CACHEABLE_RO_MEMORY;
 
-    lookup_addr_in_ps2 =
-        phys_addr_matches_region(lookup_addr_i, PS2_BASE_ADDR, PS2_ADDR_MATCH_MASK);
+      4'h4, 4'h5, 4'h6, 4'h7: begin
+        if (CHIPLINK_PRESENT) lookup_region_class = PMA_REGION_MMIO;
+      end
 
-    lookup_addr_in_mrom =
-        phys_addr_matches_region(lookup_addr_i, MROM_BASE_ADDR, MROM_ADDR_MATCH_MASK);
+      4'h8: begin
+        if (phys_addr_in_range(lookup_addr_i, PSRAM_BASE_ADDR, PSRAM_LAST_ADDR)) begin
+          lookup_region_class = PMA_REGION_CACHEABLE_RW_MEMORY;
+        end
+      end
 
-    lookup_addr_in_vga =
-        phys_addr_matches_region(lookup_addr_i, VGA_BASE_ADDR, VGA_ADDR_MATCH_MASK);
+      4'ha: begin
+        if (phys_addr_in_range(lookup_addr_i, SDRAM_BASE_ADDR, SDRAM_LAST_ADDR)) begin
+          lookup_region_class = PMA_REGION_CACHEABLE_RW_MEMORY;
+        end
+      end
 
-    lookup_addr_in_flash =
-        phys_addr_matches_region(lookup_addr_i, FLASH_BASE_ADDR, FLASH_ADDR_MATCH_MASK);
+      4'hc, 4'hd, 4'he, 4'hf: begin
+        if (CHIPLINK_PRESENT) lookup_region_class = PMA_REGION_CACHEABLE_RW_MEMORY;
+      end
 
-    lookup_addr_in_chiplink_mmio = CHIPLINK_PRESENT &&
-        phys_addr_matches_region(lookup_addr_i, CHIPLINK_MMIO_BASE_ADDR,
-                                 CHIPLINK_MMIO_ADDR_MATCH_MASK);
-
-    lookup_addr_in_psram =
-        phys_addr_matches_region(lookup_addr_i, PSRAM_BASE_ADDR, PSRAM_ADDR_MATCH_MASK);
-
-    lookup_addr_in_sdram =
-        phys_addr_matches_region(lookup_addr_i, SDRAM_BASE_ADDR, SDRAM_ADDR_MATCH_MASK);
-
-    lookup_addr_in_chiplink_memory = CHIPLINK_PRESENT &&
-        phys_addr_matches_region(lookup_addr_i, CHIPLINK_MEMORY_BASE_ADDR,
-                                 CHIPLINK_MEMORY_ADDR_MATCH_MASK);
-
-    lookup_addr_in_any_mmio = lookup_addr_in_clint || lookup_addr_in_uart ||
-                              lookup_addr_in_spi_registers || lookup_addr_in_gpio ||
-                              lookup_addr_in_ps2 || lookup_addr_in_vga ||
-                              lookup_addr_in_chiplink_mmio;
-
+      default: ;
+    endcase
   end
 
   // pma_attr_t字段的含义：
@@ -113,41 +114,51 @@ module riscv32_pma
   always_comb begin
     memory_attr_o = '0;
 
-    if (lookup_addr_in_sram) begin
+    unique case (lookup_region_class)
+      PMA_REGION_UNCACHED_RW_MEMORY: begin
       memory_attr_o.readable                  = 1'b1;
       memory_attr_o.writable                  = 1'b1;
       memory_attr_o.executable                = 1'b1;
       memory_attr_o.cacheable                 = 1'b0;
       memory_attr_o.idempotent                = 1'b1;
       memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_mrom) begin
-      memory_attr_o.readable                  = 1'b1;
-      memory_attr_o.writable                  = 1'b0;
-      memory_attr_o.executable                = 1'b1;
-      memory_attr_o.cacheable                 = 1'b0;
-      memory_attr_o.idempotent                = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_flash) begin
-      // Flash映射是只读XIP窗口；擦写必须通过SPI控制器寄存器完成。
-      memory_attr_o.readable                  = 1'b1;
-      memory_attr_o.writable                  = 1'b0;
-      memory_attr_o.executable                = 1'b1;
-      memory_attr_o.cacheable                 = 1'b1;
-      memory_attr_o.idempotent                = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_psram || lookup_addr_in_sdram ||
-                 lookup_addr_in_chiplink_memory) begin
-      memory_attr_o.readable                  = 1'b1;
-      memory_attr_o.writable                  = 1'b1;
-      memory_attr_o.executable                = 1'b1;
-      memory_attr_o.cacheable                 = 1'b1;
-      memory_attr_o.idempotent                = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_any_mmio) begin
-      memory_attr_o.readable = 1'b1;
-      memory_attr_o.writable = 1'b1;
-    end
+      end
 
+      PMA_REGION_UNCACHED_RO_MEMORY: begin
+      memory_attr_o.readable                  = 1'b1;
+      memory_attr_o.writable                  = 1'b0;
+      memory_attr_o.executable                = 1'b1;
+      memory_attr_o.cacheable                 = 1'b0;
+      memory_attr_o.idempotent                = 1'b1;
+      memory_attr_o.width_conversion_supported = 1'b1;
+      end
+
+      PMA_REGION_CACHEABLE_RO_MEMORY: begin
+        // Flash映射是只读XIP窗口；擦写必须通过SPI控制器寄存器完成。
+      memory_attr_o.readable                  = 1'b1;
+      memory_attr_o.writable                  = 1'b0;
+      memory_attr_o.executable                = 1'b1;
+      memory_attr_o.cacheable                 = 1'b1;
+      memory_attr_o.idempotent                = 1'b1;
+      memory_attr_o.width_conversion_supported = 1'b1;
+      end
+
+      PMA_REGION_CACHEABLE_RW_MEMORY: begin
+      memory_attr_o.readable                  = 1'b1;
+      memory_attr_o.writable                  = 1'b1;
+      memory_attr_o.executable                = 1'b1;
+      memory_attr_o.cacheable                 = 1'b1;
+      memory_attr_o.idempotent                = 1'b1;
+      memory_attr_o.width_conversion_supported = 1'b1;
+      end
+
+      PMA_REGION_MMIO: begin
+        memory_attr_o.readable = 1'b1;
+        memory_attr_o.writable = 1'b1;
+      end
+
+      default: ;
+    endcase
   end
 
 endmodule
