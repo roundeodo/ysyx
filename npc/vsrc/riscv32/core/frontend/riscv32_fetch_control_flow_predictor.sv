@@ -80,12 +80,25 @@ module riscv32_fetch_control_flow_predictor
     logic             taken;
   } resolved_control_flow_update_t;
 
+  // BTB训练分成“选择set/way”和“写表项”两级。保存即将写入的完整表项，既缩短
+  // 训练关键路径，也允许查询端对尚未落入数组的最近一次更新进行精确旁路。
+  typedef struct packed {
+    logic                     present;
+    branch_target_index_t     set_index;
+    branch_target_way_index_t way_index;
+    branch_target_entry_t     entry;
+    logic                     replacement_way_update_present;
+    branch_target_way_index_t next_replacement_way;
+  } branch_target_update_t;
+
   branch_target_entry_t branch_target_entry_array_q[BTB_SET_COUNT][BTB_WAY_COUNT];
   branch_target_way_index_t branch_target_replacement_way_q[BTB_SET_COUNT];
   logic [1:0] branch_history_counter_array_q[BHT_ENTRY_COUNT];
   program_counter_t return_stack_pc_array_q[RAS_ENTRY_COUNT];
 
   resolved_control_flow_update_t resolved_control_flow_update_q;
+  branch_target_update_t branch_target_update_d;
+  branch_target_update_t branch_target_update_q;
 
   // S0在请求握手沿读取预测数组，S1只比较已寄存的set内容。这样关键路径不再从
   // next-PC寄存器穿过BTB阵列和目标选择后反馈到同一寄存器。
@@ -201,8 +214,16 @@ module riscv32_fetch_control_flow_predictor
       if (lookup_request_valid_i) begin
         lookup_pc_q <= lookup_request_pc_i;
         for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
-          lookup_way_entry_array_q[way_index] <=
-              branch_target_entry_array_q[lookup_request_branch_target_index][way_index];
+          // BTB写入与同set查询同拍发生时，非阻塞赋值会让数组读口看到旧值；显式旁路
+          // 即将写入的way，避免循环分支因为训练多一级而额外错失一次目标预测。
+          if (branch_target_update_q.present &&
+              (branch_target_update_q.set_index == lookup_request_branch_target_index) &&
+              (branch_target_update_q.way_index == branch_target_way_index_t'(way_index))) begin
+            lookup_way_entry_array_q[way_index] <= branch_target_update_q.entry;
+          end else begin
+            lookup_way_entry_array_q[way_index] <=
+                branch_target_entry_array_q[lookup_request_branch_target_index][way_index];
+          end
         end
         lookup_branch_history_counter_q <=
             branch_history_counter_array_q[lookup_request_branch_history_index];
@@ -284,19 +305,35 @@ module riscv32_fetch_control_flow_predictor
   // 训练优先更新同PC的已有way，其次占用第一个invalid way；set已满时才采用本set的
   // round-robin替换位置。这样重复执行同一控制流不会制造重复entry，也不会无故推进替换状态。
   always_comb begin
-    resolved_branch_target_write_way   = branch_target_replacement_way_q[
-                                         resolved_branch_target_index
-                                         ];
+    resolved_branch_target_write_way = branch_target_replacement_way_q[
+                                       resolved_branch_target_index
+                                       ];
+    // 上一项训练将在本拍时钟沿推进同set替换指针。选择级必须旁路该值，否则连续
+    // 冲突写入可能重复选择旧替换路。
+    if (branch_target_update_q.present &&
+        branch_target_update_q.replacement_way_update_present &&
+        (branch_target_update_q.set_index == resolved_branch_target_index)) begin
+      resolved_branch_target_write_way = branch_target_update_q.next_replacement_way;
+    end
     resolved_branch_target_hit_present = 1'b0;
     resolved_invalid_way_present       = 1'b0;
 
     for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
-      if (branch_target_entry_array_q[resolved_branch_target_index][way_index].present &&
-          (branch_target_entry_array_q[resolved_branch_target_index][way_index].pc_tag ==
-           resolved_branch_target_tag)) begin
+      branch_target_entry_t compared_entry;
+      compared_entry = branch_target_entry_array_q[resolved_branch_target_index][way_index];
+      // 连续训练命中同一set时，数组尚未看到上一项非阻塞写入；比较级旁路待写表项，
+      // 从而不会为同一个PC分配第二个way。
+      if (branch_target_update_q.present &&
+          (branch_target_update_q.set_index == resolved_branch_target_index) &&
+          (branch_target_update_q.way_index == branch_target_way_index_t'(way_index))) begin
+        compared_entry = branch_target_update_q.entry;
+      end
+
+      if (compared_entry.present &&
+          (compared_entry.pc_tag == resolved_branch_target_tag)) begin
         resolved_branch_target_write_way   = branch_target_way_index_t'(way_index);
         resolved_branch_target_hit_present = 1'b1;
-      end else if (!branch_target_entry_array_q[resolved_branch_target_index][way_index].present &&
+      end else if (!compared_entry.present &&
                    !resolved_invalid_way_present &&
                    !resolved_branch_target_hit_present) begin
         resolved_branch_target_write_way = branch_target_way_index_t'(way_index);
@@ -338,6 +375,38 @@ module riscv32_fetch_control_flow_predictor
       resolved_control_flow_update_q.rs1       <= resolved_control_flow_rs1_i;
       resolved_control_flow_update_q.rd        <= resolved_control_flow_rd_i;
       resolved_control_flow_update_q.taken     <= resolved_control_flow_taken_i;
+    end
+  end
+
+  // 选择级只生成一个小型写事务；下一拍数组写口不再包含tag比较、invalid搜索和
+  // replacement选择。每拍可覆盖branch_target_update_q，因此吞吐仍为一项/拍。
+  always_comb begin
+    branch_target_update_d                                 = '0;
+    branch_target_update_d.present                         =
+        resolved_control_flow_update_q.present;
+    branch_target_update_d.set_index                       = resolved_branch_target_index;
+    branch_target_update_d.way_index                       = resolved_branch_target_write_way;
+    branch_target_update_d.entry.present                   = 1'b1;
+    branch_target_update_d.entry.pc_tag                    = resolved_branch_target_tag;
+    branch_target_update_d.entry.target_pc                 =
+        resolved_control_flow_update_q.target_pc;
+    branch_target_update_d.entry.kind                      = resolved_branch_target_kind;
+    branch_target_update_d.replacement_way_update_present  =
+        resolved_control_flow_update_q.present &&
+        !resolved_branch_target_hit_present && !resolved_invalid_way_present;
+    branch_target_update_d.next_replacement_way            =
+        (resolved_branch_target_write_way ==
+         branch_target_way_index_t'(BTB_WAY_COUNT - 1)) ?
+        '0 : resolved_branch_target_write_way + branch_target_way_index_t'(1);
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      branch_target_update_q <= '0;
+    end else if (invalidate_i) begin
+      branch_target_update_q <= '0;
+    end else begin
+      branch_target_update_q <= branch_target_update_d;
     end
   end
 
@@ -385,28 +454,14 @@ module riscv32_fetch_control_flow_predictor
           branch_target_entry_array_q[set_index][way_index].present <= 1'b0;
         end
       end
-    end else if (resolved_control_flow_update_q.present) begin
-      branch_target_entry_array_q[resolved_branch_target_index][
-          resolved_branch_target_write_way
-      ].present <= 1'b1;
-      branch_target_entry_array_q[resolved_branch_target_index][
-          resolved_branch_target_write_way
-      ].pc_tag <=
-          resolved_branch_target_tag;
-      branch_target_entry_array_q[resolved_branch_target_index][
-          resolved_branch_target_write_way
-      ].target_pc <=
-          resolved_control_flow_update_q.target_pc;
-      branch_target_entry_array_q[resolved_branch_target_index][
-          resolved_branch_target_write_way
-      ].kind <=
-          resolved_branch_target_kind;
+    end else if (branch_target_update_q.present) begin
+      branch_target_entry_array_q[branch_target_update_q.set_index][
+          branch_target_update_q.way_index
+      ] <= branch_target_update_q.entry;
 
-      if (!resolved_branch_target_hit_present && !resolved_invalid_way_present) begin
-        branch_target_replacement_way_q[resolved_branch_target_index] <=
-            (resolved_branch_target_write_way ==
-             branch_target_way_index_t'(BTB_WAY_COUNT - 1)) ?
-            '0 : resolved_branch_target_write_way + branch_target_way_index_t'(1);
+      if (branch_target_update_q.replacement_way_update_present) begin
+        branch_target_replacement_way_q[branch_target_update_q.set_index] <=
+            branch_target_update_q.next_replacement_way;
       end
     end
   end
