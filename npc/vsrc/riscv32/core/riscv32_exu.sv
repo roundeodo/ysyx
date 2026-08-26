@@ -8,13 +8,9 @@ module riscv32_exu
     input  logic            execute_packet_issue_allowed_i,
     output logic            execute_packet_ready_o,
 
-    // 上一条已完成指令位于EX/MEM-WB寄存边界。相关的年轻指令先进入ID/EX，
-    // 下一拍在EX输入选择该寄存结果，避免ALU组合结果反向写回ID/EX的长旁路。
-    input writeback_result_t writeback_forwarding_result_i,
-    input logic              writeback_forwarding_result_valid_i,
-
     // EX/MEM结果比WB结果年轻，相关时必须优先。该前递源已经过寄存，允许连续相关
-    // 整数指令保持每拍一条，同时避免组合ALU结果反向进入ID/EX。
+    // 整数指令保持每拍一条。更老的EX/MEM、LSU completion和WB结果已在ID/EX
+    // 采样前写入payload，因此不应再次穿过EX操作数mux。
     input execute_result_t execute_stage_forwarding_result_i,
     input logic            execute_stage_forwarding_result_valid_i,
 
@@ -29,28 +25,26 @@ module riscv32_exu
   // EXU应只依赖ISA架构宽度；物理地址宽度和AXI数据宽度都不应进入ALU。这样将来把
   // 地址翻译放到AGU/MMU、把总线加宽时，不会迫使整数执行单元一起修改。
   localparam int unsigned SHIFT_AMOUNT_WIDTH = $clog2(XLEN);
-  localparam int unsigned WORD_WIDTH         = 32;
-  localparam int unsigned WORD_SHIFT_WIDTH   = $clog2(WORD_WIDTH);
+  localparam int unsigned WORD_WIDTH = 32;
+  localparam int unsigned WORD_SHIFT_WIDTH = $clog2(WORD_WIDTH);
 
-  xlen_data_t       operand_a;
-  xlen_data_t       operand_b;
-  xlen_data_t       execute_rs1_value;
-  xlen_data_t       execute_rs2_value;
-  logic             rs1_writeback_forwarding_selected;
-  logic             rs2_writeback_forwarding_selected;
-  logic             rs1_execute_stage_forwarding_selected;
-  logic             rs2_execute_stage_forwarding_selected;
-  xlen_data_t       alu_result;
-  logic [WORD_WIDTH-1:0] word_result;
-  xlen_data_t       csr_operand;
-  xlen_data_t       csr_wdata;
-  logic             branch_condition_met;
-  logic             branch_taken;
-  program_counter_t branch_target;
-  program_counter_t sequential_next_pc;
-  program_counter_t actual_next_pc;
-  logic             branch_target_misaligned;
-  execute_result_t  exu_result;
+  xlen_data_t                        operand_a;
+  xlen_data_t                        operand_b;
+  xlen_data_t                        execute_rs1_value;
+  xlen_data_t                        execute_rs2_value;
+  logic                              rs1_execute_stage_forwarding_selected;
+  logic                              rs2_execute_stage_forwarding_selected;
+  xlen_data_t                        alu_result;
+  logic             [WORD_WIDTH-1:0] word_result;
+  xlen_data_t                        csr_operand;
+  xlen_data_t                        csr_wdata;
+  logic                              branch_condition_met;
+  logic                              branch_taken;
+  program_counter_t                  branch_target;
+  program_counter_t                  sequential_next_pc;
+  program_counter_t                  actual_next_pc;
+  logic                              branch_target_misaligned;
+  execute_result_t                   exu_result;
 
   assign rs1_execute_stage_forwarding_selected =
       execute_packet_valid_i && execute_packet_i.uop.uses_rs1 &&
@@ -67,32 +61,9 @@ module riscv32_exu
       (execute_stage_forwarding_result_i.uop.rd != '0) &&
       (execute_stage_forwarding_result_i.uop.rd == execute_packet_i.uop.rs2);
 
-  assign rs1_writeback_forwarding_selected =
-      !rs1_execute_stage_forwarding_selected && execute_packet_valid_i &&
-      execute_packet_i.uop.uses_rs1 &&
-      writeback_forwarding_result_valid_i &&
-      writeback_forwarding_result_i.uop.writes_rd &&
-      !writeback_forwarding_result_i.uop.exception_valid &&
-      (writeback_forwarding_result_i.uop.rd != '0) &&
-      (writeback_forwarding_result_i.uop.rd == execute_packet_i.uop.rs1);
-  assign rs2_writeback_forwarding_selected =
-      !rs2_execute_stage_forwarding_selected && execute_packet_valid_i &&
-      execute_packet_i.uop.uses_rs2 &&
-      writeback_forwarding_result_valid_i &&
-      writeback_forwarding_result_i.uop.writes_rd &&
-      !writeback_forwarding_result_i.uop.exception_valid &&
-      (writeback_forwarding_result_i.uop.rd != '0) &&
-      (writeback_forwarding_result_i.uop.rd == execute_packet_i.uop.rs2);
-
   always_comb begin
     execute_rs1_value = execute_packet_i.rs1_value;
     execute_rs2_value = execute_packet_i.rs2_value;
-    if (rs1_writeback_forwarding_selected) begin
-      execute_rs1_value = writeback_forwarding_result_i.result;
-    end
-    if (rs2_writeback_forwarding_selected) begin
-      execute_rs2_value = writeback_forwarding_result_i.result;
-    end
     if (rs1_execute_stage_forwarding_selected) begin
       execute_rs1_value = execute_stage_forwarding_result_i.result;
     end
@@ -125,8 +96,8 @@ module riscv32_exu
       ALU_SUBW: word_result = operand_a[WORD_WIDTH-1:0] - operand_b[WORD_WIDTH-1:0];
       ALU_SLLW: word_result = operand_a[WORD_WIDTH-1:0] << operand_b[WORD_SHIFT_WIDTH-1:0];
       ALU_SRLW: word_result = operand_a[WORD_WIDTH-1:0] >> operand_b[WORD_SHIFT_WIDTH-1:0];
-      ALU_SRAW: word_result = $signed(operand_a[WORD_WIDTH-1:0]) >>>
-                              operand_b[WORD_SHIFT_WIDTH-1:0];
+      ALU_SRAW:
+      word_result = $signed(operand_a[WORD_WIDTH-1:0]) >>> operand_b[WORD_SHIFT_WIDTH-1:0];
       default: word_result = '0;
     endcase
   end
@@ -134,22 +105,19 @@ module riscv32_exu
   always_comb begin
     alu_result = '0;
     unique case (execute_packet_i.uop.int_ctrl.op)
-      ALU_ADD:  alu_result = operand_a + operand_b;
-      ALU_SUB:  alu_result = operand_a - operand_b;
-      ALU_SLL:  alu_result = operand_a << operand_b[SHIFT_AMOUNT_WIDTH-1:0];
-      ALU_SLT:  alu_result[0] = $signed(operand_a) < $signed(operand_b);
+      ALU_ADD: alu_result = operand_a + operand_b;
+      ALU_SUB: alu_result = operand_a - operand_b;
+      ALU_SLL: alu_result = operand_a << operand_b[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_SLT: alu_result[0] = $signed(operand_a) < $signed(operand_b);
       ALU_SLTU: alu_result[0] = operand_a < operand_b;
-      ALU_XOR:  alu_result = operand_a ^ operand_b;
-      ALU_SRL:  alu_result = operand_a >> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
-      ALU_SRA:  alu_result = $signed(operand_a) >>> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
-      ALU_OR:   alu_result = operand_a | operand_b;
-      ALU_AND:  alu_result = operand_a & operand_b;
-      ALU_ADDW,
-      ALU_SUBW,
-      ALU_SLLW,
-      ALU_SRLW,
-      ALU_SRAW: alu_result = {{(XLEN-WORD_WIDTH){word_result[WORD_WIDTH-1]}}, word_result};
-      default:  alu_result = '0;
+      ALU_XOR: alu_result = operand_a ^ operand_b;
+      ALU_SRL: alu_result = operand_a >> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_SRA: alu_result = $signed(operand_a) >>> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_OR: alu_result = operand_a | operand_b;
+      ALU_AND: alu_result = operand_a & operand_b;
+      ALU_ADDW, ALU_SUBW, ALU_SLLW, ALU_SRLW, ALU_SRAW:
+      alu_result = {{(XLEN - WORD_WIDTH) {word_result[WORD_WIDTH-1]}}, word_result};
+      default: alu_result = '0;
     endcase
   end
 
@@ -202,23 +170,22 @@ module riscv32_exu
   end
 
   // 基础RV32I/RV64I未实现C扩展，所有控制流目标都必须4字节对齐。
-  assign sequential_next_pc = execute_packet_i.uop.pc +
-                              program_counter_t'(INSTRUCTION_BYTES);
+  assign sequential_next_pc = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
   assign actual_next_pc = branch_taken ? branch_target : sequential_next_pc;
   assign branch_target_misaligned = branch_taken && (branch_target[1:0] != 2'b00);
 
   always_comb begin
-    exu_result                              = '0;
-    exu_result.uop                          = execute_packet_i.uop;
-    exu_result.result                       = alu_result;
+    exu_result                = '0;
+    exu_result.uop            = execute_packet_i.uop;
+    exu_result.result         = alu_result;
     // 不要使用32'd4，也不要使用I-cache line/取指口宽度。顺序下一条指令的位置由ISA指令
     // 长度决定；cache一次返回多少字节属于前端微架构，两者必须解耦。
-    exu_result.next_pc                      = sequential_next_pc;
-    exu_result.csr_wdata                    = csr_wdata;
+    exu_result.next_pc        = sequential_next_pc;
+    exu_result.csr_wdata      = csr_wdata;
     // 预测校验位于后继EX/MEM寄存级之后。本级只计算真实next_pc，避免把预测比较继续
     // 串在前递mux和分支加法器之后。
-    exu_result.redirect_valid               = 1'b0;
-    exu_result.redirect_req                 = '0;
+    exu_result.redirect_valid = 1'b0;
+    exu_result.redirect_req   = '0;
 
     if (!execute_packet_i.uop.exception_valid &&
         (execute_packet_i.uop.fu_type == FU_CSR) && execute_packet_i.csr_illegal) begin
@@ -230,11 +197,11 @@ module riscv32_exu
     end
 
     if (!execute_packet_i.uop.exception_valid && branch_target_misaligned) begin
-      exu_result.uop.exception_valid       = 1'b1;
-      exu_result.uop.exception_cause       = EXC_INSTR_ADDR_MISALIGNED;
-      exu_result.uop.exception_tval        = xlen_data_t'(branch_target);
-      exu_result.uop.writes_rd             = 1'b0;
-      exu_result.redirect_valid            = 1'b0;
+      exu_result.uop.exception_valid = 1'b1;
+      exu_result.uop.exception_cause = EXC_INSTR_ADDR_MISALIGNED;
+      exu_result.uop.exception_tval  = xlen_data_t'(branch_target);
+      exu_result.uop.writes_rd       = 1'b0;
+      exu_result.redirect_valid      = 1'b0;
     end
 
     if (execute_packet_i.uop.fu_type == FU_BRANCH) begin
@@ -243,9 +210,10 @@ module riscv32_exu
     end
 
     unique case (execute_packet_i.uop.fu_type)
-      FU_BRANCH: exu_result.result = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
-      FU_CSR:    exu_result.result = execute_packet_i.csr_rdata;
-      default:   ;
+      FU_BRANCH:
+      exu_result.result = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
+      FU_CSR: exu_result.result = execute_packet_i.csr_rdata;
+      default: ;
     endcase
   end
 

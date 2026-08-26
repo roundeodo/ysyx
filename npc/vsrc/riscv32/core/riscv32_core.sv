@@ -87,11 +87,11 @@ module riscv32_core
   logic idu_fetch_entry_ready;
 
   decoded_uop_t idu_decoded_uop;
-  logic         idu_decoded_uop_valid;
-  logic         idu_decoded_uop_ready;
+  logic idu_decoded_uop_valid;
+  logic idu_decoded_uop_ready;
   decoded_uop_t decoded_uop;
-  logic         decoded_uop_valid;
-  logic         decoded_uop_ready;
+  logic decoded_uop_valid;
+  logic decoded_uop_ready;
 
   // IDU和寄存器堆组合生成待进入ID/EX的payload；decode_execute_stage输出才是
   // 当前EX级指令。两个名称显式区分流水级边界两侧，避免把组合译码结果误当成寄存状态。
@@ -108,8 +108,8 @@ module riscv32_core
   logic exu_result_valid;
   logic exu_result_ready;
   execute_result_t resolved_execute_result;
-  logic            resolved_execute_result_valid;
-  logic            resolved_execute_result_ready;
+  logic resolved_execute_result_valid;
+  logic resolved_execute_result_ready;
 
   lsu_req_t lsu_req;
   logic lsu_req_valid;
@@ -132,7 +132,7 @@ module riscv32_core
   logic committed_fence_i_occurred;
   redirect_req_t fence_i_redirect_req;
   redirect_req_t commit_redirect_req_at_resolution;
-  logic          commit_redirect_resolution_occurred;
+  logic commit_redirect_resolution_occurred;
 
   xlen_data_t gpr_write_data;
   arch_reg_idx_t gpr_write_addr;
@@ -171,11 +171,14 @@ module riscv32_core
   logic commit_redirect_occurred;
   logic frontend_recovery_occurred;
   logic execute_forwarding_available;
+  logic execute_result_forwarding_available;
   logic writeback_forwarding_available;
   logic rs1_execute_forwarding_selected;
+  logic rs1_execute_result_forwarding_selected;
   logic rs1_lsu_forwarding_selected;
   logic rs1_writeback_forwarding_selected;
   logic rs2_execute_forwarding_selected;
+  logic rs2_execute_result_forwarding_selected;
   logic rs2_lsu_forwarding_selected;
   logic rs2_writeback_forwarding_selected;
 
@@ -187,63 +190,74 @@ module riscv32_core
     decoded_execute_packet.csr_rdata   = csr_read_data;
     decoded_execute_packet.csr_illegal = csr_read_illegal;
 
-    // WB生产者可能在本拍提交并离开，因此必须在ID/EX采样前完成同拍写回前递。
-    // EX和刚完成的LSU生产者会在同一时钟沿进入WB，年轻指令下一拍在EXU输入前递，
-    // 不能把它们的组合结果反向接到这里，否则会形成ALU -> ID/EX的跨级关键路径。
+    // ID/EX采样前只旁路已经寄存或已经完成的数据。当前ID/EX中的生产者不能接到
+    // 这里，否则会形成ALU -> ID/EX跨级路径；它由下一拍的EX/MEM -> EX前递处理。
+    // EX/MEM、LSU completion和WB则可能在本时钟沿离开原级，必须先把值写入payload，
+    // 从而删除更长的WB -> EX操作数mux -> ALU路径。
     if (rs1_writeback_forwarding_selected) begin
       decoded_execute_packet.rs1_value = writeback_result.result;
     end
     if (rs2_writeback_forwarding_selected) begin
       decoded_execute_packet.rs2_value = writeback_result.result;
     end
+    if (rs1_lsu_forwarding_selected) begin
+      decoded_execute_packet.rs1_value = lsu_writeback.result;
+    end
+    if (rs2_lsu_forwarding_selected) begin
+      decoded_execute_packet.rs2_value = lsu_writeback.result;
+    end
+    if (rs1_execute_result_forwarding_selected) begin
+      decoded_execute_packet.rs1_value = resolved_execute_result.result;
+    end
+    if (rs2_execute_result_forwarding_selected) begin
+      decoded_execute_packet.rs2_value = resolved_execute_result.result;
+    end
   end
 
   riscv32_ifu #(
       .PC_START(RESET_PC)
   ) u_ifu (
-      .clk_i                     (clk_i),
-      .rst_ni                    (rst_ni),
-      .redirect_req_i            (selected_redirect_req),
-      .redirect_req_valid_i      (selected_redirect_req_valid),
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .redirect_req_i(selected_redirect_req),
+      .redirect_req_valid_i(selected_redirect_req_valid),
       .next_pc_predictor_prediction_i(next_pc_predictor_prediction),
-      .icache_lookup_req_o       (icache_lookup_req),
-      .icache_lookup_req_valid_o (icache_lookup_req_valid),
+      .icache_lookup_req_o(icache_lookup_req),
+      .icache_lookup_req_valid_o(icache_lookup_req_valid),
       .icache_lookup_req_ready_i (
           icache_lookup_req_ready && next_pc_predictor_request_ready &&
           frontend_memory_access_allowed
       ),
-      .icache_lookup_resp_i      (icache_lookup_resp),
-      .icache_lookup_resp_valid_i(
-          icache_lookup_resp_valid && next_pc_predictor_response_valid
-      ),
+      .icache_lookup_resp_i(icache_lookup_resp),
+      .icache_lookup_resp_valid_i(icache_lookup_resp_valid && next_pc_predictor_response_valid),
       .icache_lookup_resp_ready_o(icache_lookup_resp_ready),
-      .fetch_entry_o             (ifu_fetch_entry),
-      .fetch_entry_valid_o       (ifu_fetch_entry_valid),
-      .fetch_entry_ready_i       (ifu_fetch_entry_ready)
+      .fetch_entry_o(ifu_fetch_entry),
+      .fetch_entry_valid_o(ifu_fetch_entry_valid),
+      .fetch_entry_ready_i(ifu_fetch_entry_ready)
   );
 
   riscv32_icache u_icache (
-      .clk_i              (clk_i),
-      .rst_ni             (rst_ni),
-      .lookup_req_i       (icache_lookup_req),
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .lookup_req_i(icache_lookup_req),
       .lookup_req_valid_i (
           icache_lookup_req_valid && next_pc_predictor_request_ready &&
           frontend_memory_access_allowed
       ),
-      .lookup_req_ready_o (icache_lookup_req_ready),
-      .lookup_resp_o      (icache_lookup_resp),
+      .lookup_req_ready_o(icache_lookup_req_ready),
+      .lookup_resp_o(icache_lookup_resp),
       .lookup_resp_valid_o(icache_lookup_resp_valid),
       .lookup_resp_ready_i(icache_lookup_resp_ready && next_pc_predictor_response_valid),
-      .invalidate_req_i   (icache_invalidate_req),
-      .invalidate_done_o  (icache_invalidate_done),
-      .cache_busy_o       (icache_busy),
-      .refill_req_o       (icache_refill_req),
-      .refill_req_valid_o (icache_refill_req_valid),
-      .refill_req_ready_i (icache_refill_req_ready),
-      .refill_resp_i      (icache_refill_resp),
+      .invalidate_req_i(icache_invalidate_req),
+      .invalidate_done_o(icache_invalidate_done),
+      .cache_busy_o(icache_busy),
+      .refill_req_o(icache_refill_req),
+      .refill_req_valid_o(icache_refill_req_valid),
+      .refill_req_ready_i(icache_refill_req_ready),
+      .refill_resp_i(icache_refill_resp),
       .refill_resp_valid_i(icache_refill_resp_valid),
       .refill_resp_ready_o(icache_refill_resp_ready),
-      .event_o            (icache_event)
+      .event_o(icache_event)
   );
 
   riscv32_fetch_buffer #(
@@ -269,25 +283,23 @@ module riscv32_core
       program_counter_t'(resolved_execute_result.uop.imm);
 
   riscv32_fetch_control_flow_predictor u_fetch_control_flow_predictor (
-      .clk_i                              (clk_i),
-      .rst_ni                             (rst_ni),
-      .lookup_request_pc_i                (program_counter_t'(icache_lookup_req.fetch_addr)),
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .lookup_request_pc_i(program_counter_t'(icache_lookup_req.fetch_addr)),
       .lookup_request_valid_i             (
           icache_lookup_req_valid && icache_lookup_req_ready && frontend_memory_access_allowed
       ),
-      .lookup_request_ready_o             (next_pc_predictor_request_ready),
-      .lookup_prediction_o                (next_pc_predictor_prediction),
-      .lookup_next_pc_o                   (),
-      .lookup_response_valid_o            (next_pc_predictor_response_valid),
-      .lookup_response_ready_i            (
-          icache_lookup_resp_ready && icache_lookup_resp_valid
-      ),
-      .resolved_control_flow_pc_i         (resolved_execute_result.uop.pc),
-      .resolved_control_flow_target_i     (resolved_control_flow_target),
-      .resolved_control_flow_imm_i        (resolved_execute_result.uop.imm),
-      .resolved_control_flow_op_i         (resolved_execute_result.uop.branch_ctrl.op),
-      .resolved_control_flow_rs1_i        (resolved_execute_result.uop.rs1),
-      .resolved_control_flow_rd_i         (resolved_execute_result.uop.rd),
+      .lookup_request_ready_o(next_pc_predictor_request_ready),
+      .lookup_prediction_o(next_pc_predictor_prediction),
+      .lookup_next_pc_o(),
+      .lookup_response_valid_o(next_pc_predictor_response_valid),
+      .lookup_response_ready_i(icache_lookup_resp_ready && icache_lookup_resp_valid),
+      .resolved_control_flow_pc_i(resolved_execute_result.uop.pc),
+      .resolved_control_flow_target_i(resolved_control_flow_target),
+      .resolved_control_flow_imm_i(resolved_execute_result.uop.imm),
+      .resolved_control_flow_op_i(resolved_execute_result.uop.branch_ctrl.op),
+      .resolved_control_flow_rs1_i(resolved_execute_result.uop.rs1),
+      .resolved_control_flow_rd_i(resolved_execute_result.uop.rd),
       .resolved_control_flow_occurred_i   (
           resolved_execute_result_valid && resolved_execute_result_ready &&
           (resolved_execute_result.uop.fu_type == FU_BRANCH) &&
@@ -298,7 +310,7 @@ module riscv32_core
           (resolved_execute_result.next_pc !=
            (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
-      .invalidate_i                       (icache_invalidate_req)
+      .invalidate_i(icache_invalidate_req)
   );
 
   // 统计真正随fetch entry进入队列的taken预测，不统计尚未完成I-cache响应配对的请求。
@@ -425,51 +437,59 @@ module riscv32_core
   // 到达LSU completion/WB后才可用，因此load-use仍由RAW逻辑停顿。串行化指令继续排空后端。
   assign execute_forwarding_available = exu_result_valid && exu_result.uop.writes_rd &&
                                         !exu_result.uop.exception_valid;
+  assign execute_result_forwarding_available = resolved_execute_result_valid &&
+                                                resolved_execute_result.uop.writes_rd &&
+                                                !resolved_execute_result.uop.exception_valid;
   assign writeback_forwarding_available = writeback_result_valid &&
                                           writeback_result.uop.writes_rd &&
                                           !writeback_result.uop.exception_valid;
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
-      .clk_i                       (clk_i),
-      .rst_ni                      (rst_ni),
-      .decoded_uop_valid_i         (decoded_uop_valid),
-      .decoded_uses_rs1_i          (decoded_uop.uses_rs1),
-      .decoded_rs1_i               (decoded_uop.rs1),
-      .decoded_uses_rs2_i          (decoded_uop.uses_rs2),
-      .decoded_rs2_i               (decoded_uop.rs2),
-      .decoded_serializing_i       (decoded_uop.serializing),
-      .execute_uop_valid_i         (execute_packet_valid),
-      .execute_writes_rd_i         (execute_packet.uop.writes_rd),
-      .execute_rd_i                (execute_packet.uop.rd),
-      .execute_serializing_i       (execute_packet.uop.serializing),
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .decoded_uop_valid_i(decoded_uop_valid),
+      .decoded_uses_rs1_i(decoded_uop.uses_rs1),
+      .decoded_rs1_i(decoded_uop.rs1),
+      .decoded_uses_rs2_i(decoded_uop.uses_rs2),
+      .decoded_rs2_i(decoded_uop.rs2),
+      .decoded_serializing_i(decoded_uop.serializing),
+      .execute_uop_valid_i(execute_packet_valid),
+      .execute_writes_rd_i(execute_packet.uop.writes_rd),
+      .execute_rd_i(execute_packet.uop.rd),
+      .execute_serializing_i(execute_packet.uop.serializing),
       .execute_forwarding_available_i(execute_forwarding_available),
-      .execute_result_valid_i      (resolved_execute_result_valid),
-      .execute_result_ready_i      (resolved_execute_result_ready),
+      .execute_result_valid_i(resolved_execute_result_valid),
+      .execute_result_ready_i(resolved_execute_result_ready),
+      .execute_result_writes_rd_i(resolved_execute_result.uop.writes_rd),
+      .execute_result_rd_i(resolved_execute_result.uop.rd),
+      .execute_result_forwarding_available_i(execute_result_forwarding_available),
       .execute_result_serializing_i(resolved_execute_result.uop.serializing),
-      .writeback_result_valid_i    (writeback_result_valid),
-      .writeback_writes_rd_i       (writeback_result.uop.writes_rd),
-      .writeback_rd_i              (writeback_result.uop.rd),
-      .writeback_serializing_i     (writeback_result.uop.serializing),
+      .writeback_result_valid_i(writeback_result_valid),
+      .writeback_writes_rd_i(writeback_result.uop.writes_rd),
+      .writeback_rd_i(writeback_result.uop.rd),
+      .writeback_serializing_i(writeback_result.uop.serializing),
       .writeback_forwarding_available_i(writeback_forwarding_available),
-      .lsu_busy_i                  (lsu_transaction_active),
-      .lsu_pending_writes_rd_i     (lsu_pending_writes_rd),
-      .lsu_pending_rd_i            (lsu_pending_rd),
+      .lsu_busy_i(lsu_transaction_active),
+      .lsu_pending_writes_rd_i(lsu_pending_writes_rd),
+      .lsu_pending_rd_i(lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
                                     !lsu_writeback.uop.exception_valid),
       .execute_redirect_present_i  (resolved_execute_result_valid &&
                                     resolved_execute_result.redirect_valid),
-      .frontend_redirect_applied_i (selected_redirect_req_valid),
-      .commit_redirect_occurred_i  (commit_redirect_occurred),
-      .decode_accept_allowed_o     (decode_accept_allowed),
-      .execute_issue_allowed_o     (execute_issue_allowed),
-      .decode_execute_flush_o      (decode_execute_flush),
-      .writeback_flush_o           (writeback_flush),
-      .raw_hazard_present_o        (raw_hazard_present),
+      .frontend_redirect_applied_i(selected_redirect_req_valid),
+      .commit_redirect_occurred_i(commit_redirect_occurred),
+      .decode_accept_allowed_o(decode_accept_allowed),
+      .execute_issue_allowed_o(execute_issue_allowed),
+      .decode_execute_flush_o(decode_execute_flush),
+      .writeback_flush_o(writeback_flush),
+      .raw_hazard_present_o(raw_hazard_present),
       .serializing_hazard_present_o(serializing_hazard_present),
-      .structural_hazard_present_o (structural_hazard_present),
+      .structural_hazard_present_o(structural_hazard_present),
       .rs1_execute_forwarding_selected_o(rs1_execute_forwarding_selected),
+      .rs1_execute_result_forwarding_selected_o(rs1_execute_result_forwarding_selected),
       .rs1_lsu_forwarding_selected_o(rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o(rs2_execute_forwarding_selected),
+      .rs2_execute_result_forwarding_selected_o(rs2_execute_result_forwarding_selected),
       .rs2_lsu_forwarding_selected_o(rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
@@ -492,20 +512,18 @@ module riscv32_core
   );
 
   riscv32_exu u_exu (
-      .execute_packet_i      (execute_packet),
-      .execute_packet_valid_i(execute_packet_valid),
-      .execute_packet_issue_allowed_i(execute_issue_allowed),
-      .execute_packet_ready_o(execute_packet_ready),
-      .writeback_forwarding_result_i(writeback_result),
-      .writeback_forwarding_result_valid_i(writeback_result_valid),
-      .execute_stage_forwarding_result_i(resolved_execute_result),
+      .execute_packet_i                       (execute_packet),
+      .execute_packet_valid_i                 (execute_packet_valid),
+      .execute_packet_issue_allowed_i         (execute_issue_allowed),
+      .execute_packet_ready_o                 (execute_packet_ready),
+      .execute_stage_forwarding_result_i      (resolved_execute_result),
       .execute_stage_forwarding_result_valid_i(resolved_execute_result_valid),
-      .exu_result_o          (exu_result),
-      .exu_result_valid_o    (exu_result_valid),
-      .exu_result_ready_i    (exu_result_ready),
-      .lsu_req_o             (lsu_req),
-      .lsu_req_valid_o       (lsu_req_valid),
-      .lsu_req_ready_i       (lsu_req_ready)
+      .exu_result_o                           (exu_result),
+      .exu_result_valid_o                     (exu_result_valid),
+      .exu_result_ready_i                     (exu_result_ready),
+      .lsu_req_o                              (lsu_req),
+      .lsu_req_valid_o                        (lsu_req_valid),
+      .lsu_req_ready_i                        (lsu_req_ready)
   );
 
   // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过，
@@ -543,33 +561,33 @@ module riscv32_core
   );
 
   riscv32_data_memory_subsystem u_data_memory_subsystem (
-      .clk_i                       (clk_i),
-      .rst_ni                      (rst_ni),
-      .data_memory_req_i           (data_memory_req),
-      .data_memory_req_valid_i     (data_memory_req_valid),
-      .data_memory_req_ready_o     (data_memory_req_ready),
-      .data_memory_resp_o          (data_memory_resp),
-      .data_memory_resp_valid_o    (data_memory_resp_valid),
-      .data_memory_resp_ready_i    (data_memory_resp_ready),
-      .dcache_clean_req_i          (dcache_clean_req),
-      .dcache_clean_done_o         (dcache_clean_done),
-      .dcache_clean_access_fault_o (dcache_clean_access_fault),
-      .dcache_busy_o               (dcache_busy),
-      .dcache_event_o              (dcache_event),
-      .axi_manager_o               (data_axi4_manager_o),
-      .axi_manager_i               (data_axi4_manager_i)
+      .clk_i                      (clk_i),
+      .rst_ni                     (rst_ni),
+      .data_memory_req_i          (data_memory_req),
+      .data_memory_req_valid_i    (data_memory_req_valid),
+      .data_memory_req_ready_o    (data_memory_req_ready),
+      .data_memory_resp_o         (data_memory_resp),
+      .data_memory_resp_valid_o   (data_memory_resp_valid),
+      .data_memory_resp_ready_i   (data_memory_resp_ready),
+      .dcache_clean_req_i         (dcache_clean_req),
+      .dcache_clean_done_o        (dcache_clean_done),
+      .dcache_clean_access_fault_o(dcache_clean_access_fault),
+      .dcache_busy_o              (dcache_busy),
+      .dcache_event_o             (dcache_event),
+      .axi_manager_o              (data_axi4_manager_o),
+      .axi_manager_i              (data_axi4_manager_i)
   );
 
   riscv32_completion_mux u_completion_mux (
-      .exu_result_i             (resolved_execute_result),
-      .exu_result_valid_i       (resolved_execute_result_valid),
-      .exu_result_ready_o       (resolved_execute_result_ready),
-      .lsu_writeback_i          (lsu_writeback),
-      .lsu_writeback_valid_i    (lsu_writeback_valid),
-      .lsu_writeback_ready_o    (lsu_writeback_ready),
-      .writeback_result_o       (completion_result),
-      .writeback_result_valid_o (completion_result_valid),
-      .writeback_result_ready_i (completion_result_ready)
+      .exu_result_i            (resolved_execute_result),
+      .exu_result_valid_i      (resolved_execute_result_valid),
+      .exu_result_ready_o      (resolved_execute_result_ready),
+      .lsu_writeback_i         (lsu_writeback),
+      .lsu_writeback_valid_i   (lsu_writeback_valid),
+      .lsu_writeback_ready_o   (lsu_writeback_ready),
+      .writeback_result_o      (completion_result),
+      .writeback_result_valid_o(completion_result_valid),
+      .writeback_result_ready_i(completion_result_ready)
   );
 
   // EXU/LSU completion先进入WB弹性寄存器，再由commit产生唯一架构事件。
@@ -639,8 +657,7 @@ module riscv32_core
       .instruction_decode_occurred_i(idu_decoded_uop_valid && idu_decoded_uop_ready),
       .decoded_fu_type_i(idu_decoded_uop.fu_type),
       .decoded_memory_cmd_i(idu_decoded_uop.mem_ctrl.cmd),
-      .exu_completion_occurred_i(resolved_execute_result_valid &&
-                                 resolved_execute_result_ready),
+      .exu_completion_occurred_i(resolved_execute_result_valid && resolved_execute_result_ready),
       .lsu_completion_occurred_i(lsu_writeback_valid && lsu_writeback_ready),
       .instruction_retirement_occurred_i(retired_instruction_occurred),
       .pipeline_raw_hazard_waiting_i(raw_hazard_present),
@@ -794,18 +811,15 @@ module riscv32_core
   else $error("core observed I-cache invalidate completion without a request");
 
   a_icache_invalidate_request_means_busy :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    icache_invalidate_req |-> icache_busy)
+  assert property (@(posedge clk_i) disable iff (!rst_ni) icache_invalidate_req |-> icache_busy)
   else $error("I-cache dropped busy while an invalidate transaction was pending");
 
   a_dcache_clean_request_means_busy :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    dcache_clean_req |-> dcache_busy)
+  assert property (@(posedge clk_i) disable iff (!rst_ni) dcache_clean_req |-> dcache_busy)
   else $error("D-cache dropped busy while a clean transaction was pending");
 
   a_dcache_clean_fault_is_reported :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    !dcache_clean_access_fault)
+  assert property (@(posedge clk_i) disable iff (!rst_ni) !dcache_clean_access_fault)
   else $error("D-cache writeback failed during fence.i maintenance");
 
   // 精确异常只允许在commit成为架构事件。该拍必须阻止更年轻的EX指令发出副作用，
