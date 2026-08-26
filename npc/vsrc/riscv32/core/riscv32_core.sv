@@ -128,6 +128,8 @@ module riscv32_core
   logic commit_valid;
   logic committed_fence_i_occurred;
   redirect_req_t fence_i_redirect_req;
+  redirect_req_t commit_redirect_req_at_resolution;
+  logic          commit_redirect_resolution_occurred;
 
   xlen_data_t gpr_write_data;
   arch_reg_idx_t gpr_write_addr;
@@ -301,7 +303,7 @@ module riscv32_core
           (exu_result.next_pc !=
            (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
-      .invalidate_i                       (committed_fence_i_occurred)
+      .invalidate_i                       (icache_invalidate_req)
   );
 
   // 统计真正随fetch entry进入队列的taken预测，不统计尚未完成I-cache响应配对的请求。
@@ -327,8 +329,11 @@ module riscv32_core
   // 发出的响应继续排空；未来乱序核应由ROB提交端发起同一维护事务并等待完成。
   assign committed_fence_i_occurred = commit_valid && !commit.trap_taken && (commit.system_op == SYS_FENCE_I);
   assign fence_i_maintenance_active = fence_i_maintenance_state_q != FENCE_I_MAINTENANCE_IDLE;
-  assign frontend_memory_access_allowed = !fence_i_maintenance_active &&
-                                          !committed_fence_i_occurred;
+  // The committed fence event changes the registered maintenance state at the next edge.
+  // Requests accepted in the discovery cycle belong to the old epoch and are discarded by
+  // the registered frontend redirect. Keeping the raw commit event out of this ready/valid
+  // path avoids a commit -> IFU -> I-cache array combinational timing path.
+  assign frontend_memory_access_allowed = !fence_i_maintenance_active;
   assign dcache_clean_req = fence_i_maintenance_state_q == FENCE_I_CLEAN_DCACHE;
   assign icache_invalidate_req = fence_i_maintenance_state_q == FENCE_I_INVALIDATE_ICACHE;
 
@@ -685,35 +690,57 @@ module riscv32_core
       .trap_cause_o        (trap_cause),
       .trap_tval_o         (trap_tval),
       .mret_valid_o        (mret_valid),
-      .redirect_req_o      (redirect_req[COMMIT_REDIRECT_INDEX]),
-      .redirect_req_valid_o(redirect_req_valid[COMMIT_REDIRECT_INDEX])
+      .redirect_req_o      (commit_redirect_req_at_resolution),
+      .redirect_req_valid_o(commit_redirect_resolution_occurred)
   );
 
   assign execute_redirect_req_at_resolution = exu_result.redirect_req;
   assign execute_redirect_resolution_occurred = exu_result_valid && exu_result_ready &&
                                                 exu_result.redirect_valid;
 
-  // 只寄存低带宽的恢复事件，不寄存整个EX结果。它切断EX到IFU的反向控制关键路径；
-  // 下一拍hazard controller会阻止错误路径EX指令产生任何架构或访存副作用。
-  riscv32_execute_redirect_stage u_execute_redirect_stage (
-      .clk_i                            (clk_i),
-      .rst_ni                           (rst_ni),
-      .execute_redirect_req_i           (execute_redirect_req_at_resolution),
-      .execute_redirect_req_valid_i     (execute_redirect_resolution_occurred),
-      .flush_i                          (commit_redirect_occurred),
-      .registered_redirect_req_o        (redirect_req[EXU_REDIRECT_INDEX]),
-      .registered_redirect_req_valid_o  (execute_redirect_occurred)
+  // Every redirect source crosses the same registered frontend boundary. Pipeline flushes
+  // still use the raw discovery events below, so this timing register does not permit a
+  // younger instruction to execute or commit while frontend recovery is pending.
+  riscv32_frontend_redirect_register u_execute_redirect_register (
+      .clk_i                          (clk_i),
+      .rst_ni                         (rst_ni),
+      .redirect_req_i                 (execute_redirect_req_at_resolution),
+      .redirect_req_valid_i           (execute_redirect_resolution_occurred),
+      .cancel_i                       (commit_redirect_occurred),
+      .registered_redirect_req_o      (redirect_req[EXU_REDIRECT_INDEX]),
+      .registered_redirect_req_valid_o(execute_redirect_occurred)
   );
 
   assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
-  assign redirect_req[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
-  assign redirect_req_valid[FENCE_I_REDIRECT_INDEX] = committed_fence_i_occurred;
+
+  riscv32_frontend_redirect_register u_fence_i_redirect_register (
+      .clk_i                          (clk_i),
+      .rst_ni                         (rst_ni),
+      .redirect_req_i                 (fence_i_redirect_req),
+      .redirect_req_valid_i           (committed_fence_i_occurred),
+      .cancel_i                       (1'b0),
+      .registered_redirect_req_o      (redirect_req[FENCE_I_REDIRECT_INDEX]),
+      .registered_redirect_req_valid_o(redirect_req_valid[FENCE_I_REDIRECT_INDEX])
+  );
+
+  riscv32_frontend_redirect_register u_commit_redirect_register (
+      .clk_i                          (clk_i),
+      .rst_ni                         (rst_ni),
+      .redirect_req_i                 (commit_redirect_req_at_resolution),
+      .redirect_req_valid_i           (commit_redirect_resolution_occurred),
+      .cancel_i                       (1'b0),
+      .registered_redirect_req_o      (redirect_req[COMMIT_REDIRECT_INDEX]),
+      .registered_redirect_req_valid_o(redirect_req_valid[COMMIT_REDIRECT_INDEX])
+  );
 
   // trap/mret和fence.i都在提交边界恢复控制流。它们必须清除同拍可能到达WB的年轻结果；
   // 普通EX分支redirect只清除更年轻的ID/EX内容，不能清除分支自身的完成结果。
-  assign commit_redirect_occurred = redirect_req_valid[COMMIT_REDIRECT_INDEX] ||
-                                    redirect_req_valid[FENCE_I_REDIRECT_INDEX];
-  assign frontend_recovery_occurred = execute_redirect_occurred || commit_redirect_occurred;
+  // Raw commit events flush younger backend work immediately. The registered arbiter output
+  // flushes frontend storage again when IFU changes epoch, covering the one-cycle boundary.
+  assign commit_redirect_occurred = commit_redirect_resolution_occurred ||
+                                    committed_fence_i_occurred;
+  assign frontend_recovery_occurred = commit_redirect_occurred ||
+                                      selected_redirect_req_valid;
 
   riscv32_redirect_arbiter #(
       .SOURCE_COUNT(REDIRECT_SOURCE_COUNT)

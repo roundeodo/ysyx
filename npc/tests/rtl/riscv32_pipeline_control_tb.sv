@@ -295,7 +295,6 @@ module riscv32_pipeline_control_tb;
     icache_lookup_resp_valid = 1'b0;
     ifu_fetch_entry_ready    = 1'b0;
     ifu_predictor_prediction = '0;
-    ifu_predictor_next_pc    = IFU_TEST_START_PC + program_counter_t'(INSTRUCTION_BYTES);
   endtask
 
   task automatic clear_hazard_inputs;
@@ -887,8 +886,6 @@ module riscv32_pipeline_control_tb;
       icache_lookup_resp = make_lookup_response(
           active_request, instruction_t'(32'h0000_0013 + instruction_index)
       );
-      ifu_predictor_next_pc =
-          program_counter_t'(active_request.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
       icache_lookup_resp_valid = 1'b1;
       #1;
       assert (ifu_fetch_entry_valid && icache_lookup_resp_ready)
@@ -908,8 +905,6 @@ module riscv32_pipeline_control_tb;
     // IDU反压时，当前响应必须由I-cache通道保持，且IFU不能越过尚未交付的响应。
     @(negedge clk);
     icache_lookup_resp = make_lookup_response(active_request, instruction_t'(32'h0000_0093));
-    ifu_predictor_next_pc =
-        program_counter_t'(active_request.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
     ifu_fetch_entry_ready = 1'b0;
     #1;
     stalled_fetch_entry = ifu_fetch_entry;
@@ -935,8 +930,6 @@ module riscv32_pipeline_control_tb;
     // ready=0时必须在响应离开后继续由SEND状态稳定保持，不能丢失或改变payload。
     @(negedge clk);
     icache_lookup_resp       = make_lookup_response(active_request, instruction_t'(32'h0000_0113));
-    ifu_predictor_next_pc =
-        program_counter_t'(active_request.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
     icache_lookup_req_ready  = 1'b0;
     icache_lookup_resp_valid = 1'b1;
     #1;
