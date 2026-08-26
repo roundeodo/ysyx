@@ -405,14 +405,9 @@ module riscv32_pipeline_control_tb;
     predictor_lookup_pc            = lookup_pc;
     predictor_lookup_request_valid = 1'b1;
     #1;
-    assert (predictor_lookup_request_ready)
-    else $fatal(1, "predictor did not accept a lookup while its response slot was free");
-    @(posedge clk);
-    @(negedge clk);
-    predictor_lookup_request_valid = 1'b0;
-    #1;
-    assert (predictor_lookup_response_valid)
-    else $fatal(1, "predictor did not publish the registered lookup response");
+    assert (predictor_lookup_request_ready && predictor_lookup_response_valid &&
+            (predictor_lookup_response_pc == lookup_pc))
+    else $fatal(1, "predictor did not publish the combinational lookup response");
   endtask
 
   task automatic check_fetch_control_flow_predictor;
@@ -423,14 +418,17 @@ module riscv32_pipeline_control_tb;
     localparam program_counter_t JAL_TARGET = JAL_PC + program_counter_t'(8);
     localparam program_counter_t BRANCH_TARGET = BRANCH_PC + program_counter_t'(8);
 
-    // 冷BTB只能给出顺序PC。结果在请求握手后的下一拍出现，而不是组合反馈到请求PC。
+    // 冷BTB只能给出顺序PC。IFU负责寄存查询PC，因此小容量预测表可在同拍返回结果。
     query_predictor(JAL_PC);
     assert (!predictor_lookup_prediction.predicted_taken &&
             (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
     else $fatal(1, "cold BTB lookup did not select the sequential PC");
 
-    // 响应反压期间预测payload必须保持稳定。
+    // 响应反压期间IFU必须保持查询PC，因此预测payload也必须保持稳定。
     predictor_lookup_response_ready = 1'b0;
+    #1;
+    assert (!predictor_lookup_request_ready)
+    else $fatal(1, "predictor accepted a lookup while its combinational response was stalled");
     @(posedge clk);
     #1;
     assert (predictor_lookup_response_valid &&
@@ -519,6 +517,7 @@ module riscv32_pipeline_control_tb;
 
   task automatic check_decode_execute_stage;
     execute_packet_t held_packet;
+    execute_packet_t buffered_packet;
 
     @(negedge clk);
     decoded_execute_packet =
@@ -539,15 +538,29 @@ module riscv32_pipeline_control_tb;
     execute_packet_ready = 1'b0;
     decoded_execute_packet =
         make_execute_packet(program_counter_t'('h200), arch_reg_idx_t'(6), xlen_data_t'('h5678));
+    buffered_packet = decoded_execute_packet;
     decoded_execute_packet_valid = 1'b1;
     #1;
-    assert (!decoded_execute_packet_ready)
-    else $fatal(1, "ID/EX stage accepted a replacement while backpressured");
+    assert (decoded_execute_packet_ready)
+    else $fatal(1, "ID/EX skid entry did not absorb one cycle of backpressure");
 
     @(posedge clk);
     #1;
     assert (execute_packet_valid && (execute_packet == held_packet))
     else $fatal(1, "ID/EX stage changed its payload while backpressured");
+
+    @(negedge clk);
+    decoded_execute_packet =
+        make_execute_packet(program_counter_t'('h240), arch_reg_idx_t'(7), xlen_data_t'('h9abc));
+    #1;
+    assert (!decoded_execute_packet_ready)
+    else $fatal(1, "ID/EX stage accepted a third payload while both entries were occupied");
+
+    execute_packet_ready = 1'b1;
+    @(posedge clk);
+    #1;
+    assert (execute_packet_valid && (execute_packet == buffered_packet))
+    else $fatal(1, "ID/EX stage did not promote the buffered payload after output handshake");
 
     @(negedge clk);
     decode_execute_flush = 1'b1;
@@ -957,10 +970,9 @@ module riscv32_pipeline_control_tb;
     response_request_present = 1'b0;
     for (int unsigned instruction_index = 0; instruction_index < 8; instruction_index++) begin
       @(negedge clk);
-      ifu_predictor_lookup_response_pc =
-          IFU_TEST_START_PC + program_counter_t'(instruction_index * INSTRUCTION_BYTES);
-      ifu_predictor_lookup_response_epoch = initial_epoch;
-      ifu_predictor_lookup_response_valid = 1'b1;
+      ifu_predictor_lookup_response_pc    = ifu_predictor_lookup_request_pc;
+      ifu_predictor_lookup_response_epoch = ifu_predictor_lookup_request_epoch;
+      ifu_predictor_lookup_response_valid = ifu_predictor_lookup_request_valid;
       ifu_predictor_prediction            = '0;
 
       icache_lookup_resp_valid = response_request_present;
@@ -973,8 +985,10 @@ module riscv32_pipeline_control_tb;
       #1;
       assert (ifu_predictor_lookup_response_ready &&
               ifu_predictor_lookup_request_valid &&
+              (ifu_predictor_lookup_request_pc == ifu_predictor_lookup_response_pc) &&
               (ifu_predictor_lookup_request_pc ==
-               ifu_predictor_lookup_response_pc + program_counter_t'(INSTRUCTION_BYTES)))
+               IFU_TEST_START_PC +
+               program_counter_t'(instruction_index * INSTRUCTION_BYTES)))
       else $fatal(1, "IFU predictor stream did not advance without a bubble");
 
       if (instruction_index != 0) begin
