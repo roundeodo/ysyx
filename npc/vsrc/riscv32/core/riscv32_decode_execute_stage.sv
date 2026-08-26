@@ -29,7 +29,10 @@ module riscv32_decode_execute_stage
   logic            input_handshake;
   logic            output_handshake;
 
-  assign decoded_execute_packet_ready_o = !skid_execute_packet_valid_q && !flush_i;
+  // ready只描述本级是否有物理槽位，不能再混入flush。flush负责在时钟沿清除valid；
+  // 同拍采样到的错误路径payload不会获得valid，因此不会被EXU解释或产生副作用。
+  // 这种分离避免恢复信号穿过ready网络后控制整个宽payload寄存器的写入选择。
+  assign decoded_execute_packet_ready_o = !skid_execute_packet_valid_q;
   assign execute_packet_o               = execute_packet_q;
   assign execute_packet_valid_o         = execute_packet_valid_q;
   assign input_handshake                 = decoded_execute_packet_valid_i &&

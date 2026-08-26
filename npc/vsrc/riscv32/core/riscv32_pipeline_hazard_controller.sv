@@ -184,9 +184,10 @@ module riscv32_pipeline_hazard_controller
   assign structural_hazard_present_o = lsu_busy_i;
   assign execute_result_stalled = execute_result_valid_i && !execute_result_ready_i;
 
+  // 恢复事件通过各级flush清valid，不参与decode的ready/accept组合网络。错误路径uop
+  // 可以在恢复拍被物理采样，但不会获得valid；因此这里只保留真正需要等待的冒险。
   assign decode_accept_allowed_o = !raw_hazard_present_o &&
-                                   !serializing_hazard_present_o &&
-                                   !control_recovery_occurred;
+                                   !serializing_hazard_present_o;
 
   // progress只描述后端是否有空间，直接控制ID/EX payload流动；issue再叠加控制恢复，
   // 只控制EXU能否产生completion或访存副作用。这样redirect不会进入宽payload写入路径。

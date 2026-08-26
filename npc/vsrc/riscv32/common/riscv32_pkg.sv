@@ -722,6 +722,10 @@ package riscv32_pkg;
     decoded_uop_t uop;
     xlen_data_t   rs1_value;
     xlen_data_t   rs2_value;
+    // 译码级提前判断当前EX生产者与源寄存器的相关性。该选择位随payload进入ID/EX，
+    // 下一拍直接控制EX/MEM结果旁路，避免在EX关键路径中再次进行rd/rs比较。
+    logic         rs1_previous_ex_result_selected;
+    logic         rs2_previous_ex_result_selected;
     xlen_data_t   csr_rdata;
     logic         csr_illegal;
   } execute_packet_t;

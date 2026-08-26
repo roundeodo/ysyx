@@ -195,12 +195,16 @@ module riscv32_core
     decoded_execute_packet.uop         = decoded_uop;
     decoded_execute_packet.rs1_value   = rs1_value;
     decoded_execute_packet.rs2_value   = rs2_value;
+    decoded_execute_packet.rs1_previous_ex_result_selected =
+        rs1_execute_forwarding_selected;
+    decoded_execute_packet.rs2_previous_ex_result_selected =
+        rs2_execute_forwarding_selected;
     decoded_execute_packet.csr_rdata   = csr_read_data;
     decoded_execute_packet.csr_illegal = csr_read_illegal;
 
-    // LSU completion和WB结果可能在消费者写入ID/EX的同一个时钟沿离开，因此在
-    // ID/EX输入侧完成这两级旁路。当前EX和EX/MEM生产者不在这里选择：它们在下一拍
-    // 通过EXU输入旁路处理，避免形成“ID/EX -> EXU -> decode mux -> ID/EX”的组合环路。
+    // EX/MEM、LSU completion和WB结果可能在消费者写入ID/EX的同一个时钟沿离开，
+    // 因此直接把最近的已生成结果写入payload。当前EX生产者的结果尚未生成，只把
+    // 相关性选择位写入payload，下一拍从EX/MEM结果寄存器取值。
     if (rs1_writeback_forwarding_selected) begin
       decoded_execute_packet.rs1_value = writeback_result.result;
     end
@@ -213,25 +217,24 @@ module riscv32_core
     if (rs2_lsu_forwarding_selected) begin
       decoded_execute_packet.rs2_value = lsu_writeback.result;
     end
+    if (rs1_execute_result_forwarding_selected) begin
+      decoded_execute_packet.rs1_value = resolved_execute_result.result;
+    end
+    if (rs2_execute_result_forwarding_selected) begin
+      decoded_execute_packet.rs2_value = resolved_execute_result.result;
+    end
   end
 
-  // EX输入旁路以已经寄存的EX/MEM结果为最近生产者。消费者在生产者位于EX时可以先进入
-  // ID/EX；下一拍生产者已进入EX/MEM，旁路mux再覆盖消费者随包保存的旧寄存器值。
-  // 这样背靠背ALU相关仍然不插气泡，同时把组合ALU结果反馈到ID/EX的长路径切断。
+  // EX输入旁路以已经寄存的EX/MEM结果为最近生产者。rd/rs比较已在消费者进入ID/EX前
+  // 完成并随payload寄存；本级只保留数据mux，缩短“前一条结果 -> 当前ALU”的关键路径。
   always_comb begin
     execute_packet_for_exu = execute_packet;
 
-    if (resolved_execute_result_valid && resolved_execute_result.uop.writes_rd &&
-        !resolved_execute_result.uop.exception_valid &&
-        (resolved_execute_result.uop.rd != '0)) begin
-      if (execute_packet.uop.uses_rs1 &&
-          (execute_packet.uop.rs1 == resolved_execute_result.uop.rd)) begin
-        execute_packet_for_exu.rs1_value = resolved_execute_result.result;
-      end
-      if (execute_packet.uop.uses_rs2 &&
-          (execute_packet.uop.rs2 == resolved_execute_result.uop.rd)) begin
-        execute_packet_for_exu.rs2_value = resolved_execute_result.result;
-      end
+    if (execute_packet.rs1_previous_ex_result_selected) begin
+      execute_packet_for_exu.rs1_value = resolved_execute_result.result;
+    end
+    if (execute_packet.rs2_previous_ex_result_selected) begin
+      execute_packet_for_exu.rs2_value = resolved_execute_result.result;
     end
   end
 
@@ -566,7 +569,9 @@ module riscv32_core
       .resolved_result_o      (resolved_execute_result),
       .resolved_result_valid_o(resolved_execute_result_valid),
       .resolved_result_ready_i(resolved_execute_result_ready),
-      .flush_i                (commit_redirect_occurred)
+      // 执行级分支恢复取消同拍进入EX/MEM的更年轻普通结果；提交级恢复处理异常、
+      // mret和fence.i等更晚发现的恢复事件。两者都只清寄存级valid。
+      .flush_i                (execute_redirect_resolution_occurred || commit_redirect_occurred)
   );
 
   riscv32_lsu u_lsu (

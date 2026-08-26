@@ -597,8 +597,8 @@ module riscv32_pipeline_control_tb;
     @(negedge clk);
     decode_execute_flush = 1'b1;
     #1;
-    assert (!decoded_execute_packet_ready)
-    else $fatal(1, "ID/EX stage returned ready during flush");
+    assert (decoded_execute_packet_ready)
+    else $fatal(1, "ID/EX stage coupled flush into its capacity-only ready signal");
 
     @(posedge clk);
     #1;
@@ -644,10 +644,11 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "WB stage changed its result while backpressured");
 
     @(negedge clk);
+    writeback_result_ready = 1'b1;
     writeback_flush = 1'b1;
     #1;
-    assert (!completion_result_ready)
-    else $fatal(1, "WB stage returned ready during commit recovery");
+    assert (completion_result_ready)
+    else $fatal(1, "WB stage coupled commit recovery into its capacity-only ready signal");
 
     @(posedge clk);
     #1;
@@ -796,7 +797,8 @@ module riscv32_pipeline_control_tb;
     frontend_redirect_applied = 1'b1;
     #1;
     // redirect经过寄存边界并应用到前端时，残留的旧路径EX内容必须停止执行。
-    assert (!decode_accept_allowed && !execute_issue_allowed &&
+    // decode accept保持为容量/数据冒险决策；flush负责使同拍采样的payload失效。
+    assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && !hazard_writeback_flush)
     else $fatal(1, "registered frontend redirect did not block stale execute work");
 
@@ -804,7 +806,7 @@ module riscv32_pipeline_control_tb;
     hazard_decoded_uop_valid = 1'b1;
     commit_redirect_occurred = 1'b1;
     #1;
-    assert (!decode_accept_allowed && !execute_issue_allowed &&
+    assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && hazard_writeback_flush)
     else $fatal(1, "commit redirect did not discard all younger work");
 
@@ -954,15 +956,15 @@ module riscv32_pipeline_control_tb;
 
     commit_redirect_occurred = staged_trap_redirect_valid;
     #1;
-    assert (!decode_accept_allowed && !execute_issue_allowed &&
+    assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && hazard_writeback_flush)
     else $fatal(1, "commit exception did not block and flush younger instructions");
 
     decode_execute_flush = hazard_decode_execute_flush;
     writeback_flush      = hazard_writeback_flush;
     #1;
-    assert (!completion_result_ready && !decoded_execute_packet_ready)
-    else $fatal(1, "young exception payload was accepted during precise recovery");
+    assert (completion_result_ready && decoded_execute_packet_ready)
+    else $fatal(1, "precise recovery violated the valid-only pipeline squash contract");
 
     @(posedge clk);
     #1;

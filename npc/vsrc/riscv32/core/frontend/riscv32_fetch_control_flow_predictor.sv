@@ -679,10 +679,12 @@ module riscv32_fetch_control_flow_predictor
        (lookup_next_pc_o[1:0] == 2'b00)))
   else $error("fetch predictor emitted an invalid taken prediction");
 
+  // 普通反压必须保持响应；显式flush则取消旧epoch事务，下一拍允许撤销valid。
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (lookup_response_valid_o && !lookup_response_ready_i)
-    |=> (lookup_response_valid_o && $stable(lookup_prediction_o) &&
-         $stable(lookup_next_pc_o)))
+    (lookup_response_valid_o && !lookup_response_ready_i && !flush_lookup_i)
+    |=> (flush_lookup_i ||
+         (lookup_response_valid_o && $stable(lookup_prediction_o) &&
+          $stable(lookup_next_pc_o))))
   else $error("fetch predictor changed its response while backpressured");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)

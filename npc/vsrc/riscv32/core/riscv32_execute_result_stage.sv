@@ -14,7 +14,8 @@ module riscv32_execute_result_stage
     output logic            resolved_result_valid_o,
     input  logic            resolved_result_ready_i,
 
-    // commit级恢复会取消本级中更年轻的结果。分支自身产生的redirect不能清除自身。
+    // 更老的执行级分支恢复或commit级恢复会取消同拍到达的年轻结果。
+    // flush只清下一拍valid，不组合修改ready。
     input logic flush_i
 );
 
@@ -27,7 +28,10 @@ module riscv32_execute_result_stage
   logic             branch_prediction_mismatch;
 
   assign stage_can_accept        = !execute_result_valid_q || resolved_result_ready_i;
-  assign executed_result_ready_o = stage_can_accept && !flush_i;
+  // flush只清除valid，ready仍只描述本级容量。年轻普通结果可以在恢复拍物理写入
+  // payload寄存器，但其valid在同一时钟沿被清零，因此不会到达completion/commit。
+  // 带副作用的LSU请求则在EXU接口处单独禁止。
+  assign executed_result_ready_o = stage_can_accept;
   assign resolved_result_valid_o = execute_result_valid_q;
 
   assign sequential_next_pc = execute_result_q.uop.pc +
@@ -88,7 +92,7 @@ module riscv32_execute_result_stage
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     flush_i |=> !resolved_result_valid_o)
-  else $error("EX/MEM stage retained a result after commit recovery");
+  else $error("EX/MEM stage retained a result after pipeline recovery");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (resolved_result_valid_o && resolved_result_o.redirect_valid) |->

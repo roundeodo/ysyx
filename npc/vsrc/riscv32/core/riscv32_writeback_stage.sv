@@ -1,5 +1,6 @@
 // Completion/WB流水级寄存器。EXU和LSU通过顺序completion mux共享单个写回口；
-// 本模块把完成结果与提交组合逻辑隔开，并在提交级恢复时拒绝年轻结果进入WB。
+// 本模块把完成结果与提交组合逻辑隔开，并在提交级恢复时用valid-only squash取消
+// 同拍到达的年轻结果。
 module riscv32_writeback_stage
   import riscv32_pkg::*;
 (
@@ -26,7 +27,9 @@ module riscv32_writeback_stage
 
   assign stage_can_accept          = !writeback_result_valid_q || writeback_result_ready_i;
 
-  assign completion_result_ready_o = stage_can_accept && !flush_i;
+  // ready只表达WB寄存级是否有容量，不能混入恢复控制。flush拍即使物理采样了年轻
+  // payload，writeback_result_valid_d也会被清零，因而该payload没有架构含义。
+  assign completion_result_ready_o = stage_can_accept;
   assign writeback_result_o        = writeback_result_q;
   assign writeback_result_valid_o  = writeback_result_valid_q;
 

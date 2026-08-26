@@ -28,7 +28,9 @@ module riscv32_decode_stage
   logic         input_handshake_occurred;
   logic         output_handshake_occurred;
 
-  assign idu_decoded_uop_ready_o   = !skid_decoded_uop_valid_q && !flush_i;
+  // ready只表示队列当前有接收空间。flush只清valid，不参与ready组合路径；即使恢复拍
+  // 物理采样了错误路径uop，它也不会成为有效项，下一拍不能被下游消费。
+  assign idu_decoded_uop_ready_o   = !skid_decoded_uop_valid_q;
   assign decoded_uop_o             = decoded_uop_q;
   assign decoded_uop_valid_o       = decoded_uop_valid_q;
   assign input_handshake_occurred  = idu_decoded_uop_valid_i && idu_decoded_uop_ready_o;

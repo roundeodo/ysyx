@@ -3,8 +3,9 @@ module riscv32_exu
 (
     input  execute_packet_t execute_packet_i,
     input  logic            execute_packet_valid_i,
-    // valid只表示ID/EX中存在payload；issue_allowed决定本拍能否产生completion或访存副作用。
-    // 两者分离后，提交级异常kill不会穿过ALU/分支比较网络形成跨级关键路径。
+    // valid只表示ID/EX中存在payload；issue_allowed只约束可能产生外部副作用的LSU请求。
+    // 普通执行结果在后继寄存边界用valid-only squash取消，避免恢复信号穿过ALU与
+    // completion网络形成跨级关键路径。
     input  logic            execute_packet_issue_allowed_i,
     output logic            execute_packet_ready_o,
 
@@ -39,8 +40,8 @@ module riscv32_exu
   effective_addr_t                   lsu_effective_addr;
   execute_result_t                   exu_result;
 
-  // execute_packet_i已经由core的EX输入旁路mux处理。EXU只消费最终操作数；旁路源来自
-  // EX/MEM寄存器，不允许把本拍ALU组合结果直接反馈到自身或ID/EX输入。
+  // execute_packet_i已经由core的EX输入旁路mux处理。相关性比较在译码级完成并随
+  // execute packet寄存，EX级不再比较rd/rs；旁路数据只来自上一拍EX/MEM寄存结果。
   assign execute_rs1_value = execute_packet_i.rs1_value;
   assign execute_rs2_value = execute_packet_i.rs2_value;
 
@@ -205,8 +206,10 @@ module riscv32_exu
   end
 
   assign exu_result_o = exu_result;
-  assign exu_result_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
+  assign exu_result_valid_o = execute_packet_valid_i &&
                               (execute_packet_i.uop.fu_type != FU_LSU);
+  // LSU请求一旦握手就可能产生架构可见的访存副作用，因此仍需在接口边界检查
+  // issue_allowed；被恢复取消的年轻load/store不能依赖下游valid-only squash补救。
   assign lsu_req_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
                            (execute_packet_i.uop.fu_type == FU_LSU);
   assign execute_packet_ready_o = (execute_packet_i.uop.fu_type == FU_LSU) ?
