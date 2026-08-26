@@ -258,12 +258,14 @@ module riscv32_ifu
   end
 
   // prediction表项在请求真正进入I-cache时建立，在对应响应离开时释放。redirect不要求
-  // 清空表项：旧epoch响应不会进入fetch buffer，保留表项可继续检查所有已发请求的身份。
+  // 立即清空表项：旧epoch响应仍会返回并完成握手，届时必须同样释放其tag，否则有限
+  // tag空间会被永久占用。若旧响应和新请求同拍使用同一tag，下面后执行的新请求写入
+  // 优先，使该tag无气泡地转交给新事务。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       prediction_present_vector_q <= '0;
     end else begin
-      if (icache_lookup_response_handshake && icache_lookup_response_is_current) begin
+      if (icache_lookup_response_handshake) begin
         prediction_present_vector_q[icache_lookup_resp_i.frontend_tag] <= 1'b0;
       end
       if (icache_lookup_request_handshake) begin
@@ -315,7 +317,9 @@ module riscv32_ifu
   a_frontend_tag_not_reused_while_present :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     icache_lookup_request_handshake
-    |-> !prediction_present_vector_q[lookup_queue_front_request.frontend_tag])
+    |-> (!prediction_present_vector_q[lookup_queue_front_request.frontend_tag] ||
+         (icache_lookup_response_handshake &&
+          (icache_lookup_resp_i.frontend_tag == lookup_queue_front_request.frontend_tag))))
   else $error("IFU reused a frontend tag before the older response completed");
 
   a_lookup_queue_count_bounded :
