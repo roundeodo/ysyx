@@ -36,8 +36,26 @@ module riscv32_decode_execute_stage
                                            decoded_execute_packet_ready_o;
   assign output_handshake                = execute_packet_valid_q && execute_packet_ready_i;
 
-  // payload本身无需复位；对应valid=0时其数值没有语义。flush只清valid，避免给宽
-  // payload布置复位网络。四种流动情况均只在本级寄存器之间选择，不读取下游payload。
+  // payload没有架构有效性，也无需复位或flush。把它与valid寄存器分开后，控制恢复只
+  // 清有效位，不会进入宽payload的时钟门控和写入mux；flush周期发生的payload写入无语义。
+  always_ff @(posedge clk_i) begin
+    if (output_handshake) begin
+      if (skid_execute_packet_valid_q) begin
+        execute_packet_q <= skid_execute_packet_q;
+      end else if (input_handshake) begin
+        execute_packet_q <= decoded_execute_packet_i;
+      end
+    end else if (input_handshake) begin
+      if (!execute_packet_valid_q) begin
+        execute_packet_q <= decoded_execute_packet_i;
+      end else begin
+        skid_execute_packet_q <= decoded_execute_packet_i;
+      end
+    end
+  end
+
+  // valid位单独承载流水级状态。flush优先级最高，保证错误路径payload即使物理上仍留在
+  // 数据寄存器中，也绝不会被EXU解释为有效指令。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       execute_packet_valid_q      <= 1'b0;
@@ -47,21 +65,17 @@ module riscv32_decode_execute_stage
       skid_execute_packet_valid_q <= 1'b0;
     end else if (output_handshake) begin
       if (skid_execute_packet_valid_q) begin
-        execute_packet_q            <= skid_execute_packet_q;
         execute_packet_valid_q      <= 1'b1;
         skid_execute_packet_valid_q <= 1'b0;
       end else if (input_handshake) begin
-        execute_packet_q       <= decoded_execute_packet_i;
         execute_packet_valid_q <= 1'b1;
       end else begin
         execute_packet_valid_q <= 1'b0;
       end
     end else if (input_handshake) begin
       if (!execute_packet_valid_q) begin
-        execute_packet_q       <= decoded_execute_packet_i;
         execute_packet_valid_q <= 1'b1;
       end else begin
-        skid_execute_packet_q       <= decoded_execute_packet_i;
         skid_execute_packet_valid_q <= 1'b1;
       end
     end

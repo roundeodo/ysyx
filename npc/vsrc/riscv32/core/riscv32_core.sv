@@ -162,6 +162,7 @@ module riscv32_core
   logic selected_redirect_req_valid;
 
   logic decode_accept_allowed;
+  logic execute_progress_allowed;
   logic execute_issue_allowed;
   logic decode_execute_flush;
   logic writeback_flush;
@@ -502,6 +503,7 @@ module riscv32_core
       .frontend_redirect_applied_i(selected_redirect_req_valid),
       .commit_redirect_occurred_i(commit_redirect_occurred),
       .decode_accept_allowed_o(decode_accept_allowed),
+      .execute_progress_allowed_o(execute_progress_allowed),
       .execute_issue_allowed_o(execute_issue_allowed),
       .decode_execute_flush_o(decode_execute_flush),
       .writeback_flush_o(writeback_flush),
@@ -531,7 +533,7 @@ module riscv32_core
       .decoded_execute_packet_ready_o(decoded_execute_packet_ready),
       .execute_packet_o              (execute_packet),
       .execute_packet_valid_o        (execute_packet_valid),
-      .execute_packet_ready_i        (execute_packet_ready && execute_issue_allowed),
+      .execute_packet_ready_i        (execute_packet_ready && execute_progress_allowed),
       .flush_i                       (decode_execute_flush)
   );
 

@@ -48,6 +48,7 @@ module riscv32_pipeline_hazard_controller
     input logic commit_redirect_occurred_i,
 
     output logic decode_accept_allowed_o,
+    output logic execute_progress_allowed_o,
     output logic execute_issue_allowed_o,
     output logic decode_execute_flush_o,
     output logic writeback_flush_o,
@@ -176,10 +177,8 @@ module riscv32_pipeline_hazard_controller
       (older_serializing_instruction_present ||
        (decoded_serializing_i && older_instruction_present));
 
-  // EX/MEM刚发现误预测时，本拍只冻结ID/EX issue，避免年轻指令产生寄存器或访存
-  // 副作用。redirect经过专用寄存器并在下一拍真正交给前端时，再统一清空decode
-  // queue和ID/EX。这样不会连续清空两拍，也切断redirect比较到decode队列计数器的
-  // 组合路径。commit恢复已经位于架构提交边界，仍在发现当拍直接清空。
+  // EX/MEM发现误预测的同拍就清除年轻ID/EX指令并禁止其产生副作用。redirect经过
+  // 专用寄存器后，下一拍真正交给前端并再次清除期间可能到达的错误路径指令。
   assign control_recovery_occurred = frontend_redirect_applied_i || commit_redirect_occurred_i;
 
   assign structural_hazard_present_o = lsu_busy_i;
@@ -189,13 +188,15 @@ module riscv32_pipeline_hazard_controller
                                    !serializing_hazard_present_o &&
                                    !control_recovery_occurred;
 
-  // blocking LSU占用唯一的顺序完成位置时，年轻指令可以停在ID/EX，但不能执行并越过它。
-  assign execute_issue_allowed_o = !execute_redirect_present_i &&
+  // progress只描述后端是否有空间，直接控制ID/EX payload流动；issue再叠加控制恢复，
+  // 只控制EXU能否产生completion或访存副作用。这样redirect不会进入宽payload写入路径。
+  assign execute_progress_allowed_o = !execute_result_stalled && !lsu_busy_i;
+  assign execute_issue_allowed_o = execute_progress_allowed_o &&
+                                   !execute_redirect_present_i &&
                                    !frontend_redirect_applied_i &&
-                                   !commit_redirect_occurred_i &&
-                                   !execute_result_stalled && !lsu_busy_i;
+                                   !commit_redirect_occurred_i;
 
-  assign decode_execute_flush_o = control_recovery_occurred;
+  assign decode_execute_flush_o = execute_redirect_present_i || control_recovery_occurred;
   assign writeback_flush_o = commit_redirect_occurred_i;
 
 `ifndef SYNTHESIS

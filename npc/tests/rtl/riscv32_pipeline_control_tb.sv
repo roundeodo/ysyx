@@ -92,6 +92,7 @@ module riscv32_pipeline_control_tb;
   logic                frontend_redirect_applied;
   logic                commit_redirect_occurred;
   logic                decode_accept_allowed;
+  logic                execute_progress_allowed;
   logic                execute_issue_allowed;
   logic                hazard_decode_execute_flush;
   logic                hazard_writeback_flush;
@@ -264,6 +265,7 @@ module riscv32_pipeline_control_tb;
       .frontend_redirect_applied_i             (frontend_redirect_applied),
       .commit_redirect_occurred_i              (commit_redirect_occurred),
       .decode_accept_allowed_o                 (decode_accept_allowed),
+      .execute_progress_allowed_o              (execute_progress_allowed),
       .execute_issue_allowed_o                 (execute_issue_allowed),
       .decode_execute_flush_o                  (hazard_decode_execute_flush),
       .writeback_flush_o                       (hazard_writeback_flush),
