@@ -43,6 +43,16 @@ make test-axi-delayer
 make lint-npc
 ```
 
+2026-08-26完成RV64主线清理后已验证：
+
+- `test-config`、`test-idu`、`test-exu`、`test-lsu`和`test-pipeline`通过；
+- `test-uncached`、`test-dcache`、`test-core-merge`和`test-soc-width-converter`通过；
+- `test-privileged`、`test-axi-delayer`、`cachesim-test`和`branchsim-test`通过；
+- `lint-npc`通过，仅保留未使用字段等非致命告警；
+- standalone RV64仿真器构建成功，`dummy-riscv64-npc.bin`命中good trap。
+
+这组结果只证明当前功能闭环，不作为正式性能或PPA基线。
+
 完整RV64回归：
 
 ```bash

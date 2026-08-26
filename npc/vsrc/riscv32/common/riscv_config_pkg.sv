@@ -45,14 +45,6 @@ package riscv_config_pkg;
   // 全核共享的当前微架构容量和构建选择。尚未实现的rename、ROB、issue queue和
   // LSQ模块尚未实例化，但其跨模块契约已经定义在riscv32_pkg中，因此容量和索引宽度
   // 必须由同一配置源拥有。进入P4时这些值会成为真实存储阵列和队列的构建参数。
-  localparam int unsigned FETCH_WIDTH = 1;
-  localparam int unsigned DECODE_WIDTH = 1;
-  localparam int unsigned RENAME_WIDTH = 1;
-  localparam int unsigned DISPATCH_WIDTH = 1;
-  localparam int unsigned COMMIT_WIDTH = 1;
-  localparam int unsigned INT_ISSUE_WIDTH = 1;
-  localparam int unsigned MEM_ISSUE_WIDTH = 1;
-  //
   localparam int unsigned PHYS_REG_COUNT = 64;
   localparam int unsigned ROB_ENTRY_COUNT = 32;
   localparam int unsigned LOAD_QUEUE_COUNT = 16;
