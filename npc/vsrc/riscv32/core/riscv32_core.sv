@@ -508,6 +508,7 @@ module riscv32_core
       .decoded_uses_rs2_i(register_read_packet.uop.uses_rs2),
       .decoded_rs2_i(register_read_packet.uop.rs2),
       .decoded_serializing_i(register_read_packet.uop.serializing),
+      .execute_instruction_present_i(execute_packet_valid),
       .execute_forwardable_producer_present_i(execute_forwardable_producer_present),
       .execute_blocking_producer_present_i(execute_blocking_producer_present),
       .execute_rd_i(execute_packet.uop.rd),

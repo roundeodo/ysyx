@@ -64,6 +64,9 @@ module riscv32_pipeline_control_tb;
   execute_packet_t     execute_packet;
   logic                execute_packet_valid;
   logic                execute_packet_ready;
+  logic                execute_forwardable_producer_present;
+  logic                execute_blocking_producer_present;
+  logic                execute_serializing_instruction_present;
   logic                decode_execute_flush;
 
   writeback_result_t   completion_result;
@@ -98,7 +101,9 @@ module riscv32_pipeline_control_tb;
   logic                raw_hazard_present;
   logic                serializing_hazard_present;
   logic                structural_hazard_present;
-  logic                execute_forwarding_available;
+  logic                hazard_execute_forwardable_producer_present;
+  logic                hazard_execute_blocking_producer_present;
+  logic                hazard_execute_serializing_instruction_present;
   logic                execute_result_valid;
   logic                execute_result_ready;
   logic                execute_result_writes_rd;
@@ -150,6 +155,9 @@ module riscv32_pipeline_control_tb;
       .execute_packet_o              (execute_packet),
       .execute_packet_valid_o        (execute_packet_valid),
       .execute_packet_ready_i        (execute_packet_ready),
+      .execute_forwardable_producer_present_o(execute_forwardable_producer_present),
+      .execute_blocking_producer_present_o(execute_blocking_producer_present),
+      .execute_serializing_instruction_present_o(execute_serializing_instruction_present),
       .flush_i                       (decode_execute_flush)
   );
 
@@ -236,11 +244,14 @@ module riscv32_pipeline_control_tb;
       .decoded_uses_rs2_i                      (hazard_decoded_uop.uses_rs2),
       .decoded_rs2_i                           (hazard_decoded_uop.rs2),
       .decoded_serializing_i                   (hazard_decoded_uop.serializing),
-      .execute_uop_valid_i                     (hazard_execute_uop_valid),
-      .execute_writes_rd_i                     (hazard_execute_uop.writes_rd),
+      .execute_instruction_present_i           (hazard_execute_uop_valid),
+      .execute_forwardable_producer_present_i  (
+          hazard_execute_forwardable_producer_present),
+      .execute_blocking_producer_present_i     (
+          hazard_execute_blocking_producer_present),
       .execute_rd_i                            (hazard_execute_uop.rd),
-      .execute_serializing_i                   (hazard_execute_uop.serializing),
-      .execute_forwarding_available_i          (execute_forwarding_available),
+      .execute_serializing_instruction_present_i(
+          hazard_execute_serializing_instruction_present),
       .execute_result_valid_i                  (execute_result_valid),
       .execute_result_ready_i                  (execute_result_ready),
       .execute_result_writes_rd_i              (execute_result_writes_rd),
@@ -350,7 +361,9 @@ module riscv32_pipeline_control_tb;
     lsu_pending_rd                      = '0;
     frontend_redirect_applied           = 1'b0;
     commit_redirect_occurred            = 1'b0;
-    execute_forwarding_available        = 1'b0;
+    hazard_execute_forwardable_producer_present = 1'b0;
+    hazard_execute_blocking_producer_present    = 1'b0;
+    hazard_execute_serializing_instruction_present = 1'b0;
     execute_result_valid                = 1'b0;
     execute_result_ready                = 1'b1;
     execute_result_writes_rd            = 1'b0;
@@ -665,11 +678,13 @@ module riscv32_pipeline_control_tb;
     hazard_execute_uop_valid     = 1'b1;
     hazard_execute_uop.writes_rd = 1'b1;
     hazard_execute_uop.rd        = arch_reg_idx_t'(5);
+    hazard_execute_blocking_producer_present = 1'b1;
     #1;
     assert (raw_hazard_present && !decode_accept_allowed)
     else $fatal(1, "execute-stage rs1 RAW hazard was not detected");
 
-    execute_forwarding_available = 1'b1;
+    hazard_execute_blocking_producer_present    = 1'b0;
+    hazard_execute_forwardable_producer_present = 1'b1;
     #1;
     assert (!raw_hazard_present && decode_accept_allowed &&
             rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
@@ -720,6 +735,7 @@ module riscv32_pipeline_control_tb;
     hazard_execute_uop_valid              = 1'b1;
     hazard_execute_uop.writes_rd          = 1'b1;
     hazard_execute_uop.rd                 = arch_reg_idx_t'(11);
+    hazard_execute_blocking_producer_present = 1'b1;
     hazard_writeback_result_valid         = 1'b1;
     hazard_writeback_result.uop.writes_rd = 1'b1;
     hazard_writeback_result.uop.rd        = arch_reg_idx_t'(11);
@@ -729,7 +745,8 @@ module riscv32_pipeline_control_tb;
             !rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
     else $fatal(1, "pipeline forwarded a stale WB value past an unavailable EX producer");
 
-    execute_forwarding_available = 1'b1;
+    hazard_execute_blocking_producer_present    = 1'b0;
+    hazard_execute_forwardable_producer_present = 1'b1;
     #1;
     assert (!raw_hazard_present && decode_accept_allowed &&
             rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
@@ -747,6 +764,7 @@ module riscv32_pipeline_control_tb;
     hazard_decoded_uop_valid       = 1'b1;
     hazard_execute_uop_valid       = 1'b1;
     hazard_execute_uop.serializing = 1'b1;
+    hazard_execute_serializing_instruction_present = 1'b1;
     #1;
     assert (serializing_hazard_present && !decode_accept_allowed)
     else $fatal(1, "younger instruction crossed an older serializing instruction");
@@ -783,7 +801,7 @@ module riscv32_pipeline_control_tb;
     hazard_execute_uop_valid     = 1'b1;
     hazard_execute_uop.writes_rd = 1'b1;
     hazard_execute_uop.rd        = arch_reg_idx_t'(13);
-    execute_forwarding_available = 1'b1;
+    hazard_execute_forwardable_producer_present = 1'b1;
     #1;
     assert (rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
     else $fatal(1, "pipeline did not prioritize the younger EX producer over WB load result");
@@ -936,6 +954,10 @@ module riscv32_pipeline_control_tb;
     hazard_writeback_result_valid      = writeback_result_valid;
     hazard_execute_uop                 = execute_packet.uop;
     hazard_execute_uop_valid           = execute_packet_valid;
+    hazard_execute_forwardable_producer_present = execute_forwardable_producer_present;
+    hazard_execute_blocking_producer_present = execute_blocking_producer_present;
+    hazard_execute_serializing_instruction_present =
+        execute_serializing_instruction_present;
     hazard_decoded_uop                 = '0;
     hazard_decoded_uop.exception_valid = 1'b1;
     hazard_decoded_uop.exception_cause = EXC_INSTR_ACCESS_FAULT;

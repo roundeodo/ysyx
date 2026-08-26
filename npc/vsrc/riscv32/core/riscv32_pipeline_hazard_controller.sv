@@ -13,6 +13,7 @@ module riscv32_pipeline_hazard_controller
     input arch_reg_idx_t decoded_rs2_i,
     input logic          decoded_serializing_i,
 
+    input logic          execute_instruction_present_i,
     input logic          execute_forwardable_producer_present_i,
     input logic          execute_blocking_producer_present_i,
     input arch_reg_idx_t execute_rd_i,
@@ -164,9 +165,7 @@ module riscv32_pipeline_hazard_controller
   assign raw_hazard_present_o = decoded_uop_valid_i &&
                                 (rs1_value_unavailable || rs2_value_unavailable);
 
-  assign older_instruction_present = execute_forwardable_producer_present_i ||
-                                     execute_blocking_producer_present_i ||
-                                     execute_serializing_instruction_present_i ||
+  assign older_instruction_present = execute_instruction_present_i ||
                                      execute_result_valid_i ||
                                      writeback_result_valid_i || lsu_busy_i;
   assign older_serializing_instruction_present =
