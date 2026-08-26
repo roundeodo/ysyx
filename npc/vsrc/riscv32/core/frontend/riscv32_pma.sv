@@ -116,40 +116,40 @@ module riscv32_pma
 
     unique case (lookup_region_class)
       PMA_REGION_UNCACHED_RW_MEMORY: begin
-      memory_attr_o.readable                  = 1'b1;
-      memory_attr_o.writable                  = 1'b1;
-      memory_attr_o.executable                = 1'b1;
-      memory_attr_o.cacheable                 = 1'b0;
-      memory_attr_o.idempotent                = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
+        memory_attr_o.readable                   = 1'b1;
+        memory_attr_o.writable                   = 1'b1;
+        memory_attr_o.executable                 = 1'b1;
+        memory_attr_o.cacheable                  = 1'b0;
+        memory_attr_o.idempotent                 = 1'b1;
+        memory_attr_o.width_conversion_supported = 1'b1;
       end
 
       PMA_REGION_UNCACHED_RO_MEMORY: begin
-      memory_attr_o.readable                  = 1'b1;
-      memory_attr_o.writable                  = 1'b0;
-      memory_attr_o.executable                = 1'b1;
-      memory_attr_o.cacheable                 = 1'b0;
-      memory_attr_o.idempotent                = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
+        memory_attr_o.readable                   = 1'b1;
+        memory_attr_o.writable                   = 1'b0;
+        memory_attr_o.executable                 = 1'b1;
+        memory_attr_o.cacheable                  = 1'b0;
+        memory_attr_o.idempotent                 = 1'b1;
+        memory_attr_o.width_conversion_supported = 1'b1;
       end
 
       PMA_REGION_CACHEABLE_RO_MEMORY: begin
         // Flash映射是只读XIP窗口；擦写必须通过SPI控制器寄存器完成。
-      memory_attr_o.readable                  = 1'b1;
-      memory_attr_o.writable                  = 1'b0;
-      memory_attr_o.executable                = 1'b1;
-      memory_attr_o.cacheable                 = 1'b1;
-      memory_attr_o.idempotent                = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
+        memory_attr_o.readable                   = 1'b1;
+        memory_attr_o.writable                   = 1'b0;
+        memory_attr_o.executable                 = 1'b1;
+        memory_attr_o.cacheable                  = 1'b1;
+        memory_attr_o.idempotent                 = 1'b1;
+        memory_attr_o.width_conversion_supported = 1'b1;
       end
 
       PMA_REGION_CACHEABLE_RW_MEMORY: begin
-      memory_attr_o.readable                  = 1'b1;
-      memory_attr_o.writable                  = 1'b1;
-      memory_attr_o.executable                = 1'b1;
-      memory_attr_o.cacheable                 = 1'b1;
-      memory_attr_o.idempotent                = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
+        memory_attr_o.readable                   = 1'b1;
+        memory_attr_o.writable                   = 1'b1;
+        memory_attr_o.executable                 = 1'b1;
+        memory_attr_o.cacheable                  = 1'b1;
+        memory_attr_o.idempotent                 = 1'b1;
+        memory_attr_o.width_conversion_supported = 1'b1;
       end
 
       PMA_REGION_MMIO: begin
