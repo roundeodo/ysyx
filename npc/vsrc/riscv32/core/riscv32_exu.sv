@@ -44,6 +44,7 @@ module riscv32_exu
   program_counter_t                  sequential_next_pc;
   program_counter_t                  actual_next_pc;
   logic                              branch_target_misaligned;
+  effective_addr_t                   lsu_effective_addr;
   execute_result_t                   exu_result;
 
   assign rs1_execute_stage_forwarding_selected =
@@ -174,10 +175,15 @@ module riscv32_exu
   assign actual_next_pc = branch_taken ? branch_target : sequential_next_pc;
   assign branch_target_misaligned = branch_taken && (branch_target[1:0] != 2'b00);
 
+  // LSU地址由独立AGU加法器生成。把它从通用ALU的十五路操作选择网络中分离后，
+  // load/store地址计算不会再物理连接到非LSU执行结果寄存器，也为后续独立MEM
+  // issue queue保留了清晰边界。
+  assign lsu_effective_addr = effective_addr_t'(execute_rs1_value + execute_packet_i.uop.imm);
+
   always_comb begin
     exu_result                = '0;
     exu_result.uop            = execute_packet_i.uop;
-    exu_result.result         = alu_result;
+    exu_result.result         = '0;
     // 不要使用32'd4，也不要使用I-cache line/取指口宽度。顺序下一条指令的位置由ISA指令
     // 长度决定；cache一次返回多少字节属于前端微架构，两者必须解耦。
     exu_result.next_pc        = sequential_next_pc;
@@ -210,18 +216,20 @@ module riscv32_exu
     end
 
     unique case (execute_packet_i.uop.fu_type)
-      FU_BRANCH:
-      exu_result.result = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
-      FU_CSR: exu_result.result = execute_packet_i.csr_rdata;
+      FU_INT:  exu_result.result = alu_result;
+      FU_BRANCH: begin
+        exu_result.result = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
+      end
+      FU_CSR:  exu_result.result = execute_packet_i.csr_rdata;
       default: ;
     endcase
   end
 
   always_comb begin
     lsu_req_o                = '0;
-    lsu_req_o.uop            = exu_result.uop;
-    lsu_req_o.next_pc        = exu_result.next_pc;
-    lsu_req_o.effective_addr = alu_result;
+    lsu_req_o.uop            = execute_packet_i.uop;
+    lsu_req_o.next_pc        = sequential_next_pc;
+    lsu_req_o.effective_addr = lsu_effective_addr;
     lsu_req_o.store_data     = execute_rs2_value;
   end
 

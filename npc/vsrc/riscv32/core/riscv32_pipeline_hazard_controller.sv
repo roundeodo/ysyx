@@ -176,9 +176,11 @@ module riscv32_pipeline_hazard_controller
       (older_serializing_instruction_present ||
        (decoded_serializing_i && older_instruction_present));
 
-  assign control_recovery_occurred = execute_redirect_present_i ||
-                                     frontend_redirect_applied_i ||
-                                     commit_redirect_occurred_i;
+  // EX/MEM刚发现误预测时，本拍只冻结ID/EX issue，避免年轻指令产生寄存器或访存
+  // 副作用。redirect经过专用寄存器并在下一拍真正交给前端时，再统一清空decode
+  // queue和ID/EX。这样不会连续清空两拍，也切断redirect比较到decode队列计数器的
+  // 组合路径。commit恢复已经位于架构提交边界，仍在发现当拍直接清空。
+  assign control_recovery_occurred = frontend_redirect_applied_i || commit_redirect_occurred_i;
 
   assign structural_hazard_present_o = lsu_busy_i;
   assign execute_result_stalled = execute_result_valid_i && !execute_result_ready_i;
@@ -205,6 +207,10 @@ module riscv32_pipeline_hazard_controller
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     control_recovery_occurred |-> decode_execute_flush_o)
   else $error("pipeline recovery did not flush the ID/EX stage");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    execute_redirect_present_i |-> !execute_issue_allowed_o)
+  else $error("pipeline allowed a younger instruction to issue during branch recovery");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni) lsu_busy_i |-> !execute_issue_allowed_o)
   else $error("pipeline issued a younger instruction ahead of an older LSU transaction");

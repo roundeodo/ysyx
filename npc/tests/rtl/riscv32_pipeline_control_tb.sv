@@ -486,7 +486,8 @@ module riscv32_pipeline_control_tb;
   endtask
 
   task automatic check_decode_execute_stage;
-    execute_packet_t held_packet;
+    execute_packet_t first_packet;
+    execute_packet_t second_packet;
 
     @(negedge clk);
     decoded_execute_packet =
@@ -503,19 +504,41 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "ID/EX stage did not publish the accepted payload");
 
     @(negedge clk);
-    held_packet = execute_packet;
+    first_packet = execute_packet;
     execute_packet_ready = 1'b0;
-    decoded_execute_packet =
+    second_packet =
         make_execute_packet(program_counter_t'('h200), arch_reg_idx_t'(6), xlen_data_t'('h5678));
+    decoded_execute_packet = second_packet;
     decoded_execute_packet_valid = 1'b1;
     #1;
-    assert (!decoded_execute_packet_ready)
-    else $fatal(1, "ID/EX stage accepted a replacement while backpressured");
+    assert (decoded_execute_packet_ready)
+    else $fatal(1, "ID/EX queue did not accept its second entry while the head was backpressured");
 
     @(posedge clk);
     #1;
-    assert (execute_packet_valid && (execute_packet == held_packet))
-    else $fatal(1, "ID/EX stage changed its payload while backpressured");
+    assert (execute_packet_valid && (execute_packet == first_packet))
+    else $fatal(1, "ID/EX queue changed its head while accepting the second entry");
+
+    @(negedge clk);
+    decoded_execute_packet =
+        make_execute_packet(program_counter_t'('h300), arch_reg_idx_t'(7), xlen_data_t'('h9abc));
+    #1;
+    assert (!decoded_execute_packet_ready)
+    else $fatal(1, "ID/EX queue returned ready while both entries were occupied");
+
+    @(posedge clk);
+    #1;
+    assert (execute_packet_valid && (execute_packet == first_packet))
+    else $fatal(1, "ID/EX queue changed its head while full and backpressured");
+
+    @(negedge clk);
+    decoded_execute_packet_valid = 1'b0;
+    execute_packet_ready         = 1'b1;
+
+    @(posedge clk);
+    #1;
+    assert (execute_packet_valid && (execute_packet == second_packet))
+    else $fatal(1, "ID/EX queue did not preserve FIFO order after releasing backpressure");
 
     @(negedge clk);
     decode_execute_flush = 1'b1;
