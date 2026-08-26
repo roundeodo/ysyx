@@ -222,19 +222,16 @@ module riscv32_icache
     return line_base_addr;
   endfunction
 
-  // 单MSHR不允许分配第二个miss。refill期间只接受当前line中已经写入的word，
-  // 通过锁存的victim way提前读取并交付；其他请求等待整条line安装完成。这样保留
-  // early restart，又不增加第二个MSHR、响应排序状态或额外的set比较ready路径。
+  // 当前版本是严格阻塞式单MSHR：miss存续期间不接收任何年轻lookup。critical word
+  // 仍可由miss unit提前交付给原请求，但后续取指必须等待整条line安装完成。若未来
+  // 需要hit-under-miss，必须同时增加响应排序状态或多MSHR，不能只开放lookup ready，
+  // 否则原miss响应可能与年轻本地命中响应在同一拍竞争单个返回口。
   always_comb begin
     lookup_req_matches_active_refill_line =
         get_icache_line_base_addr(lookup_req_i.fetch_addr) == active_refill_line_base_addr;
     lookup_req_refill_word_present =
         refill_word_present_vector[get_icache_word_index(lookup_req_i.fetch_addr)];
-    lookup_req_allowed_during_refill =
-        !miss_transaction_present ||
-        (lookup_memory_attr.cacheable &&
-         lookup_req_matches_active_refill_line &&
-         lookup_req_refill_word_present);
+    lookup_req_allowed_during_refill = !miss_transaction_present;
   end
   // S1并行比较全部way的present和tag，并把请求划分为四类互斥结果：
   // access fault、uncached访问、cache hit和cache miss。命中向量按低way优先选择数据；
