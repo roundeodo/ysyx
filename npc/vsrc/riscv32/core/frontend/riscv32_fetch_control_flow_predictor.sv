@@ -1,7 +1,7 @@
 // 前端控制流预测器。
 //
-// 请求侧BTB/BHT/RAS在IFU发出I-cache请求时给出推测后继PC；响应侧只对无需读取GPR
-// 即可确定目标的JAL、条件分支和标准ret进行冷启动纠正。最终执行结果仍由EX精确校验。
+// BTB/BHT/RAS与I-cache并行读取：请求握手时采样索引，下一拍给出预测结果。
+// 预测器响应和对应I-cache响应必须原子交付；最终控制流结果仍由EX精确校验。
 module riscv32_fetch_control_flow_predictor
   import riscv32_pkg::*;
 #(
@@ -13,20 +13,13 @@ module riscv32_fetch_control_flow_predictor
     input logic clk_i,
     input logic rst_ni,
 
-    input  program_counter_t                       lookup_pc_i,
-    output branch_prediction_t                     lookup_prediction_o,
-    output fetch_control_flow_prediction_context_t lookup_context_o,
-    output program_counter_t                       lookup_next_pc_o,
-
-    // I-cache响应返回后，只预译码能在没有寄存器值时确定后继PC的控制流。请求时保存的
-    // BHT/RAS上下文保证响应被反压时输出保持稳定，不让训练更新改变valid payload。
-    input  fetch_entry_t                           response_fetch_entry_i,
-    input  fetch_control_flow_prediction_context_t response_context_i,
-    input  logic                                   response_fetch_entry_valid_i,
-    input  logic                                   response_fetch_entry_ready_i,
-    output fetch_entry_t                           corrected_fetch_entry_o,
-    output redirect_req_t                          fetch_correction_req_o,
-    output logic                                   fetch_correction_req_valid_o,
+    input  program_counter_t   lookup_request_pc_i,
+    input  logic               lookup_request_valid_i,
+    output logic               lookup_request_ready_o,
+    output branch_prediction_t lookup_prediction_o,
+    output program_counter_t   lookup_next_pc_o,
+    output logic               lookup_response_valid_o,
+    input  logic               lookup_response_ready_i,
 
     input program_counter_t resolved_control_flow_pc_i,
     input program_counter_t resolved_control_flow_target_i,
@@ -87,33 +80,25 @@ module riscv32_fetch_control_flow_predictor
   branch_history_update_t branch_history_update_d;
   branch_history_update_t branch_history_update_q;
 
-  branch_target_index_t lookup_branch_target_index;
+  // S0在请求握手沿读取预测数组，S1只比较已寄存的set内容。这样关键路径不再从
+  // next-PC寄存器穿过BTB阵列和目标选择后反馈到同一寄存器。
+  program_counter_t lookup_pc_q;
+  branch_target_entry_t lookup_way_entry_array_q[BTB_WAY_COUNT];
+  logic [1:0] lookup_branch_history_counter_q;
+  logic lookup_return_target_present_q;
+  program_counter_t lookup_return_target_q;
+  logic lookup_response_valid_q;
+
+  branch_target_index_t lookup_request_branch_target_index;
+  branch_history_index_t lookup_request_branch_history_index;
   branch_target_tag_t lookup_branch_target_tag;
   branch_target_entry_t lookup_branch_target_entry;
   logic [BTB_WAY_COUNT-1:0] lookup_branch_target_hit_way_vector;
   logic lookup_branch_target_present;
-  branch_history_index_t lookup_branch_history_index;
   logic [1:0] lookup_branch_history_counter;
   logic conditional_branch_predicted_taken;
   logic predicted_taken;
   program_counter_t predicted_target_pc;
-
-  logic [6:0] response_opcode;
-  logic [4:0] response_rd;
-  logic [2:0] response_funct3;
-  logic [4:0] response_rs1;
-  xlen_data_t response_b_type_immediate;
-  xlen_data_t response_i_type_immediate;
-  xlen_data_t response_j_type_immediate;
-  logic response_conditional_branch_present;
-  logic response_direct_jump_present;
-  logic response_return_present;
-  branch_prediction_t response_corrected_prediction;
-  program_counter_t response_sequential_pc;
-  program_counter_t response_direct_target_pc;
-  program_counter_t response_original_next_pc;
-  program_counter_t response_corrected_next_pc;
-  logic response_prediction_correction_needed;
 
   branch_target_index_t resolved_branch_target_index;
   branch_target_way_index_t resolved_branch_target_write_way;
@@ -154,13 +139,6 @@ module riscv32_fetch_control_flow_predictor
     return (register_index == arch_reg_idx_t'(1)) || (register_index == arch_reg_idx_t'(5));
   endfunction
 
-  function automatic logic branch_funct3_is_valid(input logic [2:0] funct3);
-    unique case (funct3)
-      3'b000, 3'b001, 3'b100, 3'b101, 3'b110, 3'b111: return 1'b1;
-      default:                                        return 1'b0;
-    endcase
-  endfunction
-
   function automatic return_stack_index_t increment_return_stack_index(
       input return_stack_index_t current_index);
     return (current_index == return_stack_index_t'(RAS_ENTRY_COUNT - 1)) ?
@@ -182,60 +160,82 @@ module riscv32_fetch_control_flow_predictor
     return (current_counter == 2'b00) ? current_counter : current_counter - 2'b01;
   endfunction
 
-  // BTB使用PC低位选择set，并行比较set内各way的tag。两路组织相对同容量direct-map
-  // 只增加一个tag比较器、选择器和每set一位替换状态，却能消除热点控制流的索引冲突。
-  // 每个entry保存“哪个PC、属于哪类控制流、预测目标是什么”，不能只凭索引采用旧目标。
-  assign lookup_branch_target_index = lookup_pc_i[BRANCH_TARGET_INDEX_WIDTH+$clog2(
+  assign lookup_request_ready_o = !lookup_response_valid_q || lookup_response_ready_i;
+  assign lookup_response_valid_o = lookup_response_valid_q;
+
+  assign lookup_request_branch_target_index =
+      lookup_request_pc_i[BRANCH_TARGET_INDEX_WIDTH+$clog2(
       INSTRUCTION_BYTES
   )-1:$clog2(
       INSTRUCTION_BYTES
   )];
-  assign lookup_branch_target_tag = lookup_pc_i[XLEN-1:BRANCH_TARGET_INDEX_WIDTH+$clog2(
+  assign lookup_request_branch_history_index =
+      lookup_request_pc_i[BRANCH_HISTORY_INDEX_WIDTH+$clog2(
+      INSTRUCTION_BYTES
+  )-1:$clog2(
+      INSTRUCTION_BYTES
+  )];
+
+  // 预测请求和I-cache lookup在同一拍握手。BTB set、BHT counter和RAS栈顶在该时钟沿
+  // 同时进入S1寄存器，因此预测查找不会增加I-cache命中延迟。响应被反压时，valid和
+  // 所有预测payload保持不变；响应离开与新请求进入可以发生在同一拍，吞吐为一拍一条。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      lookup_pc_q                    <= '0;
+      lookup_branch_history_counter_q <= 2'b01;
+      lookup_return_target_present_q <= 1'b0;
+      lookup_return_target_q         <= '0;
+      lookup_response_valid_q        <= 1'b0;
+      for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
+        lookup_way_entry_array_q[way_index] <= '0;
+      end
+    end else if (lookup_request_ready_o) begin
+      lookup_response_valid_q <= lookup_request_valid_i;
+      if (lookup_request_valid_i) begin
+        lookup_pc_q <= lookup_request_pc_i;
+        for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
+          lookup_way_entry_array_q[way_index] <=
+              branch_target_entry_array_q[lookup_request_branch_target_index][way_index];
+        end
+        lookup_branch_history_counter_q <=
+            branch_history_counter_array_q[lookup_request_branch_history_index];
+        // BHT写入晚于解析一级；同索引旁路保证请求在训练落入数组前看到最新方向状态。
+        if (branch_history_update_q.present &&
+            (branch_history_update_q.entry_index == lookup_request_branch_history_index)) begin
+          lookup_branch_history_counter_q <= update_branch_history_counter(
+              branch_history_counter_array_q[lookup_request_branch_history_index],
+              branch_history_update_q.branch_taken
+          );
+        end
+        lookup_return_target_present_q <= return_stack_entry_count_q != '0;
+        lookup_return_target_q         <= return_stack_top_pc;
+      end
+    end
+  end
+
+  // S1只比较已经寄存的一个BTB set。两路组织相对同容量direct-map只增加一个tag比较器、
+  // 目标选择器和每set一位替换状态，却能显著减少热点控制流的索引冲突。
+  assign lookup_branch_target_tag = lookup_pc_q[XLEN-1:BRANCH_TARGET_INDEX_WIDTH+$clog2(
       INSTRUCTION_BYTES
   )];
   always_comb begin
     lookup_branch_target_entry          = '0;
     lookup_branch_target_hit_way_vector = '0;
     for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
-      if (branch_target_entry_array_q[lookup_branch_target_index][way_index].present &&
-          (branch_target_entry_array_q[lookup_branch_target_index][way_index].pc_tag ==
-           lookup_branch_target_tag)) begin
+      if (lookup_way_entry_array_q[way_index].present &&
+          (lookup_way_entry_array_q[way_index].pc_tag == lookup_branch_target_tag)) begin
         lookup_branch_target_hit_way_vector[way_index] = 1'b1;
-        lookup_branch_target_entry                     = 
-                                                         branch_target_entry_array_q[lookup_branch_target_index][way_index];
+        lookup_branch_target_entry                     = lookup_way_entry_array_q[way_index];
       end
     end
     lookup_branch_target_present = |lookup_branch_target_hit_way_vector;
   end
 
-  assign lookup_branch_history_index = lookup_pc_i[BRANCH_HISTORY_INDEX_WIDTH+$clog2(
-      INSTRUCTION_BYTES
-  )-1:$clog2(
-      INSTRUCTION_BYTES
-  )];
-
-  // BHT训练请求先寄存一级，切断“EX控制流解析 -> BHT数组写口”的长组合路径。查询侧在
-  // 索引相同时旁路尚未落入数组的训练结果，使连续访问同一BHT entry时仍看到最新状态。
-  always_comb begin
-    lookup_branch_history_counter = branch_history_counter_array_q[lookup_branch_history_index];
-    if (branch_history_update_q.present &&
-        (branch_history_update_q.entry_index == lookup_branch_history_index)) begin
-      lookup_branch_history_counter = update_branch_history_counter(
-          lookup_branch_history_counter, branch_history_update_q.branch_taken
-      );
-    end
-  end
+  assign lookup_branch_history_counter = lookup_branch_history_counter_q;
   assign conditional_branch_predicted_taken = lookup_branch_history_counter[1];
 
   assign return_stack_top_index = decrement_return_stack_index(return_stack_write_index_q);
   assign return_stack_top_pc = return_stack_pc_array_q[return_stack_top_index];
-
-  always_comb begin
-    lookup_context_o                                    = '0;
-    lookup_context_o.conditional_branch_predicted_taken = conditional_branch_predicted_taken;
-    lookup_context_o.return_target_present              = return_stack_entry_count_q != '0;
-    lookup_context_o.return_target                      = return_stack_top_pc;
-  end
 
   // BTB miss默认顺序取指。return优先采用RAS；RAS为空时退回BTB记录的上一次目标，
   // 错误目标仍会由EX按请求随身携带的prediction精确检查并恢复。
@@ -251,8 +251,8 @@ module riscv32_fetch_control_flow_predictor
 
         TARGET_KIND_RETURN: begin
           predicted_taken = 1'b1;
-          if (return_stack_entry_count_q != '0) begin
-            predicted_target_pc = return_stack_top_pc;
+          if (lookup_return_target_present_q) begin
+            predicted_target_pc = lookup_return_target_q;
           end
         end
 
@@ -270,97 +270,7 @@ module riscv32_fetch_control_flow_predictor
     lookup_prediction_o.predicted_target = predicted_taken ? predicted_target_pc : '0;
     lookup_next_pc_o                     = predicted_taken ?
                                            predicted_target_pc :
-                                           lookup_pc_i + program_counter_t'(INSTRUCTION_BYTES);
-  end
-
-  // 响应侧只处理无需读取GPR即可确定目标的控制流：JAL、条件分支和标准ret。一般
-  // JALR的目标依赖rs1，仍使用请求侧BTB预测并由EX最终检查。这里不训练预测状态，
-  // 只使用请求时冻结的BHT/RAS上下文，因此下游反压期间不会改变valid payload。
-  assign response_opcode = response_fetch_entry_i.instruction[6:0];
-  assign response_rd = response_fetch_entry_i.instruction[11:7];
-  assign response_funct3 = response_fetch_entry_i.instruction[14:12];
-  assign response_rs1 = response_fetch_entry_i.instruction[19:15];
-  assign response_i_type_immediate = {
-    {(XLEN - 12) {response_fetch_entry_i.instruction[31]}},
-    response_fetch_entry_i.instruction[31:20]
-  };
-  assign response_b_type_immediate = {
-    {(XLEN - 13) {response_fetch_entry_i.instruction[31]}},
-    response_fetch_entry_i.instruction[31],
-    response_fetch_entry_i.instruction[7],
-    response_fetch_entry_i.instruction[30:25],
-    response_fetch_entry_i.instruction[11:8],
-    1'b0
-  };
-  assign response_j_type_immediate = {
-    {(XLEN - 21) {response_fetch_entry_i.instruction[31]}},
-    response_fetch_entry_i.instruction[31],
-    response_fetch_entry_i.instruction[19:12],
-    response_fetch_entry_i.instruction[20],
-    response_fetch_entry_i.instruction[30:21],
-    1'b0
-  };
-
-  assign response_conditional_branch_present =
-      (response_opcode == OPCODE_BRANCH) && branch_funct3_is_valid(response_funct3);
-  assign response_direct_jump_present = response_opcode == OPCODE_JAL;
-  // 只把imm=0的JALR识别为标准return。x1/x5加非零偏移时，RAS栈顶不等于目标。
-  assign response_return_present =
-      (response_opcode == OPCODE_JALR) && (response_funct3 == 3'b000) &&
-      is_link_register(arch_reg_idx_t'(response_rs1)) &&
-      (!is_link_register(arch_reg_idx_t'(response_rd)) || (response_rd != response_rs1)) &&
-      (response_i_type_immediate == '0);
-
-  always_comb begin
-    corrected_fetch_entry_o       = response_fetch_entry_i;
-    response_corrected_prediction = response_fetch_entry_i.prediction;
-    response_sequential_pc        = response_fetch_entry_i.pc +
-                                    program_counter_t'(INSTRUCTION_BYTES);
-    response_direct_target_pc     = '0;
-
-    if (!response_fetch_entry_i.exception_valid) begin
-      if (response_direct_jump_present) begin
-        response_direct_target_pc = response_fetch_entry_i.pc +
-                                    program_counter_t'(response_j_type_immediate);
-        response_corrected_prediction.predicted_taken = response_direct_target_pc[1:0] == 2'b00;
-        response_corrected_prediction.predicted_target =
-            response_corrected_prediction.predicted_taken ? response_direct_target_pc : '0;
-      end else if (response_conditional_branch_present) begin
-        response_direct_target_pc = response_fetch_entry_i.pc +
-                                    program_counter_t'(response_b_type_immediate);
-        response_corrected_prediction.predicted_taken =
-            response_context_i.conditional_branch_predicted_taken &&
-            (response_direct_target_pc[1:0] == 2'b00);
-        response_corrected_prediction.predicted_target =
-            response_corrected_prediction.predicted_taken ? response_direct_target_pc : '0;
-      end else if (response_return_present && response_context_i.return_target_present) begin
-        response_corrected_prediction.predicted_taken =
-            response_context_i.return_target[1:0] == 2'b00;
-        response_corrected_prediction.predicted_target =
-            response_corrected_prediction.predicted_taken ? response_context_i.return_target : '0;
-      end
-    end
-
-    corrected_fetch_entry_o.prediction = response_corrected_prediction;
-    response_original_next_pc = response_fetch_entry_i.prediction.predicted_taken ?
-                                response_fetch_entry_i.prediction.predicted_target :
-                                response_sequential_pc;
-    response_corrected_next_pc = response_corrected_prediction.predicted_taken ?
-                                 response_corrected_prediction.predicted_target :
-                                 response_sequential_pc;
-    response_prediction_correction_needed =
-        response_corrected_next_pc != response_original_next_pc;
-
-    fetch_correction_req_o                 = '0;
-    fetch_correction_req_o.target_pc       = response_corrected_next_pc;
-    fetch_correction_req_o.source_pc       = response_fetch_entry_i.pc;
-    fetch_correction_req_o.flush_inclusive = 1'b0;
-    fetch_correction_req_o.reason          = REDIRECT_FETCH_CORRECTION;
-    // 纠正和当前entry进入fetch buffer必须是同一次握手。下游反压时不能提前改变epoch，
-    // 否则尚未交付的当前指令会被误判为旧路径响应。
-    fetch_correction_req_valid_o = response_fetch_entry_valid_i &&
-                                   response_fetch_entry_ready_i &&
-                                   response_prediction_correction_needed;
+                                           lookup_pc_q + program_counter_t'(INSTRUCTION_BYTES);
   end
 
   // 训练优先更新同PC的已有way，其次占用第一个invalid way；set已满时才采用本set的
@@ -556,10 +466,16 @@ module riscv32_fetch_control_flow_predictor
 
 `ifndef SYNTHESIS
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    lookup_prediction_o.predicted_taken |->
+    (lookup_response_valid_o && lookup_prediction_o.predicted_taken) |->
       (lookup_next_pc_o == lookup_prediction_o.predicted_target &&
        (lookup_next_pc_o[1:0] == 2'b00)))
   else $error("fetch predictor emitted an invalid taken prediction");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lookup_response_valid_o && !lookup_response_ready_i)
+    |=> (lookup_response_valid_o && $stable(lookup_prediction_o) &&
+         $stable(lookup_next_pc_o)))
+  else $error("fetch predictor changed its response while backpressured");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     return_stack_entry_count_q <= return_stack_count_t'(RAS_ENTRY_COUNT))
@@ -569,12 +485,6 @@ module riscv32_fetch_control_flow_predictor
       lookup_branch_target_hit_way_vector
   ))
   else $error("multiple BTB ways matched the same lookup PC");
-
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    fetch_correction_req_valid_o |->
-      (response_fetch_entry_valid_i && response_fetch_entry_ready_i &&
-       (fetch_correction_req_o.target_pc[1:0] == 2'b00)))
-  else $error("fetch correction was emitted without a valid aligned response handshake");
 
 `endif
 
