@@ -14,6 +14,7 @@ module riscv32_exu_alu_tb;
   riscv32_exu u_exu (
       .execute_packet_i(execute_packet),
       .execute_packet_valid_i(execute_packet_valid),
+      .execute_packet_issue_allowed_i(1'b1),
       .execute_packet_ready_o(execute_packet_ready),
       .writeback_forwarding_result_i(writeback_forwarding_result),
       .writeback_forwarding_result_valid_i(writeback_forwarding_result_valid),

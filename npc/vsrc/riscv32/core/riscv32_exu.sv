@@ -3,6 +3,9 @@ module riscv32_exu
 (
     input  execute_packet_t execute_packet_i,
     input  logic            execute_packet_valid_i,
+    // valid只表示ID/EX中存在payload；issue_allowed决定本拍能否产生completion或访存副作用。
+    // 两者分离后，提交级异常kill不会穿过ALU/分支比较网络形成跨级关键路径。
+    input  logic            execute_packet_issue_allowed_i,
     output logic            execute_packet_ready_o,
 
     // 上一条已完成指令位于EX/MEM-WB寄存边界。相关的年轻指令先进入ID/EX，
@@ -238,8 +241,10 @@ module riscv32_exu
   end
 
   assign exu_result_o = exu_result;
-  assign exu_result_valid_o = execute_packet_valid_i && (execute_packet_i.uop.fu_type != FU_LSU);
-  assign lsu_req_valid_o = execute_packet_valid_i && (execute_packet_i.uop.fu_type == FU_LSU);
+  assign exu_result_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
+                              (execute_packet_i.uop.fu_type != FU_LSU);
+  assign lsu_req_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
+                           (execute_packet_i.uop.fu_type == FU_LSU);
   assign execute_packet_ready_o = (execute_packet_i.uop.fu_type == FU_LSU) ?
                                   lsu_req_ready_i : exu_result_ready_i;
 
