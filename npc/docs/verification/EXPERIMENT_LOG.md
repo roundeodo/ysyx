@@ -1329,3 +1329,33 @@ TNS和关键路径来源。
 状态反馈转移为IFU `next_fetch_request_pc_q`，说明删除一组逻辑没有消除全局瓶颈，只暴露
 了下一组接近的组合反馈路径。下一步不再删除预测能力，而是为预测PC、请求上下文和返回
 身份建立清晰的流水寄存/队列边界，在维持每拍请求能力的前提下切断next-PC反馈。
+
+### D-cache请求word提前响应否决实验
+
+随后评估“load miss收到请求word后立即向LSU响应，cache line其余word继续refill”的候选。
+该实验同时暴露了一条必须明确的协议边界：向LSU返回架构响应并不等于D-cache的物理事务
+已经结束；若refill或writeback仍在进行，数据子系统仍必须为D-cache保留AXI路由所有权，
+不能因为LSU已经收到数据就允许下一个请求切换路由。候选版本为此增加了独立的物理事务
+存续状态，功能、lint和定向测试均通过。
+
+| 指标 | 保留基线 | 请求word提前响应 | 变化 |
+| --- | ---: | ---: | ---: |
+| `test` PMU周期 | 1194972 | 1185795 | -0.768% |
+| `test` PMU IPC | 0.360010 | 0.362797 | +0.774% |
+| 完整运行周期 | 2745651 | 2737266 | -0.305% |
+| D-cache平均miss响应 | 57.574 cycles | 53.421 cycles | -4.153 cycles |
+| clean-victim miss响应 | 41.636 cycles | 31.448 cycles | -10.188 cycles |
+| dirty-victim miss响应 | 65.679 cycles | 64.594 cycles | -1.085 cycles |
+| 面积 | 69448.610 um^2 | 70378.812 um^2 | +1.34% |
+| Fmax | 766.875 MHz | 750.362 MHz | -2.15% |
+| max TNS | -457.502 | -967.029 | 恶化111.37% |
+| `IPC * Fmax` | 276.083 MIPS | 272.228 MIPS | -1.40% |
+
+当前`test`中dirty-victim占全部D-cache miss的66.290%，store也必须等待有序完成；因此该
+候选只对少数clean-victim load miss产生明显收益。它增加的物理事务生命周期和路由保持
+控制又落在现有LSU/数据路由关键路径组上，频率损失超过周期收益。候选在完整`train`前即
+被同口径`test + STA`否决并从RTL删除，恢复后`test`精确回到1194972周期、0.360010 IPC。
+
+后续若重新实现critical-load-first，必须把架构响应、line install、dirty writeback完成和
+AXI路由释放定义为四个独立事件，并通过MSHR或writeback queue保存物理事务状态；不能把
+“LSU已经收到数据”错误地当作“cache miss已经完全结束”。

@@ -82,6 +82,8 @@ module riscv32_pipeline_control_tb;
   logic              lsu_pending_writes_rd;
   arch_reg_idx_t     lsu_pending_rd;
   logic              lsu_forwarding_available;
+  logic              deferred_completion_present;
+  logic              execute_can_complete_behind_lsu;
   logic              execute_redirect_occurred;
   logic              commit_redirect_occurred;
   logic              decode_accept_allowed;
@@ -99,6 +101,19 @@ module riscv32_pipeline_control_tb;
   logic              rs2_execute_forwarding_selected;
   logic              rs2_lsu_forwarding_selected;
   logic              rs2_writeback_forwarding_selected;
+
+  execute_result_t   buffered_exu_result;
+  logic              buffered_exu_result_valid;
+  logic              buffered_exu_result_ready;
+  writeback_result_t buffered_lsu_writeback;
+  logic              buffered_lsu_writeback_valid;
+  logic              buffered_lsu_writeback_ready;
+  logic              buffered_older_lsu_transaction_present;
+  logic              buffered_deferred_completion_present;
+  writeback_result_t buffered_writeback_result;
+  logic              buffered_writeback_result_valid;
+  logic              buffered_writeback_result_ready;
+  logic              buffered_completion_flush;
 
   riscv32_ifu #(
       .PC_START(IFU_TEST_START_PC)
@@ -238,6 +253,8 @@ module riscv32_pipeline_control_tb;
       .lsu_pending_writes_rd_i     (lsu_pending_writes_rd),
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_forwarding_available),
+      .deferred_completion_present_i(deferred_completion_present),
+      .execute_can_complete_behind_lsu_i(execute_can_complete_behind_lsu),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -253,6 +270,23 @@ module riscv32_pipeline_control_tb;
       .rs2_execute_forwarding_selected_o(rs2_execute_forwarding_selected),
       .rs2_lsu_forwarding_selected_o(rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
+  );
+
+  riscv32_in_order_completion_buffer u_in_order_completion_buffer (
+      .clk_i                            (clk),
+      .rst_ni                           (rst_ni),
+      .exu_result_i                     (buffered_exu_result),
+      .exu_result_valid_i               (buffered_exu_result_valid),
+      .exu_result_ready_o               (buffered_exu_result_ready),
+      .lsu_writeback_i                  (buffered_lsu_writeback),
+      .lsu_writeback_valid_i            (buffered_lsu_writeback_valid),
+      .lsu_writeback_ready_o            (buffered_lsu_writeback_ready),
+      .older_lsu_transaction_present_i  (buffered_older_lsu_transaction_present),
+      .deferred_completion_present_o    (buffered_deferred_completion_present),
+      .writeback_result_o               (buffered_writeback_result),
+      .writeback_result_valid_o         (buffered_writeback_result_valid),
+      .writeback_result_ready_i         (buffered_writeback_result_ready),
+      .flush_i                          (buffered_completion_flush)
   );
 
   always #5 clk = ~clk;
@@ -325,10 +359,22 @@ module riscv32_pipeline_control_tb;
     lsu_pending_writes_rd         = 1'b0;
     lsu_pending_rd                = '0;
     lsu_forwarding_available      = 1'b0;
+    deferred_completion_present   = 1'b0;
+    execute_can_complete_behind_lsu = 1'b0;
     execute_redirect_occurred     = 1'b0;
     commit_redirect_occurred      = 1'b0;
     execute_forwarding_available  = 1'b0;
     writeback_forwarding_available = 1'b0;
+  endtask
+
+  task automatic clear_completion_buffer_inputs;
+    buffered_exu_result                    = '0;
+    buffered_exu_result_valid              = 1'b0;
+    buffered_lsu_writeback                 = '0;
+    buffered_lsu_writeback_valid           = 1'b0;
+    buffered_older_lsu_transaction_present = 1'b0;
+    buffered_writeback_result_ready        = 1'b1;
+    buffered_completion_flush              = 1'b0;
   endtask
 
   function automatic fetch_entry_t make_fetch_entry(input program_counter_t pc,
@@ -704,6 +750,19 @@ module riscv32_pipeline_control_tb;
     assert (structural_hazard_present && decode_accept_allowed && !execute_issue_allowed)
     else $fatal(1, "pipeline issued a younger instruction ahead of an older LSU transaction");
 
+    execute_can_complete_behind_lsu = 1'b1;
+    #1;
+    assert (!structural_hazard_present && decode_accept_allowed && execute_issue_allowed)
+    else $fatal(1, "pipeline did not allow one supported completion behind an older LSU");
+
+    deferred_completion_present = 1'b1;
+    #1;
+    assert (structural_hazard_present && !decode_accept_allowed && !execute_issue_allowed)
+    else $fatal(1, "pipeline issued additional work after filling the deferred completion slot");
+
+    deferred_completion_present     = 1'b0;
+    execute_can_complete_behind_lsu = 1'b0;
+
     // 在途load是位于EX与WB之间的最新生产者。数据未返回时依赖指令停在ID；返回当拍
     // 可直接从LSU completion前递，不必额外等待写回寄存器堆。
     lsu_pending_writes_rd        = 1'b1;
@@ -749,6 +808,67 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "commit redirect did not discard all younger work");
 
     clear_hazard_inputs();
+  endtask
+
+  task automatic check_in_order_completion_buffer;
+    writeback_result_t expected_deferred_result;
+
+    @(negedge clk);
+    clear_completion_buffer_inputs();
+    buffered_older_lsu_transaction_present = 1'b1;
+    buffered_exu_result.uop.pc              = program_counter_t'('h8000_1004);
+    buffered_exu_result.uop.writes_rd       = 1'b1;
+    buffered_exu_result.uop.rd              = arch_reg_idx_t'(7);
+    buffered_exu_result.result              = xlen_data_t'('h1234_5678);
+    buffered_exu_result.next_pc             = program_counter_t'('h8000_1008);
+    buffered_exu_result_valid               = 1'b1;
+    #1;
+    assert (buffered_exu_result_ready && !buffered_writeback_result_valid)
+    else $fatal(1, "completion buffer did not capture an EX result behind an older LSU");
+
+    expected_deferred_result           = '0;
+    expected_deferred_result.uop       = buffered_exu_result.uop;
+    expected_deferred_result.result    = buffered_exu_result.result;
+    expected_deferred_result.next_pc   = buffered_exu_result.next_pc;
+    expected_deferred_result.csr_wdata = buffered_exu_result.csr_wdata;
+
+    @(posedge clk);
+    @(negedge clk);
+    buffered_exu_result_valid        = 1'b0;
+    buffered_lsu_writeback           = '0;
+    buffered_lsu_writeback.uop.pc    = program_counter_t'('h8000_1000);
+    buffered_lsu_writeback.result    = xlen_data_t'('hfeed_beef);
+    buffered_lsu_writeback_valid     = 1'b1;
+    #1;
+    assert (buffered_deferred_completion_present &&
+            buffered_writeback_result_valid &&
+            (buffered_writeback_result == buffered_lsu_writeback))
+    else $fatal(1, "older LSU completion did not retain writeback priority");
+
+    @(posedge clk);
+    @(negedge clk);
+    buffered_lsu_writeback_valid           = 1'b0;
+    buffered_older_lsu_transaction_present = 1'b0;
+    buffered_writeback_result_ready        = 1'b0;
+    #1;
+    assert (buffered_writeback_result_valid &&
+            (buffered_writeback_result == expected_deferred_result))
+    else $fatal(1, "deferred completion was not presented after the older LSU");
+
+    @(posedge clk);
+    @(negedge clk);
+    #1;
+    assert (buffered_writeback_result_valid &&
+            (buffered_writeback_result == expected_deferred_result))
+    else $fatal(1, "deferred completion changed while writeback was backpressured");
+
+    buffered_writeback_result_ready = 1'b1;
+    @(posedge clk);
+    #1;
+    assert (!buffered_deferred_completion_present && !buffered_writeback_result_valid)
+    else $fatal(1, "deferred completion remained after ordered writeback");
+
+    clear_completion_buffer_inputs();
   endtask
 
   task automatic check_fetch_buffer;
@@ -1054,6 +1174,7 @@ module riscv32_pipeline_control_tb;
     writeback_flush              = 1'b0;
     clear_ifu_inputs();
     clear_hazard_inputs();
+    clear_completion_buffer_inputs();
     clear_fetch_buffer_inputs();
     clear_predictor_inputs();
 
@@ -1063,6 +1184,7 @@ module riscv32_pipeline_control_tb;
     check_decode_execute_stage();
     check_writeback_stage();
     check_hazard_controller();
+    check_in_order_completion_buffer();
     check_fetch_buffer();
     check_fetch_control_flow_predictor();
     check_precise_exception_age_priority();
