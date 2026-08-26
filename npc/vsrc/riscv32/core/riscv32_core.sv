@@ -71,15 +71,21 @@ module riscv32_core
   fence_i_maintenance_state_e fence_i_maintenance_state_q;
   fence_i_maintenance_state_e fence_i_maintenance_state_d;
 
-  // IFU维持一个I-cache lookup在途；两项fetch queue保存已完成响应并吸收短暂后端反压。
-  // 队列不是分支预测器，也不能掩盖无限停顿；其作用是让命中I-cache在后端短暂停顿时
-  // 继续逐拍预取，并把I-cache响应路径与IDU冒险判断隔开。
+  // 预测查询先于I-cache运行；IFU内部的窄请求队列保存PC、epoch、tag和prediction。
+  // fetch queue保存已经返回的指令。两级队列分别切断预测/I-cache与I-cache/IDU反压路径。
   fetch_entry_t ifu_fetch_entry;
   logic ifu_fetch_entry_valid;
   logic ifu_fetch_entry_ready;
+  program_counter_t next_pc_predictor_lookup_request_pc;
+  fetch_epoch_t next_pc_predictor_lookup_request_epoch;
+  logic next_pc_predictor_lookup_request_valid;
+  logic next_pc_predictor_lookup_request_ready;
+  program_counter_t next_pc_predictor_lookup_response_pc;
+  fetch_epoch_t next_pc_predictor_lookup_response_epoch;
   branch_prediction_t next_pc_predictor_prediction;
-  logic next_pc_predictor_request_ready;
-  logic next_pc_predictor_response_valid;
+  logic next_pc_predictor_lookup_response_valid;
+  logic next_pc_predictor_lookup_response_ready;
+  logic next_pc_predictor_flush;
   program_counter_t resolved_control_flow_target;
   logic fetch_taken_prediction_occurred;
   fetch_entry_t idu_fetch_entry;
@@ -227,15 +233,21 @@ module riscv32_core
       .rst_ni(rst_ni),
       .redirect_req_i(selected_redirect_req),
       .redirect_req_valid_i(selected_redirect_req_valid),
+      .next_pc_predictor_lookup_request_pc_o(next_pc_predictor_lookup_request_pc),
+      .next_pc_predictor_lookup_request_epoch_o(next_pc_predictor_lookup_request_epoch),
+      .next_pc_predictor_lookup_request_valid_o(next_pc_predictor_lookup_request_valid),
+      .next_pc_predictor_lookup_request_ready_i(next_pc_predictor_lookup_request_ready),
+      .next_pc_predictor_lookup_response_pc_i(next_pc_predictor_lookup_response_pc),
+      .next_pc_predictor_lookup_response_epoch_i(next_pc_predictor_lookup_response_epoch),
       .next_pc_predictor_prediction_i(next_pc_predictor_prediction),
+      .next_pc_predictor_lookup_response_valid_i(next_pc_predictor_lookup_response_valid),
+      .next_pc_predictor_lookup_response_ready_o(next_pc_predictor_lookup_response_ready),
+      .next_pc_predictor_flush_o(next_pc_predictor_flush),
       .icache_lookup_req_o(icache_lookup_req),
       .icache_lookup_req_valid_o(icache_lookup_req_valid),
-      .icache_lookup_req_ready_i (
-          icache_lookup_req_ready && next_pc_predictor_request_ready &&
-          frontend_memory_access_allowed
-      ),
+      .icache_lookup_req_ready_i(icache_lookup_req_ready && frontend_memory_access_allowed),
       .icache_lookup_resp_i(icache_lookup_resp),
-      .icache_lookup_resp_valid_i(icache_lookup_resp_valid && next_pc_predictor_response_valid),
+      .icache_lookup_resp_valid_i(icache_lookup_resp_valid),
       .icache_lookup_resp_ready_o(icache_lookup_resp_ready),
       .fetch_entry_o(ifu_fetch_entry),
       .fetch_entry_valid_o(ifu_fetch_entry_valid),
@@ -246,14 +258,11 @@ module riscv32_core
       .clk_i(clk_i),
       .rst_ni(rst_ni),
       .lookup_req_i(icache_lookup_req),
-      .lookup_req_valid_i (
-          icache_lookup_req_valid && next_pc_predictor_request_ready &&
-          frontend_memory_access_allowed
-      ),
+      .lookup_req_valid_i(icache_lookup_req_valid && frontend_memory_access_allowed),
       .lookup_req_ready_o(icache_lookup_req_ready),
       .lookup_resp_o(icache_lookup_resp),
       .lookup_resp_valid_o(icache_lookup_resp_valid),
-      .lookup_resp_ready_i(icache_lookup_resp_ready && next_pc_predictor_response_valid),
+      .lookup_resp_ready_i(icache_lookup_resp_ready),
       .invalidate_req_i(icache_invalidate_req),
       .invalidate_done_o(icache_invalidate_done),
       .cache_busy_o(icache_busy),
@@ -280,8 +289,8 @@ module riscv32_core
       .flush_i                (frontend_recovery_occurred)
   );
 
-  // 预测器与I-cache并行接收同一个PC，并通过ready/valid保持一一对应。任一侧无法接收时，
-  // 两侧都不能单独握手；返回时也只有预测结果和I-cache数据同时有效才允许IFU消费。
+  // 预测器在I-cache之前运行。预测响应与下一次预测请求可以同拍握手；IFU用frontend
+  // tag保存预测元数据，I-cache响应不再组合反馈到下一次预测和取指请求。
   assign resolved_control_flow_target =
       (resolved_execute_result.uop.branch_ctrl.op == CF_JALR) ?
       resolved_execute_result.next_pc :
@@ -291,15 +300,16 @@ module riscv32_core
   riscv32_fetch_control_flow_predictor u_fetch_control_flow_predictor (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
-      .lookup_request_pc_i(program_counter_t'(icache_lookup_req.fetch_addr)),
-      .lookup_request_valid_i             (
-          icache_lookup_req_valid && icache_lookup_req_ready && frontend_memory_access_allowed
-      ),
-      .lookup_request_ready_o(next_pc_predictor_request_ready),
+      .lookup_request_pc_i(next_pc_predictor_lookup_request_pc),
+      .lookup_request_epoch_i(next_pc_predictor_lookup_request_epoch),
+      .lookup_request_valid_i(next_pc_predictor_lookup_request_valid),
+      .lookup_request_ready_o(next_pc_predictor_lookup_request_ready),
+      .lookup_response_pc_o(next_pc_predictor_lookup_response_pc),
+      .lookup_response_epoch_o(next_pc_predictor_lookup_response_epoch),
       .lookup_prediction_o(next_pc_predictor_prediction),
       .lookup_next_pc_o(),
-      .lookup_response_valid_o(next_pc_predictor_response_valid),
-      .lookup_response_ready_i(icache_lookup_resp_ready && icache_lookup_resp_valid),
+      .lookup_response_valid_o(next_pc_predictor_lookup_response_valid),
+      .lookup_response_ready_i(next_pc_predictor_lookup_response_ready),
       .resolved_control_flow_pc_i(resolved_execute_result.uop.pc),
       .resolved_control_flow_target_i(resolved_control_flow_target),
       .resolved_control_flow_imm_i(resolved_execute_result.uop.imm),
@@ -316,6 +326,7 @@ module riscv32_core
           (resolved_execute_result.next_pc !=
            (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
+      .flush_lookup_i(next_pc_predictor_flush),
       .invalidate_i(icache_invalidate_req)
   );
 
@@ -646,21 +657,17 @@ module riscv32_core
       .clk_i(clk_i),
       .rst_ni(rst_ni),
       .ifu_instruction_request_occurred_i(
-          icache_lookup_req_valid && icache_lookup_req_ready &&
-          next_pc_predictor_request_ready && frontend_memory_access_allowed
+          icache_lookup_req_valid && icache_lookup_req_ready && frontend_memory_access_allowed
       ),
       .ifu_instruction_request_waiting_i(
           icache_lookup_req_valid &&
-          (!icache_lookup_req_ready || !next_pc_predictor_request_ready ||
-           !frontend_memory_access_allowed)
+          (!icache_lookup_req_ready || !frontend_memory_access_allowed)
       ),
       .ifu_instruction_response_occurred_i(
-          icache_lookup_resp_valid && next_pc_predictor_response_valid &&
-          icache_lookup_resp_ready
+          icache_lookup_resp_valid && icache_lookup_resp_ready
       ),
       .ifu_instruction_response_discarded_occurred_i(
-          icache_lookup_resp_valid && next_pc_predictor_response_valid &&
-          icache_lookup_resp_ready && !ifu_fetch_entry_valid
+          icache_lookup_resp_valid && icache_lookup_resp_ready && !ifu_fetch_entry_valid
       ),
       .ifu_instruction_delivery_occurred_i(idu_fetch_entry_valid && idu_fetch_entry_ready),
       .ifu_downstream_waiting_i(idu_fetch_entry_valid && !idu_fetch_entry_ready),
@@ -783,13 +790,12 @@ module riscv32_core
       .registered_redirect_req_valid_o(redirect_req_valid[COMMIT_REDIRECT_INDEX])
   );
 
-  // trap/mret和fence.i都在提交边界恢复控制流。它们必须清除同拍可能到达WB的年轻结果；
-  // 普通EX分支redirect只清除更年轻的ID/EX内容，不能清除分支自身的完成结果。
-  // commit异常必须在退休边界立即清除更年轻WB结果。EX分支redirect则先经过统一寄存边界，
-  // 下一拍同时阻止错误路径ID/EX内容执行并恢复IFU；这样不会把分支比较组合逻辑接到
-  // decode/fetch队列的状态输入，也不会让寄存边界中的错误路径指令产生副作用。
-  assign commit_redirect_occurred = commit_redirect_resolution_occurred ||
-                                    committed_fence_i_occurred;
+  // trap/mret必须在提交边界立即清除更年轻的后端工作。FENCE.I已经被IDU标记为
+  // serializing：它只有在所有老指令排空后才能进入，且在自己提交前不会接收年轻指令，
+  // 因此提交拍不需要再通过通用commit flush组合地kill LSU。FENCE.I的前端恢复仍经过
+  // u_fence_i_redirect_register，并与D-cache clean、I-cache invalidate维护状态机协同。
+  // 将两类事件分开也避免commit -> LSU -> D-cache array的跨模块关键路径。
+  assign commit_redirect_occurred = commit_redirect_resolution_occurred;
   assign frontend_recovery_occurred = selected_redirect_req_valid;
 
   riscv32_redirect_arbiter #(
@@ -832,6 +838,14 @@ module riscv32_core
   a_dcache_clean_fault_is_reported :
   assert property (@(posedge clk_i) disable iff (!rst_ni) !dcache_clean_access_fault)
   else $error("D-cache writeback failed during fence.i maintenance");
+
+  // FENCE.I依靠serializing语义排空后端，而不是在提交拍用组合flush补救。该性质成立时，
+  // committed_fence_i_occurred可以只启动已寄存的重定向和cache维护事务。
+  a_committed_fence_i_has_no_younger_backend_work :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    committed_fence_i_occurred |->
+    (!execute_packet_valid && !resolved_execute_result_valid && !lsu_transaction_active))
+  else $error("FENCE.I committed while younger backend work was still present");
 
   // 精确异常只允许在commit成为架构事件。该拍必须阻止更年轻的EX指令发出副作用，
   // 并同时清空ID/EX与可能同拍进入WB的年轻completion。

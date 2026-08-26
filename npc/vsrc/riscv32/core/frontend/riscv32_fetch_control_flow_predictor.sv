@@ -1,7 +1,7 @@
 // 前端控制流预测器。
 //
-// BTB/BHT/RAS与I-cache并行读取：请求握手时采样索引，下一拍给出预测结果。
-// 预测器响应和对应I-cache响应必须原子交付；最终控制流结果仍由EX精确校验。
+// BTB/BHT/RAS先于I-cache读取：请求握手时采样索引，下一拍给出预测结果。
+// IFU将预测结果排入窄请求队列，再访问I-cache；最终控制流结果仍由EX精确校验。
 module riscv32_fetch_control_flow_predictor
   import riscv32_pkg::*;
 #(
@@ -14,8 +14,11 @@ module riscv32_fetch_control_flow_predictor
     input logic rst_ni,
 
     input  program_counter_t   lookup_request_pc_i,
+    input  fetch_epoch_t       lookup_request_epoch_i,
     input  logic               lookup_request_valid_i,
     output logic               lookup_request_ready_o,
+    output program_counter_t   lookup_response_pc_o,
+    output fetch_epoch_t       lookup_response_epoch_o,
     output branch_prediction_t lookup_prediction_o,
     output program_counter_t   lookup_next_pc_o,
     output logic               lookup_response_valid_o,
@@ -30,7 +33,8 @@ module riscv32_fetch_control_flow_predictor
     input logic             resolved_control_flow_occurred_i,
     input logic             resolved_control_flow_taken_i,
 
-    // fence.i使可能被软件改写的指令重新可见；保存旧控制流目标的BTB也必须同步失效。
+    // redirect只清除当前查询流水，不清除训练状态；fence.i才清除可能过期的BTB内容。
+    input logic flush_lookup_i,
     input logic invalidate_i
 );
   localparam int unsigned BTB_SET_COUNT = BTB_ENTRY_COUNT / BTB_WAY_COUNT;
@@ -103,6 +107,7 @@ module riscv32_fetch_control_flow_predictor
   // S0在请求握手沿读取预测数组，S1只比较已寄存的set内容。这样关键路径不再从
   // next-PC寄存器穿过BTB阵列和目标选择后反馈到同一寄存器。
   program_counter_t lookup_pc_q;
+  fetch_epoch_t lookup_epoch_q;
   branch_target_entry_t lookup_way_entry_array_q[BTB_WAY_COUNT];
   logic [1:0] lookup_branch_history_counter_q;
   logic lookup_return_target_present_q;
@@ -180,7 +185,10 @@ module riscv32_fetch_control_flow_predictor
     return (current_counter == 2'b00) ? current_counter : current_counter - 2'b01;
   endfunction
 
-  assign lookup_request_ready_o = !lookup_response_valid_q || lookup_response_ready_i;
+  assign lookup_request_ready_o =
+      (!lookup_response_valid_q || lookup_response_ready_i) && !flush_lookup_i;
+  assign lookup_response_pc_o = lookup_pc_q;
+  assign lookup_response_epoch_o = lookup_epoch_q;
   assign lookup_response_valid_o = lookup_response_valid_q;
 
   assign lookup_request_branch_target_index =
@@ -196,12 +204,12 @@ module riscv32_fetch_control_flow_predictor
       INSTRUCTION_BYTES
   )];
 
-  // 预测请求和I-cache lookup在同一拍握手。BTB set、BHT counter和RAS栈顶在该时钟沿
-  // 同时进入S1寄存器，因此预测查找不会增加I-cache命中延迟。响应被反压时，valid和
+  // BTB set、BHT counter和RAS栈顶在请求握手沿进入S1寄存器。响应被反压时，valid和
   // 所有预测payload保持不变；响应离开与新请求进入可以发生在同一拍，吞吐为一拍一条。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       lookup_pc_q                    <= '0;
+      lookup_epoch_q                 <= '0;
       lookup_branch_history_counter_q <= 2'b01;
       lookup_return_target_present_q <= 1'b0;
       lookup_return_target_q         <= '0;
@@ -209,10 +217,13 @@ module riscv32_fetch_control_flow_predictor
       for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
         lookup_way_entry_array_q[way_index] <= '0;
       end
+    end else if (flush_lookup_i) begin
+      lookup_response_valid_q <= 1'b0;
     end else if (lookup_request_ready_o) begin
       lookup_response_valid_q <= lookup_request_valid_i;
       if (lookup_request_valid_i) begin
         lookup_pc_q <= lookup_request_pc_i;
+        lookup_epoch_q <= lookup_request_epoch_i;
         for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
           // BTB写入与同set查询同拍发生时，非阻塞赋值会让数组读口看到旧值；显式旁路
           // 即将写入的way，避免循环分支因为训练多一级而额外错失一次目标预测。

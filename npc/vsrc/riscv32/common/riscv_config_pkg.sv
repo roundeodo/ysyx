@@ -80,13 +80,13 @@ package riscv_config_pkg;
   localparam int unsigned LOAD_QUEUE_COUNT = 16;
   localparam int unsigned STORE_QUEUE_COUNT = 16;
   localparam int unsigned MEM_TXN_COUNT = 16;
-  // 当前前端同一时刻只有一个lookup在途，因此一位frontend tag足以区分
-  // 相邻请求。epoch的位宽不能只按在途请求数决定：同一条分支可先在ID级
+  // 前端预测流水、I-cache请求队列和I-cache S1最多同时保存3个不同请求，使用
+  // 4个frontend tag避免较老响应返回前发生tag回绕。epoch的位宽不能只按在途请求数决定：同一条分支可先在ID级
   // 产生预测redirect，再在EX级产生修正redirect。若epoch只有1位，两次递增会
   // 回绕到旧值，使本应作废的顺序取指响应被误判为当前响应。当前单在途前端在
   // 旧响应排空前最多发生这两次redirect，因此使用4个epoch值。未来增加多个在途
   // 取指时，必须重新证明tag和epoch的不回绕窗口，不能在子模块中私自加宽。
-  localparam int unsigned FRONTEND_TAG_COUNT = 2;
+  localparam int unsigned FRONTEND_TAG_COUNT = 4;
   // 请求侧next-PC predictor的容量也属于命名配置。BTB_ENTRY_COUNT是总表项数，
   // BTB_WAY_COUNT是每个set的路数；改变二者不能改变IFU携带prediction的协议。
   localparam int unsigned BRANCH_HISTORY_ENTRY_COUNT = `YSYX_BRANCH_HISTORY_ENTRY_COUNT;
