@@ -37,10 +37,18 @@ module riscv32_data_memory_subsystem
 
   data_route_state_e route_state_q, route_state_d;
   data_route_state_e selected_request_route;
-  logic selected_data_request_ready;
+  data_route_state_e target_request_route;
   pma_attr_t request_memory_attr;
   logic request_access_allowed;
   mem_txn_id_t fault_transaction_id_q, fault_transaction_id_d;
+
+  // 通常请求在当前拍直通到目标；只有目标反压时才在本地保存一份。
+  // 这个单项旁路缓存切断了目标ready到LSU状态寄存器的组合路径，但不给
+  // D-cache hit或可立即接收的uncached请求增加固定周期。
+  data_memory_req_t pending_target_request_q;
+  logic             pending_target_request_present_q;
+  logic             pending_target_request_present_d;
+  data_memory_req_t target_request;
 
   data_memory_req_t dcache_req;
   logic dcache_req_valid;
@@ -60,7 +68,11 @@ module riscv32_data_memory_subsystem
   axi4_manager_to_target_t uncached_axi_manager;
   axi4_target_to_manager_t uncached_axi_response;
 
-  logic selected_request_handshake;
+  logic new_request_window_open;
+  logic upstream_request_handshake;
+  logic selected_target_request_handshake;
+  logic dcache_request_handshake;
+  logic uncached_request_handshake;
   logic local_resp_handshake;
 
   riscv32_pma u_data_pma (
@@ -85,31 +97,32 @@ module riscv32_data_memory_subsystem
     end
   end
 
-  assign dcache_req = data_memory_req_i;
-  assign uncached_req = data_memory_req_i;
-  // IDLE是普通直通窗口；当前响应完成的同一拍也是滚动窗口。目标若能接收，下一请求
-  // 直接进入目标而不经过队列。D-cache利用该路径实现连续load hit每拍启动一次lookup。
-  assign dcache_req_valid = (route_state_q == DATA_ROUTE_IDLE || local_resp_handshake) &&
-                            !dcache_clean_req_i && data_memory_req_valid_i &&
-                            selected_request_route == DATA_ROUTE_DCACHE;
-  assign uncached_req_valid = (route_state_q == DATA_ROUTE_IDLE || local_resp_handshake) &&
-                              !dcache_clean_req_i && data_memory_req_valid_i &&
-                              selected_request_route == DATA_ROUTE_UNCACHED;
+  assign new_request_window_open = (route_state_q == DATA_ROUTE_IDLE) || local_resp_handshake;
 
-  always_comb begin
-    selected_data_request_ready = 1'b0;
-    if ((route_state_q == DATA_ROUTE_IDLE || local_resp_handshake) &&
-        !dcache_clean_req_i) begin
-      unique case (selected_request_route)
-        DATA_ROUTE_DCACHE: selected_data_request_ready = dcache_req_ready;
-        DATA_ROUTE_UNCACHED: selected_data_request_ready = uncached_req_ready;
-        DATA_ROUTE_ACCESS_FAULT: selected_data_request_ready = 1'b1;
-        default: ;
-      endcase
-    end
-  end
-  assign selected_request_handshake = data_memory_req_valid_i &&
-                                      selected_data_request_ready;
+  // pending请求的路由已在接收拍写入route_state_q，无需重新执行PMA。
+  // 没有pending请求时直接使用当前上游payload和它的PMA分类结果。
+  assign target_request = pending_target_request_present_q ? pending_target_request_q :
+                                                                data_memory_req_i;
+  assign target_request_route = pending_target_request_present_q ? route_state_q :
+                                                                    selected_request_route;
+  assign dcache_req   = target_request;
+  assign uncached_req = target_request;
+
+  // IDLE是普通直通窗口；当前响应完成的同一拍也是滚动窗口。目标若能接收，
+  // 新请求直接进入目标；否则pending_target_request_q在时钟沿保存它。
+  assign dcache_req_valid = !dcache_clean_req_i &&
+                            (pending_target_request_present_q ||
+                             (new_request_window_open && data_memory_req_valid_i)) &&
+                            target_request_route == DATA_ROUTE_DCACHE;
+  assign uncached_req_valid = !dcache_clean_req_i &&
+                              (pending_target_request_present_q ||
+                               (new_request_window_open && data_memory_req_valid_i)) &&
+                              target_request_route == DATA_ROUTE_UNCACHED;
+
+  assign dcache_request_handshake = dcache_req_valid && dcache_req_ready;
+  assign uncached_request_handshake = uncached_req_valid && uncached_req_ready;
+  assign selected_target_request_handshake = dcache_request_handshake ||
+                                              uncached_request_handshake;
 
   always_comb begin
     data_memory_resp_o = '0;
@@ -141,33 +154,35 @@ module riscv32_data_memory_subsystem
   end
   assign local_resp_handshake = data_memory_resp_valid_o && data_memory_resp_ready_i;
 
-  // 只有目标真正接收请求时才向LSU返回ready。已有事务完成的同一拍仍可把下一请求
-  // 直接交给目标；若目标反压，LSU已经锁存该请求并进入SEND状态，下一拍会重新发送。
-  // 因此子系统不再重复保存同一事务，也不会让额外队列进入execute到状态寄存器的路径。
-  always_comb begin
-    data_memory_req_ready_o = 1'b0;
-    if (!dcache_clean_req_i &&
-        (route_state_q == DATA_ROUTE_IDLE || local_resp_handshake)) begin
-      data_memory_req_ready_o = selected_data_request_ready;
-    end
-  end
+  // ready只表示数据子系统本地有能力接管新请求，不再组合依赖PMA或目标ready。
+  // 正常情况下pending项为空；它仅在目标反压后阻止再次接收。
+  assign data_memory_req_ready_o = !dcache_clean_req_i && new_request_window_open &&
+                                   !pending_target_request_present_q;
+  assign upstream_request_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
 
   always_comb begin
     route_state_d = route_state_q;
     fault_transaction_id_d = fault_transaction_id_q;
-    if (route_state_q == DATA_ROUTE_IDLE && selected_request_handshake) begin
+    if (upstream_request_handshake) begin
       route_state_d = selected_request_route;
       if (selected_request_route == DATA_ROUTE_ACCESS_FAULT) begin
         fault_transaction_id_d = data_memory_req_i.transaction_id;
       end
     end else if (route_state_q != DATA_ROUTE_IDLE && local_resp_handshake) begin
-      // 若下一请求已被目标直接接收，就在时钟沿把路由所有权切到新事务；否则先回到
-      // IDLE，无法直通的请求由下方单项队列保存。
-      route_state_d = selected_request_handshake ? selected_request_route : DATA_ROUTE_IDLE;
-      if (selected_request_handshake &&
-          selected_request_route == DATA_ROUTE_ACCESS_FAULT) begin
-        fault_transaction_id_d = data_memory_req_i.transaction_id;
-      end
+      route_state_d = DATA_ROUTE_IDLE;
+    end
+  end
+
+  always_comb begin
+    pending_target_request_present_d = pending_target_request_present_q;
+
+    if (pending_target_request_present_q && selected_target_request_handshake) begin
+      pending_target_request_present_d = 1'b0;
+    end
+
+    if (upstream_request_handshake && selected_request_route != DATA_ROUTE_ACCESS_FAULT &&
+        !selected_target_request_handshake) begin
+      pending_target_request_present_d = 1'b1;
     end
   end
 
@@ -178,6 +193,22 @@ module riscv32_data_memory_subsystem
 
   always_ff @(posedge clk_i) begin
     fault_transaction_id_q <= fault_transaction_id_d;
+  end
+
+  // payload在本地接收每个普通请求时都采样；只有present=1时才会读取。
+  // 不复位payload可以避免给纯数据寄存器增加异步复位网络。
+  always_ff @(posedge clk_i) begin
+    if (upstream_request_handshake && selected_request_route != DATA_ROUTE_ACCESS_FAULT) begin
+      pending_target_request_q <= data_memory_req_i;
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      pending_target_request_present_q <= 1'b0;
+    end else begin
+      pending_target_request_present_q <= pending_target_request_present_d;
+    end
   end
 
   generate
@@ -257,6 +288,21 @@ module riscv32_data_memory_subsystem
     route_state_q != DATA_ROUTE_IDLE && local_resp_handshake &&
       data_memory_req_valid_i && !data_memory_req_ready_o |=> data_memory_req_valid_i)
   else $error("LSU did not retain a rollover request rejected by the memory target");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    pending_target_request_present_q && !selected_target_request_handshake
+    |=> pending_target_request_present_q && $stable(pending_target_request_q))
+  else $error("pending data-memory request changed before its target accepted it");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    upstream_request_handshake && selected_request_route != DATA_ROUTE_ACCESS_FAULT &&
+      !selected_target_request_handshake |=> pending_target_request_present_q)
+  else $error("backpressured data-memory request was not retained locally");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    pending_target_request_present_q |->
+      (route_state_q == DATA_ROUTE_DCACHE || route_state_q == DATA_ROUTE_UNCACHED))
+  else $error("pending data-memory request has no matching target route");
 `endif
 
 endmodule
