@@ -47,7 +47,6 @@ module riscv32_data_memory_subsystem
   data_memory_resp_t dcache_resp;
   logic dcache_resp_valid;
   logic dcache_resp_ready;
-  logic dcache_memory_transaction_present;
   axi4_manager_to_target_t dcache_axi_manager;
   axi4_target_to_manager_t dcache_axi_response;
 
@@ -87,13 +86,8 @@ module riscv32_data_memory_subsystem
     end
   end
 
-  // D-cache允许load的需求word先于整行refill返回。此时架构请求已经完成，但line AXI
-  // 事务仍在后台接收剩余beat。单端口数据互联在此期间不能接收下一条cacheable或
-  // uncached请求，否则会切断仍在进行的refill响应。普通hit没有后台事务，仍可在
-  // response握手同拍滚动接收下一请求。
   assign new_request_window_open =
-      ((route_state_q == DATA_ROUTE_IDLE) && !dcache_memory_transaction_present) ||
-      (local_resp_handshake && !dcache_memory_transaction_present);
+      (route_state_q == DATA_ROUTE_IDLE) || local_resp_handshake;
 
   assign dcache_req   = data_memory_req_i;
   assign uncached_req = data_memory_req_i;
@@ -189,7 +183,6 @@ module riscv32_data_memory_subsystem
           .clean_done_o                (dcache_clean_done_o),
           .clean_access_fault_o        (dcache_clean_access_fault_o),
           .cache_busy_o                (dcache_busy_o),
-          .memory_transaction_present_o(dcache_memory_transaction_present),
           .event_o                     (dcache_event_o),
           .axi_manager_o               (dcache_axi_manager),
           .axi_manager_i               (dcache_axi_response)
@@ -201,7 +194,6 @@ module riscv32_data_memory_subsystem
       assign dcache_clean_done_o         = dcache_clean_req_i;
       assign dcache_clean_access_fault_o = 1'b0;
       assign dcache_busy_o               = 1'b0;
-      assign dcache_memory_transaction_present = 1'b0;
       assign dcache_event_o              = '0;
       assign dcache_axi_manager          = '0;
     end
@@ -230,8 +222,7 @@ module riscv32_data_memory_subsystem
     dcache_axi_response = '0;
     uncached_axi_response = '0;
 
-    if (dcache_clean_req_i || dcache_memory_transaction_present ||
-        route_state_q == DATA_ROUTE_DCACHE) begin
+    if (dcache_clean_req_i || route_state_q == DATA_ROUTE_DCACHE) begin
       axi_manager_o = dcache_axi_manager;
       dcache_axi_response = axi_manager_i;
     end else begin
@@ -254,11 +245,6 @@ module riscv32_data_memory_subsystem
     route_state_q != DATA_ROUTE_IDLE && local_resp_handshake &&
       data_memory_req_valid_i && !data_memory_req_ready_o |=> data_memory_req_valid_i)
   else $error("LSU did not retain a rollover request rejected by the memory target");
-
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    dcache_memory_transaction_present |->
-      !(data_memory_req_ready_o && selected_request_route == DATA_ROUTE_UNCACHED))
-  else $error("uncached request was accepted while a D-cache line transaction was active");
 
 `endif
 
