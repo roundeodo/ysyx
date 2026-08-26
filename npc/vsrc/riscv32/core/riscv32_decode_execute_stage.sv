@@ -169,10 +169,13 @@ module riscv32_decode_execute_stage
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     $onehot0({execute_forwardable_producer_present_o,
-              execute_blocking_producer_present_o}) &&
-    ((execute_forwardable_producer_present_o || execute_blocking_producer_present_o ||
-      execute_serializing_instruction_present_o) |-> execute_packet_valid_o))
-  else $error("ID/EX timing metadata diverged from the primary execute packet");
+              execute_blocking_producer_present_o}))
+  else $error("ID/EX marked one producer as both forwardable and blocking");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (execute_forwardable_producer_present_o || execute_blocking_producer_present_o ||
+     execute_serializing_instruction_present_o) |-> execute_packet_valid_o)
+  else $error("ID/EX timing metadata remained present without a valid execute packet");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 
