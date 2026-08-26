@@ -200,10 +200,12 @@ module riscv32_core
     decoded_register_read_packet.source_b_value =
         (gpr_write_enable && (gpr_write_addr == decoded_uop.rs2) && (decoded_uop.rs2 != '0)) ?
         gpr_write_data : rs2_value;
-    decoded_register_read_packet.csr_rdata      = csr_read_data;
-    decoded_register_read_packet.csr_illegal    = csr_read_illegal;
+    decoded_register_read_packet.csr_rdata      = '0;
+    decoded_register_read_packet.csr_illegal    = 1'b0;
 
-    decoded_execute_packet = register_read_packet;
+    decoded_execute_packet             = register_read_packet;
+    decoded_execute_packet.csr_rdata   = csr_read_data;
+    decoded_execute_packet.csr_illegal = csr_read_illegal;
 
     // 整数操作数选择在ID/EX寄存边界之前完成。其他执行类型仍需要真实rs1/rs2：
     // branch用它们比较，LSU用它们形成地址/写数据，CSR用source_a形成寄存器操作数。
@@ -450,9 +452,11 @@ module riscv32_core
   riscv32_csr_file u_csr_file (
       .clk_i                         (clk_i),
       .rst_ni                        (rst_ni),
-      .csr_read_enable_i             (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
-      .csr_read_addr_i               (decoded_uop.csr_ctrl.addr),
-      .csr_access_write_enable_i     (decoded_uop_valid && decoded_uop.csr_ctrl.write_enable),
+      .csr_read_enable_i             (register_read_packet_valid &&
+                                      register_read_packet.uop.csr_ctrl.read_enable),
+      .csr_read_addr_i               (register_read_packet.uop.csr_ctrl.addr),
+      .csr_access_write_enable_i     (register_read_packet_valid &&
+                                      register_read_packet.uop.csr_ctrl.write_enable),
       .csr_read_data_o               (csr_read_data),
       .csr_read_illegal_o            (csr_read_illegal),
       .csr_write_valid_i             (commit_valid && commit.csr_write),
@@ -479,6 +483,9 @@ module riscv32_core
       .register_read_packet_o              (register_read_packet),
       .register_read_packet_valid_o        (register_read_packet_valid),
       .register_read_packet_ready_i        (register_read_packet_ready),
+      .gpr_write_enable_i                  (gpr_write_enable),
+      .gpr_write_addr_i                    (gpr_write_addr),
+      .gpr_write_data_i                    (gpr_write_data),
       .flush_i                             (decode_execute_flush)
   );
 

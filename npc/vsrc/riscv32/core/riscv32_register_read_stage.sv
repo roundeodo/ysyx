@@ -15,6 +15,10 @@ module riscv32_register_read_stage
     output logic            register_read_packet_valid_o,
     input  logic            register_read_packet_ready_i,
 
+    input logic          gpr_write_enable_i,
+    input arch_reg_idx_t gpr_write_addr_i,
+    input xlen_data_t    gpr_write_data_i,
+
     input logic flush_i
 );
 
@@ -28,11 +32,22 @@ module riscv32_register_read_stage
   assign register_read_packet_o               = register_read_packet_q;
   assign register_read_packet_valid_o         = register_read_packet_valid_q;
 
-  // payload只在本级有空间时更新。被反压时保持不变；flush只清valid，错误路径留下的
-  // 物理数据不会再被后级解释为有效指令。
+  // payload有空间时接收新指令。若当前指令被反压，仍监听架构寄存器回写并更新命中的
+  // 源操作数快照，避免消费者等待其他结构资源期间错过生产者的WB周期。该监听只比较
+  // 两个5位寄存器号，不会把寄存器堆的32选1读mux重新接回ID/EX关键路径。
   always_ff @(posedge clk_i) begin
     if (decoded_register_read_packet_ready_o) begin
       register_read_packet_q <= decoded_register_read_packet_i;
+    end else if (register_read_packet_valid_q && gpr_write_enable_i &&
+                 (gpr_write_addr_i != arch_reg_idx_t'(0))) begin
+      if (register_read_packet_q.uop.uses_rs1 &&
+          (register_read_packet_q.uop.rs1 == gpr_write_addr_i)) begin
+        register_read_packet_q.source_a_value <= gpr_write_data_i;
+      end
+      if (register_read_packet_q.uop.uses_rs2 &&
+          (register_read_packet_q.uop.rs2 == gpr_write_addr_i)) begin
+        register_read_packet_q.source_b_value <= gpr_write_data_i;
+      end
     end
   end
 
@@ -49,9 +64,10 @@ module riscv32_register_read_stage
 `ifndef SYNTHESIS
   /* verilator lint_off SYNCASYNCNET */
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (register_read_packet_valid_o && !register_read_packet_ready_i && !flush_i)
+    (register_read_packet_valid_o && !register_read_packet_ready_i && !flush_i &&
+     !gpr_write_enable_i)
     |=> (register_read_packet_valid_o && $stable(register_read_packet_o)))
-  else $error("register-read stage changed packet while backpressured");
+  else $error("register-read stage changed packet while backpressured without a GPR write");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     flush_i |=> !register_read_packet_valid_o)
