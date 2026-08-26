@@ -13,6 +13,11 @@ module riscv32_exu
     input writeback_result_t writeback_forwarding_result_i,
     input logic              writeback_forwarding_result_valid_i,
 
+    // EX/MEM结果比WB结果年轻，相关时必须优先。该前递源已经过寄存，允许连续相关
+    // 整数指令保持每拍一条，同时避免组合ALU结果反向进入ID/EX。
+    input execute_result_t execute_stage_forwarding_result_i,
+    input logic            execute_stage_forwarding_result_valid_i,
+
     output execute_result_t exu_result_o,
     output logic            exu_result_valid_o,
     input  logic            exu_result_ready_i,
@@ -33,6 +38,8 @@ module riscv32_exu
   xlen_data_t       execute_rs2_value;
   logic             rs1_writeback_forwarding_selected;
   logic             rs2_writeback_forwarding_selected;
+  logic             rs1_execute_stage_forwarding_selected;
+  logic             rs2_execute_stage_forwarding_selected;
   xlen_data_t       alu_result;
   logic [WORD_WIDTH-1:0] word_result;
   xlen_data_t       csr_operand;
@@ -42,21 +49,35 @@ module riscv32_exu
   program_counter_t branch_target;
   program_counter_t sequential_next_pc;
   program_counter_t actual_next_pc;
-  program_counter_t predicted_next_pc;
   logic             branch_target_misaligned;
-  logic             branch_prediction_mismatch;
-  logic             branch_mispredict_redirect_valid;
   execute_result_t  exu_result;
 
-  assign rs1_writeback_forwarding_selected =
+  assign rs1_execute_stage_forwarding_selected =
       execute_packet_valid_i && execute_packet_i.uop.uses_rs1 &&
+      execute_stage_forwarding_result_valid_i &&
+      execute_stage_forwarding_result_i.uop.writes_rd &&
+      !execute_stage_forwarding_result_i.uop.exception_valid &&
+      (execute_stage_forwarding_result_i.uop.rd != '0) &&
+      (execute_stage_forwarding_result_i.uop.rd == execute_packet_i.uop.rs1);
+  assign rs2_execute_stage_forwarding_selected =
+      execute_packet_valid_i && execute_packet_i.uop.uses_rs2 &&
+      execute_stage_forwarding_result_valid_i &&
+      execute_stage_forwarding_result_i.uop.writes_rd &&
+      !execute_stage_forwarding_result_i.uop.exception_valid &&
+      (execute_stage_forwarding_result_i.uop.rd != '0) &&
+      (execute_stage_forwarding_result_i.uop.rd == execute_packet_i.uop.rs2);
+
+  assign rs1_writeback_forwarding_selected =
+      !rs1_execute_stage_forwarding_selected && execute_packet_valid_i &&
+      execute_packet_i.uop.uses_rs1 &&
       writeback_forwarding_result_valid_i &&
       writeback_forwarding_result_i.uop.writes_rd &&
       !writeback_forwarding_result_i.uop.exception_valid &&
       (writeback_forwarding_result_i.uop.rd != '0) &&
       (writeback_forwarding_result_i.uop.rd == execute_packet_i.uop.rs1);
   assign rs2_writeback_forwarding_selected =
-      execute_packet_valid_i && execute_packet_i.uop.uses_rs2 &&
+      !rs2_execute_stage_forwarding_selected && execute_packet_valid_i &&
+      execute_packet_i.uop.uses_rs2 &&
       writeback_forwarding_result_valid_i &&
       writeback_forwarding_result_i.uop.writes_rd &&
       !writeback_forwarding_result_i.uop.exception_valid &&
@@ -71,6 +92,12 @@ module riscv32_exu
     end
     if (rs2_writeback_forwarding_selected) begin
       execute_rs2_value = writeback_forwarding_result_i.result;
+    end
+    if (rs1_execute_stage_forwarding_selected) begin
+      execute_rs1_value = execute_stage_forwarding_result_i.result;
+    end
+    if (rs2_execute_stage_forwarding_selected) begin
+      execute_rs2_value = execute_stage_forwarding_result_i.result;
     end
   end
 
@@ -178,16 +205,7 @@ module riscv32_exu
   assign sequential_next_pc = execute_packet_i.uop.pc +
                               program_counter_t'(INSTRUCTION_BYTES);
   assign actual_next_pc = branch_taken ? branch_target : sequential_next_pc;
-  // predicted_target必须是IFU请求时真正采用的目标。对所有taken预测都使用该值，才能
-  // 发现BTB别名、旧目标以及RAS目标错误；用EX重算目标替代它会掩盖取错路径。
-  assign predicted_next_pc = execute_packet_i.uop.prediction.predicted_taken ?
-                             execute_packet_i.uop.prediction.predicted_target :
-                             sequential_next_pc;
   assign branch_target_misaligned = branch_taken && (branch_target[1:0] != 2'b00);
-  assign branch_prediction_mismatch = actual_next_pc != predicted_next_pc;
-  assign branch_mispredict_redirect_valid =
-      (execute_packet_i.uop.fu_type == FU_BRANCH) && branch_prediction_mismatch &&
-      !execute_packet_i.uop.exception_valid && !branch_target_misaligned;
 
   always_comb begin
     exu_result                              = '0;
@@ -197,11 +215,10 @@ module riscv32_exu
     // 长度决定；cache一次返回多少字节属于前端微架构，两者必须解耦。
     exu_result.next_pc                      = sequential_next_pc;
     exu_result.csr_wdata                    = csr_wdata;
-    exu_result.redirect_valid               = branch_mispredict_redirect_valid;
-    exu_result.redirect_req.target_pc       = actual_next_pc;
-    exu_result.redirect_req.source_pc       = execute_packet_i.uop.pc;
-    exu_result.redirect_req.reason          = REDIRECT_BRANCH_MISPREDICT;
-    exu_result.redirect_req.flush_inclusive = 1'b0;
+    // 预测校验位于后继EX/MEM寄存级之后。本级只计算真实next_pc，避免把预测比较继续
+    // 串在前递mux和分支加法器之后。
+    exu_result.redirect_valid               = 1'b0;
+    exu_result.redirect_req                 = '0;
 
     if (!execute_packet_i.uop.exception_valid &&
         (execute_packet_i.uop.fu_type == FU_CSR) && execute_packet_i.csr_illegal) begin

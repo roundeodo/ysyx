@@ -38,6 +38,7 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_decode_execute_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_frontend_redirect_register.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_pipeline_hazard_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_exu.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_execute_result_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_lsu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_completion_mux.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_writeback_stage.sv

@@ -107,6 +107,9 @@ module riscv32_core
   execute_result_t exu_result;
   logic exu_result_valid;
   logic exu_result_ready;
+  execute_result_t resolved_execute_result;
+  logic            resolved_execute_result_valid;
+  logic            resolved_execute_result_ready;
 
   lsu_req_t lsu_req;
   logic lsu_req_valid;
@@ -260,9 +263,10 @@ module riscv32_core
   // 预测器与I-cache并行接收同一个PC，并通过ready/valid保持一一对应。任一侧无法接收时，
   // 两侧都不能单独握手；返回时也只有预测结果和I-cache数据同时有效才允许IFU消费。
   assign resolved_control_flow_target =
-      (exu_result.uop.branch_ctrl.op == CF_JALR) ?
-      exu_result.next_pc :
-      exu_result.uop.pc + program_counter_t'(exu_result.uop.imm);
+      (resolved_execute_result.uop.branch_ctrl.op == CF_JALR) ?
+      resolved_execute_result.next_pc :
+      resolved_execute_result.uop.pc +
+      program_counter_t'(resolved_execute_result.uop.imm);
 
   riscv32_fetch_control_flow_predictor u_fetch_control_flow_predictor (
       .clk_i                              (clk_i),
@@ -278,20 +282,21 @@ module riscv32_core
       .lookup_response_ready_i            (
           icache_lookup_resp_ready && icache_lookup_resp_valid
       ),
-      .resolved_control_flow_pc_i         (exu_result.uop.pc),
+      .resolved_control_flow_pc_i         (resolved_execute_result.uop.pc),
       .resolved_control_flow_target_i     (resolved_control_flow_target),
-      .resolved_control_flow_imm_i        (exu_result.uop.imm),
-      .resolved_control_flow_op_i         (exu_result.uop.branch_ctrl.op),
-      .resolved_control_flow_rs1_i        (exu_result.uop.rs1),
-      .resolved_control_flow_rd_i         (exu_result.uop.rd),
+      .resolved_control_flow_imm_i        (resolved_execute_result.uop.imm),
+      .resolved_control_flow_op_i         (resolved_execute_result.uop.branch_ctrl.op),
+      .resolved_control_flow_rs1_i        (resolved_execute_result.uop.rs1),
+      .resolved_control_flow_rd_i         (resolved_execute_result.uop.rd),
       .resolved_control_flow_occurred_i   (
-          exu_result_valid && exu_result_ready &&
-          (exu_result.uop.fu_type == FU_BRANCH) && !exu_result.uop.exception_valid
+          resolved_execute_result_valid && resolved_execute_result_ready &&
+          (resolved_execute_result.uop.fu_type == FU_BRANCH) &&
+          !resolved_execute_result.uop.exception_valid
       ),
       .resolved_control_flow_taken_i      (
-          (exu_result.uop.branch_ctrl.op != CF_BRANCH) ||
-          (exu_result.next_pc !=
-           (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
+          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
+          (resolved_execute_result.next_pc !=
+           (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
       .invalidate_i                       (icache_invalidate_req)
   );
@@ -437,6 +442,9 @@ module riscv32_core
       .execute_rd_i                (execute_packet.uop.rd),
       .execute_serializing_i       (execute_packet.uop.serializing),
       .execute_forwarding_available_i(execute_forwarding_available),
+      .execute_result_valid_i      (resolved_execute_result_valid),
+      .execute_result_ready_i      (resolved_execute_result_ready),
+      .execute_result_serializing_i(resolved_execute_result.uop.serializing),
       .writeback_result_valid_i    (writeback_result_valid),
       .writeback_writes_rd_i       (writeback_result.uop.writes_rd),
       .writeback_rd_i              (writeback_result.uop.rd),
@@ -447,6 +455,8 @@ module riscv32_core
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
                                     !lsu_writeback.uop.exception_valid),
+      .execute_redirect_present_i  (resolved_execute_result_valid &&
+                                    resolved_execute_result.redirect_valid),
       .frontend_redirect_applied_i (selected_redirect_req_valid),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -488,12 +498,28 @@ module riscv32_core
       .execute_packet_ready_o(execute_packet_ready),
       .writeback_forwarding_result_i(writeback_result),
       .writeback_forwarding_result_valid_i(writeback_result_valid),
+      .execute_stage_forwarding_result_i(resolved_execute_result),
+      .execute_stage_forwarding_result_valid_i(resolved_execute_result_valid),
       .exu_result_o          (exu_result),
       .exu_result_valid_o    (exu_result_valid),
       .exu_result_ready_i    (exu_result_ready),
       .lsu_req_o             (lsu_req),
       .lsu_req_valid_o       (lsu_req_valid),
       .lsu_req_ready_i       (lsu_req_ready)
+  );
+
+  // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过，
+  // 且本级寄存结果作为最高优先级前递源返回EXU，因此新增时序边界不降低稳态吞吐。
+  riscv32_execute_result_stage u_execute_result_stage (
+      .clk_i                  (clk_i),
+      .rst_ni                 (rst_ni),
+      .executed_result_i      (exu_result),
+      .executed_result_valid_i(exu_result_valid),
+      .executed_result_ready_o(exu_result_ready),
+      .resolved_result_o      (resolved_execute_result),
+      .resolved_result_valid_o(resolved_execute_result_valid),
+      .resolved_result_ready_i(resolved_execute_result_ready),
+      .flush_i                (commit_redirect_occurred)
   );
 
   riscv32_lsu u_lsu (
@@ -535,9 +561,9 @@ module riscv32_core
   );
 
   riscv32_completion_mux u_completion_mux (
-      .exu_result_i             (exu_result),
-      .exu_result_valid_i       (exu_result_valid),
-      .exu_result_ready_o       (exu_result_ready),
+      .exu_result_i             (resolved_execute_result),
+      .exu_result_valid_i       (resolved_execute_result_valid),
+      .exu_result_ready_o       (resolved_execute_result_ready),
       .lsu_writeback_i          (lsu_writeback),
       .lsu_writeback_valid_i    (lsu_writeback_valid),
       .lsu_writeback_ready_o    (lsu_writeback_ready),
@@ -613,7 +639,8 @@ module riscv32_core
       .instruction_decode_occurred_i(idu_decoded_uop_valid && idu_decoded_uop_ready),
       .decoded_fu_type_i(idu_decoded_uop.fu_type),
       .decoded_memory_cmd_i(idu_decoded_uop.mem_ctrl.cmd),
-      .exu_completion_occurred_i(exu_result_valid && exu_result_ready),
+      .exu_completion_occurred_i(resolved_execute_result_valid &&
+                                 resolved_execute_result_ready),
       .lsu_completion_occurred_i(lsu_writeback_valid && lsu_writeback_ready),
       .instruction_retirement_occurred_i(retired_instruction_occurred),
       .pipeline_raw_hazard_waiting_i(raw_hazard_present),
@@ -628,17 +655,18 @@ module riscv32_core
       // 若用它与当前exu_result配对，会把纠错归到下一条无关指令。
       .execute_misprediction_redirect_occurred_i(execute_redirect_resolution_occurred),
       .control_flow_resolution_occurred_i(
-          exu_result_valid && exu_result_ready &&
-          (exu_result.uop.fu_type == FU_BRANCH) && !exu_result.uop.exception_valid
+          resolved_execute_result_valid && resolved_execute_result_ready &&
+          (resolved_execute_result.uop.fu_type == FU_BRANCH) &&
+          !resolved_execute_result.uop.exception_valid
       ),
-      .resolved_control_flow_op_i(exu_result.uop.branch_ctrl.op),
-      .resolved_control_flow_pc_i(exu_result.uop.pc),
+      .resolved_control_flow_op_i(resolved_execute_result.uop.branch_ctrl.op),
+      .resolved_control_flow_pc_i(resolved_execute_result.uop.pc),
       .resolved_control_flow_taken_i(
-          (exu_result.uop.branch_ctrl.op != CF_BRANCH) ||
-          (exu_result.next_pc !=
-           (exu_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
+          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
+          (resolved_execute_result.next_pc !=
+           (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
       ),
-      .resolved_control_flow_immediate_i(exu_result.uop.imm),
+      .resolved_control_flow_immediate_i(resolved_execute_result.uop.imm),
       .lsu_request_occurred_i(lsu_req_valid && lsu_req_ready),
       .lsu_request_memory_cmd_i(lsu_req.uop.mem_ctrl.cmd),
       .lsu_read_address_occurred_i(data_axi4_manager_o.ar_valid && data_axi4_manager_i.ar_ready),
@@ -687,9 +715,10 @@ module riscv32_core
       .redirect_req_valid_o(commit_redirect_resolution_occurred)
   );
 
-  assign execute_redirect_req_at_resolution = exu_result.redirect_req;
-  assign execute_redirect_resolution_occurred = exu_result_valid && exu_result_ready &&
-                                                exu_result.redirect_valid;
+  assign execute_redirect_req_at_resolution = resolved_execute_result.redirect_req;
+  assign execute_redirect_resolution_occurred =
+      resolved_execute_result_valid && resolved_execute_result_ready &&
+      resolved_execute_result.redirect_valid;
 
   // Every redirect source crosses the same registered frontend boundary. Pipeline flushes
   // still use the raw discovery events below, so this timing register does not permit a
@@ -788,11 +817,11 @@ module riscv32_core
      !execute_issue_allowed))
   else $error("committed exception did not block and flush younger pipeline work");
 
-  a_registered_execute_redirect_blocks_younger_execute :
+  a_resolved_execute_redirect_blocks_younger_execute :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    execute_redirect_occurred |->
+    (resolved_execute_result_valid && resolved_execute_result.redirect_valid) |->
       (decode_execute_flush && !execute_issue_allowed && !lsu_req_valid))
-  else $error("registered execute redirect allowed a wrong-path EX side effect");
+  else $error("resolved execute redirect allowed a wrong-path EX side effect");
 
   /* verilator lint_on SYNCASYNCNET */
 `endif

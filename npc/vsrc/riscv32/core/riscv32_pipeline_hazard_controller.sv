@@ -19,6 +19,12 @@ module riscv32_pipeline_hazard_controller
     input logic          execute_serializing_i,
     input logic          execute_forwarding_available_i,
 
+    // EXU结果经过EX/MEM寄存器后再进入完成端。该级中的普通整数结果可前递；但当
+    // 下游反压时，年轻指令不能绕过它发起LSU副作用。串行化属性也必须保持到该级离开。
+    input logic execute_result_valid_i,
+    input logic execute_result_ready_i,
+    input logic execute_result_serializing_i,
+
     input logic          writeback_result_valid_i,
     input logic          writeback_writes_rd_i,
     input arch_reg_idx_t writeback_rd_i,
@@ -32,8 +38,9 @@ module riscv32_pipeline_hazard_controller
     input arch_reg_idx_t lsu_pending_rd_i,
     input logic          lsu_forwarding_available_i,
 
-    // EX解析结果先经过redirect寄存器。下一拍应用到前端时，同时阻止并清除已经进入
-    // ID/EX的错误路径指令，避免把EX分支比较组合路径反向接到所有年轻流水级寄存器。
+    // 误预测判断来自EX/MEM寄存结果，不经过EXU组合路径。发现误预测的同拍必须阻止
+    // 年轻指令产生副作用；frontend_redirect_applied_i在下一拍恢复IFU取指地址。
+    input logic execute_redirect_present_i,
     input logic frontend_redirect_applied_i,
     input logic commit_redirect_occurred_i,
 
@@ -65,6 +72,7 @@ module riscv32_pipeline_hazard_controller
   logic older_serializing_instruction_present;
   logic older_instruction_present;
   logic control_recovery_occurred;
+  logic execute_result_stalled;
 
   always_comb begin
     execute_writes_rs1 = decoded_uop_valid_i && execute_uop_valid_i && execute_writes_rd_i &&
@@ -126,10 +134,11 @@ module riscv32_pipeline_hazard_controller
   assign raw_hazard_present_o = decoded_uop_valid_i &&
                                 (rs1_value_unavailable || rs2_value_unavailable);
 
-  assign older_instruction_present = execute_uop_valid_i || writeback_result_valid_i ||
-                                     lsu_busy_i;
+  assign older_instruction_present = execute_uop_valid_i || execute_result_valid_i ||
+                                     writeback_result_valid_i || lsu_busy_i;
   assign older_serializing_instruction_present =
       (execute_uop_valid_i && execute_serializing_i) ||
+      (execute_result_valid_i && execute_result_serializing_i) ||
       (writeback_result_valid_i && writeback_serializing_i);
 
   // 串行化指令必须等所有老指令离开后端后才能进入；进入后又阻止年轻指令，直到自己提交。
@@ -137,18 +146,22 @@ module riscv32_pipeline_hazard_controller
       (older_serializing_instruction_present ||
        (decoded_serializing_i && older_instruction_present));
 
-  assign control_recovery_occurred = frontend_redirect_applied_i ||
+  assign control_recovery_occurred = execute_redirect_present_i ||
+                                     frontend_redirect_applied_i ||
                                      commit_redirect_occurred_i;
 
   assign structural_hazard_present_o = lsu_busy_i;
+  assign execute_result_stalled = execute_result_valid_i && !execute_result_ready_i;
 
   assign decode_accept_allowed_o = !raw_hazard_present_o &&
                                    !serializing_hazard_present_o &&
                                    !control_recovery_occurred;
 
   // blocking LSU占用唯一的顺序完成位置时，年轻指令可以停在ID/EX，但不能执行并越过它。
-  assign execute_issue_allowed_o = !frontend_redirect_applied_i &&
-                                   !commit_redirect_occurred_i && !lsu_busy_i;
+  assign execute_issue_allowed_o = !execute_redirect_present_i &&
+                                   !frontend_redirect_applied_i &&
+                                   !commit_redirect_occurred_i &&
+                                   !execute_result_stalled && !lsu_busy_i;
 
   assign decode_execute_flush_o = control_recovery_occurred;
   assign writeback_flush_o = commit_redirect_occurred_i;
@@ -166,6 +179,10 @@ module riscv32_pipeline_hazard_controller
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     lsu_busy_i |-> !execute_issue_allowed_o)
   else $error("pipeline issued a younger instruction ahead of an older LSU transaction");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    execute_result_stalled |-> !execute_issue_allowed_o)
+  else $error("pipeline issued a younger instruction around a stalled EX/MEM result");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     $onehot0({rs1_execute_forwarding_selected_o, rs1_lsu_forwarding_selected_o,

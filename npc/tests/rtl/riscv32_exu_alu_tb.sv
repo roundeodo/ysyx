@@ -18,6 +18,8 @@ module riscv32_exu_alu_tb;
       .execute_packet_ready_o(execute_packet_ready),
       .writeback_forwarding_result_i(writeback_forwarding_result),
       .writeback_forwarding_result_valid_i(writeback_forwarding_result_valid),
+      .execute_stage_forwarding_result_i('0),
+      .execute_stage_forwarding_result_valid_i(1'b0),
       .exu_result_o(exu_result),
       .exu_result_valid_o(exu_result_valid),
       .exu_result_ready_i(1'b1),
