@@ -4,7 +4,6 @@
 // 模块局部派生宽度。当前活动主线只支持RV64，不保留RV32兼容分支。
 package riscv_config_pkg;
 
-  localparam int unsigned CONFIG_SELECTION_COUNT = 1;
   localparam int unsigned XLEN = 64;
   localparam int unsigned CORE_DATA_WIDTH = 64;
   localparam int unsigned MEM_AXI_DATA_WIDTH = 64;
@@ -33,7 +32,6 @@ package riscv_config_pkg;
   // - ARCH_REG_COUNT：架构整数寄存器数量；RV32I和RV64I均为32。
 
   // 只依赖全局配置、且被多个package共同使用的派生量。
-  localparam int unsigned XLEN_BYTE_COUNT = XLEN / 8;
   localparam int unsigned CORE_DATA_BYTE_COUNT = CORE_DATA_WIDTH / 8;
   localparam int unsigned MEM_AXI_DATA_BYTE_COUNT = MEM_AXI_DATA_WIDTH / 8;
   localparam int unsigned YSYX_SOC_AXI_DATA_BYTE_COUNT = YSYX_SOC_AXI_DATA_WIDTH / 8;
@@ -44,20 +42,8 @@ package riscv_config_pkg;
   // XLEN、core数据和memory AXI当前均为64位，但物理地址和指令仍为32位。
   // 相同数值不表示语义相同，各模块必须使用对应typedef表达所有权。
 
-  // 全核共享的微架构容量和构建选择。这些参数描述“选择什么实现”，不是payload类型。
-  localparam int unsigned FETCH_WIDTH = 1;
-  localparam int unsigned DECODE_WIDTH = 1;
-  localparam int unsigned RENAME_WIDTH = 1;
-  localparam int unsigned DISPATCH_WIDTH = 1;
-  localparam int unsigned COMMIT_WIDTH = 1;
-  localparam int unsigned INT_ISSUE_WIDTH = 1;
-  localparam int unsigned MEM_ISSUE_WIDTH = 1;
-  //
-  localparam int unsigned PHYS_REG_COUNT = 64;
-  localparam int unsigned ROB_ENTRY_COUNT = 32;
-  localparam int unsigned LOAD_QUEUE_COUNT = 16;
-  localparam int unsigned STORE_QUEUE_COUNT = 16;
-  localparam int unsigned MEM_TXN_COUNT = 16;
+  // 全核共享的当前微架构容量和构建选择。尚未实现的rename、ROB、issue queue和
+  // LSQ参数不在这里占位；进入乱序阶段时应由真实模块及其接口共同引入。
   // 前端预测流水、I-cache请求队列和I-cache S1最多同时保存3个不同请求，使用
   // 4个frontend tag避免较老响应返回前发生tag回绕。epoch的位宽不能只按在途请求数决定：同一条分支可先在ID级
   // 产生预测redirect，再在EX级产生修正redirect。若epoch只有1位，两次递增会
@@ -85,7 +71,6 @@ package riscv_config_pkg;
   localparam int unsigned DCACHE_CAPACITY_BYTES = `YSYX_DCACHE_CAPACITY_BYTES;
   localparam int unsigned DCACHE_WAY_COUNT = `YSYX_DCACHE_WAY_COUNT;
   localparam int unsigned DCACHE_LINE_BYTES = `YSYX_DCACHE_LINE_BYTES;
-  localparam int unsigned DCACHE_MSHR_COUNT = 1;
   localparam int unsigned FETCH_EPOCH_COUNT = 4;
   //
   // 命名规则：数量使用*_COUNT，位宽使用*_WIDTH，容量明确写出单位*_BYTES。

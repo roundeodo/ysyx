@@ -2,8 +2,6 @@ module riscv_config_elaboration_tb;
   import riscv_config_pkg::*;
 
   initial begin
-    assert (CONFIG_SELECTION_COUNT == 1)
-      else $fatal(1, "exactly one NPC configuration must be selected");
     assert (INSTR_WIDTH == 32);
     assert (PADDR_WIDTH == 32);
     assert (ARCH_REG_COUNT == 32);

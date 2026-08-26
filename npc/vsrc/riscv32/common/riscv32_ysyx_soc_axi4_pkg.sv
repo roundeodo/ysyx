@@ -1,7 +1,7 @@
 // ysyxSoC CPU插槽的固定AXI4类型。
 //
 // 这些类型只允许出现在system integration边界。core、cache和standalone memory
-// 必须继续使用riscv32_axi4_pkg中的MEM_AXI_*类型，不能被课程SoC的32位数据口限制。
+// 必须继续使用riscv32_axi4_pkg中的MEM_AXI_*类型，不能被外部SoC的32位数据口限制。
 package riscv32_ysyx_soc_axi4_pkg;
 
   import riscv_config_pkg::*;

@@ -6,7 +6,7 @@
 
 PROJECT ?= riscv32
 # 当前只维护RV64边缘AI主线。容量参数仍保留为构建参数，方便cachesim/RTL联合探索；
-# 这里的默认值是功能基线，不是面积竞赛配置，后续应由SRAM macro替代触发器阵列。
+# 默认值定义可回归的功能基线，后续物理实现可在array模块内部替换为SRAM macro。
 NPC_CONFIG ?= rv64-edge-ai
 NPC_ICACHE_WAY_COUNT      ?= 2
 NPC_ICACHE_CAPACITY_BYTES ?= 4096
@@ -997,7 +997,7 @@ branchsim-explore: $(BRANCHSIM_BINARY)
 # Reproducible performance evaluation
 # ============================================================
 
-# 性能基线运行standalone RV64镜像，不再绑定课程SoC和其外设时序。
+# 性能基线运行standalone RV64镜像；外部SoC平台另行记录，避免混合不同存储时序。
 PERF_ARCH             ?= riscv64-npc
 PERF_SCALE            ?= train
 PERF_MICROBENCH_DIR   := $(MICROBENCH_DIR)
