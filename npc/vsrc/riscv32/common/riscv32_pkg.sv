@@ -10,6 +10,11 @@ package riscv32_pkg;
   import riscv32_addr_map_pkg::*;
 
   localparam int unsigned ARCH_REG_IDX_W = (ARCH_REG_COUNT > 1) ? $clog2(ARCH_REG_COUNT) : 1;
+  localparam int unsigned PHYS_REG_IDX_W = (PHYS_REG_COUNT > 1) ? $clog2(PHYS_REG_COUNT) : 1;
+  localparam int unsigned ROB_IDX_W = (ROB_ENTRY_COUNT > 1) ? $clog2(ROB_ENTRY_COUNT) : 1;
+  localparam int unsigned LQ_IDX_W = (LOAD_QUEUE_COUNT > 1) ? $clog2(LOAD_QUEUE_COUNT) : 1;
+  localparam int unsigned SQ_IDX_W = (STORE_QUEUE_COUNT > 1) ? $clog2(STORE_QUEUE_COUNT) : 1;
+  localparam int unsigned MEM_TXN_IDX_W = (MEM_TXN_COUNT > 1) ? $clog2(MEM_TXN_COUNT) : 1;
   localparam int unsigned FRONTEND_TAG_W = (FRONTEND_TAG_COUNT > 1) ? $clog2(
       FRONTEND_TAG_COUNT
   ) : 1;
@@ -105,6 +110,11 @@ package riscv32_pkg;
 
   // 统一索引类型
   typedef logic [ARCH_REG_IDX_W-1:0] arch_reg_idx_t;
+  typedef logic [PHYS_REG_IDX_W-1:0] phys_reg_idx_t;
+  typedef logic [ROB_IDX_W-1:0] rob_idx_t;
+  typedef logic [LQ_IDX_W-1:0] lq_idx_t;
+  typedef logic [SQ_IDX_W-1:0] sq_idx_t;
+  typedef logic [MEM_TXN_IDX_W-1:0] mem_txn_id_t;
   typedef logic [FRONTEND_TAG_W-1:0] frontend_tag_t;
 
   // 语义操作枚举。零值表示不产生副作用，使组合逻辑可以统一使用payload='0作为默认值。

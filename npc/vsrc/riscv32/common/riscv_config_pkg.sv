@@ -43,7 +43,22 @@ package riscv_config_pkg;
   // 相同数值不表示语义相同，各模块必须使用对应typedef表达所有权。
 
   // 全核共享的当前微架构容量和构建选择。尚未实现的rename、ROB、issue queue和
-  // LSQ参数不在这里占位；进入乱序阶段时应由真实模块及其接口共同引入。
+  // LSQ模块尚未实例化，但其跨模块契约已经定义在riscv32_pkg中，因此容量和索引宽度
+  // 必须由同一配置源拥有。进入P4时这些值会成为真实存储阵列和队列的构建参数。
+  localparam int unsigned FETCH_WIDTH = 1;
+  localparam int unsigned DECODE_WIDTH = 1;
+  localparam int unsigned RENAME_WIDTH = 1;
+  localparam int unsigned DISPATCH_WIDTH = 1;
+  localparam int unsigned COMMIT_WIDTH = 1;
+  localparam int unsigned INT_ISSUE_WIDTH = 1;
+  localparam int unsigned MEM_ISSUE_WIDTH = 1;
+  //
+  localparam int unsigned PHYS_REG_COUNT = 64;
+  localparam int unsigned ROB_ENTRY_COUNT = 32;
+  localparam int unsigned LOAD_QUEUE_COUNT = 16;
+  localparam int unsigned STORE_QUEUE_COUNT = 16;
+  // transaction_id已经用于当前LSU与数据存储子系统，不能视为未来占位。
+  localparam int unsigned MEM_TXN_COUNT = 16;
   // 前端预测流水、I-cache请求队列和I-cache S1最多同时保存3个不同请求，使用
   // 4个frontend tag避免较老响应返回前发生tag回绕。epoch的位宽不能只按在途请求数决定：同一条分支可先在ID级
   // 产生预测redirect，再在EX级产生修正redirect。若epoch只有1位，两次递增会
