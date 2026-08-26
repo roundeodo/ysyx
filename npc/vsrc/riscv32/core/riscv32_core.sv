@@ -181,7 +181,9 @@ module riscv32_core
   logic execute_redirect_resolution_occurred;
   logic commit_redirect_occurred;
   logic frontend_recovery_occurred;
-  logic execute_forwarding_available;
+  logic execute_forwardable_producer_present;
+  logic execute_blocking_producer_present;
+  logic execute_serializing_instruction_present;
   logic execute_result_forwarding_available;
   logic writeback_forwarding_available;
   logic rs1_execute_forwarding_selected;
@@ -491,14 +493,6 @@ module riscv32_core
 
   assign decoded_uop_ready = decoded_register_read_packet_ready;
 
-  // 当前EX指令能否在下一拍通过EX/MEM -> EX路径提供结果，只由ID/EX中已经寄存的
-  // 指令属性决定。load结果必须等待LSU completion，因此FU_LSU仍被判定为不可旁路。
-  assign execute_forwarding_available = execute_packet_valid &&
-                                        execute_packet.uop.writes_rd &&
-                                        !execute_packet.uop.exception_valid &&
-                                        (execute_packet.uop.fu_type != FU_LSU) &&
-                                        !((execute_packet.uop.fu_type == FU_CSR) &&
-                                          execute_packet.csr_illegal);
   assign execute_result_forwarding_available = resolved_execute_result_valid &&
                                                 resolved_execute_result.uop.writes_rd &&
                                                 !resolved_execute_result.uop.exception_valid;
@@ -514,11 +508,10 @@ module riscv32_core
       .decoded_uses_rs2_i(register_read_packet.uop.uses_rs2),
       .decoded_rs2_i(register_read_packet.uop.rs2),
       .decoded_serializing_i(register_read_packet.uop.serializing),
-      .execute_uop_valid_i(execute_packet_valid),
-      .execute_writes_rd_i(execute_packet.uop.writes_rd),
+      .execute_forwardable_producer_present_i(execute_forwardable_producer_present),
+      .execute_blocking_producer_present_i(execute_blocking_producer_present),
       .execute_rd_i(execute_packet.uop.rd),
-      .execute_serializing_i(execute_packet.uop.serializing),
-      .execute_forwarding_available_i(execute_forwarding_available),
+      .execute_serializing_instruction_present_i(execute_serializing_instruction_present),
       .execute_result_valid_i(resolved_execute_result_valid),
       .execute_result_ready_i(resolved_execute_result_ready),
       .execute_result_writes_rd_i(resolved_execute_result.uop.writes_rd),
@@ -567,6 +560,9 @@ module riscv32_core
       .execute_packet_o              (execute_packet),
       .execute_packet_valid_o        (execute_packet_valid),
       .execute_packet_ready_i        (execute_packet_ready && execute_progress_allowed),
+      .execute_forwardable_producer_present_o(execute_forwardable_producer_present),
+      .execute_blocking_producer_present_o(execute_blocking_producer_present),
+      .execute_serializing_instruction_present_o(execute_serializing_instruction_present),
       .flush_i                       (decode_execute_flush)
   );
 

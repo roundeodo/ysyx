@@ -14,6 +14,13 @@ module riscv32_decode_execute_stage
     output logic            execute_packet_valid_o,
     input  logic            execute_packet_ready_i,
 
+    // 冒险控制只需要下面三个窄状态，不应从execute_packet_valid和宽uop重新组合译码。
+    // 它们与主槽payload在同一时钟沿更新，分别表示当前EX指令产生的结果能否立即前递、
+    // 是否必须等待后级结果，以及当前指令是否要求流水线串行化。
+    output logic execute_forwardable_producer_present_o,
+    output logic execute_blocking_producer_present_o,
+    output logic execute_serializing_instruction_present_o,
+
     // flush只删除尚未产生架构副作用的年轻指令。当前输出仍可在本周期被EXU消费，
     // 因而EX级产生redirect的分支自身能够进入WB，下一拍stage中只留下bubble。
     input logic flush_i
@@ -26,6 +33,16 @@ module riscv32_decode_execute_stage
   execute_packet_t skid_execute_packet_q;
   logic            execute_packet_valid_q;
   logic            skid_execute_packet_valid_q;
+  logic            execute_forwardable_producer_present_q;
+  logic            execute_blocking_producer_present_q;
+  logic            execute_serializing_instruction_present_q;
+  logic            skid_forwardable_producer_present_q;
+  logic            skid_blocking_producer_present_q;
+  logic            skid_serializing_instruction_present_q;
+  logic            input_producer_present;
+  logic            input_forwardable_producer_present;
+  logic            input_blocking_producer_present;
+  logic            input_serializing_instruction_present;
   logic            input_handshake;
   logic            output_handshake;
 
@@ -35,9 +52,27 @@ module riscv32_decode_execute_stage
   assign decoded_execute_packet_ready_o = !skid_execute_packet_valid_q;
   assign execute_packet_o               = execute_packet_q;
   assign execute_packet_valid_o         = execute_packet_valid_q;
+  assign execute_forwardable_producer_present_o =
+      execute_forwardable_producer_present_q;
+  assign execute_blocking_producer_present_o = execute_blocking_producer_present_q;
+  assign execute_serializing_instruction_present_o =
+      execute_serializing_instruction_present_q;
   assign input_handshake                 = decoded_execute_packet_valid_i &&
                                            decoded_execute_packet_ready_o;
   assign output_handshake                = execute_packet_valid_q && execute_packet_ready_i;
+
+  assign input_producer_present = decoded_execute_packet_valid_i &&
+                                  decoded_execute_packet_i.uop.writes_rd &&
+                                  (decoded_execute_packet_i.uop.rd != arch_reg_idx_t'(0));
+  assign input_forwardable_producer_present = input_producer_present &&
+      !decoded_execute_packet_i.uop.exception_valid &&
+      (decoded_execute_packet_i.uop.fu_type != FU_LSU) &&
+      !((decoded_execute_packet_i.uop.fu_type == FU_CSR) &&
+        decoded_execute_packet_i.csr_illegal);
+  assign input_blocking_producer_present = input_producer_present &&
+                                           !input_forwardable_producer_present;
+  assign input_serializing_instruction_present = decoded_execute_packet_valid_i &&
+                                                  decoded_execute_packet_i.uop.serializing;
 
   // payload没有架构有效性，也无需复位或flush。物理数据采样只由本级主槽、skid槽和
   // 下游消费状态决定，不使用input_handshake。这样flush以及上游valid不会进入宽payload
@@ -62,23 +97,58 @@ module riscv32_decode_execute_stage
     if (!rst_ni) begin
       execute_packet_valid_q      <= 1'b0;
       skid_execute_packet_valid_q <= 1'b0;
+      execute_forwardable_producer_present_q  <= 1'b0;
+      execute_blocking_producer_present_q     <= 1'b0;
+      execute_serializing_instruction_present_q <= 1'b0;
+      skid_forwardable_producer_present_q     <= 1'b0;
+      skid_blocking_producer_present_q        <= 1'b0;
+      skid_serializing_instruction_present_q  <= 1'b0;
     end else if (flush_i) begin
       execute_packet_valid_q      <= 1'b0;
       skid_execute_packet_valid_q <= 1'b0;
+      execute_forwardable_producer_present_q  <= 1'b0;
+      execute_blocking_producer_present_q     <= 1'b0;
+      execute_serializing_instruction_present_q <= 1'b0;
+      skid_forwardable_producer_present_q     <= 1'b0;
+      skid_blocking_producer_present_q        <= 1'b0;
+      skid_serializing_instruction_present_q  <= 1'b0;
     end else if (output_handshake) begin
       if (skid_execute_packet_valid_q) begin
         execute_packet_valid_q      <= 1'b1;
         skid_execute_packet_valid_q <= 1'b0;
+        execute_forwardable_producer_present_q <=
+            skid_forwardable_producer_present_q;
+        execute_blocking_producer_present_q <= skid_blocking_producer_present_q;
+        execute_serializing_instruction_present_q <=
+            skid_serializing_instruction_present_q;
+        skid_forwardable_producer_present_q    <= 1'b0;
+        skid_blocking_producer_present_q       <= 1'b0;
+        skid_serializing_instruction_present_q <= 1'b0;
       end else if (input_handshake) begin
         execute_packet_valid_q <= 1'b1;
+        execute_forwardable_producer_present_q <= input_forwardable_producer_present;
+        execute_blocking_producer_present_q    <= input_blocking_producer_present;
+        execute_serializing_instruction_present_q <=
+            input_serializing_instruction_present;
       end else begin
         execute_packet_valid_q <= 1'b0;
+        execute_forwardable_producer_present_q  <= 1'b0;
+        execute_blocking_producer_present_q     <= 1'b0;
+        execute_serializing_instruction_present_q <= 1'b0;
       end
     end else if (input_handshake) begin
       if (!execute_packet_valid_q) begin
         execute_packet_valid_q <= 1'b1;
+        execute_forwardable_producer_present_q <= input_forwardable_producer_present;
+        execute_blocking_producer_present_q    <= input_blocking_producer_present;
+        execute_serializing_instruction_present_q <=
+            input_serializing_instruction_present;
       end else begin
         skid_execute_packet_valid_q <= 1'b1;
+        skid_forwardable_producer_present_q <= input_forwardable_producer_present;
+        skid_blocking_producer_present_q    <= input_blocking_producer_present;
+        skid_serializing_instruction_present_q <=
+            input_serializing_instruction_present;
       end
     end
   end
@@ -96,6 +166,13 @@ module riscv32_decode_execute_stage
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     skid_execute_packet_valid_q |-> execute_packet_valid_q)
   else $error("ID/EX skid entry became valid without a primary entry");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    $onehot0({execute_forwardable_producer_present_o,
+              execute_blocking_producer_present_o}) &&
+    ((execute_forwardable_producer_present_o || execute_blocking_producer_present_o ||
+      execute_serializing_instruction_present_o) |-> execute_packet_valid_o))
+  else $error("ID/EX timing metadata diverged from the primary execute packet");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 

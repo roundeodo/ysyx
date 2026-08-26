@@ -13,11 +13,10 @@ module riscv32_pipeline_hazard_controller
     input arch_reg_idx_t decoded_rs2_i,
     input logic          decoded_serializing_i,
 
-    input logic          execute_uop_valid_i,
-    input logic          execute_writes_rd_i,
+    input logic          execute_forwardable_producer_present_i,
+    input logic          execute_blocking_producer_present_i,
     input arch_reg_idx_t execute_rd_i,
-    input logic          execute_serializing_i,
-    input logic          execute_forwarding_available_i,
+    input logic          execute_serializing_instruction_present_i,
 
     // EXU结果经过EX/MEM寄存器后再进入完成端。该级中的普通整数结果可前递；但当
     // 下游反压时，年轻指令不能绕过它发起LSU副作用。串行化属性也必须保持到该级离开。
@@ -65,6 +64,10 @@ module riscv32_pipeline_hazard_controller
 
   logic execute_writes_rs1;
   logic execute_writes_rs2;
+  logic execute_forwardable_writes_rs1;
+  logic execute_forwardable_writes_rs2;
+  logic execute_blocking_writes_rs1;
+  logic execute_blocking_writes_rs2;
   logic execute_result_writes_rs1;
   logic execute_result_writes_rs2;
   logic writeback_writes_rs1;
@@ -79,12 +82,20 @@ module riscv32_pipeline_hazard_controller
   logic execute_result_stalled;
 
   always_comb begin
-    execute_writes_rs1 = decoded_uop_valid_i && execute_uop_valid_i && execute_writes_rd_i &&
-                         (execute_rd_i != '0) && decoded_uses_rs1_i &&
-                         (execute_rd_i == decoded_rs1_i);
-    execute_writes_rs2 = decoded_uop_valid_i && execute_uop_valid_i && execute_writes_rd_i &&
-                         (execute_rd_i != '0) && decoded_uses_rs2_i &&
-                         (execute_rd_i == decoded_rs2_i);
+    execute_forwardable_writes_rs1 = decoded_uop_valid_i &&
+        execute_forwardable_producer_present_i && decoded_uses_rs1_i &&
+        (execute_rd_i == decoded_rs1_i);
+    execute_forwardable_writes_rs2 = decoded_uop_valid_i &&
+        execute_forwardable_producer_present_i && decoded_uses_rs2_i &&
+        (execute_rd_i == decoded_rs2_i);
+    execute_blocking_writes_rs1 = decoded_uop_valid_i &&
+        execute_blocking_producer_present_i && decoded_uses_rs1_i &&
+        (execute_rd_i == decoded_rs1_i);
+    execute_blocking_writes_rs2 = decoded_uop_valid_i &&
+        execute_blocking_producer_present_i && decoded_uses_rs2_i &&
+        (execute_rd_i == decoded_rs2_i);
+    execute_writes_rs1 = execute_forwardable_writes_rs1 || execute_blocking_writes_rs1;
+    execute_writes_rs2 = execute_forwardable_writes_rs2 || execute_blocking_writes_rs2;
 
     execute_result_writes_rs1 = decoded_uop_valid_i && execute_result_valid_i &&
                                 execute_result_writes_rd_i &&
@@ -113,7 +124,7 @@ module riscv32_pipeline_hazard_controller
 
     // 同一架构寄存器可能同时被EX和WB中的两条老指令写入。EX中的生产者年龄更近，
     // 必须优先；如果它的结果尚不可用，不能错误前递WB中的更旧值。
-    rs1_execute_forwarding_selected_o = execute_writes_rs1 && execute_forwarding_available_i;
+    rs1_execute_forwarding_selected_o = execute_forwardable_writes_rs1;
     rs1_execute_result_forwarding_selected_o = !execute_writes_rs1 &&
         execute_result_writes_rs1 && execute_result_forwarding_available_i;
     rs1_writeback_forwarding_selected_o = !execute_writes_rs1 &&
@@ -121,7 +132,7 @@ module riscv32_pipeline_hazard_controller
                                           !lsu_writes_rs1 &&
                                           writeback_writes_rs1 &&
                                           writeback_forwarding_available_i;
-    rs2_execute_forwarding_selected_o = execute_writes_rs2 && execute_forwarding_available_i;
+    rs2_execute_forwarding_selected_o = execute_forwardable_writes_rs2;
     rs2_execute_result_forwarding_selected_o = !execute_writes_rs2 &&
         execute_result_writes_rs2 && execute_result_forwarding_available_i;
     rs2_writeback_forwarding_selected_o = !execute_writes_rs2 &&
@@ -130,7 +141,7 @@ module riscv32_pipeline_hazard_controller
                                           writeback_writes_rs2 &&
                                           writeback_forwarding_available_i;
 
-    rs1_value_unavailable = (execute_writes_rs1 && !execute_forwarding_available_i) ||
+    rs1_value_unavailable = execute_blocking_writes_rs1 ||
                             (!execute_writes_rs1 && execute_result_writes_rs1 &&
                              !execute_result_forwarding_available_i) ||
                             (!execute_writes_rs1 && !execute_result_writes_rs1 &&
@@ -139,7 +150,7 @@ module riscv32_pipeline_hazard_controller
                              !lsu_writes_rs1 &&
                              writeback_writes_rs1 &&
                              !writeback_forwarding_available_i);
-    rs2_value_unavailable = (execute_writes_rs2 && !execute_forwarding_available_i) ||
+    rs2_value_unavailable = execute_blocking_writes_rs2 ||
                             (!execute_writes_rs2 && execute_result_writes_rs2 &&
                              !execute_result_forwarding_available_i) ||
                             (!execute_writes_rs2 && !execute_result_writes_rs2 &&
@@ -153,10 +164,13 @@ module riscv32_pipeline_hazard_controller
   assign raw_hazard_present_o = decoded_uop_valid_i &&
                                 (rs1_value_unavailable || rs2_value_unavailable);
 
-  assign older_instruction_present = execute_uop_valid_i || execute_result_valid_i ||
+  assign older_instruction_present = execute_forwardable_producer_present_i ||
+                                     execute_blocking_producer_present_i ||
+                                     execute_serializing_instruction_present_i ||
+                                     execute_result_valid_i ||
                                      writeback_result_valid_i || lsu_busy_i;
   assign older_serializing_instruction_present =
-      (execute_uop_valid_i && execute_serializing_i) ||
+      execute_serializing_instruction_present_i ||
       (execute_result_valid_i && execute_result_serializing_i) ||
       (writeback_result_valid_i && writeback_serializing_i);
 
@@ -221,12 +235,12 @@ module riscv32_pipeline_hazard_controller
   else $error("pipeline selected multiple forwarding producers for one source operand");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && execute_writes_rs1 && !execute_forwarding_available_i)
+    (decoded_uop_valid_i && execute_blocking_writes_rs1)
     |-> raw_hazard_present_o)
   else $error("pipeline accepted stale rs1 data while the newest EX producer was unavailable");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && execute_writes_rs2 && !execute_forwarding_available_i)
+    (decoded_uop_valid_i && execute_blocking_writes_rs2)
     |-> raw_hazard_present_o)
   else $error("pipeline accepted stale rs2 data while the newest EX producer was unavailable");
 
