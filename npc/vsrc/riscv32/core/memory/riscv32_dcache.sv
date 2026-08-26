@@ -1,7 +1,7 @@
 // 参数化、2-way可配置、write-back/write-allocate的阻塞式L1 D-cache。
 //
-// 当前检查点每次只处理一个lookup或miss，控制面积并保证精确异常路径清晰；同步tag/data
-// array、独立miss unit和line AXI adapter是长期边界。面向AI负载扩展时，应在这些边界上
+// 当前检查点每次只处理一个lookup或miss，以固定事务顺序并保证精确异常路径清晰；同步
+// tag/data array、独立miss unit和line AXI adapter是长期边界。面向AI负载扩展时，应在这些边界上
 // 增加bank、多MSHR、writeback queue和store buffer，而不是把AXI塞回LSU。
 module riscv32_dcache
   import riscv32_pkg::*;

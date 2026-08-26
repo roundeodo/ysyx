@@ -51,9 +51,8 @@ def parse_frequency_from_sta_report(report_path: pathlib.Path) -> float:
 
 
 def run_performance_test(npc_dir: pathlib.Path, scale: str, log_path: pathlib.Path) -> str:
-    # 当前可复现性能基线运行在AXI32 ysyxSoC上。RV64接入SoC边界前，记录脚本必须
-    # 显式选择RV32配置，避免调用方的环境变量悄悄改变实验对象。
-    command = ["make", "perf", "NPC_CONFIG=rv32-baseline", f"PERF_SCALE={scale}"]
+    # 性能记录固定使用RV64主线配置，避免调用方环境变量改变实验对象。
+    command = ["make", "perf", "NPC_CONFIG=rv64-edge-ai", f"PERF_SCALE={scale}"]
     print(f"Running: {' '.join(command)}")
 
     output_parts = []

@@ -116,7 +116,7 @@ module riscv32_exu_alu_tb;
     execute_packet       = '0;
     execute_packet_valid = 1'b0;
 
-    // 两种配置都验证原有XLEN数据通路，防止加入*W通路后改变RV32行为。
+    // 先验证完整XLEN数据通路，再验证RV64的32位结果指令。
     expect_register_operation(ALU_ADD, xlen_data_t'('1), xlen_data_t'(1), xlen_data_t'('0));
     expect_register_operation(ALU_SUB, xlen_data_t'(0), xlen_data_t'(1), xlen_data_t'('1));
     expect_register_operation(ALU_SLL, xlen_data_t'(1), xlen_data_t'(31),
@@ -129,7 +129,6 @@ module riscv32_exu_alu_tb;
     expect_misaligned_control_flow(CF_JALR, program_counter_t'(32'h8000_0000),
                                    xlen_data_t'(32'h8000_0003), '0, xlen_data_t'(32'h8000_0002));
 
-`ifdef YSYX_RV64_SEQUENTIAL
     // ADDIW/ADDW共享ALU_ADDW语义：先在低32位回绕，再按word_result[31]符号扩展。
     expect_immediate_operation(ALU_ADDW, 64'h0000_0000_7fff_ffff, 64'd1, 64'hffff_ffff_8000_0000);
     expect_register_operation(ALU_ADDW, 64'hffff_ffff_ffff_ffff, 64'd1, 64'd0);
@@ -146,8 +145,6 @@ module riscv32_exu_alu_tb;
     // 普通RV64移位仍使用6位移位量，不得被*W的5位规则污染。
     expect_register_operation(ALU_SLL, 64'd1, 64'd32, 64'h0000_0001_0000_0000);
     expect_register_operation(ALU_SRL, 64'h8000_0000_0000_0000, 64'd63, 64'd1);
-`endif
-
     $display("EXU directed ALU test passed for XLEN=%0d", XLEN);
     $finish;
   end

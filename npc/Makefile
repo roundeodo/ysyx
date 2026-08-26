@@ -5,39 +5,18 @@
 # ============================================================
 
 PROJECT ?= riscv32
-# rv32-baseline用于RV32I性能开发，rv32-course-area保留课程面积对照。两者共享
-# ISA语义和模块协议，只改变被实例化的微架构资源。默认值来自同一workload、同一
-# NanGate45流程的A/B实验；命令行仍可覆盖参数继续探索设计空间。
-ifeq ($(NPC_CONFIG),rv32-course-area)
-NPC_ICACHE_WAY_COUNT      ?= 1
-NPC_ICACHE_CAPACITY_BYTES ?= 128
-NPC_ICACHE_LINE_BYTES     ?= 16
-NPC_DCACHE_ENABLE         ?= 0
-NPC_DCACHE_WAY_COUNT      ?= 2
-NPC_DCACHE_CAPACITY_BYTES ?= 256
-NPC_DCACHE_LINE_BYTES     ?= 16
-else ifeq ($(NPC_CONFIG),rv64-sequential)
+# 当前只维护RV64边缘AI主线。容量参数仍保留为构建参数，方便cachesim/RTL联合探索；
+# 这里的默认值是功能基线，不是面积竞赛配置，后续应由SRAM macro替代触发器阵列。
+NPC_CONFIG ?= rv64-edge-ai
 NPC_ICACHE_WAY_COUNT      ?= 2
-NPC_ICACHE_CAPACITY_BYTES ?= 64
-NPC_ICACHE_LINE_BYTES     ?= 16
+NPC_ICACHE_CAPACITY_BYTES ?= 4096
+NPC_ICACHE_LINE_BYTES     ?= 64
 NPC_DCACHE_ENABLE         ?= 1
 NPC_DCACHE_WAY_COUNT      ?= 2
-NPC_DCACHE_CAPACITY_BYTES ?= 1024
-NPC_DCACHE_LINE_BYTES     ?= 32
-else
-# RV32I平衡点：I-cache扩大到256 B后前端miss显著下降；256 B/2-way D-cache相对
-# 同容量direct-map只增加约1.35%面积，却把MicroBench测量IPC再提高约10.4%。
-NPC_ICACHE_WAY_COUNT      ?= 1
-NPC_ICACHE_CAPACITY_BYTES ?= 256
-NPC_ICACHE_LINE_BYTES     ?= 16
-NPC_DCACHE_ENABLE         ?= 1
-NPC_DCACHE_WAY_COUNT      ?= 2
-NPC_DCACHE_CAPACITY_BYTES ?= 256
-NPC_DCACHE_LINE_BYTES     ?= 16
-endif
+NPC_DCACHE_CAPACITY_BYTES ?= 4096
+NPC_DCACHE_LINE_BYTES     ?= 64
 NPC_SDRAM_NATIVE_READ_BURST ?= 1
 NPC_BRANCH_HISTORY_ENTRY_COUNT ?= 16
-# MicroBench A/B中，16项2路BTB与32项2路性能等价，但预测状态接近减半。
 NPC_BRANCH_TARGET_ENTRY_COUNT  ?= 16
 NPC_BRANCH_TARGET_WAY_COUNT    ?= 2
 NPC_RETURN_STACK_ENTRY_COUNT   ?= 4
@@ -49,35 +28,13 @@ ifeq ($(filter $(NPC_SDRAM_NATIVE_READ_BURST),0 1),)
 $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
-SUPPORTED_NPC_CONFIGS := rv32-course-area rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-core-merge-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore branchsim-build branchsim-test branchsim-trace branchsim-run branchsim-explore icache-calibrate-penalty cachesim-explore-calibrated
-CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
-
-ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
-ifeq ($(strip $(NPC_CONFIG)),)
-$(error NPC_CONFIG is required: $(SUPPORTED_NPC_CONFIGS))
-endif
+SUPPORTED_NPC_CONFIGS := rv64-edge-ai
 ifeq ($(filter $(NPC_CONFIG),$(SUPPORTED_NPC_CONFIGS)),)
 $(error unsupported NPC_CONFIG=$(NPC_CONFIG); expected one of: $(SUPPORTED_NPC_CONFIGS))
 endif
-endif
-
-ifeq ($(NPC_CONFIG),rv32-baseline)
-NPC_ARCH_DEFINE := +define+YSYX_RV32_BASELINE
-NPC_CONFIG_CXXFLAG := -DNPC_XLEN=32
-NPC_SLANG_ARCH_DEFINE := -DYSYX_RV32_BASELINE
-else ifeq ($(NPC_CONFIG),rv32-course-area)
-NPC_ARCH_DEFINE := +define+YSYX_RV32_BASELINE +define+YSYX_RV32_COURSE_AREA
-NPC_CONFIG_CXXFLAG := -DNPC_XLEN=32
-NPC_SLANG_ARCH_DEFINE := -DYSYX_RV32_BASELINE -DYSYX_RV32_COURSE_AREA
-else ifeq ($(NPC_CONFIG),rv64-sequential)
-NPC_ARCH_DEFINE := +define+YSYX_RV64_SEQUENTIAL
 NPC_CONFIG_CXXFLAG := -DNPC_XLEN=64
-NPC_SLANG_ARCH_DEFINE := -DYSYX_RV64_SEQUENTIAL
-endif
 
-NPC_CONFIG_DEFINE := $(NPC_ARCH_DEFINE) \
-	+define+YSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
+NPC_CONFIG_DEFINE := +define+YSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
 	+define+YSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
 	+define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) \
 	+define+YSYX_DCACHE_ENABLE=$(NPC_DCACHE_ENABLE) \
@@ -90,8 +47,7 @@ NPC_CONFIG_DEFINE := $(NPC_ARCH_DEFINE) \
 	+define+YSYX_RETURN_STACK_ENTRY_COUNT=$(NPC_RETURN_STACK_ENTRY_COUNT) \
 	+define+YSYX_SDRAM_NATIVE_READ_BURST=$(NPC_SDRAM_NATIVE_READ_BURST)
 
-NPC_SLANG_DEFINE := $(NPC_SLANG_ARCH_DEFINE) \
-	-DYSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
+NPC_SLANG_DEFINE := -DYSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
 	-DYSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
 	-DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) \
 	-DYSYX_DCACHE_ENABLE=$(NPC_DCACHE_ENABLE) \
@@ -156,7 +112,6 @@ SIM_ARGS  ?= --batch
 NEMU_DIR      := $(abspath ../nemu)
 CPU_TESTS_DIR := $(abspath ../am-kernels/tests/cpu-tests)
 MICROBENCH_DIR := $(abspath ../am-kernels/benchmarks/microbench)
-RV32_NEMU_REF := $(NEMU_DIR)/build/riscv32-nemu-interpreter-so
 RV64_NEMU_REF := $(NEMU_DIR)/build/riscv64-nemu-interpreter-so
 
 CACHESIM_DIR         := $(abspath ./tools/cachesim)
@@ -175,10 +130,10 @@ BRANCHSIM_BINARY         := $(BRANCHSIM_BUILD_DIR)/branchsim
 BRANCHSIM_TEST_SCRIPT    := $(BRANCHSIM_DIR)/tests/test_branchsim.py
 BRANCHSIM_EXPLORE_SCRIPT := $(BRANCHSIM_DIR)/explore.py
 
-# 只收录能够在standalone内存环境中验证RV32I/RV64I、Zicsr和异常闭环的测试。
+# 只收录能够在standalone内存环境中验证RV64I、Zicsr和异常闭环的测试。
 # unalign要求硬件透明处理非对齐访问，与当前“产生misaligned异常”的架构契约冲突；
 # GPIO、PSRAM、SDRAM、SPI等测试属于ysyxSoC外设回归，不放进处理器ISA基线。
-P3_CPU_TESTS := \
+RV64_CPU_TESTS := \
 	add add-longlong bit bubble-sort crc32 csr-trap div dummy fact fib goldbach \
 	hello-str if-else leap-year load-store matrix-mul max mersenne min3 mov-c \
 	movsx mul-longlong pascal prime quick-sort recursion select-sort shift \
@@ -553,37 +508,31 @@ test-config: $(CONFIG_TEST_BINARY)
 	$(CONFIG_TEST_BINARY)
 
 test-configs:
-	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv32-course-area
-	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 test-idu: $(IDU_TEST_BINARY)
 	$(IDU_TEST_BINARY)
 
 test-idu-configs:
-	$(MAKE) test-idu PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-idu PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-idu PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 test-exu: $(EXU_TEST_BINARY)
 	$(EXU_TEST_BINARY)
 
 test-exu-configs:
-	$(MAKE) test-exu PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-exu PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-exu PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 test-lsu: $(LSU_TEST_BINARY)
 	$(LSU_TEST_BINARY)
 
 test-lsu-configs:
-	$(MAKE) test-lsu PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-lsu PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-lsu PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 test-pipeline: $(PIPELINE_TEST_BINARY)
 	$(PIPELINE_TEST_BINARY)
 
 test-pipeline-configs:
-	$(MAKE) test-pipeline PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-pipeline PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-pipeline PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 .PHONY: formal-pipeline
 formal-pipeline:
@@ -593,22 +542,19 @@ test-uncached: $(UNCACHED_TEST_BINARY)
 	$(UNCACHED_TEST_BINARY)
 
 test-uncached-configs:
-	$(MAKE) test-uncached PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-uncached PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-uncached PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 test-dcache: $(DCACHE_TEST_BINARY)
 	$(DCACHE_TEST_BINARY)
 
 test-dcache-configs:
-	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 test-core-merge: $(CORE_MERGE_TEST_BINARY)
 	$(CORE_MERGE_TEST_BINARY)
 
 test-core-merge-configs:
-	$(MAKE) test-core-merge PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-core-merge PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-core-merge PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 test-soc-width-converter: $(SOC_WIDTH_CONVERTER_TEST_BINARY)
 	$(SOC_WIDTH_CONVERTER_TEST_BINARY)
@@ -623,64 +569,41 @@ test-privileged: $(PRIVILEGED_TEST_BINARY)
 	$(PRIVILEGED_TEST_BINARY)
 
 test-privileged-configs:
-	$(MAKE) test-privileged PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) test-privileged PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) test-privileged PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 # ============================================================
-# P3 RV32/RV64 functional baseline
+# RV64 functional regression
 # ============================================================
 
-.PHONY: nemu-ref-rv32 nemu-ref-rv64
-.PHONY: regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g
-
-# NEMU只有一份活动.config，因此两个reference必须顺序构建，不能写成可并行的依赖图。
-nemu-ref-rv32:
-	$(MAKE) -C $(NEMU_DIR) riscv32-ref_defconfig
-	$(MAKE) -C $(NEMU_DIR)
+.PHONY: nemu-ref-rv64 regression-rv64-isa regression-rv64
 
 nemu-ref-rv64:
 	$(MAKE) -C $(NEMU_DIR) riscv64-ref_defconfig
 	$(MAKE) -C $(NEMU_DIR)
 
-regression-p3-e:
-	$(MAKE) test-privileged-configs PROJECT=$(PROJECT)
-	$(MAKE) test-exu-configs PROJECT=$(PROJECT)
-
-regression-p3-f-rv32:
-	$(MAKE) nemu-ref-rv32 PROJECT=$(PROJECT)
-	$(MAKE) -C $(CPU_TESTS_DIR) \
-		ARCH=riscv32-npc \
-		NPC_RUN_TARGET=sim-difftest \
-		REF=$(RV32_NEMU_REF) \
-		ALL="$(P3_CPU_TESTS)" \
-		run
-
-regression-p3-f-rv64:
+regression-rv64-isa:
 	$(MAKE) nemu-ref-rv64 PROJECT=$(PROJECT)
 	$(MAKE) -C $(CPU_TESTS_DIR) \
 		ARCH=riscv64-npc \
 		NPC_RUN_TARGET=sim-difftest \
 		REF=$(RV64_NEMU_REF) \
-		ALL="$(P3_CPU_TESTS)" \
+		ALL="$(RV64_CPU_TESTS)" \
 		run
 
-# 每一步使用递归make显式串行执行。失败会立即停止，保留第一个失效边界的日志。
-regression-p3-g:
+# 定向测试先定位模块边界，最后再运行完整ISA DiffTest。
+regression-rv64:
 	$(MAKE) test-configs PROJECT=$(PROJECT)
 	$(MAKE) test-idu-configs PROJECT=$(PROJECT)
 	$(MAKE) test-exu-configs PROJECT=$(PROJECT)
 	$(MAKE) test-lsu-configs PROJECT=$(PROJECT)
 	$(MAKE) test-pipeline-configs PROJECT=$(PROJECT)
 	$(MAKE) test-uncached-configs PROJECT=$(PROJECT)
+	$(MAKE) test-dcache-configs PROJECT=$(PROJECT)
+	$(MAKE) test-core-merge-configs PROJECT=$(PROJECT)
 	$(MAKE) test-privileged-configs PROJECT=$(PROJECT)
-	$(MAKE) test-soc-width-converter PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 	$(MAKE) lint-configs PROJECT=$(PROJECT)
-	$(MAKE) lint-soc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
-	$(MAKE) build-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) build-npc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
-	$(MAKE) regression-p3-f-rv32 PROJECT=$(PROJECT)
-	$(MAKE) regression-p3-f-rv64 PROJECT=$(PROJECT)
-	$(MAKE) sta-configs PROJECT=$(PROJECT)
+	$(MAKE) build-npc PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
+	$(MAKE) regression-rv64-isa PROJECT=$(PROJECT)
 
 # ============================================================
 # Simulation entry points
@@ -688,8 +611,8 @@ regression-p3-g:
 
 .PHONY: sim sim-npc sim-soc sim-am sim-image
 
-# Keep `make sim` as the current full-system default.
-sim: sim-soc
+# 主线默认运行standalone RV64系统；ysyxSoC只保留为外部平台回归入口。
+sim: sim-npc
 
 sim-npc: $(NPC_SIM_BINARY)
 	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
@@ -705,7 +628,7 @@ sim-soc: $(SOC_SIM_BINARY)
 		$(if $(FLASH_IMG),--flash $(FLASH_IMG)) \
 		$(IMG)
 
-# Compatibility entry points used by Abstract Machine platform makefiles.
+# Abstract Machine入口。
 sim-am: sim-npc
 sim-image: sim-soc
 
@@ -756,8 +679,8 @@ nvboard: $(NVBOARD_SIM_BINARY)
 # I-cache metadata simulation and design-space exploration
 # ============================================================
 
-CACHE_TRACE_ARCH             ?= riscv32-nemu
-CACHE_TRACE_ISA              = $(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64,riscv32)
+CACHE_TRACE_ARCH             ?= riscv64-nemu
+CACHE_TRACE_ISA              = riscv64
 CACHE_TRACE_IMAGE            ?= $(CPU_TESTS_DIR)/build/bubble-sort-$(CACHE_TRACE_ISA)-npc.bin
 CACHE_TRACE_FILE             ?= $(abspath ./result/cache/$(CACHE_TRACE_ISA)_nemu_pc_trace.bin)
 CACHE_TRACE_IMAGE_PATH       = $(abspath $(CACHE_TRACE_IMAGE))
@@ -767,18 +690,16 @@ CACHE_LINE_BYTES             ?= $(NPC_ICACHE_LINE_BYTES)
 CACHE_WAYS                   ?= $(NPC_ICACHE_WAY_COUNT)
 # 当前RTL在命中时从lookup握手到响应握手需要1周期。
 CACHE_HIT_TIME_CYCLES        ?= 1
-# 保持fixed作为默认值，使原有cachesim命令继续复现历史基线。independent和burst
-# 必须显式选择，避免把不同时间模型产生的AMAT/TMT放在同一张表中直接比较。
-CACHE_REFILL_MODEL           ?= fixed
-CACHE_REFILL_BEAT_BYTES      ?= 4
+# RV64 memory AXI每个beat为8字节。不同时间模型的AMAT/TMT不能直接混入同一组结论。
+CACHE_REFILL_MODEL           ?= burst
+CACHE_REFILL_BEAT_BYTES      ?= 8
 # a/b/c/d默认各取1周期，只用于比较独立事务和burst的结构差异。实际周期结论必须用
 # RTL PMU测得的critical-response与complete-refill延迟校准这四项参数。
 CACHE_READ_ADDRESS_CYCLES    ?= 1
 CACHE_MEMORY_COMMAND_CYCLES  ?= 1
 CACHE_FIRST_DATA_CYCLES      ?= 1
 CACHE_RESPONSE_BEAT_CYCLES   ?= 1
-# 下面两个默认值只保留用于复现早期8B line/PSRAM历史模型。当前128B/16B/SDRAM配置
-# 必须通过校准CSV或RTL PMU实测，不能把历史值当成当前缺失代价。
+# fixed模型默认值只用于工具自测；架构结论必须使用RTL PMU校准值。
 CACHE_CRITICAL_RESPONSE_PENALTY_CYCLES ?= 162.405
 CACHE_COMPLETE_REFILL_PENALTY_CYCLES   ?= 286.283
 CACHE_CRITICAL_RESPONSE_PENALTY_BY_LINE_SIZE ?=
@@ -796,12 +717,11 @@ CACHE_RANKING_METRIC         ?= blocking-tmt
 CACHE_SCAN_OUTPUT            ?= $(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_$(CACHE_REFILL_MODEL)_exploration.csv)
 ICACHE_CALIBRATION_LINE_SIZES     ?= 8,16,32,64
 ICACHE_CALIBRATION_SCALE          ?= test
-# B4 cache评估必须经过AXI SDRAM路径，才能测量AXI burst和AXI delayer的真实效果。
-ICACHE_CALIBRATION_ARCH           ?= riscv32-ysyxsoc-sdram
+ICACHE_CALIBRATION_ARCH           ?= riscv64-npc
 ICACHE_CALIBRATION_CAPACITY_BYTES ?= $(NPC_ICACHE_CAPACITY_BYTES)
 ICACHE_CALIBRATION_WAY_COUNT      ?= $(NPC_ICACHE_WAY_COUNT)
-ICACHE_CALIBRATION_MEMORY_NAME     = $(patsubst riscv32-ysyxsoc-%,%,$(ICACHE_CALIBRATION_ARCH))
-ICACHE_CALIBRATION_OUTPUT         ?= $(abspath ./result/cache/rtl_icache_penalty_rv32_$(ICACHE_CALIBRATION_MEMORY_NAME)_$(ICACHE_CALIBRATION_SCALE).csv)
+ICACHE_CALIBRATION_MEMORY_NAME     = standalone
+ICACHE_CALIBRATION_OUTPUT         ?= $(abspath ./result/cache/rtl_icache_penalty_rv64_$(ICACHE_CALIBRATION_MEMORY_NAME)_$(ICACHE_CALIBRATION_SCALE).csv)
 
 $(CACHESIM_BUILD_DIR):
 	mkdir -p $@
@@ -822,14 +742,12 @@ cachesim-test: $(CACHESIM_BINARY)
 # 该入口会切换NEMU的活动.config，后续构建DiffTest reference时相应的nemu-ref目标会
 # 再切换回共享库配置。
 cachesim-trace:
-	@test "$(CACHE_TRACE_ARCH)" = "riscv32-nemu" -o \
-	      "$(CACHE_TRACE_ARCH)" = "riscv64-nemu" || \
-		(echo "CACHE_TRACE_ARCH must be riscv32-nemu or riscv64-nemu"; exit 1)
+	@test "$(CACHE_TRACE_ARCH)" = "riscv64-nemu" || \
+		(echo "CACHE_TRACE_ARCH must be riscv64-nemu"; exit 1)
 	@test -f "$(CACHE_TRACE_IMAGE_PATH)" || \
 		(echo "trace image not found: $(CACHE_TRACE_IMAGE_PATH)"; exit 1)
 	mkdir -p $(dir $(CACHE_TRACE_PATH))
-	$(MAKE) -C $(NEMU_DIR) \
-		$(if $(filter riscv64-nemu,$(CACHE_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
+	$(MAKE) -C $(NEMU_DIR) riscv64-cachesim_defconfig
 	$(MAKE) -C $(NEMU_DIR) run \
 		ARGS="--cachesim-trace=$(CACHE_TRACE_PATH) -b" \
 		IMG=$(CACHE_TRACE_IMAGE_PATH)
@@ -886,7 +804,7 @@ cachesim-explore-transport:
 	$(MAKE) cachesim-explore CACHE_REFILL_MODEL=burst \
 		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_burst_exploration.csv)
 
-# 在同一RV32 ysyxSoC存储环境中逐项重编译并运行MicroBench，从RTL PMU提取关键字
+# 在同一standalone RV64环境中逐项重编译并运行MicroBench，从RTL PMU提取critical-word
 # 响应代价和整行refill占用。存储目标、容量和路数显式写入CSV，禁止跨环境混用代价。
 icache-calibrate-penalty:
 	python3 $(ICACHE_CALIBRATION_SCRIPT) \
@@ -914,8 +832,8 @@ cachesim-explore-calibrated:
 
 # 数据trace记录的是已执行load/store的普通内存地址，不含取指和MMIO。模型采用
 # write-back、write-allocate和精确LRU；burst模型按整行读入和脏行整行写回计时。
-DCACHE_TRACE_ARCH       ?= riscv32-nemu
-DCACHE_TRACE_ISA        = $(if $(filter riscv64-nemu,$(DCACHE_TRACE_ARCH)),riscv64,riscv32)
+DCACHE_TRACE_ARCH       ?= riscv64-nemu
+DCACHE_TRACE_ISA        = riscv64
 DCACHE_TRACE_SCALE      ?= test
 DCACHE_TRACE_IMAGE      ?= $(MICROBENCH_DIR)/build/microbench-$(DCACHE_TRACE_ARCH).bin
 DCACHE_TRACE_FILE       ?= $(abspath ./result/cache/$(DCACHE_TRACE_ISA)_microbench_$(DCACHE_TRACE_SCALE)_data_trace.bin)
@@ -926,7 +844,7 @@ DCACHE_LINE_BYTES       ?= 32
 DCACHE_WAYS             ?= 2
 DCACHE_HIT_TIME_CYCLES  ?= 1
 DCACHE_REFILL_MODEL     ?= burst
-DCACHE_REFILL_BEAT_BYTES ?= 4
+DCACHE_REFILL_BEAT_BYTES ?= 8
 DCACHE_READ_ADDRESS_CYCLES   ?= 1
 DCACHE_MEMORY_COMMAND_CYCLES ?= 1
 DCACHE_FIRST_DATA_CYCLES     ?= 1
@@ -960,11 +878,9 @@ DCACHE_MODEL_ARGUMENTS = \
 
 .PHONY: dcachesim-trace dcachesim-run dcachesim-explore
 dcachesim-trace:
-	@test "$(DCACHE_TRACE_ARCH)" = "riscv32-nemu" -o \
-	      "$(DCACHE_TRACE_ARCH)" = "riscv64-nemu" || \
-		(echo "DCACHE_TRACE_ARCH must be riscv32-nemu or riscv64-nemu"; exit 1)
-	$(MAKE) -C $(NEMU_DIR) \
-		$(if $(filter riscv64-nemu,$(DCACHE_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
+	@test "$(DCACHE_TRACE_ARCH)" = "riscv64-nemu" || \
+		(echo "DCACHE_TRACE_ARCH must be riscv64-nemu"; exit 1)
+	$(MAKE) -C $(NEMU_DIR) riscv64-cachesim_defconfig
 	$(MAKE) -C $(MICROBENCH_DIR) ARCH=$(DCACHE_TRACE_ARCH) clean
 	$(MAKE) -C $(MICROBENCH_DIR) \
 		ARCH=$(DCACHE_TRACE_ARCH) mainargs=$(DCACHE_TRACE_SCALE) insert-arg
@@ -1004,8 +920,8 @@ dcachesim-explore: $(CACHESIM_BINARY)
 
 # branch trace只保存已退休控制流，不保存错误路径。它适合比较预测算法的方向/目标
 # 准确率和理想恢复代价；真实流水线中的训练时序、取指带宽与flush周期仍由RTL PMU校准。
-BRANCH_TRACE_ARCH       ?= riscv32-nemu
-BRANCH_TRACE_ISA        = $(if $(filter riscv64-nemu,$(BRANCH_TRACE_ARCH)),riscv64,riscv32)
+BRANCH_TRACE_ARCH       ?= riscv64-nemu
+BRANCH_TRACE_ISA        = riscv64
 BRANCH_TRACE_SCALE      ?= test
 BRANCH_TRACE_IMAGE      ?= $(MICROBENCH_DIR)/build/microbench-$(BRANCH_TRACE_ARCH).bin
 BRANCH_TRACE_FILE       ?= $(abspath ./result/branch/$(BRANCH_TRACE_ISA)_microbench_$(BRANCH_TRACE_SCALE)_control_flow.bin)
@@ -1039,11 +955,9 @@ branchsim-test: $(BRANCHSIM_BINARY)
 	python3 $(BRANCHSIM_TEST_SCRIPT) $(BRANCHSIM_BINARY)
 
 branchsim-trace:
-	@test "$(BRANCH_TRACE_ARCH)" = "riscv32-nemu" -o \
-	      "$(BRANCH_TRACE_ARCH)" = "riscv64-nemu" || \
-		(echo "BRANCH_TRACE_ARCH must be riscv32-nemu or riscv64-nemu"; exit 1)
-	$(MAKE) -C $(NEMU_DIR) \
-		$(if $(filter riscv64-nemu,$(BRANCH_TRACE_ARCH)),riscv64-cachesim_defconfig,riscv32-cachesim_defconfig)
+	@test "$(BRANCH_TRACE_ARCH)" = "riscv64-nemu" || \
+		(echo "BRANCH_TRACE_ARCH must be riscv64-nemu"; exit 1)
+	$(MAKE) -C $(NEMU_DIR) riscv64-cachesim_defconfig
 	$(MAKE) -C $(MICROBENCH_DIR) ARCH=$(BRANCH_TRACE_ARCH) clean
 	$(MAKE) -C $(MICROBENCH_DIR) \
 		ARCH=$(BRANCH_TRACE_ARCH) mainargs=$(BRANCH_TRACE_SCALE) insert-arg
@@ -1083,8 +997,8 @@ branchsim-explore: $(BRANCHSIM_BINARY)
 # Reproducible performance evaluation
 # ============================================================
 
-# 正式性能基线使用AXI SDRAM。PSRAM只用于独立的外设和启动流程验证。
-PERF_ARCH             ?= riscv32-ysyxsoc-sdram
+# 性能基线运行standalone RV64镜像，不再绑定课程SoC和其外设时序。
+PERF_ARCH             ?= riscv64-npc
 PERF_SCALE            ?= train
 PERF_MICROBENCH_DIR   := $(MICROBENCH_DIR)
 PERF_MICROBENCH_IMAGE := $(PERF_MICROBENCH_DIR)/build/microbench-$(PERF_ARCH).bin
@@ -1095,7 +1009,7 @@ PERF_RESULTS_TABLE    ?= $(abspath ./result/performance/README.md)
 PERF_RECORD_SCRIPT    := $(abspath ./scripts/record_performance.py)
 
 .PHONY: perf perf-record
-perf: $(SOC_SIM_BINARY)
+perf: $(NPC_SIM_BINARY)
 	$(MAKE) -C $(PERF_MICROBENCH_DIR) ARCH=$(PERF_ARCH) clean
 	$(MAKE) -C $(PERF_MICROBENCH_DIR) \
 		ARCH=$(PERF_ARCH) \
@@ -1105,7 +1019,7 @@ perf: $(SOC_SIM_BINARY)
 	@echo "AM-kernels commit = $$(git -C $(PERF_MICROBENCH_DIR) rev-parse HEAD)"
 	@echo "Benchmark scale   = $(PERF_SCALE)"
 	@echo "Benchmark image   = $(PERF_MICROBENCH_IMAGE)"
-	$(SOC_SIM_BINARY) --batch --flash $(PERF_MICROBENCH_IMAGE)
+	$(NPC_SIM_BINARY) --batch $(PERF_MICROBENCH_IMAGE)
 
 perf-record:
 	@test -n "$(strip $(PERF_DESCRIPTION))" || \
@@ -1148,12 +1062,9 @@ lint-soc: $(RTL_FILELIST) $(SOC_VERILOG_SOURCES)
 		$(SOC_VERILOG_SOURCES)
 
 lint-configs:
-	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-course-area
-	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
-# 课程面积目标统计纯core，并把当前小容量I-cache的tag/data阵列完整映射为标准单元。
-# system wrapper、仿真内存和外设不属于手册的NPC面积口径。
+# STA默认统计纯core。system wrapper、仿真内存和外设不进入该综合层级。
 STA_TOOL_DIR      := $(abspath ../yosys-sta)
 STA_DESIGN        := riscv32_core
 STA_FREQUENCY_MHZ ?= 300
@@ -1178,9 +1089,7 @@ sta: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
 		CLK_PORT_NAME=clk_i
 
 sta-configs:
-	$(MAKE) sta PROJECT=$(PROJECT) NPC_CONFIG=rv32-course-area
-	$(MAKE) sta PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
-	$(MAKE) sta PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
+	$(MAKE) sta PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
 clean:
 	rm -rf ./build wave.vcd waveform.vcd
@@ -1200,27 +1109,26 @@ help:
 	@echo "Build targets:"
 	@echo "  build-npc     Build the fast standalone NPC simulator"
 	@echo "  build-soc     Build ysyxSoC; RV64 uses the AXI64-to-AXI32 boundary converter"
-	@echo "  test-configs  Check both static configuration contracts"
-	@echo "  test-idu-configs  Run directed IDU tests for RV32 and RV64"
-	@echo "  test-exu-configs  Run directed EXU tests for RV32 and RV64"
-	@echo "  test-lsu-configs  Run directed LSU tests for RV32 and RV64"
+	@echo "  test-configs  Check the RV64 static configuration contract"
+	@echo "  test-idu-configs  Run directed RV64 IDU tests"
+	@echo "  test-exu-configs  Run directed RV64 EXU tests"
+	@echo "  test-lsu-configs  Run directed RV64 LSU tests"
 	@echo "  test-pipeline-configs  Test pipeline registers, hazards, and redirects"
-	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
-	@echo "  test-dcache-configs  Test D-cache hit, refill, writeback, and clean in RV32/RV64"
-	@echo "  test-core-merge-configs  Test I/D shared AXI read arbitration in RV32/RV64"
+	@echo "  test-uncached-configs  Run uncached AXI4 tests"
+	@echo "  test-dcache-configs  Test D-cache hit, refill, writeback, and clean"
+	@echo "  test-core-merge-configs  Test I/D shared AXI read arbitration"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
 	@echo "  test-sdram-axi  Test AXI transaction classification and native SDRAM BL8 reads"
 	@echo "  test-axi-delayer  Test per-beat AXI read timing and independent write timing"
-	@echo "  test-privileged-configs  Test CSR, trap, commit, and PMU semantics in RV32/RV64"
-	@echo "  nemu-ref-rv32 / nemu-ref-rv64  Build the matching standalone DiffTest reference"
-	@echo "  regression-p3-e  Run RV32/RV64 privileged directed tests"
-	@echo "  regression-p3-f-rv32 / regression-p3-f-rv64  Run 35 CPU/exception DiffTests"
-	@echo "  regression-p3-g  Run the complete sequential dual-configuration baseline"
+	@echo "  test-privileged-configs  Test RV64 CSR, trap, commit, and PMU semantics"
+	@echo "  nemu-ref-rv64  Build the standalone RV64 DiffTest reference"
+	@echo "  regression-rv64-isa  Run CPU and exception DiffTests"
+	@echo "  regression-rv64  Run the complete RV64 directed and ISA regression"
 	@echo ""
 	@echo "Run targets:"
 	@echo "  sim-npc       Run standalone NPC; requires IMG"
 	@echo "  sim-soc       Run ysyxSoC; requires IMG and/or FLASH_IMG"
-	@echo "  sim           Alias of sim-soc"
+	@echo "  sim           Alias of sim-npc"
 	@echo "  sim-am        AM compatibility alias of sim-npc"
 	@echo "  sim-image     ysyxSoC AM compatibility alias of sim-soc"
 	@echo "  nvboard       Run ysyxSoC with NVBoard"
@@ -1230,7 +1138,7 @@ help:
 	@echo "  sim-difftest sim-wave sim-debug"
 	@echo ""
 	@echo "Evaluation targets:"
-	@echo "  perf          Run MicroBench on ysyxSoC"
+	@echo "  perf          Run RV64 MicroBench on standalone NPC"
 	@echo "  perf-record   Run and append a reproducible performance record"
 	@echo "  cachesim-test Build and test the metadata-only I-cache simulator"
 	@echo "  cachesim-trace  Generate an architectural PC trace with NEMU"
@@ -1249,11 +1157,10 @@ help:
 	@echo "  cachesim-explore-calibrated  Explore using the RTL calibration CSV"
 	@echo "  lint-npc      Lint the standalone NPC"
 	@echo "  lint-soc      Lint the selected NPC configuration inside ysyxSoC"
-	@echo "  lint-configs  Lint both formal NPC configurations"
-	@echo "  sta / sta-configs  Run 300 MHz synthesis and STA for one/both NPC configurations"
+	@echo "  lint-configs  Lint the RV64 edge-AI configuration"
+	@echo "  sta / sta-configs  Run synthesis and STA for the RV64 core"
 	@echo ""
 	@echo "Examples:"
-	@echo "  make lint-npc NPC_CONFIG=rv64-sequential"
-	@echo "  make lint-npc NPC_CONFIG=rv64-sequential NPC_ICACHE_LINE_BYTES=64"
-	@echo "  make sim-npc NPC_CONFIG=rv32-baseline IMG=path/to/riscv32-npc.bin"
-	@echo "  make sim-soc NPC_CONFIG=rv32-baseline FLASH_IMG=path/to/riscv32-ysyxsoc.bin"
+	@echo "  make lint-npc"
+	@echo "  make lint-npc NPC_ICACHE_LINE_BYTES=128"
+	@echo "  make sim-npc IMG=path/to/riscv64-npc.bin"

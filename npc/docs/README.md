@@ -1,46 +1,39 @@
 # NPC 文档中心
 
-本目录是 NPC 项目的唯一文档入口。RTL 目录只保存源码和紧邻实现位置的局部注释；跨模块
-契约、架构决策、开发规范、实验结果和学习记录统一放在这里。
+本目录是NPC项目的统一文档入口。RTL目录只保存源码和紧邻实现的局部注释；跨模块契约、
+架构决策、开发规范、实验方法和学习记录统一放在这里。除协议字段、代码标识、命令、路径
+和URL外，正文使用中文维护。
 
-除标准名称、协议字段、代码标识、命令、路径和 URL 外，正文统一使用中文维护。
+## 当前权威文档
 
-## 目录结构
+- [RV64边缘AI处理器架构计划](architecture/ARCHITECTURE_PLAN.md)
+- [AI处理器工作负载模型](architecture/AI_WORKLOAD_MODEL.md)
+- [完整AXI4互连架构](interconnect/AXI4_ARCHITECTURE.md)
+- [顺序流水线设计记录](microarchitecture/PIPELINE_DESIGN_RECORD.md)
+- [I-cache设计记录](microarchitecture/ICACHE_DESIGN_RECORD.md)
+- [D-cache设计记录](microarchitecture/DCACHE_DESIGN_RECORD.md)
+- [控制流预测设计记录](microarchitecture/BRANCH_PREDICTION_DESIGN_RECORD.md)
+- [cache设计空间探索方法](verification/CACHE_DESIGN_SPACE_EXPLORATION.md)
+- [当前验证记录](verification/EXPERIMENT_LOG.md)
+- [开发流程](development/DEVELOPMENT_PROCESS.md)
+- [命名与源码组织](development/NAMING_GUIDE.md)
+- [模块设计记录模板](development/MODULE_DESIGN_RECORD_TEMPLATE.md)
 
-| 目录 | 内容 | 主要读者 |
-| --- | --- | --- |
-| [`architecture/`](architecture/) | 产品场景、AI 负载模型、体系结构路线和冻结决策 | 全体开发者 |
-| [`development/`](development/) | 命名、参数化、模块化、评审和设计记录模板 | RTL 与验证开发者 |
-| [`interconnect/`](interconnect/) | AXI、APB、片上互连和协议迁移记录 | SoC 与存储子系统开发者 |
-| [`microarchitecture/`](microarchitecture/) | I-cache 等具体模块的设计记录 | 模块所有者与评审者 |
-| [`verification/`](verification/) | 可复现实验、性能结果和回归记录 | 验证与性能分析人员 |
-| [`learning/`](learning/) | 从设计和实验中提炼的学习记录 | 当前及后续学习者 |
+## 目录职责
 
-历史上已经被新决策替代的文档放入对应目录的 `archive/`。归档文件只能用于追溯，不能作为
-当前实现依据。
+| 目录 | 内容 |
+| --- | --- |
+| `architecture/` | 产品目标、工作负载和长期架构路线 |
+| `microarchitecture/` | 当前模块边界、状态、协议和演进方向 |
+| `interconnect/` | AXI、APB和系统互连契约 |
+| `verification/` | 可复现实验方法、命令和当前证据 |
+| `development/` | 命名、评审、参数化和开发流程 |
+| `learning/` | 已验证经验与待验证问题 |
 
-## 权威文档
+## 更新规则
 
-- [完整AXI4互连架构](interconnect/AXI4_ARCHITECTURE.md)：当前主链边界、事务能力和后续扩展规则。
-- [I-cache设计空间探索](verification/CACHE_DESIGN_SPACE_EXPLORATION.md)：NEMU itrace、3C模型、AMAT/TMT和cachesim命令。
-- [顺序流水线设计记录](microarchitecture/PIPELINE_DESIGN_RECORD.md)：流水级payload、冒险控制、flush和精确提交契约。
-
-- 最终产品和架构路线：[`architecture/ARCHITECTURE_PLAN.md`](architecture/ARCHITECTURE_PLAN.md)
-- P2配置和宽度解耦：[`architecture/P2_CONFIGURATION_PLAN.md`](architecture/P2_CONFIGURATION_PLAN.md)
-- P2宽度依赖审计：[`architecture/P2_WIDTH_AUDIT.md`](architecture/P2_WIDTH_AUDIT.md)
-- P3 RV64顺序处理器实施计划：[`architecture/P3_RV64_SEQUENTIAL_PLAN.md`](architecture/P3_RV64_SEQUENTIAL_PLAN.md)
-- AI 工作负载依据：[`architecture/AI_WORKLOAD_MODEL.md`](architecture/AI_WORKLOAD_MODEL.md)
-- 固定开发流程：[`development/DEVELOPMENT_PROCESS.md`](development/DEVELOPMENT_PROCESS.md)
-- 命名和源码组织：[`development/NAMING_GUIDE.md`](development/NAMING_GUIDE.md)
-- 模块设计模板：[`development/MODULE_DESIGN_RECORD_TEMPLATE.md`](development/MODULE_DESIGN_RECORD_TEMPLATE.md)
-
-当源码、TODO、旧文档与上述权威文档冲突时，应先停止扩大改动，更新决策记录并明确迁移
-方案。不能同时维护两套互相冲突的架构定义。
-
-## 文档更新规则
-
-1. 产品目标或模块边界改变时，先更新架构计划，再修改 RTL。
-2. 新模块开工前创建设计记录；没有接口契约、正确性不变量和验证计划，不进入实现阶段。
-3. 参数、端口或协议发生变化时，同一次修改必须更新父模块、断言、测试和相关文档。
-4. 性能结论必须附带 Git commit、配置、命令和原始计数器数据。
-5. 学习记录区分“已经由证据支持的结论”和“仍需验证的假设”。
+1. 产品目标或模块边界改变时，先更新架构计划，再修改RTL。
+2. 参数、端口或协议变化时，同次修改更新父模块、断言、测试和文档。
+3. 性能结论必须记录commit、配置、命令、workload和原始计数器。
+4. `cachesim`、`branchsim`和延迟模型用于筛选与压力测试，不能代替RTL签核。
+5. 旧配置被主线替代后直接删除；不维护两套互相冲突的架构定义。

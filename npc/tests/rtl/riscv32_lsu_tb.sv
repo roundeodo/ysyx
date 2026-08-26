@@ -432,7 +432,6 @@ module riscv32_lsu_tb;
     check_access_fault(MEM_CMD_LOAD, EXC_LOAD_ACCESS_FAULT);
     check_access_fault(MEM_CMD_STORE, EXC_STORE_ACCESS_FAULT);
 
-`ifdef YSYX_RV64_SEQUENTIAL
     check_load(MEM_SIZE_WORD, 1'b1, effective_addr_t'(32'h8000_0004), 64'h8000_0001_0123_4567,
                64'h0000_0000_8000_0001);
     check_load(MEM_SIZE_DOUBLE, 1'b0, effective_addr_t'(32'h8000_0000), 64'hfedc_ba98_7654_3210,
@@ -447,8 +446,6 @@ module riscv32_lsu_tb;
                             EXC_LOAD_ADDR_MISALIGNED);
     check_misaligned_access(MEM_CMD_STORE, MEM_SIZE_DOUBLE, effective_addr_t'(32'h8000_0004),
                             EXC_STORE_ADDR_MISALIGNED);
-`endif
-
     check_response_backpressure();
     check_consecutive_load_serialization();
 

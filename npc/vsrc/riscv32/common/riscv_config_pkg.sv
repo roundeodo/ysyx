@@ -1,35 +1,13 @@
-// 处理器命名配置的唯一来源。
+// RV64边缘AI处理器配置的唯一来源。
 //
-// 本package只描述“这次构建选择了什么硬件配置”，不放ISA编码、总线事务结构、
-// cache状态或模块局部派生宽度。后续RV32和RV64配置共享模块实现时，只允许从这里
-// 改变全局配置，禁止各模块再次声明自己的XLEN或AXI宽度。
+// 本package只描述全核共享的静态配置，不放ISA编码、总线事务结构、cache状态或
+// 模块局部派生宽度。当前活动主线只支持RV64，不保留RV32兼容分支。
 package riscv_config_pkg;
 
-  // 正式配置由Makefile唯一选择。无配置或重复配置只为配置检查保留零宽占位值，
-  // 正常RTL构建会在Make阶段直接拒绝，不允许功能模块自行选择默认配置。
-`ifdef YSYX_RV32_BASELINE
-`ifdef YSYX_RV64_SEQUENTIAL
-  localparam int unsigned CONFIG_SELECTION_COUNT = 2;
-  localparam int unsigned XLEN = 0;
-  localparam int unsigned CORE_DATA_WIDTH = 0;
-  localparam int unsigned MEM_AXI_DATA_WIDTH = 0;
-`else
-  localparam int unsigned CONFIG_SELECTION_COUNT = 1;
-  localparam int unsigned XLEN = 32;
-  localparam int unsigned CORE_DATA_WIDTH = 32;
-  localparam int unsigned MEM_AXI_DATA_WIDTH = 32;
-`endif
-`elsif YSYX_RV64_SEQUENTIAL
   localparam int unsigned CONFIG_SELECTION_COUNT = 1;
   localparam int unsigned XLEN = 64;
   localparam int unsigned CORE_DATA_WIDTH = 64;
   localparam int unsigned MEM_AXI_DATA_WIDTH = 64;
-`else
-  localparam int unsigned CONFIG_SELECTION_COUNT = 0;
-  localparam int unsigned XLEN = 0;
-  localparam int unsigned CORE_DATA_WIDTH = 0;
-  localparam int unsigned MEM_AXI_DATA_WIDTH = 0;
-`endif
 
   localparam int unsigned PADDR_WIDTH = 32;
   localparam int unsigned INSTR_WIDTH = 32;
@@ -39,19 +17,19 @@ package riscv_config_pkg;
   localparam int unsigned MEM_AXI_ADDR_WIDTH = 32;
   localparam int unsigned MEM_AXI_ID_WIDTH = 4;
 
-  // 当前ysyxSoC CPU插槽固定为AXI32。P3-D只允许在system wrapper中转换宽度，
-  // 不能把开发板限制传播到core、cache或standalone memory AXI中。
+  // 现有ysyxSoC只作为外部验证平台，其AXI32限制由system wrapper吸收，不传播到core。
+  // 未来自研SoC直接使用MEM_AXI_*边界，不实例化该宽度转换路径。
   localparam int unsigned YSYX_SOC_AXI_ADDR_WIDTH = 32;
   localparam int unsigned YSYX_SOC_AXI_DATA_WIDTH = 32;
   localparam int unsigned YSYX_SOC_AXI_ID_WIDTH = 4;
-  //
+
   // 各配置的所有权：
   // - XLEN：整数寄存器、ALU结果、CSR主体和立即数扩展后的宽度。
   // - PADDR_WIDTH：core能够表达的物理地址宽度，不等于XLEN。
   // - INSTR_WIDTH：基础指令编码宽度。RV64下仍然是32，不能跟随XLEN变成64。
   // - CORE_DATA_WIDTH：LSU语义请求在core侧携带的数据宽度。
   // - MEM_AXI_*：core/cache到主存系统的正式AXI边界。
-  // - YSYX_SOC_AXI_*：当前课程SoC插槽边界，只由system wrapper消费。
+  // - YSYX_SOC_AXI_*：外部验证平台的固定边界，只由system wrapper消费。
   // - ARCH_REG_COUNT：架构整数寄存器数量；RV32I和RV64I均为32。
 
   // 只依赖全局配置、且被多个package共同使用的派生量。
@@ -63,8 +41,8 @@ package riscv_config_pkg;
   // 不要在这里计算I-cache tag、set index或line offset。这些量由I-cache几何决定，
   // 所有者是I-cache，而不是全局配置package。
   //
-  // RV32基线中XLEN、core数据和memory AXI恰好都是32位；RV64配置把前三者提升
-  // 到64位，但物理地址、指令和ysyxSoC AXI仍保持32位。相同数值不表示语义相同。
+  // XLEN、core数据和memory AXI当前均为64位，但物理地址和指令仍为32位。
+  // 相同数值不表示语义相同，各模块必须使用对应typedef表达所有权。
 
   // 全核共享的微架构容量和构建选择。这些参数描述“选择什么实现”，不是payload类型。
   localparam int unsigned FETCH_WIDTH = 1;
@@ -101,8 +79,6 @@ package riscv_config_pkg;
   localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
   localparam int unsigned ICACHE_MSHR_COUNT = 1;
-  // 课程面积配置在elaboration时完全移除D-cache实例；这不是运行时旁路，也不会为
-  // 未实例化的array保留触发器。LSU/PMA/AXI协议保持不变，cacheable请求改走uncached路径。
   localparam bit DCACHE_ENABLED = (`YSYX_DCACHE_ENABLE != 0);
   // 当前D-cache检查点采用阻塞式单miss结构，但容量、相联度和line大小均由构建配置
   // 决定。接口不绑定单MSHR，后续增加load/store queue、多个MSHR和bank时无需改LSU。
@@ -113,7 +89,7 @@ package riscv_config_pkg;
   localparam int unsigned FETCH_EPOCH_COUNT = 4;
   //
   // 命名规则：数量使用*_COUNT，位宽使用*_WIDTH，容量明确写出单位*_BYTES。
-  // 不再使用*_NUM、*_ENTRIES和*_W表达同一类概念。这里的单发射和单MSHR是P2基线，
+  // 不再使用*_NUM、*_ENTRIES和*_W表达同一类概念。这里的单发射和单MSHR是当前基线，
   // 不是长期性能目标；将来扩大配置时，模块必须通过同一配置入口暴露不支持的组合。
   //
   // 不要把ARCH_REG索引宽度、ROB索引宽度、I-cache set数量或tag宽度搬到这里。

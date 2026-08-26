@@ -155,7 +155,7 @@ module riscv32_idu_decode_tb;
     fetch_entry       = '0;
     fetch_entry_valid = 1'b0;
 
-    // 两种配置都必须保留原有RV32I译码行为。
+    // RV64I包含的基础整数指令必须保持标准语义。
     expect_integer_op(encode_i(12'hfff, 5'd1, FUNCT3_ADD_SUB, 5'd2, OPCODE_OP_IMM), ALU_ADD);
     expect_integer_op(encode_i(12'h01f, 5'd1, FUNCT3_SLL, 5'd2, OPCODE_OP_IMM), ALU_SLL);
     expect_load(encode_i(12'h004, 5'd1, FUNCT3_LW, 5'd2, OPCODE_LOAD), MEM_SIZE_WORD, 1'b0);
@@ -164,7 +164,6 @@ module riscv32_idu_decode_tb;
     expect_system_exception(32'h0010_0073, SYS_EBREAK, EXC_BREAKPOINT);
     expect_fetch_exception_priority();
 
-`ifdef YSYX_RV64_SEQUENTIAL
     // OP-IMM-32：立即数算术和5位移位量分别验证。
     expect_integer_op(
         encode_i(12'hfff, 5'd1, FUNCT3_ADD_SUB, 5'd2, OPCODE_OP_IMM_32), ALU_ADDW);
@@ -206,21 +205,6 @@ module riscv32_idu_decode_tb;
     apply_instruction(encode_u(20'h80000, 5'd2, OPCODE_AUIPC));
     assert (!decoded_uop.exception_valid && decoded_uop.imm == 64'hffff_ffff_8000_0000)
       else $fatal(1, "RV64 AUIPC immediate was not sign-extended");
-`else
-    // RV32构建必须拒绝所有RV64专属主opcode和访存宽度。
-    expect_illegal(encode_i(12'h001, 5'd1, FUNCT3_ADD_SUB, 5'd2, OPCODE_OP_IMM_32));
-    expect_illegal(
-        encode_r(FUNCT7_BASE, 5'd3, 5'd1, FUNCT3_ADD_SUB, 5'd2, OPCODE_OP_32));
-    expect_illegal(encode_i(12'h010, 5'd1, FUNCT3_LWU, 5'd2, OPCODE_LOAD));
-    expect_illegal(encode_i(12'h018, 5'd1, FUNCT3_LD, 5'd2, OPCODE_LOAD));
-    expect_illegal(encode_s(12'h020, 5'd2, 5'd1, FUNCT3_SD, OPCODE_STORE));
-    expect_illegal(encode_i(12'h020, 5'd1, FUNCT3_SLL, 5'd2, OPCODE_OP_IMM));
-
-    apply_instruction(encode_u(20'h80000, 5'd2, OPCODE_LUI));
-    assert (!decoded_uop.exception_valid && decoded_uop.imm == 32'h8000_0000)
-      else $fatal(1, "RV32 LUI immediate changed during RV64 decode work");
-`endif
-
     $display("IDU directed decode test passed for XLEN=%0d", XLEN);
     $finish;
   end

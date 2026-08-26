@@ -160,7 +160,7 @@ def run_make_perf(
         "make",
         "perf",
         "PROJECT=riscv32",
-        "NPC_CONFIG=rv32-baseline",
+        "NPC_CONFIG=rv64-edge-ai",
         f"NPC_ICACHE_CAPACITY_BYTES={cache_capacity_bytes}",
         f"NPC_ICACHE_WAY_COUNT={cache_way_count}",
         f"NPC_ICACHE_LINE_BYTES={line_bytes}",
@@ -207,8 +207,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--cache-way-count", type=int, default=1)
     parser.add_argument(
         "--benchmark-arch",
-        choices=("riscv32-ysyxsoc-psram", "riscv32-ysyxsoc-sdram"),
-        default="riscv32-ysyxsoc-psram",
+        choices=("riscv64-npc",),
+        default="riscv64-npc",
     )
     parser.add_argument(
         "--scale", choices=("test", "train", "ref", "huge"), default="test"
