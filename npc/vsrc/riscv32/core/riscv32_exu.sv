@@ -23,8 +23,6 @@ module riscv32_exu
   localparam int unsigned WORD_WIDTH = 32;
   localparam int unsigned WORD_SHIFT_WIDTH = $clog2(WORD_WIDTH);
 
-  xlen_data_t                        operand_a;
-  xlen_data_t                        operand_b;
   xlen_data_t                        execute_rs1_value;
   xlen_data_t                        execute_rs2_value;
   xlen_data_t                        alu_result;
@@ -40,24 +38,10 @@ module riscv32_exu
   effective_addr_t                   lsu_effective_addr;
   execute_result_t                   exu_result;
 
-  // execute_packet_i已经由core的EX输入旁路mux处理。相关性比较在译码级完成并随
-  // execute packet寄存，EX级不再比较rd/rs；旁路数据只来自上一拍EX/MEM寄存结果。
-  assign execute_rs1_value = execute_packet_i.rs1_value;
-  assign execute_rs2_value = execute_packet_i.rs2_value;
-
-  always_comb begin
-    unique case (execute_packet_i.uop.int_ctrl.operand_a_sel)
-      OPA_RS1: operand_a = execute_rs1_value;
-      OPA_PC:  operand_a = execute_packet_i.uop.pc;
-      default: operand_a = '0;
-    endcase
-
-    unique case (execute_packet_i.uop.int_ctrl.operand_b_sel)
-      OPB_RS2: operand_b = execute_rs2_value;
-      OPB_IMM: operand_b = execute_packet_i.uop.imm;
-      default: operand_b = '0;
-    endcase
-  end
+  // core在消费者写入ID/EX时已经完成语义源选择和数据旁路。EX级只消费寄存后的
+  // 操作数，不再串联rd/rs比较、操作数选择或旁路mux。
+  assign execute_rs1_value = execute_packet_i.source_a_value;
+  assign execute_rs2_value = execute_packet_i.source_b_value;
 
   // RV64的*W指令只在低32位中完成运算，再把32位结果符号扩展到XLEN。这里保留独立的
   // word-result通路，避免依赖宽位加法后的赋值截断，也明确约束寄存器型移位只使用
@@ -65,12 +49,12 @@ module riscv32_exu
   always_comb begin
     word_result = '0;
     unique case (execute_packet_i.uop.int_ctrl.op)
-      ALU_ADDW: word_result = operand_a[WORD_WIDTH-1:0] + operand_b[WORD_WIDTH-1:0];
-      ALU_SUBW: word_result = operand_a[WORD_WIDTH-1:0] - operand_b[WORD_WIDTH-1:0];
-      ALU_SLLW: word_result = operand_a[WORD_WIDTH-1:0] << operand_b[WORD_SHIFT_WIDTH-1:0];
-      ALU_SRLW: word_result = operand_a[WORD_WIDTH-1:0] >> operand_b[WORD_SHIFT_WIDTH-1:0];
+      ALU_ADDW: word_result = execute_rs1_value[WORD_WIDTH-1:0] + execute_rs2_value[WORD_WIDTH-1:0];
+      ALU_SUBW: word_result = execute_rs1_value[WORD_WIDTH-1:0] - execute_rs2_value[WORD_WIDTH-1:0];
+      ALU_SLLW: word_result = execute_rs1_value[WORD_WIDTH-1:0] << execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
+      ALU_SRLW: word_result = execute_rs1_value[WORD_WIDTH-1:0] >> execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
       ALU_SRAW:
-      word_result = $signed(operand_a[WORD_WIDTH-1:0]) >>> operand_b[WORD_SHIFT_WIDTH-1:0];
+      word_result = $signed(execute_rs1_value[WORD_WIDTH-1:0]) >>> execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
       default: word_result = '0;
     endcase
   end
@@ -78,16 +62,16 @@ module riscv32_exu
   always_comb begin
     alu_result = '0;
     unique case (execute_packet_i.uop.int_ctrl.op)
-      ALU_ADD: alu_result = operand_a + operand_b;
-      ALU_SUB: alu_result = operand_a - operand_b;
-      ALU_SLL: alu_result = operand_a << operand_b[SHIFT_AMOUNT_WIDTH-1:0];
-      ALU_SLT: alu_result[0] = $signed(operand_a) < $signed(operand_b);
-      ALU_SLTU: alu_result[0] = operand_a < operand_b;
-      ALU_XOR: alu_result = operand_a ^ operand_b;
-      ALU_SRL: alu_result = operand_a >> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
-      ALU_SRA: alu_result = $signed(operand_a) >>> operand_b[SHIFT_AMOUNT_WIDTH-1:0];
-      ALU_OR: alu_result = operand_a | operand_b;
-      ALU_AND: alu_result = operand_a & operand_b;
+      ALU_ADD: alu_result = execute_rs1_value + execute_rs2_value;
+      ALU_SUB: alu_result = execute_rs1_value - execute_rs2_value;
+      ALU_SLL: alu_result = execute_rs1_value << execute_rs2_value[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_SLT: alu_result[0] = $signed(execute_rs1_value) < $signed(execute_rs2_value);
+      ALU_SLTU: alu_result[0] = execute_rs1_value < execute_rs2_value;
+      ALU_XOR: alu_result = execute_rs1_value ^ execute_rs2_value;
+      ALU_SRL: alu_result = execute_rs1_value >> execute_rs2_value[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_SRA: alu_result = $signed(execute_rs1_value) >>> execute_rs2_value[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_OR: alu_result = execute_rs1_value | execute_rs2_value;
+      ALU_AND: alu_result = execute_rs1_value & execute_rs2_value;
       ALU_ADDW, ALU_SUBW, ALU_SLLW, ALU_SRLW, ALU_SRAW:
       alu_result = {{(XLEN - WORD_WIDTH) {word_result[WORD_WIDTH-1]}}, word_result};
       default: alu_result = '0;

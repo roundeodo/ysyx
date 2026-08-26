@@ -720,12 +720,10 @@ package riscv32_pkg;
   // one combinational instruction path; P4 may register the same boundaries.
   typedef struct packed {
     decoded_uop_t uop;
-    xlen_data_t   rs1_value;
-    xlen_data_t   rs2_value;
-    // 译码级提前判断当前EX生产者与源寄存器的相关性。该选择位随payload进入ID/EX，
-    // 下一拍直接控制EX/MEM结果旁路，避免在EX关键路径中再次进行rd/rs比较。
-    logic         rs1_previous_ex_result_selected;
-    logic         rs2_previous_ex_result_selected;
+    // ID级已经依据执行类型选择好语义源。整数指令分别对应ALU A/B输入；分支、LSU和
+    // CSR仍分别对应rs1/rs2语义。EX级因此不再把operand select mux串在运算器前面。
+    xlen_data_t   source_a_value;
+    xlen_data_t   source_b_value;
     xlen_data_t   csr_rdata;
     logic         csr_illegal;
   } execute_packet_t;

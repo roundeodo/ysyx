@@ -133,7 +133,8 @@ module riscv32_lsu
   // 把当前输入valid重新反馈到流水线允许信号中形成组合环。
   assign lsu_transaction_active_o   = state_q != LSU_IDLE;
   // 这两个信号描述尚未完成的老访存生产者。hazard controller用它们阻止load-use读取
-  // 旧寄存器值；response有效时可以直接从lsu_writeback前递，不必额外等待WB寄存级。
+  // 旧寄存器值；结果必须先跨过WB寄存边界，再由writeback路径前递，避免把存储系统
+  // response、load格式化和ID/EX操作数选择串成单周期关键路径。
   assign lsu_pending_writes_rd_o    = (state_q != LSU_IDLE) &&
                                       pending_lsu_context_q.writes_rd;
   assign lsu_pending_rd_o           = pending_lsu_context_q.rd;

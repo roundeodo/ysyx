@@ -34,13 +34,11 @@ module riscv32_pipeline_hazard_controller
     input logic          writeback_serializing_i,
     input logic          writeback_forwarding_available_i,
 
-    // 在途LSU事务位于EX与WB之间。目的寄存器必须参与RAW比较；response出现时可直接前递，
-    // 否则依赖指令停在ID。独立指令允许进入EX等待，从而避免把LSU busy做成全前端闸门。
+    // 在途LSU事务位于EX与WB之间。目的寄存器必须参与RAW比较；load结果先跨过WB
+    // 寄存边界，再通过writeback前递。独立指令允许进入EX等待。
     input logic          lsu_busy_i,
     input logic          lsu_pending_writes_rd_i,
     input arch_reg_idx_t lsu_pending_rd_i,
-    input logic          lsu_forwarding_available_i,
-
     // 误预测判断来自EX/MEM寄存结果，不经过EXU组合路径。发现误预测的同拍必须阻止
     // 年轻指令产生副作用；frontend_redirect_applied_i在下一拍恢复IFU取指地址。
     input logic execute_redirect_present_i,
@@ -59,11 +57,9 @@ module riscv32_pipeline_hazard_controller
 
     output logic rs1_execute_forwarding_selected_o,
     output logic rs1_execute_result_forwarding_selected_o,
-    output logic rs1_lsu_forwarding_selected_o,
     output logic rs1_writeback_forwarding_selected_o,
     output logic rs2_execute_forwarding_selected_o,
     output logic rs2_execute_result_forwarding_selected_o,
-    output logic rs2_lsu_forwarding_selected_o,
     output logic rs2_writeback_forwarding_selected_o
 );
 
@@ -120,9 +116,6 @@ module riscv32_pipeline_hazard_controller
     rs1_execute_forwarding_selected_o = execute_writes_rs1 && execute_forwarding_available_i;
     rs1_execute_result_forwarding_selected_o = !execute_writes_rs1 &&
         execute_result_writes_rs1 && execute_result_forwarding_available_i;
-    rs1_lsu_forwarding_selected_o = !execute_writes_rs1 && !execute_result_writes_rs1 &&
-                                    lsu_writes_rs1 &&
-                                    lsu_forwarding_available_i;
     rs1_writeback_forwarding_selected_o = !execute_writes_rs1 &&
                                           !execute_result_writes_rs1 &&
                                           !lsu_writes_rs1 &&
@@ -131,9 +124,6 @@ module riscv32_pipeline_hazard_controller
     rs2_execute_forwarding_selected_o = execute_writes_rs2 && execute_forwarding_available_i;
     rs2_execute_result_forwarding_selected_o = !execute_writes_rs2 &&
         execute_result_writes_rs2 && execute_result_forwarding_available_i;
-    rs2_lsu_forwarding_selected_o = !execute_writes_rs2 && !execute_result_writes_rs2 &&
-                                    lsu_writes_rs2 &&
-                                    lsu_forwarding_available_i;
     rs2_writeback_forwarding_selected_o = !execute_writes_rs2 &&
                                           !execute_result_writes_rs2 &&
                                           !lsu_writes_rs2 &&
@@ -144,8 +134,7 @@ module riscv32_pipeline_hazard_controller
                             (!execute_writes_rs1 && execute_result_writes_rs1 &&
                              !execute_result_forwarding_available_i) ||
                             (!execute_writes_rs1 && !execute_result_writes_rs1 &&
-                             lsu_writes_rs1 &&
-                             !lsu_forwarding_available_i) ||
+                             lsu_writes_rs1) ||
                             (!execute_writes_rs1 && !execute_result_writes_rs1 &&
                              !lsu_writes_rs1 &&
                              writeback_writes_rs1 &&
@@ -154,8 +143,7 @@ module riscv32_pipeline_hazard_controller
                             (!execute_writes_rs2 && execute_result_writes_rs2 &&
                              !execute_result_forwarding_available_i) ||
                             (!execute_writes_rs2 && !execute_result_writes_rs2 &&
-                             lsu_writes_rs2 &&
-                             !lsu_forwarding_available_i) ||
+                             lsu_writes_rs2) ||
                             (!execute_writes_rs2 && !execute_result_writes_rs2 &&
                              !lsu_writes_rs2 &&
                              writeback_writes_rs2 &&
@@ -223,11 +211,11 @@ module riscv32_pipeline_hazard_controller
 
   assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(
       {rs1_execute_forwarding_selected_o,
-              rs1_execute_result_forwarding_selected_o, rs1_lsu_forwarding_selected_o,
+              rs1_execute_result_forwarding_selected_o,
               rs1_writeback_forwarding_selected_o}
   ) && $onehot0(
       {rs2_execute_forwarding_selected_o,
-              rs2_execute_result_forwarding_selected_o, rs2_lsu_forwarding_selected_o,
+              rs2_execute_result_forwarding_selected_o,
               rs2_writeback_forwarding_selected_o}
   ))
   else $error("pipeline selected multiple forwarding producers for one source operand");
@@ -243,13 +231,13 @@ module riscv32_pipeline_hazard_controller
   else $error("pipeline accepted stale rs2 data while the newest EX producer was unavailable");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs1 && lsu_writes_rs1 &&
-     !lsu_forwarding_available_i) |-> raw_hazard_present_o)
+    (decoded_uop_valid_i && !execute_writes_rs1 && lsu_writes_rs1)
+    |-> raw_hazard_present_o)
   else $error("pipeline accepted stale rs1 data while an LSU producer was pending");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs2 && lsu_writes_rs2 &&
-     !lsu_forwarding_available_i) |-> raw_hazard_present_o)
+    (decoded_uop_valid_i && !execute_writes_rs2 && lsu_writes_rs2)
+    |-> raw_hazard_present_o)
   else $error("pipeline accepted stale rs2 data while an LSU producer was pending");
   /* verilator lint_on SYNCASYNCNET */
 `endif

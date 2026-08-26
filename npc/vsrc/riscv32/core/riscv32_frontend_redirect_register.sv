@@ -1,53 +1,66 @@
-// Register one resolved control-flow recovery event before it enters frontend control.
+// Select and register one resolved control-flow recovery event before frontend control.
 //
-// The pipeline still flushes younger instructions in the cycle that discovers the event.
-// Only the low-bandwidth frontend request is delayed by one cycle, cutting the long
-// commit/execute -> redirect arbitration -> IFU -> I-cache array timing path.
+// Each source payload is captured directly, while only the selected source index passes
+// through priority logic. This prevents the wide redirect payload from crossing an arbiter
+// before its register. Higher array indices have higher architectural priority.
 module riscv32_frontend_redirect_register
   import riscv32_pkg::*;
+#(
+    parameter int unsigned SOURCE_COUNT = 2
+)
 (
     input logic clk_i,
     input logic rst_ni,
 
-    input redirect_req_t redirect_req_i,
-    input logic          redirect_req_valid_i,
-    // An older recovery event cancels a younger event before it reaches the frontend.
-    input logic          cancel_i,
+    input redirect_req_t                    redirect_req_i      [SOURCE_COUNT],
+    input logic          [SOURCE_COUNT-1:0] redirect_req_valid_i,
 
     output redirect_req_t registered_redirect_req_o,
     output logic          registered_redirect_req_valid_o
 );
 
-  redirect_req_t registered_redirect_req_q;
+  localparam int unsigned SOURCE_INDEX_WIDTH =
+      SOURCE_COUNT <= 1 ? 1 : $clog2(SOURCE_COUNT);
+
+  typedef logic [SOURCE_INDEX_WIDTH-1:0] source_index_t;
+
+  redirect_req_t registered_redirect_req_q[SOURCE_COUNT];
+  source_index_t selected_source_index_q;
   logic          registered_redirect_req_valid_q;
 
-  assign registered_redirect_req_o       = registered_redirect_req_q;
+  assign registered_redirect_req_o = registered_redirect_req_valid_q ?
+      registered_redirect_req_q[selected_source_index_q] : '0;
   assign registered_redirect_req_valid_o = registered_redirect_req_valid_q;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      registered_redirect_req_q       <= '0;
-      registered_redirect_req_valid_q <= 1'b0;
-    end else if (cancel_i) begin
+      for (int unsigned source = 0; source < SOURCE_COUNT; source++) begin
+        registered_redirect_req_q[source] <= '0;
+      end
+      selected_source_index_q           <= '0;
       registered_redirect_req_valid_q <= 1'b0;
     end else begin
-      registered_redirect_req_valid_q <= redirect_req_valid_i;
-      if (redirect_req_valid_i) begin
-        registered_redirect_req_q <= redirect_req_i;
+      registered_redirect_req_valid_q <= |redirect_req_valid_i;
+
+      // Ascending iteration plus nonblocking assignment gives the highest valid index
+      // priority without placing the payload itself behind the priority multiplexer.
+      for (int unsigned source = 0; source < SOURCE_COUNT; source++) begin
+        if (redirect_req_valid_i[source]) begin
+          registered_redirect_req_q[source] <= redirect_req_i[source];
+          selected_source_index_q <= source_index_t'(source);
+        end
       end
     end
   end
 
 `ifndef SYNTHESIS
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    cancel_i |=> !registered_redirect_req_valid_o)
-  else $error("cancelled redirect reached frontend");
+    (|redirect_req_valid_i) |=> registered_redirect_req_valid_o)
+  else $error("frontend redirect register lost a recovery event");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (redirect_req_valid_i && !cancel_i) |=>
-      (registered_redirect_req_valid_o &&
-       registered_redirect_req_o == $past(redirect_req_i)))
-  else $error("frontend redirect register lost or changed a recovery event");
+    !(|redirect_req_valid_i) |=> !registered_redirect_req_valid_o)
+  else $error("frontend redirect register created a recovery event");
 `endif
 
 endmodule

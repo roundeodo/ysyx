@@ -33,6 +33,7 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_pmu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_csr_file.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_idu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_decode_stage.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_register_read_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_control_flow_predictor.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_decode_execute_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_frontend_redirect_register.sv

@@ -297,6 +297,7 @@ PIPELINE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
+	$(RTL_DIR)/core/riscv32_register_read_stage.sv \
 	$(RTL_DIR)/core/riscv32_decode_execute_stage.sv \
 	$(RTL_DIR)/core/riscv32_pipeline_hazard_controller.sv \
 	$(RTL_DIR)/core/riscv32_completion_mux.sv \

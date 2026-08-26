@@ -30,8 +30,8 @@ module riscv32_exu_alu_tb;
     execute_packet.uop.int_ctrl.op            = operation;
     execute_packet.uop.int_ctrl.operand_a_sel = OPA_RS1;
     execute_packet.uop.int_ctrl.operand_b_sel = OPB_RS2;
-    execute_packet.rs1_value                  = operand_a;
-    execute_packet.rs2_value                  = operand_b;
+    execute_packet.source_a_value             = operand_a;
+    execute_packet.source_b_value             = operand_b;
     execute_packet_valid                      = 1'b1;
     #1;
 
@@ -60,7 +60,8 @@ module riscv32_exu_alu_tb;
     execute_packet.uop.int_ctrl.operand_a_sel = OPA_RS1;
     execute_packet.uop.int_ctrl.operand_b_sel = OPB_IMM;
     execute_packet.uop.imm                    = immediate;
-    execute_packet.rs1_value                  = operand_a;
+    execute_packet.source_a_value             = operand_a;
+    execute_packet.source_b_value             = immediate;
     execute_packet_valid                      = 1'b1;
     #1;
 
@@ -89,7 +90,7 @@ module riscv32_exu_alu_tb;
     execute_packet.uop.pc             = instruction_pc;
     execute_packet.uop.imm            = immediate;
     execute_packet.uop.writes_rd      = 1'b1;
-    execute_packet.rs1_value          = rs1_value;
+    execute_packet.source_a_value     = rs1_value;
     execute_packet_valid              = 1'b1;
     #1;
 

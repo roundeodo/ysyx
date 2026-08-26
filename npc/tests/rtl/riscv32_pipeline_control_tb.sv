@@ -88,7 +88,6 @@ module riscv32_pipeline_control_tb;
   logic                lsu_busy;
   logic                lsu_pending_writes_rd;
   arch_reg_idx_t       lsu_pending_rd;
-  logic                lsu_forwarding_available;
   logic                frontend_redirect_applied;
   logic                commit_redirect_occurred;
   logic                decode_accept_allowed;
@@ -109,11 +108,9 @@ module riscv32_pipeline_control_tb;
   logic                writeback_forwarding_available;
   logic                rs1_execute_forwarding_selected;
   logic                rs1_execute_result_forwarding_selected;
-  logic                rs1_lsu_forwarding_selected;
   logic                rs1_writeback_forwarding_selected;
   logic                rs2_execute_forwarding_selected;
   logic                rs2_execute_result_forwarding_selected;
-  logic                rs2_lsu_forwarding_selected;
   logic                rs2_writeback_forwarding_selected;
 
   riscv32_ifu #(
@@ -258,7 +255,6 @@ module riscv32_pipeline_control_tb;
       .lsu_busy_i                              (lsu_busy),
       .lsu_pending_writes_rd_i                 (lsu_pending_writes_rd),
       .lsu_pending_rd_i                        (lsu_pending_rd),
-      .lsu_forwarding_available_i              (lsu_forwarding_available),
       .execute_redirect_present_i              (1'b0),
       .frontend_redirect_applied_i             (frontend_redirect_applied),
       .commit_redirect_occurred_i              (commit_redirect_occurred),
@@ -272,11 +268,9 @@ module riscv32_pipeline_control_tb;
       .structural_hazard_present_o             (structural_hazard_present),
       .rs1_execute_forwarding_selected_o       (rs1_execute_forwarding_selected),
       .rs1_execute_result_forwarding_selected_o(rs1_execute_result_forwarding_selected),
-      .rs1_lsu_forwarding_selected_o           (rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o     (rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o       (rs2_execute_forwarding_selected),
       .rs2_execute_result_forwarding_selected_o(rs2_execute_result_forwarding_selected),
-      .rs2_lsu_forwarding_selected_o           (rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o     (rs2_writeback_forwarding_selected)
   );
 
@@ -290,7 +284,7 @@ module riscv32_pipeline_control_tb;
     packet.uop.pc        = pc;
     packet.uop.rd        = destination_register;
     packet.uop.writes_rd = destination_register != '0;
-    packet.rs1_value     = source_value;
+    packet.source_a_value = source_value;
     return packet;
   endfunction
 
@@ -354,7 +348,6 @@ module riscv32_pipeline_control_tb;
     lsu_busy                            = 1'b0;
     lsu_pending_writes_rd               = 1'b0;
     lsu_pending_rd                      = '0;
-    lsu_forwarding_available            = 1'b0;
     frontend_redirect_applied           = 1'b0;
     commit_redirect_occurred            = 1'b0;
     execute_forwarding_available        = 1'b0;
@@ -765,29 +758,35 @@ module riscv32_pipeline_control_tb;
     assert (structural_hazard_present && decode_accept_allowed && !execute_issue_allowed)
     else $fatal(1, "pipeline issued a younger instruction ahead of an older LSU transaction");
 
-    // 在途load是位于EX与WB之间的最新生产者。数据未返回时依赖指令停在ID；返回当拍
-    // 可直接从LSU completion前递，不必额外等待写回寄存器堆。
+    // 在途load的数据尚未跨越WB寄存边界，因此依赖指令必须停在ID。LSU响应不能直接
+    // 穿过D-cache、LSU和冒险控制进入ID/EX，否则会形成跨多个模块的组合长路径。
     lsu_pending_writes_rd       = 1'b1;
     lsu_pending_rd              = arch_reg_idx_t'(13);
     hazard_decoded_uop.uses_rs1 = 1'b1;
     hazard_decoded_uop.rs1      = arch_reg_idx_t'(13);
     #1;
-    assert (raw_hazard_present && !decode_accept_allowed && !rs1_lsu_forwarding_selected)
+    assert (raw_hazard_present && !decode_accept_allowed)
     else $fatal(1, "pending LSU load dependency was not blocked before response");
 
-    lsu_forwarding_available = 1'b1;
+    // LSU完成后，结果先进入WB寄存器。下一拍由现有WB前递网络解除相关冒险。
+    lsu_busy                                      = 1'b0;
+    lsu_pending_writes_rd                         = 1'b0;
+    hazard_writeback_result_valid                 = 1'b1;
+    hazard_writeback_result.uop.writes_rd         = 1'b1;
+    hazard_writeback_result.uop.rd                = arch_reg_idx_t'(13);
+    writeback_forwarding_available                = 1'b1;
     #1;
-    assert (!raw_hazard_present && decode_accept_allowed && rs1_lsu_forwarding_selected)
-    else $fatal(1, "LSU response was not selected for same-cycle forwarding");
+    assert (!raw_hazard_present && decode_accept_allowed && rs1_writeback_forwarding_selected)
+    else $fatal(1, "registered LSU result was not selected through WB forwarding");
 
-    // EX中的生产者年龄比pending LSU更小。两者写同一rd时必须选择EX，不能前递老load值。
+    // EX中的生产者年龄比WB中的旧load更小。两者写同一rd时必须选择EX。
     hazard_execute_uop_valid     = 1'b1;
     hazard_execute_uop.writes_rd = 1'b1;
     hazard_execute_uop.rd        = arch_reg_idx_t'(13);
     execute_forwarding_available = 1'b1;
     #1;
-    assert (rs1_execute_forwarding_selected && !rs1_lsu_forwarding_selected)
-    else $fatal(1, "pipeline did not prioritize the younger EX producer over pending LSU");
+    assert (rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
+    else $fatal(1, "pipeline did not prioritize the younger EX producer over WB load result");
 
     clear_hazard_inputs();
     clear_hazard_inputs();

@@ -99,15 +99,19 @@ module riscv32_core
   logic decoded_uop_valid;
   logic decoded_uop_ready;
 
-  // IDU和寄存器堆组合生成待进入ID/EX的payload；decode_execute_stage输出才是
-  // 当前EX级指令。两个名称显式区分流水级边界两侧，避免把组合译码结果误当成寄存状态。
+  // decode stage之后先锁存原始寄存器读值，再完成操作数选择和前递并进入ID/EX。
+  // 名称显式标出每个流水边界两侧，避免把组合值误认为已经寄存的状态。
   xlen_data_t rs1_value;
   xlen_data_t rs2_value;
+  execute_packet_t decoded_register_read_packet;
+  logic decoded_register_read_packet_ready;
+  execute_packet_t register_read_packet;
+  logic register_read_packet_valid;
+  logic register_read_packet_ready;
   execute_packet_t decoded_execute_packet;
   logic decoded_execute_packet_valid;
   logic decoded_execute_packet_ready;
   execute_packet_t execute_packet;
-  execute_packet_t execute_packet_for_exu;
   logic execute_packet_valid;
   logic execute_packet_ready;
 
@@ -157,8 +161,8 @@ module riscv32_core
   xlen_data_t trap_tval;
   logic mret_valid;
 
-  redirect_req_t redirect_req[REDIRECT_SOURCE_COUNT];
-  logic [REDIRECT_SOURCE_COUNT-1:0] redirect_req_valid;
+  redirect_req_t redirect_req_at_resolution[REDIRECT_SOURCE_COUNT];
+  logic [REDIRECT_SOURCE_COUNT-1:0] redirect_req_at_resolution_valid;
   redirect_req_t selected_redirect_req;
   logic selected_redirect_req_valid;
 
@@ -175,7 +179,6 @@ module riscv32_core
   arch_reg_idx_t lsu_pending_rd;
   redirect_req_t execute_redirect_req_at_resolution;
   logic execute_redirect_resolution_occurred;
-  logic execute_redirect_occurred;
   logic commit_redirect_occurred;
   logic frontend_recovery_occurred;
   logic execute_forwarding_available;
@@ -183,58 +186,63 @@ module riscv32_core
   logic writeback_forwarding_available;
   logic rs1_execute_forwarding_selected;
   logic rs1_execute_result_forwarding_selected;
-  logic rs1_lsu_forwarding_selected;
   logic rs1_writeback_forwarding_selected;
   logic rs2_execute_forwarding_selected;
   logic rs2_execute_result_forwarding_selected;
-  logic rs2_lsu_forwarding_selected;
   logic rs2_writeback_forwarding_selected;
 
   always_comb begin
-    decoded_execute_packet             = '0;
-    decoded_execute_packet.uop         = decoded_uop;
-    decoded_execute_packet.rs1_value   = rs1_value;
-    decoded_execute_packet.rs2_value   = rs2_value;
-    decoded_execute_packet.rs1_previous_ex_result_selected =
-        rs1_execute_forwarding_selected;
-    decoded_execute_packet.rs2_previous_ex_result_selected =
-        rs2_execute_forwarding_selected;
-    decoded_execute_packet.csr_rdata   = csr_read_data;
-    decoded_execute_packet.csr_illegal = csr_read_illegal;
+    decoded_register_read_packet                = '0;
+    decoded_register_read_packet.uop            = decoded_uop;
+    decoded_register_read_packet.source_a_value =
+        (gpr_write_enable && (gpr_write_addr == decoded_uop.rs1) && (decoded_uop.rs1 != '0)) ?
+        gpr_write_data : rs1_value;
+    decoded_register_read_packet.source_b_value =
+        (gpr_write_enable && (gpr_write_addr == decoded_uop.rs2) && (decoded_uop.rs2 != '0)) ?
+        gpr_write_data : rs2_value;
+    decoded_register_read_packet.csr_rdata      = csr_read_data;
+    decoded_register_read_packet.csr_illegal    = csr_read_illegal;
 
-    // EX/MEM、LSU completion和WB结果可能在消费者写入ID/EX的同一个时钟沿离开，
-    // 因此直接把最近的已生成结果写入payload。当前EX生产者的结果尚未生成，只把
-    // 相关性选择位写入payload，下一拍从EX/MEM结果寄存器取值。
+    decoded_execute_packet = register_read_packet;
+
+    // 整数操作数选择在ID/EX寄存边界之前完成。其他执行类型仍需要真实rs1/rs2：
+    // branch用它们比较，LSU用它们形成地址/写数据，CSR用source_a形成寄存器操作数。
+    if (register_read_packet.uop.fu_type == FU_INT) begin
+      unique case (register_read_packet.uop.int_ctrl.operand_a_sel)
+        OPA_RS1: decoded_execute_packet.source_a_value = register_read_packet.source_a_value;
+        OPA_PC:  decoded_execute_packet.source_a_value =
+            xlen_data_t'(register_read_packet.uop.pc);
+        default: decoded_execute_packet.source_a_value = '0;
+      endcase
+
+      unique case (register_read_packet.uop.int_ctrl.operand_b_sel)
+        OPB_RS2: decoded_execute_packet.source_b_value = register_read_packet.source_b_value;
+        OPB_IMM: decoded_execute_packet.source_b_value = register_read_packet.uop.imm;
+        default: decoded_execute_packet.source_b_value = '0;
+      endcase
+    end
+
+    // 所有旁路都在消费者写入ID/EX时完成。当前EX生产者的组合结果在该时钟沿前已经
+    // 稳定，可以和EX/MEM、WB结果一样直接写入payload。LSU结果必须先跨过WB寄存边界，
+    // 避免把存储系统response与ID/EX操作数选择串成关键路径。这样普通相关指令仍可连续
+    // 发射，同时不把“旁路mux + 当前指令ALU”串在同一条EX关键路径上。
     if (rs1_writeback_forwarding_selected) begin
-      decoded_execute_packet.rs1_value = writeback_result.result;
+      decoded_execute_packet.source_a_value = writeback_result.result;
     end
     if (rs2_writeback_forwarding_selected) begin
-      decoded_execute_packet.rs2_value = writeback_result.result;
-    end
-    if (rs1_lsu_forwarding_selected) begin
-      decoded_execute_packet.rs1_value = lsu_writeback.result;
-    end
-    if (rs2_lsu_forwarding_selected) begin
-      decoded_execute_packet.rs2_value = lsu_writeback.result;
+      decoded_execute_packet.source_b_value = writeback_result.result;
     end
     if (rs1_execute_result_forwarding_selected) begin
-      decoded_execute_packet.rs1_value = resolved_execute_result.result;
+      decoded_execute_packet.source_a_value = resolved_execute_result.result;
     end
     if (rs2_execute_result_forwarding_selected) begin
-      decoded_execute_packet.rs2_value = resolved_execute_result.result;
+      decoded_execute_packet.source_b_value = resolved_execute_result.result;
     end
-  end
-
-  // EX输入旁路以已经寄存的EX/MEM结果为最近生产者。rd/rs比较已在消费者进入ID/EX前
-  // 完成并随payload寄存；本级只保留数据mux，缩短“前一条结果 -> 当前ALU”的关键路径。
-  always_comb begin
-    execute_packet_for_exu = execute_packet;
-
-    if (execute_packet.rs1_previous_ex_result_selected) begin
-      execute_packet_for_exu.rs1_value = resolved_execute_result.result;
+    if (rs1_execute_forwarding_selected) begin
+      decoded_execute_packet.source_a_value = exu_result.result;
     end
-    if (execute_packet.rs2_previous_ex_result_selected) begin
-      execute_packet_for_exu.rs2_value = resolved_execute_result.result;
+    if (rs2_execute_forwarding_selected) begin
+      decoded_execute_packet.source_b_value = exu_result.result;
     end
   end
 
@@ -460,6 +468,22 @@ module riscv32_core
       .mepc_o                        (csr_mepc)
   );
 
+  // GPR/CSR异步读结果在这里跨越独立寄存边界。同一个上升沿发生WB写入与读取时，
+  // decoded_register_read_packet中的显式写优先旁路保证捕获新值，而不是阵列旧值。
+  riscv32_register_read_stage u_register_read_stage (
+      .clk_i                               (clk_i),
+      .rst_ni                              (rst_ni),
+      .decoded_register_read_packet_i      (decoded_register_read_packet),
+      .decoded_register_read_packet_valid_i(decoded_uop_valid),
+      .decoded_register_read_packet_ready_o(decoded_register_read_packet_ready),
+      .register_read_packet_o              (register_read_packet),
+      .register_read_packet_valid_o        (register_read_packet_valid),
+      .register_read_packet_ready_i        (register_read_packet_ready),
+      .flush_i                             (decode_execute_flush)
+  );
+
+  assign decoded_uop_ready = decoded_register_read_packet_ready;
+
   // 当前EX指令能否在下一拍通过EX/MEM -> EX路径提供结果，只由ID/EX中已经寄存的
   // 指令属性决定。load结果必须等待LSU completion，因此FU_LSU仍被判定为不可旁路。
   assign execute_forwarding_available = execute_packet_valid &&
@@ -477,12 +501,12 @@ module riscv32_core
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
-      .decoded_uop_valid_i(decoded_uop_valid),
-      .decoded_uses_rs1_i(decoded_uop.uses_rs1),
-      .decoded_rs1_i(decoded_uop.rs1),
-      .decoded_uses_rs2_i(decoded_uop.uses_rs2),
-      .decoded_rs2_i(decoded_uop.rs2),
-      .decoded_serializing_i(decoded_uop.serializing),
+      .decoded_uop_valid_i(register_read_packet_valid),
+      .decoded_uses_rs1_i(register_read_packet.uop.uses_rs1),
+      .decoded_rs1_i(register_read_packet.uop.rs1),
+      .decoded_uses_rs2_i(register_read_packet.uop.uses_rs2),
+      .decoded_rs2_i(register_read_packet.uop.rs2),
+      .decoded_serializing_i(register_read_packet.uop.serializing),
       .execute_uop_valid_i(execute_packet_valid),
       .execute_writes_rd_i(execute_packet.uop.writes_rd),
       .execute_rd_i(execute_packet.uop.rd),
@@ -502,8 +526,6 @@ module riscv32_core
       .lsu_busy_i(lsu_transaction_active),
       .lsu_pending_writes_rd_i(lsu_pending_writes_rd),
       .lsu_pending_rd_i(lsu_pending_rd),
-      .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
-                                    !lsu_writeback.uop.exception_valid),
       .execute_redirect_present_i  (resolved_execute_result_valid &&
                                     resolved_execute_result.redirect_valid),
       .frontend_redirect_applied_i(selected_redirect_req_valid),
@@ -518,18 +540,16 @@ module riscv32_core
       .structural_hazard_present_o(structural_hazard_present),
       .rs1_execute_forwarding_selected_o(rs1_execute_forwarding_selected),
       .rs1_execute_result_forwarding_selected_o(rs1_execute_result_forwarding_selected),
-      .rs1_lsu_forwarding_selected_o(rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o(rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o(rs2_execute_forwarding_selected),
       .rs2_execute_result_forwarding_selected_o(rs2_execute_result_forwarding_selected),
-      .rs2_lsu_forwarding_selected_o(rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
 
   // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由IFU/I-cache持有，
   // 不会出现“stage没有保存，但上游认为已经交付”的消息丢失。
-  assign decoded_execute_packet_valid = decoded_uop_valid && decode_accept_allowed;
-  assign decoded_uop_ready            = decoded_execute_packet_ready && decode_accept_allowed;
+  assign decoded_execute_packet_valid = register_read_packet_valid && decode_accept_allowed;
+  assign register_read_packet_ready   = decoded_execute_packet_ready && decode_accept_allowed;
 
   riscv32_decode_execute_stage u_decode_execute_stage (
       .clk_i                         (clk_i),
@@ -544,7 +564,7 @@ module riscv32_core
   );
 
   riscv32_exu u_exu (
-      .execute_packet_i              (execute_packet_for_exu),
+      .execute_packet_i              (execute_packet),
       .execute_packet_valid_i        (execute_packet_valid),
       .execute_packet_issue_allowed_i(execute_issue_allowed),
       .execute_packet_ready_o        (execute_packet_ready),
@@ -690,8 +710,8 @@ module riscv32_core
       .instruction_retirement_occurred_i(retired_instruction_occurred),
       .pipeline_raw_hazard_waiting_i(raw_hazard_present),
       .pipeline_serializing_waiting_i(serializing_hazard_present),
-      .pipeline_structural_waiting_i(structural_hazard_present && decoded_uop_valid),
-      .frontend_supply_waiting_i(!decoded_uop_valid && !structural_hazard_present &&
+      .pipeline_structural_waiting_i(structural_hazard_present && register_read_packet_valid),
+      .frontend_supply_waiting_i(!register_read_packet_valid && !structural_hazard_present &&
                                  !commit_redirect_occurred),
       .pipeline_control_flush_occurred_i(frontend_recovery_occurred),
       .pipeline_execute_instruction_discarded_i(commit_redirect_occurred && execute_packet_valid),
@@ -765,57 +785,39 @@ module riscv32_core
       resolved_execute_result_valid && resolved_execute_result_ready &&
       resolved_execute_result.redirect_valid;
 
-  // Every redirect source crosses the same registered frontend boundary. Pipeline flushes
-  // still use the raw discovery events below, so this timing register does not permit a
-  // younger instruction to execute or commit while frontend recovery is pending.
-  riscv32_frontend_redirect_register u_execute_redirect_register (
+  // 各来源的请求数据直接进入自己的采样寄存器；优先级逻辑只选择来源索引。
+  // commit位于最高下标，因此同拍发生多个请求时，精确异常或mret优先于fence.i和
+  // 推测执行恢复。交给IFU和流水线flush的valid直接来自统一恢复边界的触发器。
+  assign redirect_req_at_resolution[EXU_REDIRECT_INDEX] =
+      execute_redirect_req_at_resolution;
+  assign redirect_req_at_resolution_valid[EXU_REDIRECT_INDEX] =
+      execute_redirect_resolution_occurred;
+  assign redirect_req_at_resolution[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
+  assign redirect_req_at_resolution_valid[FENCE_I_REDIRECT_INDEX] =
+      committed_fence_i_occurred;
+  assign redirect_req_at_resolution[COMMIT_REDIRECT_INDEX] =
+      commit_redirect_req_at_resolution;
+  assign redirect_req_at_resolution_valid[COMMIT_REDIRECT_INDEX] =
+      commit_redirect_resolution_occurred;
+
+  riscv32_frontend_redirect_register #(
+      .SOURCE_COUNT(REDIRECT_SOURCE_COUNT)
+  ) u_frontend_redirect_register (
       .clk_i                          (clk_i),
       .rst_ni                         (rst_ni),
-      .redirect_req_i                 (execute_redirect_req_at_resolution),
-      .redirect_req_valid_i           (execute_redirect_resolution_occurred),
-      .cancel_i                       (commit_redirect_occurred),
-      .registered_redirect_req_o      (redirect_req[EXU_REDIRECT_INDEX]),
-      .registered_redirect_req_valid_o(execute_redirect_occurred)
-  );
-
-  assign redirect_req_valid[EXU_REDIRECT_INDEX] = execute_redirect_occurred;
-
-  riscv32_frontend_redirect_register u_fence_i_redirect_register (
-      .clk_i                          (clk_i),
-      .rst_ni                         (rst_ni),
-      .redirect_req_i                 (fence_i_redirect_req),
-      .redirect_req_valid_i           (committed_fence_i_occurred),
-      .cancel_i                       (1'b0),
-      .registered_redirect_req_o      (redirect_req[FENCE_I_REDIRECT_INDEX]),
-      .registered_redirect_req_valid_o(redirect_req_valid[FENCE_I_REDIRECT_INDEX])
-  );
-
-  riscv32_frontend_redirect_register u_commit_redirect_register (
-      .clk_i                          (clk_i),
-      .rst_ni                         (rst_ni),
-      .redirect_req_i                 (commit_redirect_req_at_resolution),
-      .redirect_req_valid_i           (commit_redirect_resolution_occurred),
-      .cancel_i                       (1'b0),
-      .registered_redirect_req_o      (redirect_req[COMMIT_REDIRECT_INDEX]),
-      .registered_redirect_req_valid_o(redirect_req_valid[COMMIT_REDIRECT_INDEX])
+      .redirect_req_i                 (redirect_req_at_resolution),
+      .redirect_req_valid_i           (redirect_req_at_resolution_valid),
+      .registered_redirect_req_o      (selected_redirect_req),
+      .registered_redirect_req_valid_o(selected_redirect_req_valid)
   );
 
   // trap/mret必须在提交边界立即清除更年轻的后端工作。FENCE.I已经被IDU标记为
   // serializing：它只有在所有老指令排空后才能进入，且在自己提交前不会接收年轻指令，
   // 因此提交拍不需要再通过通用commit flush组合地kill LSU。FENCE.I的前端恢复仍经过
-  // u_fence_i_redirect_register，并与D-cache clean、I-cache invalidate维护状态机协同。
+  // u_frontend_redirect_register，并与D-cache clean、I-cache invalidate维护状态机协同。
   // 将两类事件分开也避免commit -> LSU -> D-cache array的跨模块关键路径。
   assign commit_redirect_occurred = commit_redirect_resolution_occurred;
   assign frontend_recovery_occurred = selected_redirect_req_valid;
-
-  riscv32_redirect_arbiter #(
-      .SOURCE_COUNT(REDIRECT_SOURCE_COUNT)
-  ) u_redirect_arbiter (
-      .redirect_req_i               (redirect_req),
-      .redirect_req_valid_i         (redirect_req_valid),
-      .selected_redirect_req_o      (selected_redirect_req),
-      .selected_redirect_req_valid_o(selected_redirect_req_valid)
-  );
 
 `ifndef SYNTHESIS
   // rst_ni是状态寄存器的异步复位，同时也是SVA的disable条件。Verilator会把后者
