@@ -28,9 +28,9 @@ module riscv32_lsu
     input  logic              lsu_writeback_ready_i
 );
 
-  // 当前实现只有一个访存上下文：普通情况下必须等待对应response；但老response离开和
-  // 下一条访存请求进入可以同拍发生，因而D-cache连续命中不需要插入空闲拍。乱序版本应在
-  // LSU前增加load queue/store queue，并用transaction_id关联多个返回结果。
+  // 当前实现只有一个访存上下文，必须等待对应response离开后才释放入口。这个实验版本
+  // 暂不在响应拍滚入下一条请求，用于量化缩短LSU组合路径与新增空闲拍之间的取舍。
+  // 乱序版本应在LSU前增加load queue/store queue，并用transaction_id关联多个返回结果。
   typedef enum logic [1:0] {
     LSU_IDLE,
     LSU_SEND_MEMORY_REQUEST,
@@ -82,15 +82,6 @@ module riscv32_lsu
   logic              [                      15:0] selected_halfword;
   logic              [                      31:0] selected_word;
   xlen_data_t                                     formatted_load_data;
-
-  logic incoming_has_memory_access;
-  logic incoming_address_misaligned;
-  logic incoming_complete_locally;
-
-  function automatic logic request_has_memory_access(input lsu_req_t request);
-    return (request.uop.mem_ctrl.cmd == MEM_CMD_LOAD) ||
-           (request.uop.mem_ctrl.cmd == MEM_CMD_STORE);
-  endfunction
 
   function automatic logic request_address_misaligned(input lsu_req_t request);
     unique case (request.uop.mem_ctrl.size)
@@ -172,12 +163,6 @@ module riscv32_lsu
     store_write_data  = request_store_write_data(active_lsu_req);
     store_byte_strobe = request_store_byte_strobe(active_lsu_req);
 
-    incoming_has_memory_access = request_has_memory_access(lsu_req_i);
-    incoming_address_misaligned = incoming_has_memory_access &&
-                                  request_address_misaligned(lsu_req_i);
-    incoming_complete_locally   = lsu_req_i.uop.exception_valid ||
-                                  incoming_address_misaligned ||
-                                  !incoming_has_memory_access;
   end
 
   // 本地请求保留字节地址和访问宽度。协议adapter负责把size翻译成AXI4 AxSIZE，
@@ -193,17 +178,6 @@ module riscv32_lsu
     data_memory_req_o.byte_strobe    = is_store ? store_byte_strobe : '0;
     data_memory_req_o.transaction_id = '0;
 
-    // 老response和下一条访存可以在同一拍分别完成response/request握手。此时请求口必须
-    // 直接使用新输入，不能继续发送pending上下文中的老地址。
-    if (state_q == LSU_WAIT_MEMORY_RESPONSE) begin
-      data_memory_req_o.addr        = phys_addr_t'(lsu_req_i.effective_addr);
-      data_memory_req_o.cmd         = lsu_req_i.uop.mem_ctrl.cmd;
-      data_memory_req_o.size        = lsu_req_i.uop.mem_ctrl.size;
-      data_memory_req_o.write_data  = (lsu_req_i.uop.mem_ctrl.cmd == MEM_CMD_STORE) ?
-                                      request_store_write_data(lsu_req_i) : '0;
-      data_memory_req_o.byte_strobe = (lsu_req_i.uop.mem_ctrl.cmd == MEM_CMD_STORE) ?
-                                      request_store_byte_strobe(lsu_req_i) : '0;
-    end
   end
 
   // 存储层返回完整数据字。LSU根据原始地址低位选择byte/halfword并完成符号扩展。
@@ -324,17 +298,6 @@ module riscv32_lsu
         data_memory_resp_ready_o = lsu_writeback_ready_i;
         lsu_writeback_o          = memory_writeback;
         lsu_writeback_valid_o    = data_memory_resp_valid_i;
-
-        // 老response离开时，pending上下文可在同一时钟沿改写为下一条访存。上游ready
-        // 只依赖这个本地槽位即将释放，不依赖data_memory_req_ready_i；若存储层没有同拍
-        // 接收新请求，下一状态转入SEND并从已锁存上下文重发。这样切断存储系统到前端的
-        // 组合ready路径，同时保留存储层可接收时的同拍快速滚动。
-        // 本地异常不能在这里滚动，因为本拍唯一completion口已经属于老response。
-        if (data_memory_resp_valid_i && lsu_writeback_ready_i &&
-            lsu_req_valid_i && !incoming_complete_locally) begin
-          data_memory_req_valid_o = 1'b1;
-          lsu_req_ready_o         = 1'b1;
-        end
       end
 
       default: ;
@@ -365,14 +328,7 @@ module riscv32_lsu
 
       LSU_WAIT_MEMORY_RESPONSE: begin
         if (data_memory_resp_handshake) begin
-          if (lsu_req_handshake) begin
-            // 存储层同拍接收新请求时继续等待其response；被反压时先进入SEND，不能因为
-            // 上游握手已经完成而丢失刚写入pending上下文的新请求。
-            state_d = data_memory_req_handshake ? LSU_WAIT_MEMORY_RESPONSE :
-                                                  LSU_SEND_MEMORY_REQUEST;
-          end else begin
-            state_d = LSU_IDLE;
-          end
+          state_d = LSU_IDLE;
         end
       end
 
@@ -419,19 +375,6 @@ module riscv32_lsu
     (state_q == LSU_IDLE && lsu_req_valid_i && address_misaligned)
     |-> !data_memory_req_valid_o)
   else $error("LSU issued a memory request for a misaligned access");
-
-  a_rolled_request_replaces_only_completed_context :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (state_q == LSU_WAIT_MEMORY_RESPONSE && lsu_req_handshake)
-    |-> data_memory_resp_handshake)
-  else $error("LSU replaced a pending context before the old response completed");
-
-  a_backpressured_rolled_request_is_reissued :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (state_q == LSU_WAIT_MEMORY_RESPONSE && lsu_req_handshake &&
-     !data_memory_req_handshake)
-    |=> (state_q == LSU_SEND_MEMORY_REQUEST && data_memory_req_valid_o))
-  else $error("LSU lost a rolled request rejected by the data-memory subsystem");
 
   a_exception_writeback_has_no_register_write :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
