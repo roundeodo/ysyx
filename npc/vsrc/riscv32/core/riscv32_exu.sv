@@ -3,9 +3,9 @@ module riscv32_exu
 (
     input  execute_packet_t execute_packet_i,
     input  logic            execute_packet_valid_i,
-    // valid只表示ID/EX中存在payload；issue_allowed只约束可能产生外部副作用的LSU请求。
-    // 普通执行结果在后继寄存边界用valid-only squash取消，避免恢复信号穿过ALU与
-    // completion网络形成跨级关键路径。
+    // valid只表示ID/EX中存在payload；issue_allowed决定本拍是否允许这条指令离开EX。
+    // 它既门控LSU副作用，也门控普通EXU completion，保证年轻整数/控制流指令不能
+    // 越过仍在LSU中的老指令提交。恢复只清valid，不修改宽payload。
     input  logic            execute_packet_issue_allowed_i,
     output logic            execute_packet_ready_o,
 
@@ -190,10 +190,10 @@ module riscv32_exu
   end
 
   assign exu_result_o = exu_result;
-  assign exu_result_valid_o = execute_packet_valid_i &&
+  assign exu_result_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
                               (execute_packet_i.uop.fu_type != FU_LSU);
-  // LSU请求一旦握手就可能产生架构可见的访存副作用，因此仍需在接口边界检查
-  // issue_allowed；被恢复取消的年轻load/store不能依赖下游valid-only squash补救。
+  // LSU请求一旦握手就可能产生架构可见的访存副作用，因此同样在接口边界检查
+  // issue_allowed；被阻塞或恢复取消的指令不能依赖下游valid-only squash补救。
   assign lsu_req_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
                            (execute_packet_i.uop.fu_type == FU_LSU);
   assign execute_packet_ready_o = (execute_packet_i.uop.fu_type == FU_LSU) ?
@@ -207,6 +207,11 @@ module riscv32_exu
     if (exu_result_valid_o && exu_result_o.uop.exception_valid) begin
       assert (!exu_result_o.redirect_valid && !exu_result_o.uop.writes_rd)
       else $error("EXU exception retained a redirect or destination-register side effect");
+    end
+
+    if (execute_packet_valid_i && !execute_packet_issue_allowed_i) begin
+      assert (!exu_result_valid_o && !lsu_req_valid_o)
+      else $error("EXU emitted a completion while issue was blocked");
     end
   end
 `endif
