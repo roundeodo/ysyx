@@ -47,7 +47,9 @@ module riscv32_pma
   logic lookup_addr_in_sdram;
   logic lookup_addr_in_chiplink_memory;
   logic lookup_addr_in_any_mmio;
+  logic lookup_addr_in_any_uncached_memory;
   logic lookup_addr_in_any_cacheable_memory;
+  logic lookup_addr_in_any_writable_memory;
 
   // 这里不使用模糊的统一MMIO大区间，因为0x1000_0000附近存在未分配空洞；
   // 未分配地址必须保留默认非法属性，不能因为高位相同就误判成合法设备。
@@ -79,9 +81,15 @@ module riscv32_pma
                               lookup_addr_in_ps2 || lookup_addr_in_vga ||
                               lookup_addr_in_chiplink_mmio;
 
+    lookup_addr_in_any_uncached_memory = lookup_addr_in_sram || lookup_addr_in_mrom;
+
     lookup_addr_in_any_cacheable_memory = lookup_addr_in_flash || lookup_addr_in_psram ||
                                           lookup_addr_in_sdram ||
                                           lookup_addr_in_chiplink_memory;
+
+    lookup_addr_in_any_writable_memory = lookup_addr_in_sram || lookup_addr_in_psram ||
+                                         lookup_addr_in_sdram ||
+                                         lookup_addr_in_chiplink_memory;
   end
 
   // pma_attr_t字段的含义：
@@ -94,42 +102,19 @@ module riscv32_pma
   // SRAM不缓存是当前系统策略：它本身只有约1周期访问延迟，缓存收益很小。
   // MROM同样保持不缓存。Flash、PSRAM和SDRAM延迟高且读操作无设备副作用，
   // 因而允许取指、允许缓存且幂等。MMIO必须全部不可执行、不可缓存、非幂等。
+  // 地址窗口互不重叠，因此属性可以直接表示为集合关系，不需要优先级选择链。
+  // 这既保留Flash/MROM只读、MMIO不可执行等语义，也缩短请求路由的组合逻辑层级。
   always_comb begin
-    memory_attr_o = '0;
-
-    if (lookup_addr_in_sram) begin
-      memory_attr_o.readable                   = 1'b1;
-      memory_attr_o.writable                   = 1'b1;
-      memory_attr_o.executable                 = 1'b1;
-      memory_attr_o.cacheable                  = 1'b0;
-      memory_attr_o.idempotent                 = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_mrom) begin
-      memory_attr_o.readable                   = 1'b1;
-      memory_attr_o.writable                   = 1'b0;
-      memory_attr_o.executable                 = 1'b1;
-      memory_attr_o.cacheable                  = 1'b0;
-      memory_attr_o.idempotent                 = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_flash) begin
-      // Flash映射是只读XIP窗口；擦写必须通过SPI控制器寄存器完成。
-      memory_attr_o.readable                   = 1'b1;
-      memory_attr_o.writable                   = 1'b0;
-      memory_attr_o.executable                 = 1'b1;
-      memory_attr_o.cacheable                  = 1'b1;
-      memory_attr_o.idempotent                 = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_any_cacheable_memory) begin
-      memory_attr_o.readable                   = 1'b1;
-      memory_attr_o.writable                   = 1'b1;
-      memory_attr_o.executable                 = 1'b1;
-      memory_attr_o.cacheable                  = 1'b1;
-      memory_attr_o.idempotent                 = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_any_mmio) begin
-      memory_attr_o.readable = 1'b1;
-      memory_attr_o.writable = 1'b1;
-    end
+    memory_attr_o.readable = lookup_addr_in_any_uncached_memory ||
+                             lookup_addr_in_any_cacheable_memory || lookup_addr_in_any_mmio;
+    memory_attr_o.writable = lookup_addr_in_any_writable_memory || lookup_addr_in_any_mmio;
+    memory_attr_o.executable = lookup_addr_in_any_uncached_memory ||
+                               lookup_addr_in_any_cacheable_memory;
+    memory_attr_o.cacheable                  = lookup_addr_in_any_cacheable_memory;
+    memory_attr_o.idempotent                 = lookup_addr_in_any_uncached_memory ||
+                                               lookup_addr_in_any_cacheable_memory;
+    memory_attr_o.width_conversion_supported = lookup_addr_in_any_uncached_memory ||
+                                               lookup_addr_in_any_cacheable_memory;
   end
 
 endmodule
