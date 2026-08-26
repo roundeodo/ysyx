@@ -439,10 +439,17 @@ module riscv32_core
       .mepc_o                        (csr_mepc)
   );
 
-  // 非LSU执行结果在EX组合完成后可直接前递；WB结果在提交当拍也可前递。load结果只有
-  // 到达LSU completion/WB后才可用，因此load-use仍由RAW逻辑停顿。串行化指令继续排空后端。
-  assign execute_forwarding_available = exu_result_valid && exu_result.uop.writes_rd &&
-                                        !exu_result.uop.exception_valid;
+  // 当前EX指令能否提供旁路值只由ID/EX中已经寄存的指令属性决定，不得依赖
+  // exu_result_valid。后者包含issue、redirect、LSU busy和下游ready等动态控制；若把它
+  // 接入旁路选择，这些控制会穿过32位操作数mux后到达下一条指令的ID/EX寄存器。
+  // 真正的数据捕获仍由ID/EX valid/ready握手保证：当前EX没有成功离开时，消费者也不会
+  // 写入ID/EX。load结果必须等LSU completion，因此FU_LSU仍被判定为不可旁路。
+  assign execute_forwarding_available = execute_packet_valid &&
+                                        execute_packet.uop.writes_rd &&
+                                        !execute_packet.uop.exception_valid &&
+                                        (execute_packet.uop.fu_type != FU_LSU) &&
+                                        !((execute_packet.uop.fu_type == FU_CSR) &&
+                                          execute_packet.csr_illegal);
   assign execute_result_forwarding_available = resolved_execute_result_valid &&
                                                 resolved_execute_result.uop.writes_rd &&
                                                 !resolved_execute_result.uop.exception_valid;
