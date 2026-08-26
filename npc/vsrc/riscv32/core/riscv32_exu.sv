@@ -39,8 +39,8 @@ module riscv32_exu
   effective_addr_t                   lsu_effective_addr;
   execute_result_t                   exu_result;
 
-  // 操作数相关性已经在ID/EX写入边界解决。EXU只消费寄存后的最终操作数，避免
-  // 把下游结果反馈网络、宽操作数选择器和ALU串在同一个时钟周期内。
+  // execute_packet_i已经由core的EX输入旁路mux处理。EXU只消费最终操作数；旁路源来自
+  // EX/MEM寄存器，不允许把本拍ALU组合结果直接反馈到自身或ID/EX输入。
   assign execute_rs1_value = execute_packet_i.rs1_value;
   assign execute_rs2_value = execute_packet_i.rs2_value;
 

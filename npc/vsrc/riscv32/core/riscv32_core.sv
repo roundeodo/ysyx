@@ -107,6 +107,7 @@ module riscv32_core
   logic decoded_execute_packet_valid;
   logic decoded_execute_packet_ready;
   execute_packet_t execute_packet;
+  execute_packet_t execute_packet_for_exu;
   logic execute_packet_valid;
   logic execute_packet_ready;
 
@@ -197,10 +198,9 @@ module riscv32_core
     decoded_execute_packet.csr_rdata   = csr_read_data;
     decoded_execute_packet.csr_illegal = csr_read_illegal;
 
-    // 所有旁路都在消费者写入ID/EX寄存器前完成。这样消费者进入EX级后只经过
-    // ID/EX寄存器和执行单元，不再形成EX/MEM寄存器 -> 操作数mux -> ALU ->
-    // EX/MEM寄存器的同拍递归关键路径。赋值顺序同时表达年龄优先级：越靠后的
-    // 生产者越年轻；当前EX级结果必须覆盖EX/MEM、LSU completion和WB结果。
+    // LSU completion和WB结果可能在消费者写入ID/EX的同一个时钟沿离开，因此在
+    // ID/EX输入侧完成这两级旁路。当前EX和EX/MEM生产者不在这里选择：它们在下一拍
+    // 通过EXU输入旁路处理，避免形成“ID/EX -> EXU -> decode mux -> ID/EX”的组合环路。
     if (rs1_writeback_forwarding_selected) begin
       decoded_execute_packet.rs1_value = writeback_result.result;
     end
@@ -213,17 +213,25 @@ module riscv32_core
     if (rs2_lsu_forwarding_selected) begin
       decoded_execute_packet.rs2_value = lsu_writeback.result;
     end
-    if (rs1_execute_result_forwarding_selected) begin
-      decoded_execute_packet.rs1_value = resolved_execute_result.result;
-    end
-    if (rs2_execute_result_forwarding_selected) begin
-      decoded_execute_packet.rs2_value = resolved_execute_result.result;
-    end
-    if (rs1_execute_forwarding_selected) begin
-      decoded_execute_packet.rs1_value = exu_result.result;
-    end
-    if (rs2_execute_forwarding_selected) begin
-      decoded_execute_packet.rs2_value = exu_result.result;
+  end
+
+  // EX输入旁路以已经寄存的EX/MEM结果为最近生产者。消费者在生产者位于EX时可以先进入
+  // ID/EX；下一拍生产者已进入EX/MEM，旁路mux再覆盖消费者随包保存的旧寄存器值。
+  // 这样背靠背ALU相关仍然不插气泡，同时把组合ALU结果反馈到ID/EX的长路径切断。
+  always_comb begin
+    execute_packet_for_exu = execute_packet;
+
+    if (resolved_execute_result_valid && resolved_execute_result.uop.writes_rd &&
+        !resolved_execute_result.uop.exception_valid &&
+        (resolved_execute_result.uop.rd != '0)) begin
+      if (execute_packet.uop.uses_rs1 &&
+          (execute_packet.uop.rs1 == resolved_execute_result.uop.rd)) begin
+        execute_packet_for_exu.rs1_value = resolved_execute_result.result;
+      end
+      if (execute_packet.uop.uses_rs2 &&
+          (execute_packet.uop.rs2 == resolved_execute_result.uop.rd)) begin
+        execute_packet_for_exu.rs2_value = resolved_execute_result.result;
+      end
     end
   end
 
@@ -451,11 +459,8 @@ module riscv32_core
       .mepc_o                        (csr_mepc)
   );
 
-  // 当前EX指令能否提供旁路值只由ID/EX中已经寄存的指令属性决定，不得依赖
-  // exu_result_valid。后者包含issue、redirect、LSU busy和下游ready等动态控制；若把它
-  // 接入旁路选择，这些控制会穿过32位操作数mux后到达下一条指令的ID/EX寄存器。
-  // 真正的数据捕获仍由ID/EX valid/ready握手保证：当前EX没有成功离开时，消费者也不会
-  // 写入ID/EX。load结果必须等LSU completion，因此FU_LSU仍被判定为不可旁路。
+  // 当前EX指令能否在下一拍通过EX/MEM -> EX路径提供结果，只由ID/EX中已经寄存的
+  // 指令属性决定。load结果必须等待LSU completion，因此FU_LSU仍被判定为不可旁路。
   assign execute_forwarding_available = execute_packet_valid &&
                                         execute_packet.uop.writes_rd &&
                                         !execute_packet.uop.exception_valid &&
@@ -538,7 +543,7 @@ module riscv32_core
   );
 
   riscv32_exu u_exu (
-      .execute_packet_i              (execute_packet),
+      .execute_packet_i              (execute_packet_for_exu),
       .execute_packet_valid_i        (execute_packet_valid),
       .execute_packet_issue_allowed_i(execute_issue_allowed),
       .execute_packet_ready_o        (execute_packet_ready),
@@ -551,7 +556,7 @@ module riscv32_core
   );
 
   // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过；
-  // 本级结果在下一条消费者进入ID/EX前完成旁路，不再直接反馈到EXU组合输入。
+  // 本级寄存结果同时旁路到下一条消费者的EXU输入，不反馈到ID/EX输入。
   riscv32_execute_result_stage u_execute_result_stage (
       .clk_i                  (clk_i),
       .rst_ni                 (rst_ni),

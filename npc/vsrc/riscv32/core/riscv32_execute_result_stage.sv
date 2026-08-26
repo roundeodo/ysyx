@@ -1,5 +1,5 @@
 // EX/MEM流水级寄存器。EXU在前一拍计算真实架构后继PC，本级在寄存边界之后
-// 校验前端预测并生成redirect，从而切断“前递 -> 分支计算 -> 预测比较 -> redirect”的长路径。
+// 校验前端预测并生成redirect；寄存后的执行结果还旁路到下一条指令的EX输入。
 module riscv32_execute_result_stage
   import riscv32_pkg::*;
 (

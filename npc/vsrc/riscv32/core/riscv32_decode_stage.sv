@@ -34,21 +34,21 @@ module riscv32_decode_stage
   assign input_handshake_occurred  = idu_decoded_uop_valid_i && idu_decoded_uop_ready_o;
   assign output_handshake_occurred = decoded_uop_valid_q && decoded_uop_ready_i;
 
-  // payload不承载有效性，因此无需复位或flush。输出被消费时，skid项优先前移；
-  // 如果没有skid而上下游同拍握手，新uop可直接替换刚被消费的主项。
+  // payload不承载有效性，因此无需复位或flush。物理数据采样只由本级槽位状态决定，
+  // 不使用包含flush的input_handshake_occurred，避免恢复控制进入宽uop写入mux。
+  // 输出被消费时skid项优先前移；没有skid时可以无条件采样当前IDU输出，因为最终是否
+  // 形成有效uop只由下面独立的valid寄存器决定。
   always_ff @(posedge clk_i) begin
     if (output_handshake_occurred) begin
       if (skid_decoded_uop_valid_q) begin
         decoded_uop_q <= skid_decoded_uop_q;
-      end else if (input_handshake_occurred) begin
-        decoded_uop_q <= idu_decoded_uop_i;
-      end
-    end else if (input_handshake_occurred) begin
-      if (!decoded_uop_valid_q) begin
-        decoded_uop_q <= idu_decoded_uop_i;
       end else begin
-        skid_decoded_uop_q <= idu_decoded_uop_i;
+        decoded_uop_q <= idu_decoded_uop_i;
       end
+    end else if (!decoded_uop_valid_q) begin
+      decoded_uop_q <= idu_decoded_uop_i;
+    end else if (!skid_decoded_uop_valid_q) begin
+      skid_decoded_uop_q <= idu_decoded_uop_i;
     end
   end
 
