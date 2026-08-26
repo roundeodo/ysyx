@@ -28,8 +28,8 @@ module riscv32_lsu
     input  logic              lsu_writeback_ready_i
 );
 
-  // 当前实现只有一个访存上下文，必须等待对应response离开后才释放入口。这个实验版本
-  // 暂不在响应拍滚入下一条请求，用于量化缩短LSU组合路径与新增空闲拍之间的取舍。
+  // 当前实现只有一个访存上下文：普通情况下必须等待对应response；但旧response
+  // 离开和下一条访存请求进入可以同拍发生，避免在连续访存之间强制插入空闲拍。
   // 乱序版本应在LSU前增加load queue/store queue，并用transaction_id关联多个返回结果。
   typedef enum logic [1:0] {
     LSU_IDLE,
@@ -63,6 +63,9 @@ module riscv32_lsu
   logic lsu_req_handshake;
   logic data_memory_req_handshake;
   logic data_memory_resp_handshake;
+  logic incoming_has_memory_access;
+  logic incoming_address_misaligned;
+  logic incoming_complete_locally;
 
   localparam int unsigned CORE_BYTE_OFFSET_WIDTH = (CORE_DATA_BYTE_COUNT > 1) ? $clog2(
       CORE_DATA_BYTE_COUNT
@@ -90,6 +93,11 @@ module riscv32_lsu
       MEM_SIZE_DOUBLE: return request.effective_addr[2:0] != 3'b000;
       default:         return 1'b0;
     endcase
+  endfunction
+
+  function automatic logic request_has_memory_access(input lsu_req_t request);
+    return (request.uop.mem_ctrl.cmd == MEM_CMD_LOAD) ||
+           (request.uop.mem_ctrl.cmd == MEM_CMD_STORE);
   endfunction
 
   function automatic core_byte_strobe_t request_store_byte_strobe(input lsu_req_t request);
@@ -163,6 +171,13 @@ module riscv32_lsu
     store_write_data  = request_store_write_data(active_lsu_req);
     store_byte_strobe = request_store_byte_strobe(active_lsu_req);
 
+    incoming_has_memory_access = request_has_memory_access(lsu_req_i);
+    incoming_address_misaligned = incoming_has_memory_access &&
+                                  request_address_misaligned(lsu_req_i);
+    incoming_complete_locally = lsu_req_i.uop.exception_valid ||
+                                incoming_address_misaligned ||
+                                !incoming_has_memory_access;
+
   end
 
   // 本地请求保留字节地址和访问宽度。协议adapter负责把size翻译成AXI4 AxSIZE，
@@ -177,6 +192,18 @@ module riscv32_lsu
     data_memory_req_o.write_data     = is_store ? store_write_data : '0;
     data_memory_req_o.byte_strobe    = is_store ? store_byte_strobe : '0;
     data_memory_req_o.transaction_id = '0;
+
+    // WAIT状态可以在旧response离开的同一拍接收下一条访存。此时存储请求
+    // payload必须来自当前输入，不能继续使用即将完成的pending上下文。
+    if (state_q == LSU_WAIT_MEMORY_RESPONSE) begin
+      data_memory_req_o.addr        = phys_addr_t'(lsu_req_i.effective_addr);
+      data_memory_req_o.cmd         = lsu_req_i.uop.mem_ctrl.cmd;
+      data_memory_req_o.size        = lsu_req_i.uop.mem_ctrl.size;
+      data_memory_req_o.write_data  = (lsu_req_i.uop.mem_ctrl.cmd == MEM_CMD_STORE) ?
+                                      request_store_write_data(lsu_req_i) : '0;
+      data_memory_req_o.byte_strobe = (lsu_req_i.uop.mem_ctrl.cmd == MEM_CMD_STORE) ?
+                                      request_store_byte_strobe(lsu_req_i) : '0;
+    end
 
   end
 
@@ -298,6 +325,14 @@ module riscv32_lsu
         data_memory_resp_ready_o = lsu_writeback_ready_i;
         lsu_writeback_o          = memory_writeback;
         lsu_writeback_valid_o    = data_memory_resp_valid_i;
+
+        // 只有旧response本拍确实能离开，才能让新请求替换pending上下文。
+        // 新请求若能本地完成，则不在这条memory-to-memory滚动路径上接收。
+        if (data_memory_resp_valid_i && lsu_writeback_ready_i &&
+            lsu_req_valid_i && !incoming_complete_locally) begin
+          data_memory_req_valid_o = 1'b1;
+          lsu_req_ready_o         = 1'b1;
+        end
       end
 
       default: ;
@@ -328,7 +363,12 @@ module riscv32_lsu
 
       LSU_WAIT_MEMORY_RESPONSE: begin
         if (data_memory_resp_handshake) begin
-          state_d = LSU_IDLE;
+          if (lsu_req_handshake) begin
+            state_d = data_memory_req_handshake ? LSU_WAIT_MEMORY_RESPONSE :
+                                                  LSU_SEND_MEMORY_REQUEST;
+          end else begin
+            state_d = LSU_IDLE;
+          end
         end
       end
 
@@ -381,6 +421,21 @@ module riscv32_lsu
     (lsu_writeback_valid_o && lsu_writeback_o.uop.exception_valid)
     |-> !lsu_writeback_o.uop.writes_rd)
   else $error("LSU exception retained a destination-register side effect");
+
+  a_rolled_request_replaces_only_completed_context :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_WAIT_MEMORY_RESPONSE && data_memory_resp_handshake &&
+     lsu_req_handshake)
+    |=> ((state_q == LSU_WAIT_MEMORY_RESPONSE) ||
+         (state_q == LSU_SEND_MEMORY_REQUEST)))
+  else $error("LSU lost a request accepted while the prior response completed");
+
+  a_backpressured_rolled_request_is_reissued :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_WAIT_MEMORY_RESPONSE && data_memory_resp_handshake &&
+     lsu_req_handshake && !data_memory_req_handshake)
+    |=> (state_q == LSU_SEND_MEMORY_REQUEST && data_memory_req_valid_o))
+  else $error("LSU did not reissue a rolled request after memory backpressure");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 
