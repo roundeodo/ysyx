@@ -87,9 +87,12 @@ module riscv32_core
   logic idu_fetch_entry_valid;
   logic idu_fetch_entry_ready;
 
+  decoded_uop_t idu_decoded_uop;
+  logic         idu_decoded_uop_valid;
+  logic         idu_decoded_uop_ready;
   decoded_uop_t decoded_uop;
-  logic decoded_uop_valid;
-  logic decoded_uop_ready;
+  logic         decoded_uop_valid;
+  logic         decoded_uop_ready;
 
   // IDU和寄存器堆组合生成待进入ID/EX的payload；decode_execute_stage输出才是
   // 当前EX级指令。两个名称显式区分流水级边界两侧，避免把组合译码结果误当成寄存状态。
@@ -368,9 +371,24 @@ module riscv32_core
       .fetch_entry_i      (idu_fetch_entry),
       .fetch_entry_valid_i(idu_fetch_entry_valid),
       .fetch_entry_ready_o(idu_fetch_entry_ready),
-      .decoded_uop_o      (decoded_uop),
-      .decoded_uop_valid_o(decoded_uop_valid),
-      .decoded_uop_ready_i(decoded_uop_ready)
+      .decoded_uop_o      (idu_decoded_uop),
+      .decoded_uop_valid_o(idu_decoded_uop_valid),
+      .decoded_uop_ready_i(idu_decoded_uop_ready)
+  );
+
+  // 完整译码在这里结束。后续寄存器堆/CSR读取、冒险比较和前递选择从已寄存uop开始，
+  // 避免fetch queue读选择与这些逻辑串成一条长路径。该级和ID/EX级都支持滚动握手，
+  // 因此新增一级只增加单条指令延迟，不降低无阻塞指令流的稳态吞吐。
+  riscv32_decode_stage u_decode_stage (
+      .clk_i                  (clk_i),
+      .rst_ni                 (rst_ni),
+      .idu_decoded_uop_i      (idu_decoded_uop),
+      .idu_decoded_uop_valid_i(idu_decoded_uop_valid),
+      .idu_decoded_uop_ready_o(idu_decoded_uop_ready),
+      .decoded_uop_o          (decoded_uop),
+      .decoded_uop_valid_o    (decoded_uop_valid),
+      .decoded_uop_ready_i    (decoded_uop_ready),
+      .flush_i                (decode_execute_flush)
   );
 
   riscv32_arch_regfile u_arch_regfile (
@@ -577,22 +595,28 @@ module riscv32_core
       .clk_i(clk_i),
       .rst_ni(rst_ni),
       .ifu_instruction_request_occurred_i(
-          icache_lookup_req_valid && icache_lookup_req_ready && frontend_memory_access_allowed
+          icache_lookup_req_valid && icache_lookup_req_ready &&
+          next_pc_predictor_request_ready && frontend_memory_access_allowed
       ),
       .ifu_instruction_request_waiting_i(
           icache_lookup_req_valid &&
-          (!icache_lookup_req_ready || !frontend_memory_access_allowed)
+          (!icache_lookup_req_ready || !next_pc_predictor_request_ready ||
+           !frontend_memory_access_allowed)
       ),
-      .ifu_instruction_response_occurred_i(icache_lookup_resp_valid && icache_lookup_resp_ready),
+      .ifu_instruction_response_occurred_i(
+          icache_lookup_resp_valid && next_pc_predictor_response_valid &&
+          icache_lookup_resp_ready
+      ),
       .ifu_instruction_response_discarded_occurred_i(
-          icache_lookup_resp_valid && icache_lookup_resp_ready && !ifu_fetch_entry_valid
+          icache_lookup_resp_valid && next_pc_predictor_response_valid &&
+          icache_lookup_resp_ready && !ifu_fetch_entry_valid
       ),
       .ifu_instruction_delivery_occurred_i(idu_fetch_entry_valid && idu_fetch_entry_ready),
       .ifu_downstream_waiting_i(idu_fetch_entry_valid && !idu_fetch_entry_ready),
       .icache_miss_occurred_i(icache_event.miss_occurred),
-      .instruction_decode_occurred_i(decoded_uop_valid && decoded_uop_ready),
-      .decoded_fu_type_i(decoded_uop.fu_type),
-      .decoded_memory_cmd_i(decoded_uop.mem_ctrl.cmd),
+      .instruction_decode_occurred_i(idu_decoded_uop_valid && idu_decoded_uop_ready),
+      .decoded_fu_type_i(idu_decoded_uop.fu_type),
+      .decoded_memory_cmd_i(idu_decoded_uop.mem_ctrl.cmd),
       .exu_completion_occurred_i(exu_result_valid && exu_result_ready),
       .lsu_completion_occurred_i(lsu_writeback_valid && lsu_writeback_ready),
       .instruction_retirement_occurred_i(retired_instruction_occurred),
