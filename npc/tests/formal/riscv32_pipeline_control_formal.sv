@@ -145,8 +145,6 @@ module riscv32_pipeline_control_formal;
   (* anyseq *) logic          lsu_pending_writes_rd;
   (* anyseq *) arch_reg_idx_t lsu_pending_rd;
   (* anyseq *) logic          lsu_forwarding_available;
-  (* anyseq *) logic          deferred_completion_present;
-  (* anyseq *) logic          execute_can_complete_behind_lsu;
   (* anyseq *) logic          execute_redirect_occurred;
   (* anyseq *) logic          commit_redirect_occurred;
 
@@ -194,8 +192,6 @@ module riscv32_pipeline_control_formal;
       .lsu_pending_writes_rd_i            (lsu_pending_writes_rd),
       .lsu_pending_rd_i                   (lsu_pending_rd),
       .lsu_forwarding_available_i         (lsu_forwarding_available),
-      .deferred_completion_present_i      (deferred_completion_present),
-      .execute_can_complete_behind_lsu_i  (execute_can_complete_behind_lsu),
       .execute_redirect_occurred_i        (execute_redirect_occurred),
       .commit_redirect_occurred_i         (commit_redirect_occurred),
       .decode_accept_allowed_o            (decode_accept_allowed),
@@ -278,10 +274,7 @@ module riscv32_pipeline_control_formal;
       assert ((raw_hazard_present || serializing_hazard_present || structural_hazard_present ||
                 execute_redirect_occurred || commit_redirect_occurred) ||
               (decode_accept_allowed && execute_issue_allowed));
-      assert (!(lsu_busy && !execute_can_complete_behind_lsu) ||
-              !execute_issue_allowed);
-      assert (!deferred_completion_present ||
-              (!decode_accept_allowed && !execute_issue_allowed));
+      assert (!lsu_busy || !execute_issue_allowed);
       assert (!commit_redirect_occurred || !execute_issue_allowed);
       assert (!(execute_redirect_occurred || commit_redirect_occurred) ||
               decode_execute_flush);

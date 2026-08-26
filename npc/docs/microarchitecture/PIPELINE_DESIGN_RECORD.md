@@ -350,3 +350,26 @@ D-cache曾实验在load miss收到请求word后立即向LSU返回数据。该方
 victim，且store不能使用load的提前响应路径。因此当前版本仍在完整line事务结束后响应；
 未来加入MSHR和writeback queue时再实现critical-load-first，避免为阻塞式控制增加一套
 低利用率的事务保持网络。
+
+### 8.3 面积口径与1 GHz路径边界
+
+当前STA顶层是`riscv32_core`。filelist中位于core顶层之外的CLINT、系统地址路由器、SoC
+位宽转换器和仿真顶层不会因“出现在filelist”就计入面积；Yosys只保留从`riscv32_core`
+可达的实例。`NPC_ENABLE_SIM_MONITOR`也没有在STA filelist中定义，因此I-cache/D-cache
+分析计数器和`$display`监视逻辑不参与综合。
+
+必须计入真实core面积的结构包括：流水级payload寄存器、hazard/forwarding控制、redirect
+恢复、fetch buffer、分支预测器、cache、架构寄存器、异常所需CSR和软件可见的架构计数器。
+纯`typedef/struct`、未实例化模块和仿真监视器本身不产生面积。不能因为某个流水边界未来可
+扩展为乱序接口，就把当前已经参与功能的寄存器或控制逻辑从core面积中扣除。
+
+基线总面积69448.610 um^2中，CSR约1844.178 um^2，只占约2.66%；删除CSR或PMU不能解决
+主要面积问题，也不能改善当前最慢路径。面积主要来自用标准单元实现的I/D cache阵列、32项
+架构寄存器和预测表，其中综合报告含6790个DFF_X1与2048个DLH_X1。后续可同时维护“课程
+最小配置”和“完整架构配置”两个真实可综合配置，但每个配置都必须按实际实例统计，不能在
+同一网表上主观扣除模块。
+
+达到1 GHz的下一步不是继续删除低占比CSR，而是把当前1.257 ns的EX/LSU组合路径切开。
+推荐边界为`ID/EX -> AGU/EX -> EX/MEM弹性寄存项 -> LSU/cache lookup -> MEM/WB`。
+新增边界会使每条访存至少增加一拍，因此必须同时支持每拍接收新请求，并在后续通过store
+buffer或有限在途上下文覆盖延迟；完成后重新测量IPC、Fmax、面积和TNS，再决定是否保留。

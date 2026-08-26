@@ -165,8 +165,6 @@ module riscv32_core
   logic lsu_transaction_active;
   logic lsu_pending_writes_rd;
   arch_reg_idx_t lsu_pending_rd;
-  logic deferred_completion_present;
-  logic execute_can_complete_behind_lsu;
   redirect_req_t execute_redirect_req_at_resolution;
   logic execute_redirect_resolution_occurred;
   logic execute_redirect_occurred;
@@ -430,10 +428,6 @@ module riscv32_core
   assign writeback_forwarding_available = writeback_result_valid &&
                                           writeback_result.uop.writes_rd &&
                                           !writeback_result.uop.exception_valid;
-  assign execute_can_complete_behind_lsu = execute_packet_valid &&
-                                           execute_packet.uop.fu_type != FU_LSU &&
-                                           !execute_packet.uop.serializing;
-
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i                       (clk_i),
       .rst_ni                      (rst_ni),
@@ -458,8 +452,6 @@ module riscv32_core
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
                                     !lsu_writeback.uop.exception_valid),
-      .deferred_completion_present_i(deferred_completion_present),
-      .execute_can_complete_behind_lsu_i(execute_can_complete_behind_lsu),
       .execute_redirect_occurred_i (execute_redirect_occurred),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
@@ -544,21 +536,16 @@ module riscv32_core
       .axi_manager_i               (data_axi4_manager_i)
   );
 
-  riscv32_in_order_completion_buffer u_in_order_completion_buffer (
-      .clk_i                     (clk_i),
-      .rst_ni                    (rst_ni),
-      .exu_result_i            (exu_result),
-      .exu_result_valid_i      (exu_result_valid),
-      .exu_result_ready_o      (exu_result_ready),
-      .lsu_writeback_i         (lsu_writeback),
-      .lsu_writeback_valid_i   (lsu_writeback_valid),
-      .lsu_writeback_ready_o   (lsu_writeback_ready),
-      .older_lsu_transaction_present_i(lsu_transaction_active),
-      .deferred_completion_present_o(deferred_completion_present),
-      .writeback_result_o      (completion_result),
-      .writeback_result_valid_o(completion_result_valid),
-      .writeback_result_ready_i(completion_result_ready),
-      .flush_i                 (writeback_flush)
+  riscv32_completion_mux u_completion_mux (
+      .exu_result_i             (exu_result),
+      .exu_result_valid_i       (exu_result_valid),
+      .exu_result_ready_o       (exu_result_ready),
+      .lsu_writeback_i          (lsu_writeback),
+      .lsu_writeback_valid_i    (lsu_writeback_valid),
+      .lsu_writeback_ready_o    (lsu_writeback_ready),
+      .writeback_result_o       (completion_result),
+      .writeback_result_valid_o (completion_result_valid),
+      .writeback_result_ready_i (completion_result_ready)
   );
 
   // EXU/LSU completion先进入WB弹性寄存器，再由commit产生唯一架构事件。

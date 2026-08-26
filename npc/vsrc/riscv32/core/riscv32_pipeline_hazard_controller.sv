@@ -32,11 +32,6 @@ module riscv32_pipeline_hazard_controller
     input arch_reg_idx_t lsu_pending_rd_i,
     input logic          lsu_forwarding_available_i,
 
-    // 单项延后完成槽允许一条独立EX指令与老LSU等待重叠。槽被占用后必须停止继续执行，
-    // decoded级也暂不接收更多指令，避免在没有通用scoreboard时丢失槽内目的寄存器依赖。
-    input logic deferred_completion_present_i,
-    input logic execute_can_complete_behind_lsu_i,
-
     input logic execute_redirect_occurred_i,
     input logic commit_redirect_occurred_i,
 
@@ -142,20 +137,14 @@ module riscv32_pipeline_hazard_controller
 
   assign control_recovery_occurred = execute_redirect_occurred_i || commit_redirect_occurred_i;
 
-  assign structural_hazard_present_o = deferred_completion_present_i ||
-                                       (lsu_busy_i &&
-                                        !execute_can_complete_behind_lsu_i);
+  assign structural_hazard_present_o = lsu_busy_i;
 
   assign decode_accept_allowed_o = !raw_hazard_present_o &&
                                    !serializing_hazard_present_o &&
-                                   !deferred_completion_present_i &&
                                    !control_recovery_occurred;
 
-  // 老LSU存在时，只允许一条非访存、非串行化指令进入延后完成槽。该决策只依赖LSU和
-  // 完成槽的寄存状态，不把memory response组合反馈到发射允许路径。
-  assign execute_issue_allowed_o = !control_recovery_occurred &&
-      !deferred_completion_present_i &&
-      (!lsu_busy_i || execute_can_complete_behind_lsu_i);
+  // blocking LSU占用唯一的顺序完成位置时，年轻指令可以停在ID/EX，但不能执行并越过它。
+  assign execute_issue_allowed_o = !control_recovery_occurred && !lsu_busy_i;
 
   assign decode_execute_flush_o = control_recovery_occurred;
   assign writeback_flush_o = commit_redirect_occurred_i;
@@ -171,13 +160,8 @@ module riscv32_pipeline_hazard_controller
   else $error("pipeline recovery did not flush the ID/EX stage");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    lsu_busy_i && !execute_can_complete_behind_lsu_i |-> !execute_issue_allowed_o)
-  else $error("pipeline issued an unsupported instruction behind an older LSU");
-
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    deferred_completion_present_i |->
-      (!execute_issue_allowed_o && !decode_accept_allowed_o))
-  else $error("pipeline overfilled the single deferred completion slot");
+    lsu_busy_i |-> !execute_issue_allowed_o)
+  else $error("pipeline issued a younger instruction ahead of an older LSU transaction");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     $onehot0({rs1_execute_forwarding_selected_o, rs1_lsu_forwarding_selected_o,
