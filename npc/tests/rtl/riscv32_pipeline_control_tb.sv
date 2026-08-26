@@ -405,9 +405,15 @@ module riscv32_pipeline_control_tb;
     predictor_lookup_pc            = lookup_pc;
     predictor_lookup_request_valid = 1'b1;
     #1;
-    assert (predictor_lookup_request_ready && predictor_lookup_response_valid &&
-            (predictor_lookup_response_pc == lookup_pc))
-    else $fatal(1, "predictor did not publish the combinational lookup response");
+    assert (predictor_lookup_request_ready)
+    else $fatal(1, "predictor did not accept a lookup request");
+    @(posedge clk);
+    @(negedge clk);
+    predictor_lookup_request_valid = 1'b0;
+    @(posedge clk);
+    #1;
+    assert (predictor_lookup_response_valid && (predictor_lookup_response_pc == lookup_pc))
+    else $fatal(1, "predictor did not publish the two-stage lookup response");
   endtask
 
   task automatic check_fetch_control_flow_predictor;
@@ -418,24 +424,37 @@ module riscv32_pipeline_control_tb;
     localparam program_counter_t JAL_TARGET = JAL_PC + program_counter_t'(8);
     localparam program_counter_t BRANCH_TARGET = BRANCH_PC + program_counter_t'(8);
 
-    // 冷BTB只能给出顺序PC。IFU负责寄存查询PC，因此小容量预测表可在同拍返回结果。
+    // 冷BTB只能给出顺序PC。查询经过数组读取级和比较响应级后返回。
     query_predictor(JAL_PC);
     assert (!predictor_lookup_prediction.predicted_taken &&
             (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
     else $fatal(1, "cold BTB lookup did not select the sequential PC");
 
-    // 响应反压期间IFU必须保持查询PC，因此预测payload也必须保持稳定。
+    // 响应反压时，空闲的查询级仍能吸收一个请求；两级都占满后才停止接收。
     predictor_lookup_response_ready = 1'b0;
+    predictor_lookup_pc              = JAL_PC + program_counter_t'(INSTRUCTION_BYTES);
+    predictor_lookup_request_valid   = 1'b1;
+    #1;
+    assert (predictor_lookup_request_ready)
+    else $fatal(1, "predictor did not use its free query stage during response backpressure");
+    @(posedge clk);
+    @(negedge clk);
+    predictor_lookup_request_valid = 1'b0;
     #1;
     assert (!predictor_lookup_request_ready)
-    else $fatal(1, "predictor accepted a lookup while its combinational response was stalled");
+    else $fatal(1, "predictor accepted a third lookup while both pipeline stages were occupied");
     @(posedge clk);
-    #1;
     assert (predictor_lookup_response_valid &&
             (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
     else $fatal(1, "predictor response changed while backpressured");
     @(negedge clk);
-    predictor_lookup_response_ready          = 1'b1;
+    predictor_lookup_response_ready = 1'b1;
+    @(posedge clk);
+    #1;
+    assert (predictor_lookup_response_valid &&
+            (predictor_lookup_response_pc ==
+             JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+    else $fatal(1, "predictor did not advance its buffered query after backpressure");
 
     // EX解析JAL后训练BTB，随后查询同一PC应直接采用目标地址。
     predictor_resolved_control_flow_pc       = JAL_PC;
@@ -958,6 +977,10 @@ module riscv32_pipeline_control_tb;
     redirect_req_t      redirect_request;
     fetch_epoch_t       initial_epoch;
     logic               response_request_present;
+    program_counter_t   predictor_response_request_pc;
+    fetch_epoch_t       predictor_response_request_epoch;
+    program_counter_t   next_predictor_response_request_pc;
+    fetch_epoch_t       next_predictor_response_request_epoch;
 
     // 先接受复位PC的预测查询。预测器位于I-cache之前，因此此时还不应有cache请求。
     @(negedge clk);
@@ -970,6 +993,8 @@ module riscv32_pipeline_control_tb;
             !icache_lookup_req_valid)
     else $fatal(1, "IFU did not start predictor lookup from the reset vector");
     initial_epoch = ifu_predictor_lookup_request_epoch;
+    predictor_response_request_pc    = ifu_predictor_lookup_request_pc;
+    predictor_response_request_epoch = ifu_predictor_lookup_request_epoch;
     @(posedge clk);
 
     // 模拟一拍延迟、吞吐一拍一条的预测器，以及一拍返回的命中I-cache。流水填满后，
@@ -977,9 +1002,9 @@ module riscv32_pipeline_control_tb;
     response_request_present = 1'b0;
     for (int unsigned instruction_index = 0; instruction_index < 8; instruction_index++) begin
       @(negedge clk);
-      ifu_predictor_lookup_response_pc    = ifu_predictor_lookup_request_pc;
-      ifu_predictor_lookup_response_epoch = ifu_predictor_lookup_request_epoch;
-      ifu_predictor_lookup_response_valid = ifu_predictor_lookup_request_valid;
+      ifu_predictor_lookup_response_pc    = predictor_response_request_pc;
+      ifu_predictor_lookup_response_epoch = predictor_response_request_epoch;
+      ifu_predictor_lookup_response_valid = 1'b1;
       ifu_predictor_prediction            = '0;
 
       icache_lookup_resp_valid = response_request_present;
@@ -992,11 +1017,15 @@ module riscv32_pipeline_control_tb;
       #1;
       assert (ifu_predictor_lookup_response_ready &&
               ifu_predictor_lookup_request_valid &&
-              (ifu_predictor_lookup_request_pc == ifu_predictor_lookup_response_pc) &&
               (ifu_predictor_lookup_request_pc ==
                IFU_TEST_START_PC +
-               program_counter_t'(instruction_index * INSTRUCTION_BYTES)))
+               program_counter_t'((instruction_index + 1) * INSTRUCTION_BYTES)) &&
+              (ifu_predictor_lookup_request_pc ==
+               ifu_predictor_lookup_response_pc + program_counter_t'(INSTRUCTION_BYTES)))
       else $fatal(1, "IFU predictor stream did not advance without a bubble");
+
+      next_predictor_response_request_pc    = ifu_predictor_lookup_request_pc;
+      next_predictor_response_request_epoch = ifu_predictor_lookup_request_epoch;
 
       if (instruction_index != 0) begin
         assert (icache_lookup_req_valid &&
@@ -1014,6 +1043,8 @@ module riscv32_pipeline_control_tb;
       end
 
       @(posedge clk);
+      predictor_response_request_pc    = next_predictor_response_request_pc;
+      predictor_response_request_epoch = next_predictor_response_request_epoch;
       if (instruction_index != 0) begin
         response_request         = accepted_request;
         response_request_present = 1'b1;

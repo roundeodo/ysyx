@@ -103,7 +103,10 @@ module riscv32_ifu
 
   // redirect禁止本拍预测握手，并在时钟沿把fetch PC切到新epoch目标。正常流中，预测
   // ready只取决于窄请求队列空间，不再依赖I-cache、fetch buffer或后端ready。
-  assign next_pc_predictor_flush_o = redirect_req_valid_i;
+  // taken响应出现时，预测器内部可能还保存一个更年轻的顺序查询。当前响应在本拍
+  // 已经完成握手，因此可以同时flush该年轻查询，再从预测目标重新开始。
+  assign next_pc_predictor_flush_o =
+      redirect_req_valid_i || predictor_taken_response_occurred;
   assign next_pc_predictor_lookup_response_ready_o =
       !redirect_req_valid_i &&
       (!predictor_lookup_response_is_current || lookup_queue_enqueue_ready);
