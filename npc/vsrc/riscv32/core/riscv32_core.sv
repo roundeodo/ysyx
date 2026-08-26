@@ -184,24 +184,14 @@ module riscv32_core
     decoded_execute_packet.csr_rdata   = csr_read_data;
     decoded_execute_packet.csr_illegal = csr_read_illegal;
 
-    // 最新生产者优先。hazard controller保证EX命中但结果不可用时不会退而使用更旧WB值。
+    // WB生产者可能在本拍提交并离开，因此必须在ID/EX采样前完成同拍写回前递。
+    // EX和刚完成的LSU生产者会在同一时钟沿进入WB，年轻指令下一拍在EXU输入前递，
+    // 不能把它们的组合结果反向接到这里，否则会形成ALU -> ID/EX的跨级关键路径。
     if (rs1_writeback_forwarding_selected) begin
       decoded_execute_packet.rs1_value = writeback_result.result;
     end
-    if (rs1_lsu_forwarding_selected) begin
-      decoded_execute_packet.rs1_value = lsu_writeback.result;
-    end
-    if (rs1_execute_forwarding_selected) begin
-      decoded_execute_packet.rs1_value = exu_result.result;
-    end
     if (rs2_writeback_forwarding_selected) begin
       decoded_execute_packet.rs2_value = writeback_result.result;
-    end
-    if (rs2_lsu_forwarding_selected) begin
-      decoded_execute_packet.rs2_value = lsu_writeback.result;
-    end
-    if (rs2_execute_forwarding_selected) begin
-      decoded_execute_packet.rs2_value = exu_result.result;
     end
   end
 
@@ -457,7 +447,8 @@ module riscv32_core
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
                                     !lsu_writeback.uop.exception_valid),
-      .execute_redirect_occurred_i (execute_redirect_occurred),
+      .execute_redirect_occurred_i (execute_redirect_resolution_occurred ||
+                                     selected_redirect_req_valid),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
       .execute_issue_allowed_o     (execute_issue_allowed),
@@ -495,6 +486,8 @@ module riscv32_core
       .execute_packet_i      (execute_packet),
       .execute_packet_valid_i(execute_packet_valid && execute_issue_allowed),
       .execute_packet_ready_o(execute_packet_ready),
+      .writeback_forwarding_result_i(writeback_result),
+      .writeback_forwarding_result_valid_i(writeback_result_valid),
       .exu_result_o          (exu_result),
       .exu_result_valid_o    (exu_result_valid),
       .exu_result_ready_i    (exu_result_ready),
@@ -735,12 +728,12 @@ module riscv32_core
 
   // trap/mret和fence.i都在提交边界恢复控制流。它们必须清除同拍可能到达WB的年轻结果；
   // 普通EX分支redirect只清除更年轻的ID/EX内容，不能清除分支自身的完成结果。
-  // Raw commit events flush younger backend work immediately. The registered arbiter output
-  // flushes frontend storage again when IFU changes epoch, covering the one-cycle boundary.
+  // 原始EX/commit事件立即阻止并清除年轻后端指令；所有redirect在下一拍经过统一寄存边界
+  // 到达IFU。fetch buffer只使用这个寄存事件，避免commit/EX组合逻辑进入前端ready路径。
+  // hazard controller也观察寄存事件，确保redirect应用当拍没有旧fetch entry越过ID边界。
   assign commit_redirect_occurred = commit_redirect_resolution_occurred ||
                                     committed_fence_i_occurred;
-  assign frontend_recovery_occurred = commit_redirect_occurred ||
-                                      selected_redirect_req_valid;
+  assign frontend_recovery_occurred = selected_redirect_req_valid;
 
   riscv32_redirect_arbiter #(
       .SOURCE_COUNT(REDIRECT_SOURCE_COUNT)

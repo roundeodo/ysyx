@@ -5,6 +5,11 @@ module riscv32_exu
     input  logic            execute_packet_valid_i,
     output logic            execute_packet_ready_o,
 
+    // 上一条已完成指令位于EX/MEM-WB寄存边界。相关的年轻指令先进入ID/EX，
+    // 下一拍在EX输入选择该寄存结果，避免ALU组合结果反向写回ID/EX的长旁路。
+    input writeback_result_t writeback_forwarding_result_i,
+    input logic              writeback_forwarding_result_valid_i,
+
     output execute_result_t exu_result_o,
     output logic            exu_result_valid_o,
     input  logic            exu_result_ready_i,
@@ -21,6 +26,10 @@ module riscv32_exu
 
   xlen_data_t       operand_a;
   xlen_data_t       operand_b;
+  xlen_data_t       execute_rs1_value;
+  xlen_data_t       execute_rs2_value;
+  logic             rs1_writeback_forwarding_selected;
+  logic             rs2_writeback_forwarding_selected;
   xlen_data_t       alu_result;
   logic [WORD_WIDTH-1:0] word_result;
   xlen_data_t       csr_operand;
@@ -36,15 +45,41 @@ module riscv32_exu
   logic             branch_mispredict_redirect_valid;
   execute_result_t  exu_result;
 
+  assign rs1_writeback_forwarding_selected =
+      execute_packet_valid_i && execute_packet_i.uop.uses_rs1 &&
+      writeback_forwarding_result_valid_i &&
+      writeback_forwarding_result_i.uop.writes_rd &&
+      !writeback_forwarding_result_i.uop.exception_valid &&
+      (writeback_forwarding_result_i.uop.rd != '0) &&
+      (writeback_forwarding_result_i.uop.rd == execute_packet_i.uop.rs1);
+  assign rs2_writeback_forwarding_selected =
+      execute_packet_valid_i && execute_packet_i.uop.uses_rs2 &&
+      writeback_forwarding_result_valid_i &&
+      writeback_forwarding_result_i.uop.writes_rd &&
+      !writeback_forwarding_result_i.uop.exception_valid &&
+      (writeback_forwarding_result_i.uop.rd != '0) &&
+      (writeback_forwarding_result_i.uop.rd == execute_packet_i.uop.rs2);
+
+  always_comb begin
+    execute_rs1_value = execute_packet_i.rs1_value;
+    execute_rs2_value = execute_packet_i.rs2_value;
+    if (rs1_writeback_forwarding_selected) begin
+      execute_rs1_value = writeback_forwarding_result_i.result;
+    end
+    if (rs2_writeback_forwarding_selected) begin
+      execute_rs2_value = writeback_forwarding_result_i.result;
+    end
+  end
+
   always_comb begin
     unique case (execute_packet_i.uop.int_ctrl.operand_a_sel)
-      OPA_RS1: operand_a = execute_packet_i.rs1_value;
+      OPA_RS1: operand_a = execute_rs1_value;
       OPA_PC:  operand_a = execute_packet_i.uop.pc;
       default: operand_a = '0;
     endcase
 
     unique case (execute_packet_i.uop.int_ctrl.operand_b_sel)
-      OPB_RS2: operand_b = execute_packet_i.rs2_value;
+      OPB_RS2: operand_b = execute_rs2_value;
       OPB_IMM: operand_b = execute_packet_i.uop.imm;
       default: operand_b = '0;
     endcase
@@ -90,14 +125,12 @@ module riscv32_exu
 
   always_comb begin
     unique case (execute_packet_i.uop.branch_ctrl.condition)
-      BR_BEQ: branch_condition_met = execute_packet_i.rs1_value == execute_packet_i.rs2_value;
-      BR_BNE: branch_condition_met = execute_packet_i.rs1_value != execute_packet_i.rs2_value;
-      BR_BLT: branch_condition_met = $signed(execute_packet_i.rs1_value) <
-                                     $signed(execute_packet_i.rs2_value);
-      BR_BGE: branch_condition_met = $signed(execute_packet_i.rs1_value) >=
-                                     $signed(execute_packet_i.rs2_value);
-      BR_BLTU: branch_condition_met = execute_packet_i.rs1_value < execute_packet_i.rs2_value;
-      BR_BGEU: branch_condition_met = execute_packet_i.rs1_value >= execute_packet_i.rs2_value;
+      BR_BEQ:  branch_condition_met = execute_rs1_value == execute_rs2_value;
+      BR_BNE:  branch_condition_met = execute_rs1_value != execute_rs2_value;
+      BR_BLT:  branch_condition_met = $signed(execute_rs1_value) < $signed(execute_rs2_value);
+      BR_BGE:  branch_condition_met = $signed(execute_rs1_value) >= $signed(execute_rs2_value);
+      BR_BLTU: branch_condition_met = execute_rs1_value < execute_rs2_value;
+      BR_BGEU: branch_condition_met = execute_rs1_value >= execute_rs2_value;
       default: branch_condition_met = 1'b0;
     endcase
   end
@@ -118,7 +151,7 @@ module riscv32_exu
       CF_JALR: begin
         branch_taken  = 1'b1;
         // JALR只规定目标地址bit 0清零，不规定实现必须是32位。
-        branch_target    = execute_packet_i.rs1_value + execute_packet_i.uop.imm;
+        branch_target    = execute_rs1_value + execute_packet_i.uop.imm;
         branch_target[0] = 1'b0;
       end
       default: ;
@@ -127,7 +160,7 @@ module riscv32_exu
 
   assign csr_operand = execute_packet_i.uop.csr_ctrl.use_imm ?
                        {{(XLEN-5){1'b0}}, execute_packet_i.uop.rs1} :
-                       execute_packet_i.rs1_value;
+                       execute_rs1_value;
 
   always_comb begin
     unique case (execute_packet_i.uop.csr_ctrl.op)
@@ -201,7 +234,7 @@ module riscv32_exu
     lsu_req_o.uop            = exu_result.uop;
     lsu_req_o.next_pc        = exu_result.next_pc;
     lsu_req_o.effective_addr = alu_result;
-    lsu_req_o.store_data     = execute_packet_i.rs2_value;
+    lsu_req_o.store_data     = execute_rs2_value;
   end
 
   assign exu_result_o = exu_result;

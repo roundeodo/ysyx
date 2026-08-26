@@ -32,7 +32,7 @@ module riscv32_decode_stage
   logic         input_handshake_occurred;
   logic         output_handshake_occurred;
 
-  assign idu_decoded_uop_ready_o   = (entry_count_q != ENTRY_COUNT) && !flush_i;
+  assign idu_decoded_uop_ready_o   = (entry_count_q != 2'd2) && !flush_i;
   assign decoded_uop_valid_o       = (entry_count_q != 0);
   assign decoded_uop_o             = decoded_uop_array_q[read_entry_index_q];
   assign input_handshake_occurred  = idu_decoded_uop_valid_i && idu_decoded_uop_ready_o;
@@ -93,7 +93,7 @@ module riscv32_decode_stage
   else $error("decode queue changed uop while backpressured");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    entry_count_q <= ENTRY_COUNT)
+    entry_count_q <= 2'd2)
   else $error("decode queue occupancy exceeded its capacity");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)

@@ -57,15 +57,13 @@ module riscv32_fetch_buffer
   // 入口ready只依赖寄存的队列占用量，不依赖本拍IDU是否出队。这样EX级冒险判断不会经
   // IDU ready、队列出队条件和IFU response握手一路反馈到下一取指PC。两项队列在解除长
   // 阻塞后仍可连续向IDU提供已有entry；被释放的槽位从下一拍开始接收新的IFU响应。
-  // flush不能组合压低当前输出valid，否则产生redirect的年轻指令可能反向改变自身valid；
-  // 后端冒险控制会在redirect当拍拒绝该entry，队列随后在时钟沿统一清空。
+  // flush不能组合压低当前输出valid，但必须压低入口ready：ready/valid一旦同时为1就表示
+  // sink已经接收该entry，不能在时钟沿悄悄丢弃。core只把寄存后的redirect接到这里，
+  // 因而flush不会把EX/commit组合路径重新接入前端ready。
   always_comb begin
     idu_fetch_entry_o       = entry_array_q[read_entry_index_q];
     idu_fetch_entry_valid_o = !queue_empty;
-    // flush不参与入口ready组合路径。恢复事件当拍即使与入队握手重合，下面的flush
-    // 状态更新仍会在时钟沿清空队列并丢弃该entry；上游响应因此可以及时排空，同时
-    // redirect/commit不会经ready反向穿过IFU并到达I-cache读地址路径。
-    ifu_fetch_entry_ready_o = !queue_full;
+    ifu_fetch_entry_ready_o = !queue_full && !flush_i;
 
     ifu_fetch_entry_handshake_occurred = ifu_fetch_entry_valid_i && ifu_fetch_entry_ready_o;
     idu_fetch_entry_handshake_occurred = idu_fetch_entry_valid_o && idu_fetch_entry_ready_i;
