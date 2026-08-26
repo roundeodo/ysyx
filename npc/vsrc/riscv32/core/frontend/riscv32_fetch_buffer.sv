@@ -62,7 +62,10 @@ module riscv32_fetch_buffer
   always_comb begin
     idu_fetch_entry_o       = entry_array_q[read_entry_index_q];
     idu_fetch_entry_valid_o = !queue_empty;
-    ifu_fetch_entry_ready_o = !flush_i && !queue_full;
+    // flush不参与入口ready组合路径。恢复事件当拍即使与入队握手重合，下面的flush
+    // 状态更新仍会在时钟沿清空队列并丢弃该entry；上游响应因此可以及时排空，同时
+    // redirect/commit不会经ready反向穿过IFU并到达I-cache读地址路径。
+    ifu_fetch_entry_ready_o = !queue_full;
 
     ifu_fetch_entry_handshake_occurred = ifu_fetch_entry_valid_i && ifu_fetch_entry_ready_o;
     idu_fetch_entry_handshake_occurred = idu_fetch_entry_valid_o && idu_fetch_entry_ready_i;
