@@ -1,9 +1,9 @@
-// 译码流水级队列。IDU只负责把指令编码转换为语义uop，本模块在IDU之后建立
-// 明确的时序边界，使寄存器堆/CSR读取和冒险判断不再与完整指令译码位于同一条路径。
+// 译码流水级。IDU只负责把指令编码转换为语义uop，本模块在IDU之后建立明确的
+// 时序边界，使寄存器堆读取不再与完整指令译码位于同一条路径。
 //
-// 两项弹性缓冲使用固定主项和单项skid，而不是环形队列。输出永远来自主项，因此
-// uop中的rs1/rs2地址不会先经过动态head选择mux再驱动寄存器堆读口。上游ready只由
-// skid有效位产生，不依赖下游ready；稳态下仍可每拍同时接收和送出一条uop。
+// 前端fetch buffer已经负责吸收短时反压，因此这里使用单项滚动寄存器，不再重复保存
+// 一份宽decoded_uop_t作为skid项。当前项被下游接收的同一拍可以写入下一项，稳态吞吐
+// 仍为1条/拍；代价只是ready向前传播一个valid判断，而不是增加第二份payload存储。
 module riscv32_decode_stage
   import riscv32_pkg::*;
 (
@@ -22,61 +22,27 @@ module riscv32_decode_stage
 );
 
   decoded_uop_t decoded_uop_q;
-  decoded_uop_t skid_decoded_uop_q;
   logic         decoded_uop_valid_q;
-  logic         skid_decoded_uop_valid_q;
-  logic         input_handshake_occurred;
-  logic         output_handshake_occurred;
 
-  // ready只表示队列当前有接收空间。flush只清valid，不参与ready组合路径；即使恢复拍
-  // 物理采样了错误路径uop，它也不会成为有效项，下一拍不能被下游消费。
-  assign idu_decoded_uop_ready_o   = !skid_decoded_uop_valid_q;
-  assign decoded_uop_o             = decoded_uop_q;
-  assign decoded_uop_valid_o       = decoded_uop_valid_q;
-  assign input_handshake_occurred  = idu_decoded_uop_valid_i && idu_decoded_uop_ready_o;
-  assign output_handshake_occurred = decoded_uop_valid_q && decoded_uop_ready_i;
+  // rolling ready允许“本拍送出旧项并在同一上升沿接收新项”。flush只清valid，不复位
+  // payload；错误路径数据即使物理残留，也不会被下游解释成有效指令。
+  assign idu_decoded_uop_ready_o = !decoded_uop_valid_q || decoded_uop_ready_i;
+  assign decoded_uop_o           = decoded_uop_q;
+  assign decoded_uop_valid_o     = decoded_uop_valid_q;
 
-  // payload不承载有效性，因此无需复位或flush。物理数据采样只由本级槽位状态决定，
-  // 不使用包含flush的input_handshake_occurred，避免恢复控制进入宽uop写入mux。
-  // 输出被消费时skid项优先前移；没有skid时可以无条件采样当前IDU输出，因为最终是否
-  // 形成有效uop只由下面独立的valid寄存器决定。
   always_ff @(posedge clk_i) begin
-    if (output_handshake_occurred) begin
-      if (skid_decoded_uop_valid_q) begin
-        decoded_uop_q <= skid_decoded_uop_q;
-      end else begin
-        decoded_uop_q <= idu_decoded_uop_i;
-      end
-    end else if (!decoded_uop_valid_q) begin
+    if (idu_decoded_uop_ready_o) begin
       decoded_uop_q <= idu_decoded_uop_i;
-    end else if (!skid_decoded_uop_valid_q) begin
-      skid_decoded_uop_q <= idu_decoded_uop_i;
     end
   end
 
-  // flush只清有效位；错误路径payload可以物理保留，但不会再被下游解释为有效uop。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      decoded_uop_valid_q      <= 1'b0;
-      skid_decoded_uop_valid_q <= 1'b0;
+      decoded_uop_valid_q <= 1'b0;
     end else if (flush_i) begin
-      decoded_uop_valid_q      <= 1'b0;
-      skid_decoded_uop_valid_q <= 1'b0;
-    end else if (output_handshake_occurred) begin
-      if (skid_decoded_uop_valid_q) begin
-        decoded_uop_valid_q      <= 1'b1;
-        skid_decoded_uop_valid_q <= 1'b0;
-      end else if (input_handshake_occurred) begin
-        decoded_uop_valid_q <= 1'b1;
-      end else begin
-        decoded_uop_valid_q <= 1'b0;
-      end
-    end else if (input_handshake_occurred) begin
-      if (!decoded_uop_valid_q) begin
-        decoded_uop_valid_q <= 1'b1;
-      end else begin
-        skid_decoded_uop_valid_q <= 1'b1;
-      end
+      decoded_uop_valid_q <= 1'b0;
+    end else if (idu_decoded_uop_ready_o) begin
+      decoded_uop_valid_q <= idu_decoded_uop_valid_i;
     end
   end
 
@@ -86,10 +52,6 @@ module riscv32_decode_stage
     (decoded_uop_valid_o && !decoded_uop_ready_i && !flush_i)
     |=> (decoded_uop_valid_o && $stable(decoded_uop_o)))
   else $error("decode queue changed uop while backpressured");
-
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    skid_decoded_uop_valid_q |-> decoded_uop_valid_q)
-  else $error("decode skid entry became valid without a primary entry");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     flush_i |=> !decoded_uop_valid_o)
