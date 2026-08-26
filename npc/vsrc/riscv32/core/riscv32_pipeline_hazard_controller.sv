@@ -32,7 +32,10 @@ module riscv32_pipeline_hazard_controller
     input arch_reg_idx_t lsu_pending_rd_i,
     input logic          lsu_forwarding_available_i,
 
-    input logic execute_redirect_occurred_i,
+    // EX解析事件由当前EX指令产生，只清除年轻级，不能反向取消该指令自身。
+    input logic execute_redirect_resolution_occurred_i,
+    // 寄存后的redirect在下一拍应用到前端，此时必须阻止尚存的错误路径EX指令。
+    input logic frontend_redirect_applied_i,
     input logic commit_redirect_occurred_i,
 
     output logic decode_accept_allowed_o,
@@ -135,7 +138,9 @@ module riscv32_pipeline_hazard_controller
       (older_serializing_instruction_present ||
        (decoded_serializing_i && older_instruction_present));
 
-  assign control_recovery_occurred = execute_redirect_occurred_i || commit_redirect_occurred_i;
+  assign control_recovery_occurred = execute_redirect_resolution_occurred_i ||
+                                     frontend_redirect_applied_i ||
+                                     commit_redirect_occurred_i;
 
   assign structural_hazard_present_o = lsu_busy_i;
 
@@ -144,7 +149,8 @@ module riscv32_pipeline_hazard_controller
                                    !control_recovery_occurred;
 
   // blocking LSU占用唯一的顺序完成位置时，年轻指令可以停在ID/EX，但不能执行并越过它。
-  assign execute_issue_allowed_o = !control_recovery_occurred && !lsu_busy_i;
+  assign execute_issue_allowed_o = !frontend_redirect_applied_i &&
+                                   !commit_redirect_occurred_i && !lsu_busy_i;
 
   assign decode_execute_flush_o = control_recovery_occurred;
   assign writeback_flush_o = commit_redirect_occurred_i;

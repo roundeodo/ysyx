@@ -447,8 +447,8 @@ module riscv32_core
       .lsu_pending_rd_i            (lsu_pending_rd),
       .lsu_forwarding_available_i  (lsu_writeback_valid && lsu_writeback.uop.writes_rd &&
                                     !lsu_writeback.uop.exception_valid),
-      .execute_redirect_occurred_i (execute_redirect_resolution_occurred ||
-                                     selected_redirect_req_valid),
+      .execute_redirect_resolution_occurred_i(execute_redirect_resolution_occurred),
+      .frontend_redirect_applied_i (selected_redirect_req_valid),
       .commit_redirect_occurred_i  (commit_redirect_occurred),
       .decode_accept_allowed_o     (decode_accept_allowed),
       .execute_issue_allowed_o     (execute_issue_allowed),
