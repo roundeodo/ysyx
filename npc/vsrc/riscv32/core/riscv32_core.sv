@@ -190,10 +190,10 @@ module riscv32_core
     decoded_execute_packet.csr_rdata   = csr_read_data;
     decoded_execute_packet.csr_illegal = csr_read_illegal;
 
-    // ID/EX采样前只旁路已经寄存或已经完成的数据。当前ID/EX中的生产者不能接到
-    // 这里，否则会形成ALU -> ID/EX跨级路径；它由下一拍的EX/MEM -> EX前递处理。
-    // EX/MEM、LSU completion和WB则可能在本时钟沿离开原级，必须先把值写入payload，
-    // 从而删除更长的WB -> EX操作数mux -> ALU路径。
+    // 所有旁路都在消费者写入ID/EX寄存器前完成。这样消费者进入EX级后只经过
+    // ID/EX寄存器和执行单元，不再形成EX/MEM寄存器 -> 操作数mux -> ALU ->
+    // EX/MEM寄存器的同拍递归关键路径。赋值顺序同时表达年龄优先级：越靠后的
+    // 生产者越年轻；当前EX级结果必须覆盖EX/MEM、LSU completion和WB结果。
     if (rs1_writeback_forwarding_selected) begin
       decoded_execute_packet.rs1_value = writeback_result.result;
     end
@@ -211,6 +211,12 @@ module riscv32_core
     end
     if (rs2_execute_result_forwarding_selected) begin
       decoded_execute_packet.rs2_value = resolved_execute_result.result;
+    end
+    if (rs1_execute_forwarding_selected) begin
+      decoded_execute_packet.rs1_value = exu_result.result;
+    end
+    if (rs2_execute_forwarding_selected) begin
+      decoded_execute_packet.rs2_value = exu_result.result;
     end
   end
 
@@ -512,22 +518,20 @@ module riscv32_core
   );
 
   riscv32_exu u_exu (
-      .execute_packet_i                       (execute_packet),
-      .execute_packet_valid_i                 (execute_packet_valid),
-      .execute_packet_issue_allowed_i         (execute_issue_allowed),
-      .execute_packet_ready_o                 (execute_packet_ready),
-      .execute_stage_forwarding_result_i      (resolved_execute_result),
-      .execute_stage_forwarding_result_valid_i(resolved_execute_result_valid),
-      .exu_result_o                           (exu_result),
-      .exu_result_valid_o                     (exu_result_valid),
-      .exu_result_ready_i                     (exu_result_ready),
-      .lsu_req_o                              (lsu_req),
-      .lsu_req_valid_o                        (lsu_req_valid),
-      .lsu_req_ready_i                        (lsu_req_ready)
+      .execute_packet_i              (execute_packet),
+      .execute_packet_valid_i        (execute_packet_valid),
+      .execute_packet_issue_allowed_i(execute_issue_allowed),
+      .execute_packet_ready_o        (execute_packet_ready),
+      .exu_result_o                  (exu_result),
+      .exu_result_valid_o            (exu_result_valid),
+      .exu_result_ready_i            (exu_result_ready),
+      .lsu_req_o                     (lsu_req),
+      .lsu_req_valid_o               (lsu_req_valid),
+      .lsu_req_ready_i               (lsu_req_ready)
   );
 
-  // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过，
-  // 且本级寄存结果作为最高优先级前递源返回EXU，因此新增时序边界不降低稳态吞吐。
+  // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过；
+  // 本级结果在下一条消费者进入ID/EX前完成旁路，不再直接反馈到EXU组合输入。
   riscv32_execute_result_stage u_execute_result_stage (
       .clk_i                  (clk_i),
       .rst_ni                 (rst_ni),

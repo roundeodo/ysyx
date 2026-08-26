@@ -8,16 +8,12 @@ module riscv32_exu_alu_tb;
   logic            exu_result_valid;
   lsu_req_t        lsu_req;
   logic            lsu_req_valid;
-  execute_result_t execute_stage_forwarding_result;
-  logic            execute_stage_forwarding_result_valid;
 
   riscv32_exu u_exu (
       .execute_packet_i(execute_packet),
       .execute_packet_valid_i(execute_packet_valid),
       .execute_packet_issue_allowed_i(1'b1),
       .execute_packet_ready_o(execute_packet_ready),
-      .execute_stage_forwarding_result_i(execute_stage_forwarding_result),
-      .execute_stage_forwarding_result_valid_i(execute_stage_forwarding_result_valid),
       .exu_result_o(exu_result),
       .exu_result_valid_o(exu_result_valid),
       .exu_result_ready_i(1'b1),
@@ -53,30 +49,6 @@ module riscv32_exu_alu_tb;
           expected_result,
           exu_result.result
       );
-  endtask
-
-  task automatic expect_execute_stage_forwarding;
-    execute_packet                                = '0;
-    execute_packet.uop.fu_type                    = FU_INT;
-    execute_packet.uop.int_ctrl.op                = ALU_ADD;
-    execute_packet.uop.int_ctrl.operand_a_sel     = OPA_RS1;
-    execute_packet.uop.int_ctrl.operand_b_sel     = OPB_RS2;
-    execute_packet.uop.uses_rs1                   = 1'b1;
-    execute_packet.uop.rs1                        = arch_reg_idx_t'(5);
-    execute_packet.rs1_value                      = xlen_data_t'(3);
-    execute_packet.rs2_value                      = xlen_data_t'(7);
-    execute_stage_forwarding_result               = '0;
-    execute_stage_forwarding_result.uop.writes_rd = 1'b1;
-    execute_stage_forwarding_result.uop.rd        = arch_reg_idx_t'(5);
-    execute_stage_forwarding_result.result        = xlen_data_t'(11);
-    execute_stage_forwarding_result_valid         = 1'b1;
-    execute_packet_valid                          = 1'b1;
-    #1;
-
-    assert (exu_result_valid && (exu_result.result == xlen_data_t'(18)))
-    else $fatal(1, "EXU did not select the registered EX/MEM value for rs1");
-
-    execute_stage_forwarding_result_valid = 1'b0;
   endtask
 
   task automatic expect_immediate_operation(input alu_op_e operation, input xlen_data_t operand_a,
@@ -140,10 +112,8 @@ module riscv32_exu_alu_tb;
   endtask
 
   initial begin
-    execute_packet                        = '0;
-    execute_packet_valid                  = 1'b0;
-    execute_stage_forwarding_result       = '0;
-    execute_stage_forwarding_result_valid = 1'b0;
+    execute_packet       = '0;
+    execute_packet_valid = 1'b0;
 
     // 两种配置都验证原有XLEN数据通路，防止加入*W通路后改变RV32行为。
     expect_register_operation(ALU_ADD, xlen_data_t'('1), xlen_data_t'(1), xlen_data_t'('0));
@@ -151,8 +121,6 @@ module riscv32_exu_alu_tb;
     expect_register_operation(ALU_SLL, xlen_data_t'(1), xlen_data_t'(31),
                               xlen_data_t'(32'h8000_0000));
     expect_register_operation(ALU_SLT, xlen_data_t'('1), xlen_data_t'(0), xlen_data_t'(1));
-    expect_execute_stage_forwarding();
-
     // 未实现C扩展时IALIGN=32。异常指令既不能重定向前端，也不能提交链接寄存器。
     expect_misaligned_control_flow(CF_JAL, program_counter_t'(32'h8000_0000), '0, xlen_data_t'(2),
                                    xlen_data_t'(32'h8000_0002));

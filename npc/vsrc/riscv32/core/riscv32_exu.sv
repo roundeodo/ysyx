@@ -8,12 +8,6 @@ module riscv32_exu
     input  logic            execute_packet_issue_allowed_i,
     output logic            execute_packet_ready_o,
 
-    // EX/MEM结果比WB结果年轻，相关时必须优先。该前递源已经过寄存，允许连续相关
-    // 整数指令保持每拍一条。更老的EX/MEM、LSU completion和WB结果已在ID/EX
-    // 采样前写入payload，因此不应再次穿过EX操作数mux。
-    input execute_result_t execute_stage_forwarding_result_i,
-    input logic            execute_stage_forwarding_result_valid_i,
-
     output execute_result_t exu_result_o,
     output logic            exu_result_valid_o,
     input  logic            exu_result_ready_i,
@@ -32,8 +26,6 @@ module riscv32_exu
   xlen_data_t                        operand_b;
   xlen_data_t                        execute_rs1_value;
   xlen_data_t                        execute_rs2_value;
-  logic                              rs1_execute_stage_forwarding_selected;
-  logic                              rs2_execute_stage_forwarding_selected;
   xlen_data_t                        alu_result;
   logic             [WORD_WIDTH-1:0] word_result;
   xlen_data_t                        csr_operand;
@@ -47,31 +39,10 @@ module riscv32_exu
   effective_addr_t                   lsu_effective_addr;
   execute_result_t                   exu_result;
 
-  assign rs1_execute_stage_forwarding_selected =
-      execute_packet_valid_i && execute_packet_i.uop.uses_rs1 &&
-      execute_stage_forwarding_result_valid_i &&
-      execute_stage_forwarding_result_i.uop.writes_rd &&
-      !execute_stage_forwarding_result_i.uop.exception_valid &&
-      (execute_stage_forwarding_result_i.uop.rd != '0) &&
-      (execute_stage_forwarding_result_i.uop.rd == execute_packet_i.uop.rs1);
-  assign rs2_execute_stage_forwarding_selected =
-      execute_packet_valid_i && execute_packet_i.uop.uses_rs2 &&
-      execute_stage_forwarding_result_valid_i &&
-      execute_stage_forwarding_result_i.uop.writes_rd &&
-      !execute_stage_forwarding_result_i.uop.exception_valid &&
-      (execute_stage_forwarding_result_i.uop.rd != '0) &&
-      (execute_stage_forwarding_result_i.uop.rd == execute_packet_i.uop.rs2);
-
-  always_comb begin
-    execute_rs1_value = execute_packet_i.rs1_value;
-    execute_rs2_value = execute_packet_i.rs2_value;
-    if (rs1_execute_stage_forwarding_selected) begin
-      execute_rs1_value = execute_stage_forwarding_result_i.result;
-    end
-    if (rs2_execute_stage_forwarding_selected) begin
-      execute_rs2_value = execute_stage_forwarding_result_i.result;
-    end
-  end
+  // 操作数相关性已经在ID/EX写入边界解决。EXU只消费寄存后的最终操作数，避免
+  // 把下游结果反馈网络、宽操作数选择器和ALU串在同一个时钟周期内。
+  assign execute_rs1_value = execute_packet_i.rs1_value;
+  assign execute_rs2_value = execute_packet_i.rs2_value;
 
   always_comb begin
     unique case (execute_packet_i.uop.int_ctrl.operand_a_sel)
