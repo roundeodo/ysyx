@@ -1,108 +1,110 @@
 # RV64 顺序流水线设计记录
 
-状态：当前实现
+状态：当前结构说明；验证范围见实验记录
 
-## 1. 设计目标
+最后更新：2026-09-05
 
-当前流水线是从多周期顺序核向乱序核过渡的可验证基线。它必须做到：
+## 1. 当前目标
 
-- 单发射、顺序完成和精确提交；
-- 每个流水边界使用valid/ready，允许独立反压；
-- 普通整数相关通过前递连续发射；
-- load、串行化指令和结构冲突只阻塞真正受影响的指令；
-- 分支错误、异常、`mret`和`fence.i`能够清除所有年轻指令；
-- 仿真性能事件不进入综合core。
+完成单发射、顺序执行的 RV64 流水线，为下一阶段学习乱序执行建立可回归的实现。
+当前优先处理正确性、停顿与恢复，阶段完成条件见 [架构与开发路线](../architecture/ARCHITECTURE_PLAN.md)。
 
-## 2. 数据通路
+流水级用 `valid/ready` 传递指令和数据：两者同时为 1 时接收；下游阻塞时按接口规则保存
+尚未传出的内容。各级可以等待，但不能因此丢失、重复或错误执行指令。
+
+## 2. 指令经过哪些模块
 
 ```text
-predictor -> IFU/I-cache -> fetch buffer
-         -> IDU -> decode stage
-         -> register read stage
-         -> ID/EX stage -> EXU
-         -> execute result stage
-         -> completion/writeback stage
-         -> commit
+预测器 -> IFU / I-cache -> 取指缓冲
+       -> 译码 -> 译码寄存级 -> 寄存器读取级
+       -> ID/EX 寄存级 -> EXU
+                          +-> 普通结果寄存级 --+
+                          +-> LSU / 数据存储 --+-> 完成结果选择 -> WB -> commit
 ```
 
-load/store在EXU生成`lsu_req_t`后进入LSU和数据存储子系统。它们可能经历D-cache命中、
-cache miss、writeback或uncached AXI事务，因此不是固定延迟执行单元。
+| 模块 | 当前职责 |
+| --- | --- |
+| `riscv32_fetch_buffer` | 保存已返回的指令，等待译码接收 |
+| `riscv32_idu` | 将指令译码成 `decoded_uop_t`，即后续执行所需的操作和控制信息 |
+| `riscv32_decode_stage` | 保存译码结果，分隔译码和寄存器读取的组合路径 |
+| `riscv32_register_read_stage` | 保存寄存器读值；同拍写读同一寄存器时，通过显式旁路取得新值 |
+| `riscv32_decode_execute_stage` | 保存进入执行级的指令、操作数和 CSR 信息 |
+| `riscv32_exu` | 执行整数与控制流运算，计算 CSR 写值，生成 LSU 请求 |
+| `riscv32_execute_result_stage` | 保存普通执行结果，比较实际与预测控制流 |
+| `riscv32_lsu` | 处理 load/store 请求和返回值；访问可能经过缓存或 uncached 路径 |
+| `riscv32_completion_mux` | 选择普通执行结果或 LSU 完成结果 |
+| `riscv32_writeback_stage` | 保存待提交结果 |
+| `riscv32_commit` | 产生寄存器写入、CSR 更新及异常处理所需的提交信息 |
 
-## 3. 流水边界
+load/store 的完成时间取决于缓存和总线响应，不能按固定执行周期处理。
+当前 store 的内存访问由 LSU 路径执行，随后结果进入 WB/commit；不能据此画成“所有写内存
+都由 commit 端口发出”。它的安全性依赖顺序执行和阻止年轻指令副作用的控制规则。
 
-### 3.1 fetch buffer
+## 3. 数据相关与前递
 
-保存已经返回的`fetch_entry_t`，把I-cache响应与译码反压分离。redirect通过flush清除错误
-路径entry；IFU的epoch同时负责丢弃已经发出但已经过期的取指响应。
+`riscv32_pipeline_hazard_controller` 比较待执行指令的源寄存器，与尚未提交的老指令目的
+寄存器。年轻指令要读取老指令将写入的值，称为写后读相关（RAW，read after write）。
 
-### 3.2 decode stage
+- 普通整数结果可从 EX、执行结果寄存级和 WB 前递给依赖它的指令。
+- load 的目的寄存器参与相关检查，结果返回并进入 WB 后才可用于当前前递路径。
+- 多条老指令写同一寄存器时，必须使用程序顺序中最近的那一条；如果它的结果还没准备好，
+  不能退而使用更老的值。
+- CSR、异常相关操作和 `fence.i` 按串行化规则等待老指令离开，并限制年轻指令推进。
 
-锁存`decoded_uop_t`。译码只生成微操作和控制字段，不读取寄存器，也不产生架构副作用。
+当前实现中，LSU 有未完成事务时，`execute_progress_allowed_o` 阻止新的指令继续执行。
+独立指令可能进入前面的寄存级等待，但尚不能越过该访存指令执行。不能把当前顺序核描述成
+“只阻塞依赖 load 的指令”；允许独立指令继续执行是 M2 的工作。
 
-### 3.3 register read stage
+## 4. 提交与恢复
 
-读取GPR并保存原始操作数。若同一拍WB写入与读取同一寄存器，显式WB旁路保证保存新值。
+普通指令在 commit 处确认寄存器和 CSR 的架构更新。同步异常随指令向后传递，到提交点
+才请求更新 `mepc/mcause/mtval` 并跳转到 `mtvec`。发生同步异常的指令不计入正常退休数。
 
-### 3.4 ID/EX stage
+执行结果级发现预测错误后：
 
-在进入该级前完成操作数选择和前递。`execute_packet_t`同时携带uop、源操作数和CSR读取
-结果。普通整数生产者可以从EX、execute-result或WB级前递；load值只有在数据返回并进入
-WB边界后才可前递。
+1. 同拍阻止年轻指令产生新的执行或访存副作用，清除受影响的年轻指令。
+2. 重定向请求经过专用寄存器送给 IFU，更新取指路径代号（epoch）并清空旧取指内容。
+3. 已被下层接收的取指事务按协议完成；IFU 丢弃不属于当前路径的响应。
 
-### 3.5 execute result stage
+`fence.i` 先按串行化规则执行，在 commit 之后启动 D-cache 写回脏数据、I-cache 失效和
+前端恢复。指令提交事件与后续缓存维护完成事件是两个不同事件，不能混为一谈。
 
-保存EXU结果，并在寄存边界后解析控制流。这样分支恢复逻辑不会和当前ALU、前递mux以及
-前端请求组合成一条长路径。
+## 5. 已知限制和待完成项
 
-### 3.6 writeback与commit
+- 机器态中断尚未接通。当前 `riscv32_core` 没有中断输入，CSR 的 `mip` 固定读零，
+  `riscv32_commit` 的 `trap_is_interrupt` 固定为零。有 `mie` 寄存器不代表能响应中断。
+- `fence.i` 期间 D-cache 写回错误由 `dcache_clean_access_fault` 报告，core 当前用仿真
+  断言检查，尚无可供软件或系统处理的完整错误路径。
+- `tests/formal` 的现有检查只针对取指缓冲和冒险控制，不覆盖整个 CPU 的精确异常、
+  store 安全性或全部指令等价性。具体状态见 [验证记录](../verification/EXPERIMENT_LOG.md)。
 
-completion mux在普通EXU结果和可变延迟LSU结果之间选择。writeback stage保存完成结果。
-commit是GPR、CSR、trap、`mret`和性能退休事件的唯一权威边界。
+这些内容需要单独实现或验证，不因本文更新而视为已修复。
 
-## 4. 冒险处理
+## 6. 必须检查的性质
 
-`riscv32_pipeline_hazard_controller`比较消费者的`rs1/rs2`与各在途生产者：
+- 没有复位或协议允许的取消时，`valid && !ready` 期间有效信号和内容保持稳定。
+- flush 清除指定指令，不伪造接收事件，也不撤销已经接受的外部事务。
+- 每条指令至多提交一次，错误路径指令不能写架构寄存器、CSR 或内存。
+- 未准备好的操作数不能被用于执行；每个源操作数只能选择一个前递来源。
+- 分支恢复、同步异常、`mret` 和中断的年龄及优先级规则一致。
+- 在 store 发出前，能够保证没有更老的恢复事件会使它成为应被撤销的指令。
 
-- EX普通整数结果可从`exu_result`前递；
-- execute-result级结果可从`resolved_execute_result`前递；
-- WB结果可从`writeback_result`前递；
-- load结果尚未返回时产生RAW阻塞；
-- CSR、trap相关操作和`fence.i`使用serializing语义；
-- LSU存在未完成事务时，不允许年轻指令越过它产生副作用。
+用模块断言、定向测试、整核程序和 DiffTest 分别检查。测试通过时必须记录版本和覆盖范围，
+不把单个控制模块的检查推广为整核证明。
 
-同一寄存器存在多个老生产者时，年龄最近的生产者优先。若最近结果尚不可用，不能错误地
-采用更老的WB值。
+## 7. 进入乱序阶段时怎样改变
 
-## 5. 控制恢复与异常
+M2 保留 RV64 指令语义与顺序提交要求，重新设计执行调度：
 
-执行级分支错误最早由execute-result级发现。恢复分为两步：
+- 重命名把架构寄存器依赖转换为物理寄存器依赖。
+- 发射队列保存等待中的指令，选择就绪指令执行。
+- ROB 保存指令顺序和完成状态，在队首处理提交及异常。
+- load/store 队列跟踪访存顺序，store 必须获准后才能对外产生作用。
+- 结果携带指令身份返回，恢复时同时处理映射表、寄存器回收、队列和过期结果。
 
-1. 发现错误的同拍阻止年轻指令issue，并清除后端年轻valid；
-2. redirect经过专用寄存器后交给IFU，前端更新epoch并清空fetch buffer。
+现有数据结构和前端身份机制可作为起点，是否复用需逐项检查。恢复可先采用易验证的
+逐项回退，再评估快照；非阻塞缓存和多发射不与第一版乱序同时强制引入。
 
-异常沿uop向后传播，不在最早发现处立即修改CSR。只有异常指令到达commit时，trap
-controller才写`mepc/mcause/mtval`并重定向到`mtvec`。因此多个级同时报告异常时，顺序
-提交天然选择最老指令，年轻异常随flush失效。
-
-## 6. 正确性不变量
-
-- `valid && !ready`期间payload保持稳定；
-- flush只清valid，不伪造ready握手；
-- 每条被接收的指令至多提交一次；
-- 错误路径指令不能写GPR、CSR或内存；
-- 未解决RAW不能进入EX；
-- 同一源操作数至多选择一个前递来源；
-- 串行化指令提交前，年轻指令不能产生架构副作用。
-
-这些不变量由RTL断言和`tests/formal`中的有界检查持续验证。
-
-## 7. 向乱序执行演进
-
-当前stage payload、精确commit、执行完成接口和前端epoch可以复用。以下结构不会直接扩展：
-
-- 集中式hazard controller将被rename、issue queue和ROB替代；
-- 架构寄存器号RAW比较将被物理寄存器依赖替代；
-- completion mux将演进为带tag的结果网络；
-- 单个LSU事务状态将演进为LSQ和store commit；
-- 全流水flush将演进为分支checkpoint和选择性恢复。
-
+[BOOM 的 ROB 说明](https://docs.boom-core.org/en/latest/sections/reorder-buffer.html)和
+[LSU 说明](https://docs.boom-core.org/en/latest/sections/load-store-unit.html)可用于研究顺序提交、
+访存授权与依赖处理。学习其规则后仍需写明本项目的实际选择。

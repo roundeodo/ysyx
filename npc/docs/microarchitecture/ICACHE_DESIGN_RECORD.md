@@ -1,80 +1,89 @@
 # I-cache 设计记录
 
-状态：当前实现
+状态：当前结构说明；验证范围见实验记录
 
-## 1. 当前结构
+最后更新：2026-09-05
 
-当前I-cache是参数化、组相联、阻塞式L1指令缓存。默认`rv64-edge-ai`配置为4 KiB、2-way、
-64 B cache line。默认值用于功能主线，不是固定产品参数；后续必须结合真实前端负载、SRAM
-宏和PPA重新选择。
+## 1. 当前结构与职责
 
-模块分工：
+I-cache 保存最近使用的指令，减少对下层内存的访问。当前为组相联、阻塞式 L1 指令缓存，
+默认 4 KiB、2 路、64 B 缓存行。默认值用于当前功能配置；更改容量和路数需检查合法范围，
+并重新测量，不能把当前参数当成最终产品选择。
 
-- `riscv32_pma`：判断地址是否可执行、可缓存；
-- `riscv32_icache_tag_array`：同步读取tag和line-present元数据；
-- `riscv32_icache_data_array`：同步读取fetch word，逐word回填；
-- `riscv32_icache_miss_unit`：拥有单个miss事务、refill进度和critical-word响应；
-- `riscv32_icache_refill_axi4_master`：把本地refill语义转换为AXI4 burst；
-- `riscv32_icache`：拥有lookup流水、命中比较、替换选择和响应仲裁。
+| 模块 | 负责什么 |
+| --- | --- |
+| `riscv32_pma` | 根据物理地址判断是否可执行、可缓存 |
+| `riscv32_icache_tag_array` | 保存并读取地址标记和缓存行有效状态 |
+| `riscv32_icache_data_array` | 同步读取指令数据，接收回填写入 |
+| `riscv32_icache_miss_unit` | 跟踪一次缺失、回填进度及原请求响应 |
+| `riscv32_icache_refill_axi4_master` | 将本地回填请求转换成 AXI4 读事务 |
+| `riscv32_icache` | 组织查找、命中选择、替换与失效过程 |
 
-## 2. 命中流水
+IFU 传入地址和请求身份，不直接操作缓存阵列或 AXI 通道。
 
-### S0：请求接收
+## 2. 查找与命中
 
-`lookup_req_valid_i && lookup_req_ready_o`时接收PC，同时启动同步tag/data array读取，并把
-请求身份和PMA分类写入S1寄存器。
+S0 在 `lookup_req_valid_i && lookup_req_ready_o` 时接收请求，保存身份并启动同步阵列读取。
+S1 根据地址属性与各路标记判断：
 
-### S1：比较与分类
+- 不可执行：返回取指访问错误。
+- 可执行但不可缓存：发起一次不分配缓存行的访问。
+- 缓存命中：选择相应指令字并返回。
+- 缓存缺失：选择替换位置，把请求交给缺失处理单元。
 
-下一拍使用S1请求和array输出并行比较所有way，得到四类互斥结果：
+响应被阻塞时保留内容。当前缺失处理期间不接收新的查找，仍是阻塞式缓存。源码中存在
+回填字记录和选择逻辑，但 `lookup_req_allowed_during_refill = !miss_transaction_present`
+限制了新请求；不能据这些字段声明支持缺失期间命中或并发回填。
 
-1. 地址不可执行：返回instruction access fault；
-2. 可执行但不可缓存：发起单word uncached访问；
-3. cache hit：选择命中way的数据返回IFU；
-4. cache miss：选择替换way并交给miss unit。
+## 3. 缺失与提前返回
 
-响应被反压时，S1请求和array输出保持不变。当前只有一个返回口，因此miss存在期间不接收
-年轻lookup，避免本地hit和miss响应乱序。
+可缓存请求按缓存行起始地址发起 AXI4 INCR 递增突发。当前回填接口每次返回一个 32 位
+取指字；在 64 位 AXI 数据通道上使用 4 B 的窄传输，默认 64 B 行需要 16 个 beat。
+总线数据位宽与每拍实际传输大小分别定义，详见 [AXI4 互连](../interconnect/AXI4_ARCHITECTURE.md)。
 
-## 3. miss与refill
+工作过程：
 
-miss unit按cache line基址发起一个AXI4 INCR burst。每个返回beat到达时：
+1. 开始覆盖替换位置前，先清除旧缓存行的有效状态，防止旧标记命中部分更新的数据。
+2. 每个成功接收的字写入数据阵列，记录进度和错误状态。
+3. 当请求所需的指令字到达时，生成一次响应，不必等整行完成。这称为提前返回（early restart）。
+4. 最后一个字成功返回且本次回填没有错误时，写入新标记并将整行置为有效。
+5. 总线事务和原请求响应均结束后，释放这次缺失记录。
 
-- 根据beat索引生成`data_write_valid_o`，立即写入data array对应word；
-- 若该beat包含原请求critical word，立即产生lookup响应，实现early restart；
-- 收到最后一个beat且无错误后，写入tag并置line present；
-- refill出错时不安装有效line，并向原请求返回访问错误。
+当前突发从行首递增，所需指令字不一定最先传输。不要把提前返回写成“关键字优先传输”。
+提前返回可让该指令的执行与剩余回填重叠，但不会解除当前缓存对新查找的阻塞。
 
-critical word提前交付不代表整条line已经有效。只有最后一个beat成功后metadata才被设置为
-present；此前已经返回的其他word只存在于data array中，不能被普通tag hit观察到。
+### 错误与反压
 
-## 4. 替换与一致性
+- 请求所需字返回之前或该字本身出错：向原请求返回一次访问错误。
+- 已成功交付所需字后，其他字出错：不安装整行，不撤销已交付指令，也不返回第二次响应。
+- IFU 暂时不接收响应时，保存该响应，并继续接收剩余回填，直到总线事务结束。
+- 发生错误时不能用旧标记命中已经被覆盖的数据。
 
-替换优先选择invalid way，否则采用每set轮转指针。替换状态是性能状态，不属于架构状态。
+以上是当前实现的行为，仍需对应的错误注入和反压测试记录。
 
-`fence.i`在commit后启动维护流程：若D-cache启用，先clean所有dirty line，再invalidate
-I-cache。顺序不能颠倒，否则I-cache可能重新取到尚未写回内存的旧指令。维护期间停止接收
-新lookup，并通过前端redirect和epoch丢弃旧路径响应。
+## 4. 替换与失效
 
-## 5. 关键断言
+优先选择无效路；各路都有效时使用每组轮转指针选择替换位置。
+轮转与 LRU 是不同策略，比较模型结果时必须注明。
 
-- 同一set同一tag最多命中一个way；
-- miss存续期间refill地址、way和原请求身份保持稳定；
-- `line_present`只能在完整refill成功后置位；
-- AXI错误不能安装有效line；
-- 响应反压期间payload保持稳定；
-- invalidate完成后所有line-present位清零。
+当前 `fence.i` 维护顺序是先让 D-cache 写回脏数据，再使 I-cache 失效。期间阻止新取指
+访问，并处理旧路径响应。D-cache 写回失败后的整核行为尚待补全，见
+[D-cache 设计](DCACHE_DESIGN_RECORD.md)。
 
-## 6. 后续演进
+## 5. 必须检查的性质
 
-面向乱序超标量前端的优先顺序：
+- 同一组内不能有两路同时命中同一地址。
+- 请求身份、替换位置和未完成响应在需要等待时保持稳定。
+- 整行成功回填前不能设置整行有效状态；错误回填不得安装有效行。
+- 每次缺失只产生一个原请求响应，已经接收的总线事务必须完成。
+- 失效完成后，所有缓存行均不可被正常查找命中。
 
-1. SRAM宏和bank化array；
-2. 更宽fetch与跨line取指；
-3. 多MSHR和hit-under-miss；
-4. miss response排序与frontend tag关联；
-5. next-line/stream预取；
-6. ITLB和取指访问权限；
-7. 与FTQ、uop cache或trace cache的接口评估。
+测试日期、配置和实际结果记录在 [验证记录](../verification/EXPERIMENT_LOG.md)。
 
-任何扩展都必须保持本地lookup/refill边界，不能把AXI通道直接引入IFU。
+## 6. 后续工作
+
+当前先补齐查找、错误注入、失效和反压验证，并用普通程序记录命中率及等待周期。
+
+进入后续阶段时，可分别评估 SRAM 宏、阵列分 bank、更宽取指、跨行取指、多缺失记录
+（MSHR）、缺失期间命中、预取和地址转换。每项单独确定功能与收益；ITLB 随 MMU 设计，
+不作为当前顺序核或第一版乱序核的前提。

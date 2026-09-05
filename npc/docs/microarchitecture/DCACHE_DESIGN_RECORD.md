@@ -1,84 +1,87 @@
 # D-cache 设计记录
 
-状态：当前实现
+状态：当前结构说明；验证范围见实验记录
 
-## 1. 当前结构
+最后更新：2026-09-05
 
-当前D-cache是参数化、组相联、阻塞式、write-back/write-allocate的L1数据缓存。默认
-`rv64-edge-ai`配置为4 KiB、2-way、64 B cache line。默认容量用于RV64功能主线，后续由
-真实数据工作集、SRAM宏和PPA共同决定。
+## 1. 当前结构与职责
 
-模块分工：
+D-cache 保存数据访问使用的缓存行。当前为组相联、阻塞式 L1 数据缓存，默认 4 KiB、2 路、
+64 B 缓存行。写策略为 write-back/write-allocate：写命中先修改缓存并标记为脏；写缺失先
+读入整行再修改；脏行被替换或显式维护时写回下层内存。
 
-- `riscv32_data_memory_subsystem`：根据PMA把访问路由到D-cache或uncached master；
-- `riscv32_dcache`：lookup流水、命中处理、替换和clean遍历；
-- `riscv32_dcache_tag_array`：保存tag、present和dirty；
-- `riscv32_dcache_data_array`：同步读、byte strobe写；
-- `riscv32_dcache_miss_unit`：执行victim writeback和refill；
-- `riscv32_dcache_line_axi4_master`：把line读写转换为AXI4 burst。
+| 模块 | 负责什么 |
+| --- | --- |
+| `riscv32_data_memory_subsystem` | 根据地址属性选择 D-cache 或 uncached 路径，并输出一个数据侧 AXI 接口 |
+| `riscv32_dcache` | 缓存查找、命中处理、替换选择和脏行维护 |
+| `riscv32_dcache_tag_array` | 保存标记、有效状态与脏状态 |
+| `riscv32_dcache_data_array` | 同步读数据，按字节写使能更新数据 |
+| `riscv32_dcache_miss_unit` | 执行替换行写回和新行回填 |
+| `riscv32_dcache_line_axi4_master` | 将整行读写转换成 AXI4 突发事务 |
 
-LSU只表达load/store语义，不拥有cache状态，也不直接驱动AXI。
+LSU 负责 load/store 的地址、大小和数据格式，不直接操作缓存状态或 AXI 通道。
 
-## 2. lookup流水
+## 2. 查找与命中
 
-S0握手接收`data_memory_req_t`并启动同步tag/data array读取。S1使用保存的地址、操作类型、
-byte strobe和array输出完成命中比较。
+S0 接收 `data_memory_req_t` 并启动同步阵列读取。S1 用保存的请求与阵列输出判断命中。
 
-命中时：
+- load 命中：返回所在数据字，LSU 根据访问大小和符号属性提取结果。
+- store 命中：按 byte strobe 指定的字节合并数据，并设置脏位。
+- 紧邻的同字写读通过显式旁路取得更新值，不依赖 SRAM 同地址读写时的特定行为。
 
-- load返回命中word，LSU负责按访问大小和符号属性格式化；
-- store按byte strobe合并数据，写data array并置dirty；
-- store hit后的紧邻同word访问通过显式bypass看到新字节，不能依赖SRAM的read-during-write
-  行为。
+缺失或脏行维护期间，缓存不接收新查找。当前不支持 hit-under-miss，即不能在一条缺失
+尚未完成时继续服务其他命中请求。
 
-miss或clean存续期间，cache不接收新的lookup。当前设计强调清晰的事务所有权和精确异常，
-不支持hit-under-miss。
+## 3. 缺失处理
 
-## 3. write-back miss流程
+先选择无效路；没有无效路时使用每组轮转指针选择替换行。
 
-miss时先选择invalid way；若所有way有效，则使用每set轮转指针选择victim。
+1. 替换行有效且为脏时，读取该行并发起 AXI 写突发。
+2. 等待写响应；失败则向当前请求返回访问错误，不能覆盖尚未成功写回的数据。
+3. 发起目标缓存行的读突发，接收数据并回填。
+4. 整行成功后安装新标记，设置有效状态并清除脏位。
+5. 重新执行原 load/store，返回结果。
 
-1. victim有效且dirty：逐beat读取victim line并发起AXI写burst；
-2. 等待写响应，错误则向原请求报告access fault；
-3. 发起目标line的AXI读burst；
-4. 每个read beat到达时写入data array；
-5. 完整line成功后安装tag、置present并清dirty；
-6. 重放原load/store并返回结果。
+AXI 写地址和写数据独立握手，不能假设二者同拍完成。默认 64 B 行在当前数据侧 8 B
+传输配置下需要 8 个 beat，与 I-cache 的 4 B 窄传输不同。
 
-AXI写地址和写数据通道独立握手；line master必须分别保存两条通道的进度，不能假设AW和W
-同拍完成。
+## 4. 脏行维护与 `fence.i`
 
-## 4. clean与fence.i
+`clean_req_i` 请求遍历缓存，将脏行写回。每行成功写回后清除其脏位；维护结束时由
+`clean_done_o` 报告，并通过 `clean_access_fault_o` 表示是否出错。
 
-`clean_req_i`启动全cache遍历。每条dirty line写回成功后清dirty；全部set和way完成后才拉高
-`clean_done_o`。任一写回错误通过`clean_access_fault_o`报告。
+正常路径下，core 在 `fence.i` 提交后先等待 D-cache 维护，再使 I-cache 失效，确保后续
+取指能够看到已经写入内存的新指令。
 
-commit后的`fence.i`先等待D-cache clean，再invalidate I-cache。这保证软件写入的新指令先
-到达统一内存视图，然后前端才重新取指。
+**待完成：维护错误的整核处理。** 当前 D-cache 已输出错误标志，core 只通过仿真断言
+检查 `dcache_clean_access_fault`，还没有完整的软件可见或系统级错误处理。必须明确出错
+时是否停止恢复取指、如何报告及如何处理脏数据；不能将该路径写成已经具备精确异常支持。
 
-## 5. 正确性不变量
+## 5. 与其他访问共享内存
 
-- present、dirty和tag必须作为同一个line状态一致更新；
-- clean line不能发起无意义writeback；
-- dirty victim写回完成前不能被新line覆盖；
-- refill错误不能安装present line；
-- store byte strobe之外的字节保持原值；
-- 一个请求只能产生一个响应；
-- uncached访问不能修改D-cache元数据。
+数据存储子系统在请求接收时选定路径，并保持到对应响应完成。不可缓存的设备或普通内存
+访问走 uncached 路径；不允许的访问在本地返回错误。
 
-## 6. 与I-cache共享下层内存
+I-cache 输出指令侧 AXI 请求，数据存储子系统输出数据侧 AXI 请求，系统层再仲裁两侧。
+当前共享读通路最多一个未完成读突发，见 [互连说明](../interconnect/AXI4_ARCHITECTURE.md)。
 
-I-cache和D-cache分别输出独立AXI4 manager，由系统层merge模块仲裁。cache内部不感知另一侧
-请求。当前顺序核的阻塞式cache限制了并发度；未来增加多MSHR和store buffer后，仲裁器必须
-按完整AXI事务保持归属，并利用不同AXI ID支持并发返回。
+## 6. 必须检查的性质
 
-## 7. 后续演进
+- 标记、有效位、脏位和数据更新保持一致。
+- 成功写回之前不能覆盖脏行；回填失败不能安装有效行。
+- store 只能更新字节使能选中的内容。
+- 一次请求只返回一次响应，反压时保留响应内容和身份。
+- uncached 请求不修改缓存元数据，设备访问不能因错误路径执行产生副作用。
+- 维护出错时保留或处置脏数据的规则明确，并有整核错误注入测试。
 
-1. SRAM宏和bank化data array；
-2. store buffer与store-to-load forwarding；
-3. 多MSHR和non-blocking load；
-4. load queue、store queue和内存依赖预测；
-5. writeback queue与独立refill/writeback通道；
-6. DTLB、页权限和精确page fault；
-7. L2、一致性和DMA/AI accelerator访问策略。
+实际测试结果见 [验证记录](../verification/EXPERIMENT_LOG.md)。
 
+## 7. 后续工作
+
+先完成现有缓存与错误路径验证，并测量 load/store、缺失和脏行写回开销。
+
+M2 首先解决访存指令的年龄、队列和 store 授权，可以保留阻塞式缓存。以后按实际瓶颈
+评估写缓冲、store 到 load 的数据前递、多 MSHR、回填与写回并行、SRAM 宏和分 bank。
+
+DTLB 随地址转换设计；共享缓存、一致性和 DMA 数据共享随系统阶段设计。它们不要求在
+第一版顺序核或乱序核中全部实现。

@@ -1,55 +1,51 @@
-# Cache 设计空间探索方法
+# 缓存配置比较方法
 
-状态：保留并继续使用
+状态：当前方法；性能结论以实际记录为准
 
-## 1. 工具定位
+最后更新：2026-09-05
 
-`cachesim`是metadata-only cache参考模型。它读取地址trace，只维护tag、present、dirty、
-替换状态和事务统计，不保存真实指令或数据内容。它适合快速回答：
+## 1. `cachesim` 能回答什么
 
-- 给定workload在不同容量、line大小和路数下有多少miss；
-- compulsory、capacity和conflict miss如何变化；
-- write-back D-cache产生多少dirty eviction；
-- 在给定缺失代价下，哪个参数组合的TMT趋势更好；
-- RTL cache的miss统计是否和参考模型一致。
+`cachesim` 读取地址访问记录（trace），只保存标记、有效位、脏位、替换状态和统计数据，
+不保存真实指令或数据。它适合比较容量、路数、缓存行大小与缺失代价。
 
-它不能独立决定最终配置，因为它不包含RTL关键路径、SRAM宏、总线竞争、预取污染和完整
-流水线反压。
+它可以给出命中/缺失、脏行替换及估算的总访问周期（TMT），但不模拟完整流水线反压、
+总线竞争、错误路径访问、SRAM 时序和实际关键路径。因此模型用于筛选，RTL 和综合用于
+确认实际效果。
 
-## 2. 为什么使用trace
+## 2. 访问记录的范围
 
-对于一次确定的架构执行，提交指令PC序列和已执行load/store地址序列是确定的。NEMU可以
-比RTL快得多地产生这些序列，因此一次trace能够被许多cache参数组合重复使用。
+- 指令 trace 记录退休指令的 PC。
+- 数据 trace 记录普通内存 load/store 的地址、方向和大小。
+- MMIO 不作为 D-cache 访问，错误路径请求不出现在架构执行记录中。
 
-- I-cache trace保存提交PC；
-- D-cache trace保存普通内存load/store地址、方向和大小；
-- MMIO不进入D-cache trace；
-- 错误路径访问不在架构trace中，因此该模型适合cache几何探索，不用于评估错误路径污染。
+固定程序、输入、初始状态和外部事件后，可以复用一次 trace 比较多个配置。有定时中断、
+并发或设备输入时，必须控制这些条件；不能假定程序名相同就会产生相同访问序列。
 
-进入乱序和预取阶段后，架构trace仍可用于容量下界分析，但真实访问时序和推测访问必须由
-RTL或更详细的微架构模拟器评估。
+架构 trace 可以研究局部性，但不是推测执行下缓存访问的严格下界。进入乱序或预取阶段后，
+实际时序、错误路径污染和并发效果需用 RTL 或更详细的模型评估。
 
-## 3. 缺失代价模型
+## 3. 缺失代价
 
-工具支持三种口径：
+工具支持：
 
-- `fixed`：直接使用RTL PMU校准出的critical-word和完整refill周期；
-- `independent`：每个beat按独立事务估算；
-- `burst`：一次地址握手后连续传输多个beat。
+| 模型 | 用途 |
+| --- | --- |
+| `fixed` | 使用 RTL 测得的所需字响应时间和完整回填时间 |
+| `independent` | 将各 beat 视为独立事务，研究传输开销 |
+| `burst` | 按一次地址请求后传输多个 beat 估算 |
 
-优先使用RTL校准的`fixed`模型做最终排序。transport模型只用于理解burst、beat宽度和line
-大小的趋势，不能替代真实控制器测量。
+比较时区分两个时间：
 
-关注两个不同指标：
+- **所需字响应时间**：缺失开始到原请求数据可交付。
+- **完整回填时间**：缺失开始到整行安装、相关缺失资源释放。
 
-- critical response penalty：miss开始到原请求word可交付的周期；
-- complete refill penalty：miss开始到整条line安装完成、cache可以接收下一事务的周期。
-
-阻塞式cache的吞吐通常由完整refill时间决定；支持hit-under-miss后，两者的权重会改变。
+当前阻塞式缓存即使提前返回所需字，也可能仍不能接收新请求。模型的两种 TMT 估算不能
+分别当成实际 CPU 执行时间。用于解释当前 RTL 时，优先采用与当前配置匹配的校准值。
 
 ## 4. 基本命令
 
-在`ysyx-workbench/npc`目录执行：
+在 `ysyx-workbench/npc` 中执行：
 
 ```bash
 make cachesim-test
@@ -58,7 +54,7 @@ make cachesim-run
 make cachesim-explore
 ```
 
-评估D-cache：
+数据缓存：
 
 ```bash
 make dcachesim-trace DCACHE_TRACE_SCALE=test
@@ -66,58 +62,51 @@ make dcachesim-run
 make dcachesim-explore
 ```
 
-校准不同line大小在当前RTL和内存模型中的缺失代价：
+校准指令缓存缺失代价：
 
 ```bash
 make icache-calibrate-penalty ICACHE_CALIBRATION_SCALE=test
 make cachesim-explore-calibrated
 ```
 
-较长的正式探索把`test`改为`train`，并记录commit、镜像hash和生成CSV路径。
+规模参数和默认缓存设置以 Makefile 为准。较长实验可使用 `train`，运行前记录源码、镜像
+校验值和配置；不得只凭旧 CSV 判断当前 RTL。
 
-## 5. 3C分类
+## 5. 3C 缺失怎样分类
 
-同一组参数至少运行三组参考模型：
+当前工具对目标缓存的**每次缺失**分类，并同时维护已访问行集合和同容量的全相联 LRU
+参考缓存：
 
-1. 无限容量全相联模型用于识别compulsory miss；
-2. 同容量全相联模型用于识别capacity miss；
-3. 目标组相联模型产生总miss。
+1. 该行从未访问过：首次访问缺失（compulsory）。
+2. 以前访问过，且本次在全相联参考缓存中命中：冲突缺失（conflict）。
+3. 以前访问过，且本次在全相联参考缓存中也缺失：容量缺失（capacity）。
 
-由此得到：
+因此三个计数之和等于目标缓存的总缺失数。不能简单用两种缓存的总缺失数相减来替代逐次
+分类；它们可能在不同访问上命中。
 
-```text
-compulsory = infinite fully-associative misses
-capacity   = finite fully-associative misses - compulsory
-conflict   = target misses - finite fully-associative misses
-```
+当前模型的目标缓存与全相联参考采用 LRU，而当前 RTL 使用轮转替换。比较时必须注明
+策略差异，不得声称路数相同就应得到完全相同的缺失数，也不能将全部差异归因于容量。
 
-若模型使用LRU、round-robin等不同替换策略，必须在结果中注明，不能把差值全部归为路数影响。
+## 6. 从候选配置到实际结论
 
-## 6. 从模型到RTL
+1. 用模型筛选值得试验的容量、路数和缓存行大小。
+2. 检查候选参数满足 RTL 的构建约束。
+3. 运行缓存定向测试和受影响的整核回归。
+4. 比较 RTL 事件与模型统计，先解释访问口径、替换策略、uncached 地址及 `fence.i` 等差异。
+5. 测量程序周期、综合面积、存储阵列实现和时序。
+6. 用多个能够体现工作集与访问模式差异的程序复核。
 
-候选配置进入RTL前必须完成：
+M1～M3 可以使用普通程序、顺序访问、不同步长、冲突地址和不同工作集大小的小测试。
+AI 代理负载在进入应用研究后再加入，不作为当前配置比较的前提。
 
-1. cachesim筛选miss/TMT趋势；
-2. 确认参数满足RTL几何约束；
-3. 运行cache定向测试和完整回归；
-4. 比较RTL PMU与cachesim的请求、hit、miss；
-5. 测量周期、Fmax、array实现和面积；
-6. 用代表性AI代理负载复核，不只使用MicroBench。
+## 7. 每次实验保存什么
 
-模型和RTL miss不一致时，先检查trace口径、uncached地址、`fence.i`、替换策略和错误路径访问，
-不能直接修改模型去匹配RTL。
+- Git commit；未提交修改还要保存补丁或源码快照及校验值。
+- 软件版本、输入规模、编译选项、trace 格式与校验值。
+- 容量、路数、缓存行大小和替换策略。
+- 模型种类、传输大小、等待周期和校准来源。
+- 请求数、命中、缺失、脏行替换和两种缺失时间/TMT 估算。
+- 对应 RTL 的程序周期，以及同版本的综合与时序记录。
 
-## 7. 结果记录要求
-
-每一行结果必须至少包含：
-
-- Git commit；
-- workload和输入规模；
-- trace格式版本及hash；
-- capacity、way、line和替换策略；
-- refill模型及所有周期参数；
-- hit、miss、MPKI、dirty eviction、critical penalty和blocking TMT；
-- 对应RTL周期、IPC、频率和存储实现。
-
-不同口径结果分表保存，不做跨表排名。
-
+比较时明确哪些参数在变化，其他条件保持一致。条件不同的数据可以分组保存，但不能
+省略差异并将结果排成同一性能结论。
