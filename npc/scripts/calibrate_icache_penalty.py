@@ -159,7 +159,7 @@ def run_make_perf(
     command = [
         "make",
         "perf",
-        "PROJECT=riscv32",
+        "PROJECT=riscv",
         "NPC_CONFIG=rv64-edge-ai",
         f"NPC_ICACHE_CAPACITY_BYTES={cache_capacity_bytes}",
         f"NPC_ICACHE_WAY_COUNT={cache_way_count}",

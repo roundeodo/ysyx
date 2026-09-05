@@ -112,7 +112,7 @@ make test-axi-delayer
 
 | 项目 | 源码中的情况 | 后续动作 |
 | --- | --- | --- |
-| 机器态中断 | `riscv32_core` 无中断输入；CSR 的 `mip` 固定读零；commit 的 `trap_is_interrupt` 固定为零 | 接通中断源、状态与接受路径，再做整核中断测试 |
+| 机器态中断 | `riscv_core` 无中断输入；CSR 的 `mip` 固定读零；commit 的 `trap_is_interrupt` 固定为零 | 接通中断源、状态与接受路径，再做整核中断测试 |
 | `fence.i` 维护错误 | D-cache 输出错误标志，core 仅用仿真断言检查 | 明确并实现硬件错误处理，再注入写回失败验证 |
 | 物理地址 | `PADDR_WIDTH` 与 `MEM_AXI_ADDR_WIDTH` 均为 32 | 记录当前 4 GiB 地址空间限制，应用需要更大内存时再扩展 |
 | I-cache 提前返回 | 从行首进行 4 B 窄传输，所需字到达即返回；缺失期间仍阻塞新查找 | 区分提前返回、关键字优先传输和缺失期间命中，分别测试 |
@@ -120,18 +120,18 @@ make test-axi-delayer
 | 形式验证 | 有局部测试模块与 `.sby` 配置；配置仍带旧 `YSYX_RV32_BASELINE` 标记 | 核对实际构建宽度、输入约束及配置是否完整纳入版本管理，再运行并记录结果 |
 
 相关源码：
-[core](../../vsrc/riscv32/core/riscv32_core.sv)、
-[CSR](../../vsrc/riscv32/core/riscv32_csr_file.sv)、
-[commit](../../vsrc/riscv32/core/riscv32_commit.sv)、
-[配置](../../vsrc/riscv32/common/riscv_config_pkg.sv)、
-[I-cache](../../vsrc/riscv32/core/frontend/riscv32_icache.sv)、
+[core](../../vsrc/riscv/core/riscv_core.sv)、
+[CSR](../../vsrc/riscv/core/riscv_csr_file.sv)、
+[commit](../../vsrc/riscv/core/riscv_commit.sv)、
+[配置](../../vsrc/riscv/common/riscv_config_pkg.sv)、
+[I-cache](../../vsrc/riscv/core/frontend/riscv_icache.sv)、
 [缓存模型](../../tools/cachesim/cachesim.cpp)。
 
 ## 8. 形式验证范围
 
 当前入口是 `make formal-pipeline`，使用
-[`riscv32_pipeline_control.sby`](../../tests/formal/riscv32_pipeline_control.sby) 和
-[`riscv32_pipeline_control_formal.sv`](../../tests/formal/riscv32_pipeline_control_formal.sv)。
+[`riscv_pipeline_control.sby`](../../tests/formal/riscv_pipeline_control.sby) 和
+[`riscv_pipeline_control_formal.sv`](../../tests/formal/riscv_pipeline_control_formal.sv)。
 配置采用 BMC 模式、深度 20，检查取指缓冲顺序与冒险控制性质；不是整核或无界证明。
 
 配置中保留的旧 RV32 宏名不能直接决定实际 ISA，实际宽度由 `riscv_config_pkg` 定义。

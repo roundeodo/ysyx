@@ -18,6 +18,7 @@
 | 需要了解什么 | 阅读哪份文档 |
 | --- | --- |
 | 项目目标、已有能力、阶段安排 | [架构与开发路线](architecture/ARCHITECTURE_PLAN.md) |
+| 设计目录、全部模块与代码整理清单 | [设计模块总览](architecture/RTL_MODULE_MAP.md) |
 | AI 方向哪些已讨论、哪些以后再定 | [AI 应用研究方向](architecture/AI_WORKLOAD_MODEL.md) |
 | 顺序流水线、相关、提交和恢复 | [流水线设计](microarchitecture/PIPELINE_DESIGN_RECORD.md) |
 | 指令缓存查找、回填和失效 | [I-cache 设计](microarchitecture/ICACHE_DESIGN_RECORD.md) |

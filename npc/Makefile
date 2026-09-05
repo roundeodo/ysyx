@@ -4,8 +4,8 @@
 # Project and build layout
 # ============================================================
 
-PROJECT ?= riscv32
-# 当前只维护RV64边缘AI主线。容量参数仍保留为构建参数，方便cachesim/RTL联合探索；
+PROJECT ?= riscv
+# 当前只维护 RV64 顺序核。容量参数保留为构建参数，方便 cachesim 与 RTL 比较；
 # 默认值定义可回归的功能基线，后续物理实现可在array模块内部替换为SRAM macro。
 NPC_CONFIG ?= rv64-edge-ai
 NPC_ICACHE_WAY_COUNT      ?= 2
@@ -229,86 +229,86 @@ CONFIG_TEST_SOURCES := \
 
 IDU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_idu.sv \
-	$(abspath ./tests/rtl/riscv32_idu_decode_tb.sv)
+	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv_pkg.sv \
+	$(RTL_DIR)/core/riscv_idu.sv \
+	$(abspath ./tests/rtl/riscv_idu_decode_tb.sv)
 
 EXU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_exu.sv \
-	$(abspath ./tests/rtl/riscv32_exu_alu_tb.sv)
+	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv_pkg.sv \
+	$(RTL_DIR)/core/riscv_exu.sv \
+	$(abspath ./tests/rtl/riscv_exu_alu_tb.sv)
 
 LSU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_lsu.sv \
-	$(abspath ./tests/rtl/riscv32_lsu_tb.sv)
+	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv_pkg.sv \
+	$(RTL_DIR)/core/riscv_lsu.sv \
+	$(abspath ./tests/rtl/riscv_lsu_tb.sv)
 
 PIPELINE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_register_read_stage.sv \
-	$(RTL_DIR)/core/riscv32_decode_execute_stage.sv \
-	$(RTL_DIR)/core/riscv32_pipeline_hazard_controller.sv \
-	$(RTL_DIR)/core/riscv32_completion_mux.sv \
-	$(RTL_DIR)/core/riscv32_writeback_stage.sv \
-	$(RTL_DIR)/core/riscv32_commit.sv \
-	$(RTL_DIR)/core/riscv32_trap_controller.sv \
-	$(RTL_DIR)/core/frontend/riscv32_fetch_buffer.sv \
-	$(RTL_DIR)/core/frontend/riscv32_fetch_control_flow_predictor.sv \
-	$(RTL_DIR)/core/riscv32_ifu.sv \
-	$(abspath ./tests/rtl/riscv32_pipeline_control_tb.sv)
+	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv_pkg.sv \
+	$(RTL_DIR)/core/riscv_register_read_stage.sv \
+	$(RTL_DIR)/core/riscv_decode_execute_stage.sv \
+	$(RTL_DIR)/core/riscv_pipeline_hazard_controller.sv \
+	$(RTL_DIR)/core/riscv_completion_mux.sv \
+	$(RTL_DIR)/core/riscv_writeback_stage.sv \
+	$(RTL_DIR)/core/riscv_commit.sv \
+	$(RTL_DIR)/core/riscv_trap_controller.sv \
+	$(RTL_DIR)/core/frontend/riscv_fetch_buffer.sv \
+	$(RTL_DIR)/core/frontend/riscv_fetch_control_flow_predictor.sv \
+	$(RTL_DIR)/core/riscv_ifu.sv \
+	$(abspath ./tests/rtl/riscv_pipeline_control_tb.sv)
 
 UNCACHED_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/memory/riscv32_uncached_axi4_master.sv \
-	$(abspath ./tests/rtl/riscv32_uncached_axi4_master_tb.sv)
+	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv_axi4_pkg.sv \
+	$(RTL_DIR)/common/riscv_pkg.sv \
+	$(RTL_DIR)/core/memory/riscv_uncached_axi4_master.sv \
+	$(abspath ./tests/rtl/riscv_uncached_axi4_master_tb.sv)
 
 DCACHE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/memory/riscv32_dcache_tag_array.sv \
-	$(RTL_DIR)/core/memory/riscv32_dcache_data_array.sv \
-	$(RTL_DIR)/core/memory/riscv32_dcache_line_axi4_master.sv \
-	$(RTL_DIR)/core/memory/riscv32_dcache_miss_unit.sv \
-	$(RTL_DIR)/core/memory/riscv32_dcache.sv \
-	$(abspath ./tests/rtl/riscv32_dcache_tb.sv)
+	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv_axi4_pkg.sv \
+	$(RTL_DIR)/common/riscv_pkg.sv \
+	$(RTL_DIR)/core/memory/riscv_dcache_tag_array.sv \
+	$(RTL_DIR)/core/memory/riscv_dcache_data_array.sv \
+	$(RTL_DIR)/core/memory/riscv_dcache_line_axi4_master.sv \
+	$(RTL_DIR)/core/memory/riscv_dcache_miss_unit.sv \
+	$(RTL_DIR)/core/memory/riscv_dcache.sv \
+	$(abspath ./tests/rtl/riscv_dcache_tb.sv)
 
 CORE_MERGE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
-	$(RTL_DIR)/system/riscv32_axi4_core_merge.sv \
-	$(abspath ./tests/rtl/riscv32_axi4_core_merge_tb.sv)
+	$(RTL_DIR)/common/riscv_axi4_pkg.sv \
+	$(RTL_DIR)/system/riscv_axi4_core_merge.sv \
+	$(abspath ./tests/rtl/riscv_axi4_core_merge_tb.sv)
 
 SOC_WIDTH_CONVERTER_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
-	$(RTL_DIR)/common/riscv32_ysyx_soc_axi4_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/frontend/riscv32_pma.sv \
-	$(RTL_DIR)/system/riscv32_axi4_soc_width_converter.sv \
-	$(abspath ./tests/rtl/riscv32_axi4_soc_width_converter_tb.sv)
+	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv_axi4_pkg.sv \
+	$(RTL_DIR)/common/riscv_ysyx_soc_axi4_pkg.sv \
+	$(RTL_DIR)/common/riscv_pkg.sv \
+	$(RTL_DIR)/core/frontend/riscv_pma.sv \
+	$(RTL_DIR)/system/riscv_axi4_soc_width_converter.sv \
+	$(abspath ./tests/rtl/riscv_axi4_soc_width_converter_tb.sv)
 
 PRIVILEGED_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
-	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
-	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_pmu.sv \
-	$(RTL_DIR)/core/riscv32_csr_file.sv \
-	$(RTL_DIR)/core/riscv32_commit.sv \
-	$(RTL_DIR)/core/riscv32_trap_controller.sv \
-	$(abspath ./tests/rtl/riscv32_privileged_tb.sv)
+	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
+	$(RTL_DIR)/common/riscv_pkg.sv \
+	$(RTL_DIR)/core/riscv_pmu.sv \
+	$(RTL_DIR)/core/riscv_csr_file.sv \
+	$(RTL_DIR)/core/riscv_commit.sv \
+	$(RTL_DIR)/core/riscv_trap_controller.sv \
+	$(abspath ./tests/rtl/riscv_privileged_tb.sv)
 
 SDRAM_AXI_TEST_SOURCES := \
 	$(SOC_HOME)/perip/sdram/sdram_top_axi.v \
@@ -408,7 +408,7 @@ $(IDU_TEST_BINARY): $(IDU_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_idu_decode_tb \
+		--top-module riscv_idu_decode_tb \
 		$(IDU_TEST_SOURCES) \
 		--Mdir $(IDU_TEST_OBJ_DIR) \
 		-o $(IDU_TEST_BINARY)
@@ -417,7 +417,7 @@ $(EXU_TEST_BINARY): $(EXU_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_exu_alu_tb \
+		--top-module riscv_exu_alu_tb \
 		$(EXU_TEST_SOURCES) \
 		--Mdir $(EXU_TEST_OBJ_DIR) \
 		-o $(EXU_TEST_BINARY)
@@ -426,7 +426,7 @@ $(LSU_TEST_BINARY): $(LSU_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_lsu_tb \
+		--top-module riscv_lsu_tb \
 		$(LSU_TEST_SOURCES) \
 		--Mdir $(LSU_TEST_OBJ_DIR) \
 		-o $(LSU_TEST_BINARY)
@@ -435,7 +435,7 @@ $(PIPELINE_TEST_BINARY): $(PIPELINE_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_pipeline_control_tb \
+		--top-module riscv_pipeline_control_tb \
 		$(PIPELINE_TEST_SOURCES) \
 		--Mdir $(PIPELINE_TEST_OBJ_DIR) \
 		-o $(PIPELINE_TEST_BINARY)
@@ -444,7 +444,7 @@ $(UNCACHED_TEST_BINARY): $(UNCACHED_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_uncached_axi4_master_tb \
+		--top-module riscv_uncached_axi4_master_tb \
 		$(UNCACHED_TEST_SOURCES) \
 		--Mdir $(UNCACHED_TEST_OBJ_DIR) \
 		-o $(UNCACHED_TEST_BINARY)
@@ -453,7 +453,7 @@ $(DCACHE_TEST_BINARY): $(DCACHE_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_dcache_tb \
+		--top-module riscv_dcache_tb \
 		$(DCACHE_TEST_SOURCES) \
 		--Mdir $(DCACHE_TEST_OBJ_DIR) \
 		-o $(DCACHE_TEST_BINARY)
@@ -462,7 +462,7 @@ $(CORE_MERGE_TEST_BINARY): $(CORE_MERGE_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_axi4_core_merge_tb \
+		--top-module riscv_axi4_core_merge_tb \
 		$(CORE_MERGE_TEST_SOURCES) \
 		--Mdir $(CORE_MERGE_TEST_OBJ_DIR) \
 		-o $(CORE_MERGE_TEST_BINARY)
@@ -471,7 +471,7 @@ $(SOC_WIDTH_CONVERTER_TEST_BINARY): $(SOC_WIDTH_CONVERTER_TEST_SOURCES) | $(BUIL
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_axi4_soc_width_converter_tb \
+		--top-module riscv_axi4_soc_width_converter_tb \
 		$(SOC_WIDTH_CONVERTER_TEST_SOURCES) \
 		--Mdir $(SOC_WIDTH_CONVERTER_TEST_OBJ_DIR) \
 		-o $(SOC_WIDTH_CONVERTER_TEST_BINARY)
@@ -480,7 +480,7 @@ $(PRIVILEGED_TEST_BINARY): $(PRIVILEGED_TEST_SOURCES) | $(BUILD_DIR)
 	$(VERILATOR) --binary --timing --assert -Wall -Wno-fatal -Wno-UNUSEDPARAM \
 		-Wno-UNUSEDSIGNAL \
 		$(NPC_CONFIG_DEFINE) \
-		--top-module riscv32_privileged_tb \
+		--top-module riscv_privileged_tb \
 		$(PRIVILEGED_TEST_SOURCES) \
 		--Mdir $(PRIVILEGED_TEST_OBJ_DIR) \
 		-o $(PRIVILEGED_TEST_BINARY)
@@ -536,7 +536,7 @@ test-pipeline-configs:
 
 .PHONY: formal-pipeline
 formal-pipeline:
-	sby -f tests/formal/riscv32_pipeline_control.sby
+	sby -f tests/formal/riscv_pipeline_control.sby
 
 test-uncached: $(UNCACHED_TEST_BINARY)
 	$(UNCACHED_TEST_BINARY)
@@ -1066,11 +1066,11 @@ lint-configs:
 
 # STA默认统计纯core。system wrapper、仿真内存和外设不进入该综合层级。
 STA_TOOL_DIR      := $(abspath ../yosys-sta)
-STA_DESIGN        := riscv32_core
+STA_DESIGN        := riscv_core
 STA_FREQUENCY_MHZ ?= 300
 STA_SYNTH_STRATEGY ?= DELAY 0
 STA_RUN_POWER_ANALYSIS ?= 0
-STA_SDC_FILE      := $(abspath ./constr/riscv32_npc_axi.sdc)
+STA_SDC_FILE      := $(abspath ./constr/riscv_core.sdc)
 STA_PDK           ?= nangate45
 STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(STA_PDK)-$(NPC_CONFIG)-icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-$(DCACHE_BUILD_TAG)-$(PREDICTOR_BUILD_TAG))
 
@@ -1103,7 +1103,7 @@ include ../Makefile
 
 .PHONY: help
 help:
-	@echo "Usage: make <target> PROJECT=riscv32 NPC_CONFIG=<config> [IMG=...]"
+	@echo "Usage: make <target> PROJECT=riscv NPC_CONFIG=<config> [IMG=...]"
 	@echo "Configs: $(SUPPORTED_NPC_CONFIGS)"
 	@echo ""
 	@echo "Build targets:"

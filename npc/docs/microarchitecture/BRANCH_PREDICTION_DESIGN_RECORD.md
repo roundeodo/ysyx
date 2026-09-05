@@ -6,7 +6,7 @@
 
 ## 1. 当前预测什么
 
-`riscv32_fetch_control_flow_predictor` 根据取指 PC 和过去的执行结果，预测是否跳转及目标
+`riscv_fetch_control_flow_predictor` 根据取指 PC 和过去的执行结果，预测是否跳转及目标
 地址。当前不在该模块中读取或译码待取指令。
 
 | 结构 | 默认配置 | 作用 |

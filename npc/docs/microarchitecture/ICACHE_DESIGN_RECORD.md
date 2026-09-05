@@ -12,12 +12,12 @@ I-cache 保存最近使用的指令，减少对下层内存的访问。当前为
 
 | 模块 | 负责什么 |
 | --- | --- |
-| `riscv32_pma` | 根据物理地址判断是否可执行、可缓存 |
-| `riscv32_icache_tag_array` | 保存并读取地址标记和缓存行有效状态 |
-| `riscv32_icache_data_array` | 同步读取指令数据，接收回填写入 |
-| `riscv32_icache_miss_unit` | 跟踪一次缺失、回填进度及原请求响应 |
-| `riscv32_icache_refill_axi4_master` | 将本地回填请求转换成 AXI4 读事务 |
-| `riscv32_icache` | 组织查找、命中选择、替换与失效过程 |
+| `riscv_pma` | 根据物理地址判断是否可执行、可缓存 |
+| `riscv_icache_tag_array` | 保存并读取地址标记和缓存行有效状态 |
+| `riscv_icache_data_array` | 同步读取指令数据，接收回填写入 |
+| `riscv_icache_miss_unit` | 跟踪一次缺失、回填进度及原请求响应 |
+| `riscv_icache_refill_axi4_master` | 将本地回填请求转换成 AXI4 读事务 |
+| `riscv_icache` | 组织查找、命中选择、替换与失效过程 |
 
 IFU 传入地址和请求身份，不直接操作缓存阵列或 AXI 通道。
 

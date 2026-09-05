@@ -24,17 +24,17 @@
 
 | 模块 | 当前职责 |
 | --- | --- |
-| `riscv32_fetch_buffer` | 保存已返回的指令，等待译码接收 |
-| `riscv32_idu` | 将指令译码成 `decoded_uop_t`，即后续执行所需的操作和控制信息 |
-| `riscv32_decode_stage` | 保存译码结果，分隔译码和寄存器读取的组合路径 |
-| `riscv32_register_read_stage` | 保存寄存器读值；同拍写读同一寄存器时，通过显式旁路取得新值 |
-| `riscv32_decode_execute_stage` | 保存进入执行级的指令、操作数和 CSR 信息 |
-| `riscv32_exu` | 执行整数与控制流运算，计算 CSR 写值，生成 LSU 请求 |
-| `riscv32_execute_result_stage` | 保存普通执行结果，比较实际与预测控制流 |
-| `riscv32_lsu` | 处理 load/store 请求和返回值；访问可能经过缓存或 uncached 路径 |
-| `riscv32_completion_mux` | 选择普通执行结果或 LSU 完成结果 |
-| `riscv32_writeback_stage` | 保存待提交结果 |
-| `riscv32_commit` | 产生寄存器写入、CSR 更新及异常处理所需的提交信息 |
+| `riscv_fetch_buffer` | 保存已返回的指令，等待译码接收 |
+| `riscv_idu` | 将指令译码成 `decoded_uop_t`，即后续执行所需的操作和控制信息 |
+| `riscv_decode_stage` | 保存译码结果，分隔译码和寄存器读取的组合路径 |
+| `riscv_register_read_stage` | 保存寄存器读值；同拍写读同一寄存器时，通过显式旁路取得新值 |
+| `riscv_decode_execute_stage` | 保存进入执行级的指令、操作数和 CSR 信息 |
+| `riscv_exu` | 执行整数与控制流运算，计算 CSR 写值，生成 LSU 请求 |
+| `riscv_execute_result_stage` | 保存普通执行结果，比较实际与预测控制流 |
+| `riscv_lsu` | 处理 load/store 请求和返回值；访问可能经过缓存或 uncached 路径 |
+| `riscv_completion_mux` | 选择普通执行结果或 LSU 完成结果 |
+| `riscv_writeback_stage` | 保存待提交结果 |
+| `riscv_commit` | 产生寄存器写入、CSR 更新及异常处理所需的提交信息 |
 
 load/store 的完成时间取决于缓存和总线响应，不能按固定执行周期处理。
 当前 store 的内存访问由 LSU 路径执行，随后结果进入 WB/commit；不能据此画成“所有写内存
@@ -42,7 +42,7 @@ load/store 的完成时间取决于缓存和总线响应，不能按固定执行
 
 ## 3. 数据相关与前递
 
-`riscv32_pipeline_hazard_controller` 比较待执行指令的源寄存器，与尚未提交的老指令目的
+`riscv_pipeline_hazard_controller` 比较待执行指令的源寄存器，与尚未提交的老指令目的
 寄存器。年轻指令要读取老指令将写入的值，称为写后读相关（RAW，read after write）。
 
 - 普通整数结果可从 EX、执行结果寄存级和 WB 前递给依赖它的指令。
@@ -71,8 +71,8 @@ load/store 的完成时间取决于缓存和总线响应，不能按固定执行
 
 ## 5. 已知限制和待完成项
 
-- 机器态中断尚未接通。当前 `riscv32_core` 没有中断输入，CSR 的 `mip` 固定读零，
-  `riscv32_commit` 的 `trap_is_interrupt` 固定为零。有 `mie` 寄存器不代表能响应中断。
+- 机器态中断尚未接通。当前 `riscv_core` 没有中断输入，CSR 的 `mip` 固定读零，
+  `riscv_commit` 的 `trap_is_interrupt` 固定为零。有 `mie` 寄存器不代表能响应中断。
 - `fence.i` 期间 D-cache 写回错误由 `dcache_clean_access_fault` 报告，core 当前用仿真
   断言检查，尚无可供软件或系统处理的完整错误路径。
 - `tests/formal` 的现有检查只针对取指缓冲和冒险控制，不覆盖整个 CPU 的精确异常、

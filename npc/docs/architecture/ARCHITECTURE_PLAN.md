@@ -24,8 +24,9 @@
 ## 2. 当前实现和限制
 
 当前构建配置仍叫 `rv64-edge-ai`。这个名称用于选择现有构建配置，不表示已经支持 AI
-推理或已经达到某项产品指标。源码中的 `riscv32_` 是历史命名，当前主线的整数架构是 RV64。
-统一重命名应单独进行，不与功能修改混合。
+推理或已经达到某项产品指标。设计目录为 `npc/vsrc/riscv`，模块和 package 使用 `riscv_`
+前缀；整数架构由配置与 ISA 实现决定，当前为 RV64。原 `riscv32` 目录和模块前缀已统一迁移。
+目录职责、全部模块和后续代码整理事项见 [设计模块总览](RTL_MODULE_MAP.md)。
 
 下表依据 2026-09-05 的源码核对。已有结构不等于本次已经重新运行验证；测试证据见
 [验证记录](../verification/EXPERIMENT_LOG.md)。
@@ -42,7 +43,7 @@
 | 外部平台 | 通过宽度转换模块连接 32 位数据的 ysyxSoC 接口 | 保持平台转换与 core 内部设计分离 |
 | 系统能力 | 尚无 S/U 特权级、MMU、完整操作系统运行环境或 AI 加速器 | 在相应阶段单独设计和验证 |
 
-宽度配置见 [`riscv_config_pkg.sv`](../../vsrc/riscv32/common/riscv_config_pkg.sv)，缓存和预测器
+宽度配置见 [`riscv_config_pkg.sv`](../../vsrc/riscv/common/riscv_config_pkg.sv)，缓存和预测器
 默认参数见 [`Makefile`](../../Makefile)。`XLEN`、物理地址宽度、指令宽度和总线宽度表达
 不同含义，即使数值相同也不能合并。
 

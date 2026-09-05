@@ -7,11 +7,12 @@
 !*.v
 !*.sv
 !*.f
+!tests/formal/*.sby
 !*.cc
 !*.cpp
 !*.py
 !*.md
-!constr/riscv32_npc_axi.sdc
+!constr/riscv_core.sdc
 !.gitignore
 !README.md
 build/

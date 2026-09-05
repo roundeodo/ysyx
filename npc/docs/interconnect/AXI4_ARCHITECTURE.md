@@ -32,15 +32,15 @@ flowchart LR
 
 | 模块 | 职责 |
 | --- | --- |
-| `riscv32_icache_refill_axi4_master` | 将指令回填请求转换为 AXI 读事务 |
-| `riscv32_dcache_line_axi4_master` | 将 D-cache 整行回填和写回转换为读写突发 |
-| `riscv32_uncached_axi4_master` | 将单次本地 load/store 转换为 AXI 访问 |
-| `riscv32_data_memory_subsystem` | 保存本次数据访问选择的路径，返回对应响应 |
-| `riscv32_axi4_core_merge` | 仲裁指令/数据读请求，写通道来自数据侧 |
-| `riscv32_axi4_address_router` | 按地址选择目标，保存事务归属 |
-| `riscv32_axi4_error_target` | 对未映射目标返回 DECERR 错误响应 |
-| `riscv32_axi4_soc_width_converter` | 转换 core 64 位与 ysyxSoC 32 位数据事务 |
-| `riscv32_npc_system` / `riscv32_npc_axi` | 连接系统模块，并展开外部平台端口 |
+| `riscv_icache_refill_axi4_master` | 将指令回填请求转换为 AXI 读事务 |
+| `riscv_dcache_line_axi4_master` | 将 D-cache 整行回填和写回转换为读写突发 |
+| `riscv_uncached_axi4_master` | 将单次本地 load/store 转换为 AXI 访问 |
+| `riscv_data_memory_subsystem` | 保存本次数据访问选择的路径，返回对应响应 |
+| `riscv_axi4_core_merge` | 仲裁指令/数据读请求，写通道来自数据侧 |
+| `riscv_axi4_address_router` | 按地址选择目标，保存事务归属 |
+| `riscv_axi4_error_target` | 对未映射目标返回 DECERR 错误响应 |
+| `riscv_axi4_soc_width_converter` | 转换 core 64 位与 ysyxSoC 32 位数据事务 |
+| `riscv_npc_system` / `riscv_npc_axi` | 连接系统模块，并展开外部平台端口 |
 
 拥有某个 AXI ID 字段不表示已经支持多个并发事务；是否支持必须由跟踪状态和回归证明。
 CLINT 已有寄存器访问路径也不表示 CPU 中断输入已经接通，见 [流水线限制](../microarchitecture/PIPELINE_DESIGN_RECORD.md)。

@@ -2,6 +2,7 @@
 
 本目录说明模块负责什么、内部怎样工作、接口遵守什么规则，以及目前有哪些限制。
 项目阶段以 [架构与开发路线](../architecture/ARCHITECTURE_PLAN.md) 为准。
+全部 RTL 文件的职责与结构检查见 [设计模块总览](../architecture/RTL_MODULE_MAP.md)。
 
 ## 先读哪份记录
 

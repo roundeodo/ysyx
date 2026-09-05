@@ -12,12 +12,12 @@ D-cache 保存数据访问使用的缓存行。当前为组相联、阻塞式 L1
 
 | 模块 | 负责什么 |
 | --- | --- |
-| `riscv32_data_memory_subsystem` | 根据地址属性选择 D-cache 或 uncached 路径，并输出一个数据侧 AXI 接口 |
-| `riscv32_dcache` | 缓存查找、命中处理、替换选择和脏行维护 |
-| `riscv32_dcache_tag_array` | 保存标记、有效状态与脏状态 |
-| `riscv32_dcache_data_array` | 同步读数据，按字节写使能更新数据 |
-| `riscv32_dcache_miss_unit` | 执行替换行写回和新行回填 |
-| `riscv32_dcache_line_axi4_master` | 将整行读写转换成 AXI4 突发事务 |
+| `riscv_data_memory_subsystem` | 根据地址属性选择 D-cache 或 uncached 路径，并输出一个数据侧 AXI 接口 |
+| `riscv_dcache` | 缓存查找、命中处理、替换选择和脏行维护 |
+| `riscv_dcache_tag_array` | 保存标记、有效状态与脏状态 |
+| `riscv_dcache_data_array` | 同步读数据，按字节写使能更新数据 |
+| `riscv_dcache_miss_unit` | 执行替换行写回和新行回填 |
+| `riscv_dcache_line_axi4_master` | 将整行读写转换成 AXI4 突发事务 |
 
 LSU 负责 load/store 的地址、大小和数据格式，不直接操作缓存状态或 AXI 通道。
 
