@@ -1,5 +1,5 @@
 include $(AM_HOME)/scripts/isa/riscv.mk
-NPC_CONFIG := rv64-sequential
+NPC_CONFIG := rv64-edge-ai
 include $(AM_HOME)/scripts/platform/npc.mk
 
 COMMON_CFLAGS += -march=rv64i_zicsr_zifencei -mabi=lp64 -ffreestanding

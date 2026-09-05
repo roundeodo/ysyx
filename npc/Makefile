@@ -585,6 +585,7 @@ regression-rv64-isa:
 	$(MAKE) nemu-ref-rv64 PROJECT=$(PROJECT)
 	$(MAKE) -C $(CPU_TESTS_DIR) \
 		ARCH=riscv64-npc \
+		NPC_CONFIG=$(NPC_CONFIG) \
 		NPC_RUN_TARGET=sim-difftest \
 		REF=$(RV64_NEMU_REF) \
 		ALL="$(RV64_CPU_TESTS)" \

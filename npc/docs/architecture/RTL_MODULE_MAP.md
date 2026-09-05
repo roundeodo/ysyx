@@ -66,7 +66,7 @@
 | [riscv_csr_file](../../vsrc/riscv/core/riscv_csr_file.sv) | CSR 访问、合法性、异常入口和返回时状态更新 | 多类 CSR 更新集中在一个时序块；若拆分须保持异常、返回和普通写入的优先级 |
 | [riscv_pmu](../../vsrc/riscv/core/riscv_pmu.sv) | 软件可见的周期、退休计数及控制位 | 与仿真统计分开；保留按计数器分组的更新 |
 | [riscv_decode_execute_stage](../../vsrc/riscv/core/riscv_decode_execute_stage.sv) | 保存进入 EX 的指令和操作数 | 有效位与数据寄存器分开，检查旁路标记及反压语义 |
-| [riscv_pipeline_hazard_controller](../../vsrc/riscv/core/riscv_pipeline_hazard_controller.sv) | 检测相关、选择前递、控制顺序核推进与清空 | 这是当前控制职责；M2 按重命名、调度和 ROB 分解 |
+| [riscv_pipeline_hazard_controller](../../vsrc/riscv/core/riscv_pipeline_hazard_controller.sv) | 检测相关、选择前递、控制顺序核推进与清空 | 定向测试通过；旧形式验证代码的端口已与当前接口脱节，需同步连接与性质；M2 按重命名、调度和 ROB 分解 |
 | [riscv_exu](../../vsrc/riscv/core/riscv_exu.sv) | 整数、分支、CSR 运算及 LSU 请求生成 | 运算按功能块组织；是否拆成子模块随执行端口和时序决定 |
 | [riscv_execute_result_stage](../../vsrc/riscv/core/riscv_execute_result_stage.sv) | 保存执行结果并检查预测是否正确 | 保留输出、有效位下一值、寄存器更新的顺序 |
 | [riscv_lsu](../../vsrc/riscv/core/riscv_lsu.sv) | 访问大小、对齐、字节使能、读值扩展和完成响应 | 格式化函数与使用位置相近；逐步减少含义不明确的局部条件名 |
