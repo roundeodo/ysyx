@@ -8,6 +8,12 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
+      case ((uintptr_t)1 << (__riscv_xlen - 1)) | 7:
+        // 硬件中断的 mepc 已经是恢复地址，不能像 ecall 一样加 4。
+        // 用户处理程序负责重设 mtimecmp，再返回当前或调度后的上下文。
+        ev.event = EVENT_IRQ_TIMER;
+        break;
+
       case 11:
         if(c->GPR1 == (uintptr_t)-1){
           ev.event = EVENT_YIELD;
@@ -61,8 +67,15 @@ void yield() {
 }
 
 bool ienabled() {
-  return false;
+  uintptr_t mstatus;
+  asm volatile("csrr %0, mstatus" : "=r"(mstatus));
+  return (mstatus & 8) != 0;
 }
 
 void iset(bool enable) {
+  if (enable) {
+    asm volatile("csrsi mstatus, 8" : : : "memory");
+  } else {
+    asm volatile("csrci mstatus, 8" : : : "memory");
+  }
 }

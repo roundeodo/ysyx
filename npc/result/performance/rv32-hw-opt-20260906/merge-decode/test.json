@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "cycles": 1617827,
+  "retired_instructions": 430203,
+  "ipc": 0.2659140934104821,
+  "window_count": 10,
+  "observations": {
+    "windows": 10,
+    "active": 0,
+    "cycles": 1617827,
+    "issue": 430203,
+    "recovery": 410309,
+    "lsu_block": 406802,
+    "result_block": 0,
+    "execute_wait": 0,
+    "raw": 0,
+    "serial": 40,
+    "delivery_gap": 370473,
+    "redirects": 27366,
+    "lsu_busy": 406802,
+    "recovery_observed": 410309,
+    "ic_miss": 16669,
+    "dc_miss": 3763,
+    "dirty_miss": 1562
+  },
+  "category_percent": {
+    "issue": 26.59140934104821,
+    "recovery": 25.361735216435378,
+    "lsu_block": 25.14496296575592,
+    "result_block": 0.0,
+    "execute_wait": 0.0,
+    "raw": 0.0,
+    "serial": 0.002472452246130149,
+    "delivery_gap": 22.899420024514363
+  },
+  "scope": "MicroBench mcycle-read retirement windows; observed states, not causal speedup estimates",
+  "difftest": false
+}

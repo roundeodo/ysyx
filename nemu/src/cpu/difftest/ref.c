@@ -34,7 +34,8 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
   // 这里直接按 DIFFTEST_REG_SIZE 拷贝 CPU_state。
   // 所以 NPC 侧的 DiffTestRegs 布局必须和 NEMU 的 CPU_state 一致。
-  // 当前 NPC 使用 RV32I：这里必须以 CONFIG_RVE=n 构建，布局为 gpr[32] + pc。
+  // NPC要求CONFIG_RVE=n；布局为gpr[32]、pc、mstatus、mtvec、mepc、mcause、mtval。
+  // 每个字段的宽度由NEMU的CONFIG_RV64和NPC_XLEN共同决定。
   if(direction == DIFFTEST_TO_REF){
     memcpy(&cpu, dut, DIFFTEST_REG_SIZE);
   }

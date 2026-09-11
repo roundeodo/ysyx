@@ -10,8 +10,8 @@
 #include <vector>
 
 struct FuncSymbol {
-  uint32_t start;
-  uint32_t size;
+  npc_word_t start;
+  uint64_t size;
   std::string name;
 };
 
@@ -29,7 +29,7 @@ static bool in_file_range(size_t offset, size_t size, size_t file_size) {
   return offset <= file_size && size <= file_size - offset;
 }
 
-static const FuncSymbol *find_func(uint32_t addr) {
+static const FuncSymbol *find_func(npc_word_t addr) {
   for (size_t i = 0; i < func_symbols.size(); i++) {
     const FuncSymbol &f = func_symbols[i];
     if (addr < f.start) {
@@ -53,14 +53,89 @@ static const FuncSymbol *find_func(uint32_t addr) {
   return nullptr;
 }
 
-static const char *func_name_or_addr(const FuncSymbol *func, uint32_t addr,
+static const char *func_name_or_addr(const FuncSymbol *func, npc_word_t addr,
                                      char *buf, size_t size) {
   if (func != nullptr) {
     return func->name.c_str();
   }
 
-  snprintf(buf, size, "0x%08x", addr);
+  snprintf(buf, size, "0x%0*llx", NPC_WORD_HEX_DIGITS,
+           static_cast<unsigned long long>(addr));
   return buf;
+}
+
+template <typename Ehdr, typename Shdr, typename Sym>
+static bool load_function_symbols(const std::vector<uint8_t> &elf) {
+  const size_t file_size = elf.size();
+  const Ehdr *eh = reinterpret_cast<const Ehdr *>(elf.data());
+
+  if (eh->e_machine != EM_RISCV || eh->e_shentsize != sizeof(Shdr)) {
+    printf("ftrace: unsupported RISC-V ELF section-header layout\n");
+    return false;
+  }
+
+  const size_t shdr_bytes = static_cast<size_t>(eh->e_shnum) * sizeof(Shdr);
+  if (!in_file_range(static_cast<size_t>(eh->e_shoff), shdr_bytes, file_size)) {
+    printf("ftrace: section header table is out of ELF file range\n");
+    return false;
+  }
+
+  const Shdr *shdrs = reinterpret_cast<const Shdr *>(
+      elf.data() + static_cast<size_t>(eh->e_shoff));
+  const Shdr *symtab = nullptr;
+  const Shdr *strtab = nullptr;
+
+  for (uint16_t i = 0; i < eh->e_shnum; i++) {
+    if (shdrs[i].sh_type != SHT_SYMTAB) {
+      continue;
+    }
+    if (shdrs[i].sh_link >= eh->e_shnum) {
+      printf("ftrace: invalid symtab string-table link\n");
+      return false;
+    }
+    symtab = &shdrs[i];
+    strtab = &shdrs[symtab->sh_link];
+    break;
+  }
+
+  if (symtab == nullptr || strtab == nullptr) {
+    printf("ftrace: no .symtab found in ELF, rebuild with symbols\n");
+    return false;
+  }
+  if (symtab->sh_entsize != 0 && symtab->sh_entsize != sizeof(Sym)) {
+    printf("ftrace: unexpected symbol table entry size\n");
+    return false;
+  }
+  if (!in_file_range(static_cast<size_t>(symtab->sh_offset),
+                     static_cast<size_t>(symtab->sh_size), file_size) ||
+      !in_file_range(static_cast<size_t>(strtab->sh_offset),
+                     static_cast<size_t>(strtab->sh_size), file_size)) {
+    printf("ftrace: symtab or strtab is out of ELF file range\n");
+    return false;
+  }
+
+  const size_t symbol_count = static_cast<size_t>(symtab->sh_size) / sizeof(Sym);
+  const Sym *symbols = reinterpret_cast<const Sym *>(
+      elf.data() + static_cast<size_t>(symtab->sh_offset));
+  const char *strings = reinterpret_cast<const char *>(
+      elf.data() + static_cast<size_t>(strtab->sh_offset));
+
+  for (size_t i = 0; i < symbol_count; i++) {
+    const Sym &symbol = symbols[i];
+    if (ELF64_ST_TYPE(symbol.st_info) != STT_FUNC || symbol.st_name == 0 ||
+        symbol.st_name >= strtab->sh_size || symbol.st_value == 0) {
+      continue;
+    }
+
+    const char *name = strings + symbol.st_name;
+    if (name[0] == '\0') {
+      continue;
+    }
+
+    func_symbols.push_back({static_cast<npc_word_t>(symbol.st_value),
+                            static_cast<uint64_t>(symbol.st_size), name});
+  }
+  return true;
 }
 
 void ftrace_init(bool enable_ftrace, const char *elf_path) {
@@ -119,105 +194,31 @@ void ftrace_init(bool enable_ftrace, const char *elf_path) {
 
   fclose(fp);
 
-  if (file_size < sizeof(Elf32_Ehdr)) {
+  if (file_size < EI_NIDENT) {
     printf("ftrace: ELF file is too small\n");
     disable_ftrace();
     return;
   }
 
-  const Elf32_Ehdr *eh = reinterpret_cast<const Elf32_Ehdr *>(elf.data());
-  if (memcmp(eh->e_ident, ELFMAG, SELFMAG) != 0 ||
-      eh->e_ident[EI_CLASS] != ELFCLASS32 || eh->e_machine != EM_RISCV) {
-    printf("ftrace: unsupported ELF file, need RV32 ELF\n");
+  const unsigned char *ident = elf.data();
+  if (memcmp(ident, ELFMAG, SELFMAG) != 0) {
+    printf("ftrace: input file is not ELF\n");
     disable_ftrace();
     return;
   }
 
-  if (eh->e_shentsize != sizeof(Elf32_Shdr)) {
-    printf("ftrace: unexpected section header entry size\n");
+  bool symbols_loaded = false;
+  if (ident[EI_CLASS] == ELFCLASS32 && file_size >= sizeof(Elf32_Ehdr)) {
+    symbols_loaded = load_function_symbols<Elf32_Ehdr, Elf32_Shdr, Elf32_Sym>(elf);
+  } else if (ident[EI_CLASS] == ELFCLASS64 && file_size >= sizeof(Elf64_Ehdr)) {
+    symbols_loaded = load_function_symbols<Elf64_Ehdr, Elf64_Shdr, Elf64_Sym>(elf);
+  } else {
+    printf("ftrace: unsupported ELF class\n");
+  }
+
+  if (!symbols_loaded) {
     disable_ftrace();
     return;
-  }
-
-  size_t shdr_bytes = static_cast<size_t>(eh->e_shnum) * sizeof(Elf32_Shdr);
-  if (!in_file_range(eh->e_shoff, shdr_bytes, file_size)) {
-    printf("ftrace: section header table is out of ELF file range\n");
-    disable_ftrace();
-    return;
-  }
-
-  const Elf32_Shdr *shdrs =
-      reinterpret_cast<const Elf32_Shdr *>(elf.data() + eh->e_shoff);
-
-  const Elf32_Shdr *symtab = nullptr;
-  const Elf32_Shdr *strtab = nullptr;
-
-  for (uint16_t i = 0; i < eh->e_shnum; i++) {
-    if (shdrs[i].sh_type != SHT_SYMTAB) {
-      continue;
-    }
-
-    if (shdrs[i].sh_link >= eh->e_shnum) {
-      printf("ftrace: invalid symtab string-table link\n");
-      disable_ftrace();
-      return;
-    }
-
-    symtab = &shdrs[i];
-    strtab = &shdrs[symtab->sh_link];
-    break;
-  }
-
-  if (symtab == nullptr || strtab == nullptr) {
-    printf("ftrace: no .symtab found in ELF, rebuild with symbols\n");
-    disable_ftrace();
-    return;
-  }
-
-  if (symtab->sh_entsize != 0 && symtab->sh_entsize != sizeof(Elf32_Sym)) {
-    printf("ftrace: unexpected symbol table entry size\n");
-    disable_ftrace();
-    return;
-  }
-
-  if (!in_file_range(symtab->sh_offset, symtab->sh_size, file_size) ||
-      !in_file_range(strtab->sh_offset, strtab->sh_size, file_size)) {
-    printf("ftrace: symtab or strtab is out of ELF file range\n");
-    disable_ftrace();
-    return;
-  }
-
-  int sym_count = symtab->sh_size / sizeof(Elf32_Sym);
-  const Elf32_Sym *syms =
-      reinterpret_cast<const Elf32_Sym *>(elf.data() + symtab->sh_offset);
-  const char *strs =
-      reinterpret_cast<const char *>(elf.data() + strtab->sh_offset);
-
-  for (int i = 0; i < sym_count; i++) {
-    const Elf32_Sym &sym = syms[i];
-
-    if (ELF32_ST_TYPE(sym.st_info) != STT_FUNC) {
-      continue;
-    }
-
-    if (sym.st_name == 0 || sym.st_name >= strtab->sh_size) {
-      continue;
-    }
-
-    if (sym.st_value == 0) {
-      continue;
-    }
-
-    const char *name = strs + sym.st_name;
-    if (name[0] == '\0') {
-      continue;
-    }
-
-    FuncSymbol f;
-    f.start = sym.st_value;
-    f.size = sym.st_size;
-    f.name = name;
-    func_symbols.push_back(f);
   }
 
   std::sort(func_symbols.begin(), func_symbols.end(),
@@ -233,7 +234,7 @@ void ftrace_cleanup() {
   disable_ftrace();
 }
 
-void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
+void ftrace_update(npc_word_t pc, uint32_t inst, npc_word_t next_pc) {
   if (!ftrace_enabled) {
     return;
   }
@@ -256,7 +257,7 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
     return;
   }
 
-  uint32_t target_pc = next_pc;
+  npc_word_t target_pc = next_pc;
   const FuncSymbol *target_func = find_func(target_pc);
   const FuncSymbol *cur_func = find_func(pc);
 
@@ -270,15 +271,18 @@ void ftrace_update(uint32_t pc, uint32_t inst, uint32_t next_pc) {
     call_depth--;
   }
 
-  printf("ftrace: 0x%08x: ", pc);
+  printf("ftrace: 0x%0*llx: ", NPC_WORD_HEX_DIGITS,
+         static_cast<unsigned long long>(pc));
   for (int i = 0; i < call_depth; i++) {
     printf("  ");
   }
 
   if (is_call) {
-    printf("call [%s@0x%08x]\n", target_name, target_pc);
+    printf("call [%s@0x%0*llx]\n", target_name, NPC_WORD_HEX_DIGITS,
+           static_cast<unsigned long long>(target_pc));
     call_depth++;
   } else {
-    printf("ret  [%s] -> 0x%08x\n", cur_name, target_pc);
+    printf("ret  [%s] -> 0x%0*llx\n", cur_name, NPC_WORD_HEX_DIGITS,
+           static_cast<unsigned long long>(target_pc));
   }
 }

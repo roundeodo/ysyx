@@ -151,6 +151,16 @@ config ITRACE_COND
   string "Only trace instructions when the condition is true"
   default "true"
 
+config CACHESIM_TRACE
+  depends on TARGET_NATIVE_ELF && ENGINE_INTERPRETER
+  bool "Enable compact program-counter trace for cache simulation"
+  default n
+
+config BRANCHSIM_TRACE
+  depends on TARGET_NATIVE_ELF && ENGINE_INTERPRETER && ISA_riscv
+  bool "Enable compact retired control-flow trace for branch simulation"
+  default n
+
 config IRINGBUF
   depends on TRACE && TARGET_NATIVE_ELF && ENGINE_INTERPRETER
   bool "Enable instruction ring buffer"

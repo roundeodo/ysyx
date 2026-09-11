@@ -116,7 +116,7 @@ static int cmd_x(char *args){
   {
     vaddr_t addr = transferred_address + i*4;
     word_t data = vaddr_read(addr, 4);
-    printf("0x%08x: 0x%08x\n", addr, data);
+    printf(FMT_WORD ": " FMT_WORD "\n", addr, data);
   }
   return 0;
 }
@@ -129,7 +129,7 @@ static int cmd_p(char *args){
   bool success;
   word_t result = expr(args, &success);
   if(success){
-    printf("%u (0x%08x)\n", result, result);
+    printf("%llu (" FMT_WORD ")\n", (unsigned long long)result, result);
   }
   else{
     printf("Error: invalid expression '%s'.\n", args);
@@ -149,7 +149,9 @@ static int cmd_w(char *args){
     strncpy(user_watchpoint->user_expression, args, sizeof(user_watchpoint->user_expression) - 1);
     user_watchpoint->user_expression[sizeof(user_watchpoint->user_expression) - 1] = '\0';
     user_watchpoint->old_value = result;
-    printf("Set watchpoint #%d: %s, initial value = %u (0x%08x)\n", user_watchpoint->NO, user_watchpoint->user_expression, result, result);
+    printf("Set watchpoint #%d: %s, initial value = %llu (" FMT_WORD ")\n",
+           user_watchpoint->NO, user_watchpoint->user_expression,
+           (unsigned long long)result, result);
   }
   else{
     printf("Error: bad expression\n");

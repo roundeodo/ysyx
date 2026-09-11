@@ -14,6 +14,8 @@
 ***************************************************************************************/
 
 #include <cpu/cpu.h>
+#include <cpu/branchsim-trace.h>
+#include <cpu/cachesim-trace.h>
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
@@ -40,6 +42,8 @@
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
+uint64_t g_arch_mcycle = 0;
+uint64_t g_arch_minstret = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
@@ -100,7 +104,13 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
+    record_cachesim_program_counter(s.pc);
+    IFDEF(CONFIG_ISA_riscv,
+          record_branchsim_instruction(s.pc, s.dnpc, s.isa.inst));
     g_nr_guest_inst ++;
+    // NEMU当前是顺序功能模型，每条完成的指令按一个架构周期计数。
+    g_arch_mcycle ++;
+    g_arch_minstret ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
     IFDEF(CONFIG_DEVICE, device_update());

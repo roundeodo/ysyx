@@ -78,7 +78,7 @@ static void cmd_x(std::istringstream &iss) {
   }
 
   bool success = false;
-  uint32_t addr = expr(expr_str.c_str(), &success);
+  npc_word_t addr = expr(expr_str.c_str(), &success);
 
   if (!success) {
     std::cout << "Bad expression\n";
@@ -86,7 +86,7 @@ static void cmd_x(std::istringstream &iss) {
   }
 
   for (int i = 0; i < n; i++) {
-    uint32_t cur_addr = addr + i * 4;
+    uint32_t cur_addr = static_cast<uint32_t>(addr + i * 4);
     uint32_t data = paddr_read(cur_addr, 4);
 
     printf("0x%08x: 0x%08x\n", cur_addr, data);
@@ -105,13 +105,15 @@ static void cmd_p(std::istringstream &iss) {
   }
 
   bool success = false;
-  uint32_t value = expr(expr_str.c_str(), &success);
+  npc_word_t value = expr(expr_str.c_str(), &success);
 
   if (!success) {
     std::cout << "Bad expression\n";
     return;
   }
-  printf("0x%08x (%u)\n", value, value);
+  printf("0x%0*llx (%llu)\n", NPC_WORD_HEX_DIGITS,
+         static_cast<unsigned long long>(value),
+         static_cast<unsigned long long>(value));
 }
 
 // w EXPR

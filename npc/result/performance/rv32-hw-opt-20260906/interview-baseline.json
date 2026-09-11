@@ -1,0 +1,27 @@
+{
+  "configuration": "rv32-baseline",
+  "branch": "rv32-interview",
+  "scope": "Current documented interview design; working tree has uncommitted changes",
+  "files": {
+    "npc/vsrc/riscv32/core/riscv32_core.sv": "39d19119170b2ef464a981c6ce435ebc9781c2b22e7f381292cfddf7ea8ea681",
+    "npc/vsrc/riscv32/core/riscv32_pipeline_hazard_controller.sv": "b8e3e3cb5534b7618ca9919cf0c13d1b6b5f845d386fba48afde2af3642aa5f9",
+    "npc/vsrc/riscv32/core/riscv32_completion_mux.sv": "5553996c21264d1045abc8d145e375199d6b7cb624cf0f0e706f871caf6c4d0b",
+    "npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv": "a9564742c240c4c470b2dc277c43d7fd5e11ef1bce86ac3a1085acbb438b3a24",
+    "npc/vsrc/riscv32/filelist/filelist.f": "057b4d53a9888ab127392ad3be84292667003f1946810fc3d967f6b27e294fbc",
+    "npc/tests/rtl/riscv32_pipeline_control_tb.sv": "7fc939bcdde6fa94fc8314d58b36ab2befcb6efd550f27cca2ef361e2d6f60d1"
+  },
+  "geometry": {
+    "icache_bytes": 256,
+    "icache_ways": 1,
+    "icache_line_bytes": 16,
+    "dcache_bytes": 256,
+    "dcache_ways": 2,
+    "dcache_line_bytes": 16,
+    "bht_entries": 16,
+    "btb_total_entries": 16,
+    "btb_sets": 8,
+    "btb_ways": 2,
+    "ras_entries": 4
+  },
+  "guide_sha256": "31dfab8270ae4901af9f5d281dfdc4bbe9364e5a85dec5f5a920cb1f48772c3f"
+}

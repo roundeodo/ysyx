@@ -1,0 +1,159 @@
+diff --git a/benchmarks/microbench/Makefile b/benchmarks/microbench/Makefile
+index fb51024..58a9b13 100644
+--- a/benchmarks/microbench/Makefile
++++ b/benchmarks/microbench/Makefile
+@@ -1,3 +1,8 @@
+ NAME = microbench
+ SRCS = $(shell find src/ -name "*.c" -o -name "*.cc")
++# Historical guest-side PMU diagnostics are opt-in. The default image keeps
++# only the benchmark's original timer reads. Clean before changing this option.
++ifeq ($(MICROBENCH_CSR_DIAGNOSTICS),1)
++CFLAGS += -DMICROBENCH_CSR_DIAGNOSTICS
++endif
+ include $(AM_HOME)/Makefile
+diff --git a/benchmarks/microbench/src/bench.c b/benchmarks/microbench/src/bench.c
+index 6f36de0..5806774 100644
+--- a/benchmarks/microbench/src/bench.c
++++ b/benchmarks/microbench/src/bench.c
+@@ -1,7 +1,7 @@
+ #include <am.h>
+ #include <benchmark.h>
+-#include <limits.h>
+ #include <klib-macros.h>
++#include <stdint.h>
+ 
+ Benchmark *current;
+ Setting *setting;
+@@ -10,6 +10,95 @@ static char *hbrk;
+ 
+ static uint64_t uptime() { return io_read(AM_TIMER_UPTIME).us; }
+ 
++#if defined(__riscv) && defined(MICROBENCH_CSR_DIAGNOSTICS)
++typedef struct {
++  uint64_t cycle_count;
++  uint64_t retired_instruction_count;
++} PmuSnapshot;
++
++static uint64_t performance_cycle_count;
++static uint64_t performance_retired_instruction_count;
++
++static uint64_t read_mcycle() {
++#if __riscv_xlen == 64
++  uint64_t value;
++  asm volatile("csrr %0, mcycle" : "=r"(value) : : "memory");
++  return value;
++#else
++  // RV32必须分两次读取64位计数器。重复读取高32位可检测低32位进位。
++  uint32_t high_before, low, high_after;
++  do {
++    asm volatile("csrr %0, mcycleh" : "=r"(high_before) : : "memory");
++    asm volatile("csrr %0, mcycle" : "=r"(low) : : "memory");
++    asm volatile("csrr %0, mcycleh" : "=r"(high_after) : : "memory");
++  } while (high_before != high_after);
++  return ((uint64_t)high_after << 32) | low;
++#endif
++}
++
++static uint64_t read_minstret() {
++#if __riscv_xlen == 64
++  uint64_t value;
++  asm volatile("csrr %0, minstret" : "=r"(value) : : "memory");
++  return value;
++#else
++  uint32_t high_before, low, high_after;
++  do {
++    asm volatile("csrr %0, minstreth" : "=r"(high_before) : : "memory");
++    asm volatile("csrr %0, minstret" : "=r"(low) : : "memory");
++    asm volatile("csrr %0, minstreth" : "=r"(high_after) : : "memory");
++  } while (high_before != high_after);
++  return ((uint64_t)high_after << 32) | low;
++#endif
++}
++
++static PmuSnapshot read_pmu_snapshot() {
++  PmuSnapshot snapshot;
++  snapshot.cycle_count = read_mcycle();
++  snapshot.retired_instruction_count = read_minstret();
++  return snapshot;
++}
++
++static void print_u64(uint64_t value) {
++  char digits[20];
++  int count = 0;
++
++  if (value == 0) {
++    putch('0');
++    return;
++  }
++
++  while (value != 0) {
++    digits[count++] = '0' + value % 10;
++    value /= 10;
++  }
++  while (count != 0) {
++    putch(digits[--count]);
++  }
++}
++
++static void print_pmu_summary() {
++  uint64_t ipc_integer = 0;
++  uint32_t ipc_fraction = 0;
++
++  if (performance_cycle_count != 0) {
++    ipc_integer = performance_retired_instruction_count / performance_cycle_count;
++    ipc_fraction = (uint32_t)
++        ((performance_retired_instruction_count % performance_cycle_count) * 1000000ull /
++         performance_cycle_count);
++  }
++
++  printf("MicroBench PMU measurement window:\n");
++  printf("  cycles               = ");
++  print_u64(performance_cycle_count);
++  printf("\n  retired instructions = ");
++  print_u64(performance_retired_instruction_count);
++  printf("\n  IPC                  = ");
++  print_u64(ipc_integer);
++  printf(".%06d\n", (int)ipc_fraction);
++}
++#endif
++
+ static char *format_time(uint64_t us) {
+   static char buf[32];
+   uint64_t ms = us / 1000;
+@@ -63,7 +152,17 @@ static void run_once(Benchmark *b, Result *res) {
+   bench_reset();       // reset malloc state
+   current->prepare();  // call bechmark's prepare function
+   bench_prepare(res);  // clean everything, start timer
++#if defined(__riscv) && defined(MICROBENCH_CSR_DIAGNOSTICS)
++  PmuSnapshot performance_begin = read_pmu_snapshot();
++#endif
+   current->run();      // run it
++#if defined(__riscv) && defined(MICROBENCH_CSR_DIAGNOSTICS)
++  PmuSnapshot performance_end = read_pmu_snapshot();
++  performance_cycle_count += performance_end.cycle_count - performance_begin.cycle_count;
++  performance_retired_instruction_count +=
++      performance_end.retired_instruction_count -
++      performance_begin.retired_instruction_count;
++#endif
+   bench_done(res);     // collect results
+   res->pass = current->validate();
+ }
+@@ -109,7 +208,7 @@ int main(const char *args) {
+     if (msg != NULL) {
+       printf("Ignored %s\n", msg);
+     } else {
+-      uint64_t usec = ULLONG_MAX;
++      uint64_t usec = UINT64_MAX;
+       int succ = 1;
+       for (int i = 0; i < REPEAT; i ++) {
+         Result res;
+@@ -149,6 +248,9 @@ int main(const char *args) {
+   }
+   printf("Scored time: %s ms\n", format_time(score_time));
+   printf("Total  time: %s ms\n", format_time(total_time));
++#if defined(__riscv) && defined(MICROBENCH_CSR_DIAGNOSTICS)
++  print_pmu_summary();
++#endif
+   return (pass ? 0 : 1);
+ }
+ 

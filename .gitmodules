@@ -1,0 +1,12 @@
+[submodule "am-kernels"]
+	path = am-kernels
+	url = https://github.com/NJU-ProjectN/am-kernels.git
+[submodule "ysyxSoC"]
+	path = ysyxSoC
+	url = https://github.com/OSCPU/ysyxSoC.git
+[submodule "nvboard"]
+	path = nvboard
+	url = https://github.com/NJU-ProjectN/nvboard.git
+[submodule "yosys-sta"]
+	path = yosys-sta
+	url = https://github.com/OSCPU/yosys-sta.git

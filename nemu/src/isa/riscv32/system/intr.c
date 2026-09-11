@@ -29,7 +29,12 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 #endif
 
   cpu.mcause = NO;
-  cpu.mepc = epc;
+  cpu.mepc = epc & ~(word_t)0x3;
+  cpu.mtval = 0;
+  const word_t previous_mie = BITS(cpu.mstatus, 3, 3);
+  cpu.mstatus &= ~(((word_t)1 << 3) | ((word_t)1 << 7) |
+                   ((word_t)3 << 11));
+  cpu.mstatus |= (previous_mie << 7) | ((word_t)3 << 11);
   return tvec;
 }
 

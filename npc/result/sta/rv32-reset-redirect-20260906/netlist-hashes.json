@@ -1,0 +1,6 @@
+{
+  "core/riscv32_core-1000MHz/riscv32_core.netlist.v": "142c078fd73076ff90b3dac4990095abc96cd16b29f56f6edf71332d382df869",
+  "core-same-netlist-820MHz/riscv32_core.netlist.v": "142c078fd73076ff90b3dac4990095abc96cd16b29f56f6edf71332d382df869",
+  "reset-boundary/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v": "17d229c06abf853d768afebcc71a96e776036e81f4e2f8adc170d322deff6f77",
+  "reset-buffered-820MHz/riscv32_core_reset_boundary.netlist.v": "f7ba94f7fa8d4a09f243c0f4b8eafd04ab95ddca86bb0e3998694b3454a92417"
+}
