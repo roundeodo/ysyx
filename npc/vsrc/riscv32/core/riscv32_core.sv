@@ -9,6 +9,7 @@ module riscv32_core
 ) (
     input logic clk_i,
     input logic rst_ni,
+    input logic timer_interrupt_i,
 
     // 取指和数据访问保持为两个独立manager。系统层负责仲裁和地址路由，
     // core内部不感知SoC拓扑。
@@ -61,9 +62,11 @@ module riscv32_core
   logic dcache_busy;
   logic fence_i_maintenance_active;
   logic frontend_memory_access_allowed;
+  logic icache_lookup_stalled_q;
 
   typedef enum logic [1:0] {
     FENCE_I_MAINTENANCE_IDLE,
+    FENCE_I_DRAIN_FRONTEND,
     FENCE_I_CLEAN_DCACHE,
     FENCE_I_INVALIDATE_ICACHE
   } fence_i_maintenance_state_e;
@@ -154,6 +157,11 @@ module riscv32_core
   program_counter_t csr_mtvec;
   program_counter_t csr_mepc;
   logic retired_instruction_occurred;
+
+  logic timer_interrupt_enabled;
+  logic interrupt_issue_hold;
+  logic interrupt_valid;
+  program_counter_t interrupt_pc;
 
   logic trap_valid;
   program_counter_t trap_pc;
@@ -379,7 +387,17 @@ module riscv32_core
   // Requests accepted in the discovery cycle belong to the old epoch and are discarded by
   // the registered frontend redirect. Keeping the raw commit event out of this ready/valid
   // path avoids a commit -> IFU -> I-cache array combinational timing path.
-  assign frontend_memory_access_allowed = !fence_i_maintenance_active;
+  // 维护开始时，已经对外有效但未握手的请求不能撤回。只允许这一项继续交付，
+  // DRAIN 等它及缓存中的旧事务完成后再清理；后续新请求一直保持暂停。
+  assign frontend_memory_access_allowed = !fence_i_maintenance_active || icache_lookup_stalled_q;
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      icache_lookup_stalled_q <= 1'b0;
+    end else begin
+      icache_lookup_stalled_q <= icache_lookup_req_valid && frontend_memory_access_allowed &&
+                                !icache_lookup_req_ready;
+    end
+  end
   assign dcache_clean_req = fence_i_maintenance_state_q == FENCE_I_CLEAN_DCACHE;
   assign icache_invalidate_req = fence_i_maintenance_state_q == FENCE_I_INVALIDATE_ICACHE;
 
@@ -388,7 +406,11 @@ module riscv32_core
     unique case (fence_i_maintenance_state_q)
       FENCE_I_MAINTENANCE_IDLE: begin
         if (committed_fence_i_occurred) begin
-          // 无D-cache配置直接进入I-cache失效；有D-cache时必须先写回dirty line。
+          fence_i_maintenance_state_d = FENCE_I_DRAIN_FRONTEND;
+        end
+      end
+      FENCE_I_DRAIN_FRONTEND: begin
+        if (!icache_lookup_stalled_q && !icache_busy) begin
           fence_i_maintenance_state_d = DCACHE_ENABLED ? FENCE_I_CLEAN_DCACHE :
                                                         FENCE_I_INVALIDATE_ICACHE;
         end
@@ -425,20 +447,11 @@ module riscv32_core
       .decoded_uop_ready_i(idu_decoded_uop_ready)
   );
 
-  // 完整译码在这里结束。后续寄存器堆/CSR读取、冒险比较和前递选择从已寄存uop开始，
-  // 避免fetch queue读选择与这些逻辑串成一条长路径。该级和ID/EX级都支持滚动握手，
-  // 因此新增一级只增加单条指令延迟，不降低无阻塞指令流的稳态吞吐。
-  riscv32_decode_stage u_decode_stage (
-      .clk_i                  (clk_i),
-      .rst_ni                 (rst_ni),
-      .idu_decoded_uop_i      (idu_decoded_uop),
-      .idu_decoded_uop_valid_i(idu_decoded_uop_valid),
-      .idu_decoded_uop_ready_o(idu_decoded_uop_ready),
-      .decoded_uop_o          (decoded_uop),
-      .decoded_uop_valid_o    (decoded_uop_valid),
-      .decoded_uop_ready_i    (decoded_uop_ready),
-      .flush_i                (decode_execute_flush)
-  );
+  // IDU 直接送入寄存器读级，减少一组 uop 寄存器及分支恢复延迟。
+  // 寄存器读级仍负责反压与 flush；前递和冒险判断仍从其寄存输出开始。
+  assign decoded_uop           = idu_decoded_uop;
+  assign decoded_uop_valid     = idu_decoded_uop_valid;
+  assign idu_decoded_uop_ready  = decoded_uop_ready;
 
   riscv32_arch_regfile u_arch_regfile (
       .clk_i             (clk_i),
@@ -470,6 +483,8 @@ module riscv32_core
       .trap_cause_i                  (trap_cause),
       .trap_tval_i                   (trap_tval),
       .mret_valid_i                  (mret_valid),
+      .timer_interrupt_i             (timer_interrupt_i),
+      .timer_interrupt_enabled_o     (timer_interrupt_enabled),
       .mtvec_o                       (csr_mtvec),
       .mepc_o                        (csr_mepc)
   );
@@ -525,6 +540,8 @@ module riscv32_core
       .writeback_serializing_i(writeback_result.uop.serializing),
       .writeback_forwarding_available_i(writeback_forwarding_available),
       .lsu_busy_i(lsu_transaction_active),
+      .lsu_completion_succeeded_i(lsu_writeback_valid && lsu_writeback_ready &&
+                                  !lsu_writeback.uop.exception_valid),
       .lsu_pending_writes_rd_i(lsu_pending_writes_rd),
       .lsu_pending_rd_i(lsu_pending_rd),
       .execute_redirect_present_i  (resolved_execute_result_valid &&
@@ -549,8 +566,10 @@ module riscv32_core
 
   // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由IFU/I-cache持有，
   // 不会出现“stage没有保存，但上游认为已经交付”的消息丢失。
-  assign decoded_execute_packet_valid = register_read_packet_valid && decode_accept_allowed;
-  assign register_read_packet_ready   = decoded_execute_packet_ready && decode_accept_allowed;
+  assign decoded_execute_packet_valid = register_read_packet_valid && decode_accept_allowed &&
+                                         !interrupt_issue_hold;
+  assign register_read_packet_ready   = decoded_execute_packet_ready && decode_accept_allowed &&
+                                         !interrupt_issue_hold;
 
   riscv32_decode_execute_stage u_decode_execute_stage (
       .clk_i                         (clk_i),
@@ -685,6 +704,24 @@ module riscv32_core
   assign retired_instruction_occurred = commit_valid && !commit.trap_taken;
 
 `ifdef NPC_ENABLE_SIM_MONITOR
+  riscv32_sim_issue_window_monitor u_sim_issue_window_monitor (
+      .clk_i                         (clk_i),
+      .rst_ni                        (rst_ni),
+      .commit_valid_i                (commit_valid),
+      .commit_i                      (commit),
+      .issue_occurred_i               ((exu_result_valid && exu_result_ready) ||
+                                      (lsu_req_valid && lsu_req_ready)),
+      .execute_valid_i               (execute_packet_valid),
+      .redirect_occurred_i            (execute_redirect_resolution_occurred || commit_redirect_occurred),
+      .lsu_busy_i                    (lsu_transaction_active),
+      .execute_result_blocked_i      (resolved_execute_result_valid && !resolved_execute_result_ready),
+      .register_read_valid_i         (register_read_packet_valid),
+      .raw_hazard_present_i          (raw_hazard_present),
+      .serializing_hazard_present_i  (serializing_hazard_present),
+      .icache_event_i                (icache_event),
+      .dcache_event_i                (dcache_event)
+  );
+
   // lookup request/response属于IFU与I-cache边界；delivery和waiting属于IFU与IDU边界。
   // 分开统计才能区分cache等待与译码反压。
   riscv32_sim_performance_monitor u_sim_performance_monitor (
@@ -770,9 +807,31 @@ module riscv32_core
   );
 `endif
 
+  // 在 ID/EX 入口暂停新工作，后端继续排空；前端待发指令由受理后的 flush 清除。
+  riscv32_interrupt_controller #(
+      .RESET_PC(RESET_PC)
+  ) u_interrupt_controller (
+      .clk_i                    (clk_i),
+      .rst_ni                   (rst_ni),
+      .timer_interrupt_enabled_i(timer_interrupt_enabled),
+      .backend_busy_i           (execute_packet_valid || resolved_execute_result_valid ||
+                                 lsu_transaction_active || writeback_result_valid),
+      .maintenance_busy_i       (fence_i_maintenance_active || dcache_busy ||
+                                 selected_redirect_req_valid),
+      .commit_valid_i           (commit_valid),
+      .commit_i                 (commit),
+      .redirect_valid_i         (commit_redirect_resolution_occurred),
+      .redirect_i               (commit_redirect_req_at_resolution),
+      .issue_hold_o             (interrupt_issue_hold),
+      .interrupt_valid_o        (interrupt_valid),
+      .interrupt_pc_o           (interrupt_pc)
+  );
+
   riscv32_trap_controller u_trap_controller (
       .commit_i            (commit),
       .commit_valid_i      (commit_valid),
+      .interrupt_valid_i   (interrupt_valid),
+      .interrupt_pc_i      (interrupt_pc),
       .mtvec_i             (csr_mtvec),
       .mepc_i              (csr_mepc),
       .trap_valid_o        (trap_valid),
@@ -827,6 +886,13 @@ module riscv32_core
   // rst_ni是状态寄存器的异步复位，同时也是SVA的disable条件。Verilator会把后者
   // 视为同步使用并报告SYNCASYNCNET；该诊断不代表复位网络存在功能冲突。
   /* verilator lint_off SYNCASYNCNET */
+  a_interrupt_has_no_instruction_side_effects :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    interrupt_valid |-> (!commit_valid && !execute_packet_valid &&
+                         !resolved_execute_result_valid && !lsu_transaction_active &&
+                         !lsu_req_valid && !gpr_write_enable && !decoded_execute_packet_valid))
+  else $error("interrupt accepted before the execution pipeline drained");
+
   // fence.i维护请求按D-cache clean、I-cache invalidate的固定顺序保持到完成。
   a_dcache_clean_request_held_until_done :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
@@ -871,6 +937,14 @@ module riscv32_core
     (commit_redirect_occurred && decode_execute_flush && writeback_flush &&
      !execute_issue_allowed))
   else $error("committed exception did not block and flush younger pipeline work");
+
+  // 只有 LSU 已成功交付 WB，才允许年轻普通指令在同拍进入空 EX 结果级。
+  a_lsu_completion_overlap_preserves_order :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lsu_transaction_active && exu_result_valid && exu_result_ready) |->
+    (lsu_writeback_valid && lsu_writeback_ready && !lsu_writeback.uop.exception_valid &&
+     !resolved_execute_result_valid))
+  else $error("younger execution crossed an unfinished or faulting LSU transaction");
 
   a_resolved_execute_redirect_blocks_younger_execute :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

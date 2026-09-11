@@ -42,6 +42,12 @@ NPC_BRANCH_TARGET_ENTRY_COUNT  ?= 16
 NPC_BRANCH_TARGET_WAY_COUNT    ?= 2
 NPC_RETURN_STACK_ENTRY_COUNT   ?= 4
 
+# 显式频率同时控制 CLINT 微秒和设备延迟。空值仅用于复现历史计时环境。
+NPC_SIM_CPU_FREQ_MHZ ?=
+ifneq ($(strip $(NPC_SIM_CPU_FREQ_MHZ)),)
+NPC_SIM_TIMING_DEFINE := +define+YSYX_SIM_CPU_FREQ_MHZ=$(NPC_SIM_CPU_FREQ_MHZ)
+endif
+
 ifeq ($(filter $(NPC_DCACHE_ENABLE),0 1),)
 $(error NPC_DCACHE_ENABLE must be 0 or 1)
 endif
@@ -76,7 +82,7 @@ NPC_CONFIG_CXXFLAG := -DNPC_XLEN=64
 NPC_SLANG_ARCH_DEFINE := -DYSYX_RV64_SEQUENTIAL
 endif
 
-NPC_CONFIG_DEFINE := $(NPC_ARCH_DEFINE) \
+NPC_CONFIG_DEFINE := $(NPC_ARCH_DEFINE) $(NPC_SIM_TIMING_DEFINE) \
 	+define+YSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
 	+define+YSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
 	+define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) \
@@ -112,6 +118,9 @@ PREDICTOR_BUILD_TAG := predictor-bht-$(NPC_BRANCH_HISTORY_ENTRY_COUNT)-btb-$(NPC
 BUILD_DIR := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))/icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b/$(DCACHE_BUILD_TAG)/$(PREDICTOR_BUILD_TAG)
 ifeq ($(NPC_SDRAM_NATIVE_READ_BURST),0)
 BUILD_DIR := $(BUILD_DIR)/sdram-read-bl1
+endif
+ifneq ($(strip $(NPC_SIM_CPU_FREQ_MHZ)),)
+BUILD_DIR := $(BUILD_DIR)/sim-cpu-$(NPC_SIM_CPU_FREQ_MHZ)mhz-device-100mhz
 endif
 NPC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_npc
 SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
@@ -201,7 +210,7 @@ RTL_FILELIST ?= $(RTL_DIR)/filelist/filelist.f
 
 # Convert the filelist into Make dependencies. Verilator still reads the
 # original filelist, including its comments and ordering.
-RTL_DEPENDENCIES := $(shell sed \
+RTL_DEPENDENCIES := $(wildcard $(RTL_DIR)/sim/*.svh) $(shell sed \
 	-e 's|$${NPC_HOME}|$(abspath .)|g' \
 	-e '/^[[:space:]]*\/\//d' \
 	-e '/^[[:space:]]*[+-]/d' \
@@ -228,6 +237,8 @@ SOC_RTL_INCLUDE_FLAGS := \
 SIM_CPP_SOURCES := $(shell find $(abspath ./csrc) -type f \
 	\( -name "*.c" -o -name "*.cc" -o -name "*.cpp" \))
 
+SIM_CPP_HEADERS := $(wildcard $(abspath ./include)/*.h)
+
 # ============================================================
 # Verilator and C++ configuration
 # ============================================================
@@ -236,6 +247,7 @@ VERILATOR ?= verilator
 VERILATOR_FLAGS := \
 	-MMD --build -cc -Wall -Wno-fatal \
 	-O3 --x-assign fast --x-initial fast \
+	-I$(RTL_DIR)/sim \
 	--trace --autoflush \
 	--timescale "1ns/1ns" --no-timing
 
@@ -394,7 +406,7 @@ $(AXI_DELAYER_TEST_BUILD_DIR):
 	mkdir -p $@
 
 # Fast functional environment: CPU + local AXI models, reset PC 0x8000_0000.
-$(NPC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
+$(NPC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) $(SIM_CPP_HEADERS) | $(BUILD_DIR)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		$(NPC_CONFIG_DEFINE) \
@@ -409,7 +421,7 @@ $(NPC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BU
 
 # Accurate environment: CPU integrated into ysyxSoC and its peripherals.
 $(SOC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
-		$(SOC_VERILOG_SOURCES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
+		$(SOC_VERILOG_SOURCES) $(SIM_CPP_SOURCES) $(SIM_CPP_HEADERS) | $(BUILD_DIR)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		$(NPC_CONFIG_DEFINE) \
@@ -1104,6 +1116,7 @@ perf: $(SOC_SIM_BINARY)
 	@echo "NPC commit        = $$(git -C $(abspath ..) rev-parse HEAD)"
 	@echo "AM-kernels commit = $$(git -C $(PERF_MICROBENCH_DIR) rev-parse HEAD)"
 	@echo "Benchmark scale   = $(PERF_SCALE)"
+	@echo "Timing mode       = $(if $(strip $(NPC_SIM_CPU_FREQ_MHZ)),CPU $(NPC_SIM_CPU_FREQ_MHZ) MHz / device 100 MHz; CLINT and delay ratio configured together,legacy: CLINT CPU 100 MHz; delay ratio 3037/1024; not calibrated to STA)"
 	@echo "Benchmark image   = $(PERF_MICROBENCH_IMAGE)"
 	$(SOC_SIM_BINARY) --batch --flash $(PERF_MICROBENCH_IMAGE)
 
@@ -1164,7 +1177,7 @@ STA_PDK           ?= nangate45
 STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(STA_PDK)-$(NPC_CONFIG)-icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-$(DCACHE_BUILD_TAG)-$(PREDICTOR_BUILD_TAG))
 
 sta: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
-	$(MAKE) -C $(STA_TOOL_DIR) sta \
+	NPC_STA_NETLIST_FILE="$(STA_OUTPUT_ROOT)/$(STA_DESIGN)-$(STA_FREQUENCY_MHZ)MHz/$(STA_DESIGN).netlist.v" $(MAKE) -C $(STA_TOOL_DIR) sta \
 		NPC_HOME=$(abspath .) \
 		DESIGN=$(STA_DESIGN) \
 		PDK=$(STA_PDK) \
@@ -1257,3 +1270,38 @@ help:
 	@echo "  make lint-npc NPC_CONFIG=rv64-sequential NPC_ICACHE_LINE_BYTES=64"
 	@echo "  make sim-npc NPC_CONFIG=rv32-baseline IMG=path/to/riscv32-npc.bin"
 	@echo "  make sim-soc NPC_CONFIG=rv32-baseline FLASH_IMG=path/to/riscv32-ysyxsoc.bin"
+
+.PHONY: test-timer-interrupt
+test-timer-interrupt:
+	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
+	python3 tests/interrupt/run.py $(NPC_CONFIG_DEFINE)
+
+
+# 包含实际复位控制器的纯核边界；保留未缓冲网表，再生成受限扇出的复位树。
+STA_RESET_OUTPUT_DIR ?= $(STA_OUTPUT_ROOT)/riscv32_core_reset_boundary-$(STA_FREQUENCY_MHZ)MHz-buffered
+.PHONY: sta-reset
+sta-reset:
+	@test "$(STA_PDK)" = nangate45 || (echo "Reset buffer mapping currently supports NanGate45"; exit 1)
+	$(MAKE) sta STA_DESIGN=riscv32_core_reset_boundary \
+		STA_SDC_FILE=$(abspath ./constr/riscv32_core_reset_boundary.sdc)
+	python3 scripts/build_reset_tree.py \
+		--netlist $(STA_OUTPUT_ROOT)/riscv32_core_reset_boundary-$(STA_FREQUENCY_MHZ)MHz/riscv32_core_reset_boundary.netlist.v \
+		--liberty $(STA_TOOL_DIR)/pdk/nangate45/lib/Nangate45_typ.lib \
+		--output-dir $(STA_RESET_OUTPUT_DIR)
+	python3 scripts/check_reset_netlist.py $(STA_RESET_OUTPUT_DIR)/buffered.json \
+		--output $(STA_RESET_OUTPUT_DIR)/reset-connectivity.json
+	cp constr/riscv32_core_reset_boundary.sdc $(STA_RESET_OUTPUT_DIR)/constraints.sdc
+	NPC_STA_NETLIST_FILE=$(STA_RESET_OUTPUT_DIR)/riscv32_core_reset_boundary.netlist.v \
+		CLK_FREQ_MHZ=$(STA_FREQUENCY_MHZ) RUN_POWER_ANALYSIS=0 \
+		$(STA_TOOL_DIR)/bin/iEDA -script $(STA_TOOL_DIR)/scripts/sta.tcl \
+		$(STA_RESET_OUTPUT_DIR)/constraints.sdc \
+		$(STA_RESET_OUTPUT_DIR)/riscv32_core_reset_boundary.netlist.v \
+		riscv32_core_reset_boundary nangate45 > $(STA_RESET_OUTPUT_DIR)/sta.log 2>&1
+
+.PHONY: test-timing
+test-timing:
+	python3 tests/timing/run.py $(NPC_CONFIG_DEFINE)
+
+.PHONY: test-issue-window
+test-issue-window:
+	python3 tests/hardware-optimization/run_monitor.py $(NPC_CONFIG_DEFINE)

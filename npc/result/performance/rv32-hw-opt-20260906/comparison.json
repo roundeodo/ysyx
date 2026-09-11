@@ -1,0 +1,40 @@
+{
+  "merge-decode": {
+    "status": "meets_area_and_train_ipc_targets",
+    "workload": "same archived train.bin",
+    "area_change_percent": -1.1484771146322292,
+    "timing_passed_820mhz": true,
+    "test": {
+      "ipc_change_percent": 1.5992439241031553,
+      "cycle_reduction": 25873,
+      "cycle_change_percent": -1.5740706941655969
+    },
+    "train": {
+      "ipc_change_percent": 1.705420635695476,
+      "cycle_reduction": 11250302,
+      "cycle_change_percent": -1.6768237376493578
+    }
+  },
+  "merge-decode-read": {
+    "status": "rejected_at_820mhz",
+    "workload": "same archived train.bin",
+    "area_change_percent": -2.793583881590034,
+    "timing_passed_820mhz": false
+  },
+  "lsu-completion-issue": {
+    "status": "meets_area_and_train_ipc_targets",
+    "workload": "same archived train.bin",
+    "area_change_percent": -1.0626191069420532,
+    "timing_passed_820mhz": true,
+    "test": {
+      "ipc_change_percent": 2.6620173020819093,
+      "cycle_reduction": 42621,
+      "cycle_change_percent": -2.592991421792301
+    },
+    "train": {
+      "ipc_change_percent": 2.6938647302871432,
+      "cycle_reduction": 17599813,
+      "cycle_change_percent": -2.6231992898137158
+    }
+  }
+}

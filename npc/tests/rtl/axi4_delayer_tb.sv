@@ -1,6 +1,8 @@
 `timescale 1ns/1ns
 
-module axi4_delayer_tb;
+module axi4_delayer_tb #(
+    parameter longint unsigned TEST_RATIO_SCALED = 2048
+);
 
   localparam int READ_BEAT_COUNT = 16;
 
@@ -80,7 +82,7 @@ module axi4_delayer_tb;
   integer upstream_write_response_cycle;
 
   axi4_delayer #(
-      .PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED(64'd2048),
+      .PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED(TEST_RATIO_SCALED),
       .FREQUENCY_RATIO_SCALE_SHIFT(10),
       .READ_RESPONSE_BUFFER_DEPTH(16),
       .READ_RESPONSE_BUFFER_ADDR_WIDTH(4)
@@ -197,7 +199,7 @@ module axi4_delayer_tb;
     reset = 1'b0;
 
     // ----------------------------------------------------------------------
-    // 16-beat读burst：下游每周期给一个beat，r=2后上游beat间隔应为2周期。
+    // 16-beat 读 burst：检查每个 beat 相对于请求起点的校准时间。
     // ----------------------------------------------------------------------
     in_arvalid = 1'b1;
     in_arid    = 4'h9;
@@ -282,8 +284,8 @@ module axi4_delayer_tb;
          beat_index = beat_index + 1) begin
       expected_upstream_cycle =
           read_transaction_start_cycle +
-          2 * (downstream_read_response_cycle[beat_index] -
-               read_transaction_start_cycle);
+          int'((TEST_RATIO_SCALED * 64'(downstream_read_response_cycle[beat_index] -
+                                       read_transaction_start_cycle)) >> 10);
       assert (upstream_read_response_cycle[beat_index] ==
               expected_upstream_cycle)
         else $fatal(1,
@@ -296,8 +298,8 @@ module axi4_delayer_tb;
 
     expected_upstream_cycle =
         write_transaction_start_cycle +
-        2 * (downstream_write_response_cycle -
-             write_transaction_start_cycle);
+        int'((TEST_RATIO_SCALED * 64'(downstream_write_response_cycle -
+                                     write_transaction_start_cycle)) >> 10);
     assert (upstream_write_response_cycle == expected_upstream_cycle)
       else $fatal(1,
                   "write timing mismatch: downstream=%0d upstream=%0d expected=%0d",

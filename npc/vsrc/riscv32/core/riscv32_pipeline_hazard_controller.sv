@@ -37,6 +37,7 @@ module riscv32_pipeline_hazard_controller
     // 在途LSU事务位于EX与WB之间。目的寄存器必须参与RAW比较；load结果先跨过WB
     // 寄存边界，再通过writeback前递。独立指令允许进入EX等待。
     input logic          lsu_busy_i,
+    input logic          lsu_completion_succeeded_i,
     input logic          lsu_pending_writes_rd_i,
     input arch_reg_idx_t lsu_pending_rd_i,
     // 误预测判断来自EX/MEM寄存结果，不经过EXU组合路径。发现误预测的同拍必须阻止
@@ -182,7 +183,9 @@ module riscv32_pipeline_hazard_controller
   // 专用寄存器后，下一拍真正交给前端并再次清除期间可能到达的错误路径指令。
   assign control_recovery_occurred = frontend_redirect_applied_i || commit_redirect_occurred_i;
 
-  assign structural_hazard_present_o = lsu_busy_i;
+  // LSU 成功交付 WB 的同拍，年轻普通指令可以进入空的 EX 结果寄存器。
+  // 这不提供 load 响应到 ID/EX 的旁路；上面的 pending-rd RAW 检查保持不变。
+  assign structural_hazard_present_o = lsu_busy_i && !lsu_completion_succeeded_i;
   assign execute_result_stalled = execute_result_valid_i && !execute_result_ready_i;
 
   // 恢复事件通过各级flush清valid，不参与decode的ready/accept组合网络。错误路径uop
@@ -192,7 +195,7 @@ module riscv32_pipeline_hazard_controller
 
   // progress只描述后端是否有空间，直接控制ID/EX payload流动；issue再叠加控制恢复，
   // 只控制EXU能否产生completion或访存副作用。这样redirect不会进入宽payload写入路径。
-  assign execute_progress_allowed_o = !execute_result_stalled && !lsu_busy_i;
+  assign execute_progress_allowed_o = !execute_result_stalled && !structural_hazard_present_o;
   assign execute_issue_allowed_o = execute_progress_allowed_o &&
                                    !execute_redirect_present_i &&
                                    !frontend_redirect_applied_i &&
@@ -215,7 +218,7 @@ module riscv32_pipeline_hazard_controller
     execute_redirect_present_i |-> !execute_issue_allowed_o)
   else $error("pipeline allowed a younger instruction to issue during branch recovery");
 
-  assert property (@(posedge clk_i) disable iff (!rst_ni) lsu_busy_i |-> !execute_issue_allowed_o)
+  assert property (@(posedge clk_i) disable iff (!rst_ni) (lsu_busy_i && !lsu_completion_succeeded_i) |-> !execute_issue_allowed_o)
   else $error("pipeline issued a younger instruction ahead of an older LSU transaction");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)

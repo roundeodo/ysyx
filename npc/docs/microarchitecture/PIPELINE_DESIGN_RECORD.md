@@ -1,5 +1,8 @@
 # 顺序流水线设计记录
 
+> 历史设计记录：各章节反映不同阶段，早期参数和待办不一定适用于恢复的 RV32 快照。
+> 当前配置、实现边界及面试表述见 [RV32 简历核对](../interview/RV32_RESUME_AUDIT.md)。
+
 最后更新：2026-08-25
 
 ## 1. 检查点目标
@@ -373,3 +376,15 @@ victim，且store不能使用load的提前响应路径。因此当前版本仍�
 推荐边界为`ID/EX -> AGU/EX -> EX/MEM弹性寄存项 -> LSU/cache lookup -> MEM/WB`。
 新增边界会使每条访存至少增加一拍，因此必须同时支持每拍接收新请求，并在后续通过store
 buffer或有限在途上下文覆盖延迟；完成后重新测量IPC、Fmax、面积和TNS，再决定是否保留。
+
+## 2026-09-06：面积与 train IPC 实验中的流水边界
+
+当前实验候选移除了独立译码寄存级，结构为：取指队列 → 组合译码/GPR 读取 →
+寄存器读级 → ID/EX → EX。普通指令经过 EX 结果寄存器，访存由 LSU 交付，随后统一
+进入 WB/commit。保留 EX 结果和前端重定向寄存边界，不以固定“六级流水”描述这些实现细节。
+
+LSU 成功交付 WB 的同拍，允许独立普通指令进入空 EX 结果级；它最早下一拍进入 WB。
+访存尚未完成或发生异常时保持阻塞，load 依赖仍等待 WB 前递。这没有增加多发射、
+乱序提交或新的退休队列。当前 test、完整 train 与 820 MHz STA 已通过；同环境 train IPC 比本轮基线提高 2.69%。
+见 [实验设计](RV32_HARDWARE_OPTIMIZATION_DESIGN_RECORD.md) 与
+[测量记录](../verification/RV32_HARDWARE_OPTIMIZATION_2026-09-06.md)。

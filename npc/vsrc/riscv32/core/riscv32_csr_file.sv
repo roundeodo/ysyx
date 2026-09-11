@@ -23,6 +23,9 @@ module riscv32_csr_file
     input xlen_data_t       trap_tval_i,
     input logic             mret_valid_i,
 
+    input  logic timer_interrupt_i,
+    output logic timer_interrupt_enabled_o,
+
     output program_counter_t mtvec_o,
     output program_counter_t mepc_o
 );
@@ -64,9 +67,7 @@ module riscv32_csr_file
   // 这样不会为恒为0、恒为M-mode或因IALIGN固定的位分配触发器和写入选择逻辑。
   logic mstatus_mie_q;
   logic mstatus_mpie_q;
-  logic mie_msie_q;
   logic mie_mtie_q;
-  logic mie_meie_q;
   logic [XLEN-3:0] mtvec_base_q;
   xlen_data_t mscratch_q;
   logic [XLEN-3:0] mepc_base_q;
@@ -100,18 +101,21 @@ module riscv32_csr_file
       .csr_write_data_i           (csr_write_data_i)
   );
 
-  // 组合重建软件可见值。当前只实现M-mode，因此MPP固定读作M；mip没有可修改
-  // pending源，固定读0。加入更低特权级或新的中断源时再扩展对应物理字段。
+  // MTIP 直接反映定时器电平，不受使能位影响，也不能由软件写 mip 清除。
+  xlen_data_t mip_value;
+  assign timer_interrupt_enabled_o = timer_interrupt_i && mie_mtie_q && mstatus_mie_q;
+
+  // 当前只实现 M-mode，MPP 固定读作 M。
   always_comb begin
+    mip_value = '0;
+    mip_value[int'(IRQ_MACHINE_TIMER)] = timer_interrupt_i;
     mstatus_value        = '0;
     mstatus_value[12:11] = PRIV_MODE_M;
     mstatus_value[7]     = mstatus_mpie_q;
     mstatus_value[3]     = mstatus_mie_q;
 
     mie_value                       = '0;
-    mie_value[int'(IRQ_MACHINE_SOFTWARE)] = mie_msie_q;
     mie_value[int'(IRQ_MACHINE_TIMER)]    = mie_mtie_q;
-    mie_value[int'(IRQ_MACHINE_EXTERNAL)] = mie_meie_q;
 
     mtvec_value  = {mtvec_base_q, 2'b00};
     mepc_value   = {mepc_base_q, 2'b00};
@@ -141,7 +145,7 @@ module riscv32_csr_file
       CSR_MEPC:      csr_selected_read_data = mepc_value;
       CSR_MCAUSE:    csr_selected_read_data = mcause_value;
       CSR_MTVAL:     csr_selected_read_data = mtval_q;
-      CSR_MIP:       csr_selected_read_data = '0;
+      CSR_MIP:       csr_selected_read_data = mip_value;
       default: begin
         csr_addr_implemented   = pmu_csr_read_select;
         csr_selected_read_data = pmu_csr_read_data;
@@ -163,9 +167,7 @@ module riscv32_csr_file
     if (!rst_ni) begin
       mstatus_mie_q       <= 1'b0;
       mstatus_mpie_q      <= 1'b0;
-      mie_msie_q           <= 1'b0;
       mie_mtie_q           <= 1'b0;
-      mie_meie_q           <= 1'b0;
       mtvec_base_q         <= '0;
       mscratch_q           <= '0;
       mepc_base_q          <= '0;
@@ -190,9 +192,7 @@ module riscv32_csr_file
             mstatus_mpie_q <= csr_write_data_i[7];
           end
           CSR_MIE: begin
-            mie_msie_q <= csr_write_data_i[int'(IRQ_MACHINE_SOFTWARE)];
             mie_mtie_q <= csr_write_data_i[int'(IRQ_MACHINE_TIMER)];
-            mie_meie_q <= csr_write_data_i[int'(IRQ_MACHINE_EXTERNAL)];
           end
           // 第一版只支持Direct模式，低两位强制为0。
           CSR_MTVEC:    mtvec_base_q <= csr_write_data_i[XLEN-1:2];

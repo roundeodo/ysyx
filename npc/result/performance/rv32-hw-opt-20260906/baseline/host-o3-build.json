@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 449.28413820266724,
+  "source_generated_directory": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/build/riscv32/rv32-baseline/icache-256b-way-1-line-16b/dcache-256b-way-2-line-16b/predictor-bht-16-btb-16x2-ras-4/obj_dir_soc",
+  "flags": {
+    "OPT_FAST": "-O3 -march=native",
+    "OPT_GLOBAL": "-O3 -march=native",
+    "OPT_SLOW": "-O1"
+  }
+}

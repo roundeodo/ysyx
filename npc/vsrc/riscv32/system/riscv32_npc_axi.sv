@@ -10,7 +10,7 @@ module riscv32_npc_axi
     input logic clock,
     input logic reset,
 
-    // External interrupts are not consumed by the current single-cycle core.
+    // 外部中断尚未实现；本地定时中断由 npc_system 内的 CLINT 接入 CPU。
     /* verilator lint_off UNUSEDSIGNAL */
     input logic io_interrupt,
 
@@ -145,18 +145,21 @@ module riscv32_npc_axi
     io_slave_rid     = 4'b0;
   end
 
+  logic system_rst_n;
+
   riscv32_npc_system #(
       .RESET_PC(RESET_PC)
   ) u_npc_system (
       .clk_i                  (clock),
       .rst_ni                 (~reset),
+      .system_rst_no          (system_rst_n),
       .external_axi4_manager_o(processor_memory_axi4_manager),
       .external_axi4_manager_i(processor_memory_axi4_response)
   );
 
   riscv32_axi4_soc_width_converter u_soc_width_converter (
       .clk_i               (clock),
-      .rst_ni              (~reset),
+      .rst_ni              (system_rst_n),
       .upstream_manager_i  (processor_memory_axi4_manager),
       .upstream_manager_o  (processor_memory_axi4_response),
       .downstream_manager_o(soc_axi4_manager),
@@ -255,6 +258,7 @@ module riscv32_npc_axi
       ebreak_halt();
     end
   end
+  `include "riscv32_perf_dpi.svh"
 `endif
 
 endmodule

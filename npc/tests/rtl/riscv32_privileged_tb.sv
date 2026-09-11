@@ -48,6 +48,8 @@ module riscv32_privileged_tb;
   always #1 clk = ~clk;
 
   riscv32_csr_file u_csr_file (
+      .timer_interrupt_i(1'b0),
+      .timer_interrupt_enabled_o(),
       .clk_i                         (clk),
       .rst_ni                        (rst_n),
       .csr_read_enable_i             (csr_read_enable),
@@ -80,6 +82,8 @@ module riscv32_privileged_tb;
   );
 
   riscv32_trap_controller u_trap_controller (
+      .interrupt_valid_i(1'b0),
+      .interrupt_pc_i('0),
       .commit_i            (commit),
       .commit_valid_i      (commit_valid),
       .mtvec_i             (mtvec),

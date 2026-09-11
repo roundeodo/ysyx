@@ -1,0 +1,120 @@
+{
+  "baseline": {
+    "timer_cpu_mhz": 100,
+    "sta_constraint_mhz": 820,
+    "device_mhz": 100,
+    "delay_ratio_scaled": 3037,
+    "delay_scale": 1024,
+    "delay_ratio": 2.9658203125,
+    "calibrated_for_820mhz": false,
+    "test": {
+      "status": "passed",
+      "cycles": 1643700,
+      "instructions": 430203,
+      "ipc": 0.26172841759445153,
+      "pmu_window_seconds_at_timer_rate": 0.016437,
+      "scored_seconds": 0.01654,
+      "total_seconds": 0.032320999999999996,
+      "host_wall_seconds": 9.372111558914185
+    },
+    "train": {
+      "status": "passed",
+      "cycles": 670929314,
+      "instructions": 186810217,
+      "ipc": 0.2784350200563751,
+      "pmu_window_seconds_at_timer_rate": 6.70929314,
+      "scored_seconds": 6.709399,
+      "total_seconds": 9.805384,
+      "host_wall_seconds": 2408.849529504776
+    }
+  },
+  "merge-decode": {
+    "timer_cpu_mhz": 100,
+    "sta_constraint_mhz": 820,
+    "device_mhz": 100,
+    "delay_ratio_scaled": 3037,
+    "delay_scale": 1024,
+    "delay_ratio": 2.9658203125,
+    "calibrated_for_820mhz": false,
+    "test": {
+      "status": "passed",
+      "cycles": 1617827,
+      "instructions": 430203,
+      "ipc": 0.2659140934104821,
+      "pmu_window_seconds_at_timer_rate": 0.01617827,
+      "scored_seconds": 0.016283000000000002,
+      "total_seconds": 0.031755,
+      "host_wall_seconds": 10.08860969543457
+    },
+    "train": {
+      "status": "passed",
+      "cycles": 659679012,
+      "instructions": 186810217,
+      "ipc": 0.2831835083454194,
+      "pmu_window_seconds_at_timer_rate": 6.59679012,
+      "scored_seconds": 6.596894,
+      "total_seconds": 9.603622999999999,
+      "host_wall_seconds": 2316.4333369731903
+    }
+  },
+  "lsu-completion-issue": {
+    "timer_cpu_mhz": 100,
+    "sta_constraint_mhz": 820,
+    "device_mhz": 100,
+    "delay_ratio_scaled": 3037,
+    "delay_scale": 1024,
+    "delay_ratio": 2.9658203125,
+    "calibrated_for_820mhz": false,
+    "test": {
+      "status": "passed",
+      "cycles": 1601079,
+      "instructions": 430203,
+      "ipc": 0.26869567335528105,
+      "pmu_window_seconds_at_timer_rate": 0.01601079,
+      "scored_seconds": 0.016114,
+      "total_seconds": 0.031489,
+      "host_wall_seconds": 10.153564453125
+    },
+    "train": {
+      "status": "passed",
+      "cycles": 653329501,
+      "instructions": 186810217,
+      "ipc": 0.28593568285844173,
+      "pmu_window_seconds_at_timer_rate": 6.53329501,
+      "scored_seconds": 6.533402,
+      "total_seconds": 9.534346,
+      "host_wall_seconds": 2314.554478406906
+    }
+  },
+  "lsu-completion-issue-calibrated-820": {
+    "timer_cpu_mhz": 820,
+    "sta_constraint_mhz": 820,
+    "device_mhz": 100,
+    "delay_ratio_scaled": 8396,
+    "delay_scale": 1024,
+    "delay_ratio": 8.19921875,
+    "calibrated_for_820mhz": true,
+    "test": {
+      "status": "passed",
+      "cycles": 2747278,
+      "instructions": 430203,
+      "ipc": 0.1565924526021757,
+      "pmu_window_seconds_at_timer_rate": 0.003350339024390244,
+      "scored_seconds": 0.003378,
+      "total_seconds": 0.006857,
+      "host_wall_seconds": 17.659417390823364,
+      "model_execution_seconds": 0.003350339024390244
+    },
+    "train": {
+      "status": "passed",
+      "cycles": 1089343319,
+      "instructions": 186810217,
+      "ipc": 0.1714888352842599,
+      "pmu_window_seconds_at_timer_rate": 1.328467462195122,
+      "scored_seconds": 1.328498,
+      "total_seconds": 1.9538710000000001,
+      "host_wall_seconds": 3460.754559278488,
+      "model_execution_seconds": 1.328467462195122
+    }
+  }
+}

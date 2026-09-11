@@ -36,6 +36,7 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_lsu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_completion_mux.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_writeback_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_commit.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_interrupt_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_trap_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_ifu.sv
@@ -45,6 +46,8 @@ ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_core_merge.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_address_router.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_error_target.sv
 ${NPC_HOME}/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_reset_controller.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_core_reset_boundary.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_system.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi.sv

@@ -1,5 +1,6 @@
 // 仅仿真时实例化性能监视模块。STA filelist不定义此开关，因此综合设计中不存在该实例。
 +define+NPC_ENABLE_SIM_MONITOR
++incdir+${NPC_HOME}/vsrc/riscv32/sim
 
 // 正式配置宏由Makefile通过NPC_CONFIG唯一传入，filelist不得硬编码RV32/RV64。
 // package必须位于所有import它们的模块之前。
@@ -44,6 +45,7 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_lsu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_completion_mux.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_writeback_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_commit.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_interrupt_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_trap_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_ifu.sv
@@ -54,6 +56,8 @@ ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_core_merge.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_address_router.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_error_target.sv
 ${NPC_HOME}/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_reset_controller.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_core_reset_boundary.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_system.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi.sv
@@ -65,3 +69,5 @@ ${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_dcache_performance_monitor.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/sim/top.sv
+
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv

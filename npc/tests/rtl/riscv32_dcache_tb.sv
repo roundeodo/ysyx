@@ -223,6 +223,8 @@ module riscv32_dcache_tb;
   task automatic issue_store_then_load_without_gap(
       input phys_addr_t addr,
       input core_data_t store_data,
+      input core_byte_strobe_t byte_strobe,
+      input int unsigned response_stall_cycles,
       output core_data_t load_data
   );
     @(negedge clk);
@@ -231,7 +233,8 @@ module riscv32_dcache_tb;
     data_memory_req.cmd = MEM_CMD_STORE;
     data_memory_req.size = TEST_WORD_SIZE;
     data_memory_req.write_data = store_data;
-    data_memory_req.byte_strobe = '1;
+    data_memory_req.byte_strobe = byte_strobe;
+    data_memory_resp_ready = 1'b0;
     data_memory_req.transaction_id = mem_txn_id_t'(3);
     data_memory_req_valid = 1'b1;
 
@@ -241,11 +244,23 @@ module riscv32_dcache_tb;
             data_memory_resp.transaction_id == mem_txn_id_t'(3))
       else $fatal(1, "D-cache store hit did not respond before rollover lookup");
 
+    data_memory_req_valid = 1'b0;
+    repeat (response_stall_cycles) begin
+      assert (!u_dut.data_write_valid)
+        else $fatal(1, "D-cache wrote a store hit before its response handshake");
+      @(negedge clk);
+      assert (data_memory_resp_valid &&
+              data_memory_resp.transaction_id == mem_txn_id_t'(3))
+        else $fatal(1, "D-cache lost a backpressured store response");
+    end
+    data_memory_resp_ready = 1'b1;
+    data_memory_req_valid = 1'b1;
     data_memory_req = '0;
     data_memory_req.addr = addr;
     data_memory_req.cmd = MEM_CMD_LOAD;
     data_memory_req.size = TEST_WORD_SIZE;
     data_memory_req.transaction_id = mem_txn_id_t'(4);
+    #1;  // 等待 ready 随本拍解除的响应背压更新，再检查组合握手。
     assert (data_memory_req_ready)
       else $fatal(1, "D-cache inserted a fixed bubble after a store hit");
 
@@ -302,11 +317,22 @@ module riscv32_dcache_tb;
     assert (read_address_handshake_count == read_count_after_first_miss)
       else $fatal(1, "D-cache hit incorrectly issued an AXI read");
 
-    issue_store_then_load_without_gap(TEST_ADDR_A, stored_a, read_data);
+    issue_store_then_load_without_gap(TEST_ADDR_A, stored_a, '1, 0, read_data);
     assert (write_address_handshake_count == 0)
       else $fatal(1, "write-back D-cache wrote a store hit to AXI immediately");
     assert (read_data == stored_a)
       else $fatal(1, "D-cache load did not observe a preceding store hit");
+
+    // 响应背压期间不得提前写入；部分字节更新必须同时覆盖阵列写入和连续 load 的 bypass。
+    issue_store_then_load_without_gap(TEST_ADDR_A, core_data_t'(32'haabb_ccdd),
+                                     core_byte_strobe_t'(4'b0101), 3, read_data);
+    stored_a[7:0] = 8'hdd;
+    stored_a[23:16] = 8'hbb;
+    assert (read_data == stored_a)
+      else $fatal(1, "D-cache partial store bypass corrupted unwritten bytes");
+    issue_memory_request(TEST_ADDR_A, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(4), read_data);
+    assert (read_data == stored_a)
+      else $fatal(1, "D-cache partial store did not update the array correctly");
 
     issue_memory_request(TEST_ADDR_B, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(5), read_data);
     assert (read_data == original_b)

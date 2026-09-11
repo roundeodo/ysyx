@@ -528,14 +528,16 @@ module riscv32_dcache
     data_write_set_index = miss_data_write_set_index;
     data_write_way_index = miss_data_write_way_index;
     data_write_word_index = miss_data_write_word_index;
-    data_write_word_data = miss_data_write_word_data;
+    // 数据选择不等待命中/响应握手；真正写入仍由下方 valid 严格限定。
+    // miss/refill 优先，未写入时 store 数据只是未被采样的默认载荷。
+    data_write_word_data = miss_data_write_valid ? miss_data_write_word_data :
+                                                  lookup_s1_q.write_data;
     data_write_byte_strobe = miss_data_write_byte_strobe;
     if (!miss_data_write_valid && store_hit_write_occurred) begin
       data_write_valid = 1'b1;
       data_write_set_index = get_set_index(lookup_s1_q.addr);
       data_write_way_index = lookup_hit_way_index;
       data_write_word_index = get_word_index(lookup_s1_q.addr);
-      data_write_word_data = lookup_s1_q.write_data;
       data_write_byte_strobe = lookup_s1_q.byte_strobe;
     end
   end

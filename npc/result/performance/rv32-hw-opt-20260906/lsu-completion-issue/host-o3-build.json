@@ -1,0 +1,10 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 26.726823806762695,
+  "source_generated_directory": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/build/hardware-optimization/lsu-completion-issue/obj_dir_soc",
+  "flags": [
+    "OPT_FAST=-O3 -march=native",
+    "OPT_GLOBAL=-O3 -march=native",
+    "OPT_SLOW=-O1"
+  ]
+}

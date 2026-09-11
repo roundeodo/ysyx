@@ -14,6 +14,12 @@ package riscv32_addr_map_pkg;
   localparam int unsigned CLINT_SIZE_BYTES = 32'h0001_0000;
   localparam phys_addr_t CLINT_ADDR_MATCH_MASK = 32'hffff_0000;
 
+  // 保留 uptime 地址，新增独立的比较寄存器窗口。
+  localparam phys_addr_t CLINT_MTIME_LOW_ADDR     = CLINT_BASE_ADDR + 32'h0048;
+  localparam phys_addr_t CLINT_MTIME_HIGH_ADDR    = CLINT_BASE_ADDR + 32'h004c;
+  localparam phys_addr_t CLINT_MTIMECMP_LOW_ADDR  = CLINT_BASE_ADDR + 32'h4000;
+  localparam phys_addr_t CLINT_MTIMECMP_HIGH_ADDR = CLINT_BASE_ADDR + 32'h4004;
+
   // 以下实际容量来自ysyxSoC/src/SoC.scala。
   localparam phys_addr_t SRAM_BASE_ADDR = 32'h0f00_0000;
   localparam phys_addr_t SRAM_LAST_ADDR = 32'h0f00_1fff;

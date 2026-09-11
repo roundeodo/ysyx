@@ -9,6 +9,8 @@ module riscv32_trap_controller
     input program_counter_t mtvec_i,
     /* verilator lint_on UNUSEDSIGNAL */
     input program_counter_t mepc_i,
+    input logic             interrupt_valid_i,
+    input program_counter_t interrupt_pc_i,
 
     output logic             trap_valid_o,
     output program_counter_t trap_pc_o,
@@ -45,10 +47,21 @@ module riscv32_trap_controller
       redirect_req_o.source_pc       = commit_i.pc;
       redirect_req_o.reason          = REDIRECT_MRET;
       redirect_req_o.flush_inclusive = 1'b0;
+    end else if (interrupt_valid_i) begin
+      trap_valid_o                  = 1'b1;
+      trap_pc_o                     = interrupt_pc_i;
+      trap_cause_o                  = xlen_data_t'(IRQ_MACHINE_TIMER);
+      trap_cause_o[XLEN-1]           = 1'b1;
+      trap_tval_o                   = '0;
+      redirect_req_valid_o           = 1'b1;
+      redirect_req_o.target_pc       = {mtvec_i[XLEN-1:2], 2'b00};
+      redirect_req_o.source_pc       = interrupt_pc_i;
+      redirect_req_o.reason          = REDIRECT_TRAP;
+      redirect_req_o.flush_inclusive = 1'b1;
     end
   end
 
-  // NOTE(P4): interrupt acceptance belongs here at a commit-safe boundary.
+  // 中断是独立架构事件，不伪造 commit，也不增加退休计数。
   // NOTE(P6): redirect age then comes from the committing ROB entry.
 
 endmodule

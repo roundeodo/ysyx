@@ -1,5 +1,9 @@
 # NPC 文档中心
 
+> 本工作树恢复自 `bb03677`，并已新增本地定时中断，用于 RV32 简历核对与面试准备。请先读
+> [RV32 简历核对与面试准备](interview/RV32_RESUME_AUDIT.md)。其余设计记录保留历史内容，
+> 其中的阶段性默认参数、待办和 PPA 不能不加版本区分地当作本分支现状。
+
 本目录是 NPC 项目的唯一文档入口。RTL 目录只保存源码和紧邻实现位置的局部注释；跨模块
 契约、架构决策、开发规范、实验结果和学习记录统一放在这里。
 
@@ -20,6 +24,8 @@
 当前实现依据。
 
 ## 权威文档
+
+- [RV32 定时中断](microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)：CLINT、流水线精确受理及验证范围。
 
 - [完整AXI4互连架构](interconnect/AXI4_ARCHITECTURE.md)：当前主链边界、事务能力和后续扩展规则。
 - [I-cache设计空间探索](verification/CACHE_DESIGN_SPACE_EXPLORATION.md)：NEMU itrace、3C模型、AMAT/TMT和cachesim命令。
@@ -44,3 +50,15 @@
 3. 参数、端口或协议发生变化时，同一次修改必须更新父模块、断言、测试和相关文档。
 4. 性能结论必须附带 Git commit、配置、命令和原始计数器数据。
 5. 学习记录区分“已经由证据支持的结论”和“仍需验证的假设”。
+
+- [RV32 D-cache 时序优化（2026-09-06）](verification/RV32_TIMING_FIX_2026-09-06.md)：820 MHz setup 通过，复位 removal 待修复。
+
+- [RV32 复位与重定向修复（2026-09-06）](verification/RV32_RESET_REDIRECT_FIX_2026-09-06.md)：含复位控制器/缓冲树的纯核边界通过 820 MHz 综合后 max/min 时序检查。
+
+- [当前 RV32 MicroBench test 基线](verification/RV32_MICROBENCH_TEST_2026-09-06.md)：10 项通过，PMU 窗口 IPC 0.261728。
+
+- [RV32 面积与 train IPC 优化实验（本轮已完成）](verification/RV32_HARDWARE_OPTIMIZATION_2026-09-06.md)
+
+- [MicroBench 计时与比较规则](verification/MICROBENCH_TIMING_RULES.md)：区分宿主耗时、计分时间、PMU 窗口和校准后的 CPU 时间。
+
+- [RV32 面试准备：结构、参数与选择理由](interview/RV32_DESIGN_CHOICES.md)：当前结构图、准确参数、选择依据、完整 train 取舍案例和简历表述边界。

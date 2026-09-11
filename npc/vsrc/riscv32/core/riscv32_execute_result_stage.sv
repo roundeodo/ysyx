@@ -23,8 +23,7 @@ module riscv32_execute_result_stage
   logic            execute_result_valid_q;
   logic            execute_result_valid_d;
   logic            stage_can_accept;
-  program_counter_t sequential_next_pc;
-  program_counter_t predicted_next_pc;
+  program_counter_t predicted_next_pc_q;
   logic             branch_prediction_mismatch;
 
   assign stage_can_accept        = !execute_result_valid_q || resolved_result_ready_i;
@@ -34,12 +33,8 @@ module riscv32_execute_result_stage
   assign executed_result_ready_o = stage_can_accept;
   assign resolved_result_valid_o = execute_result_valid_q;
 
-  assign sequential_next_pc = execute_result_q.uop.pc +
-                              program_counter_t'(INSTRUCTION_BYTES);
-  assign predicted_next_pc = execute_result_q.uop.prediction.predicted_taken ?
-                             execute_result_q.uop.prediction.predicted_target :
-                             sequential_next_pc;
-  assign branch_prediction_mismatch = execute_result_q.next_pc != predicted_next_pc;
+  // 预测顺序后继在寄存器入口计算，避免输出侧再串联 PC+4、选择和地址比较。
+  assign branch_prediction_mismatch = execute_result_q.next_pc != predicted_next_pc_q;
 
   always_comb begin
     resolved_result_o                              = execute_result_q;
@@ -72,6 +67,9 @@ module riscv32_execute_result_stage
   always_ff @(posedge clk_i) begin
     if (executed_result_valid_i && executed_result_ready_o) begin
       execute_result_q <= executed_result_i;
+      predicted_next_pc_q <= executed_result_i.uop.prediction.predicted_taken ?
+                             executed_result_i.uop.prediction.predicted_target :
+                             executed_result_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
     end
   end
 

@@ -51,6 +51,7 @@ module top
   ) u_npc_system (
       .clk_i                  (clk),
       .rst_ni                 (rstn),
+      .system_rst_no          (),
       .external_axi4_manager_o(npc_external_axi4_manager),
       .external_axi4_manager_i(npc_external_axi4_response)
   );
@@ -179,5 +180,7 @@ module top
       ebreak_halt();
     end
   end
+
+  `include "riscv32_perf_dpi.svh"
 
 endmodule : top

@@ -84,3 +84,21 @@
 - critical-word-first结合AXI4 INCR burst后的可见miss延迟和总线利用率。
 - SRAM和MROM保持uncached是否优于统一cacheable策略。
 - 两项以上MSHR、prefetch或way prediction中哪一项首先产生可测量收益。
+
+## 2026-09-05：流水线中断与缓存维护边界
+
+- 将中断移到有多个寄存级的顺序核时，不能沿用“LSU 不忙就能受理”的判断。必须覆盖执行、完成结果、LSU、写回和维护状态。恢复 PC 属于已提交路径，执行级预测纠错不能直接更新它。
+- FENCE.I 开始时直接屏蔽 ready/valid 通道会撤回已呈现的请求。新系统测试触发了原 I-cache 稳定性断言；保留被背压的请求并排空，再开始缓存清理，才满足接口契约。
+- Write-back 缓存下，外部 AXI 写回拍数不能与 store 指令数相等比较。分别检查指令接收/提交次数、数据读回和总线协议。
+
+证据：[定时中断设计与回归](../microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)。
+
+
+## 2026-09-06：分开写数据选择和写入资格
+
+D-cache 的写入资格必须等待命中及响应握手，但写数据可以提前由 miss/store 来源选择。仅在有效写入时要求载荷正确，能减少晚到控制经过的逻辑；必须同时检查字节使能、背压和 read-during-write bypass。相同配置实测 820 MHz setup TNS 归零，面积增加 0.48%；复位 removal 是独立问题。见 [实验报告](../verification/RV32_TIMING_FIX_2026-09-06.md)。
+
+
+## 2026-09-06：复位同步和复位负载要分别验证
+
+同步释放电路解决释放与时钟的关系，但一个触发器直接驱动上千个复位端仍会因负载过大产生时序违例。本次在系统入口统一同步、下降沿释放，再在映射网表中加入非反相缓冲树，820 MHz 下包括复位在内的 max/min TNS 才归零。原始异步输入与同步释放后的路径具有不同约束边界，不能把整个复位网络一律 false-path。见 [实测记录](../verification/RV32_RESET_REDIRECT_FIX_2026-09-06.md)。

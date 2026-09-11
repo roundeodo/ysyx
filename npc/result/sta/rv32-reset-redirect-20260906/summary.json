@@ -1,0 +1,75 @@
+{
+  "pure_core_1000mhz": {
+    "worst_slack_ns": {
+      "core_clock_max": -0.106,
+      "core_clock_min": -0.106,
+      "**clock_gating_default**_max": -0.13,
+      "**clock_gating_default**_min": 0.094
+    },
+    "tns_ns": {
+      "max": -29.463,
+      "min": -224.386
+    },
+    "reported_fmax_mhz": 903.898,
+    "worst_endpoint": "idu_decoded_uop_192__reg_p:D"
+  },
+  "pure_core_same_netlist_820mhz": {
+    "worst_slack_ns": {
+      "core_clock_max": 0.113,
+      "core_clock_min": -0.062,
+      "**clock_gating_default**_max": 0.089,
+      "**clock_gating_default**_min": 0.094
+    },
+    "tns_ns": {
+      "max": 0.0,
+      "min": -130.655
+    },
+    "reported_fmax_mhz": 903.898,
+    "worst_endpoint": "idu_decoded_uop_192__reg_p:D"
+  },
+  "reset_boundary_unbuffered_820mhz": {
+    "worst_slack_ns": {
+      "core_clock_max": -5.684,
+      "core_clock_min": -0.457,
+      "**clock_gating_default**_max": -5.354,
+      "**clock_gating_default**_min": 0.099
+    },
+    "tns_ns": {
+      "max": -17300.934,
+      "min": -973.076
+    },
+    "reported_fmax_mhz": 144.859,
+    "worst_endpoint": "u_core.u_ifu.next_frontend_tag_q_1__reg_p:RN"
+  },
+  "reset_boundary_buffered_820mhz": {
+    "worst_slack_ns": {
+      "core_clock_max": 0.036,
+      "core_clock_min": 0.059,
+      "**clock_gating_default**_max": 0.035,
+      "**clock_gating_default**_min": 0.099
+    },
+    "tns_ns": {
+      "max": 0.0,
+      "min": 0.0
+    },
+    "reported_fmax_mhz": 845.239,
+    "worst_endpoint": "u_core.u_icache.local_lookup_resp_41__reg_p:D"
+  },
+  "area_um2": {
+    "pure_core": 78871.394,
+    "reset_boundary_unbuffered": 78823.78,
+    "reset_boundary_buffered": 79002.532,
+    "reset_buffers": 178.752
+  },
+  "verification": {
+    "reset_unit": "passed",
+    "execute_result_unit_1024_cases": "passed",
+    "pipeline_control": "passed",
+    "timer_system_runs": 5,
+    "timer_unit_tests": 3,
+    "timer_interrupts": 43,
+    "buffer_structure_equivalence": "passed",
+    "reset_connectivity": "passed",
+    "full_core_formal_equivalence": "not run"
+  }
+}

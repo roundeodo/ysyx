@@ -1,0 +1,42 @@
+{
+  "area_um2": 79324.658,
+  "previous_area_um2": 78942.15,
+  "area_change_percent": 0.4845421615702117,
+  "previous_reported_fmax_mhz": 820.127,
+  "sta_1000mhz": {
+    "worst_slack_ns": {
+      "core_clock_max": -0.136,
+      "core_clock_min": -0.106,
+      "**clock_gating_default**_max": -0.141,
+      "**clock_gating_default**_min": 0.097
+    },
+    "core_tns_ns": {
+      "max": -130.643,
+      "min": -224.386
+    },
+    "reported_fmax_mhz": 880.318,
+    "worst_setup_endpoint": "frontend_recovery_occurred_reg_p:D"
+  },
+  "sta_820mhz": {
+    "worst_slack_ns": {
+      "core_clock_max": 0.083,
+      "core_clock_min": -0.062,
+      "**clock_gating_default**_max": 0.078,
+      "**clock_gating_default**_min": 0.097
+    },
+    "core_tns_ns": {
+      "max": 0.0,
+      "min": -130.655
+    },
+    "reported_fmax_mhz": 880.318,
+    "worst_setup_endpoint": "frontend_recovery_occurred_reg_p:D"
+  },
+  "validation": {
+    "dcache_extended": "passed",
+    "timer_system_runs": 5,
+    "timer_unit_tests": 3,
+    "timer_interrupts": 43,
+    "whole_core_formal_equivalence": "not run"
+  },
+  "remaining_issue": "Reset removal remains violated under unchanged original SDC; no reset hardware/constraint fix in this experiment."
+}

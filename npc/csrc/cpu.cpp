@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "perf_observer.h"
 #include "difftest.h"
 #include "ftrace.h"
 #include "trace.h"
@@ -42,6 +43,20 @@ static bool nvboard_enabled = false;
 static uint64_t main_time = 0;
 static uint64_t guest_inst_count = 0;
 static uint64_t guest_cycle_count = 0;
+static uint64_t guest_retired_count = 0;
+static uint64_t guest_interrupt_count = 0;
+static uint64_t guest_clint_write_count = 0;
+static bool good_exit = false;
+static PerfObserver perf_observer;
+static bool perf_audit_enabled = false;
+static uint64_t perf_audit_digest = 14695981039346656037ULL;
+
+static void audit_word(uint64_t value) {
+  for (int i = 0; i < 8; ++i) {
+    perf_audit_digest = (perf_audit_digest ^ (value & 255)) * 1099511628211ULL;
+    value >>= 8;
+  }
+}
 static bool performance_statistics_printed = false;
 
 static const uint64_t MAX_GUEST_INST = 1000000000ULL;
@@ -50,6 +65,7 @@ static constexpr int ARCH_GPR_COUNT = 32;
 
 struct CommitEvent {
   bool valid;
+  uint32_t perf_flags;
   npc_word_t pc;
   uint32_t instruction;
   npc_word_t next_pc;
@@ -94,6 +110,27 @@ static void single_cycle(CommitEvent *commit_event = nullptr) {
     commit_event->instruction = (uint32_t)npc_get_commit_inst_dpi();
     commit_event->next_pc =
         static_cast<npc_word_t>(npc_get_commit_next_pc_dpi());
+    commit_event->perf_flags = npc_get_perf_flags_dpi();
+    if (perf_observer.enabled()) {
+      if (commit_event->perf_flags & 2) {
+        perf_observer.sample({guest_cycle_count, guest_retired_count,
+            npc_get_perf_timer_dpi(), npc_get_perf_load_pc_dpi(),
+            npc_get_gpr_dpi(1), guest_interrupt_count});
+      }
+      if (commit_event->valid) {
+        perf_observer.commit(guest_cycle_count, commit_event->pc,
+            commit_event->instruction, commit_event->perf_flags & 1);
+      }
+    }
+    if (perf_audit_enabled && commit_event->valid) {
+      audit_word(guest_cycle_count);
+      audit_word(commit_event->pc);
+      audit_word(commit_event->instruction);
+      audit_word(commit_event->next_pc);
+      audit_word(commit_event->perf_flags & 0x19);
+      for (int index = 0; index < 6; ++index)
+        audit_word(npc_get_commit_audit_dpi(index));
+    }
   }
 
   if (trace_enabled && tfp != nullptr) {
@@ -174,8 +211,20 @@ void cpu_init(int argc, char **argv, bool enable_nvboard, bool enable_trace) {
   main_time = 0;
   guest_inst_count = 0;
   guest_cycle_count = 0;
+  guest_retired_count = 0;
+  guest_interrupt_count = 0;
+  guest_clint_write_count = 0;
+  good_exit = false;
+  perf_audit_digest = 14695981039346656037ULL;
   performance_statistics_printed = false;
   npc_state = NPC_STOP;
+  perf_audit_enabled = Verilated::commandArgsPlusMatch("NPC_PERF_AUDIT")[0] != '\0';
+  const char *option = Verilated::commandArgsPlusMatch("NPC_PERF_OUTPUT=");
+  if (option[0] != '\0') {
+    set_dpi_scope();
+    perf_observer.open(strchr(option, '=') + 1, npc_get_perf_cpu_hz_dpi(),
+                       npc_get_perf_timer_hz_dpi());
+  }
 }
 
 // ============================================================
@@ -312,14 +361,25 @@ bool npc_reg_str2val(const char *name, npc_word_t *val) {
 static void print_performance_statistics() {
   const double ipc = guest_cycle_count == 0
                          ? 0.0
-                         : static_cast<double>(guest_inst_count) /
+                         : static_cast<double>(guest_retired_count) /
                                static_cast<double>(guest_cycle_count);
   printf("NPC performance statistics:\n");
   printf(" retired instructions = %llu\n",
-         (unsigned long long)guest_inst_count);
+         (unsigned long long)guest_retired_count);
   printf(" CPU cycle            = %llu\n",
          (unsigned long long)guest_cycle_count);
   printf(" IPC                  = %.6f\n", ipc);
+  perf_observer.finish(guest_cycle_count, guest_retired_count,
+      guest_interrupt_count, guest_clint_write_count, good_exit);
+  if (perf_audit_enabled) {
+    for (int index = 0; index < ARCH_GPR_COUNT; ++index) audit_word(npc_get_gpr(index));
+    audit_word(npc_get_mstatus());
+    audit_word(npc_get_mtvec());
+    audit_word(npc_get_mepc());
+    audit_word(npc_get_mcause());
+    audit_word(npc_get_mtval());
+    printf("NPC architectural audit = %016llx\n", (unsigned long long)perf_audit_digest);
+  }
 }
 
 // Execute n instructions
@@ -354,6 +414,9 @@ void cpu_exec(uint64_t n) {
     CommitEvent event{};
     single_cycle(&event);
     guest_cycle_count++;
+    guest_retired_count += event.perf_flags & 1;
+    guest_interrupt_count += (event.perf_flags >> 3) & 1;
+    guest_clint_write_count += (event.perf_flags >> 2) & 1;
 
     if (!event.valid) {
       cycles_without_commit++;
@@ -415,6 +478,7 @@ extern "C" void ebreak_halt() {
   npc_word_t a0_val = npc_get_gpr(10);
   npc_word_t pc_val = npc_get_pc();
 
+  good_exit = a0_val == 0;
   if (a0_val == 0) {
     printf("\033[1;32mNPC: HIT GOOD TRAP\033[0m at pc = 0x%0*llx\n",
            NPC_WORD_HEX_DIGITS, static_cast<unsigned long long>(pc_val));

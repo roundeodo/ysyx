@@ -24,6 +24,12 @@ make perf-record \
 
 `PERF_SCALE`默认为`train`。`PERF_SCALE=test`适合本地调试，但不能替代正式`train`结果。
 
+2026-09-06 计时审计：`PERF_FREQUENCY_MHZ` 只填写结果，不能配置硬件定时器或设备延迟。
+新测量应另传 `NPC_SIM_CPU_FREQ_MHZ=820`（或本次实际采用的 CPU 频率），同时配置
+CLINT 和 CPU/100 MHz 外设的延迟比例。留空只用于复现旧环境：CLINT 按 100 MHz
+换算，而延迟比例为 3037/1024。该旧环境的 Scored time 不能直接视为对应 STA 主频的
+执行时间。详见 [计时规则](../../docs/verification/MICROBENCH_TIMING_RULES.md)。
+
 | 日期（UTC） | NPC commit | AM-kernels commit | 规模 | 说明 | 仿真周期数 | 退休指令数 | IPC | 综合频率（MHz） |
 | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: |
 <!-- PERFORMANCE_RESULTS:INSERT_BEFORE -->

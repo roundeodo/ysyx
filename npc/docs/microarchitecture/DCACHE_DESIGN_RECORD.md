@@ -1,5 +1,8 @@
 # D-cache微架构设计记录
 
+> 历史设计记录：各章节反映不同阶段，早期参数和待办不一定适用于恢复的 RV32 快照。
+> 当前配置、实现边界及面试表述见 [RV32 简历核对](../interview/RV32_RESUME_AUDIT.md)。
+
 状态：首版阻塞式检查点已实现
 
 最后更新：2026-08-25
@@ -137,3 +140,9 @@ data array读寄存器，说明下一步必须联合设计AGU/cache请求流水�
 该面积是数组被标准单元展开后的结果，不代表SRAM宏实现。必须保留D-cache、miss unit、
 line AXI master和I/D仲裁边界，因为它们是后续store buffer、多MSHR、banking和LSQ的结构
 基础；可以删除的是无实测收益的额外容量、额外路数和组合旁路，而不是这些协议边界。
+
+## 2026-09-06：写数据选择路径优化
+
+820 MHz 报告显示 lookup_s1_q 到数据阵列写数据端的控制路径处于时序边界。候选保持写使能、地址、way、字节使能和 refill 优先级不变，仅把写数据选择从 store_hit_write_occurred 解耦：无 refill 写入时始终选择 store 数据，实际写入仍须命中与响应握手。写使能无效时的数据没有架构意义；不能为缩短路径放宽写使能。保留 store bypass 和全部握手。用 D-cache、完整中断系统测试及同配置综合/STA 决定是否保留。
+
+实测：该改动已保留，扩展 D-cache 及全部定时中断回归通过。相同配置下，820 MHz setup WNS 从负零改善为 +0.083 ns，TNS 归零；面积增加 0.48%。复位 removal 仍有违例，详见 [时序优化报告](../verification/RV32_TIMING_FIX_2026-09-06.md)。

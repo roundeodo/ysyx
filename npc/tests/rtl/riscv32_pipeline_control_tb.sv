@@ -89,6 +89,7 @@ module riscv32_pipeline_control_tb;
   writeback_result_t   hazard_writeback_result;
   logic                hazard_writeback_result_valid;
   logic                lsu_busy;
+  logic                lsu_completion_succeeded;
   logic                lsu_pending_writes_rd;
   arch_reg_idx_t       lsu_pending_rd;
   logic                frontend_redirect_applied;
@@ -222,6 +223,8 @@ module riscv32_pipeline_control_tb;
   );
 
   riscv32_trap_controller u_trap_controller (
+      .interrupt_valid_i(1'b0),
+      .interrupt_pc_i('0),
       .commit_i            (staged_commit),
       .commit_valid_i      (staged_commit_valid),
       .mtvec_i             (program_counter_t'(64'h8000_0100)),
@@ -264,6 +267,7 @@ module riscv32_pipeline_control_tb;
       .writeback_serializing_i                 (hazard_writeback_result.uop.serializing),
       .writeback_forwarding_available_i        (writeback_forwarding_available),
       .lsu_busy_i                              (lsu_busy),
+      .lsu_completion_succeeded_i              (lsu_completion_succeeded),
       .lsu_pending_writes_rd_i                 (lsu_pending_writes_rd),
       .lsu_pending_rd_i                        (lsu_pending_rd),
       .execute_redirect_present_i              (1'b0),
@@ -357,6 +361,7 @@ module riscv32_pipeline_control_tb;
     hazard_writeback_result             = '0;
     hazard_writeback_result_valid       = 1'b0;
     lsu_busy                            = 1'b0;
+    lsu_completion_succeeded            = 1'b0;
     lsu_pending_writes_rd               = 1'b0;
     lsu_pending_rd                      = '0;
     frontend_redirect_applied           = 1'b0;
@@ -776,6 +781,19 @@ module riscv32_pipeline_control_tb;
     assert (structural_hazard_present && decode_accept_allowed && !execute_issue_allowed)
     else $fatal(1, "pipeline issued a younger instruction ahead of an older LSU transaction");
 
+    // 成功完成拍只解除结构阻塞；有异常或反压时 succeeded 必须保持为 0。
+    lsu_completion_succeeded = 1'b1;
+    #1;
+    assert (!structural_hazard_present && execute_issue_allowed && execute_progress_allowed)
+    else $fatal(1, "successful LSU completion unnecessarily blocked independent execution");
+    execute_result_valid = 1'b1;
+    execute_result_ready = 1'b0;
+    #1;
+    assert (!execute_issue_allowed && !execute_progress_allowed)
+    else $fatal(1, "LSU completion overrode execute result backpressure");
+    execute_result_valid = 1'b0;
+    execute_result_ready = 1'b1;
+
     // 在途load的数据尚未跨越WB寄存边界，因此依赖指令必须停在ID。LSU响应不能直接
     // 穿过D-cache、LSU和冒险控制进入ID/EX，否则会形成跨多个模块的组合长路径。
     lsu_pending_writes_rd       = 1'b1;
@@ -785,6 +803,11 @@ module riscv32_pipeline_control_tb;
     #1;
     assert (raw_hazard_present && !decode_accept_allowed)
     else $fatal(1, "pending LSU load dependency was not blocked before response");
+
+    lsu_completion_succeeded = 1'b0;
+    #1;
+    assert (!execute_issue_allowed)
+    else $fatal(1, "unfinished or faulting LSU completion enabled execution");
 
     // LSU完成后，结果先进入WB寄存器。下一拍由现有WB前递网络解除相关冒险。
     lsu_busy                                      = 1'b0;

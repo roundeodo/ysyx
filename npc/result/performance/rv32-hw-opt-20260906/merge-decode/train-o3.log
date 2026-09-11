@@ -1,0 +1,142 @@
+NPC: No MROM image supplied
+NPC: loaded 24572 bytes into flash
+======= Running MicroBench [input *train*] =======
+[qsort] Quick sort: ISSUE_WINDOW end=1 sampled_cycles=22005401 cumulative_observed_cycles=22005401
+* Passed.
+  min time: 220.064 ms [0]
+[queen] Queen placement: ISSUE_WINDOW end=2 sampled_cycles=15253003 cumulative_observed_cycles=37258404
+* Passed.
+  min time: 152.540 ms [0]
+[bf] Brainf**k interpreter: ISSUE_WINDOW end=3 sampled_cycles=30537963 cumulative_observed_cycles=67796367
+* Passed.
+  min time: 305.391 ms [0]
+[fib] Fibonacci number: ISSUE_WINDOW end=4 sampled_cycles=292994329 cumulative_observed_cycles=360790696
+* Passed.
+  min time: 2929.953 ms [0]
+[sieve] Eratosthenes sieve: ISSUE_WINDOW end=5 sampled_cycles=35156512 cumulative_observed_cycles=395947208
+* Passed.
+  min time: 351.576 ms [0]
+[15pz] A* 15-puzzle search: ISSUE_WINDOW end=6 sampled_cycles=80222016 cumulative_observed_cycles=476169224
+* Passed.
+  min time: 802.230 ms [0]
+[dinic] Dinic's maxflow algorithm: ISSUE_WINDOW end=7 sampled_cycles=28490297 cumulative_observed_cycles=504659521
+* Passed.
+  min time: 284.913 ms [0]
+[lzip] Lzip compression: ISSUE_WINDOW end=8 sampled_cycles=51206900 cumulative_observed_cycles=555866421
+* Passed.
+  min time: 512.081 ms [0]
+[ssort] Suffix sort: ISSUE_WINDOW end=9 sampled_cycles=58411522 cumulative_observed_cycles=614277943
+* Passed.
+  min time: 584.125 ms [0]
+[md5] MD5 digest: ISSUE_WINDOW end=10 sampled_cycles=45401069 cumulative_observed_cycles=659679012
+* Passed.
+  min time: 454.021 ms [0]
+==================================================
+MicroBench PASS
+Scored time: 6596.894 ms
+Total  time: 9603.623 ms
+MicroBench PMU measurement window:
+  cycles               = 659679012
+  retired instructions = 186810217
+  IPC                  = 0.283183
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0xa0003dbc
+NPC performance statistics:
+ retired instructions = 266878436
+ CPU cycle            = 960765795
+ IPC                  = 0.277777
+ISSUE_WINDOW total windows=10 active=0 cycles=659679012 issue=186810217 recovery=138701276 lsu_block=173659165 result_block=0 execute_wait=0 raw=0 serial=43 delivery_gap=160508311 redirects=11458568 lsu_busy=173659165 recovery_observed=138701276 ic_miss=4900640 dc_miss=2457135 dirty_miss=591845
+
+================ NPC performance counters ================
+active core cycles                 : 960765783
+decoded instructions               : 317138261
+retired instructions               : 266878435
+IPC                                : 0.277777
+
+instruction class        count       ratio       average execution cycles
+integer               196610220    61.995%         0.700
+branch/jump            95552432    30.130%         1.565
+load/store             24975481     7.875%         1.306
+  load                 16889375     5.326%
+  store                 8086106     2.550%
+CSR                          120     0.000%         2.658
+system                         8     0.000%         7.375
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 333226945 / 333226944 / 317138261
+IFU average response latency           : 2.131 cycles
+IFU AR backpressure cycles             : 433359318 (45.106%)
+IFU response-wait cycles               : 710150898 (73.915%)
+IFU downstream-backpressure cycles     : 164985094 (17.172%)
+IFU discarded wrong-path responses     : 15863343
+
+LSU requests / completions             : 21696494 / 21696494
+LSU load operation average latency     : 10.886 cycles (14462851 operations)
+LSU store operation average latency    : 4.832 cycles (7233643 operations)
+LSU AXI read average latency           : 10.554 cycles (6894161 transactions)
+LSU AXI write-response average latency : 5.840 cycles (4536033 transactions)
+EXU / LSU completions                  : 245181942 / 21696494
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 317138261 (33.009%)
+  control recovery stalls             : 169345298 (17.626%)
+  LSU structural stalls               : 160197166 (16.674%)
+  unresolved RAW stalls               : 4383617 (0.456%)
+  serializing stalls                  : 139 (0.000%)
+  frontend supply stalls              : 211476810 (22.011%)
+    request backpressure              : 144949674 (15.087%)
+    I-cache miss service              : 706074 (0.073%)
+    lookup response in flight         : 65821059 (6.851%)
+    request launch or delivery gap    : 3 (0.000%)
+  other empty issue slots             : 98224492 (10.224%)
+recovery redirects / taken fetch predictions / EX corrections: 17659367 / 72265614 / 17659366
+actual EX corrections by branch / JAL / JALR          : 15456647 / 952566 / 1250153
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 76988449 / 56007063 (72.747% taken)
+  backward / taken                  : 37529506 / 33809986 (90.089% taken)
+  forward / taken                   : 39458943 / 22197077 (56.254% taken)
+direct / indirect jumps             : 6451125 / 3260517
+always-not-taken prediction errors  : 65718705 (75.800% of control flow)
+BTFNT+JAL prediction errors          : 29177114 (33.653% of control flow)
+16-entry BHT+JAL errors              : 18263673 (conditional 15003156 + JALR 3260517)
+64-entry BHT+JAL errors              : 18059898 (conditional 14799381 + JALR 3260517)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 7643041.000
+I-cache critical miss excess cycles   : 227736347.000
+oracle 1-cycle data memory / speedup   : 953122742.000 / 1.008x
+ideal single-issue pipeline cycles     : 502257823.000 / 1.913x
+ideal pipeline + oracle data memory    : 494614782.000 / 1.942x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 333226945 / 324791147 / 8435798
+I-cache hit rate                            : 97.468%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 27.996 cycles
+average miss penalty                        : 26.996 cycles
+I-cache AMAT                                : 1.683 cycles
+average complete refill latency             : 33.457 cycles
+lookup request waiting cycles               : 433358700
+successful line installs / refill finishes  : 8435797 / 8435797
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 13558209 / 10968647 / 2589562
+D-cache hit rate                           : 80.900%
+load lookups / hits / misses               : 10158252 / 7833876 / 2324376
+store lookups / hits / misses              : 3399957 / 3134771 / 265186
+average hit response latency               : 1.000 cycles
+average miss response latency              : 50.898 cycles
+  clean-victim miss latency                : 42.461 cycles (1887230)
+  dirty-victim miss latency                : 73.569 cycles (702332)
+average miss penalty                       : 49.898 cycles
+D-cache AMAT                               : 10.530 cycles
+dirty victim misses                        : 702332 (27.122% of misses)
+refill requests / words / completions      : 2589562 / 10358248 / 2589562
+line installs / writeback requests/responses: 2589562 / 702347 / 702347
+lookup request waiting cycles              : 0
+store-hit same-cycle next lookups          : 0
+==========================================================

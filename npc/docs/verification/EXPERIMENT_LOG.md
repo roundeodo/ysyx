@@ -1386,3 +1386,72 @@ LSU接收条件和数据子系统路由控制，到达`u_lsu.state_q`；数据�
 为0.953 ns，WNS为-0.304 ns，可达频率为766.875 MHz。CSR和PMU均不在最慢路径组中。
 下一项频率候选必须在EX地址生成与LSU/cache请求接收之间建立真正的EX/MEM弹性边界，切断
 下游ready反馈；不能继续在原组合路径上增加旁路选择或单项保存状态。
+
+## 2026-09-05 - rv32-interview 完整流水线定时中断
+
+- 基点：`bb03677d1ea6670059391328f1a61b69fb8f35ea`；本次修改在 `rv32-interview` 工作树，未作为历史 PPA 对应源码。
+- 配置：RV32 baseline，I-cache 256 B/1 路/16 B 行，D-cache 256 B/2 路/16 B 行。
+- 新增 CLINT mtimecmp 和 MTIP、CSR 使能、后端排空受理、独立中断陷入，以及 AM 定时事件。中断不伪造 commit。
+- `make -C npc NPC_CONFIG=rv32-baseline git_commit= test-timer-interrupt`：退出码 0；3 次汇编系统运行各 11 次中断、2 次 AM 系统运行各 5 次中断，合计 43 次；另有 CLINT、控制器和 IFU 3 个单元测试通过。
+- 汇编加入三个同组地址的脏替换与 FENCE.I；0/17/83 周期附加总线延迟下，中断 pending 与写事务分别重叠 173/391/635 个周期。核对提交 PC、恢复 PC、minstret、store 接受/提交数，以及软件数据自检。
+- 新场景发现历史 FENCE.I 会撤回背压中的 I-cache 请求，触发原稳定性 SVA；修复为保持该请求并先排空，再执行数据缓存清理和指令缓存失效。保留断言后重新通过。
+- 原有 `test-privileged test-pipeline test-lsu test-dcache test-uncached test-core-merge` 六项通过。最终整核 `lint-npc` 退出码 0，有未使用信号/参数等告警；未出现 LATCH、UNOPTFLAT、MULTIDRIVEN 或 PINMISSING。
+- 日志：`npc/build/interview-audit/timer-regression.log`、`interrupt-existing-regression.log`、`interrupt-lint.log`，各单项日志在 `npc/build/tests/interrupt/`。
+- 未验证：外部/软件中断、PLIC、完整 ysyxSoC/RT-Thread、异步中断 DiffTest；未重测综合面积与时序。
+
+设计、地址表及复现方式见 [RV32 定时中断](../microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)。
+
+## 2026-09-06 - RV32 中断版本纯核综合与 STA
+
+`rv32-interview` 当前工作树，NanGate45 typ、rv32-baseline 小缓存、1 GHz、DELAY 0，Yosys/Slang + iEDA/iSTA，综合与 STA 退出 0。当前面积 78942.150 μm²、估算 Fmax 820.127 MHz，setup WNS −0.219 ns、TNS −834.600 ns；历史网表重查得到 69448.610 μm²、766.875 MHz、WNS −0.304 ns、TNS −457.502 ns，与旧记录一致。
+
+面积增加 13.67%，估算频率增加 6.94%。时序单元面积增加 9416.932 μm²，DFF 从 7383 增至 9361；新旧网表的流水寄存结构不同，不能把全部变化归因于中断。统计不含核外 CLINT/SoC，1 GHz 尚未收敛，未进行物理实现，未重测 IPC。输入快照、工具脚本、哈希和原始报告均保留。详见 [完整复测报告](RV32_INTERRUPT_PPA_2026-09-06.md)。
+
+## 2026-09-06 - 同一 RV32 网表在 820 MHz 下 STA
+
+复用本日 1 GHz 综合所得网表，SHA-256 校验一致，仅以 CLK_FREQ_MHZ=820 重新运行 iSTA。程序退出 0，但时序未全部通过：setup WNS 显示 −0.000 ns、TNS −0.992 ns；min 最差 −0.062 ns、TNS −130.655 ns。最差 min 详细检查是 rst_ni→RN 的 removal，不应笼统视为普通数据 hold。门控 max/min 最差分别 +0.084/+0.101 ns。面积不变，未改 RTL 或复位 false-path。
+
+报告与运行参数保存在 `npc/result/sta/rv32-interrupt-20260906/same-netlist-820MHz/`，详见 [PPA 报告的 820 MHz 复查](RV32_INTERRUPT_PPA_2026-09-06.md)。
+
+
+## 2026-09-06：RV32 D-cache 写数据路径优化
+
+只调整数据选择，不改变写入握手或 bypass；扩展 D-cache 和 5 组系统中断、3 组中断单元测试通过。面积 78,942.150 → 79,324.658 μm²（+0.48%），报告 Fmax 820.127 → 880.318 MHz；820 MHz setup WNS +0.083 ns、TNS 0，门控时钟 max/min 为正，复位 removal −0.062 ns 仍未修复。未增加流水级、未修改 SDC、未运行新 IPC 基准。详细证据见 [时序优化报告](RV32_TIMING_FIX_2026-09-06.md)。
+
+
+## 2026-09-06：RV32 复位与重定向修复
+
+预测后继 PC 提前寄存，纯核面积降至 78,871.394 μm²，原纯核估算 Fmax 903.898 MHz；1 GHz 尚未收敛。系统统一同步释放复位，映射后加入 96 个非反相复位缓冲单元。最终含复位控制器/缓冲树的纯核边界面积 79,002.532 μm²，在 820 MHz 下 max/min TNS 均为 0，最差 slack +0.036/+0.059 ns，门控时钟 +0.035/+0.099 ns。新增两项单元测试、流水控制及完整中断回归通过，复位网表审计和缓冲结构等价通过。无 CTS/布线签核。见 [完整报告](RV32_RESET_REDIRECT_FIX_2026-09-06.md)。
+
+
+## 2026-09-06：当前 RV32 MicroBench test 复测
+
+恢复 AXI SDRAM SoC 生成文件、配套外设修改和原有 PMU 窗口代码后，当前 RV32 核完成 MicroBench test，10 项通过、GOOD TRAP。PMU 累计 430,203 条指令、1,643,700 周期，IPC 0.261728；整次仿真 IPC 0.227295。较历史 1,194,972 周期增加 37.55%，尚需在统一 SoC/二进制环境下隔离版本定位，不能归因于单项修复。本轮没有修改 CPU RTL、没有重新测面积、没有运行 train/DiffTest。见 [完整报告](RV32_MICROBENCH_TEST_2026-09-06.md)。
+
+## 2026-09-06：RV32 面积与 train IPC 探索
+
+见 [完整实验记录](RV32_HARDWARE_OPTIMIZATION_2026-09-06.md)。先固定计分窗口与镜像，再逐项改变流水边界。基线与合并译码级的 test、STA 已完成，train 仍在运行。
+
+## 2026-09-06：MicroBench 计时口径审计
+
+当前及归档模型均确认：旧 CLINT 每 100 拍计 1 微秒，AXI/APB 延迟比例是 3037/1024，
+没有随本轮 820 MHz STA 更新。旧环境 A/B 可比较周期，但不能当作校准到 820 MHz 的
+系统性能；历史 train 的 4929.979 ms 也不能直接与来源条件未知的官方 4.49 s 比较。
+新增 `NPC_SIM_CPU_FREQ_MHZ`，同时配置 CLINT 和设备延迟，并使用独立构建目录。
+820 MHz 配置 test 全部通过，430,203 条指令 / 2,747,278 拍，IPC 0.156592，
+Scored time 3.378 ms；完整 train 独立运行，结果待完成。2 倍与 8396/1024 倍 AXI
+逐 beat 时间和独立读写测试通过。详细规则、原始模型参数证据及复现方式见
+[计时审计](MICROBENCH_TIMING_RULES.md)。计时配置变化不计入硬件优化收益。
+
+
+## 2026-09-06：完整 train 收齐，固定面试结构
+
+上述进行中的 train 已全部完成。旧环境下，基线 670,929,314 拍 / IPC 0.278435，
+合并译码 659,679,012 拍 / IPC 0.283184，当前第三方案 653,329,501 拍 / IPC 0.285936，
+均退休 186,810,217 条指令、十项 PASS、GOOD TRAP。第三方案面积 78,163.036 μm²，
+比基线少 1.06%，train IPC 高 2.69%，820 MHz STA 通过，予以保留。
+显式 820 MHz 计时环境另测得 1,089,343,319 拍 / IPC 0.171489，计分 1.328498 s、
+总计 1.953871 s；不同计时环境不作硬件加速比。完整记录见本轮硬件优化和计时报告。
+
+面试结构、参数与依据已统一至 [RV32 设计选择](../interview/RV32_DESIGN_CHOICES.md)。
+纠正旧审计中的 BTB 组数：16 是总项数，实际为 8 组×2 路；当前不再实例化 decode_stage。
