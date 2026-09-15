@@ -21,65 +21,56 @@ module riscv32_fetch_buffer
     input logic flush_i
 );
 
-  fetch_entry_t primary_entry_q;
-  fetch_entry_t reserve_entry_q;
-  logic         primary_entry_present_q;
-  logic         reserve_entry_present_q;
+  fetch_entry_t entry_array_q[2];
+  logic read_index_q;
+  logic write_index_q;
+  logic [1:0] entry_count_q;
   logic ifu_fetch_entry_handshake_occurred;
   logic idu_fetch_entry_handshake_occurred;
 
-  // 两项容量固定实现为主槽和备用槽，而不是环形数组。输出直接来自主槽，避免读指针
-  // 经过大宽度数组选择器后再进入IDU译码；这是前端达到高频所需的明确时序边界。
-  // 入口ready只依赖寄存的备用槽状态，不依赖本拍IDU是否出队。这样EX级冒险判断不会经
-  // IDU ready、队列出队条件和IFU response握手一路反馈到下一取指PC。
-  // flush不能组合压低当前输出valid，但必须压低入口ready：ready/valid一旦同时为1就表示
-  // sink已经接收该entry，不能在时钟沿悄悄丢弃。core只把寄存后的redirect接到这里，
-  // 因而flush不会把EX/commit组合路径重新接入前端ready。
-  always_comb begin
-    idu_fetch_entry_o       = primary_entry_q;
-    idu_fetch_entry_valid_o = primary_entry_present_q;
-    ifu_fetch_entry_ready_o = !reserve_entry_present_q && !flush_i;
+  // 两项环形队列：出队只改变读指针，不把整条备用指令搬回主槽。取消RR后，
+  // 译码/冒险产生的ready因此只到达窄指针和数量状态，不再控制宽payload搬移mux。
+  // 输出由寄存的读指针选择已有槽位；入口ready只取决于寄存容量，仍无空队列穿透。
+  assign idu_fetch_entry_o       = entry_array_q[read_index_q];
+  assign idu_fetch_entry_valid_o = entry_count_q != 2'd0;
+  assign ifu_fetch_entry_ready_o = (entry_count_q != 2'd2) && !flush_i;
+  assign ifu_fetch_entry_handshake_occurred =
+      ifu_fetch_entry_valid_i && ifu_fetch_entry_ready_o;
+  assign idu_fetch_entry_handshake_occurred =
+      idu_fetch_entry_valid_o && idu_fetch_entry_ready_i;
 
-    ifu_fetch_entry_handshake_occurred = ifu_fetch_entry_valid_i && ifu_fetch_entry_ready_o;
-    idu_fetch_entry_handshake_occurred = idu_fetch_entry_valid_o && idu_fetch_entry_ready_i;
+  // 写入始终只针对空闲槽位，完全不依赖下游本拍是否出队。payload无需复位；
+  // flush只清队列状态。旧输出valid保持到时钟沿，由下游自己的flush取消年轻指令。
+  always_ff @(posedge clk_i) begin
+    if (ifu_fetch_entry_handshake_occurred) begin
+      entry_array_q[write_index_q] <= ifu_fetch_entry_i;
+    end
   end
 
-  // 主槽被消费时，备用项优先前移；若没有备用项，则同拍新输入直接接替主槽。
-  // 未消费主槽时，新输入依次占用空主槽或备用槽。两个present位单独承载有效性，
-  // payload无需复位，flush也不进入宽数据寄存器的写入选择路径。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      primary_entry_present_q <= 1'b0;
-      reserve_entry_present_q <= 1'b0;
+      read_index_q  <= 1'b0;
+      write_index_q <= 1'b0;
+      entry_count_q <= 2'd0;
     end else if (flush_i) begin
-      primary_entry_present_q <= 1'b0;
-      reserve_entry_present_q <= 1'b0;
-    end else if (idu_fetch_entry_handshake_occurred) begin
-      if (reserve_entry_present_q) begin
-        primary_entry_q         <= reserve_entry_q;
-        primary_entry_present_q <= 1'b1;
-        reserve_entry_present_q <= 1'b0;
-      end else if (ifu_fetch_entry_handshake_occurred) begin
-        primary_entry_q         <= ifu_fetch_entry_i;
-        primary_entry_present_q <= 1'b1;
-      end else begin
-        primary_entry_present_q <= 1'b0;
-      end
-    end else if (ifu_fetch_entry_handshake_occurred) begin
-      if (!primary_entry_present_q) begin
-        primary_entry_q         <= ifu_fetch_entry_i;
-        primary_entry_present_q <= 1'b1;
-      end else begin
-        reserve_entry_q         <= ifu_fetch_entry_i;
-        reserve_entry_present_q <= 1'b1;
-      end
+      read_index_q  <= 1'b0;
+      write_index_q <= 1'b0;
+      entry_count_q <= 2'd0;
+    end else begin
+      if (ifu_fetch_entry_handshake_occurred) write_index_q <= !write_index_q;
+      if (idu_fetch_entry_handshake_occurred) read_index_q <= !read_index_q;
+      unique case ({ifu_fetch_entry_handshake_occurred, idu_fetch_entry_handshake_occurred})
+        2'b10: entry_count_q <= entry_count_q + 2'd1;
+        2'b01: entry_count_q <= entry_count_q - 2'd1;
+        default: ;
+      endcase
     end
   end
 
 `ifndef SYNTHESIS
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    reserve_entry_present_q |-> primary_entry_present_q)
-  else $error("fetch buffer reserve entry became present without a primary entry");
+    entry_count_q <= 2'd2)
+  else $error("fetch buffer occupancy exceeded its capacity");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (idu_fetch_entry_valid_o && !idu_fetch_entry_ready_i && !flush_i)
@@ -87,7 +78,7 @@ module riscv32_fetch_buffer
   else $error("fetch buffer output changed while IDU applied backpressure");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    flush_i |=> (!primary_entry_present_q && !reserve_entry_present_q))
+    flush_i |=> (entry_count_q == 2'd0))
   else $error("fetch buffer was not empty after flush");
 `endif
 

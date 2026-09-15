@@ -1,6 +1,7 @@
 # NPC 文档中心
 
 > 本工作树恢复自 `bb03677`，并已新增本地定时中断，用于 RV32 简历核对与面试准备。请先读
+> [RV32 架构与模块说明](interview/RV32_ARCHITECTURE_ATLAS.md) 和
 > [RV32 简历核对与面试准备](interview/RV32_RESUME_AUDIT.md)。其余设计记录保留历史内容，
 > 其中的阶段性默认参数、待办和 PPA 不能不加版本区分地当作本分支现状。
 
@@ -13,6 +14,7 @@
 
 | 目录 | 内容 | 主要读者 |
 | --- | --- | --- |
+| [`interview/`](interview/) | 当前 RV32 架构、逐模块说明、参数取舍及简历核对 | 面试准备与当前版本维护者 |
 | [`architecture/`](architecture/) | 产品场景、AI 负载模型、体系结构路线和冻结决策 | 全体开发者 |
 | [`development/`](development/) | 命名、参数化、模块化、评审和设计记录模板 | RTL 与验证开发者 |
 | [`interconnect/`](interconnect/) | AXI、APB、片上互连和协议迁移记录 | SoC 与存储子系统开发者 |
@@ -25,6 +27,9 @@
 
 ## 权威文档
 
+- [RV32 架构与模块说明](interview/RV32_ARCHITECTURE_ATLAS.md)：实际寄存边界、模块职责、数据流、当前参数和实现边界。
+- [取消独立 RR（2026-09-15）](interview/RV32_RR_REMOVAL_2026-09-15.md)：译码、GPR 读取与前递直连 ID/EX，功能回归及新面积、频率和 MicroBench 测量。
+- [取指预测器模块设计](microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md)：BHT、BTB、RAS 的独立状态、统一查询控制和保持原有拍数的接口契约。
 - [RV32 定时中断](microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)：CLINT、流水线精确受理及验证范围。
 
 - [完整AXI4互连架构](interconnect/AXI4_ARCHITECTURE.md)：当前主链边界、事务能力和后续扩展规则。
@@ -55,10 +60,10 @@
 
 - [RV32 复位与重定向修复（2026-09-06）](verification/RV32_RESET_REDIRECT_FIX_2026-09-06.md)：含复位控制器/缓冲树的纯核边界通过 820 MHz 综合后 max/min 时序检查。
 
-- [当前 RV32 MicroBench test 基线](verification/RV32_MICROBENCH_TEST_2026-09-06.md)：10 项通过，PMU 窗口 IPC 0.261728。
+- [历史 RV32 MicroBench test 基线（2026-09-06）](verification/RV32_MICROBENCH_TEST_2026-09-06.md)：10 项通过，旧 PMU 窗口 IPC 0.261728；不能作为取消 RR 后的性能。
 
 - [RV32 面积与 train IPC 优化实验（本轮已完成）](verification/RV32_HARDWARE_OPTIMIZATION_2026-09-06.md)
 
 - [MicroBench 计时与比较规则](verification/MICROBENCH_TIMING_RULES.md)：区分宿主耗时、计分时间、PMU 窗口和校准后的 CPU 时间。
 
-- [RV32 面试准备：结构、参数与选择理由](interview/RV32_DESIGN_CHOICES.md)：当前结构图、准确参数、选择依据、完整 train 取舍案例和简历表述边界。
+- [RV32 面试准备：结构、参数与选择理由](interview/RV32_DESIGN_CHOICES.md)：当前结构、准确参数、选择依据、历史 train 取舍案例和简历表述边界。

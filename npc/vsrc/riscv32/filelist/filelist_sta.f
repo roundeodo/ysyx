@@ -26,6 +26,9 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_csr_file.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_idu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_decode_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_register_read_stage.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_history_table.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_target_buffer.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_return_address_stack.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_control_flow_predictor.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_decode_execute_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_frontend_redirect_register.sv

@@ -1455,3 +1455,17 @@ Scored time 3.378 ms；完整 train 独立运行，结果待完成。2 倍与 83
 
 面试结构、参数与依据已统一至 [RV32 设计选择](../interview/RV32_DESIGN_CHOICES.md)。
 纠正旧审计中的 BTB 组数：16 是总项数，实际为 8 组×2 路；当前不再实例化 decode_stage。
+
+
+## 2026-09-15 - RV32 预测器模块拆分
+
+- Commit：`4d0716eb221ad49d4dd88890f6d2ddb7fdd11604` 加工作树改动，保留此前取消 RR。
+- 配置：`rv32-baseline`，I-cache 256 B/1 路/16 B，D-cache 256 B/2 路/16 B，BHT 16、BTB 16 项/2 路、RAS 4。
+- 决策：BHT、BTB、RAS 各自拥有数组与更新逻辑，原模块统一查询控制；不增加流水级。
+- 命令：在面试工作树设置 `NPC_HOME=$PWD/npc`、`AM_HOME=$PWD/abstract-machine` 后，运行 `make -C npc git_commit= NPC_CONFIG=rv32-baseline test-predictor-equivalence lint-npc test-pipeline test-timer-interrupt`。
+- 功能：5 组预测器参数、120,000 周期新旧输出对照通过；流水线、5 组定时中断系统用例与 3 个单元测试通过。
+- 性能：`python3 npc/scripts/run_microbench_perf.py --scale test --cpu-mhz 750 --output npc/result/performance/predictor-split-20260915/microbench-test-750`；与拆分前同频测量的全部窗口完全一致。Total 0.006438 s / IPC 0.158123405，Scored 0.002891 s / IPC 0.198480560。另完成 675 MHz test，未运行 730 MHz MicroBench 或 train。
+- 综合：同一 820 MHz 映射目标、NanGate45、含复位缓冲的纯核边界，面积 76,480.320 μm²，触发器仍为 8,869 个，估算 Fmax 742.966 MHz。同网表在 730 MHz 下 setup +0.023 ns、hold +0.059 ns、门控 max/min +0.188/+0.097 ns。
+- 限制：750 MHz 短测用于 RTL 功能与周期对照，不表示新映射网表通过 750 MHz 时序；后续正常性能测试显式使用 730 MHz。
+
+源码哈希、参考版本、完整命令、第一次不同映射目标的结果及覆盖范围见 [验证记录](RV32_PREDICTOR_SPLIT_2026-09-15.md)。

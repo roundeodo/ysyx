@@ -1021,6 +1021,81 @@ module riscv32_pipeline_control_tb;
     clear_hazard_inputs();
   endtask
 
+  // 用事务队列检查外部顺序，不依赖DUT的槽位、指针或数据搬移实现。
+  task automatic check_fetch_buffer_wrap_and_flush;
+    fetch_entry_t expected_entries[$];
+    fetch_entry_t consumed_entry;
+    logic [31:0] stimulus_state;
+    logic input_pending;
+    logic push_occurred;
+    logic pop_occurred;
+    int unsigned next_entry_index;
+    int unsigned checked_pop_count;
+    int unsigned simultaneous_count;
+    int unsigned flush_count;
+
+    stimulus_state    = 32'h91a3_7b2d;
+    input_pending     = 1'b0;
+    next_entry_index  = 0;
+    checked_pop_count = 0;
+    simultaneous_count = 0;
+    flush_count      = 0;
+    for (int unsigned cycle_index = 0; cycle_index < 2048; cycle_index++) begin
+      @(negedge clk);
+      stimulus_state = {stimulus_state[30:0], stimulus_state[31] ^ stimulus_state[21] ^
+                                             stimulus_state[1] ^ stimulus_state[0]};
+      if (!input_pending && stimulus_state[0]) begin
+        fetch_buffer_input_entry = make_fetch_entry(
+            program_counter_t'('h8000_0000 + 4 * next_entry_index),
+            instruction_t'(next_entry_index));
+        fetch_buffer_input_entry.prediction.predicted_taken = stimulus_state[4];
+        fetch_buffer_input_entry.prediction.predicted_target = program_counter_t'(stimulus_state);
+        fetch_buffer_input_entry.exception_valid = stimulus_state[5];
+        fetch_buffer_input_entry.exception_tval = xlen_data_t'(stimulus_state);
+        next_entry_index++;
+        input_pending = 1'b1;
+      end
+      fetch_buffer_input_valid  = input_pending;
+      fetch_buffer_output_ready = stimulus_state[1] || stimulus_state[2];
+      fetch_buffer_flush        = stimulus_state[8:3] == 6'h17;
+      #1;
+      assert (fetch_buffer_output_valid == (expected_entries.size() != 0))
+        else $fatal(1, "fetch queue valid differs from transaction history");
+      if (fetch_buffer_output_valid) begin
+        assert (fetch_buffer_output_entry === expected_entries[0])
+          else $fatal(1, "fetch queue reordered or corrupted an entry at cycle %0d", cycle_index);
+      end
+      push_occurred = fetch_buffer_input_valid && fetch_buffer_input_ready;
+      pop_occurred  = fetch_buffer_output_valid && fetch_buffer_output_ready;
+      @(posedge clk);
+      if (fetch_buffer_flush) begin
+        assert (!push_occurred) else $fatal(1, "fetch queue accepted an entry during flush");
+        expected_entries.delete();
+        flush_count++;
+      end else begin
+        if (pop_occurred) begin
+          consumed_entry = expected_entries.pop_front();
+          checked_pop_count++;
+        end
+        if (push_occurred) begin
+          expected_entries.push_back(fetch_buffer_input_entry);
+          input_pending = 1'b0;
+        end
+        if (push_occurred && pop_occurred) simultaneous_count++;
+      end
+    end
+    assert (checked_pop_count > 500 && simultaneous_count > 100 && flush_count > 10)
+      else $fatal(1, "fetch queue stress did not exercise enough transfers and recoveries");
+    @(negedge clk);
+    fetch_buffer_flush = 1'b1;
+    fetch_buffer_input_valid = 1'b0;
+    @(posedge clk);
+    @(negedge clk);
+    clear_fetch_buffer_inputs();
+    $display("PASS fetch queue: %0d checked outputs, %0d simultaneous transfers, %0d flushes",
+             checked_pop_count, simultaneous_count, flush_count);
+  endtask
+
   task automatic check_ifu_zero_bubble_lookup;
     icache_lookup_req_t accepted_request;
     icache_lookup_req_t response_request;
@@ -1201,6 +1276,7 @@ module riscv32_pipeline_control_tb;
     check_writeback_stage();
     check_hazard_controller();
     check_fetch_buffer();
+    check_fetch_buffer_wrap_and_flush();
     check_fetch_control_flow_predictor();
     check_precise_exception_age_priority();
     check_ifu_zero_bubble_lookup();

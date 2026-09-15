@@ -19,8 +19,8 @@ module riscv32_arch_regfile
   xlen_data_t gpr_q[1:ARCH_REG_COUNT-1];
 
   // 架构提交和寄存器堆写入发生在同一个上升沿。提交事件被仿真器或Difftest观察到时，
-  // gpr_q必须已经反映该条指令的架构结果，不能再延迟到下降半周期。组合读口使下一拍
-  // 进入ID/EX的消费者直接看到新值；当前无转发流水线仍在WB有效期间保守停顿RAW相关。
+  // gpr_q必须已经反映该条指令的架构结果，不能再延迟到下降半周期。同拍进入ID/EX的
+  // 消费者通过core中的WB前递取得新值；后续周期由组合读口直接读取更新后的GPR。
   // 寄存器内容无需复位，软件在读取前负责初始化；x0不在物理阵列中。
   always_ff @(posedge clk_i) begin
     if (gpr_write_enable_i && (gpr_write_addr_i != '0)) begin

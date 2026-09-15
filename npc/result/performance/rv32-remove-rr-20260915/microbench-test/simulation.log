@@ -1,0 +1,118 @@
+NPC: No MROM image supplied
+NPC: loaded 23768 bytes into flash
+======= Running MicroBench [input *test*] =======
+[qsort] Quick sort: * Passed.
+[queen] Queen placement: * Passed.
+[bf] Brainf**k interpreter: * Passed.
+[fib] Fibonacci number: * Passed.
+[sieve] Eratosthenes sieve: * Passed.
+[15pz] A* 15-puzzle search: * Passed.
+[dinic] Dinic's maxflow algorithm: * Passed.
+[lzip] Lzip compression: * Passed.
+[ssort] Suffix sort: * Passed.
+[md5] MD5 digest: * Passed.
+==================================================
+MicroBench PASS
+Scored time: 2.787 ms
+Total  time: 6.242 ms
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0xa0003b10
+NPC performance statistics:
+ retired instructions = 807427
+ CPU cycle            = 5709510
+ IPC                  = 0.141418
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 5709498
+decoded instructions               : 911082
+retired instructions               : 807427
+IPC                                : 0.141418
+
+instruction class        count       ratio       average execution cycles
+integer                  522134    57.309%         2.938
+branch/jump              249268    27.360%         1.396
+load/store               139676    15.331%         2.463
+  load                    79722     8.750%
+  store                   59954     6.581%
+CSR                            0     0.000%         0.000
+system                         4     0.000%         1.500
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 994059 / 994059 / 911082
+IFU average response latency           : 4.698 cycles
+IFU AR backpressure cycles             : 4266771 (74.731%)
+IFU response-wait cycles               : 4670448 (81.801%)
+IFU downstream-backpressure cycles     : 1960093 (34.330%)
+IFU discarded wrong-path responses     : 82847
+
+LSU requests / completions             : 124563 / 124563
+LSU load operation average latency     : 12.207 cycles (66585 operations)
+LSU store operation average latency    : 22.986 cycles (57978 operations)
+LSU AXI read average latency           : 33.178 cycles (35119 transactions)
+LSU AXI write-response average latency : 23.531 cycles (30734 transactions)
+EXU / LSU completions                  : 682865 / 124563
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 911082 (15.957%)
+  control recovery stalls             : 1131099 (19.811%)
+  LSU structural stalls               : 1785176 (31.267%)
+  unresolved RAW stalls               : 73875 (1.294%)
+  serializing stalls                  : 5 (0.000%)
+  frontend supply stalls              : 1549296 (27.135%)
+    request backpressure              : 1290211 (22.598%)
+    I-cache miss service              : 1500 (0.026%)
+    lookup response in flight         : 257582 (4.511%)
+    request launch or delivery gap    : 3 (0.000%)
+  other empty issue slots             : 258965 (4.536%)
+recovery redirects / taken fetch predictions / EX corrections: 50202 / 167465 / 50201
+actual EX corrections by branch / JAL / JALR          : 36160 / 6201 / 7840
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 188367 / 120515 (63.979% taken)
+  backward / taken                  : 92740 / 71928 (77.559% taken)
+  forward / taken                   : 95627 / 48587 (50.809% taken)
+direct / indirect jumps             : 35379 / 15211
+always-not-taken prediction errors  : 171105 (71.605% of control flow)
+BTFNT+JAL prediction errors          : 84610 (35.408% of control flow)
+16-entry BHT+JAL errors              : 48806 (conditional 33595 + JALR 15211)
+64-entry BHT+JAL errors              : 47421 (conditional 32210 + JALR 15211)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 204309.000
+I-cache critical miss excess cycles   : 1993368.000
+oracle 1-cycle data memory / speedup   : 5505189.000 / 1.037x
+ideal single-issue pipeline cycles     : 3005104.000 / 1.900x
+ideal pipeline + oracle data memory    : 2800795.000 / 2.039x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 994059 / 966169 / 27890
+I-cache hit rate                            : 97.194%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 72.472 cycles
+average miss penalty                        : 71.472 cycles
+I-cache AMAT                                : 3.005 cycles
+average complete refill latency             : 92.215 cycles
+lookup request waiting cycles               : 4265558
+successful line installs / refill finishes  : 27889 / 27889
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 79008 / 66820 / 12188
+D-cache hit rate                           : 84.574%
+load lookups / hits / misses               : 43654 / 38566 / 5088
+store lookups / hits / misses              : 35354 / 28254 / 7100
+average hit response latency               : 1.000 cycles
+average miss response latency              : 143.592 cycles
+  clean-victim miss latency                : 106.712 cycles (4092)
+  dirty-victim miss latency                : 162.233 cycles (8096)
+average miss penalty                       : 142.592 cycles
+D-cache AMAT                               : 22.997 cycles
+dirty victim misses                        : 8096 (66.426% of misses)
+refill requests / words / completions      : 12188 / 48752 / 12188
+line installs / writeback requests/responses: 12188 / 8110 / 8110
+lookup request waiting cycles              : 0
+store-hit same-cycle next lookups          : 0
+==========================================================

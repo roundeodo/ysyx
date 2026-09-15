@@ -317,6 +317,9 @@ PIPELINE_TEST_SOURCES := \
 	$(RTL_DIR)/core/riscv32_commit.sv \
 	$(RTL_DIR)/core/riscv32_trap_controller.sv \
 	$(RTL_DIR)/core/frontend/riscv32_fetch_buffer.sv \
+	$(RTL_DIR)/core/frontend/riscv32_branch_history_table.sv \
+	$(RTL_DIR)/core/frontend/riscv32_branch_target_buffer.sv \
+	$(RTL_DIR)/core/frontend/riscv32_return_address_stack.sv \
 	$(RTL_DIR)/core/frontend/riscv32_fetch_control_flow_predictor.sv \
 	$(RTL_DIR)/core/riscv32_ifu.sv \
 	$(abspath ./tests/rtl/riscv32_pipeline_control_tb.sv)
@@ -592,6 +595,12 @@ test-lsu-configs:
 
 test-pipeline: $(PIPELINE_TEST_BINARY)
 	$(PIPELINE_TEST_BINARY)
+
+.PHONY: test-predictor-equivalence
+PREDICTOR_TEST_OUTPUT ?= $(abspath ./build/tests/predictor-equivalence)
+test-predictor-equivalence:
+	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
+	python3 scripts/test_predictor_equivalence.py --output "$(PREDICTOR_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
 
 test-pipeline-configs:
 	$(MAKE) test-pipeline PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
