@@ -49,10 +49,8 @@
 #  include <sys/types.h>
 #else
 /* Include the standard compiler builtin headers we use functionality from. */
-#  include <limits.h>
 #  include <stdint.h>
-#  include <stdbool.h>
-#  include <float.h>
+#  define CHAR_BIT __CHAR_BIT__
 #endif
 
 /* Include the commonly used internal type definitions. */
@@ -349,7 +347,13 @@ uint32_t __inline __builtin_clzll(uint64_t value) {
 
 #include <am.h>
 
-#if !defined(__ARCH_RISCV64_MYCPU)
+/*
+ * RV64 NPC links the RISC-V assembly division routines from
+ * am/src/riscv/npc/libgcc/div.S.  Keeping the C wrappers below enabled would
+ * make __udivmoddi4 perform a 32-bit software divide which calls back into
+ * __udivdi3, creating recursive soft-division calls on RV64.
+ */
+#if !defined(__ARCH_RISCV64_MYCPU) && !defined(__ARCH_RISCV64_NPC)
 /* Returns: a / b */
 
 COMPILER_RT_ABI di_int

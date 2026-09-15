@@ -1,0 +1,33 @@
+{
+  "current_candidate": "lsu-completion-issue",
+  "status": "Completed: test/train and targeted regressions passed; STA passed. Retain lsu-completion-issue. Official 4.49 s comparison awaits source conditions.",
+  "files": {
+    "npc/vsrc/riscv32/core/riscv32_core.sv": "39d19119170b2ef464a981c6ce435ebc9781c2b22e7f381292cfddf7ea8ea681",
+    "npc/vsrc/riscv32/core/riscv32_pipeline_hazard_controller.sv": "b8e3e3cb5534b7618ca9919cf0c13d1b6b5f845d386fba48afde2af3642aa5f9",
+    "npc/vsrc/riscv32/core/riscv32_completion_mux.sv": "5553996c21264d1045abc8d145e375199d6b7cb624cf0f0e706f871caf6c4d0b",
+    "npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv": "a9564742c240c4c470b2dc277c43d7fd5e11ef1bce86ac3a1085acbb438b3a24",
+    "npc/vsrc/riscv32/filelist/filelist.f": "057b4d53a9888ab127392ad3be84292667003f1946810fc3d967f6b27e294fbc",
+    "npc/tests/rtl/riscv32_pipeline_control_tb.sv": "7fc939bcdde6fa94fc8314d58b36ab2befcb6efd550f27cca2ef361e2d6f60d1"
+  },
+  "binaries": {
+    "baseline/simulator": "e4160d83b53aa067d3241121ca36c0a9e5d04c32c9a3bc8a82371775dd791e3a",
+    "merge-decode/simulator": "e6f9c3f097faf982aa24256825c04fd402b1e581a1a58704e97445ffecefc874",
+    "lsu-completion-issue/simulator": "8de1058447a19bbe4193422a96903388f937b65f91745de857e3584acd794263",
+    "baseline/simulator-o3": "dcddf8d35c6bd004927d27bf582c78ea7c870f5d586c2a0ae609c67afbbec680",
+    "merge-decode/simulator-o3": "d50e7af6e9dd3dcef587f250a80c7b9144db69adbb766f30ca9621202640693b",
+    "lsu-completion-issue/simulator-o3": "d9e91176e85a53e5337ac0bb9c2952630d827f40e3c5a0616f3a902efb393cdb",
+    "lsu-completion-issue-calibrated-820/simulator-o3": "7b0a6feabfa310d5ff1a54651b65f1fd17ac5d06976a0847eb849f9d3fdd582c"
+  },
+  "train_image_sha256": "37a82383d59b032a0354f2c6feb6012e1e583d13ebd4e9986fc7c765c9155967",
+  "active_exec_sessions": {},
+  "baseline_host_pid": null,
+  "merge_decode_host_pid": null,
+  "read_only_debugging": "GDB snapshots pause only wall time; no guest state modified. perf sampling unavailable due host perf_event_paranoid=4.",
+  "stopped_runs": {
+    "baseline_train_os": "Stopped after O3 host parity passed; partial log preserved, not counted as full train result.",
+    "merge_decode_train_os": "Stopped only after O3 test parity passed; preserve partial log, not a full train result.",
+    "lsu_completion_train_os": "Stopped only after O3 test parity passed; preserve partial log, not a full train result.",
+    "calibrated_820_train_os": "Stopped only after O3 test parity passed; preserve partial log, not a full train result."
+  },
+  "timing_audit": "Legacy timer=100 MHz, delay ratio=3037/1024. Separate calibrated run: timer=820 MHz, ratio=8396/1024, device=100 MHz. No official 4.49 second comparison yet."
+}

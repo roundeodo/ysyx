@@ -1,0 +1,11 @@
+{
+  "am-kernels": {
+    "base": "c4088239e2425ffcb3cccd0fd603872d6c745fbb",
+    "patch_sha256": "02aad6771e399f4c2c74593b5bdcf4f1e06c42599ead7aded25ebe0e99b38191"
+  },
+  "ysyxSoC": {
+    "base": "a9fe2e0421291c40c2ae38e7507a399b6617a859",
+    "patch_sha256": "df66807cf31a517905723f0c2531c7bb5d2801a6fa71cec0d1c5484b345e474f"
+  },
+  "generated_soc_sha256": "41edc24c2f8fd5daa916b34719760f1267cd0a396fbc69e6570d0175aaee4e37"
+}

@@ -33,7 +33,7 @@ enum TokenType {
 
 struct Token {
   TokenType type;
-  uint32_t value;
+  npc_word_t value;
   std::string text;
 };
 
@@ -69,7 +69,7 @@ static bool make_token(const char *e) {
       Token t;
 
       t.type = TK_NUM;
-      t.value = (uint32_t)strtoul(num_str.c_str(), nullptr, 0);
+      t.value = static_cast<npc_word_t>(strtoull(num_str.c_str(), nullptr, 0));
       t.text = num_str;
       tokens.push_back(t);
       continue;
@@ -188,77 +188,77 @@ static bool peek(TokenType type) {
 //   unary: -, !, dereference *
 //   primary
 
-static uint32_t parse_or();
-static uint32_t parse_and();
-static uint32_t parse_eq();
-static uint32_t parse_add();
-static uint32_t parse_mul();
-static uint32_t parse_unary();
-static uint32_t parse_primary();
+static npc_word_t parse_or();
+static npc_word_t parse_and();
+static npc_word_t parse_eq();
+static npc_word_t parse_add();
+static npc_word_t parse_mul();
+static npc_word_t parse_unary();
+static npc_word_t parse_primary();
 
-static uint32_t parse_or() {
-  uint32_t lhs = parse_and();
+static npc_word_t parse_or() {
+  npc_word_t lhs = parse_and();
 
   while (parse_ok && match(TK_OR)) {
-    uint32_t rhs = parse_and();
+    npc_word_t rhs = parse_and();
     lhs = (lhs || rhs) ? 1 : 0;
   }
   return lhs;
 }
 
-static uint32_t parse_and() {
-  uint32_t lhs = parse_eq();
+static npc_word_t parse_and() {
+  npc_word_t lhs = parse_eq();
 
   while (parse_ok && match(TK_AND)) {
-    uint32_t rhs = parse_eq();
+    npc_word_t rhs = parse_eq();
     lhs = (lhs && rhs) ? 1 : 0;
   }
   return lhs;
 }
 
-static uint32_t parse_eq() {
+static npc_word_t parse_eq() {
   // deal with the left hand side expression
-  uint32_t lhs = parse_add();
+  npc_word_t lhs = parse_add();
 
   while (parse_ok && (peek(TK_EQ) || peek(TK_NEQ))) {
     if (match(TK_EQ)) {
-      uint32_t rhs = parse_add();
+      npc_word_t rhs = parse_add();
       lhs = (lhs == rhs) ? 1 : 0;
     } else if (match(TK_NEQ)) {
-      uint32_t rhs = parse_add();
+      npc_word_t rhs = parse_add();
       lhs = (lhs != rhs) ? 1 : 0;
     }
   }
   return lhs;
 }
 
-static uint32_t parse_add() {
-  uint32_t lhs = parse_mul();
+static npc_word_t parse_add() {
+  npc_word_t lhs = parse_mul();
 
   while (parse_ok && (peek(TK_PLUS) || peek(TK_MINUS))) {
     if (match(TK_PLUS)) {
-      uint32_t rhs = parse_mul();
+      npc_word_t rhs = parse_mul();
       lhs = lhs + rhs;
     } else if (match(TK_MINUS)) {
-      uint32_t rhs = parse_mul();
+      npc_word_t rhs = parse_mul();
       lhs = lhs - rhs;
     }
   }
   return lhs;
 }
 
-static uint32_t parse_mul() {
-  uint32_t lhs = parse_unary();
+static npc_word_t parse_mul() {
+  npc_word_t lhs = parse_unary();
 
   while (parse_ok && (peek(TK_MUL) || peek(TK_DIV))) {
     if (match(TK_MUL)) {
-      uint32_t rhs = parse_unary();
+      npc_word_t rhs = parse_unary();
       lhs = lhs * rhs;
     } else if (match(TK_DIV)) {
-      uint32_t rhs = parse_unary();
+      npc_word_t rhs = parse_unary();
 
       if (rhs == 0) {
-        printf("Divde by zero\n");
+        printf("Divide by zero\n");
         parse_ok = false;
         return 0;
       }
@@ -269,26 +269,26 @@ static uint32_t parse_mul() {
   return lhs;
 }
 
-static uint32_t parse_unary() {
+static npc_word_t parse_unary() {
   if (match(TK_MINUS)) {
-    uint32_t val = parse_unary();
-    return 0u - val;
+    npc_word_t val = parse_unary();
+    return npc_word_t{0} - val;
   }
 
   if (match(TK_NOT)) {
-    uint32_t val = parse_unary();
+    npc_word_t val = parse_unary();
     return val == 0 ? 1 : 0;
   }
 
   // dereference
   if (match(TK_MUL)) {
-    uint32_t addr = parse_unary();
-    return paddr_read(addr, 4);
+    npc_word_t addr = parse_unary();
+    return paddr_read(static_cast<uint32_t>(addr), 4);
   }
   return parse_primary();
 }
 
-static uint32_t parse_primary() {
+static npc_word_t parse_primary() {
   if (pos >= tokens.size()) {
     printf("Unexpected end of expression\n");
     parse_ok = false;
@@ -296,7 +296,7 @@ static uint32_t parse_primary() {
   }
 
   if (match(TK_LPAREN)) {
-    uint32_t val = parse_or();
+    npc_word_t val = parse_or();
     if (!match(TK_RPAREN)) {
       printf("missing ')'\n");
       parse_ok = false;
@@ -305,7 +305,7 @@ static uint32_t parse_primary() {
     return val;
   }
   if (tokens[pos].type == TK_NUM) {
-    uint32_t val = tokens[pos].value;
+    npc_word_t val = tokens[pos].value;
     pos++;
     return val;
   }
@@ -314,9 +314,9 @@ static uint32_t parse_primary() {
     std::string reg_name = tokens[pos].text;
     pos++;
 
-    uint32_t val = 0;
+    npc_word_t val = 0;
     if (!npc_reg_str2val(reg_name.c_str(), &val)) {
-      printf("Unknwon register $%s\n", reg_name.c_str());
+      printf("Unknown register $%s\n", reg_name.c_str());
       parse_ok = false;
       return 0;
     }
@@ -328,7 +328,7 @@ static uint32_t parse_primary() {
 }
 
 // external interface
-uint32_t expr(const char *e, bool *success) {
+npc_word_t expr(const char *e, bool *success) {
   if (success != nullptr)
     *success = false;
 
@@ -341,7 +341,7 @@ uint32_t expr(const char *e, bool *success) {
   pos = 0;
   parse_ok = true;
 
-  uint32_t result = parse_or();
+  npc_word_t result = parse_or();
 
   if (!parse_ok)
     return 0;

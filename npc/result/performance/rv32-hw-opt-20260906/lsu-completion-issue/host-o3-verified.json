@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "all_test_measurements_identical": true,
+  "simulator_sha256": "d9e91176e85a53e5337ac0bb9c2952630d827f40e3c5a0616f3a902efb393cdb",
+  "flags": [
+    "OPT_FAST=-O3 -march=native",
+    "OPT_GLOBAL=-O3 -march=native",
+    "OPT_SLOW=-O1"
+  ]
+}

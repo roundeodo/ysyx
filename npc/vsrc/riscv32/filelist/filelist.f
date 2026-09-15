@@ -1,48 +1,76 @@
-// DESIGN AUTHORITY: ${NPC_HOME}/vsrc/riscv32/doc/ARCHITECTURE_PLAN.md
-// D018 requires a runnable checkpoint after every migration step. The entries
-// below are the active P0 single-cycle NPC, not the final OoO source layout.
+// 仅仿真时实例化性能监视模块。STA filelist不定义此开关，因此综合设计中不存在该实例。
++define+NPC_ENABLE_SIM_MONITOR
++incdir+${NPC_HOME}/vsrc/riscv32/sim
 
+// 正式配置宏由Makefile通过NPC_CONFIG唯一传入，filelist不得硬编码RV32/RV64。
+// package必须位于所有import它们的模块之前。
+${NPC_HOME}/vsrc/riscv32/common/riscv_config_pkg.sv
+${NPC_HOME}/vsrc/riscv32/common/riscv32_addr_map_pkg.sv
+${NPC_HOME}/vsrc/riscv32/common/riscv32_axi4_pkg.sv
+${NPC_HOME}/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv
 ${NPC_HOME}/vsrc/riscv32/common/riscv32_pkg.sv
 
+// 前端存储阵列、miss处理和AXI4 refill路径。
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_pma.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_refill_axi4_master.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv
+
+// 数据存储子系统：同步阵列、write-back miss路径、PMA路由和uncached旁路。
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_line_axi4_master.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_uncached_axi4_master.sv
+${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_data_memory_subsystem.sv
+
+// 处理器核。
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_arch_regfile.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_pmu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_csr_file.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_idu.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_decode_stage.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_register_read_stage.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_history_table.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_target_buffer.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_return_address_stack.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_control_flow_predictor.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_decode_execute_stage.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_frontend_redirect_register.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_pipeline_hazard_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_exu.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_execute_result_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_lsu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_completion_mux.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_writeback_stage.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_commit.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_interrupt_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_trap_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_ifu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_core.sv
 
-${NPC_HOME}/vsrc/riscv32/system/riscv32_axi_lite_arbiter.sv
-${NPC_HOME}/vsrc/riscv32/system/riscv32_axi_lite_xbar.sv
-${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi_core_boundary.sv
+// 完整AXI4系统集成。
+${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_core_merge.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_address_router.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_error_target.sv
+${NPC_HOME}/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_reset_controller.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_core_reset_boundary.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_system.sv
+${NPC_HOME}/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv
 ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi.sv
-${NPC_HOME}/vsrc/riscv32/system/peripheral/riscv32_axi_lite_clint.sv
 
-${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi_lite_uart_sim.sv
-${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_mem.sv
+// 仅仿真使用的监视模块和AXI4 target。
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_performance_monitor.sv
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_icache_performance_monitor.sv
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_dcache_performance_monitor.sv
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/sim/top.sv
 
-// P0 typed channel conversion completed in this order:
-//   IFU -> IDU: fetch_entry_t
-//   IDU -> EXU: decoded_uop_t + register operand values
-//   EXU -> completion mux: execute_result_t
-//   EXU -> LSU: lsu_req_t
-//   LSU/completion mux -> commit: writeback_result_t
-// Channel valid/ready is separate from payload; P0 contains no stage register.
-
-// Simulation-only DPI debug remains in top at this checkpoint. It will move to
-// riscv32_sim_debug when the SoC shell introduces multiple simulation adapters.
-
-// P3B checkpoint: IFU/LSU arbitration, address routing, simulation UART, and
-// CLINT mtime are integrated. The remaining DPI platform slave contains PMEM;
-// a later SoC checkpoint replaces it with synthesizable SRAM integration.
-
-// NOTE(P4): SoC 检查点稳定后加入 stage registers、forwarding、hazard 和 flush；
-// 复用 P0 已定义的 valid/ready 通道，不改变 payload 的功能所有权。
-
-// NOTE(P6): 流水线、cache 和 completion 路径稳定后再加入 rename、PRF、
-// ROB、issue queue、LSQ 和 store buffer；最后在 P7 扩展为 two-wide。
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv

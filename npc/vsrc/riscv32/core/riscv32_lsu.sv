@@ -1,5 +1,9 @@
+// LSU执行访存语义、检查自然对齐并格式化load结果。
+// AXI4协议转换、cache、MMIO路由和存储系统时序均位于本模块之外。
 module riscv32_lsu
   import riscv32_pkg::*;
+  // 有效地址经过LSU检查后显式转换为物理地址，避免默认假设XLEN等于PADDR_WIDTH。
+  import riscv32_addr_map_pkg::*;
 (
     input logic clk_i,
     input logic rst_ni,
@@ -7,472 +11,411 @@ module riscv32_lsu
     input  lsu_req_t lsu_req_i,
     input  logic     lsu_req_valid_i,
     output logic     lsu_req_ready_o,
+    output logic     lsu_transaction_active_o,
+    output logic     lsu_pending_writes_rd_o,
+    output arch_reg_idx_t lsu_pending_rd_o,
+
+    output data_memory_req_t data_memory_req_o,
+    output logic             data_memory_req_valid_o,
+    input  logic             data_memory_req_ready_i,
+
+    input  data_memory_resp_t data_memory_resp_i,
+    input  logic              data_memory_resp_valid_i,
+    output logic              data_memory_resp_ready_o,
 
     output writeback_result_t lsu_writeback_o,
     output logic              lsu_writeback_valid_o,
-    input  logic              lsu_writeback_ready_i,
-
-    output axi_lite_addr_t lsu_axi_ar_o,
-    output logic           lsu_axi_arvalid_o,
-    input  logic           lsu_axi_arready_i,
-
-    input  axi_lite_r_t lsu_axi_r_i,
-    input  logic        lsu_axi_rvalid_i,
-    output logic        lsu_axi_rready_o,
-
-    output axi_lite_addr_t lsu_axi_aw_o,
-    output logic           lsu_axi_awvalid_o,
-    input  logic           lsu_axi_awready_i,
-
-    output axi_lite_w_t lsu_axi_w_o,
-    output logic        lsu_axi_wvalid_o,
-    input  logic        lsu_axi_wready_i,
-
-    input  axi_lite_b_t lsu_axi_b_i,
-    input  logic        lsu_axi_bvalid_i,
-    output logic        lsu_axi_bready_o
-    // AR/AW/W的VALID和payload由LSU产生，R/B的READY也由LSU产生。不要保留cmd/size作为
-    // AXI信号：Lite没有读写cmd，也没有AxSIZE；读写方向由使用AR还是AW/W表示。
+    input  logic              lsu_writeback_ready_i
 );
 
-  // LSU只负责形成访存请求、格式化响应和报告完成。DPI、SRAM、MMIO与未来D-cache
-  // 都属于dmem通道另一侧，不能在本模块中直接访问。
-
-  // store的AW与W必须在同一状态并行尝试，但分别记录当前事务此前是否已经完成握手。
-  // 不能写成“先等AW握手，再拉WVALID”，否则虽然可能工作，却损失并行性，并容易与某些
-  // 等待WVALID才给AWREADY的slave形成死锁。只有两个通道都完成握手后才能进入WAIT_B。
-  typedef enum logic [2:0] {
+  // 当前实现只有一个访存上下文。普通访存先锁存到pending_lsu_context_q，下一拍才
+  // 向存储子系统发出请求。这一级寄存边界切断EXU组合结果经PMA、cache/MMIO路由和
+  // ready链返回LSU状态寄存器的长路径。乱序版本应将该单项上下文替换为load queue、
+  // store queue和transaction ID，而不能重新引入未寄存请求到存储系统的组合旁路。
+  typedef enum logic [1:0] {
     LSU_IDLE,
-    LSU_SEND_AR,
-    LSU_WAIT_R,
-    LSU_SEND_AW_W,
-    LSU_WAIT_B,
-    LSU_HOLD_WRITEBACK
+    LSU_DISPATCH_REGISTERED_REQUEST,
+    LSU_WAIT_MEMORY_RESPONSE
   } lsu_state_e;
 
-  lsu_state_e                         state_q;
-  lsu_state_e                         state_d;
+  lsu_state_e state_q;
+  lsu_state_e state_d;
 
-  // lsu_req_q保存已经从EXU取得所有权的操作。请求握手后，response格式化只能读取它，
-  // 不能再读取可能已经变化的lsu_req_i。
-  lsu_req_t                           lsu_req_q;
-  lsu_req_t                           lsu_req_d;
-  lsu_req_t                           active_lsu_req;
+  // 外部lsu_req_t包含完整译码结果，便于EXU/LSU边界表达一条指令；但访存发出后，
+  // LSU只保存完成和提交真正需要的字段。分支预测、ALU操作、CSR控制和源寄存器索引
+  // 不参与访存返回，若把整个decoded_uop_t锁存会为每个无关字段生成触发器。
+  typedef struct packed {
+    program_counter_t pc;
+    instruction_t     instruction;
+    arch_reg_idx_t    rd;
+    logic             writes_rd;
+    mem_uop_ctrl_t    mem_ctrl;
+    logic             exception_valid;
+    exception_cause_e exception_cause;
+    xlen_data_t       exception_tval;
+    program_counter_t next_pc;
+    effective_addr_t  effective_addr;
+    xlen_data_t       store_data;
+  } pending_lsu_context_t;
 
-  // writeback_q只在completion mux反压时使用；无反压响应直接旁路到writeback端口。
-  writeback_result_t                  writeback_q;
-  writeback_result_t                  writeback_d;
-  writeback_result_t                  no_dmem_writeback;
-  writeback_result_t                  dmem_writeback;
+  pending_lsu_context_t pending_lsu_context_q;
+  lsu_req_t active_lsu_req;
 
-  // done位表示本store的对应channel已经交给slave。AW握手不能清掉WVALID，W握手也不能
-  // 清掉AWVALID。每次接收新store时两个done清零；各自握手时独立置1；B握手完成后清零。
-  // 基线只允许一个CPU访存，因此不需要AXI ID，也不需要地址/数据队列。
+  writeback_result_t local_writeback;
+  writeback_result_t memory_writeback;
 
-  axi_lite_addr_t                     ar_payload;
-  axi_lite_addr_t                     aw_payload;
+  logic lsu_req_handshake;
+  logic data_memory_req_handshake;
+  logic data_memory_resp_handshake;
 
-  axi_lite_w_t                        w_payload;
-  logic                               lsu_req_handshake;
-  logic                               lsu_writeback_handshake;
-  logic                               ar_handshake;
-  logic                               r_handshake;
-  logic                               aw_handshake;
-  logic                               w_handshake;
-  logic                               b_handshake;
+  localparam int unsigned CORE_BYTE_OFFSET_WIDTH = (CORE_DATA_BYTE_COUNT > 1) ? $clog2(
+      CORE_DATA_BYTE_COUNT
+  ) : 1;
 
-  logic                               aw_handshake_occurred_q;
-  logic                               aw_handshake_occurred_d;
+  // store路径属于core存储端口，load格式化结果属于GPR数据域。二者当前同宽只是
+  // RV32基线配置，使用不同语义类型后可以独立调整XLEN和存储beat宽度。
+  logic                                           is_load;
+  logic                                           is_store;
+  logic                                           has_memory_access;
+  logic                                           address_misaligned;
+  logic                                           complete_locally;
+  core_data_t                                     store_write_data;
+  // strobe描述core数据口每个字节通道是否写入，它取决于CORE_DATA_WIDTH，而不是XLEN。
+  core_byte_strobe_t                              store_byte_strobe;
+  logic              [                       7:0] selected_byte;
+  logic              [                      15:0] selected_halfword;
+  logic              [                      31:0] selected_word;
+  xlen_data_t                                     formatted_load_data;
 
-  logic                               w_handshake_occurred_q;
-  logic                               w_handshake_occurred_d;
-
-
-
-  logic                               is_load;
-  logic                               is_store;
-  logic                               has_dmem_access;
-  logic                               is_halfword_access;
-  logic                               is_word_access;
-  logic                               misaligned;
-  logic                               complete_without_dmem;
-  logic              [           1:0] byte_offset;
-  logic              [      XLEN-1:0] store_wdata;
-  logic              [BYTE_LANES-1:0] store_wmask;
-  logic              [           7:0] selected_byte;
-  logic              [          15:0] selected_halfword;
-  logic              [      XLEN-1:0] formatted_load_data;
-
-  assign lsu_req_handshake       = lsu_req_valid_i && lsu_req_ready_o;
-  assign lsu_writeback_handshake = lsu_writeback_valid_o && lsu_writeback_ready_i;
-  assign ar_handshake            = lsu_axi_arvalid_o && lsu_axi_arready_i;
-  assign r_handshake             = lsu_axi_rvalid_i && lsu_axi_rready_o;
-  assign aw_handshake            = lsu_axi_awvalid_o && lsu_axi_awready_i;
-  assign w_handshake             = lsu_axi_wvalid_o && lsu_axi_wready_i;
-  assign b_handshake             = lsu_axi_bvalid_i && lsu_axi_bready_o;
-
-
-
-  // Interpret the active request and place store bytes into AXI data lanes.
-  always_comb begin
-    active_lsu_req = (state_q == LSU_IDLE) ? lsu_req_i : lsu_req_q;
-
-    byte_offset           = active_lsu_req.effective_addr[1:0];
-    is_load               = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
-    is_store              = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
-    has_dmem_access       = is_load || is_store;
-    is_halfword_access    = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_HALF;
-    is_word_access        = active_lsu_req.uop.mem_ctrl.size == MEM_SIZE_WORD;
-    misaligned            = has_dmem_access && ((is_halfword_access && byte_offset[0]) || (is_word_access && (byte_offset != 2'b00)));
-    complete_without_dmem = active_lsu_req.uop.exception_valid || misaligned || !has_dmem_access;
-
-    store_wdata = '0;
-    store_wmask = '0;
-
-    unique case (active_lsu_req.uop.mem_ctrl.size)
-      MEM_SIZE_BYTE: begin
-        store_wmask = 4'b0001 << byte_offset;
-        store_wdata = {24'b0, active_lsu_req.store_data[7:0]} << {byte_offset, 3'b000};
-      end
-
-      MEM_SIZE_HALF: begin
-        store_wmask = 4'b0011 << byte_offset;
-        store_wdata = {16'b0, active_lsu_req.store_data[15:0]} << {byte_offset, 3'b000};
-      end
-
-      MEM_SIZE_WORD: begin
-        store_wmask = 4'b1111;
-        store_wdata = active_lsu_req.store_data;
-      end
+  function automatic logic request_address_misaligned(input lsu_req_t request);
+    unique case (request.uop.mem_ctrl.size)
+      MEM_SIZE_HALF:   return request.effective_addr[0];
+      MEM_SIZE_WORD:   return request.effective_addr[1:0] != 2'b00;
+      MEM_SIZE_DOUBLE: return request.effective_addr[2:0] != 3'b000;
+      default:         return 1'b0;
     endcase
+  endfunction
+
+  function automatic logic request_has_memory_access(input lsu_req_t request);
+    return (request.uop.mem_ctrl.cmd == MEM_CMD_LOAD) ||
+           (request.uop.mem_ctrl.cmd == MEM_CMD_STORE);
+  endfunction
+
+  function automatic core_byte_strobe_t request_store_byte_strobe(input lsu_req_t request);
+    logic [CORE_BYTE_OFFSET_WIDTH-1:0] request_byte_offset;
+    request_byte_offset = request.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0];
+    unique case (request.uop.mem_ctrl.size)
+      MEM_SIZE_BYTE:   return core_byte_strobe_t'(1) << request_byte_offset;
+      MEM_SIZE_HALF:   return core_byte_strobe_t'(2'b11) << request_byte_offset;
+      MEM_SIZE_WORD:   return core_byte_strobe_t'(4'b1111) << request_byte_offset;
+      MEM_SIZE_DOUBLE: return '1;
+      default:         return '0;
+    endcase
+  endfunction
+
+  function automatic core_data_t request_store_write_data(input lsu_req_t request);
+    logic [CORE_BYTE_OFFSET_WIDTH-1:0] request_byte_offset;
+    request_byte_offset = request.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0];
+    unique case (request.uop.mem_ctrl.size)
+      MEM_SIZE_BYTE:
+      return core_data_t'(request.store_data[7:0]) << (request_byte_offset * 8);
+      MEM_SIZE_HALF:
+      return core_data_t'(request.store_data[15:0]) << (request_byte_offset * 8);
+      MEM_SIZE_WORD:
+      return core_data_t'(request.store_data[31:0]) << (request_byte_offset * 8);
+      MEM_SIZE_DOUBLE: return core_data_t'(request.store_data);
+      default:         return '0;
+    endcase
+  endfunction
+
+  assign lsu_req_handshake          = lsu_req_valid_i && lsu_req_ready_o;
+  // 该状态只描述已经被LSU接收但尚未完成的存储事务，不从ready反推，因而不会
+  // 把当前输入valid重新反馈到流水线允许信号中形成组合环。
+  assign lsu_transaction_active_o   = state_q != LSU_IDLE;
+  // 这两个信号描述尚未完成的老访存生产者。hazard controller用它们阻止load-use读取
+  // 旧寄存器值；结果必须先跨过WB寄存边界，再由writeback路径前递，避免把存储系统
+  // response、load格式化和ID/EX操作数选择串成单周期关键路径。
+  assign lsu_pending_writes_rd_o    = (state_q != LSU_IDLE) &&
+                                      pending_lsu_context_q.writes_rd;
+  assign lsu_pending_rd_o           = pending_lsu_context_q.rd;
+  assign data_memory_req_handshake  = data_memory_req_valid_o && data_memory_req_ready_i;
+  assign data_memory_resp_handshake = data_memory_resp_valid_i && data_memory_resp_ready_o;
+
+  // 所有分类和请求生成只能读取入口寄存器。即使state_q为IDLE，也禁止把lsu_req_i
+  // 送入active_lsu_req；否则地址、size或异常字段仍会经过PMA和memory-ready链形成
+  // EX到LSU状态寄存器的长组合路径。未重建字段保持0，因为它们不参与memory response
+  // 或架构提交。
+  // byte_offset按core beat宽度选择字节通道；自然对齐仍按ISA访问大小判断：
+  // half只检查bit 0，word检查bits[1:0]。
+  // 不要用总线beat宽度替代ISA对齐规则；总线即使是64位，LW仍只要求4字节对齐。
+  always_comb begin
+    active_lsu_req = '0;
+    active_lsu_req.uop.pc              = pending_lsu_context_q.pc;
+    active_lsu_req.uop.instruction     = pending_lsu_context_q.instruction;
+    active_lsu_req.uop.rd              = pending_lsu_context_q.rd;
+    active_lsu_req.uop.writes_rd       = pending_lsu_context_q.writes_rd;
+    active_lsu_req.uop.mem_ctrl        = pending_lsu_context_q.mem_ctrl;
+    active_lsu_req.uop.exception_valid = pending_lsu_context_q.exception_valid;
+    active_lsu_req.uop.exception_cause = pending_lsu_context_q.exception_cause;
+    active_lsu_req.uop.exception_tval  = pending_lsu_context_q.exception_tval;
+    active_lsu_req.next_pc             = pending_lsu_context_q.next_pc;
+    active_lsu_req.effective_addr      = pending_lsu_context_q.effective_addr;
+    active_lsu_req.store_data          = pending_lsu_context_q.store_data;
+
+    is_load              = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
+    is_store             = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
+    has_memory_access    = is_load || is_store;
+
+    address_misaligned = has_memory_access && request_address_misaligned(active_lsu_req);
+    complete_locally   = active_lsu_req.uop.exception_valid ||
+                         address_misaligned || !has_memory_access;
+
+    // strobe只覆盖本条store写入的字节。WORD不能使用'1，否则64位存储口会误写8字节。
+    store_write_data  = request_store_write_data(active_lsu_req);
+    store_byte_strobe = request_store_byte_strobe(active_lsu_req);
+
   end
 
-
-  // AXI4-Lite has no AxSIZE. Preserve the byte address so a byte-addressed MMIO
-  // slave can select its register; WSTRB and WDATA select the written byte lanes.
-
+  // 本地请求保留字节地址和访问宽度。协议adapter负责把size翻译成AXI4 AxSIZE，
+  // 并保证单次uncached访问使用LEN=0、LAST=1和稳定的transaction ID。
+  // 当前无MMU，effective address在边界处显式恒等转换为physical address。
+  // 未来加入地址翻译时只替换该路径，不需要改写LSU访存语义或下游协议adapter。
   always_comb begin
-    ar_payload      = '0;
-    ar_payload.addr = active_lsu_req.effective_addr;
-    ar_payload.prot = 3'b001;
+    data_memory_req_o                = '0;
+    data_memory_req_o.addr           = phys_addr_t'(active_lsu_req.effective_addr);
+    data_memory_req_o.cmd            = active_lsu_req.uop.mem_ctrl.cmd;
+    data_memory_req_o.size           = active_lsu_req.uop.mem_ctrl.size;
+    data_memory_req_o.write_data     = is_store ? store_write_data : '0;
+    data_memory_req_o.byte_strobe    = is_store ? store_byte_strobe : '0;
+    data_memory_req_o.transaction_id = '0;
+
   end
 
+  // 存储层返回完整数据字。LSU根据原始地址低位选择byte/halfword并完成符号扩展。
+  // RV64下LW将bit 31符号扩展，LWU零扩展；不能把总线返回宽度直接当作load结果宽度。
   always_comb begin
-    aw_payload      = '0;
-    aw_payload.addr = active_lsu_req.effective_addr;
-    aw_payload.prot = 3'b001;
-  end
-
-  always_comb begin
-    w_payload      = '0;
-    w_payload.data = store_wdata;
-    w_payload.strb = store_wmask;
-  end
-
-
-
-  // Select the addressed lane from the full-width AXI read response.
-  always_comb begin
-    selected_byte       = 8'(lsu_axi_r_i.data >> ({lsu_req_q.effective_addr[1:0], 3'b000}));
-    selected_halfword   = 16'(lsu_axi_r_i.data >> ({lsu_req_q.effective_addr[1:0], 3'b000}));
+    selected_byte       = 8'(data_memory_resp_i.read_data >>
+                          (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
+    selected_halfword   = 16'(data_memory_resp_i.read_data >>
+                          (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
+    selected_word       = 32'(data_memory_resp_i.read_data >>
+                          (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
     formatted_load_data = '0;
 
-    unique case (lsu_req_q.uop.mem_ctrl.size)
+    unique case (pending_lsu_context_q.mem_ctrl.size)
       MEM_SIZE_BYTE: begin
-        formatted_load_data = lsu_req_q.uop.mem_ctrl.unsigned_load? {24'b0,selected_byte} : {{24{selected_byte[7]}}, selected_byte};
+        formatted_load_data = pending_lsu_context_q.mem_ctrl.unsigned_load
+            ? {{(XLEN-8){1'b0}}, selected_byte}
+            : {{(XLEN-8){selected_byte[7]}}, selected_byte};
       end
       MEM_SIZE_HALF: begin
-        formatted_load_data = lsu_req_q.uop.mem_ctrl.unsigned_load? {16'b0,selected_halfword} : {{16{selected_halfword[15]}}, selected_halfword};
+        formatted_load_data = pending_lsu_context_q.mem_ctrl.unsigned_load
+            ? {{(XLEN-16){1'b0}}, selected_halfword}
+            : {{(XLEN-16){selected_halfword[15]}}, selected_halfword};
       end
       MEM_SIZE_WORD: begin
-        formatted_load_data = lsu_axi_r_i.data;
+        formatted_load_data = pending_lsu_context_q.mem_ctrl.unsigned_load
+            ? xlen_data_t'(selected_word)
+            : {{(XLEN-32){selected_word[31]}}, selected_word};
+      end
+      MEM_SIZE_DOUBLE: begin
+        // LD只在RV64中合法。显式转换保留参数化RV32构建，不在共享RTL中引用固定64位切片。
+        formatted_load_data = xlen_data_t'(data_memory_resp_i.read_data);
       end
       default: ;
     endcase
   end
 
-
-
-  // Complete pre-existing exceptions, misaligned accesses, and MEM_CMD_NONE locally.
+  // 已有异常、未对齐访问和非访存操作不进入存储层。
   always_comb begin
-    no_dmem_writeback     = 'd0;
-    no_dmem_writeback.uop = active_lsu_req.uop;
+    local_writeback              = '0;
+    local_writeback.uop          = active_lsu_req.uop;
+    local_writeback.next_pc      = active_lsu_req.next_pc;
+    local_writeback.memory_addr  = active_lsu_req.effective_addr;
+    local_writeback.memory_wdata = is_store ? store_write_data : '0;
+    local_writeback.memory_wmask = is_store ? store_byte_strobe : '0;
 
-    no_dmem_writeback.result  = '0;
-    no_dmem_writeback.next_pc = active_lsu_req.next_pc;
+    if (!active_lsu_req.uop.exception_valid && address_misaligned) begin
+      local_writeback.uop.exception_valid = 1'b1;
+      local_writeback.uop.exception_cause = is_load
+                                            ? EXC_LOAD_ADDR_MISALIGNED : EXC_STORE_ADDR_MISALIGNED;
+      local_writeback.uop.exception_tval  = active_lsu_req.effective_addr;
+    end
 
-    no_dmem_writeback.csr_wdata   = '0;
-    no_dmem_writeback.memory_addr = active_lsu_req.effective_addr;
-
-    no_dmem_writeback.memory_rdata = '0;
-    no_dmem_writeback.memory_wdata = is_store ? store_wdata : '0;
-
-    no_dmem_writeback.memory_wmask = is_store ? store_wmask : '0;
-
-    if (!active_lsu_req.uop.exception_valid && misaligned) begin
-      no_dmem_writeback.uop.exception_valid = 1'b1;
-
-      no_dmem_writeback.uop.exception_cause = is_load? EXC_LOAD_ADDR_MISALIGNED : EXC_STORE_ADDR_MISALIGNED;
-
-      no_dmem_writeback.uop.exception_tval = active_lsu_req.effective_addr;
+    // 无论异常最初来自IFU、IDU还是本级对齐检查，异常完成包都不得保留正常执行副作用。
+    // 统一在LSU出口归一化，避免每个异常产生点分别依赖writes_rd和memory_wmask的初值。
+    if (local_writeback.uop.exception_valid) begin
+      local_writeback.uop.writes_rd = 1'b0;
+      local_writeback.result        = '0;
+      local_writeback.memory_wmask  = '0;
     end
   end
 
-
-  // Convert RRESP/BRESP failures into the matching architectural access fault.
+  // access_fault来自D-cache、uncached adapter或系统互联，LSU在这里转换成架构异常。
   always_comb begin
-    dmem_writeback     = '0;  // 默认清空LSU不负责的CSR等字段。
-    dmem_writeback.uop = lsu_req_q.uop;
-    // 恢复发请求时保存的指令身份和控制信息。
-    dmem_writeback.result       = is_load ? formatted_load_data : '0;
-    // load写回扩展后的数据，store不写GPR结果。
-    dmem_writeback.next_pc      = lsu_req_q.next_pc;
-    // 继续传递该指令的控制流元数据。
-    dmem_writeback.csr_wdata   = '0;  // LSU不产生CSR写数据。
-    dmem_writeback.memory_addr = lsu_req_q.effective_addr;
-    // trace/commit记录原始有效地址。
-    dmem_writeback.memory_rdata = is_load ? formatted_load_data : '0;
-    // 记录架构可见的load值，而不是未选择lane的原始总线值。
-    dmem_writeback.memory_wdata = is_store ? store_wdata : '0;
-    dmem_writeback.memory_wmask = is_store ? store_wmask : '0;
-    // store记录实际发送给memory的lane数据和byte mask。
+    memory_writeback                 = '0;
+    memory_writeback.uop.pc          = pending_lsu_context_q.pc;
+    memory_writeback.uop.instruction = pending_lsu_context_q.instruction;
+    memory_writeback.uop.rd          = pending_lsu_context_q.rd;
+    memory_writeback.uop.writes_rd   = pending_lsu_context_q.writes_rd;
+    memory_writeback.uop.mem_ctrl    = pending_lsu_context_q.mem_ctrl;
+    memory_writeback.result          = is_load ? formatted_load_data : '0;
+    memory_writeback.next_pc         = pending_lsu_context_q.next_pc;
+    memory_writeback.memory_addr     = pending_lsu_context_q.effective_addr;
+    memory_writeback.memory_rdata    = is_load ? core_data_t'(formatted_load_data) : '0;
+    memory_writeback.memory_wdata    = is_store ? store_write_data : '0;
+    memory_writeback.memory_wmask    = is_store ? store_byte_strobe : '0;
 
-    if (is_load && (lsu_axi_r_i.resp != AXI_RESP_OKAY)) begin
-      dmem_writeback.uop.exception_valid = 1'b1;
-      dmem_writeback.uop.exception_cause = EXC_LOAD_ACCESS_FAULT;
-      dmem_writeback.uop.exception_tval  = lsu_req_q.effective_addr;
-      dmem_writeback.result              = '0;
-      dmem_writeback.memory_rdata        = '0;
-    end else if (is_store && (lsu_axi_b_i.resp != AXI_RESP_OKAY)) begin
-      dmem_writeback.uop.exception_valid = 1'b1;
-      dmem_writeback.uop.exception_cause = EXC_STORE_ACCESS_FAULT;
-      dmem_writeback.uop.exception_tval  = lsu_req_q.effective_addr;
+    if (data_memory_resp_i.access_fault) begin
+      memory_writeback.uop.exception_valid = 1'b1;
+      memory_writeback.uop.exception_cause = is_load
+                                             ? EXC_LOAD_ACCESS_FAULT : EXC_STORE_ACCESS_FAULT;
+      memory_writeback.uop.exception_tval  = pending_lsu_context_q.effective_addr;
+      memory_writeback.uop.writes_rd       = 1'b0;
+      memory_writeback.result              = '0;
+      memory_writeback.memory_rdata        = '0;
     end
   end
 
-
-
-  // Drive each source VALID independently of its matching READY.
+  // 第一段：输出逻辑。IDLE只提供与请求内容无关的ready，不分类也不产生completion。
+  // DISPATCH_REGISTERED_REQUEST只使用已经寄存的pending上下文：本地异常在这里完成，
+  // 普通访存从这里发往存储层。这个无旁路边界用1拍入口延迟换取真实的时序切分。
+  // 存储响应把completion的ready传回存储层，反压期间由存储层保持response payload。
   always_comb begin
-    lsu_req_ready_o       = 1'b0;  // 默认不接收新的EXU请求。
+    lsu_req_ready_o          = 1'b0;
+    data_memory_req_valid_o  = 1'b0;
+    data_memory_resp_ready_o = 1'b0;
+    lsu_writeback_o          = '0;
+    lsu_writeback_valid_o    = 1'b0;
 
-    lsu_axi_arvalid_o = 1'b0;  // 只有IDLE真实访存或SEND_AR才能发请求。
-    lsu_axi_ar_o      = '0;
+    unique case (state_q)
+      LSU_IDLE: begin
+        lsu_req_ready_o = 1'b1;
+      end
 
-    lsu_axi_rready_o      = 1'b0;
-
-    lsu_axi_awvalid_o = 1'b0;
-    lsu_axi_aw_o      = '0;
-
-    lsu_axi_wvalid_o = 1'b0;
-    lsu_axi_w_o      = '0;
-
-    lsu_axi_bready_o      = 1'b0;
-
-    lsu_writeback_o       = writeback_q;
-    lsu_writeback_valid_o = 1'b0;  // 只有本地完成、响应旁路或HOLD才有完成结果。
-
-    if (rst_ni) begin
-      // Moore out
-      unique case (state_q)
-        LSU_IDLE: begin
-          lsu_req_ready_o = 1'b1;
-
-          if (lsu_req_valid_i) begin
-            if (complete_without_dmem) begin
-              lsu_writeback_o       = no_dmem_writeback;
-              lsu_writeback_valid_o = 1'b1;
-            end else if (is_load) begin
-              lsu_axi_arvalid_o = 1'b1;
-              lsu_axi_ar_o      = ar_payload;
-            end else if (is_store) begin
-              lsu_axi_awvalid_o = 1'b1;
-              lsu_axi_aw_o      = aw_payload;
-              lsu_axi_wvalid_o  = 1'b1;
-              lsu_axi_w_o       = w_payload;
-            end
-          end
-        end
-
-        LSU_SEND_AR: begin
-          lsu_axi_arvalid_o = 1'b1;
-          lsu_axi_ar_o      = ar_payload;
-        end
-
-        LSU_SEND_AW_W: begin
-          lsu_axi_awvalid_o = !aw_handshake_occurred_q;
-          lsu_axi_aw_o      = aw_payload;
-          lsu_axi_wvalid_o  = !w_handshake_occurred_q;
-          lsu_axi_w_o       = w_payload;
-        end
-
-        LSU_WAIT_R: begin
-          lsu_axi_rready_o      = 1'b1;
-          lsu_writeback_valid_o = lsu_axi_rvalid_i;
-          lsu_writeback_o       = dmem_writeback;
-        end
-
-        LSU_WAIT_B: begin
-          lsu_axi_bready_o      = 1'b1;
-          lsu_writeback_valid_o = lsu_axi_bvalid_i;
-          lsu_writeback_o       = dmem_writeback;
-        end
-
-        LSU_HOLD_WRITEBACK: begin
+      LSU_DISPATCH_REGISTERED_REQUEST: begin
+        if (complete_locally) begin
+          lsu_writeback_o       = local_writeback;
           lsu_writeback_valid_o = 1'b1;
-          lsu_writeback_o       = writeback_q;
+        end else begin
+          data_memory_req_valid_o = 1'b1;
         end
+      end
 
-        default: begin
+      LSU_WAIT_MEMORY_RESPONSE: begin
+        data_memory_resp_ready_o = lsu_writeback_ready_i;
+        lsu_writeback_o          = memory_writeback;
+        lsu_writeback_valid_o    = data_memory_resp_valid_i;
+      end
 
-        end
-      endcase
-    end
+      default: ;
+    endcase
   end
 
-
-
-  // Track each independent AXI channel and retain responses under writeback backpressure.
+  // 第二段：状态转移逻辑。每个本地request只产生一个本地response；
+  // AXI4的AR/R或AW/W/B细分事务不能泄漏到本状态机中。
   always_comb begin
-    state_d                 = state_q;
-    lsu_req_d               = lsu_req_q;
-    writeback_d             = writeback_q;
-    aw_handshake_occurred_d = aw_handshake_occurred_q;
-    w_handshake_occurred_d  = w_handshake_occurred_q;
+    state_d = state_q;
 
     unique case (state_q)
       LSU_IDLE: begin
         if (lsu_req_handshake) begin
-          lsu_req_d               = lsu_req_i;
-          aw_handshake_occurred_d = 1'b0;
-          w_handshake_occurred_d  = 1'b0;
-
-          if (complete_without_dmem) begin
-            if (lsu_writeback_handshake) begin
-              state_d = LSU_IDLE;
-            end else begin
-              writeback_d = no_dmem_writeback;
-              state_d     = LSU_HOLD_WRITEBACK;
-            end
-          end else if (is_load) begin
-            if (ar_handshake) begin
-              state_d = LSU_WAIT_R;
-            end else begin
-              state_d = LSU_SEND_AR;
-            end
-          end else if (is_store) begin
-            aw_handshake_occurred_d = aw_handshake;
-            w_handshake_occurred_d  = w_handshake;
-            if (aw_handshake && w_handshake) begin
-              state_d = LSU_WAIT_B;
-            end else begin
-              state_d = LSU_SEND_AW_W;
-            end
-          end
+          state_d = LSU_DISPATCH_REGISTERED_REQUEST;
         end
       end
 
-      LSU_SEND_AR: begin
-        if (ar_handshake) begin
-          state_d = LSU_WAIT_R;
+      LSU_DISPATCH_REGISTERED_REQUEST: begin
+        if (complete_locally && lsu_writeback_ready_i) begin
+          state_d = LSU_IDLE;
+        end else if (!complete_locally && data_memory_req_handshake) begin
+          state_d = LSU_WAIT_MEMORY_RESPONSE;
         end
       end
 
-      LSU_SEND_AW_W: begin
-        if (aw_handshake) aw_handshake_occurred_d = 1'b1;
-        if (w_handshake) w_handshake_occurred_d = 1'b1;
-
-        if ((aw_handshake_occurred_q || aw_handshake) &&
-            (w_handshake_occurred_q  || w_handshake)) begin
-          state_d = LSU_WAIT_B;
-        end
-      end
-
-      LSU_WAIT_R: begin
-        if (r_handshake) begin
-          if (lsu_writeback_handshake) begin
-            lsu_req_d = '0;
-            state_d   = LSU_IDLE;
-          end else begin
-            writeback_d = dmem_writeback;
-            state_d     = LSU_HOLD_WRITEBACK;
-          end
-        end
-      end
-
-      LSU_WAIT_B: begin
-        if (b_handshake) begin
-          aw_handshake_occurred_d = 1'b0;
-          w_handshake_occurred_d  = 1'b0;
-
-          if (lsu_writeback_handshake) begin
-            lsu_req_d = '0;
-            state_d   = LSU_IDLE;
-          end else begin
-            writeback_d = dmem_writeback;
-            state_d     = LSU_HOLD_WRITEBACK;
-          end
-        end
-      end
-
-      LSU_HOLD_WRITEBACK: begin
-        if (lsu_writeback_handshake) begin
-          lsu_req_d               = '0;
-          writeback_d             = '0;
-          aw_handshake_occurred_d = 1'b0;
-          w_handshake_occurred_d  = 1'b0;
-          state_d                 = LSU_IDLE;
+      LSU_WAIT_MEMORY_RESPONSE: begin
+        if (data_memory_resp_handshake) begin
+          state_d = LSU_IDLE;
         end
       end
 
       default: begin
-        state_d                 = LSU_IDLE;
-        lsu_req_d               = '0;
-        writeback_d             = '0;
-        aw_handshake_occurred_d = 1'b0;
-        w_handshake_occurred_d  = 1'b0;
+        state_d = LSU_IDLE;
       end
     endcase
   end
-  // TODO(AXI-LSU-ASSERT): Add protocol assertions after the interface is integrated:
-  // master侧至少增加这些协议断言：
-  // - 各VALID && !READY时，下一拍VALID仍为1且对应payload保持稳定。
-  // - AW握手次数、W握手次数和B握手次数对每个store恰好各一次。
-  // - 未发AR时不能接受R，AW/W未全部完成时不能接受B。
-  // - load期间AWVALID/WVALID=0，store期间ARVALID=0。
+
+  // 第三段：状态和紧凑请求上下文分组更新。
   always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      state_q                 <= LSU_IDLE;
-      lsu_req_q               <= '0;
-      writeback_q             <= '0;
-      aw_handshake_occurred_q <= 1'b0;
-      w_handshake_occurred_q  <= 1'b0;
-    end else begin
-      state_q                 <= state_d;
-      lsu_req_q               <= lsu_req_d;
-      writeback_q             <= writeback_d;
-      aw_handshake_occurred_q <= aw_handshake_occurred_d;
-      w_handshake_occurred_q  <= w_handshake_occurred_d;
+    if (!rst_ni) state_q <= LSU_IDLE;
+    else state_q <= state_d;
+  end
+
+  // pending payload不复位。state_q=IDLE时它没有语义；每次入口握手都覆盖，包括需要
+  // 本地完成的异常请求。这样DISPATCH阶段的所有决策都只依赖寄存值。
+  always_ff @(posedge clk_i) begin
+    if (lsu_req_handshake) begin
+      pending_lsu_context_q.pc             <= lsu_req_i.uop.pc;
+      pending_lsu_context_q.instruction    <= lsu_req_i.uop.instruction;
+      pending_lsu_context_q.rd             <= lsu_req_i.uop.rd;
+      pending_lsu_context_q.writes_rd      <= lsu_req_i.uop.writes_rd;
+      pending_lsu_context_q.mem_ctrl       <= lsu_req_i.uop.mem_ctrl;
+      pending_lsu_context_q.exception_valid <= lsu_req_i.uop.exception_valid;
+      pending_lsu_context_q.exception_cause <= lsu_req_i.uop.exception_cause;
+      pending_lsu_context_q.exception_tval  <= lsu_req_i.uop.exception_tval;
+      pending_lsu_context_q.next_pc        <= lsu_req_i.next_pc;
+      pending_lsu_context_q.effective_addr <= lsu_req_i.effective_addr;
+      pending_lsu_context_q.store_data     <= lsu_req_i.store_data;
     end
   end
 
-  // 当前单发射核没有并行年轻访存，暂不增加redirect端口。未来乱序版本中load响应使用
-  // ROB/LSQ tag判断有效性；store必须在ROB commit授权后进入store buffer并对cache可见。
+  // 当前顺序核固定只有一个访存在途。未来乱序实现中，load返回按LSQ/ROB tag匹配；
+  // store在ROB提交后进入store buffer，再由memory ordering逻辑决定何时对外可见。
 
+`ifndef SYNTHESIS
+  /* verilator lint_off SYNCASYNCNET */
+  a_preexisting_exception_never_reaches_memory :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_DISPATCH_REGISTERED_REQUEST &&
+     pending_lsu_context_q.exception_valid)
+    |-> !data_memory_req_valid_o)
+  else $error("LSU issued a memory request for an instruction with an older exception");
 
+  a_misaligned_access_never_reaches_memory :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_DISPATCH_REGISTERED_REQUEST && address_misaligned)
+    |-> !data_memory_req_valid_o)
+  else $error("LSU issued a memory request for a misaligned access");
 
-  // TODO(AXI-LSU-PERF-UPGRADE): 第一次实现维持单outstanding，但不要人为串行AW和W。
-  // 后续性能升级顺序：
-  // 1. lsu_req入口加1-entry skid buffer，AXI反压时仍能可靠保存payload。
-  // 2. R/B接收各加1-entry response buffer，使RREADY/BREADY尽可能常高。
-  // 3. 若允许多个outstanding Lite事务，增加按请求顺序保存元数据的load/store FIFO；
-  //    Lite没有ID，不能乱序匹配响应。
-  // 4. 若需要cache-line burst、多个ID或乱序响应，升级cache外侧为完整AXI4，不要扩展
-  //    这个Lite接口的私有字段。
-  // 5. 未来乱序CPU的store必须先经ROB commit授权进入store buffer，协议转换不能替代
-  //    精确异常和memory ordering设计。
-  //
-  // NOTE(P5): replace the single transaction state with a load queue, store queue,
-  // store buffer, replay path, and cache transaction tracking.
+  a_exception_writeback_has_no_register_write :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lsu_writeback_valid_o && lsu_writeback_o.uop.exception_valid)
+    |-> !lsu_writeback_o.uop.writes_rd)
+  else $error("LSU exception retained a destination-register side effect");
+
+  a_memory_request_is_registered_before_issue :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_IDLE && lsu_req_handshake)
+    |=> (state_q == LSU_DISPATCH_REGISTERED_REQUEST))
+  else $error("LSU did not issue a registered memory request after accepting it");
+
+  a_idle_request_has_no_combinational_outputs :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_IDLE)
+    |-> (!data_memory_req_valid_o && !lsu_writeback_valid_o && lsu_req_ready_o))
+  else $error("LSU IDLE outputs depended on an unregistered EXU request");
+
+  a_dispatch_has_one_completion_route :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == LSU_DISPATCH_REGISTERED_REQUEST)
+    |-> !(data_memory_req_valid_o && lsu_writeback_valid_o))
+  else $error("LSU dispatched one request to memory and local writeback simultaneously");
+
+  a_memory_request_stable_while_backpressured :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (data_memory_req_valid_o && !data_memory_req_ready_i)
+    |=> $stable(data_memory_req_o))
+  else $error("LSU memory request changed while the storage subsystem applied backpressure");
+  /* verilator lint_on SYNCASYNCNET */
+`endif
 
 endmodule

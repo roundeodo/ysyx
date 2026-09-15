@@ -1,4 +1,6 @@
 #pragma once
+#include "npc_config.h"
+
 #include <stdint.h>
 
 // initialization in verilator
@@ -17,16 +19,23 @@ void cpu_cleanup();
 bool npc_is_halted();
 
 // read pc
-uint32_t npc_get_pc();
+npc_word_t npc_get_pc();
 
 // read inst
 uint32_t npc_get_inst();
 
 // read gpr
-uint32_t npc_get_gpr(int idx);
+npc_word_t npc_get_gpr(int idx);
+
+// Read the machine CSRs that form part of the DiffTest architectural state.
+npc_word_t npc_get_mstatus();
+npc_word_t npc_get_mtvec();
+npc_word_t npc_get_mepc();
+npc_word_t npc_get_mcause();
+npc_word_t npc_get_mtval();
 
 // print gpr value
 void npc_dump_regs();
 
 // read gpr with their name
-bool npc_reg_str2val(const char *name, uint32_t *val);
+bool npc_reg_str2val(const char *name, npc_word_t *val);

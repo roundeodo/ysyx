@@ -1,296 +1,331 @@
 module riscv32_ifu
   import riscv32_pkg::*;
+  import riscv32_addr_map_pkg::*;
 #(
-    parameter logic [XLEN-1:0] PC_START = RESET_VECTOR
+    parameter program_counter_t PC_START = RESET_VECTOR
 ) (
     input logic clk_i,
     input logic rst_ni,
 
-    /* verilator lint_off UNUSEDSIGNAL */
     input redirect_req_t redirect_req_i,
-    /* verilator lint_on UNUSEDSIGNAL */
     input logic          redirect_req_valid_i,
 
-    // TODO(AXI-IFU-PORTS): 将下面6个SimpleBus端口替换为AXI4-Lite只读master的AR/R端口。
-    // ARM IHI 0022H A9.2.2明确允许read-only interface只包含AR和R，不需要伪造AW/W/B。
-    // 建议端口骨架：
-    // output axi_lite_addr_t ifu_axi_ar_o,
-    // output logic           ifu_axi_arvalid_o,
-    // input  logic           ifu_axi_arready_i,
-    // input  axi_lite_r_t    ifu_axi_r_i,
-    // input  logic           ifu_axi_rvalid_i,
-    // output logic           ifu_axi_rready_o,
-    output axi_lite_addr_t ifu_axi_ar_o,
-    output logic           ifu_axi_arvalid_o,
-    input  logic           ifu_axi_arready_i,
-    input  axi_lite_r_t    ifu_axi_r_i,
-    input  logic           ifu_axi_rvalid_i,
-    output logic           ifu_axi_rready_o,
-    //
-    // 删除imem_req/imem_resp命名后，valid/ready方向必须按master角色检查：
-    // ARVALID/ARADDR由IFU产生，ARREADY由memory产生；RVALID/RDATA/RRESP由memory产生，
-    // RREADY由IFU产生。不要把RREADY误写成slave输出方向。
+    // IFU顺序产生预测请求；预测器用一级寄存响应切断PC自反馈关键路径。非跳转响应被
+    // 消费时同拍发出下一顺序PC，taken响应则取消该拍PC+4请求并从目标PC重新开始。
+    output program_counter_t   next_pc_predictor_lookup_request_pc_o,
+    output fetch_epoch_t       next_pc_predictor_lookup_request_epoch_o,
+    output logic               next_pc_predictor_lookup_request_valid_o,
+    input  logic               next_pc_predictor_lookup_request_ready_i,
+    input  program_counter_t   next_pc_predictor_lookup_response_pc_i,
+    input  fetch_epoch_t       next_pc_predictor_lookup_response_epoch_i,
+    input  branch_prediction_t next_pc_predictor_prediction_i,
+    input  logic               next_pc_predictor_lookup_response_valid_i,
+    output logic               next_pc_predictor_lookup_response_ready_o,
+    output logic               next_pc_predictor_flush_o,
+
+    // IFU只传递取指语义；cache组织、refill和AXI4均位于I-cache边界之后。
+    output icache_lookup_req_t  icache_lookup_req_o,
+    output logic                icache_lookup_req_valid_o,
+    input  logic                icache_lookup_req_ready_i,
+    input  icache_lookup_resp_t icache_lookup_resp_i,
+    input  logic                icache_lookup_resp_valid_i,
+    output logic                icache_lookup_resp_ready_o,
 
     output fetch_entry_t fetch_entry_o,
     output logic         fetch_entry_valid_o,
     input  logic         fetch_entry_ready_i
 );
 
-  // IFU_INIT保证复位期间ARVALID为0；正常取指循环不会返回该状态。
-  // 当前只允许一个outstanding read，AR握手后必须等待对应R握手。
-  // AXI4-Lite没有ID，因此删除txn_id不能靠总线字段关联PC；fetch_req_pc_q继续承担关联责任。
-  typedef enum logic [1:0] {
-    IFU_INIT,
-    IFU_SEND_AR,
-    IFU_WAIT_R,
-    IFU_HOLD_FETCH
-  } ifu_state_e;
+  // 两项队列只保存“已完成预测、尚未被I-cache接收”的请求。它不是取指数据buffer，
+  // 宽度远小于fetch entry。预测器在队列未满时持续前推，I-cache命中流则从队列每拍
+  // 取走一项；由此切断旧实现中的I-cache response -> IFU -> I-cache request组合回路。
+  localparam int unsigned LOOKUP_QUEUE_ENTRY_COUNT = 2;
+  localparam int unsigned LOOKUP_QUEUE_INDEX_WIDTH = $clog2(LOOKUP_QUEUE_ENTRY_COUNT);
+  localparam int unsigned LOOKUP_QUEUE_COUNT_WIDTH = $clog2(LOOKUP_QUEUE_ENTRY_COUNT + 1);
 
-  ifu_state_e state_q;
-  ifu_state_e state_d;
+  typedef logic [LOOKUP_QUEUE_INDEX_WIDTH-1:0] lookup_queue_index_t;
+  typedef logic [LOOKUP_QUEUE_COUNT_WIDTH-1:0] lookup_queue_count_t;
 
-  // fetch_req_pc_q在请求阻塞和等待响应期间保持不变，用于关联响应与取指PC。
-  logic [XLEN-1:0] fetch_req_pc_q;
-  logic [XLEN-1:0] fetch_req_pc_d;
-  // next_pc_q保存当前事务结束后的顺序PC，redirect到达时保存redirect target。
-  logic [XLEN-1:0] next_pc_q;
-  logic [XLEN-1:0] next_pc_d;
+  icache_lookup_req_t lookup_queue_request_array_q[LOOKUP_QUEUE_ENTRY_COUNT];
+  branch_prediction_t lookup_queue_prediction_array_q[LOOKUP_QUEUE_ENTRY_COUNT];
+  lookup_queue_index_t lookup_queue_read_index_q, lookup_queue_read_index_d;
+  lookup_queue_index_t lookup_queue_write_index_q, lookup_queue_write_index_d;
+  lookup_queue_count_t lookup_queue_entry_count_q, lookup_queue_entry_count_d;
 
-  // 该寄存器只在memory响应已经被IFU接收、但IDU尚未ready时使用。
-  // 无反压时，响应在IFU_WAIT_RESP中直接旁路到IDU，不额外增加一拍。
-  fetch_entry_t fetch_entry_q;
-  fetch_entry_t fetch_entry_d;
-  fetch_entry_t axi_resp_fetch_entry;
+  icache_lookup_req_t lookup_queue_front_request;
+  branch_prediction_t lookup_queue_front_prediction;
+  logic lookup_queue_enqueue_ready;
+  logic lookup_queue_enqueue_occurred;
+  logic lookup_queue_dequeue_occurred;
 
-  // 已经发出的请求无法取消时，记录其响应属于错误路径。
-  logic discard_axi_resp_q;
-  logic discard_axi_resp_d;
+  program_counter_t predictor_fetch_pc_q, predictor_fetch_pc_d;
+  fetch_epoch_t     current_fetch_epoch_q, current_fetch_epoch_d;
+  frontend_tag_t    next_frontend_tag_q, next_frontend_tag_d;
 
-  logic ifu_axi_ar_handshake;
-  logic ifu_axi_r_handshake;
-  logic fetch_entry_handshake;
+  logic predictor_lookup_request_handshake;
+  logic predictor_lookup_response_handshake;
+  logic predictor_lookup_response_is_current;
+  logic predictor_taken_response_occurred;
+  program_counter_t predicted_next_pc;
 
-  // TODO(AXI-IFU-HANDSHAKE): 用AR/R握手替换下面两个imem握手：
-  // ar_handshake = ifu_axi_arvalid_o && ifu_axi_arready_i;
-  // r_handshake  = ifu_axi_rvalid_i  && ifu_axi_rready_o;
-  // 状态只能在对应握手发生后推进。master不能等待ARREADY才拉高ARVALID；ARVALID一旦拉高，
-  // 在握手前不能撤销，即使这期间收到redirect也只能标记discard并完成旧事务。
-  assign ifu_axi_ar_handshake  = ifu_axi_arvalid_o && ifu_axi_arready_i;
-  assign ifu_axi_r_handshake   = ifu_axi_rvalid_i && ifu_axi_rready_o;
-  assign fetch_entry_handshake = fetch_entry_valid_o && fetch_entry_ready_i;
+  // 每个被I-cache实际接收的frontend tag对应一份prediction。I-cache响应原样返回tag，
+  // IFU据此恢复预测信息；这样预测器和I-cache可以相差一个流水级而不依赖组合配对。
+  branch_prediction_t prediction_by_frontend_tag_q[FRONTEND_TAG_COUNT];
+  fetch_epoch_t prediction_epoch_by_frontend_tag_q[FRONTEND_TAG_COUNT];
+  logic [FRONTEND_TAG_COUNT-1:0] prediction_present_vector_q;
 
-  // TODO(AXI-IFU-RRESP): 将下面的SimpleBus异常字段转换改成RRESP解码。
-  // AXI R通道只有RDATA和RRESP，不提供exception_cause/tval：
-  // - AXI_RESP_OKAY：instruction=RDATA，exception_valid=0。
-  // - AXI_RESP_SLVERR或AXI_RESP_DECERR：exception_valid=1，
-  //   exception_cause=EXC_INSTR_ACCESS_FAULT，exception_tval=fetch_req_pc_q。
-  // - AXI_RESP_EXOKAY在Lite中不合法；仿真中assert，功能上按access fault防御处理。
-  // 即使RRESP报错，本次R传输仍必须完成握手；错误作为有效fetch送到有序commit边界。
-  //
-  // 取指异常仍作为有效fetch向后传递。只有到达有序commit边界后，trap controller
-  // 才能更新CSR并产生redirect，从而保持精确异常语义。
+  logic icache_lookup_request_handshake;
+  logic icache_lookup_response_handshake;
+  logic icache_lookup_response_is_current;
+
+  assign lookup_queue_enqueue_ready =
+      lookup_queue_entry_count_q < lookup_queue_count_t'(LOOKUP_QUEUE_ENTRY_COUNT);
+  assign lookup_queue_enqueue_occurred =
+      predictor_lookup_response_handshake && predictor_lookup_response_is_current;
+  assign lookup_queue_dequeue_occurred = icache_lookup_request_handshake;
+
   always_comb begin
-    axi_resp_fetch_entry                 = '0;
-    axi_resp_fetch_entry.pc              = fetch_req_pc_q;
-    axi_resp_fetch_entry.instruction     = ifu_axi_r_i.data;
-    axi_resp_fetch_entry.frontend_tag    = '0;
-    axi_resp_fetch_entry.prediction      = '0;
-    axi_resp_fetch_entry.exception_valid = ifu_axi_r_i.resp != AXI_RESP_OKAY;
-    axi_resp_fetch_entry.exception_cause = EXC_INSTR_ACCESS_FAULT;
-    axi_resp_fetch_entry.exception_tval  = fetch_req_pc_q;
+    lookup_queue_front_request    = '0;
+    lookup_queue_front_prediction = '0;
+    if (lookup_queue_entry_count_q != '0) begin
+      lookup_queue_front_request = lookup_queue_request_array_q[lookup_queue_read_index_q];
+      lookup_queue_front_prediction =
+          lookup_queue_prediction_array_q[lookup_queue_read_index_q];
+    end
   end
 
-  // TODO(AXI-IFU-OUTPUT): 用AR/R信号重写本输出块，但保留当前单outstanding旁路结构。
-  // IFU_SEND_AR中无条件基于已保存PC拉高ARVALID，不能组合依赖ARREADY；ARADDR和ARPROT在
-  // ARVALID && !ARREADY期间必须稳定。建议ARADDR={fetch_req_pc_q[XLEN-1:2], 2'b00}；
-  // 当前只取32-bit指令，正常PC本来就应word aligned。ARPROT至少明确instruction属性。
-  //
-  // IFU_WAIT_R中可以让RREADY=1，因为本地fetch_entry_q能吸收一个受IDU反压的响应。
-  // 这样RREADY不依赖RVALID，也不会形成AXI输入到输出的组合路径。RVALID && !RREADY时
-  // RDATA/RRESP稳定是slave责任，不要在IFU中假定响应只保持一拍。
-  //
-  // WAIT_RESP采用fall-through旁路：IDU ready时response和fetch同拍握手；
-  // IDU not ready时IFU接收response，并在时钟沿保存到fetch_entry_q。
-  // Moore output
+  assign predictor_lookup_response_is_current =
+      next_pc_predictor_lookup_response_epoch_i == current_fetch_epoch_q;
+  assign predicted_next_pc = next_pc_predictor_prediction_i.predicted_taken ?
+                             next_pc_predictor_prediction_i.predicted_target :
+                             next_pc_predictor_lookup_response_pc_i +
+                             program_counter_t'(INSTRUCTION_BYTES);
+
+  // redirect禁止本拍预测握手，并在时钟沿把fetch PC切到新epoch目标。正常流中，预测
+  // ready只取决于窄请求队列空间，不再依赖I-cache、fetch buffer或后端ready。
+  // taken响应出现时，预测器内部可能还保存一个更年轻的顺序查询。当前响应在本拍
+  // 已经完成握手，因此可以同时flush该年轻查询，再从预测目标重新开始。
+  assign next_pc_predictor_flush_o =
+      redirect_req_valid_i || predictor_taken_response_occurred;
+  assign next_pc_predictor_lookup_response_ready_o =
+      !redirect_req_valid_i &&
+      (!predictor_lookup_response_is_current || lookup_queue_enqueue_ready);
+  assign next_pc_predictor_lookup_request_pc_o    = predictor_fetch_pc_q;
+  assign next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q;
+  assign predictor_taken_response_occurred =
+      predictor_lookup_response_handshake &&
+      predictor_lookup_response_is_current &&
+      next_pc_predictor_prediction_i.predicted_taken;
+  assign next_pc_predictor_lookup_request_valid_o =
+      lookup_queue_enqueue_ready && !redirect_req_valid_i &&
+      !predictor_taken_response_occurred;
+
+  assign predictor_lookup_request_handshake =
+      next_pc_predictor_lookup_request_valid_o &&
+      next_pc_predictor_lookup_request_ready_i;
+  assign predictor_lookup_response_handshake =
+      next_pc_predictor_lookup_response_valid_i &&
+      next_pc_predictor_lookup_response_ready_o;
+
   always_comb begin
-    ifu_axi_arvalid_o   = 1'b0;
-    ifu_axi_rready_o    = 1'b0;
-    fetch_entry_o       = fetch_entry_q;
-    fetch_entry_valid_o = 1'b0;
-    ifu_axi_ar_o.addr   = '0;
-    ifu_axi_ar_o.prot   = 3'b101;
+    predictor_fetch_pc_d  = predictor_fetch_pc_q;
+    current_fetch_epoch_d = current_fetch_epoch_q;
+    next_frontend_tag_d   = next_frontend_tag_q;
 
-    unique case (state_q)
-      IFU_INIT: ;
+    if (redirect_req_valid_i) begin
+      current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
+      predictor_fetch_pc_d  = redirect_req_i.target_pc;
+    end else if (predictor_taken_response_occurred) begin
+      // taken响应到达时，本拍没有接受顺序PC+4请求，所以下一拍可直接查询目标PC。
+      predictor_fetch_pc_d = predicted_next_pc;
+    end else if (predictor_lookup_request_handshake) begin
+      // 预测查询流水化后，请求被接收时先按顺序路径前推；若该请求随后预测taken，
+      // 上面的高优先级分支会在响应拍改写为目标PC。
+      predictor_fetch_pc_d = predictor_fetch_pc_q +
+                             program_counter_t'(INSTRUCTION_BYTES);
+    end
 
-      IFU_SEND_AR: begin
-        ifu_axi_arvalid_o = 1'b1;
-        ifu_axi_ar_o.addr = fetch_req_pc_q;
-      end
-
-      IFU_WAIT_R: begin
-        // 此状态下本地响应缓冲为空，所以总能接收一个memory响应。已经由discard位确认
-        // 属于错误路径的响应不能交给IDU；redirect不能直接组合门控valid，因为它可能由
-        // 当前fetch在同一周期产生。
-        ifu_axi_rready_o    = 1'b1;
-        fetch_entry_o       = axi_resp_fetch_entry;
-        fetch_entry_valid_o = ifu_axi_rvalid_i && !discard_axi_resp_q;
-      end
-
-      IFU_HOLD_FETCH: begin
-        fetch_entry_o       = fetch_entry_q;
-        fetch_entry_valid_o = 1'b1;
-      end
-
-      default: ;
-    endcase
+    if (lookup_queue_enqueue_occurred) begin
+      next_frontend_tag_d = next_frontend_tag_q + frontend_tag_t'(1);
+    end
   end
 
-  // TODO(AXI-IFU-NEXT): 将状态转移事件逐一替换为AR/R握手，不要按单独valid推进。
-  // redirect处理规则保持不变：
-  // 1. ARVALID尚未握手但已经拉高时，AXI禁止撤回AR，只能保持payload并标记discard。
-  // 2. AR已握手后，AXI没有cancel通道，必须接收并丢弃旧R响应。
-  // 3. 丢弃旧R响应后才能用redirect target发新AR。
-  // 未来要允许多个outstanding read时，单个discard位不够，必须增加按请求顺序保存PC与
-  // discard状态的FIFO；AXI4-Lite没有ID，返回顺序必须与请求顺序一致。
-  //
-  // next state
+  // 队列只在预测响应真正被消费时写入；请求被I-cache反压时，front payload保持稳定。
+  // redirect不撤销已经呈现在I-cache valid通道上的旧epoch请求，避免破坏ready/valid稳定性；
+  // 这些请求完成后会按epoch丢弃，新的redirect流随后自然接续。
   always_comb begin
-    state_d            = state_q;
-    fetch_req_pc_d     = fetch_req_pc_q;
-    next_pc_d          = next_pc_q;
-    fetch_entry_d      = fetch_entry_q;
-    discard_axi_resp_d = discard_axi_resp_q;
+    lookup_queue_read_index_d  = lookup_queue_read_index_q;
+    lookup_queue_write_index_d = lookup_queue_write_index_q;
+    lookup_queue_entry_count_d = lookup_queue_entry_count_q;
 
-    unique case (state_q)
-      IFU_INIT: begin
-        state_d = IFU_SEND_AR;
+    if (redirect_req_valid_i) begin
+      // 当前已经呈现在I-cache端口的front不能在反压时撤销；其后的旧epoch请求尚未
+      // 对外可见，可以立即删除。若front本拍握手，则旧队列全部清空。
+      if (lookup_queue_entry_count_q == '0) begin
+        lookup_queue_entry_count_d = '0;
+      end else if (lookup_queue_dequeue_occurred) begin
+        lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+        lookup_queue_write_index_d = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+        lookup_queue_entry_count_d = '0;
+      end else begin
+        lookup_queue_write_index_d = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+        lookup_queue_entry_count_d = lookup_queue_count_t'(1);
       end
-
-      IFU_SEND_AR: begin
-        // valid && !ready期间不能改变request payload。redirect先记录为后续PC，
-        // 当前旧请求仍完成传输，其响应回来后再丢弃。
-        if (redirect_req_valid_i) begin
-          next_pc_d          = redirect_req_i.target_pc;
-          discard_axi_resp_d = 1'b1;
+    end else begin
+      unique case ({lookup_queue_enqueue_occurred, lookup_queue_dequeue_occurred})
+        2'b01: begin
+          lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+          lookup_queue_entry_count_d = lookup_queue_entry_count_q - lookup_queue_count_t'(1);
         end
-
-        if (ifu_axi_ar_handshake) begin
-          state_d = IFU_WAIT_R;
-          if (!discard_axi_resp_q && !redirect_req_valid_i) begin
-            next_pc_d = fetch_req_pc_q + XLEN'(4);
-          end
+        2'b10: begin
+          lookup_queue_write_index_d =
+              lookup_queue_write_index_q + lookup_queue_index_t'(1);
+          lookup_queue_entry_count_d = lookup_queue_entry_count_q + lookup_queue_count_t'(1);
         end
-      end
-
-      IFU_WAIT_R: begin
-        // 已握手的memory请求无法撤回。redirect到达后保存新PC，并等待旧响应回来。
-        if (redirect_req_valid_i) begin
-          next_pc_d          = redirect_req_i.target_pc;
-          discard_axi_resp_d = 1'b1;
+        2'b11: begin
+          lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
+          lookup_queue_write_index_d =
+              lookup_queue_write_index_q + lookup_queue_index_t'(1);
         end
-
-        if (ifu_axi_r_handshake) begin
-          if (discard_axi_resp_q || redirect_req_valid_i) begin
-            // 消耗错误路径响应，但不构造fetch。
-            fetch_req_pc_d     = redirect_req_valid_i ? redirect_req_i.target_pc : next_pc_q;
-            next_pc_d          = redirect_req_valid_i ? redirect_req_i.target_pc : next_pc_q;
-            discard_axi_resp_d = 1'b0;
-            state_d            = IFU_SEND_AR;
-          end else if (fetch_entry_handshake) begin
-            // 无反压快速路径：响应当拍直接交给IDU，不进入HOLD_FETCH。
-            fetch_req_pc_d = next_pc_q;
-            state_d        = IFU_SEND_AR;
-          end else begin
-            // IDU反压：响应已被IFU接收，保存后由HOLD_FETCH持续展示。
-            fetch_entry_d = axi_resp_fetch_entry;
-            state_d       = IFU_HOLD_FETCH;
-          end
-        end
-      end
-
-      IFU_HOLD_FETCH: begin
-        if (redirect_req_valid_i) begin
-          // 缓冲中的fetch尚未交给IDU，可以直接丢弃。
-          fetch_req_pc_d     = redirect_req_i.target_pc;
-          next_pc_d          = redirect_req_i.target_pc;
-          discard_axi_resp_d = 1'b0;
-          state_d            = IFU_SEND_AR;
-        end else if (fetch_entry_handshake) begin
-          fetch_req_pc_d = next_pc_q;
-          state_d        = IFU_SEND_AR;
-        end
-      end
-
-      default: begin
-        state_d            = IFU_INIT;
-        fetch_req_pc_d     = PC_START;
-        next_pc_d          = PC_START;
-        fetch_entry_d      = '0;
-        discard_axi_resp_d = 1'b0;
-      end
-    endcase
+        default: ;
+      endcase
+    end
   end
-
-  // IFU_INIT已经保证reset期间ARVALID为0。寄存器块仍是状态、请求PC和fetch缓冲的唯一写入点。
-
-
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      state_q            <= IFU_INIT;
-      fetch_req_pc_q     <= PC_START;
-      next_pc_q          <= PC_START;
-      fetch_entry_q      <= '0;
-      discard_axi_resp_q <= 1'b0;
+      predictor_fetch_pc_q  <= PC_START;
+      current_fetch_epoch_q <= '0;
+      next_frontend_tag_q   <= '0;
     end else begin
-      state_q            <= state_d;
-      fetch_req_pc_q     <= fetch_req_pc_d;
-      next_pc_q          <= next_pc_d;
-      fetch_entry_q      <= fetch_entry_d;
-      discard_axi_resp_q <= discard_axi_resp_d;
+      predictor_fetch_pc_q  <= predictor_fetch_pc_d;
+      current_fetch_epoch_q <= current_fetch_epoch_d;
+      next_frontend_tag_q   <= next_frontend_tag_d;
     end
   end
 
-  // TODO(AXI-IFU-ASSERT): 添加以下等价SVA检查：
-  // - ARVALID && !ARREADY |=> ARVALID && $stable({ARADDR, ARPROT})
-  // - ARVALID在握手前不能下降
-  // - 每个R握手之前必须存在一个尚未完成的AR握手
-  // 断言放在master侧用于检查IFU责任；RVALID/RDATA稳定性放在slave侧检查。
-  //
-  // Register update
-  always_comb begin
+  always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      p_ifu_arvalid_low_during_reset :
-      assert (!ifu_axi_arvalid_o)
-      else $error("IFU ARVALID assert during reset");
+      lookup_queue_read_index_q  <= '0;
+      lookup_queue_write_index_q <= '0;
+      lookup_queue_entry_count_q <= '0;
+    end else begin
+      lookup_queue_read_index_q  <= lookup_queue_read_index_d;
+      lookup_queue_write_index_q <= lookup_queue_write_index_d;
+      lookup_queue_entry_count_q <= lookup_queue_entry_count_d;
+      if (lookup_queue_enqueue_occurred) begin
+        lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_addr <=
+            phys_addr_t'(next_pc_predictor_lookup_response_pc_i);
+        lookup_queue_request_array_q[lookup_queue_write_index_q].frontend_tag <=
+            next_frontend_tag_q;
+        lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_epoch <=
+            next_pc_predictor_lookup_response_epoch_i;
+        lookup_queue_prediction_array_q[lookup_queue_write_index_q] <=
+            next_pc_predictor_prediction_i;
+      end
     end
   end
 
-  p_ifu_ar_stabler_while_stall :
-  assert property(
-    @(posedge clk_i)
-    ifu_axi_arvalid_o && !ifu_axi_arready_i |=> ifu_axi_arvalid_o && $stable(
-      {ifu_axi_ar_o.addr, ifu_axi_ar_o.prot}
-  ))
-  else $error("IFU changed AR payload before handshake");
+  assign icache_lookup_req_o       = lookup_queue_front_request;
+  // 一旦请求已经呈现在ready/valid通道上，即使redirect到来，也不能撤销valid。
+  // 旧epoch请求可以继续握手，返回时按epoch丢弃；这比破坏协议稳定性更可控。
+  assign icache_lookup_req_valid_o = lookup_queue_entry_count_q != '0;
+  assign icache_lookup_request_handshake =
+      icache_lookup_req_valid_o && icache_lookup_req_ready_i;
 
-  p_ifu_arvalid_only_in_send_state :
-  assert property(
-    @(posedge clk_i)
-    ifu_axi_arvalid_o |-> state_q == IFU_SEND_AR
-  )
-  else $error("IFU assert ARVALID in an invalid state");
+  assign icache_lookup_response_is_current =
+      icache_lookup_resp_i.fetch_epoch == current_fetch_epoch_q;
+  assign icache_lookup_response_handshake =
+      icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
 
+  always_comb begin
+    fetch_entry_o                 = '0;
+    fetch_entry_o.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
+    fetch_entry_o.instruction     = icache_lookup_resp_i.fetch_data;
+    fetch_entry_o.frontend_tag    = icache_lookup_resp_i.frontend_tag;
+    fetch_entry_o.prediction      =
+        prediction_by_frontend_tag_q[icache_lookup_resp_i.frontend_tag];
+    fetch_entry_o.exception_valid = icache_lookup_resp_i.access_fault;
+    fetch_entry_o.exception_cause = EXC_INSTR_ACCESS_FAULT;
+    fetch_entry_o.exception_tval  = xlen_data_t'(icache_lookup_resp_i.fetch_addr);
 
+    fetch_entry_valid_o = icache_lookup_resp_valid_i &&
+                          icache_lookup_response_is_current &&
+                          !redirect_req_valid_i;
+    icache_lookup_resp_ready_o =
+        (!icache_lookup_response_is_current || redirect_req_valid_i) ?
+        1'b1 : fetch_entry_ready_i;
+  end
 
-  // TODO(AXI-IFU-PERF): 基线通过后再消除气泡，不要把性能优化混入第一次协议迁移。
-  // 第一阶段保持1个outstanding。第二阶段可在AR前增加1-entry skid/request buffer，并让
-  // RREADY在fetch buffer有空间时常高。再往后增加顺序PC FIFO支持多个outstanding Lite读；
-  // 若I-cache refill需要burst或ID，应在I-cache的memory侧升级到完整AXI4，而不是向Lite
-  // 私自添加ARLEN/ARID。
-  //
-  // NOTE(P5): branch prediction, I-cache response tracking, and a fetch queue
-  // extend this boundary; redirect remains the only external PC-recovery input.
+  // prediction表项在请求真正进入I-cache时建立，在对应响应离开时释放。redirect不要求
+  // 立即清空表项：旧epoch响应仍会返回并完成握手，届时必须同样释放其tag，否则有限
+  // tag空间会被永久占用。若旧响应和新请求同拍使用同一tag，下面后执行的新请求写入
+  // 优先，使该tag无气泡地转交给新事务。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      prediction_present_vector_q <= '0;
+    end else begin
+      if (icache_lookup_response_handshake) begin
+        prediction_present_vector_q[icache_lookup_resp_i.frontend_tag] <= 1'b0;
+      end
+      if (icache_lookup_request_handshake) begin
+        prediction_by_frontend_tag_q[lookup_queue_front_request.frontend_tag] <=
+            lookup_queue_front_prediction;
+        prediction_epoch_by_frontend_tag_q[lookup_queue_front_request.frontend_tag] <=
+            lookup_queue_front_request.fetch_epoch;
+        prediction_present_vector_q[lookup_queue_front_request.frontend_tag] <= 1'b1;
+      end
+    end
+  end
+
+`ifndef SYNTHESIS
+  a_nontaken_predictor_response_keeps_request_throughput :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (predictor_lookup_response_handshake && predictor_lookup_response_is_current &&
+     !next_pc_predictor_prediction_i.predicted_taken)
+    |-> predictor_lookup_request_handshake)
+  else $error("IFU inserted a bubble after a current non-taken prediction");
+
+  a_taken_predictor_response_blocks_wrong_sequential_request :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    predictor_taken_response_occurred |-> !predictor_lookup_request_handshake)
+  else $error("IFU launched a sequential request while accepting a taken prediction");
+
+  a_predictor_request_stable_while_stalled :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (next_pc_predictor_lookup_request_valid_o &&
+     !next_pc_predictor_lookup_request_ready_i && !redirect_req_valid_i)
+    |=> (next_pc_predictor_lookup_request_valid_o &&
+         $stable(next_pc_predictor_lookup_request_pc_o) &&
+         $stable(next_pc_predictor_lookup_request_epoch_o)))
+  else $error("IFU changed a predictor request while stalled");
+
+  a_icache_request_stable_while_stalled :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (icache_lookup_req_valid_o && !icache_lookup_req_ready_i)
+    |=> (icache_lookup_req_valid_o && $stable(icache_lookup_req_o)))
+  else $error("IFU changed an I-cache request while stalled");
+
+  a_current_icache_response_has_prediction :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (icache_lookup_resp_valid_i && icache_lookup_response_is_current)
+    |-> (prediction_present_vector_q[icache_lookup_resp_i.frontend_tag] &&
+         (prediction_epoch_by_frontend_tag_q[icache_lookup_resp_i.frontend_tag] ==
+          icache_lookup_resp_i.fetch_epoch)))
+  else $error("IFU received a current I-cache response without matching prediction metadata");
+
+  a_frontend_tag_not_reused_while_present :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    icache_lookup_request_handshake
+    |-> (!prediction_present_vector_q[lookup_queue_front_request.frontend_tag] ||
+         (icache_lookup_response_handshake &&
+          (icache_lookup_resp_i.frontend_tag == lookup_queue_front_request.frontend_tag))))
+  else $error("IFU reused a frontend tag before the older response completed");
+
+  a_lookup_queue_count_bounded :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    lookup_queue_entry_count_q <= lookup_queue_count_t'(LOOKUP_QUEUE_ENTRY_COUNT))
+  else $error("IFU predicted lookup queue overflowed");
+`endif
 
 endmodule
