@@ -177,6 +177,14 @@ package riscv32_pkg;
     CF_JALR   = 2'd3
   } control_flow_op_e;
 
+  // BTB记录的控制流类型，供预测控制模块选择方向和目标。
+  typedef enum logic [1:0] {
+    TARGET_KIND_CONDITIONAL_BRANCH,
+    TARGET_KIND_DIRECT_JUMP,
+    TARGET_KIND_INDIRECT_JUMP,
+    TARGET_KIND_RETURN
+  } branch_target_kind_e;
+
   typedef enum logic [2:0] {
     BR_NONE = 3'd0,
     BR_BEQ  = 3'd1,

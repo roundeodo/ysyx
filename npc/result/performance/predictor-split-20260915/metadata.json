@@ -1,0 +1,6 @@
+{
+  "git_head": "4d0716eb221ad49d4dd88890f6d2ddb7fdd11604",
+  "reference_sha256": "d1cfc006634e019ebe795be3e900768203b0d5145a22d1ec2b84902f066ecaa6",
+  "config": "rv32-baseline",
+  "scope": "Split BHT, BTB, RAS; preserve query/training cycles"
+}

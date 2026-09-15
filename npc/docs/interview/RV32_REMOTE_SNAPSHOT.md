@@ -19,7 +19,17 @@ python3 npc/scripts/restore_rv32_dependencies.py
 系统仍需要原项目的 RISC-V GNU 工具链、Verilator、C++ 编译器及 Capstone。
 构建或运行 make 时传 `git_commit=`，关闭课程旧脚本的自动提交行为。
 
-## 已验证的性能
+## 2026-09-15 更新
+
+移除独立 RR 流水级，并将取指预测器拆分为 BHT、BTB、RAS 与查询控制模块。
+回归测试及同频 MicroBench test 对照通过；拆分前后周期数与 IPC 一致。
+当前综合单元面积 76,480.320 μm²，730 MHz 下 setup slack 为 +0.023 ns。
+此版本尚未重跑 train，下方 train 数据属于 9 月 11 日发布的旧版硬件。
+详细条件见 `../verification/RV32_PREDICTOR_SPLIT_2026-09-15.md`。
+预测器对照测试引用远程历史提交 `f7a8f2568ea98c9a3492f60bedd7340f936baca4`，
+其原始预测器源码 SHA-256 与开发分支冻结版本相同。
+
+## 历史版本已验证的性能
 
 RV32 baseline，CPU 820 MHz，设备 100 MHz，MicroBench train 十项 PASS、GOOD TRAP：
 
@@ -35,7 +45,7 @@ RV32 baseline，CPU 820 MHz，设备 100 MHz，MicroBench train 十项 PASS、GO
 复测使用源码构建，生成新的结果目录：
 
 ```sh
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 820
+python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 730
 ```
 
 远程保存 RTL、脚本、测试、文档、依赖补丁和精选测量证据；宿主仿真器、编译缓存及

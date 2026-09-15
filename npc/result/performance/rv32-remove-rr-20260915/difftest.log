@@ -1,0 +1,900 @@
+make: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+make[1]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+# Building add-run [riscv32-npc]
++ CC tests/add.c
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+# Building am-archive [riscv32-npc]
++ AS src/riscv/npc/start.S
++ CC src/riscv/npc/trm.c
++ CC src/riscv/npc/ioe.c
++ CC src/riscv/npc/timer.c
++ CC src/riscv/npc/input.c
++ CC src/riscv/npc/uart.c
++ CC src/riscv/npc/cte.c
++ AS src/riscv/npc/trap.S
++ CC src/platform/dummy/vme.c
++ CC src/platform/dummy/mpe.c
++ AS src/riscv/npc/libgcc/div.S
++ AS src/riscv/npc/libgcc/muldi3.S
++ CC src/riscv/npc/libgcc/multi3.c
++ CC src/riscv/npc/libgcc/ashldi3.c
++ CC src/riscv/npc/libgcc/unused.c
++ AR -> build/am-riscv32-npc.a
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Building klib-archive [riscv32-npc]
++ CC src/int64.c
++ CC src/cpp.c
++ CC src/string.c
++ CC src/stdlib.c
++ CC src/stdio.c
++ AR -> build/klib-riscv32-npc.a
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Creating image [riscv32-npc]
++ LD -> build/add-riscv32-npc.elf
++ OBJCOPY -> build/add-riscv32-npc.bin
+mainargs=
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:327:8: Instance pin connected by name with empty reference: 'lookup_next_pc_o'
+  327 |       .lookup_next_pc_o(),
+      |        ^~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.043
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/top.sv:54:8: Instance pin connected by name with empty reference: 'system_rst_no'
+   54 |       .system_rst_no          (),
+      |        ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv:76:16: Bits of signal are not used: 'random_latency_seed'[31:16]
+                                                                                                                       : ... note: In instance 'top.u_sim_mem'
+   76 |   int unsigned random_latency_seed;
+      |                ^~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.043
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_core_merge.sv:9:37: Bits of signal are not used: 'instruction_manager_i'[139:51]
+                                                                                                                            : ... note: In instance 'top.u_npc_system.u_axi4_core_merge'
+    9 |     input  axi4_manager_to_target_t instruction_manager_i,
+      |                                     ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_refill_axi4_master.sv:22:37: Bits of signal are not used: 'axi_manager_i'[49:41]
+                                                                                                                                              : ... note: In instance 'top.u_npc_system.u_core.u_icache_refill_axi4_master'
+   22 |     input  axi4_target_to_manager_t axi_manager_i
+      |                                     ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv:41:14: Bits of signal are not used: 'lookup_memory_attr'[5:4,1:0]
+                                                                                                                           : ... note: In instance 'top.u_npc_system.u_core.u_icache'
+   41 |   pma_attr_t lookup_memory_attr;
+      |              ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv:61:18: Bits of signal are not used: 'miss_event'[9:6,4,0]
+                                                                                                                           : ... note: In instance 'top.u_npc_system.u_core.u_icache'
+   61 |   icache_event_t miss_event;
+      |                  ^~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv:214:68: Bits of signal are not used: 'addr'[7:0]
+                                                                                                                            : ... note: In instance 'top.u_npc_system.u_core.u_icache'
+  214 |   function automatic icache_tag_t get_icache_tag(input phys_addr_t addr);
+      |                                                                    ^~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_memory_subsystem.sv:40:14: Bits of signal are not used: 'request_memory_attr'[3,1:0]
+                                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem'
+   40 |   pma_attr_t request_memory_attr;
+      |              ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_csr_file.sv:21:29: Bits of signal are not used: 'trap_pc_i'[1:0]
+                                                                                                                    : ... note: In instance 'top.u_npc_system.u_core.u_csr_file'
+   21 |     input program_counter_t trap_pc_i,
+      |                             ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_fetch_control_flow_predictor.sv:163:25: Bits of signal are not used: 'lookup_branch_target_entry'[61:34]
+                                                                                                                                                  : ... note: In instance 'top.u_npc_system.u_core.u_fetch_control_flow_predictor'
+  163 |   branch_target_entry_t lookup_branch_target_entry;
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_fetch_control_flow_predictor.sv:427:29: Bits of signal are not used: 'compared_entry'[33:0]
+                                                                                                                                                  : ... note: In instance 'top.u_npc_system.u_core.u_fetch_control_flow_predictor'
+  427 |       branch_target_entry_t compared_entry;
+      |                             ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_lsu.sv:22:31: Bits of signal are not used: 'data_memory_resp_i'[3:0]
+                                                                                                               : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+   22 |     input  data_memory_resp_t data_memory_resp_i,
+      |                               ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_lsu.sv:90:71: Bits of signal are not used: 'request'[95:64,31:0]
+                                                                                                               : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+   90 |   function automatic logic request_address_misaligned(input lsu_req_t request);
+      |                                                                       ^~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_lsu.sv:99:70: Bits of signal are not used: 'request'[95:0]
+                                                                                                               : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+   99 |   function automatic logic request_has_memory_access(input lsu_req_t request);
+      |                                                                      ^~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_lsu.sv:104:83: Bits of signal are not used: 'request'[95:64,31:0]
+                                                                                                                : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+  104 |   function automatic core_byte_strobe_t request_store_byte_strobe(input lsu_req_t request);
+      |                                                                                   ^~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_lsu.sv:116:75: Bits of signal are not used: 'request'[95:64]
+                                                                                                                : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+  116 |   function automatic core_data_t request_store_write_data(input lsu_req_t request);
+      |                                                                           ^~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_performance_monitor.sv:38:29: Bits of signal are not used: 'resolved_control_flow_pc_i'[31:8,1:0]
+                                                                                                                                  : ... note: In instance 'top.u_npc_system.u_core.u_sim_performance_monitor'
+   38 |     input program_counter_t resolved_control_flow_pc_i,
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv:9:26: Bits of signal are not used: 'commit_i'[353:322,289:258,256:252,219:70,68:0]
+                                                                                                                                  : ... note: In instance 'top.u_npc_system.u_core.u_sim_issue_window_monitor'
+    9 |     input commit_t       commit_i,
+      |                          ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv:18:26: Bits of signal are not used: 'icache_event_i'[9:6,4:0]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_sim_issue_window_monitor'
+   18 |     input icache_event_t icache_event_i,
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv:19:26: Bits of signal are not used: 'dcache_event_i'[13:8,5:0]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_sim_issue_window_monitor'
+   19 |     input dcache_event_t dcache_event_i
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv:35:16: Bits of signal are not used: 'category_index'[31:3]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_sim_issue_window_monitor'
+   35 |   int unsigned category_index;
+      |                ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_ifu.sv:10:26: Bits of signal are not used: 'redirect_req_i'[41:0]
+                                                                                                               : ... note: In instance 'top.u_npc_system.u_core.u_ifu'
+   10 |     input redirect_req_t redirect_req_i,
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_interrupt_controller.sv:13:38: Bits of signal are not used: 'commit_i'[353:290,257:70,68:0]
+                                                                                                                                : ... note: In instance 'top.u_npc_system.u_core.u_interrupt_controller'
+   13 |     input  commit_t                  commit_i,
+      |                                      ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_interrupt_controller.sv:15:38: Bits of signal are not used: 'redirect_i'[41:0]
+                                                                                                                                : ... note: In instance 'top.u_npc_system.u_core.u_interrupt_controller'
+   15 |     input  redirect_req_t            redirect_i,
+      |                                      ^~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:55:33: Bits of signal are not used: 'refill_resp_i'[3:0]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   55 |     input  dcache_refill_resp_t refill_resp_i,
+      |                                 ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:62:36: Bits of signal are not used: 'writeback_resp_i'[3:0]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   62 |     input  dcache_writeback_resp_t writeback_resp_i,
+      |                                    ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:14:27: Parameter is not used: 'CLINT_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   14 |   localparam int unsigned CLINT_SIZE_BYTES = 32'h0001_0000;
+      |                           ^~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/UNUSEDPARAM?v=5.043
+                      ... Use "/* verilator lint_off UNUSEDPARAM */" and lint_on around source to disable this message.
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:15:26: Parameter is not used: 'CLINT_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   15 |   localparam phys_addr_t CLINT_ADDR_MATCH_MASK = 32'hffff_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:26:27: Parameter is not used: 'SRAM_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   26 |   localparam int unsigned SRAM_SIZE_BYTES = 32'h0000_2000;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:27:26: Parameter is not used: 'SRAM_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   27 |   localparam phys_addr_t SRAM_ADDR_MATCH_MASK = 32'hffff_e000;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:31:27: Parameter is not used: 'UART_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   31 |   localparam int unsigned UART_SIZE_BYTES = 32'h0000_1000;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:32:26: Parameter is not used: 'UART_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   32 |   localparam phys_addr_t UART_ADDR_MATCH_MASK = 32'hffff_f000;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:36:27: Parameter is not used: 'SPI_REG_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   36 |   localparam int unsigned SPI_REG_SIZE_BYTES = 32'h0000_1000;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:37:26: Parameter is not used: 'SPI_REG_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   37 |   localparam phys_addr_t SPI_REG_ADDR_MATCH_MASK = 32'hffff_f000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:41:27: Parameter is not used: 'GPIO_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   41 |   localparam int unsigned GPIO_SIZE_BYTES = 32'h0000_0010;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:42:26: Parameter is not used: 'GPIO_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   42 |   localparam phys_addr_t GPIO_ADDR_MATCH_MASK = 32'hffff_fff0;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:46:27: Parameter is not used: 'PS2_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   46 |   localparam int unsigned PS2_SIZE_BYTES = 32'h0000_0008;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:47:26: Parameter is not used: 'PS2_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   47 |   localparam phys_addr_t PS2_ADDR_MATCH_MASK = 32'hffff_fff8;
+      |                          ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:51:27: Parameter is not used: 'MROM_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   51 |   localparam int unsigned MROM_SIZE_BYTES = 32'h0000_1000;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:52:26: Parameter is not used: 'MROM_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   52 |   localparam phys_addr_t MROM_ADDR_MATCH_MASK = 32'hffff_f000;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:56:27: Parameter is not used: 'VGA_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   56 |   localparam int unsigned VGA_SIZE_BYTES = 32'h0020_0000;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:57:26: Parameter is not used: 'VGA_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   57 |   localparam phys_addr_t VGA_ADDR_MATCH_MASK = 32'hffe0_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:61:27: Parameter is not used: 'FLASH_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   61 |   localparam int unsigned FLASH_SIZE_BYTES = 32'h1000_0000;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:62:26: Parameter is not used: 'FLASH_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   62 |   localparam phys_addr_t FLASH_ADDR_MATCH_MASK = 32'hf000_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:68:27: Parameter is not used: 'CHIPLINK_MMIO_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   68 |   localparam int unsigned CHIPLINK_MMIO_SIZE_BYTES = 32'h4000_0000;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:69:26: Parameter is not used: 'CHIPLINK_MMIO_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   69 |   localparam phys_addr_t CHIPLINK_MMIO_ADDR_MATCH_MASK = 32'hc000_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:73:27: Parameter is not used: 'PSRAM_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   73 |   localparam int unsigned PSRAM_SIZE_BYTES = 32'h0040_0000;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:74:26: Parameter is not used: 'PSRAM_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   74 |   localparam phys_addr_t PSRAM_ADDR_MATCH_MASK = 32'hffc0_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:78:27: Parameter is not used: 'SDRAM_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   78 |   localparam int unsigned SDRAM_SIZE_BYTES = 32'h0200_0000;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:79:26: Parameter is not used: 'SDRAM_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   79 |   localparam phys_addr_t SDRAM_ADDR_MATCH_MASK = 32'hfe00_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:83:27: Parameter is not used: 'CHIPLINK_MEMORY_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   83 |   localparam int unsigned CHIPLINK_MEMORY_SIZE_BYTES = 32'h4000_0000;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:84:26: Parameter is not used: 'CHIPLINK_MEMORY_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   84 |   localparam phys_addr_t CHIPLINK_MEMORY_ADDR_MATCH_MASK = 32'hc000_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:17:27: Parameter is not used: 'CONFIG_SELECTION_COUNT'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   17 |   localparam int unsigned CONFIG_SELECTION_COUNT = 1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:58:27: Parameter is not used: 'XLEN_BYTE_COUNT'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   58 |   localparam int unsigned XLEN_BYTE_COUNT = XLEN / 8;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:70:27: Parameter is not used: 'FETCH_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   70 |   localparam int unsigned FETCH_WIDTH = 1;
+      |                           ^~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:71:27: Parameter is not used: 'DECODE_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   71 |   localparam int unsigned DECODE_WIDTH = 1;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:72:27: Parameter is not used: 'RENAME_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   72 |   localparam int unsigned RENAME_WIDTH = 1;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:73:27: Parameter is not used: 'DISPATCH_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   73 |   localparam int unsigned DISPATCH_WIDTH = 1;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:74:27: Parameter is not used: 'COMMIT_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   74 |   localparam int unsigned COMMIT_WIDTH = 1;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:75:27: Parameter is not used: 'INT_ISSUE_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   75 |   localparam int unsigned INT_ISSUE_WIDTH = 1;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:76:27: Parameter is not used: 'MEM_ISSUE_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+   76 |   localparam int unsigned MEM_ISSUE_WIDTH = 1;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:112:27: Parameter is not used: 'DCACHE_MSHR_COUNT'
+                                                                                                                      : ... note: In instance 'top.u_npc_system.u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_miss_unit'
+  112 |   localparam int unsigned DCACHE_MSHR_COUNT = 1;
+      |                           ^~~~~~~~~~~~~~~~~
+make[3]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/build/riscv32/rv32-baseline/icache-256b-way-1-line-16b/dcache-256b-way-2-line-16b/predictor-bht-16-btb-16x2-ras-4/obj_dir_npc'
+/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/csrc/trace.cpp: In function ‘void disassemble_inst(npc_word_t, uint32_t, char*, size_t)’:
+/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/csrc/trace.cpp:51:37: warning: ‘%s’ directive output may be truncated writing up to 159 bytes into a region of size between 96 and 119 [-Wformat-truncation=]
+   51 |       snprintf(buf, buf_size, "%-8s %s", insn[0].mnemonic, insn[0].op_str);
+      |                                     ^~
+In file included from /usr/include/stdio.h:894,
+                 from /home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo/include/capstone/capstone.h:17,
+                 from /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/csrc/trace.cpp:3:
+/usr/include/x86_64-linux-gnu/bits/stdio2.h:71:35: note: ‘__builtin___snprintf_chk’ output between 10 and 192 bytes into a destination of size 128
+   71 |   return __builtin___snprintf_chk (__s, __n, __USE_FORTIFY_LEVEL - 1,
+      |          ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   72 |                                    __glibc_objsize (__s), __fmt,
+      |                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   73 |                                    __va_arg_pack ());
+      |                                    ~~~~~~~~~~~~~~~~~
+make[3]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/build/riscv32/rv32-baseline/icache-256b-way-1-line-16b/dcache-256b-way-2-line-16b/predictor-bht-16-btb-16x2-ras-4/obj_dir_npc'
+- V e r i l a t i o n   R e p o r t: Verilator 5.043 devel rev v5.042-244-g4080284e5
+- Verilator: Built from 18.634 MB sources in 57 modules, into 4.342 MB in 14 C++ files needing 0.004 MB
+- Verilator: Walltime 23.765 s (elab=0.090, cvt=0.640, bld=22.877); cpu 0.889 s on 1 threads; alloced 53.215 MB
+NPC: load image/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/add-riscv32-npc.bin
+[1;34m[src/memory/paddr.c:127 init_mem] physical memory area [0x80000000, 0x81ffffff][0m
+DiffTest: ON, REF=/home/yong/ysyx/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so, image=[0x80000000, +648 bytes], reset_pc=0x80000000
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0x80000124
+NPC performance statistics:
+ retired instructions = 839
+ CPU cycle            = 2899
+ IPC                  = 0.289410
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 2897
+decoded instructions               : 865
+retired instructions               : 839
+IPC                                : 0.289610
+
+instruction class        count       ratio       average execution cycles
+integer                     397    45.896%         1.335
+branch/jump                 296    34.220%         1.449
+load/store                  171    19.769%         0.345
+  load                      159    18.382%
+  store                      12     1.387%
+CSR                            0     0.000%         0.000
+system                         1     0.116%         2.000
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 1048 / 1047 / 865
+IFU average response latency           : 2.250 cycles
+IFU AR backpressure cycles             : 1646 (56.817%)
+IFU response-wait cycles               : 2358 (81.395%)
+IFU downstream-backpressure cycles     : 481 (16.603%)
+IFU discarded wrong-path responses     : 176
+
+LSU requests / completions             : 157 / 157
+LSU load operation average latency     : 3.555 cycles (146 operations)
+LSU store operation average latency    : 5.455 cycles (11 operations)
+LSU AXI read average latency           : 1.000 cycles (29 transactions)
+LSU AXI write-response average latency : 4.000 cycles (4 transactions)
+EXU / LSU completions                  : 683 / 157
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 865 (29.858%)
+  control recovery stalls             : 710 (24.508%)
+  LSU structural stalls               : 237 (8.181%)
+  unresolved RAW stalls               : 127 (4.384%)
+  serializing stalls                  : 8 (0.276%)
+  frontend supply stalls              : 816 (28.167%)
+    request backpressure              : 511 (17.639%)
+    I-cache miss service              : 0 (0.000%)
+    lookup response in flight         : 302 (10.425%)
+    request launch or delivery gap    : 3 (0.104%)
+  other empty issue slots             : 134 (4.625%)
+recovery redirects / taken fetch predictions / EX corrections: 88 / 212 / 88
+actual EX corrections by branch / JAL / JALR          : 11 / 5 / 72
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 145 / 63 (43.448% taken)
+  backward / taken                  : 72 / 63 (87.500% taken)
+  forward / taken                   : 73 / 0 (0.000% taken)
+direct / indirect jumps             : 75 / 74
+always-not-taken prediction errors  : 212 (72.109% of control flow)
+BTFNT+JAL prediction errors          : 83 (28.231% of control flow)
+16-entry BHT+JAL errors              : 85 (conditional 11 + JALR 74)
+64-entry BHT+JAL errors              : 85 (conditional 11 + JALR 74)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 0.000
+I-cache critical miss excess cycles   : 869.000
+oracle 1-cycle data memory / speedup   : 2897.000 / 1.000x
+ideal single-issue pipeline cycles     : 1708.000 / 1.696x
+ideal pipeline + oracle data memory    : 1708.000 / 1.696x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 1048 / 886 / 162
+I-cache hit rate                            : 84.542%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 6.364 cycles
+average miss penalty                        : 5.364 cycles
+I-cache AMAT                                : 1.829 cycles
+average complete refill latency             : 6.025 cycles
+lookup request waiting cycles               : 1646
+successful line installs / refill finishes  : 162 / 162
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 157 / 128 / 29
+D-cache hit rate                           : 81.529%
+load lookups / hits / misses               : 146 / 121 / 25
+store lookups / hits / misses              : 11 / 7 / 4
+average hit response latency               : 1.000 cycles
+average miss response latency              : 10.138 cycles
+  clean-victim miss latency                : 9.360 cycles (25)
+  dirty-victim miss latency                : 15.000 cycles (4)
+average miss penalty                       : 9.138 cycles
+D-cache AMAT                               : 2.688 cycles
+dirty victim misses                        : 4 (13.793% of misses)
+refill requests / words / completions      : 29 / 116 / 29
+line installs / writeback requests/responses: 29 / 4 / 4
+lookup request waiting cycles              : 0
+store-hit same-cycle next lookups          : 0
+==========================================================
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+make[1]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+# Building add-longlong-run [riscv32-npc]
++ CC tests/add-longlong.c
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+# Building am-archive [riscv32-npc]
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Building klib-archive [riscv32-npc]
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Creating image [riscv32-npc]
++ LD -> build/add-longlong-riscv32-npc.elf
++ OBJCOPY -> build/add-longlong-riscv32-npc.bin
+mainargs=
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+NPC: load image/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/add-longlong-riscv32-npc.bin
+[1;34m[src/memory/paddr.c:127 init_mem] physical memory area [0x80000000, 0x81ffffff][0m
+DiffTest: ON, REF=/home/yong/ysyx/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so, image=[0x80000000, +960 bytes], reset_pc=0x80000000
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0x8000013c
+NPC performance statistics:
+ retired instructions = 1261
+ CPU cycle            = 3093
+ IPC                  = 0.407695
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 3091
+decoded instructions               : 1340
+retired instructions               : 1261
+IPC                                : 0.407959
+
+instruction class        count       ratio       average execution cycles
+integer                     766    57.164%         0.753
+branch/jump                 267    19.925%         0.760
+load/store                  306    22.836%         1.853
+  load                      293    21.866%
+  store                      13     0.970%
+CSR                            0     0.000%         0.000
+system                         1     0.075%         2.000
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 1504 / 1504 / 1340
+IFU average response latency           : 1.606 cycles
+IFU AR backpressure cycles             : 973 (31.478%)
+IFU response-wait cycles               : 2416 (78.162%)
+IFU downstream-backpressure cycles     : 871 (28.179%)
+IFU discarded wrong-path responses     : 158
+
+LSU requests / completions             : 295 / 295
+LSU load operation average latency     : 3.424 cycles (283 operations)
+LSU store operation average latency    : 5.000 cycles (12 operations)
+LSU AXI read average latency           : 1.000 cycles (51 transactions)
+LSU AXI write-response average latency : 4.000 cycles (4 transactions)
+EXU / LSU completions                  : 967 / 295
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 1340 (43.352%)
+  control recovery stalls             : 424 (13.717%)
+  LSU structural stalls               : 413 (13.361%)
+  unresolved RAW stalls               : 63 (2.038%)
+  serializing stalls                  : 9 (0.291%)
+  frontend supply stalls              : 434 (14.041%)
+    request backpressure              : 28 (0.906%)
+    I-cache miss service              : 0 (0.000%)
+    lookup response in flight         : 403 (13.038%)
+    request launch or delivery gap    : 3 (0.097%)
+  other empty issue slots             : 408 (13.200%)
+recovery redirects / taken fetch predictions / EX corrections: 79 / 196 / 79
+actual EX corrections by branch / JAL / JALR          : 11 / 3 / 65
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 136 / 63 (46.324% taken)
+  backward / taken                  : 72 / 63 (87.500% taken)
+  forward / taken                   : 64 / 0 (0.000% taken)
+direct / indirect jumps             : 66 / 65
+always-not-taken prediction errors  : 194 (72.659% of control flow)
+BTFNT+JAL prediction errors          : 74 (27.715% of control flow)
+16-entry BHT+JAL errors              : 76 (conditional 11 + JALR 65)
+64-entry BHT+JAL errors              : 76 (conditional 11 + JALR 65)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 261.000
+I-cache critical miss excess cycles   : 111.000
+oracle 1-cycle data memory / speedup   : 2830.000 / 1.092x
+ideal single-issue pipeline cycles     : 1633.000 / 1.893x
+ideal pipeline + oracle data memory    : 1372.000 / 2.253x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 1504 / 1480 / 24
+I-cache hit rate                            : 98.404%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 5.625 cycles
+average miss penalty                        : 4.625 cycles
+I-cache AMAT                                : 1.074 cycles
+average complete refill latency             : 6.522 cycles
+lookup request waiting cycles               : 973
+successful line installs / refill finishes  : 23 / 23
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 295 / 244 / 51
+D-cache hit rate                           : 82.712%
+load lookups / hits / misses               : 283 / 236 / 47
+store lookups / hits / misses              : 12 / 8 / 4
+average hit response latency               : 1.000 cycles
+average miss response latency              : 9.608 cycles
+  clean-victim miss latency                : 9.149 cycles (47)
+  dirty-victim miss latency                : 15.000 cycles (4)
+average miss penalty                       : 8.608 cycles
+D-cache AMAT                               : 2.488 cycles
+dirty victim misses                        : 4 (7.843% of misses)
+refill requests / words / completions      : 51 / 204 / 51
+line installs / writeback requests/responses: 51 / 4 / 4
+lookup request waiting cycles              : 0
+store-hit same-cycle next lookups          : 0
+==========================================================
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+make[1]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+# Building bit-run [riscv32-npc]
++ CC tests/bit.c
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+# Building am-archive [riscv32-npc]
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Building klib-archive [riscv32-npc]
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Creating image [riscv32-npc]
++ LD -> build/bit-riscv32-npc.elf
++ OBJCOPY -> build/bit-riscv32-npc.bin
+mainargs=
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+NPC: load image/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/bit-riscv32-npc.bin
+[1;34m[src/memory/paddr.c:127 init_mem] physical memory area [0x80000000, 0x81ffffff][0m
+DiffTest: ON, REF=/home/yong/ysyx/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so, image=[0x80000000, +612 bytes], reset_pc=0x80000000
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0x80000220
+NPC performance statistics:
+ retired instructions = 312
+ CPU cycle            = 1155
+ IPC                  = 0.270130
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 1153
+decoded instructions               : 393
+retired instructions               : 312
+IPC                                : 0.270598
+
+instruction class        count       ratio       average execution cycles
+integer                     251    63.868%         0.904
+branch/jump                  79    20.102%         0.835
+load/store                   62    15.776%         0.984
+  load                       41    10.433%
+  store                      21     5.344%
+CSR                            0     0.000%         0.000
+system                         1     0.254%         2.000
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 485 / 485 / 393
+IFU average response latency           : 1.847 cycles
+IFU AR backpressure cycles             : 581 (50.390%)
+IFU response-wait cycles               : 896 (77.710%)
+IFU downstream-backpressure cycles     : 98 (8.500%)
+IFU discarded wrong-path responses     : 85
+
+LSU requests / completions             : 53 / 53
+LSU load operation average latency     : 2.000 cycles (34 operations)
+LSU store operation average latency    : 4.000 cycles (19 operations)
+LSU AXI read average latency           : 1.000 cycles (4 transactions)
+LSU AXI write-response average latency : 0.000 cycles (0 transactions)
+EXU / LSU completions                  : 260 / 53
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 393 (34.085%)
+  control recovery stalls             : 406 (35.212%)
+  LSU structural stalls               : 34 (2.949%)
+  unresolved RAW stalls               : 24 (2.082%)
+  serializing stalls                  : 6 (0.520%)
+  frontend supply stalls              : 230 (19.948%)
+    request backpressure              : 150 (13.010%)
+    I-cache miss service              : 0 (0.000%)
+    lookup response in flight         : 77 (6.678%)
+    request launch or delivery gap    : 3 (0.260%)
+  other empty issue slots             : 60 (5.204%)
+recovery redirects / taken fetch predictions / EX corrections: 43 / 22 / 43
+actual EX corrections by branch / JAL / JALR          : 8 / 27 / 8
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 17 / 4 (23.529% taken)
+  backward / taken                  : 0 / 0 (0.000% taken)
+  forward / taken                   : 17 / 4 (23.529% taken)
+direct / indirect jumps             : 27 / 26
+always-not-taken prediction errors  : 57 (81.429% of control flow)
+BTFNT+JAL prediction errors          : 30 (42.857% of control flow)
+16-entry BHT+JAL errors              : 34 (conditional 8 + JALR 26)
+64-entry BHT+JAL errors              : 34 (conditional 8 + JALR 26)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 0.000
+I-cache critical miss excess cycles   : 345.000
+oracle 1-cycle data memory / speedup   : 1153.000 / 1.000x
+ideal single-issue pipeline cycles     : 657.000 / 1.755x
+ideal pipeline + oracle data memory    : 657.000 / 1.755x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 485 / 410 / 75
+I-cache hit rate                            : 84.536%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 5.600 cycles
+average miss penalty                        : 4.600 cycles
+I-cache AMAT                                : 1.711 cycles
+average complete refill latency             : 6.081 cycles
+lookup request waiting cycles               : 581
+successful line installs / refill finishes  : 74 / 74
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 53 / 49 / 4
+D-cache hit rate                           : 92.453%
+load lookups / hits / misses               : 34 / 34 / 0
+store lookups / hits / misses              : 19 / 15 / 4
+average hit response latency               : 1.000 cycles
+average miss response latency              : 10.500 cycles
+  clean-victim miss latency                : 10.500 cycles (4)
+  dirty-victim miss latency                : 0.000 cycles (0)
+average miss penalty                       : 9.500 cycles
+D-cache AMAT                               : 1.717 cycles
+dirty victim misses                        : 0 (0.000% of misses)
+refill requests / words / completions      : 4 / 16 / 4
+line installs / writeback requests/responses: 4 / 0 / 0
+lookup request waiting cycles              : 0
+store-hit same-cycle next lookups          : 0
+==========================================================
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+make[1]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+# Building bubble-sort-run [riscv32-npc]
++ CC tests/bubble-sort.c
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+# Building am-archive [riscv32-npc]
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Building klib-archive [riscv32-npc]
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Creating image [riscv32-npc]
++ LD -> build/bubble-sort-riscv32-npc.elf
++ OBJCOPY -> build/bubble-sort-riscv32-npc.bin
+mainargs=
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+NPC: load image/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/bubble-sort-riscv32-npc.bin
+[1;34m[src/memory/paddr.c:127 init_mem] physical memory area [0x80000000, 0x81ffffff][0m
+DiffTest: ON, REF=/home/yong/ysyx/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so, image=[0x80000000, +472 bytes], reset_pc=0x80000000
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0x80000144
+NPC performance statistics:
+ retired instructions = 2797
+ CPU cycle            = 6991
+ IPC                  = 0.400086
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 6989
+decoded instructions               : 3228
+retired instructions               : 2797
+IPC                                : 0.400200
+
+instruction class        count       ratio       average execution cycles
+integer                     869    26.921%         0.797
+branch/jump                1134    35.130%         0.619
+load/store                 1224    37.918%         1.029
+  load                      927    28.717%
+  store                     297     9.201%
+CSR                            0     0.000%         0.000
+system                         1     0.031%         2.000
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 3504 / 3503 / 3228
+IFU average response latency           : 1.494 cycles
+IFU AR backpressure cycles             : 1222 (17.485%)
+IFU response-wait cycles               : 5236 (74.918%)
+IFU downstream-backpressure cycles     : 2389 (34.182%)
+IFU discarded wrong-path responses     : 271
+
+LSU requests / completions             : 1019 / 1019
+LSU load operation average latency     : 2.065 cycles (805 operations)
+LSU store operation average latency    : 2.159 cycles (214 operations)
+LSU AXI read average latency           : 1.000 cycles (9 transactions)
+LSU AXI write-response average latency : 0.000 cycles (0 transactions)
+EXU / LSU completions                  : 1779 / 1019
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 3228 (46.187%)
+  control recovery stalls             : 995 (14.237%)
+  LSU structural stalls               : 875 (12.520%)
+  unresolved RAW stalls               : 1180 (16.884%)
+  serializing stalls                  : 8 (0.114%)
+  frontend supply stalls              : 367 (5.251%)
+    request backpressure              : 41 (0.587%)
+    I-cache miss service              : 1 (0.014%)
+    lookup response in flight         : 322 (4.607%)
+    request launch or delivery gap    : 3 (0.043%)
+  other empty issue slots             : 336 (4.808%)
+recovery redirects / taken fetch predictions / EX corrections: 184 / 888 / 184
+actual EX corrections by branch / JAL / JALR          : 133 / 10 / 41
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 922 / 660 (71.584% taken)
+  backward / taken                  : 420 / 380 (90.476% taken)
+  forward / taken                   : 502 / 280 (55.777% taken)
+direct / indirect jumps             : 84 / 45
+always-not-taken prediction errors  : 789 (75.071% of control flow)
+BTFNT+JAL prediction errors          : 365 (34.729% of control flow)
+16-entry BHT+JAL errors              : 178 (conditional 133 + JALR 45)
+64-entry BHT+JAL errors              : 177 (conditional 132 + JALR 45)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 35.000
+I-cache critical miss excess cycles   : 124.000
+oracle 1-cycle data memory / speedup   : 6954.000 / 1.005x
+ideal single-issue pipeline cycles     : 2956.000 / 2.364x
+ideal pipeline + oracle data memory    : 2921.000 / 2.393x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 3504 / 3476 / 28
+I-cache hit rate                            : 99.201%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 5.429 cycles
+average miss penalty                        : 4.429 cycles
+I-cache AMAT                                : 1.035 cycles
+average complete refill latency             : 6.000 cycles
+lookup request waiting cycles               : 1222
+successful line installs / refill finishes  : 28 / 28
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 1019 / 1010 / 9
+D-cache hit rate                           : 99.117%
+load lookups / hits / misses               : 805 / 799 / 6
+store lookups / hits / misses              : 214 / 211 / 3
+average hit response latency               : 1.000 cycles
+average miss response latency              : 10.556 cycles
+  clean-victim miss latency                : 10.556 cycles (9)
+  dirty-victim miss latency                : 0.000 cycles (0)
+average miss penalty                       : 9.556 cycles
+D-cache AMAT                               : 1.084 cycles
+dirty victim misses                        : 0 (0.000% of misses)
+refill requests / words / completions      : 9 / 36 / 9
+line installs / writeback requests/responses: 9 / 0 / 0
+lookup request waiting cycles              : 0
+store-hit same-cycle next lookups          : 0
+==========================================================
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+make[1]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+# Building crc32-run [riscv32-npc]
++ CC tests/crc32.c
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+# Building am-archive [riscv32-npc]
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am'
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Building klib-archive [riscv32-npc]
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/klib'
+# Creating image [riscv32-npc]
++ LD -> build/crc32-riscv32-npc.elf
++ OBJCOPY -> build/crc32-riscv32-npc.bin
+mainargs=
+make[2]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+NPC: load image/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/crc32-riscv32-npc.bin
+[1;34m[src/memory/paddr.c:127 init_mem] physical memory area [0x80000000, 0x81ffffff][0m
+DiffTest: ON, REF=/home/yong/ysyx/ysyx-workbench/nemu/build/riscv32-nemu-interpreter-so, image=[0x80000000, +1444 bytes], reset_pc=0x80000000
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0x80000130
+NPC performance statistics:
+ retired instructions = 13276
+ CPU cycle            = 30000
+ IPC                  = 0.442533
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 29998
+decoded instructions               : 15053
+retired instructions               : 13276
+IPC                                : 0.442563
+
+instruction class        count       ratio       average execution cycles
+integer                    9294    61.742%         0.803
+branch/jump                5406    35.913%         1.004
+load/store                  352     2.338%         0.284
+  load                       90     0.598%
+  store                     262     1.741%
+CSR                            0     0.000%         0.000
+system                         1     0.007%         2.000
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 16089 / 16089 / 15053
+IFU average response latency           : 1.081 cycles
+IFU AR backpressure cycles             : 1366 (4.554%)
+IFU response-wait cycles               : 17392 (57.977%)
+IFU downstream-backpressure cycles     : 1628 (5.427%)
+IFU discarded wrong-path responses     : 1032
+
+LSU requests / completions             : 347 / 347
+LSU load operation average latency     : 6.636 cycles (88 operations)
+LSU store operation average latency    : 5.259 cycles (259 operations)
+LSU AXI read average latency           : 1.000 cycles (106 transactions)
+LSU AXI write-response average latency : 4.000 cycles (67 transactions)
+EXU / LSU completions                  : 12930 / 347
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 15053 (50.180%)
+  control recovery stalls             : 6884 (22.948%)
+  LSU structural stalls               : 1274 (4.247%)
+  unresolved RAW stalls               : 88 (0.293%)
+  serializing stalls                  : 6 (0.020%)
+  frontend supply stalls              : 6416 (21.388%)
+    request backpressure              : 48 (0.160%)
+    I-cache miss service              : 0 (0.000%)
+    lookup response in flight         : 6365 (21.218%)
+    request launch or delivery gap    : 3 (0.010%)
+  other empty issue slots             : 277 (0.923%)
+recovery redirects / taken fetch predictions / EX corrections: 1269 / 4375 / 1269
+actual EX corrections by branch / JAL / JALR          : 1262 / 4 / 3
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 4398 / 3113 (70.782% taken)
+  backward / taken                  : 2347 / 2089 (89.007% taken)
+  forward / taken                   : 2051 / 1024 (49.927% taken)
+direct / indirect jumps             : 4 / 3
+always-not-taken prediction errors  : 3120 (70.829% of control flow)
+BTFNT+JAL prediction errors          : 1285 (29.171% of control flow)
+16-entry BHT+JAL errors              : 1265 (conditional 1262 + JALR 3)
+64-entry BHT+JAL errors              : 1265 (conditional 1262 + JALR 3)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 0.000
+I-cache critical miss excess cycles   : 109.000
+oracle 1-cycle data memory / speedup   : 29998.000 / 1.000x
+ideal single-issue pipeline cycles     : 13385.000 / 2.241x
+ideal pipeline + oracle data memory    : 13385.000 / 2.241x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 16089 / 16065 / 24
+I-cache hit rate                            : 99.851%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 5.542 cycles
+average miss penalty                        : 4.542 cycles
+I-cache AMAT                                : 1.007 cycles
+average complete refill latency             : 6.261 cycles
+lookup request waiting cycles               : 1366
+successful line installs / refill finishes  : 23 / 23
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 347 / 241 / 106
+D-cache hit rate                           : 69.452%
+load lookups / hits / misses               : 88 / 49 / 39
+store lookups / hits / misses              : 259 / 192 / 67
+average hit response latency               : 1.000 cycles
+average miss response latency              : 12.811 cycles
+  clean-victim miss latency                : 9.051 cycles (39)
+  dirty-victim miss latency                : 15.000 cycles (67)
+average miss penalty                       : 11.811 cycles
+D-cache AMAT                               : 4.608 cycles
+dirty victim misses                        : 67 (63.208% of misses)
+refill requests / words / completions      : 106 / 424 / 106
+line installs / writeback requests/responses: 106 / 67 / 67
+lookup request waiting cycles              : 0
+store-hit same-cycle next lookups          : 0
+==========================================================
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'
+make: *** No rule to make target 'Makefile.csr-trap', needed by 'all'.  Stop.
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests'

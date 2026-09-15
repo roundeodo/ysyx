@@ -1,0 +1,70 @@
+make: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+# DO NOT REMOVE THIS LINE!!!
+verilator --lint-only -Wall -Wno-fatal \
+	+define+YSYX_RV32_BASELINE  +define+YSYX_ICACHE_CAPACITY_BYTES=256 +define+YSYX_ICACHE_WAY_COUNT=1 +define+YSYX_ICACHE_LINE_BYTES=16 +define+YSYX_DCACHE_ENABLE=1 +define+YSYX_DCACHE_CAPACITY_BYTES=256 +define+YSYX_DCACHE_WAY_COUNT=2 +define+YSYX_DCACHE_LINE_BYTES=16 +define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16 +define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16 +define+YSYX_BRANCH_TARGET_WAY_COUNT=2 +define+YSYX_RETURN_STACK_ENTRY_COUNT=4 +define+YSYX_SDRAM_NATIVE_READ_BURST=1 \
+	--top-module top \
+	-f /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/filelist/filelist.f
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv'
+        ... See the manual at https://verilator.org/verilator_doc.html?v=5.043 for more assistance.
+        ... Looked in:
+             /home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/sim//home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv
+             /home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/sim//home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv.v
+             /home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/sim//home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv.sv
+             /home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv
+             /home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv.v
+             /home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv.sv
+             obj_dir//home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv
+             obj_dir//home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv.v
+             obj_dir//home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv_config_pkg.sv.sv
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/common/riscv32_pkg.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/frontend/riscv32_icache_refill_axi4_master.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/memory/riscv32_dcache_line_axi4_master.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi4_master.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/memory/riscv32_data_memory_subsystem.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_arch_regfile.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_pmu.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_csr_file.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_idu.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_decode_stage.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_register_read_stage.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/frontend/riscv32_fetch_control_flow_predictor.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_decode_execute_stage.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_frontend_redirect_register.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_pipeline_hazard_controller.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_exu.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_execute_result_stage.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_lsu.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_completion_mux.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_writeback_stage.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_commit.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_interrupt_controller.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_trap_controller.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_redirect_arbiter.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_ifu.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/core/riscv32_core.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/riscv32_axi4_core_merge.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/riscv32_axi4_address_router.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/riscv32_axi4_error_target.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/riscv32_reset_controller.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/riscv32_npc_system.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/system/riscv32_npc_axi.sv'
+%Error: Cannot find file containing module: '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv32/sim/riscv32_sim_performance_monitor.sv'
+%Error: Exiting due to too many errors encountered; --error-limit=50
+make: *** [Makefile:1149: lint-npc] Error 1
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'

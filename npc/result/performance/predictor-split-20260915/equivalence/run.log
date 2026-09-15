@@ -1,0 +1,10 @@
+PASS predictor equivalence case=0 BHT=16 BTB=16x2 RAS=4 cycles=24000 queries=17558 responses=16608 taken=1269 stalls=1541 flush=600 invalidate=327 training=12774
+PASS predictor equivalence case=1 BHT=16 BTB=16x1 RAS=4 cycles=24000 queries=17532 responses=16653 taken=990 stalls=1542 flush=579 invalidate=326 training=12769
+PASS predictor equivalence case=2 BHT=16 BTB=16x4 RAS=4 cycles=24000 queries=17363 responses=16401 taken=1304 stalls=1562 flush=636 invalidate=301 training=12598
+PASS predictor equivalence case=3 BHT=2 BTB=4x2 RAS=2 cycles=24000 queries=17466 responses=16531 taken=840 stalls=1444 flush=602 invalidate=320 training=12589
+PASS predictor equivalence case=4 BHT=64 BTB=32x2 RAS=8 cycles=24000 queries=17472 responses=16506 taken=1320 stalls=1515 flush=624 invalidate=324 training=12669
+PASS predictor split: 5 configurations, 120000 compared cycles
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_predictor_equivalence_tb.sv:245: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 240ns; walltime 1.008 s; speed 238.083 ns/s
+- Verilator: cpu 1.008 s on 1 threads; alloced 6 MB

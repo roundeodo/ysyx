@@ -1,0 +1,22 @@
+
+-- Executing script file `/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/performance/rv32-remove-rr-20260915/sta-ring/riscv32_core_reset_boundary-820MHz-buffered/read.ys' --
+
+1. Executing Liberty frontend: /home/yong/ysyx/ysyx-workbench/yosys-sta/pdk/nangate45/lib/Nangate45_typ.lib
+Imported 134 cell types from liberty file.
+
+2. Executing Verilog-2005 frontend: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/performance/rv32-remove-rr-20260915/sta-ring/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v
+Parsing Verilog input from `/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/performance/rv32-remove-rr-20260915/sta-ring/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v' to AST representation.
+verilog frontend filename /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/performance/rv32-remove-rr-20260915/sta-ring/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v
+Generating RTLIL representation for module `\riscv32_core_reset_boundary'.
+Successfully finished Verilog frontend.
+
+3. Executing HIERARCHY pass (managing design hierarchy).
+
+3.1. Analyzing design hierarchy..
+Top module:  \riscv32_core_reset_boundary
+
+3.2. Analyzing design hierarchy..
+Top module:  \riscv32_core_reset_boundary
+Removed 0 unused modules.
+
+4. Executing JSON backend.

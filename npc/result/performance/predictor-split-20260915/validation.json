@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "git_head": "4d0716eb221ad49d4dd88890f6d2ddb7fdd11604",
+  "scope": "BHT/BTB/RAS split; existing RR removal preserved",
+  "area_um2": 76480.32,
+  "mapped_flip_flops": 8869,
+  "sta_frequency_mhz": 730,
+  "sta_slack_ns": {
+    "core_clock:max": 0.023,
+    "**clock_gating_default**:max": 0.188,
+    "core_clock:min": 0.059,
+    "**clock_gating_default**:min": 0.097
+  },
+  "estimated_fmax_mhz": 742.966,
+  "same_netlist_820_and_730": true,
+  "netlist_sha256": "fae0a5fba0e1f4d22d5a139f017c34ec2556c2ade55b35ea50336feeeac9cf5f",
+  "equivalence_configurations": 5,
+  "equivalence_cycles": 120000,
+  "pipeline_regression": "passed",
+  "timer_regression": "passed, 5 system runs and 3 unit tests",
+  "same_frequency_microbench_test_mhz": 750,
+  "all_microbench_windows_identical_to_before": true,
+  "microbench_730_run": false,
+  "train_run": false,
+  "measured_sources_match_current": true,
+  "additional_microbench_675": "passed"
+}

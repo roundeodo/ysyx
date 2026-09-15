@@ -41,6 +41,8 @@
 
 ## 当前记录
 
+- [`FETCH_PREDICTOR_DESIGN_RECORD.md`](FETCH_PREDICTOR_DESIGN_RECORD.md)：当前 RV32 预测控制与
+  BHT、BTB、RAS 的模块边界、查询对齐、训练时序及拆分验证。
 - [`ICACHE_DESIGN_RECORD.md`](ICACHE_DESIGN_RECORD.md)：第一版I-cache检查点及其向高性能
   前端演进的路径。
 - [`DCACHE_DESIGN_RECORD.md`](DCACHE_DESIGN_RECORD.md)：首版write-back/write-allocate

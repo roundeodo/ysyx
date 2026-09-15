@@ -64,11 +64,13 @@ module riscv32_decode_execute_stage
   assign input_producer_present = decoded_execute_packet_valid_i &&
                                   decoded_execute_packet_i.uop.writes_rd &&
                                   (decoded_execute_packet_i.uop.rd != arch_reg_idx_t'(0));
+  // CSR在IDU中已串行化，年轻消费者只能在它提交后进入，因而无需EX即时前递。
+  // 把CSR统一作为等待完成的生产者，避免CSR地址合法性判断串到本级生产者状态D端。
+  // CSR读值和illegal仍随payload寄存，由EXU精确处理正常写回或非法指令异常。
   assign input_forwardable_producer_present = input_producer_present &&
       !decoded_execute_packet_i.uop.exception_valid &&
-      (decoded_execute_packet_i.uop.fu_type != FU_LSU) &&
-      !((decoded_execute_packet_i.uop.fu_type == FU_CSR) &&
-        decoded_execute_packet_i.csr_illegal);
+      ((decoded_execute_packet_i.uop.fu_type == FU_INT) ||
+       (decoded_execute_packet_i.uop.fu_type == FU_BRANCH));
   assign input_blocking_producer_present = input_producer_present &&
                                            !input_forwardable_producer_present;
   assign input_serializing_instruction_present = decoded_execute_packet_valid_i &&

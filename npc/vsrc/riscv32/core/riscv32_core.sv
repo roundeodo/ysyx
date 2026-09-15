@@ -102,15 +102,10 @@ module riscv32_core
   logic decoded_uop_valid;
   logic decoded_uop_ready;
 
-  // decode stage之后先锁存原始寄存器读值，再完成操作数选择和前递并进入ID/EX。
-  // 名称显式标出每个流水边界两侧，避免把组合值误认为已经寄存的状态。
+  // 译码、GPR组合读取和前递在同一拍完成，由ID/EX直接保存执行包。
+  // 未被接收的指令留在fetch buffer，操作数随GPR和各前递来源更新，无独立RR快照。
   xlen_data_t rs1_value;
   xlen_data_t rs2_value;
-  execute_packet_t decoded_register_read_packet;
-  logic decoded_register_read_packet_ready;
-  execute_packet_t register_read_packet;
-  logic register_read_packet_valid;
-  logic register_read_packet_ready;
   execute_packet_t decoded_execute_packet;
   logic decoded_execute_packet_valid;
   logic decoded_execute_packet_ready;
@@ -202,34 +197,26 @@ module riscv32_core
   logic rs2_writeback_forwarding_selected;
 
   always_comb begin
-    decoded_register_read_packet                = '0;
-    decoded_register_read_packet.uop            = decoded_uop;
-    decoded_register_read_packet.source_a_value =
-        (gpr_write_enable && (gpr_write_addr == decoded_uop.rs1) && (decoded_uop.rs1 != '0)) ?
-        gpr_write_data : rs1_value;
-    decoded_register_read_packet.source_b_value =
-        (gpr_write_enable && (gpr_write_addr == decoded_uop.rs2) && (decoded_uop.rs2 != '0)) ?
-        gpr_write_data : rs2_value;
-    decoded_register_read_packet.csr_rdata      = '0;
-    decoded_register_read_packet.csr_illegal    = 1'b0;
-
-    decoded_execute_packet             = register_read_packet;
-    decoded_execute_packet.csr_rdata   = csr_read_data;
-    decoded_execute_packet.csr_illegal = csr_read_illegal;
+    decoded_execute_packet                = '0;
+    decoded_execute_packet.uop            = decoded_uop;
+    decoded_execute_packet.source_a_value = rs1_value;
+    decoded_execute_packet.source_b_value = rs2_value;
+    decoded_execute_packet.csr_rdata      = csr_read_data;
+    decoded_execute_packet.csr_illegal    = csr_read_illegal;
 
     // 整数操作数选择在ID/EX寄存边界之前完成。其他执行类型仍需要真实rs1/rs2：
     // branch用它们比较，LSU用它们形成地址/写数据，CSR用source_a形成寄存器操作数。
-    if (register_read_packet.uop.fu_type == FU_INT) begin
-      unique case (register_read_packet.uop.int_ctrl.operand_a_sel)
-        OPA_RS1: decoded_execute_packet.source_a_value = register_read_packet.source_a_value;
+    if (decoded_uop.fu_type == FU_INT) begin
+      unique case (decoded_uop.int_ctrl.operand_a_sel)
+        OPA_RS1: decoded_execute_packet.source_a_value = rs1_value;
         OPA_PC:  decoded_execute_packet.source_a_value =
-            xlen_data_t'(register_read_packet.uop.pc);
+            xlen_data_t'(decoded_uop.pc);
         default: decoded_execute_packet.source_a_value = '0;
       endcase
 
-      unique case (register_read_packet.uop.int_ctrl.operand_b_sel)
-        OPB_RS2: decoded_execute_packet.source_b_value = register_read_packet.source_b_value;
-        OPB_IMM: decoded_execute_packet.source_b_value = register_read_packet.uop.imm;
+      unique case (decoded_uop.int_ctrl.operand_b_sel)
+        OPB_RS2: decoded_execute_packet.source_b_value = rs2_value;
+        OPB_IMM: decoded_execute_packet.source_b_value = decoded_uop.imm;
         default: decoded_execute_packet.source_b_value = '0;
       endcase
     end
@@ -447,8 +434,7 @@ module riscv32_core
       .decoded_uop_ready_i(idu_decoded_uop_ready)
   );
 
-  // IDU 直接送入寄存器读级，减少一组 uop 寄存器及分支恢复延迟。
-  // 寄存器读级仍负责反压与 flush；前递和冒险判断仍从其寄存输出开始。
+  // IDU组合输出直接参与操作数准备。只有ID/EX实际接收时才消费fetch entry。
   assign decoded_uop           = idu_decoded_uop;
   assign decoded_uop_valid     = idu_decoded_uop_valid;
   assign idu_decoded_uop_ready  = decoded_uop_ready;
@@ -467,11 +453,10 @@ module riscv32_core
   riscv32_csr_file u_csr_file (
       .clk_i                         (clk_i),
       .rst_ni                        (rst_ni),
-      .csr_read_enable_i             (register_read_packet_valid &&
-                                      register_read_packet.uop.csr_ctrl.read_enable),
-      .csr_read_addr_i               (register_read_packet.uop.csr_ctrl.addr),
-      .csr_access_write_enable_i     (register_read_packet_valid &&
-                                      register_read_packet.uop.csr_ctrl.write_enable),
+      .csr_read_enable_i             (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
+      // CSR地址是固定指令字段，可与opcode译码并行选择；使能仍由合法译码产生。
+      .csr_read_addr_i               (idu_fetch_entry.instruction[31:20]),
+      .csr_access_write_enable_i     (decoded_uop_valid && decoded_uop.csr_ctrl.write_enable),
       .csr_read_data_o               (csr_read_data),
       .csr_read_illegal_o            (csr_read_illegal),
       .csr_write_valid_i             (commit_valid && commit.csr_write),
@@ -489,25 +474,6 @@ module riscv32_core
       .mepc_o                        (csr_mepc)
   );
 
-  // GPR/CSR异步读结果在这里跨越独立寄存边界。同一个上升沿发生WB写入与读取时，
-  // decoded_register_read_packet中的显式写优先旁路保证捕获新值，而不是阵列旧值。
-  riscv32_register_read_stage u_register_read_stage (
-      .clk_i                               (clk_i),
-      .rst_ni                              (rst_ni),
-      .decoded_register_read_packet_i      (decoded_register_read_packet),
-      .decoded_register_read_packet_valid_i(decoded_uop_valid),
-      .decoded_register_read_packet_ready_o(decoded_register_read_packet_ready),
-      .register_read_packet_o              (register_read_packet),
-      .register_read_packet_valid_o        (register_read_packet_valid),
-      .register_read_packet_ready_i        (register_read_packet_ready),
-      .gpr_write_enable_i                  (gpr_write_enable),
-      .gpr_write_addr_i                    (gpr_write_addr),
-      .gpr_write_data_i                    (gpr_write_data),
-      .flush_i                             (decode_execute_flush)
-  );
-
-  assign decoded_uop_ready = decoded_register_read_packet_ready;
-
   assign execute_result_forwarding_available = resolved_execute_result_valid &&
                                                 resolved_execute_result.uop.writes_rd &&
                                                 !resolved_execute_result.uop.exception_valid;
@@ -517,12 +483,12 @@ module riscv32_core
   riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
-      .decoded_uop_valid_i(register_read_packet_valid),
-      .decoded_uses_rs1_i(register_read_packet.uop.uses_rs1),
-      .decoded_rs1_i(register_read_packet.uop.rs1),
-      .decoded_uses_rs2_i(register_read_packet.uop.uses_rs2),
-      .decoded_rs2_i(register_read_packet.uop.rs2),
-      .decoded_serializing_i(register_read_packet.uop.serializing),
+      .decoded_uop_valid_i(decoded_uop_valid),
+      .decoded_uses_rs1_i(decoded_uop.uses_rs1),
+      .decoded_rs1_i(decoded_uop.rs1),
+      .decoded_uses_rs2_i(decoded_uop.uses_rs2),
+      .decoded_rs2_i(decoded_uop.rs2),
+      .decoded_serializing_i(decoded_uop.serializing),
       .execute_instruction_present_i(execute_packet_valid),
       .execute_forwardable_producer_present_i(execute_forwardable_producer_present),
       .execute_blocking_producer_present_i(execute_blocking_producer_present),
@@ -564,11 +530,11 @@ module riscv32_core
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
 
-  // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由IFU/I-cache持有，
+  // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由fetch buffer持有，
   // 不会出现“stage没有保存，但上游认为已经交付”的消息丢失。
-  assign decoded_execute_packet_valid = register_read_packet_valid && decode_accept_allowed &&
+  assign decoded_execute_packet_valid = decoded_uop_valid && decode_accept_allowed &&
                                          !interrupt_issue_hold;
-  assign register_read_packet_ready   = decoded_execute_packet_ready && decode_accept_allowed &&
+  assign decoded_uop_ready            = decoded_execute_packet_ready && decode_accept_allowed &&
                                          !interrupt_issue_hold;
 
   riscv32_decode_execute_stage u_decode_execute_stage (
@@ -715,7 +681,7 @@ module riscv32_core
       .redirect_occurred_i            (execute_redirect_resolution_occurred || commit_redirect_occurred),
       .lsu_busy_i                    (lsu_transaction_active),
       .execute_result_blocked_i      (resolved_execute_result_valid && !resolved_execute_result_ready),
-      .register_read_valid_i         (register_read_packet_valid),
+      .register_read_valid_i         (decoded_uop_valid),
       .raw_hazard_present_i          (raw_hazard_present),
       .serializing_hazard_present_i  (serializing_hazard_present),
       .icache_event_i                (icache_event),
@@ -751,8 +717,8 @@ module riscv32_core
       .instruction_retirement_occurred_i(retired_instruction_occurred),
       .pipeline_raw_hazard_waiting_i(raw_hazard_present),
       .pipeline_serializing_waiting_i(serializing_hazard_present),
-      .pipeline_structural_waiting_i(structural_hazard_present && register_read_packet_valid),
-      .frontend_supply_waiting_i(!register_read_packet_valid && !structural_hazard_present &&
+      .pipeline_structural_waiting_i(structural_hazard_present && decoded_uop_valid),
+      .frontend_supply_waiting_i(!decoded_uop_valid && !structural_hazard_present &&
                                  !commit_redirect_occurred),
       .pipeline_control_flush_occurred_i(frontend_recovery_occurred),
       .pipeline_execute_instruction_discarded_i(commit_redirect_occurred && execute_packet_valid),
