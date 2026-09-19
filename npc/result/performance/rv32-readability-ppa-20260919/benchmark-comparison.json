@@ -1,0 +1,9 @@
+{
+  "total": true,
+  "scored": true,
+  "subtests": true,
+  "whole_program": true,
+  "timer_contexts": true,
+  "all_25_timer_events_identical": true,
+  "full_log_identical_except_two_label_typos": true
+}

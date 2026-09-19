@@ -1,9 +1,9 @@
 # RV32 版本：简历核对与面试准备
 
-当前面试结构、参数及选择理由以 [RV32 设计选择](RV32_DESIGN_CHOICES.md) 为准。
-本页保留恢复、中断、时序和性能测量的阶段记录。最新工作树已合并译码寄存级并允许
-LSU 成功完成拍发射独立 ALU；完整 train 已通过，最新验收边界面积 78,163.036 μm²，
-820 MHz 综合后 max/min 与门控时钟检查通过。旧阶段的数字不应作为当前结果使用。
+本页保留恢复、中断、时序和性能测量的阶段记录，其中的流水线图与单独 RR 级说明描述旧版。
+当前结构以 [RV32 架构说明](RV32_ARCHITECTURE_ATLAS.md) 和[流水线说明](../microarchitecture/PIPELINE_DESIGN_RECORD.md)
+为准，参数取舍见 [RV32 设计选择](RV32_DESIGN_CHOICES.md)，最新一次 PPA 复测见
+[测量记录](../verification/RV32_READABILITY_PPA_2026-09-19.md)。不要把下文旧阶段的数据当作当前结果。
 
 核对日期：2026-09-06。恢复基点为 bb03677；随后在本工作树增加了 M-mode 定时中断。本文只讨论 RV32，区分恢复时的历史状态和本次新增实现。
 
@@ -32,16 +32,16 @@ LSU 成功完成拍发射独立 ALU；完整 train 已通过，最新验收边�
 
 | 原简历内容 | 判断与面试表述 | 主要证据 |
 | --- | --- | --- |
-| RV32I 单发射顺序核，Valid/Ready，前递、停顿、清空、重定向 | 有对应实现。取指、译码、执行、访存、写回、提交是功能划分，不要据此说成固定六级寄存流水线。 | [core](../../vsrc/riscv32/core/riscv32_core.sv)、[hazard controller](../../vsrc/riscv32/core/riscv32_pipeline_hazard_controller.sv) |
-| 精确异常，Zicsr、Zifencei、基础 M-mode、mret | 有同步异常、CSR、返回和 FENCE.I 路径。应说“基础 M-mode”，不扩大为完整特权规范实现。异常指令不进行正常 GPR/CSR 提交；还要说明访存发出的顺序约束。 | [commit](../../vsrc/riscv32/core/riscv32_commit.sv)、[trap controller](../../vsrc/riscv32/core/riscv32_trap_controller.sv)、[CSR](../../vsrc/riscv32/core/riscv32_csr_file.sv) |
-| 支持中断 | **恢复基点未支持；当前工作树已新增 M-mode 定时中断。** CLINT 比较值、MTIP、MIE/MTIE、流水线排空受理和 mret 形成完整路径。中断独立于普通 commit，不伪造退休事件；不包含外部中断、软件中断或 PLIC。 | [commit](../../vsrc/riscv32/core/riscv32_commit.sv)、[CLINT](../../vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv) |
+| RV32I 单发射顺序核，Valid/Ready，前递、停顿、清空、重定向 | 有对应实现。取指、译码、执行、访存、写回、提交是功能划分，不要据此说成固定六级寄存流水线。 | [core](../../vsrc/riscv32/core/riscv32_core.sv)、[hazard controller](../../vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv) |
+| 精确异常，Zicsr、Zifencei、基础 M-mode、mret | 有同步异常、CSR、返回和 FENCE.I 路径。应说“基础 M-mode”，不扩大为完整特权规范实现。异常指令不进行正常 GPR/CSR 提交；还要说明访存发出的顺序约束。 | [commit](../../vsrc/riscv32/core/writeback/riscv32_commit.sv)、[trap controller](../../vsrc/riscv32/core/control/riscv32_trap_ctrl.sv)、[CSR](../../vsrc/riscv32/core/writeback/riscv32_csr_file.sv) |
+| 支持中断 | **恢复基点未支持；当前工作树已新增 M-mode 定时中断。** CLINT 比较值、MTIP、MIE/MTIE、流水线排空受理和 mret 形成完整路径。中断独立于普通 commit，不伪造退休事件；不包含外部中断、软件中断或 PLIC。 | [commit](../../vsrc/riscv32/core/writeback/riscv32_commit.sv)、[CLINT](../../vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv) |
 | 参数化两路 I-cache，Burst Refill，Early Restart | 设计支持两路；**rv32-baseline 默认 256 B、单路、16 B 行**。应说“参数化组相联 I-cache，支持两路配置”。Early Restart 是所需字返回后提前响应，不是改变 Burst 顺序的 critical-word-first。 | [Makefile](../../Makefile)、[I-cache](../../vsrc/riscv32/core/frontend/riscv32_icache.sv)、[miss unit](../../vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv) |
-| PMA/Uncached，阻塞式 Write-Back/Write-Allocate D-cache | 已接入 CPU 数据路径。默认启用，256 B、两路、16 B 行；有脏行写回、整行重填、清理接口。不能说被删除或只是独立实验模块。 | [数据存储子系统](../../vsrc/riscv32/core/memory/riscv32_data_memory_subsystem.sv)、[D-cache](../../vsrc/riscv32/core/memory/riscv32_dcache.sv) |
-| AXI4 Master、取指/访存仲裁、路由和错误响应 | 有对应实现。应区分核内缓存请求接口、AXI Master、共享总线仲裁和 SoC 适配各自职责。 | [core merge](../../vsrc/riscv32/system/riscv32_axi4_core_merge.sv)、[地址路由](../../vsrc/riscv32/system/riscv32_axi4_address_router.sv)、[错误目标](../../vsrc/riscv32/system/riscv32_axi4_error_target.sv) |
+| PMA/Uncached，阻塞式 Write-Back/Write-Allocate D-cache | 已接入 CPU 数据路径。默认启用，256 B、两路、16 B 行；有脏行写回、整行重填、清理接口。不能说被删除或只是独立实验模块。 | [数据存储子系统](../../vsrc/riscv32/core/memory/riscv32_data_mem.sv)、[D-cache](../../vsrc/riscv32/core/memory/riscv32_dcache.sv) |
+| AXI4 Master、取指/访存仲裁、路由和错误响应 | 有 I/D 仲裁和地址路由；AXI 主端接收错误响应并转换为访问异常。独立错误从机未接入当前系统，不能作为这项功能的实例证据。 | [I/D 仲裁](../../vsrc/riscv32/system/riscv32_axi4_arbiter.sv)、[地址路由](../../vsrc/riscv32/system/riscv32_axi4_router.sv)、[非缓存 AXI 主端](../../vsrc/riscv32/core/memory/riscv32_uncached_axi.sv) |
 | 接入 ysyxSoC，启动代码、链接脚本，运行 RT-Thread/Bare-Metal | 有 SoC 适配、构建入口和软件适配。恢复后的 AXI SDRAM SoC 已通过 MicroBench test/train 裸机程序；RT-Thread 未重跑。早期归档提过 RT-Thread 启动，但不证明当前完整运行调度/中断；当前 SoC AM 配置使用 dummy CTE。面试不要将“启动输出”扩展成“完整 RTOS 支持”。 | [AM 源码](../../../abstract-machine/am/src)、[早期架构归档](../architecture/archive/RV32_ARCHITECTURE_PLAN_2026-07-30.md) |
 | Reference Model、DiffTest、Trace、SVA、Directed Test | 有对应代码。参考模型基于 NEMU，宜写“基于 NEMU 建立差分验证流程”，避免暗示整个参考模型独立从零开发。 | [DiffTest](../../csrc/difftest.cpp)、[NEMU](../../../nemu)、[测试](../../tests) |
 | 逐指令比对 PC、GPR、CSR 与访存副作用 | **原文扩大了 DiffTest 范围。** 实际比较 PC、32 个 GPR 和 `mstatus/mtvec/mepc/mcause/mtval`；访存 Trace 和定向测试不等同于逐次存储副作用的参考模型比对。 | [checkregs/difftest_step](../../csrc/difftest.cpp) |
-| PMU、CacheSim、BranchSim，IPC、Miss Rate、AMAT、预测准确率及参数探索 | 有硬件计数器、仿真监视器和离线工具。应分清哪些统计来自 RTL PMU，哪些来自仿真或离线模型；离线模拟结果不能直接当作处理器实测结果。 | [PMU](../../vsrc/riscv32/core/riscv32_pmu.sv)、[仿真监视器](../../vsrc/riscv32/sim)、[工具](../../tools) |
+| PMU、CacheSim、BranchSim，IPC、Miss Rate、AMAT、预测准确率及参数探索 | 有硬件计数器、仿真监视器和离线工具。应分清哪些统计来自 RTL PMU，哪些来自仿真或离线模型；离线模拟结果不能直接当作处理器实测结果。 | [PMU](../../vsrc/riscv32/core/writeback/riscv32_pmu.sv)、[仿真监视器](../../vsrc/riscv32/sim)、[工具](../../tools) |
 | Verilator/Yosys/OpenSTA 自动化，69,400 μm²、767 MHz | 有构建、综合、STA 入口和历史实验记录。2026-09-06 核查可用流程实际使用 Yosys 与 iEDA/iSTA；OpenSTA 经历需要另行提供证据。数字对应历史 RV32 小缓存纯核配置，历史数值不能证明精确对应 bb03677；中断接入后、时序优化前复测得到 **78,942.15 μm²、820.127 MHz**，见[复测报告](../verification/RV32_INTERRUPT_PPA_2026-09-06.md)。应说“基于工具建立/整合流程”，区分自身脚本与框架已有流程。 | [实验记录](../verification/EXPERIMENT_LOG.md)、[历史 STA 产物](../../result/sta) |
 
 “面向边缘设备”可以表达项目方向，但当前证据是通用 RV32 处理器和 SoC 集成，不能据此声称完成 AI 推理专用优化、加速器或特定模型性能验证。面试标题使用“一生一芯｜RV32I 处理器设计与 SoC 集成”更明确。

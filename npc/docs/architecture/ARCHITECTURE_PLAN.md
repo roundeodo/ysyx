@@ -403,7 +403,7 @@ miss处理和直接AXI burst refill/writeback；writeback queue、store buffer�
 ### D007：I-cache与数据侧在共享内存端口进行事务级仲裁
 
 当前SoC下游只有一个完整AXI manager入口。I-cache和数据子系统分别保留独立请求边界，在
-`riscv32_axi4_core_merge`统一仲裁：空闲时对同时出现的AR请求采用round-robin；AR一旦展示
+`riscv32_axi4_arbiter`统一仲裁：空闲时对同时出现的AR请求采用round-robin；AR一旦展示
 给下游便锁定来源，握手后继续锁定到`RLAST`，防止两个cache接收彼此的响应。数据侧独占
 AW/W/B通道。该结构满足当前单端口SRAM/DRAM和单在途顺序核；AI目标配置必须进一步评估
 多bank L1、多个AXI ID、独立I/D端口或L2互联，不能无限扩展这一单在途仲裁器。

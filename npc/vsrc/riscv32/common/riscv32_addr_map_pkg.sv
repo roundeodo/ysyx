@@ -84,8 +84,8 @@ package riscv32_addr_map_pkg;
   localparam phys_addr_t CHIPLINK_MEMORY_ADDR_MATCH_MASK = 32'hc000_0000;
 
   function automatic logic phys_addr_in_range(input phys_addr_t lookup_addr,
-                                              input phys_addr_t range_base_addr,
-                                              input phys_addr_t range_last_addr);
+                                              input  phys_addr_t range_base_addr,
+                                              input phys_addr_t  range_last_addr);
     return (lookup_addr >= range_base_addr) && (lookup_addr <= range_last_addr);
   endfunction
 

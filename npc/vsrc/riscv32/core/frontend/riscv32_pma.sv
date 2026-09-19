@@ -32,7 +32,7 @@ module riscv32_pma
   //   SDRAM          0xa000_0000 - 0xa1ff_ffff，32 MiB；
   //   ChipLink MEM   0xc000_0000 - 0xffff_ffff，可选内存空间。
 
-  // 每个信号只表示lookup地址是否落入对应的已实现物理地址区间。
+  // 1. 地址译码：每个信号只表示lookup地址是否落入对应的已实现物理地址区间。
   logic lookup_addr_in_clint;
   logic lookup_addr_in_sram;
   logic lookup_addr_in_uart;
@@ -84,6 +84,7 @@ module riscv32_pma
                                           lookup_addr_in_chiplink_memory;
   end
 
+  // 2. 属性输出：组合编码，无寄存器。
   // pma_attr_t字段的含义：
   //   readable/writable：数据侧访问权限；未映射地址两者均为0；
   //   executable：允许IFU从该区域取指；为0时I-cache返回取指访问异常；

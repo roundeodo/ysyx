@@ -16,9 +16,9 @@ package riscv32_ysyx_soc_axi4_pkg;
   typedef struct packed {
     ysyx_soc_axi4_addr_t addr;
     ysyx_soc_axi4_id_t   id;
-    logic [7:0]           len;
-    logic [2:0]           size;
-    axi4_burst_e          burst;
+    logic [7:0]          len;
+    logic [2:0]          size;
+    axi4_burst_e         burst;
   } ysyx_soc_axi4_write_address_t;
 
   typedef struct packed {
@@ -35,9 +35,9 @@ package riscv32_ysyx_soc_axi4_pkg;
   typedef struct packed {
     ysyx_soc_axi4_addr_t addr;
     ysyx_soc_axi4_id_t   id;
-    logic [7:0]           len;
-    logic [2:0]           size;
-    axi4_burst_e          burst;
+    logic [7:0]          len;
+    logic [2:0]          size;
+    axi4_burst_e         burst;
   } ysyx_soc_axi4_read_address_t;
 
   typedef struct packed {

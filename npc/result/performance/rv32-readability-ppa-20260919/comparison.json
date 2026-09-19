@@ -1,0 +1,216 @@
+{
+  "baseline": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/performance/frontend-rewrite-20260915",
+  "current": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/performance/rv32-readability-ppa-20260919",
+  "baseline_cells": {
+    "area_um2": 73030.034,
+    "dff": 8410,
+    "data_latches": 2048,
+    "clock_gates": 477,
+    "cells": {
+      "AND2_X1": 365,
+      "AND3_X1": 315,
+      "AND4_X1": 253,
+      "AOI211_X1": 739,
+      "AOI21_X1": 1786,
+      "AOI221_X1": 594,
+      "AOI222_X1": 78,
+      "AOI22_X1": 952,
+      "BUF_X1": 1067,
+      "BUF_X2": 10,
+      "BUF_X4": 63,
+      "CLKBUF_X1": 88,
+      "CLKGATE_X1": 477,
+      "DFFR_X1": 539,
+      "DFFS_X1": 24,
+      "DFF_X1": 7847,
+      "DLH_X1": 2048,
+      "INV_X1": 613,
+      "LOGIC0_X1": 1,
+      "LOGIC1_X1": 1,
+      "MUX2_X1": 1500,
+      "NAND2_X1": 1925,
+      "NAND3_X1": 627,
+      "NAND4_X1": 418,
+      "NOR2_X1": 1971,
+      "NOR3_X1": 1450,
+      "NOR4_X1": 515,
+      "OAI211_X1": 1278,
+      "OAI21_X1": 3372,
+      "OAI221_X1": 1310,
+      "OAI222_X1": 13,
+      "OAI22_X1": 1011,
+      "OAI33_X1": 77,
+      "OR2_X1": 337,
+      "OR3_X1": 146,
+      "OR4_X1": 68,
+      "XNOR2_X1": 275,
+      "XOR2_X1": 160
+    }
+  },
+  "baseline_sta_820": {
+    "data_max": {
+      "endpoint": "u_core.execute_packet_72__reg_p:D",
+      "slack_ns": -0.195,
+      "fmax_mhz": 707.409
+    },
+    "gating_max": {
+      "endpoint": "u_core.execute_packet_valid_reg_p_D_AOI211_X1_ZN_C1_AOI221_X1_B1_ZN_CLKGATE_X1_E:E",
+      "slack_ns": -0.054,
+      "fmax_mhz": null
+    },
+    "data_min": {
+      "endpoint": "u_core.u_fetch_control_flow_predictor.u_return_address_stack.return_pc_q_2__reg_p:D",
+      "slack_ns": 0.057,
+      "fmax_mhz": null
+    },
+    "gating_min": {
+      "endpoint": "u_core.resolved_execute_result_valid_reg_p_QN_OAI211_X1_B_ZN_CLKGATE_X1_E:E",
+      "slack_ns": 0.091,
+      "fmax_mhz": null
+    }
+  },
+  "baseline_sta_700": {
+    "data_max": {
+      "endpoint": "u_core.execute_packet_72__reg_p:D",
+      "slack_ns": 0.014,
+      "fmax_mhz": 707.409
+    },
+    "gating_max": {
+      "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND3_X1_A1_ZN_CLKGATE_X1_E:E",
+      "slack_ns": 0.115,
+      "fmax_mhz": null
+    },
+    "data_min": {
+      "endpoint": "u_core.u_fetch_control_flow_predictor.u_return_address_stack.return_pc_q_2__reg_p:D",
+      "slack_ns": 0.057,
+      "fmax_mhz": null
+    },
+    "gating_min": {
+      "endpoint": "u_core.resolved_execute_result_valid_reg_p_QN_OAI211_X1_B_ZN_CLKGATE_X1_E:E",
+      "slack_ns": 0.091,
+      "fmax_mhz": null
+    }
+  },
+  "current_cells": {
+    "area_um2": 73037.748,
+    "dff": 8410,
+    "data_latches": 2048,
+    "clock_gates": 477,
+    "cells": {
+      "AND2_X1": 270,
+      "AND3_X1": 331,
+      "AND4_X1": 255,
+      "AOI211_X1": 634,
+      "AOI21_X1": 1615,
+      "AOI221_X1": 486,
+      "AOI222_X1": 177,
+      "AOI22_X1": 926,
+      "BUF_X1": 1072,
+      "BUF_X2": 3,
+      "BUF_X4": 63,
+      "CLKBUF_X1": 127,
+      "CLKGATE_X1": 477,
+      "DFFR_X1": 539,
+      "DFFS_X1": 24,
+      "DFF_X1": 7847,
+      "DLH_X1": 2048,
+      "INV_X1": 648,
+      "LOGIC0_X1": 1,
+      "LOGIC1_X1": 1,
+      "MUX2_X1": 1455,
+      "NAND2_X1": 1199,
+      "NAND3_X1": 773,
+      "NAND4_X1": 503,
+      "NOR2_X1": 2172,
+      "NOR3_X1": 1467,
+      "NOR4_X1": 581,
+      "NOR4_X2": 1,
+      "OAI211_X1": 1363,
+      "OAI21_X1": 3377,
+      "OAI221_X1": 1414,
+      "OAI222_X1": 45,
+      "OAI22_X1": 1091,
+      "OAI33_X1": 50,
+      "OR2_X1": 290,
+      "OR3_X1": 234,
+      "OR4_X1": 68,
+      "XNOR2_X1": 301,
+      "XOR2_X1": 138
+    }
+  },
+  "current_sta_820": {
+    "data_max": {
+      "endpoint": "u_core.execute_packet_87__reg_p:D",
+      "slack_ns": -0.184,
+      "fmax_mhz": 712.892
+    },
+    "gating_max": {
+      "endpoint": "u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_344__reg_p_CK_CLKGATE_X1_GCK:E",
+      "slack_ns": -0.043,
+      "fmax_mhz": null
+    },
+    "data_min": {
+      "endpoint": "u_core.u_fetch_control_flow_predictor.u_return_address_stack.return_pc_q_2__reg_p:D",
+      "slack_ns": 0.057,
+      "fmax_mhz": null
+    },
+    "gating_min": {
+      "endpoint": "u_core.u_fetch_control_flow_predictor.u_return_address_stack.write_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+      "slack_ns": 0.103,
+      "fmax_mhz": null
+    }
+  },
+  "current_sta_700": {
+    "data_max": {
+      "endpoint": "u_core.execute_packet_86__reg_p:D",
+      "slack_ns": 0.025,
+      "fmax_mhz": 712.892
+    },
+    "gating_max": {
+      "endpoint": "u_core.u_data_memory_subsystem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_344__reg_p_CK_CLKGATE_X1_GCK:E",
+      "slack_ns": 0.166,
+      "fmax_mhz": null
+    },
+    "data_min": {
+      "endpoint": "u_core.u_fetch_control_flow_predictor.u_return_address_stack.return_pc_q_2__reg_p:D",
+      "slack_ns": 0.057,
+      "fmax_mhz": null
+    },
+    "gating_min": {
+      "endpoint": "u_core.u_fetch_control_flow_predictor.u_return_address_stack.write_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+      "slack_ns": 0.103,
+      "fmax_mhz": null
+    }
+  },
+  "benchmark": {
+    "equal_windows": {
+      "total": true,
+      "scored": true,
+      "subtests": true,
+      "whole_program": true,
+      "timer_contexts": true
+    },
+    "identical_binary": true,
+    "identical_elf": true,
+    "identical_tools": true,
+    "total": {
+      "cycles": 4498243,
+      "retired_instructions": 763521,
+      "ipc": 0.16973760643878066,
+      "timer_ticks": 6426,
+      "timer_seconds": 0.006426,
+      "cycle_seconds": 0.006426061428571429,
+      "interrupts": 0
+    },
+    "scored": {
+      "cycles": 2033454,
+      "retired_instructions": 430313,
+      "ipc": 0.21161678602023945,
+      "timer_ticks": 2904,
+      "timer_seconds": 0.002904,
+      "cycle_seconds": 0.0029049342857142856,
+      "interrupts": 0
+    }
+  },
+  "non_rtl_input_changes": []
+}

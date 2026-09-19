@@ -16,7 +16,7 @@ module riscv32_execute_result_timing_tb;
   logic can_accept;
   program_counter_t expected_next_pc;
 
-  riscv32_execute_result_stage u_dut (
+  riscv32_ex_result_reg u_dut (
       .clk_i(clk), .rst_ni(rst_n),
       .executed_result_i(executed_result), .executed_result_valid_i(executed_valid),
       .executed_result_ready_o(executed_ready),

@@ -32,11 +32,11 @@ package riscv32_axi4_pkg;
   // 五个channel分别拥有独立payload。即使AW和AR当前字段相同，也使用不同类型，
   // 防止模块接口或中间变量失去channel语义。
   typedef struct packed {
-    axi4_addr_t addr;
-    axi4_id_t   id;
-    logic [7:0]                len;
-    logic [2:0]                size;
-    axi4_burst_e               burst;
+    axi4_addr_t  addr;
+    axi4_id_t    id;
+    logic [7:0]  len;
+    logic [2:0]  size;
+    axi4_burst_e burst;
   } axi4_write_address_t;
 
   typedef struct packed {
@@ -51,11 +51,11 @@ package riscv32_axi4_pkg;
   } axi4_write_response_t;
 
   typedef struct packed {
-    axi4_addr_t addr;
-    axi4_id_t   id;
-    logic [7:0]                len;
-    logic [2:0]                size;
-    axi4_burst_e               burst;
+    axi4_addr_t  addr;
+    axi4_id_t    id;
+    logic [7:0]  len;
+    logic [2:0]  size;
+    axi4_burst_e burst;
   } axi4_read_address_t;
 
   typedef struct packed {

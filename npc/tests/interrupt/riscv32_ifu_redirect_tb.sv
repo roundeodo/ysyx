@@ -18,7 +18,7 @@ module riscv32_ifu_redirect_tb;
   logic predictor_request_valid, predictor_request_ready;
   logic predictor_response_valid, predictor_response_ready, predictor_flush;
   branch_prediction_t prediction;
-  riscv32_fetch_control_flow_predictor predictor (
+  riscv32_branch_predictor predictor (
       .clk_i(clk), .rst_ni(rst_n),
       .lookup_request_pc_i(predictor_request_pc),
       .lookup_request_epoch_i(predictor_request_epoch),
@@ -32,7 +32,7 @@ module riscv32_ifu_redirect_tb;
       .resolved_control_flow_pc_i('0), .resolved_control_flow_target_i('0),
       .resolved_control_flow_imm_i('0), .resolved_control_flow_op_i(CF_NONE),
       .resolved_control_flow_rs1_i('0), .resolved_control_flow_rd_i('0),
-      .resolved_control_flow_occurred_i(1'b0), .resolved_control_flow_taken_i(1'b0),
+      .resolved_control_flow_event_i(1'b0), .resolved_control_flow_taken_i(1'b0),
       .flush_lookup_i(predictor_flush), .invalidate_i(1'b0)
   );
   riscv32_ifu #(.PC_START(32'h8000_0000)) dut (

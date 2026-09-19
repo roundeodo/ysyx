@@ -1,9 +1,6 @@
-// 参数化组相联、阻塞式L1指令缓存顶层，hit路径采用分级流水处理。
-//
-// 本模块拥有lookup pipeline、命中判定和invalidate协调；tag/data阵列、
-// miss跟踪、PMA分类和下层协议转换分别交给子模块。hit路径由同步array读和
-// 一级请求身份寄存组成，并在INCR refill自然到达关键word时支持early restart。这个边界为
-// 后续增加组相联、多个MSHR、prefetch和更宽fetch保留了独立演进空间。
+// 阻塞式 L1 I-cache：同步读阵列与请求寄存对齐，下一拍比较 tag 并返回 hit。
+// miss 独占下层回填；关键 word 可提前返回，但整行完成前不接收新 lookup。
+// 源码按阵列端口、查询级、invalidate 状态机、事件与断言组织。
 module riscv32_icache
   import riscv32_pkg::*;
   // 地址拆分函数直接处理物理地址，因此显式依赖地址映射package。
@@ -40,107 +37,101 @@ module riscv32_icache
   // 使用refill语义接口，AXI4协议细节保留在cache外部的adapter中。
   pma_attr_t lookup_memory_attr;
 
-  logic array_read_enable;
-  icache_set_index_t array_read_set_index;
-  icache_word_index_t array_read_word_index;
-  icache_tag_t array_read_tag_array[ICACHE_WAY_COUNT];
+  logic                        array_read_enable;
+  icache_set_index_t           array_read_set_index;
+  icache_word_index_t          array_read_word_index;
+  icache_tag_t                 array_read_tag_array[ICACHE_WAY_COUNT];
   logic [ICACHE_WAY_COUNT-1:0] array_read_line_present_vector;
   // 命中数据路径使用fetch宽度，修改XLEN不会无意义地扩大I-cache阵列。
   icache_fetch_data_t array_read_word_data_array[ICACHE_WAY_COUNT];
 
-  icache_miss_req_t miss_req;
-  logic miss_req_valid;
-  logic miss_req_ready;
+  icache_miss_req_t    miss_req;
+  logic                miss_req_valid;
+  logic                miss_req_ready;
   icache_lookup_resp_t miss_lookup_resp;
-  logic miss_lookup_resp_valid;
-  logic miss_lookup_resp_ready;
-  logic miss_transaction_present;
-  phys_addr_t active_refill_line_base_addr;
-  icache_way_index_t active_refill_way_index;
-  logic [ICACHE_WORDS_PER_LINE-1:0] refill_word_present_vector;
-  icache_event_t miss_event;
+  logic                miss_lookup_resp_valid;
+  logic                miss_lookup_resp_ready;
+  logic                miss_transaction_present;
+  icache_event_t       miss_unit_events;
 
-  logic refill_data_write_valid;
-  icache_set_index_t refill_data_write_set_index;
-  icache_way_index_t refill_data_write_way_index;
+  logic               refill_data_write_valid;
+  icache_set_index_t  refill_data_write_set_index;
+  icache_way_index_t  refill_data_write_way_index;
   icache_word_index_t refill_data_write_word_index;
   icache_fetch_data_t refill_data_write_word_data;
 
-  logic refill_metadata_write_valid;
+  logic              refill_metadata_write_valid;
   icache_set_index_t refill_metadata_write_set_index;
   icache_way_index_t refill_metadata_write_way_index;
-  icache_tag_t refill_metadata_write_tag;
-  logic refill_metadata_write_line_present;
+  icache_tag_t       refill_metadata_write_tag;
+  logic              refill_metadata_write_line_present;
 
-  logic metadata_write_valid;
+  logic              metadata_write_valid;
   icache_set_index_t metadata_write_set_index;
   icache_way_index_t metadata_write_way_index;
-  icache_tag_t metadata_write_tag;
-  logic metadata_write_line_present;
+  icache_tag_t       metadata_write_tag;
+  logic              metadata_write_line_present;
 
   riscv32_pma u_riscv32_pma (
-      .lookup_addr_i(lookup_req_i.fetch_addr),
-      .memory_attr_o(lookup_memory_attr)
+      .lookup_addr_i (lookup_req_i.fetch_addr),
+      .memory_attr_o (lookup_memory_attr)
   );
 
   riscv32_icache_tag_array u_riscv32_icache_tag_array (
-      .clk_i                        (clk_i),
-      .rst_ni                       (rst_ni),
-      .read_enable_i                (array_read_enable),
-      .read_set_index_i             (array_read_set_index),
-      .read_tag_array_o             (array_read_tag_array),
-      .read_line_present_vector_o   (array_read_line_present_vector),
-      .metadata_write_valid_i       (metadata_write_valid),
-      .metadata_write_set_index_i   (metadata_write_set_index),
-      .metadata_write_way_index_i   (metadata_write_way_index),
-      .metadata_write_tag_i         (metadata_write_tag),
-      .metadata_write_line_present_i(metadata_write_line_present)
+      .clk_i                         (clk_i),
+      .rst_ni                        (rst_ni),
+      .read_enable_i                 (array_read_enable),
+      .read_set_index_i              (array_read_set_index),
+      .read_tag_array_o              (array_read_tag_array),
+      .read_line_present_vector_o    (array_read_line_present_vector),
+      .metadata_write_valid_i        (metadata_write_valid),
+      .metadata_write_set_index_i    (metadata_write_set_index),
+      .metadata_write_way_index_i    (metadata_write_way_index),
+      .metadata_write_tag_i          (metadata_write_tag),
+      .metadata_write_line_present_i (metadata_write_line_present)
   );
 
   riscv32_icache_data_array u_riscv32_icache_data_array (
-      .clk_i                    (clk_i),
-      .rst_ni                   (rst_ni),
-      .read_enable_i            (array_read_enable),
-      .read_set_index_i         (array_read_set_index),
-      .read_word_index_i        (array_read_word_index),
-      .read_word_data_array_o   (array_read_word_data_array),
-      .refill_write_valid_i     (refill_data_write_valid),
-      .refill_write_set_index_i (refill_data_write_set_index),
-      .refill_write_way_index_i (refill_data_write_way_index),
-      .refill_write_word_index_i(refill_data_write_word_index),
-      .refill_write_word_data_i (refill_data_write_word_data)
+      .clk_i                     (clk_i),
+      .rst_ni                    (rst_ni),
+      .read_enable_i             (array_read_enable),
+      .read_set_index_i          (array_read_set_index),
+      .read_word_index_i         (array_read_word_index),
+      .read_word_data_array_o    (array_read_word_data_array),
+      .refill_write_valid_i      (refill_data_write_valid),
+      .refill_write_set_index_i  (refill_data_write_set_index),
+      .refill_write_way_index_i  (refill_data_write_way_index),
+      .refill_write_word_index_i (refill_data_write_word_index),
+      .refill_write_word_data_i  (refill_data_write_word_data)
   );
 
   riscv32_icache_miss_unit u_riscv32_icache_miss_unit (
-      .clk_i                        (clk_i),
-      .rst_ni                       (rst_ni),
-      .miss_req_i                   (miss_req),
-      .miss_req_valid_i             (miss_req_valid),
-      .miss_req_ready_o             (miss_req_ready),
-      .lookup_resp_o                (miss_lookup_resp),
-      .lookup_resp_valid_o          (miss_lookup_resp_valid),
-      .lookup_resp_ready_i          (miss_lookup_resp_ready),
-      .refill_req_o                 (refill_req_o),
-      .refill_req_valid_o           (refill_req_valid_o),
-      .refill_req_ready_i           (refill_req_ready_i),
-      .refill_resp_i                (refill_resp_i),
-      .refill_resp_valid_i          (refill_resp_valid_i),
-      .refill_resp_ready_o          (refill_resp_ready_o),
-      .data_write_valid_o           (refill_data_write_valid),
-      .data_write_set_index_o       (refill_data_write_set_index),
-      .data_write_way_index_o       (refill_data_write_way_index),
-      .data_write_word_index_o      (refill_data_write_word_index),
-      .data_write_word_data_o       (refill_data_write_word_data),
-      .metadata_write_valid_o       (refill_metadata_write_valid),
-      .metadata_write_set_index_o   (refill_metadata_write_set_index),
-      .metadata_write_way_index_o   (refill_metadata_write_way_index),
-      .metadata_write_tag_o         (refill_metadata_write_tag),
-      .metadata_write_line_present_o(refill_metadata_write_line_present),
-      .active_refill_line_base_addr_o(active_refill_line_base_addr),
-      .active_refill_way_index_o    (active_refill_way_index),
-      .refill_word_present_vector_o (refill_word_present_vector),
-      .miss_transaction_present_o   (miss_transaction_present),
-      .event_o                      (miss_event)
+      .clk_i                         (clk_i),
+      .rst_ni                        (rst_ni),
+      .miss_req_i                    (miss_req),
+      .miss_req_valid_i              (miss_req_valid),
+      .miss_req_ready_o              (miss_req_ready),
+      .lookup_resp_o                 (miss_lookup_resp),
+      .lookup_resp_valid_o           (miss_lookup_resp_valid),
+      .lookup_resp_ready_i           (miss_lookup_resp_ready),
+      .refill_req_o                  (refill_req_o),
+      .refill_req_valid_o            (refill_req_valid_o),
+      .refill_req_ready_i            (refill_req_ready_i),
+      .refill_resp_i                 (refill_resp_i),
+      .refill_resp_valid_i           (refill_resp_valid_i),
+      .refill_resp_ready_o           (refill_resp_ready_o),
+      .data_write_valid_o            (refill_data_write_valid),
+      .data_write_set_index_o        (refill_data_write_set_index),
+      .data_write_way_index_o        (refill_data_write_way_index),
+      .data_write_word_index_o       (refill_data_write_word_index),
+      .data_write_word_data_o        (refill_data_write_word_data),
+      .metadata_write_valid_o        (refill_metadata_write_valid),
+      .metadata_write_set_index_o    (refill_metadata_write_set_index),
+      .metadata_write_way_index_o    (refill_metadata_write_way_index),
+      .metadata_write_tag_o          (refill_metadata_write_tag),
+      .metadata_write_line_present_o (refill_metadata_write_line_present),
+      .miss_transaction_present_o    (miss_transaction_present),
+      .event_o                       (miss_unit_events)
   );
 
   // 这些是当前实现的明确几何约束，不是运行时容错。line大小由构建参数选择，所有
@@ -178,8 +169,6 @@ module riscv32_icache
   // 数据访问/总线边界，不应随每次取指进入S1寄存器。
   logic lookup_executable_s1_q, lookup_executable_s1_d;
   logic lookup_cacheable_s1_q, lookup_cacheable_s1_d;
-  logic lookup_uses_refill_word_s1_q, lookup_uses_refill_word_s1_d;
-  icache_way_index_t lookup_refill_way_index_s1_q, lookup_refill_way_index_s1_d;
   logic lookup_s1_present_q, lookup_s1_present_d;
 
   logic lookup_req_handshake;
@@ -187,16 +176,8 @@ module riscv32_icache
   logic lookup_s1_completed;
   logic local_lookup_resp_handshake;
   logic miss_req_handshake;
-  logic lookup_req_matches_active_refill_line;
-  logic lookup_req_refill_word_present;
-  logic lookup_req_allowed_during_refill;
 
-  // 地址按tag、set index和line内word index拆分。统一使用参数化位选，避免把
-  // 当前32B line、128 sets等配置硬编码进控制逻辑。这里接收的必须是物理地址。
-  // 这些位选随line和set数量变化。还可定义line-base函数，把低ICACHE_LINE_OFFSET_W位清零，
-  // 但miss unit已经从原fetch_addr生成line base，顶层不应重复保存第二份地址。
-  // 所有输入都是物理地址；本项目当前没有MMU，未来加入翻译后仍应由PMA接收翻译后的地址。
-  // 地址拆分只消费物理地址；set/word来自cache几何参数，tag从PADDR_WIDTH最高位开始。
+  // 物理地址按cache几何参数拆成tag、set和行内word索引；单set/单word时索引固定为0。
   function automatic icache_set_index_t get_icache_set_index(input phys_addr_t addr);
     if (ICACHE_SET_INDEX_BITS == 0) begin
       return '0;
@@ -215,24 +196,6 @@ module riscv32_icache
     return addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
   endfunction
 
-  function automatic phys_addr_t get_icache_line_base_addr(input phys_addr_t addr);
-    phys_addr_t line_base_addr;
-    line_base_addr = addr;
-    line_base_addr[ICACHE_LINE_OFFSET_W-1:0] = '0;
-    return line_base_addr;
-  endfunction
-
-  // 当前版本是严格阻塞式单MSHR：miss存续期间不接收任何年轻lookup。critical word
-  // 仍可由miss unit提前交付给原请求，但后续取指必须等待整条line安装完成。若未来
-  // 需要hit-under-miss，必须同时增加响应排序状态或多MSHR，不能只开放lookup ready，
-  // 否则原miss响应可能与年轻本地命中响应在同一拍竞争单个返回口。
-  always_comb begin
-    lookup_req_matches_active_refill_line =
-        get_icache_line_base_addr(lookup_req_i.fetch_addr) == active_refill_line_base_addr;
-    lookup_req_refill_word_present =
-        refill_word_present_vector[get_icache_word_index(lookup_req_i.fetch_addr)];
-    lookup_req_allowed_during_refill = !miss_transaction_present;
-  end
   // S1并行比较全部way的present和tag，并把请求划分为四类互斥结果：
   // access fault、uncached访问、cache hit和cache miss。命中向量按低way优先选择数据；
   // 正常状态下同一set最多只能有一路命中，仿真断言会检查重复tag错误。
@@ -240,50 +203,35 @@ module riscv32_icache
   // 访问；cacheable地址命中时本地返回，未命中时请求整line refill。响应反压时S1和
   // array读输出都保持，所以组合payload也保持稳定，无需重复增加response寄存器。
   logic [ICACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
-  logic lookup_array_hit;
-  logic lookup_refill_hit;
-  logic lookup_hit;
-  icache_fetch_data_t lookup_hit_word_data;
-  logic lookup_access_fault;
-  logic lookup_uncached;
-  logic lookup_cache_miss;
-  icache_way_index_t replacement_way_index;
-  logic local_lookup_resp_valid;
-  icache_lookup_resp_t local_lookup_resp;
+  logic                        lookup_hit;
+  icache_fetch_data_t          lookup_hit_word_data;
+  logic                        lookup_access_fault;
+  logic                        lookup_uncached;
+  logic                        lookup_cache_miss;
+  icache_way_index_t           replacement_way_index;
+  logic                        local_lookup_resp_valid;
+  icache_lookup_resp_t         local_lookup_resp;
 
   always_comb begin
     lookup_way_hit_vector = '0;
-    lookup_array_hit      = 1'b0;
-    lookup_refill_hit     = lookup_s1_present_q && lookup_uses_refill_word_s1_q;
     lookup_hit            = 1'b0;
     lookup_hit_word_data  = '0;
 
     for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-      lookup_way_hit_vector[way_index] = lookup_s1_present_q && lookup_executable_s1_q &&
-                                          lookup_cacheable_s1_q &&
-                                          array_read_line_present_vector[way_index] &&
-                                          (array_read_tag_array[way_index] == get_icache_tag(
-                                              lookup_s1_q.fetch_addr));
-      if (!lookup_array_hit && lookup_way_hit_vector[way_index]) begin
-        lookup_array_hit     = 1'b1;
+      lookup_way_hit_vector[way_index] =
+          lookup_s1_present_q && lookup_executable_s1_q && lookup_cacheable_s1_q &&
+          array_read_line_present_vector[way_index] &&
+          (array_read_tag_array[way_index] == get_icache_tag(lookup_s1_q.fetch_addr));
+      if (!lookup_hit && lookup_way_hit_vector[way_index]) begin
+        lookup_hit           = 1'b1;
         lookup_hit_word_data = array_read_word_data_array[way_index];
       end
     end
 
-
-    // 接收请求时已经证明该word在更早周期写入，因此即使最后一个refill beat恰好
-    // 同周期提交metadata，S1也使用锁存的victim way读取数据，不依赖旧tag读出值。
-    if (lookup_refill_hit) begin
-      lookup_hit_word_data = array_read_word_data_array[lookup_refill_way_index_s1_q];
-    end
-
-    lookup_hit = lookup_array_hit || lookup_refill_hit;
-
     lookup_access_fault = lookup_s1_present_q && !lookup_executable_s1_q;
-    lookup_uncached     = lookup_s1_present_q && lookup_executable_s1_q &&
-                          !lookup_cacheable_s1_q;
-    lookup_cache_miss   = lookup_s1_present_q && lookup_executable_s1_q &&
-                          lookup_cacheable_s1_q && !lookup_hit;
+    lookup_uncached     = lookup_s1_present_q && lookup_executable_s1_q && !lookup_cacheable_s1_q;
+    lookup_cache_miss   =
+        lookup_s1_present_q && lookup_executable_s1_q && lookup_cacheable_s1_q && !lookup_hit;
 
     local_lookup_resp_valid        = lookup_access_fault || lookup_hit;
     local_lookup_resp              = '0;
@@ -304,12 +252,12 @@ module riscv32_icache
         replacement_way_index = '0;
       end
     end else begin : g_set_associative_replacement
-      icache_way_index_t replacement_next_way_q[ICACHE_SET_COUNT];
-      logic replacement_invalid_way_found;
+      icache_way_index_t replacement_way_index_array_q[ICACHE_SET_COUNT];
+      logic              replacement_invalid_way_found;
 
       always_comb begin
         replacement_way_index =
-            replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)];
+            replacement_way_index_array_q[get_icache_set_index(lookup_s1_q.fetch_addr)];
         replacement_invalid_way_found = 1'b0;
 
         for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
@@ -324,13 +272,13 @@ module riscv32_icache
       always_ff @(posedge clk_i) begin
         if (!rst_ni) begin
           for (int unsigned set_index = 0; set_index < ICACHE_SET_COUNT; set_index++) begin
-            replacement_next_way_q[set_index] <= '0;
+            replacement_way_index_array_q[set_index] <= '0;
           end
         end else if (miss_req_handshake && miss_req.cacheable) begin
           if (replacement_way_index == icache_way_index_t'(ICACHE_WAY_COUNT - 1)) begin
-            replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <= '0;
+            replacement_way_index_array_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <= '0;
           end else begin
-            replacement_next_way_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <=
+            replacement_way_index_array_q[get_icache_set_index(lookup_s1_q.fetch_addr)] <=
                 replacement_way_index + icache_way_index_t'(1);
           end
         end
@@ -362,52 +310,42 @@ module riscv32_icache
     array_read_word_index          = get_icache_word_index(lookup_req_i.fetch_addr);
   end
 
-  assign local_lookup_resp_handshake = local_lookup_resp_valid && lookup_resp_ready_i && !miss_lookup_resp_valid;
-  assign miss_req_handshake = miss_req_valid && miss_req_ready;
-  assign lookup_s1_completed = local_lookup_resp_handshake || miss_req_handshake;
-  assign lookup_s1_ready = (!lookup_s1_present_q || lookup_s1_completed) && !miss_req_valid;
+  assign local_lookup_resp_handshake =
+      local_lookup_resp_valid && lookup_resp_ready_i && !miss_lookup_resp_valid;
+  assign miss_req_handshake   = miss_req_valid && miss_req_ready;
+  assign lookup_s1_completed  = local_lookup_resp_handshake || miss_req_handshake;
+  assign lookup_s1_ready      = (!lookup_s1_present_q || lookup_s1_completed) && !miss_req_valid;
   assign lookup_req_handshake = lookup_req_valid_i && lookup_req_ready_o;
 
   always_comb begin
-    lookup_s1_d                    = lookup_s1_q;
-    lookup_executable_s1_d         = lookup_executable_s1_q;
-    lookup_cacheable_s1_d          = lookup_cacheable_s1_q;
-    lookup_uses_refill_word_s1_d   = lookup_uses_refill_word_s1_q;
-    lookup_refill_way_index_s1_d   = lookup_refill_way_index_s1_q;
-    lookup_s1_present_d            = lookup_s1_present_q;
+    lookup_s1_d            = lookup_s1_q;
+    lookup_executable_s1_d = lookup_executable_s1_q;
+    lookup_cacheable_s1_d  = lookup_cacheable_s1_q;
+    lookup_s1_present_d    = lookup_s1_present_q;
 
     if (miss_req_handshake) begin
       lookup_s1_present_d = 1'b0;
     end else if (lookup_s1_ready) begin
       lookup_s1_present_d = lookup_req_handshake;
-      lookup_uses_refill_word_s1_d = 1'b0;
       if (lookup_req_handshake) begin
-        lookup_s1_d                  = lookup_req_i;
-        lookup_executable_s1_d       = lookup_memory_attr.executable;
-        lookup_cacheable_s1_d        = lookup_memory_attr.cacheable;
-        lookup_uses_refill_word_s1_d = miss_transaction_present &&
-                                          lookup_req_matches_active_refill_line &&
-                                          lookup_req_refill_word_present;
-        lookup_refill_way_index_s1_d = active_refill_way_index;
+        lookup_s1_d            = lookup_req_i;
+        lookup_executable_s1_d = lookup_memory_attr.executable;
+        lookup_cacheable_s1_d  = lookup_memory_attr.cacheable;
       end
     end
   end
 
   always_ff @(posedge clk_i) begin
     if (!rst_ni) begin
-      lookup_s1_q                  <= '0;
-      lookup_executable_s1_q       <= 1'b0;
-      lookup_cacheable_s1_q        <= 1'b0;
-      lookup_uses_refill_word_s1_q <= 1'b0;
-      lookup_refill_way_index_s1_q <= '0;
-      lookup_s1_present_q          <= 1'b0;
+      lookup_s1_q            <= '0;
+      lookup_executable_s1_q <= 1'b0;
+      lookup_cacheable_s1_q  <= 1'b0;
+      lookup_s1_present_q    <= 1'b0;
     end else begin
-      lookup_s1_q                  <= lookup_s1_d;
-      lookup_executable_s1_q       <= lookup_executable_s1_d;
-      lookup_cacheable_s1_q        <= lookup_cacheable_s1_d;
-      lookup_uses_refill_word_s1_q <= lookup_uses_refill_word_s1_d;
-      lookup_refill_way_index_s1_q <= lookup_refill_way_index_s1_d;
-      lookup_s1_present_q          <= lookup_s1_present_d;
+      lookup_s1_q            <= lookup_s1_d;
+      lookup_executable_s1_q <= lookup_executable_s1_d;
+      lookup_cacheable_s1_q  <= lookup_cacheable_s1_d;
+      lookup_s1_present_q    <= lookup_s1_present_d;
     end
   end
 
@@ -447,10 +385,31 @@ module riscv32_icache
     endcase
   end
 
+  // 失效控制的输出：元数据写口在回填与清除之间选择，busy汇总当前占用。
+  always_comb begin
+    metadata_write_valid        = refill_metadata_write_valid;
+    metadata_write_set_index    = refill_metadata_write_set_index;
+    metadata_write_way_index    = refill_metadata_write_way_index;
+    metadata_write_tag          = refill_metadata_write_tag;
+    metadata_write_line_present = refill_metadata_write_line_present;
+
+    if (invalidate_metadata_write_valid) begin
+      metadata_write_valid        = 1'b1;
+      metadata_write_set_index    = invalidate_set_index_q;
+      metadata_write_way_index    = invalidate_way_index_q;
+      metadata_write_tag          = '0;
+      metadata_write_line_present = 1'b0;
+    end
+  end
+
+  assign cache_busy_o =
+      lookup_s1_present_q || miss_transaction_present || invalidate_req_i ||
+      (invalidate_state_q != INVALIDATE_IDLE);
   // invalidate请求到达的当拍立即停止接收新请求；其余时间由S1是否可覆盖决定ready。
   // array read、S1请求身份和PMA属性只会在同一次lookup握手时同步更新。
-  assign lookup_req_ready_o = lookup_s1_ready && lookup_req_allowed_during_refill &&
-                              !invalidate_blocks_lookup && !invalidate_req_i;
+  assign lookup_req_ready_o =
+      lookup_s1_ready && !miss_transaction_present &&
+      !invalidate_blocks_lookup && !invalidate_req_i;
 
   always_comb begin
     invalidate_state_d     = invalidate_state_q;
@@ -521,44 +480,24 @@ module riscv32_icache
     end
   end
 
-  always_comb begin
-    metadata_write_valid        = refill_metadata_write_valid;
-    metadata_write_set_index    = refill_metadata_write_set_index;
-    metadata_write_way_index    = refill_metadata_write_way_index;
-    metadata_write_tag          = refill_metadata_write_tag;
-    metadata_write_line_present = refill_metadata_write_line_present;
-
-    if (invalidate_metadata_write_valid) begin
-      metadata_write_valid        = 1'b1;
-      metadata_write_set_index    = invalidate_set_index_q;
-      metadata_write_way_index    = invalidate_way_index_q;
-      metadata_write_tag          = '0;
-      metadata_write_line_present = 1'b0;
-    end
-  end
-
-  assign cache_busy_o = lookup_s1_present_q ||
-                        miss_transaction_present ||
-                        invalidate_req_i ||
-                        (invalidate_state_q != INVALIDATE_IDLE);
   // event只观察cache接口和miss-unit事件，不参与cache控制。lookup response使用present
   // 作为AMAT终点；PMU用活动请求状态保证响应反压时不会重复计数。过期fetch epoch由IFU识别，因此
-  // stale_response_discarded_occurred在I-cache内部固定为0。当前event没有access-fault字段，
+  // stale_response_discarded_event在I-cache内部固定为0。当前event没有access-fault字段，
   // 因此发生取指访问异常时，lookup计数不会落入hit、miss或uncached三类中的任何一类。
   always_comb begin
-    event_o                                       = '0;
-    event_o.lookup_occurred                       = lookup_req_handshake;
-    event_o.lookup_response_present               = lookup_resp_valid_o;
-    event_o.lookup_response_is_cache_hit          = local_lookup_resp_valid && lookup_hit &&
-                                                    !miss_lookup_resp_valid;
-    event_o.lookup_request_waiting                = lookup_req_valid_i && !lookup_req_ready_o;
-    event_o.miss_occurred                         = miss_event.miss_occurred;
-    event_o.uncached_access_occurred              = miss_req_handshake && lookup_uncached;
-    event_o.refill_word_occurred                  = miss_event.refill_word_occurred;
-    event_o.refill_transaction_completed_occurred =
-                                                    miss_event.refill_transaction_completed_occurred;
-    event_o.refill_line_completed_occurred        = miss_event.refill_line_completed_occurred;
-    event_o.stale_response_discarded_occurred     = 1'b0;
+    event_o                         = '0;
+    event_o.lookup_event            = lookup_req_handshake;
+    event_o.lookup_response_present = lookup_resp_valid_o;
+    event_o.lookup_response_is_cache_hit =
+        local_lookup_resp_valid && lookup_hit && !miss_lookup_resp_valid;
+    event_o.lookup_request_waiting = lookup_req_valid_i && !lookup_req_ready_o;
+    event_o.miss_event             = miss_unit_events.miss_event;
+    event_o.uncached_access_event  = miss_req_handshake && lookup_uncached;
+    event_o.refill_word_event      = miss_unit_events.refill_word_event;
+    event_o.refill_transaction_completed_event =
+        miss_unit_events.refill_transaction_completed_event;
+    event_o.refill_line_completed_event    = miss_unit_events.refill_line_completed_event;
+    event_o.stale_response_discarded_event = 1'b0;
   end
 
 `ifndef SYNTHESIS
@@ -567,18 +506,14 @@ module riscv32_icache
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (lookup_req_valid_i && !lookup_req_ready_o) |=>
-          (lookup_req_valid_i && $stable(
-      lookup_req_i
-  )))
+          (lookup_req_valid_i && $stable(lookup_req_i)))
   else $error("I-cache lookup request changed while stalled");
 
   a_lookup_response_stable_while_stalled :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (lookup_resp_valid_o && !lookup_resp_ready_i) |=>
-          (lookup_resp_valid_o && $stable(
-      lookup_resp_o
-  )))
+          (lookup_resp_valid_o && $stable(lookup_resp_o)))
   else $error("I-cache lookup response changed while stalled");
 
   // 单MSHR设计任意时刻只能由本地路径或miss unit中的一方驱动lookup响应。
@@ -643,24 +578,10 @@ module riscv32_icache
   )
   else $error("I-cache present clear has no valid source");
 
-  a_s1_refill_word_classification_matches_accepted_lookup :
-  assert property (
-      @(posedge clk_i) disable iff (!rst_ni)
-      lookup_req_handshake |=>
-          (lookup_s1_present_q &&
-           (lookup_uses_refill_word_s1_q ==
-            $past(miss_transaction_present && lookup_req_matches_active_refill_line &&
-                  lookup_req_refill_word_present)))
-  )
-  else $error("I-cache S1 refill-word classification does not match the accepted lookup");
-
-  a_refill_word_s1_request_never_dispatches_second_miss :
-  assert property (
-      @(posedge clk_i) disable iff (!rst_ni)
-      (lookup_s1_present_q && lookup_uses_refill_word_s1_q) |->
-          (lookup_refill_hit && !miss_req_valid)
-  )
-  else $error("I-cache refill-word lookup attempted to allocate a second miss");
+  a_blocking_miss_rejects_new_lookup :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    miss_transaction_present |-> !lookup_req_ready_o)
+  else $error("blocking I-cache accepted a younger lookup during refill");
 
   a_miss_dispatch_freezes_s1 :
   assert property (@(posedge clk_i) disable iff (!rst_ni) miss_req_valid |-> !lookup_s1_ready)

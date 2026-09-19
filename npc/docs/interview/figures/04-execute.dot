@@ -1,0 +1,38 @@
+digraph architecture {
+  graph [fontname="Noto Sans CJK SC", fontsize=20, labelloc=t, bgcolor="white", rankdir=LR, nodesep=0.38, ranksep=0.55, pad=0.25, compound=true];
+  node [fontname="Noto Sans CJK SC", fontsize=12, shape=box, style="rounded,filled", fillcolor="#ffffff", color="#526175", penwidth=1.2, margin="0.14,0.10"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#506278", arrowsize=0.7];
+  label="04  执行与访存的真实分流\nALU / 分支 / AGU / CSR 执行是 EXU 内部逻辑；没有独立多发射";
+  idex [label="ID/EX 执行包\n已前递的源值 + uop\nCSR 读值", fillcolor="#eaf2ff", peripheries=2];
+  subgraph cluster_exu {
+    label="riscv32_exu：组合逻辑"; color="#9aabc0"; style=rounded;
+    alu [label="整数 ALU\n加减 / 逻辑 / 移位 / 比较"];
+    branch [label="分支条件 / 目标\nPC+4 / 对齐检查"];
+    csr [label="CSR 执行\n读改写数据 / 非法检查"];
+    agu [label="AGU\nrs1 + imm\nstore 数据来自 rs2"];
+    route [label="普通结果打包"];
+    alu -> route; branch -> route; csr -> route;
+  }
+  subgraph cluster_lsu {
+    label="riscv32_lsu：单活动事务"; color="#9aabc0"; style=rounded;
+    context [label="pending 上下文\nPC / rd / 访存控制\n地址 / store 数据", fillcolor="#eaf2ff", peripheries=2];
+    state [label="IDLE → DISPATCH → WAIT\nDISPATCH 才发请求", fillcolor="#fff1dd", peripheries=2];
+    store [label="对齐检查\nstore 移位 / byte strobe\n本地异常拦截"];
+    load [label="响应格式化\nbyte / half / word 选择\n符号扩展 / access fault"];
+    context -> store;
+    context -> load [label="原始地址 / rd"];
+    state -> store [style=dashed, color="#b76e13"];
+    state -> load [style=dashed, color="#b76e13"];
+  }
+  result [label="执行结果寄存级\n真实 next PC / 结果\n输出端检查预测", fillcolor="#eaf2ff", peripheries=2];
+  memory [label="data_memory_subsystem\nPMA / D-cache / Uncached", fillcolor="#e8f5e9"];
+  completion [label="completion_mux → WB\n→ commit"];
+  idex -> alu; idex -> branch; idex -> csr; idex -> agu;
+  route -> result;
+  agu -> context [label="LSU 请求握手"];
+  store -> memory [label="语义访存请求"];
+  memory -> load [label="数据 / fault"];
+  store -> completion [label="本地异常完成"];
+  load -> completion [label="访存完成"];
+  result -> completion [label="普通完成"];
+}

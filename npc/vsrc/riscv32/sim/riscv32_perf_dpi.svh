@@ -1,6 +1,5 @@
-// Read-only simulation interface, shared by the standalone and SoC wrappers.
-// Called after clock-low evaluation, before the next rising edge. No state or
-// output of this interface feeds back into the processor or the CLINT.
+// standalone 和 SoC 共用的只读 DPI 接口。宿主在时钟低电平求值后、下一上升沿前采样。
+// 不插入 CPU 指令，不读取软件 CSR，也不向 CPU 或 CLINT 反馈控制。
 `ifdef VERILATOR
   export "DPI-C" function npc_get_perf_flags_dpi;
   export "DPI-C" function npc_get_perf_timer_dpi;
@@ -10,23 +9,23 @@
   export "DPI-C" function npc_get_commit_audit_dpi;
 
   function int npc_get_perf_flags_dpi();
-    logic [4:0] flags;
-    flags = '0;
+    logic [4:0] event_flags;
+    event_flags = '0;
     if (u_npc_system.system_rst_n) begin
-      flags[0] = u_npc_system.u_core.retired_instruction_occurred;
-      // Match the CLINT's legal RV32 low-word sample, not R-channel delivery.
-      flags[1] = u_npc_system.u_clint.read_address_handshake &&
+      event_flags[0] = u_npc_system.u_core.retired_instruction_event;
+      // bit 1 对应 CLINT 接受合法 RV32 mtime 低字读取的时刻。
+      event_flags[1] = u_npc_system.u_clint.read_address_handshake &&
           (u_npc_system.u_clint.axi_target_i.ar.addr == 32'h0200_0048) &&
           (u_npc_system.u_clint.axi_target_i.ar.len == 0) &&
           (u_npc_system.u_clint.axi_target_i.ar.size == 3'd2) &&
           (u_npc_system.u_clint.axi_target_i.ar.burst inside {2'b00, 2'b01});
-      // Any CLINT write makes the default MicroBench timing audit fail closed.
-      flags[2] = u_npc_system.u_clint.register_write_valid;
-      flags[3] = u_npc_system.u_core.interrupt_valid;
-      flags[4] = u_npc_system.u_core.commit_valid &&
+      // bit 2 记录 CLINT 写入；宿主据此拒绝将被改写的计时器用于默认测量。
+      event_flags[2] = u_npc_system.u_clint.register_write_valid;
+      event_flags[3] = u_npc_system.u_core.interrupt_valid;
+      event_flags[4] = u_npc_system.u_core.commit_valid &&
           u_npc_system.u_core.commit.trap_taken;
     end
-    return int'(flags);
+    return int'(event_flags);
   endfunction
 
   function longint unsigned npc_get_perf_timer_dpi();
@@ -45,10 +44,10 @@
     return 64'(u_npc_system.MTIME_INCREMENT_FREQ_HZ);
   endfunction
 
-  // Optional short-test audit of architectural writes and memory side effects.
-  // Packed control bits keep invalid data fields out of the host digest.
-  function longint unsigned npc_get_commit_audit_dpi(input int index);
-    case (index)
+  // 短测试的提交审计：索引 0 返回控制字段，1..5 返回寄存器与访存数据。
+  // 无效字段返回 0，避免未生效的载荷影响宿主摘要；函数名和索引属于固定 DPI 接口。
+  function longint unsigned npc_get_commit_audit_dpi(input int field_index);
+    case (field_index)
       0: return 64'({u_npc_system.u_core.commit.gpr_write,
                      u_npc_system.u_core.commit.gpr_addr,
                      u_npc_system.u_core.commit.csr_write,

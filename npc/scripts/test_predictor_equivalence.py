@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare the split predictor with its frozen pre-refactor implementation."""
+"""Replay the historical module-split equivalence check on two frozen revisions."""
 import argparse
 import hashlib
 import json
@@ -8,6 +8,7 @@ import subprocess
 
 NPC = Path(__file__).resolve().parents[1]
 REFERENCE_REVISION = 'f7a8f2568ea98c9a3492f60bedd7340f936baca4'
+SPLIT_REVISION = '1dac056db176c1e4ad3304b9accc08ece62c59e7'
 REFERENCE_PATH = 'npc/vsrc/riscv32/core/frontend/riscv32_fetch_control_flow_predictor.sv'
 REFERENCE_SHA256 = 'd1cfc006634e019ebe795be3e900768203b0d5145a22d1ec2b84902f066ecaa6'
 
@@ -22,7 +23,7 @@ def run(command, log):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--reference', type=Path, help='Archived original source for a shallow checkout')
+    parser.add_argument('--reference', type=Path, help='Override original source; the frozen split revision must be present in Git')
     parser.add_argument('--output', type=Path, default=NPC / 'build/tests/predictor-equivalence')
     parser.add_argument('defines', nargs='+', help='Configuration macros supplied by the NPC Makefile')
     args = parser.parse_args()
@@ -43,7 +44,18 @@ def main():
     sources += [rtl / 'core/frontend' / f'riscv32_{name}.sv' for name in
                 ('branch_history_table', 'branch_target_buffer', 'return_address_stack',
                  'fetch_control_flow_predictor')]
-    sources += [reference_file, NPC / 'tests/rtl/riscv32_predictor_equivalence_tb.sv']
+    # The active predictor now has a different latency. Replay the old split against
+    # its own frozen source rather than mislabel the old cycle comparison as current.
+    frozen_sources = []
+    for source in sources:
+        relative = source.relative_to(NPC.parent)
+        frozen = output / 'split-source' / relative
+        frozen.parent.mkdir(parents=True, exist_ok=True)
+        frozen.write_bytes(subprocess.check_output(
+            ['git', 'show', f'{SPLIT_REVISION}:{relative}'], cwd=NPC))
+        frozen_sources.append(frozen)
+    sources = frozen_sources + [reference_file, NPC / 'tests/rtl/riscv32_predictor_equivalence_tb.sv']
+    print(f'Historical split check at {SPLIT_REVISION}; use test-predictor for the active RTL.')
     top = 'riscv32_predictor_equivalence_tb'
     command = ['verilator', '--binary', '--timing', '--assert', '-Wno-fatal', '-j', '2',
                *args.defines, '--top-module', top,
@@ -51,7 +63,7 @@ def main():
     run(command, output / 'build.log')
     run([str(output / 'obj' / f'V{top}')], output / 'run.log')
     print((output / 'run.log').read_text())
-    manifest = {'reference_revision': REFERENCE_REVISION, 'reference_sha256': REFERENCE_SHA256,
+    manifest = {'split_revision': SPLIT_REVISION, 'reference_revision': REFERENCE_REVISION, 'reference_sha256': REFERENCE_SHA256,
                 'build_command': command, 'status': 'passed',
                 'sources': {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in sources}}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
