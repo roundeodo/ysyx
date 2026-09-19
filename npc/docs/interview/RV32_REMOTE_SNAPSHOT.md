@@ -35,11 +35,19 @@ python3 npc/scripts/restore_rv32_dependencies.py
 旧 decode/RR 寄存级、组合重定向仲裁和未接入的 AXI 错误目标移入 `experiments/`，
 不再进入当前编译清单。源码、编码规范、当前模块说明与测试入口同步更新。
 
-最近一次综合后测量：面积 73,037.748 μm²，估算 Fmax 712.892 MHz；700 MHz 的
+该阶段综合后测量：面积 73,037.748 μm²，估算 Fmax 712.892 MHz；700 MHz 的
 setup、hold 与门控检查通过。MicroBench **test** 的 Total 定时器时间为 0.006426 s，
 同窗口 IPC 为 0.169737606；本版尚未重跑 train。测量口径及源码快照见
 [复测记录](../verification/RV32_READABILITY_PPA_2026-09-19.md)。之后的命名与历史模块迁移
 通过内容核对及编译/流水控制检查，迁移前后展开的 CPU RTLIL 完全相同。
+
+## 2026-09-20 更新
+
+补入精确异常年龄约束修复及两轮直通优化。最终核及复位电路的综合面积为
+69,536.922 μm²，600 MHz 的 data setup 余量 +0.034 ns，setup/hold 与门控检查通过。
+MicroBench **test** 的 Total 定时器时间为 0.005923 s，同窗口 IPC 为 0.215102228；
+精确异常 40/40、DiffTest 35/35、定时中断 8/8 通过。当前版 train 尚待复测。
+逐模块取舍和测量口径见[等待周期复查](../verification/RV32_WAIT_AUDIT_2026-09-19.md)。
 
 ## 历史版本已验证的性能
 
@@ -57,7 +65,7 @@ RV32 baseline，CPU 820 MHz，设备 100 MHz，MicroBench train 十项 PASS、GO
 复测使用源码构建，生成新的结果目录：
 
 ```sh
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 700
+python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 600
 ```
 
 远程保存 RTL、脚本、测试、文档、依赖补丁和精选测量证据；宿主仿真器、编译缓存及
