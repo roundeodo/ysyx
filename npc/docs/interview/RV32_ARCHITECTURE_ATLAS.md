@@ -1,7 +1,8 @@
 # RV32 架构与模块说明
 
 更新日期：2026-09-19。独立 RR 已取消，BHT/BTB/RAS 已拆分；前端重写后采用单级查询，
-BTB 训练直接写表，RAS 组合读取栈顶。当前面积、时序和性能见[整理后复测](../verification/RV32_READABILITY_PPA_2026-09-19.md)。
+BTB 训练直接写表，RAS 组合读取栈顶。当前面积与时序见[精确异常修复验证](../verification/RV32_PRECISE_EXCEPTION_FIX_2026-09-19.md)；
+最近一次 microbench test 测量见[整理后复测](../verification/RV32_READABILITY_PPA_2026-09-19.md)，本次修复未重测 IPC。
 本文依据面试工作树 `ysyx-workbench-rv32-interview` 的实际 RTL 连接，源代码基点为
 `d8bb7dd` 加前端重写、后端整理及目录分层，配置为 `PROJECT=riscv32 NPC_CONFIG=rv32-baseline`。
 远程面试快照及依赖恢复方式见 [远程版本说明](RV32_REMOTE_SNAPSHOT.md)。
@@ -317,7 +318,7 @@ clean 与普通 lookup 互斥。维护错误的核级处理边界见下一节。
 
 | RTL 模块/逻辑 | 架构作用 |
 | --- | --- |
-| pipeline_hazard_controller | 数据相关、生产者可用性、串行化、LSU 忙、结果级受阻及恢复门控；控制能否接收/发出，而不是改变程序顺序 |
+| riscv32_hazard_ctrl | 数据相关、生产者可用性、串行化、LSU 忙、结果级反压或有效异常及恢复门控；控制指令能否接收/发出 |
 | [riscv32_interrupt_ctrl](../../vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv) | 保存下一架构 PC；定时中断使能后阻止新指令进入 ID/EX，让已进入后端的指令排空；后端/维护空闲且无当拍 commit 时受理 |
 | [riscv32_trap_ctrl](../../vsrc/riscv32/core/control/riscv32_trap_ctrl.sv) | 组合处理同步 trap、mret、定时中断；生成 CSR 更新字段及架构重定向，同步 trap 优先于 mret，再于中断 |
 | [riscv32_redirect_stage](../../vsrc/riscv32/core/control/riscv32_redirect_stage.sv) | 当前接 3 个来源，各自寄存 payload，优先级只选来源索引；优先级为提交 trap/mret/中断 > FENCE.I > 分支纠错；下一拍发给 IFU 和前端 flush |
@@ -326,6 +327,8 @@ clean 与普通 lookup 互斥。维护错误的核级处理边界见下一节。
 **异常链。** IFU 的访问异常、IDU 的非法指令/ecall/ebreak、EXU 的控制流对齐或 CSR
 非法访问、LSU 的对齐/总线异常，随对应指令带到 WB/commit；trap_controller 再统一更新
 mepc/mcause/mtval/mstatus，跳到 mtvec。年轻指令不应留下架构副作用。
+EX 结果级已有有效异常时，即使 WB ready，也会保持年轻 ID/EX 指令并禁止发射，防止年轻
+load/store 提前进入 LSU；老异常继续进入 WB，再统一 flush。
 已有 AXI 写不能靠 flush 撤销；精确性依赖发出前的顺序约束及目标设备的错误语义。
 
 **中断链。** `CLINT 比较 → mip.MTIP → mie.MTIE 与 mstatus.MIE → 停止入口并排空 →

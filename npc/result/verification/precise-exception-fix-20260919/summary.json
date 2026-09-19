@@ -1,0 +1,44 @@
+{
+  "rtl_changes": [
+    "core/control/riscv32_hazard_ctrl.sv",
+    "core/riscv32_core.sv"
+  ],
+  "directed_cases_passed": 32,
+  "difftest_cases_passed": 35,
+  "interrupt_cases_passed": 8,
+  "pipeline_configs": [
+    "rv32-baseline",
+    "rv64-sequential"
+  ],
+  "lint": [
+    "rv32 NPC",
+    "rv32 SoC"
+  ],
+  "source_hashes_match_tested_rtl": true,
+  "checks_exit": {
+    "exception": 0,
+    "pipeline-lint": 0,
+    "difftest": 0,
+    "interrupt": 0
+  },
+  "formal": "not run; legacy harness is not an acceptance result",
+  "initial_difftest_attempt": "build failed: missing Capstone library and missing csr-trap source in P3_CPU_TESTS; rerun actual 35 CPU tests with explicit CAPSTONE_LIB",
+  "microbench": "not rerun",
+  "synthesis": {
+    "input_count": 50,
+    "all_inputs_match_tested_and_current_rtl": true,
+    "exit": 0,
+    "yosys_check_problems": 0,
+    "reset_tree_structural_equivalence": "passed",
+    "reset_connectivity": "passed",
+    "area_um2": 73081.372,
+    "fmax_estimate_mhz": 724.577,
+    "sta_820_passed": false,
+    "sta_700_passed": true,
+    "sta_700_same_netlist": true,
+    "area_delta_um2": 43.624,
+    "area_delta_percent": 0.059728,
+    "comparison": "npc/result/performance/rv32-precise-exception-20260919/comparison.json",
+    "scope": "NanGate45 typical mapped core plus reset controller/buffers; no SoC or routed parasitics"
+  }
+}

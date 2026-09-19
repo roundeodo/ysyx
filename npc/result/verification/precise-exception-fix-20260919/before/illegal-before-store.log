@@ -1,0 +1,11 @@
+TRACE cycle=108 EX_EXCEPTION pc=80000018 serializing=0 ready=1 branch_redirect=0 issue_allowed=1 young_pc=8000001c young_valid=1 LSU_accept=1
+TRACE cycle=108 LSU_ACCEPT_STORE pc=8000001c
+TRACE cycle=109 MEMORY_ACCEPT_STORE commit_redirect=1
+TRACE cycle=109 WB_TRAP pc=80000018 cause=2 redirect=1 LSU_state=1 memory_valid=1
+TRACE cycle=110 AXI_AW addr=0f000004
+TRACE cycle=111 AXI_W data=00000055 strb=f
+TRACE cycle=113 COMMIT_STORE pc=8000001c
+RESULT mode=1 traps=1 accepted_stores=1 physical_writes=1 retired_stores=1 sentinel=00000055
+[1555] %Fatal: precise_exception_store_tb.sv:157: Assertion failed in precise_exception_store_tb: PRECISE_EXCEPTION_FAILURE: younger store escaped older trap
+%Error: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/precise-exception-20260919/precise_exception_store_tb.sv:157: Verilog $stop
+Aborting...

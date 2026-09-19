@@ -23,6 +23,7 @@ module riscv32_hazard_ctrl
     // 下游反压时，年轻指令不能绕过它发起LSU副作用。串行化属性也必须保持到该级离开。
     input  logic          execute_result_valid_i,
     input  logic          execute_result_ready_i,
+    input  logic          execute_result_exception_valid_i,
     input  logic          execute_result_writes_rd_i,
     input  arch_reg_idx_t execute_result_rd_i,
     input  logic          execute_result_forwarding_available_i,
@@ -166,6 +167,7 @@ module riscv32_hazard_ctrl
   logic older_instruction_present;
   logic control_recovery_event;
   logic execute_result_stalled;
+  logic execute_result_exception_present;
 
   assign older_instruction_present = execute_instruction_present_i ||
       execute_result_valid_i ||
@@ -189,15 +191,18 @@ module riscv32_hazard_ctrl
   // 这不提供 load 响应到 ID/EX 的旁路；上面的 pending-rd RAW 检查保持不变。
   assign structural_hazard_present_o = lsu_busy_i && !lsu_completion_succeeded_i;
   assign execute_result_stalled      = execute_result_valid_i && !execute_result_ready_i;
+  assign execute_result_exception_present = execute_result_valid_i &&
+      execute_result_exception_valid_i;
 
   // 恢复事件通过各级flush清valid，不参与decode的ready/accept组合网络。错误路径uop
   // 可以在恢复拍被物理采样，但不会获得valid；因此这里只保留真正需要等待的冒险。
   assign decode_accept_allowed_o = !raw_hazard_present_o &&
       !serializing_hazard_present_o;
 
-  // progress只描述后端是否有空间，直接控制ID/EX payload流动；issue再叠加控制恢复，
-  // 只控制EXU能否产生completion或访存副作用。这样redirect不会进入宽payload写入路径。
-  assign execute_progress_allowed_o = !execute_result_stalled && !structural_hazard_present_o;
+  // 老异常进入 WB 的同拍也不能放行年轻指令，否则 store 可先被无法取消的 LSU 接收。
+  // progress 同时保持 ID/EX，issue 再叠加恢复条件；老异常自身仍可正常进入 WB 并触发 flush。
+  assign execute_progress_allowed_o = !execute_result_stalled && !structural_hazard_present_o &&
+      !execute_result_exception_present;
   assign execute_issue_allowed_o    = execute_progress_allowed_o &&
       !execute_redirect_present_i &&
       !frontend_redirect_applied_i &&
@@ -232,6 +237,12 @@ module riscv32_hazard_ctrl
     execute_result_stalled |-> !execute_issue_allowed_o)
   else
     $error("pipeline issued a younger instruction around a stalled EX/MEM result");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    execute_result_exception_present |->
+      (!execute_progress_allowed_o && !execute_issue_allowed_o))
+  else
+    $error("pipeline advanced a younger instruction past an older EX result exception");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(
       {rs1_execute_forwarding_selected_o,

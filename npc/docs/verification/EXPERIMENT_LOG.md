@@ -1559,3 +1559,15 @@ Yosys/Slang RTLIL 逐字节相同。RV32 NPC/SoC lint、RV64 NPC lint、重新�
 回归通过，当前源码链接检查通过。证据保存在
 [本次核对目录](../../result/readability/rv32-unused-modules-20260919/)。
 本轮仅整理源码位置与构建依赖，未重新运行技术映射、STA 或 microbench，不产生新的 PPA/IPC 测量值。
+
+
+## 2026-09-19：阻止年轻访存越过 EX 结果级老异常
+
+基于 `71b5935c100c264313ebc35d3549b1f3ae354b34` 的修复，配置 `rv32-baseline`。
+非法指令和跳转目标未对齐异常之后的年轻 store 已在整核仿真中复现错误写入与提交；
+现由 EX 结果级有效异常组合阻塞年轻执行，保留 WB 统一恢复，不新增流水级或 LSU 状态。
+32 项精确异常定向测试、35 项 CPU DiffTest、8 项中断回归及 RV32/RV64 流水控制测试通过。
+综合面积 73,081.372 μm²，估算 Fmax 724.577 MHz；700 MHz 的 setup / hold / 门控
+setup / 门控 hold 为 +0.048 / +0.057 / +0.201 / +0.097 ns。820 MHz 仍不满足时序。
+本轮未运行 formal 或 microbench。完整命令、修复前后证据、源码哈希和测量边界见
+[修复验证记录](RV32_PRECISE_EXCEPTION_FIX_2026-09-19.md)。

@@ -1295,6 +1295,12 @@ test-timer-interrupt:
 	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
 	python3 tests/interrupt/run.py $(NPC_CONFIG_DEFINE)
 
+.PHONY: test-precise-exception
+EXCEPTION_TEST_OUTPUT ?= $(abspath ./build/tests/exception)
+test-precise-exception:
+	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
+	python3 tests/exception/run.py --output "$(EXCEPTION_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
 
 # 包含实际复位控制器的纯核边界；保留未缓冲网表，再生成受限扇出的复位树。
 STA_RESET_OUTPUT_DIR ?= $(STA_OUTPUT_ROOT)/riscv32_core_reset_boundary-$(STA_FREQUENCY_MHZ)MHz-buffered

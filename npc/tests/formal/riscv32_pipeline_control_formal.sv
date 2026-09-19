@@ -137,6 +137,7 @@ module riscv32_pipeline_control_formal;
   (* anyseq *)logic          execute_serializing;
   (* anyseq *)logic          execute_forwarding_available;
   (* anyseq *)logic          execute_result_valid;
+  (* anyseq *)logic          execute_result_exception_valid;
   (* anyseq *)logic          execute_result_writes_rd;
   (* anyseq *)arch_reg_idx_t execute_result_rd;
   (* anyseq *)logic          execute_result_forwarding_available;
@@ -193,6 +194,7 @@ module riscv32_pipeline_control_formal;
       .execute_forwarding_available_i          (execute_forwarding_available),
       .execute_result_valid_i                  (execute_result_valid),
       .execute_result_ready_i                  (1'b1),
+      .execute_result_exception_valid_i        (execute_result_exception_valid),
       .execute_result_writes_rd_i              (execute_result_writes_rd),
       .execute_result_rd_i                     (execute_result_rd),
       .execute_result_forwarding_available_i   (execute_result_forwarding_available),
@@ -313,6 +315,7 @@ module riscv32_pipeline_control_formal;
                 frontend_redirect_applied || commit_redirect_event) ||
               !decode_accept_allowed);
       assert ((raw_hazard_present || serializing_hazard_present || structural_hazard_present ||
+                (execute_result_valid && execute_result_exception_valid) ||
                 frontend_redirect_applied ||
                 commit_redirect_event) ||
               (decode_accept_allowed && execute_issue_allowed));
@@ -322,8 +325,10 @@ module riscv32_pipeline_control_formal;
       assert (!(frontend_redirect_applied || commit_redirect_event) || decode_execute_flush);
       assert (!(lsu_busy || frontend_redirect_applied || commit_redirect_event) ||
               !execute_issue_allowed);
-      assert ((lsu_busy || frontend_redirect_applied || commit_redirect_event) ||
+      assert ((lsu_busy || frontend_redirect_applied || commit_redirect_event ||
+               (execute_result_valid && execute_result_exception_valid)) ||
               execute_issue_allowed);
+      assert (!(execute_result_valid && execute_result_exception_valid) || !execute_issue_allowed);
       assert (writeback_flush == commit_redirect_event);
     end
   end

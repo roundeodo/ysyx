@@ -1,0 +1,79 @@
+{
+  "pipeline-lint": {
+    "log_sha256": "e4e0ee3f1615390175c69b480f1711d46ac62932958b3c9fa81d9fca64126615",
+    "exit": 0,
+    "result_lines": [
+      "PASS fetch queue: 991 checked outputs, 476 simultaneous transfers, 34 flushes",
+      "pipeline control tests passed: XLEN=32",
+      "PASS fetch queue: 991 checked outputs, 476 simultaneous transfers, 34 flushes",
+      "pipeline control tests passed: XLEN=64"
+    ]
+  },
+  "interrupt": {
+    "log_sha256": "d07c8a571910d91ca5bbbe8181a64d2a79780899ae7e6fb84447b4610ab910e9",
+    "exit": 0,
+    "result_lines": [
+      "PASS RV32 timer system am=0 delay=0 cycles=35010 irq=11 retired=3278 write_beats=3976 pending_load=4145 pending_store=144 pending_fault=4102 empty_frontend_irq=1",
+      "PASS RV32 timer system am=0 delay=17 cycles=39387 irq=11 retired=1990 write_beats=2044 pending_load=4769 pending_store=501 pending_fault=4196 empty_frontend_irq=1",
+      "PASS RV32 timer system am=0 delay=83 cycles=54942 irq=11 retired=926 write_beats=448 pending_load=5361 pending_store=378 pending_fault=4447 empty_frontend_irq=1",
+      "PASS RV32 timer system am=1 delay=0 cycles=102122 irq=5 retired=46174 write_beats=4 pending_load=0 pending_store=0 pending_fault=0 empty_frontend_irq=0",
+      "PASS RV32 timer system am=1 delay=83 cycles=130669 irq=5 retired=35464 write_beats=4 pending_load=0 pending_store=0 pending_fault=0 empty_frontend_irq=0",
+      "PASS CLINT: reset, equality, rearm, 64-bit compare, byte writes, W-before-AW, R/B backpressure, invalid access/bursts, mtime snapshot",
+      "PASS interrupt control: idle entry, LSU drain, withdrawal, maintenance, branch PC, trap/mret redirect priority",
+      "PASS IFU redirect: backpressured lookup, consecutive redirects, late handshake, stale response drain",
+      "PASS timer regression: 3 assembly system runs, 2 AM system runs, 3 RTL unit tests"
+    ]
+  },
+  "difftest": {
+    "log_sha256": "34f4a702e09e3a743257b97b88ed4f576e2a0b73e522c6de31def23f69c9dce3",
+    "exit": 0,
+    "result_lines": [
+      "[      goldbach] PASS",
+      "[ to-lower-case] PASS",
+      "[    load-store] PASS",
+      "[     recursion] PASS",
+      "[      mersenne] PASS",
+      "[        switch] PASS",
+      "[   bubble-sort] PASS",
+      "[        wanshu] PASS",
+      "[  add-longlong] PASS",
+      "[    quick-sort] PASS",
+      "[       unalign] PASS",
+      "[  sub-longlong] PASS",
+      "[    matrix-mul] PASS",
+      "[   select-sort] PASS",
+      "[         prime] PASS",
+      "[       if-else] PASS",
+      "[           bit] PASS",
+      "[          min3] PASS",
+      "[          fact] PASS",
+      "[        string] PASS",
+      "[         dummy] PASS",
+      "[         movsx] PASS",
+      "[     hello-str] PASS",
+      "[           div] PASS",
+      "[           sum] PASS",
+      "[        pascal] PASS",
+      "[         shift] PASS",
+      "[         mov-c] PASS",
+      "[           fib] PASS",
+      "[           add] PASS",
+      "[           max] PASS",
+      "[     leap-year] PASS",
+      "[   shuixianhua] PASS",
+      "[         crc32] PASS",
+      "[  mul-longlong] PASS"
+    ]
+  },
+  "initial-difftest": {
+    "log_sha256": "b369f0cdacd9ceea6e583bf9f113fdf55ed59fb2b2afe033f35b7321ff1dd021",
+    "exit": 2,
+    "result_lines": [
+      "/usr/bin/ld: cannot find -lcapstone: No such file or directory",
+      "/usr/bin/ld: cannot find -lcapstone: No such file or directory",
+      "/usr/bin/ld: cannot find -lcapstone: No such file or directory",
+      "/usr/bin/ld: cannot find -lcapstone: No such file or directory",
+      "/usr/bin/ld: cannot find -lcapstone: No such file or directory"
+    ]
+  }
+}
