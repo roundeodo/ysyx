@@ -11,7 +11,7 @@ module riscv32_issue_window_tb;
   dcache_event_t dcache_event = '0;
   riscv32_sim_issue_window_monitor dut (
     .clk_i(clk), .rst_ni(rst_n), .commit_valid_i(commit_valid), .commit_i(commit_packet),
-    .issue_occurred_i(issue), .execute_valid_i(execute_valid), .redirect_occurred_i(redirect),
+    .issue_event_i(issue), .execute_valid_i(execute_valid), .redirect_event_i(redirect),
     .lsu_busy_i(lsu_busy), .execute_result_blocked_i(result_blocked),
     .register_read_valid_i(rr_valid), .raw_hazard_present_i(raw_hazard),
     .serializing_hazard_present_i(serial_hazard), .icache_event_i(icache_event),

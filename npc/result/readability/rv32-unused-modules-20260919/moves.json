@@ -1,0 +1,6 @@
+{
+  "core/decode/riscv32_decode_stage.sv": "experiments/pipeline/riscv32_decode_stage.sv",
+  "core/decode/riscv32_register_read_stage.sv": "experiments/pipeline/riscv32_register_read_stage.sv",
+  "core/control/riscv32_redirect_arbiter.sv": "experiments/pipeline/riscv32_redirect_arbiter.sv",
+  "system/riscv32_axi4_error_target.sv": "experiments/interconnect/riscv32_axi4_error_target.sv"
+}

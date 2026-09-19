@@ -8,28 +8,28 @@ module riscv32_dcache_tag_array
     parameter int unsigned SET_COUNT = DCACHE_SET_COUNT,
     parameter int unsigned WAY_COUNT = DCACHE_WAY_COUNT
 ) (
-    input logic clk_i,
-    input logic rst_ni,
+    input  logic clk_i,
+    input  logic rst_ni,
 
-    input  logic                              read_enable_i,
-    input  dcache_set_index_t                 read_set_index_i,
-    output dcache_tag_t                       read_tag_array_o         [WAY_COUNT],
-    output logic              [WAY_COUNT-1:0] read_line_present_vector_o,
-    output logic              [WAY_COUNT-1:0] read_line_dirty_vector_o,
+    input  logic                 read_enable_i,
+    input  dcache_set_index_t    read_set_index_i,
+    output dcache_tag_t          read_tag_array_o         [WAY_COUNT],
+    output logic [WAY_COUNT-1:0] read_line_present_vector_o,
+    output logic [WAY_COUNT-1:0] read_line_dirty_vector_o,
 
-    input logic              metadata_write_valid_i,
-    input dcache_set_index_t metadata_write_set_index_i,
-    input dcache_way_index_t metadata_write_way_index_i,
-    input dcache_tag_t       metadata_write_tag_i,
-    input logic              metadata_write_line_present_i,
-    input logic              metadata_write_line_dirty_i
+    input  logic              metadata_write_valid_i,
+    input  dcache_set_index_t metadata_write_set_index_i,
+    input  dcache_way_index_t metadata_write_way_index_i,
+    input  dcache_tag_t       metadata_write_tag_i,
+    input  logic              metadata_write_line_present_i,
+    input  logic              metadata_write_line_dirty_i
 );
 
   dcache_tag_t tag_array_q[WAY_COUNT][SET_COUNT];
-  logic line_present_array_q[WAY_COUNT][SET_COUNT];
-  logic line_dirty_array_q[WAY_COUNT][SET_COUNT];
+  logic        line_present_array_q[WAY_COUNT][SET_COUNT];
+  logic        line_dirty_array_q[WAY_COUNT][SET_COUNT];
 
-  dcache_tag_t read_tag_array_q[WAY_COUNT];
+  dcache_tag_t          read_tag_array_q[WAY_COUNT];
   logic [WAY_COUNT-1:0] read_line_present_vector_q;
   logic [WAY_COUNT-1:0] read_line_dirty_vector_q;
 
@@ -49,14 +49,14 @@ module riscv32_dcache_tag_array
     assign read_tag_array_o[way_index] = read_tag_array_q[way_index];
   end
   assign read_line_present_vector_o = read_line_present_vector_q;
-  assign read_line_dirty_vector_o = read_line_dirty_vector_q;
+  assign read_line_dirty_vector_o   = read_line_dirty_vector_q;
 
   always_ff @(posedge clk_i) begin
     if (!rst_ni) begin
       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
         for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
           line_present_array_q[way_index][set_index] <= 1'b0;
-          line_dirty_array_q[way_index][set_index] <= 1'b0;
+          line_dirty_array_q[way_index][set_index]   <= 1'b0;
         end
       end
     end else if (metadata_write_valid_i) begin

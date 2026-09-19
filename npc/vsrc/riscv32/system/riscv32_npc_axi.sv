@@ -7,25 +7,25 @@ module riscv32_npc_axi
 #(
     parameter logic [XLEN-1:0] RESET_PC = RESET_VECTOR
 ) (
-    input logic clock,
-    input logic reset,
+    input  logic clock,
+    input  logic reset,
 
     // 外部中断尚未实现；本地定时中断由 npc_system 内的 CLINT 接入 CPU。
     /* verilator lint_off UNUSEDSIGNAL */
-    input logic io_interrupt,
+    input  logic io_interrupt,
 
     input  logic        io_master_awready,
     output logic        io_master_awvalid,
     output logic [31:0] io_master_awaddr,
-    output logic [ 3:0] io_master_awid,
-    output logic [ 7:0] io_master_awlen,
-    output logic [ 2:0] io_master_awsize,
-    output logic [ 1:0] io_master_awburst,
+    output logic [3:0]  io_master_awid,
+    output logic [7:0]  io_master_awlen,
+    output logic [2:0]  io_master_awsize,
+    output logic [1:0]  io_master_awburst,
 
     input  logic        io_master_wready,
     output logic        io_master_wvalid,
     output logic [31:0] io_master_wdata,
-    output logic [ 3:0] io_master_wstrb,
+    output logic [3:0]  io_master_wstrb,
     output logic        io_master_wlast,
 
     output logic       io_master_bready,
@@ -36,30 +36,30 @@ module riscv32_npc_axi
     input  logic        io_master_arready,
     output logic        io_master_arvalid,
     output logic [31:0] io_master_araddr,
-    output logic [ 3:0] io_master_arid,
-    output logic [ 7:0] io_master_arlen,
-    output logic [ 2:0] io_master_arsize,
-    output logic [ 1:0] io_master_arburst,
+    output logic [3:0]  io_master_arid,
+    output logic [7:0]  io_master_arlen,
+    output logic [2:0]  io_master_arsize,
+    output logic [1:0]  io_master_arburst,
 
     output logic        io_master_rready,
     input  logic        io_master_rvalid,
-    input  logic [ 1:0] io_master_rresp,
+    input  logic [1:0]  io_master_rresp,
     input  logic [31:0] io_master_rdata,
     input  logic        io_master_rlast,
-    input  logic [ 3:0] io_master_rid,
+    input  logic [3:0]  io_master_rid,
 
     output logic        io_slave_awready,
     input  logic        io_slave_awvalid,
     input  logic [31:0] io_slave_awaddr,
-    input  logic [ 3:0] io_slave_awid,
-    input  logic [ 7:0] io_slave_awlen,
-    input  logic [ 2:0] io_slave_awsize,
-    input  logic [ 1:0] io_slave_awburst,
+    input  logic [3:0]  io_slave_awid,
+    input  logic [7:0]  io_slave_awlen,
+    input  logic [2:0]  io_slave_awsize,
+    input  logic [1:0]  io_slave_awburst,
 
     output logic        io_slave_wready,
     input  logic        io_slave_wvalid,
     input  logic [31:0] io_slave_wdata,
-    input  logic [ 3:0] io_slave_wstrb,
+    input  logic [3:0]  io_slave_wstrb,
     input  logic        io_slave_wlast,
 
     input  logic       io_slave_bready,
@@ -70,24 +70,24 @@ module riscv32_npc_axi
     output logic        io_slave_arready,
     input  logic        io_slave_arvalid,
     input  logic [31:0] io_slave_araddr,
-    input  logic [ 3:0] io_slave_arid,
-    input  logic [ 7:0] io_slave_arlen,
-    input  logic [ 2:0] io_slave_arsize,
-    input  logic [ 1:0] io_slave_arburst,
+    input  logic [3:0]  io_slave_arid,
+    input  logic [7:0]  io_slave_arlen,
+    input  logic [2:0]  io_slave_arsize,
+    input  logic [1:0]  io_slave_arburst,
 
     input  logic        io_slave_rready,
     output logic        io_slave_rvalid,
-    output logic [ 1:0] io_slave_rresp,
+    output logic [1:0]  io_slave_rresp,
     output logic [31:0] io_slave_rdata,
     output logic        io_slave_rlast,
-    output logic [ 3:0] io_slave_rid
+    output logic [3:0]  io_slave_rid
     /* verilator lint_on UNUSEDSIGNAL */
 );
 
   // ysyxSoC规定的扁平AXI32端口是外部平台契约。处理器系统侧继续使用配置化memory
   // AXI；二者只在width converter中相遇，不能用隐式赋值截断64位数据。
-  axi4_manager_to_target_t processor_memory_axi4_manager;
-  axi4_target_to_manager_t processor_memory_axi4_response;
+  axi4_manager_to_target_t          processor_memory_axi4_manager;
+  axi4_target_to_manager_t          processor_memory_axi4_response;
   ysyx_soc_axi4_manager_to_target_t soc_axi4_manager;
   ysyx_soc_axi4_target_to_manager_t soc_axi4_response;
 
@@ -150,20 +150,20 @@ module riscv32_npc_axi
   riscv32_npc_system #(
       .RESET_PC(RESET_PC)
   ) u_npc_system (
-      .clk_i                  (clock),
-      .rst_ni                 (~reset),
-      .system_rst_no          (system_rst_n),
-      .external_axi4_manager_o(processor_memory_axi4_manager),
-      .external_axi4_manager_i(processor_memory_axi4_response)
+      .clk_i                   (clock),
+      .rst_ni                  (~reset),
+      .system_rst_no           (system_rst_n),
+      .external_axi4_manager_o (processor_memory_axi4_manager),
+      .external_axi4_manager_i (processor_memory_axi4_response)
   );
 
   riscv32_axi4_soc_width_converter u_soc_width_converter (
-      .clk_i               (clock),
-      .rst_ni              (system_rst_n),
-      .upstream_manager_i  (processor_memory_axi4_manager),
-      .upstream_manager_o  (processor_memory_axi4_response),
-      .downstream_manager_o(soc_axi4_manager),
-      .downstream_manager_i(soc_axi4_response)
+      .clk_i                (clock),
+      .rst_ni               (system_rst_n),
+      .upstream_manager_i   (processor_memory_axi4_manager),
+      .upstream_manager_o   (processor_memory_axi4_response),
+      .downstream_manager_o (soc_axi4_manager),
+      .downstream_manager_i (soc_axi4_response)
   );
 
 `ifdef VERILATOR
@@ -228,7 +228,7 @@ module riscv32_npc_axi
     end else begin
       npc_get_gpr_dpi =
           (index == 0) ? 64'd0 :
-          64'($unsigned(u_npc_system.u_core.u_arch_regfile.gpr_q[index]));
+          64'($unsigned(u_npc_system.u_core.u_regfile.gpr_array_q[index]));
     end
   endfunction
 

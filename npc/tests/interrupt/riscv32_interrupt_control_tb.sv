@@ -14,7 +14,7 @@ module riscv32_interrupt_control_tb;
   logic interrupt_valid;
   logic [31:0] interrupt_pc;
 
-  riscv32_interrupt_controller #(
+  riscv32_interrupt_ctrl #(
       .RESET_PC(32'h8000_0000)
   ) dut (
       .clk_i                    (clk),

@@ -14,7 +14,7 @@ module riscv32_axi4_core_merge_tb;
   axi4_manager_to_target_t downstream_manager;
   axi4_target_to_manager_t downstream_response;
 
-  riscv32_axi4_core_merge u_dut (
+  riscv32_axi4_arbiter u_dut (
       .clk_i                (clk),
       .rst_ni               (rst_ni),
       .instruction_manager_i(instruction_manager),

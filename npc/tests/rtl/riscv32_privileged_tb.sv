@@ -25,7 +25,7 @@ module riscv32_privileged_tb;
   logic       csr_write_valid;
   logic [11:0] csr_write_addr;
   xlen_data_t csr_write_data;
-  logic       retired_instruction_occurred;
+  logic       retired_instruction_event;
 
   program_counter_t mtvec;
   program_counter_t mepc;
@@ -60,7 +60,7 @@ module riscv32_privileged_tb;
       .csr_write_valid_i             (csr_write_valid),
       .csr_write_addr_i              (csr_write_addr),
       .csr_write_data_i              (csr_write_data),
-      .retired_instruction_occurred_i(retired_instruction_occurred),
+      .retired_instruction_event_i(retired_instruction_event),
       .trap_valid_i                  (trap_valid),
       .trap_pc_i                     (trap_pc),
       .trap_cause_i                  (trap_cause),
@@ -81,7 +81,7 @@ module riscv32_privileged_tb;
       .gpr_write_enable_o      (gpr_write_enable)
   );
 
-  riscv32_trap_controller u_trap_controller (
+  riscv32_trap_ctrl u_trap_ctrl (
       .interrupt_valid_i(1'b0),
       .interrupt_pc_i('0),
       .commit_i            (commit),
@@ -131,7 +131,7 @@ module riscv32_privileged_tb;
     csr_write_valid = 1'b0;
     csr_write_addr = '0;
     csr_write_data = '0;
-    retired_instruction_occurred = 1'b0;
+    retired_instruction_event = 1'b0;
     writeback_result = '0;
     writeback_result_valid = 1'b0;
 

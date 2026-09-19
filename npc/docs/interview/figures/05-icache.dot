@@ -1,0 +1,37 @@
+digraph architecture {
+  graph [fontname="Noto Sans CJK SC", fontsize=20, labelloc=t, bgcolor="white", rankdir=LR, nodesep=0.38, ranksep=0.55, pad=0.25, compound=true];
+  node [fontname="Noto Sans CJK SC", fontsize=12, shape=box, style="rounded,filled", fillcolor="#ffffff", color="#526175", penwidth=1.2, margin="0.14,0.10"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#506278", arrowsize=0.7];
+  label="05  I-cache 命中与缺失通路\n256 B · 16 组 · 1 路 · 16 B/行 · 1 个活动缺失";
+  request [label="IFU lookup\nPC / tag / epoch"];
+  response [label="返回 IFU\n指令 / 异常\ntag / epoch"];
+  subgraph cluster_icache {
+    label="riscv32_icache"; color="#9aabc0"; style=rounded;
+    pma [label="PMA\n可执行 / cacheable"];
+    reqreg [label="S1 请求身份 / 属性", fillcolor="#eaf2ff", peripheries=2];
+    tag [label="tag_array\n同步读所选 set\n24-bit tag + 有效位", fillcolor="#e8f5e9"];
+    data [label="data_array\n同步读；低电平锁存存储体\n16 × 4 × 32 bit", fillcolor="#e8f5e9"];
+    staging [label="refill 写口 staging\n上升沿寄存地址 / 数据 / 使能", fillcolor="#eaf2ff", peripheries=2];
+    hit [label="S1 tag 比较\n指令数据选择"];
+    miss [label="miss_unit\n一个请求上下文\n请求字 / 进度 / 错误", fillcolor="#eaf2ff", peripheries=2];
+    inv [label="invalidate FSM\n排空 → 逐组清有效 → 完成", fillcolor="#fff1dd", peripheries=2];
+    reqreg -> hit; tag -> hit; data -> hit;
+    hit -> miss [label="miss / uncached"];
+    miss -> staging [label="逐字 refill 写", color="#287ab0", constraint=false];
+    staging -> data [label="低电平写入", color="#287ab0", constraint=false];
+    miss -> tag [label="整行成功才有效", style=dashed, color="#b76e13", constraint=false];
+    inv -> tag [label="清有效", style=dashed, color="#b76e13"];
+  }
+  adapter [label="icache_refill_axi4_master\nIDLE → SEND_AR → RECEIVE_R\n实例位于 core 中", fillcolor="#f2edff", peripheries=2];
+  axi [label="instruction AXI\nAR / R", fillcolor="#f2edff"];
+  request -> pma;
+  pma -> reqreg [label="属性"];
+  request -> reqreg [label="握手保存"];
+  request -> tag [label="S0 set"];
+  request -> data [label="S0 set / word"];
+  hit -> response [label="hit / 本地异常"];
+  miss -> response [label="所需字提前返回\nEarly Restart"];
+  miss -> adapter [label="行读 / 单次读"];
+  adapter -> miss [label="word / last / fault"];
+  adapter -> axi [label="行：4 beat INCR\nuncached：1 beat", dir=both];
+}

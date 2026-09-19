@@ -1,62 +1,49 @@
-# RV32 完整流水线定时中断
+# RV32 定时器与精确中断
 
-本设计基于 `rv32-interview` 的 bb03677，不使用旧单周期分支的后端空闲判断。
+单 hart、M-mode 定时中断、mtvec Direct 模式。没有 MSIP、外部中断控制器或 PLIC。
 
-## 接口与范围
+## 电路结构与源码顺序
 
-单 hart、本地 CLINT、M-mode 定时中断、mtvec Direct 模式。mtime 与 mtimecmp 为 64 位，RV32 软件分两次 32 位访问；mtimecmp 复位为全 1。MTIP 为 `mtime >= mtimecmp` 的硬件电平，MIE 与 MTIE 共同决定是否受理；软件写 mip 不清除 MTIP。外部中断、软件中断和 PLIC 不在本次范围。
-
-参考：[RISC-V Machine-Level ISA](https://docs.riscv.org/reference/isa/priv/machine.html)。软件使用低半字先写全 1、高半字、最终低半字的顺序更新比较值，避免分次写入造成临时提前到期。
-
-默认核时钟为 100 MHz，mtime 每 100 个周期递增一次，对应 1 MHz；它属于平台时间基准，不是 mcycle。当前定时器与 CPU 同时钟域。
-
-| 地址 | 寄存器 |
+| 模块 | 结构与状态 |
 | --- | --- |
-| `0x02000048` / `0x0200004c` | mtime 低 / 高 32 位，保留原 uptime 地址 |
-| `0x02004000` / `0x02004004` | mtimecmp 低 / 高 32 位 |
+| `axi4_clint` | 分频计数与 mtime 更新 → mtimecmp 字节写 → AXI 输出 → 读事务 → 写事务 |
+| `interrupt_controller` | 一个架构恢复 PC；组合暂停/受理条件 → 按架构恢复或提交更新 PC |
+| `csr_file` | MIE、MPIE、MTIE 及 trap CSR；读值重建与合法性检查 → 优先处理 trap、mret、软件写 |
+| `trap_controller` | 组合选择同步异常、mret、定时中断，产生 CSR 更新及重定向 |
 
-只支持对齐的 32 位单拍寄存器访问，支持字节写使能；不支持的地址、尺寸和 burst 返回 SLVERR。读/写响应在背压期间保持不变。这里是本项目的地址映射，不宣称兼容所有平台的 CLINT 地址布局。
+CLINT 的 64 位 `mtime` 自动递增，软件写优先于该拍递增；零字节写使能不阻止计时。
+`mtimecmp` 复位为全 1，`mtime >= mtimecmp` 直接形成电平中断。MIE 与 MTIE 共同决定
+核是否受理；软件写 mip 不清除这个电平。
+
+核与 CLINT 共用输入时钟。`CLINT_CLOCK_FREQ_HZ / MTIME_INCREMENT_FREQ_HZ` 决定递增间隔，
+默认参数为 100 MHz 输入、1 MHz 递增；运行时必须让参数与所采用的核频率一致。
+默认参数不代表存在独立的 100 MHz 时钟引脚。计时口径见[测量规则](../verification/MICROBENCH_TIMING_RULES.md)。
+
+## 访问与反压
+
+RV32 用单拍 32 位访问两个半字。读 mtime 低半时保存完整快照，随后的高半读取得该快照并释放，
+避免半字读取之间溢出。软件分次更新 mtimecmp 时，先将低半写全 1，再写高半和最终低半。
+具体地址由 `riscv32_addr_map_pkg` 定义。
+
+AXI 读写各有独立状态。AW 先保存地址和访问合法性，W 按字节使能更新寄存器，最后返回 B。
+不支持的访问返回 SLVERR，非法 burst 仍消耗或返回全部 LEN+1 拍；反压期间保持响应。
+计数、比较、响应寄存与快照各自保存必要状态，不因模块拆分增加寄存级。
 
 ## 精确受理
 
-`interrupt_controller` 只保存恢复 PC 和产生暂停/受理条件，CSR 状态仍由 csr_file 管理。待处理中断阻止 register_read_stage 向 decode_execute_stage 交付新指令；已进入执行级的工作继续推进。execute_packet、execute_result、LSU、writeback 都为空，数据缓存与 FENCE.I 维护完成，且无前端重定向待应用时，才能受理。
+待处理中断阻止译码/操作数准备向 ID/EX 交付新指令，已经进入后端的工作继续完成。
+执行包、执行结果、LSU 和 WB 全部排空，D-cache 与 FENCE.I 维护结束，且没有待应用的
+前端重定向时，控制器才受理。受理还与当前提交互斥，同步异常和 mret 优先处理。
 
-恢复 PC 只按提交的 next_pc，以及提交点同步异常/mret/中断的目标更新。执行级推测纠错不能更新架构恢复 PC。同步异常和 mret 的提交拍先于中断处理；CSR 写入和 mret 后直接重新检查使能，不锁存已经撤销的请求。中断不伪造退休指令，不增加 minstret。
+恢复 PC 只由提交的 next_pc 或架构重定向更新，执行级推测纠错不能修改它。
+受理时写 mepc、mcause、mtval，保存 MPIE 并清 MIE，再重定向至 mtvec；不伪造退休指令。
+已发出的 AXI 事务继续完成，旧取指响应通过 epoch 丢弃，中断延迟因此受存储响应时间影响。
+FENCE.I 的请求保持与清理次序见[流水线说明](PIPELINE_DESIGN_RECORD.md)。
 
-受理时经 trap_controller 写入 mepc、mcause（RV32 为 0x80000007）、mtval=0，保存 MPIE 并清除 MIE，清空年轻流水项并重定向。未完成的 AXI 请求不撤销，取指返回由既有 epoch 机制丢弃。对已发出的访存，中断延迟取决于总线完成时间。
+## 验证入口
 
-## 验证计划
-
-复用并适配 CLINT/控制器单元测试、汇编自检与 AM 定时事件程序；系统测试启用本分支真实流水线和 D-cache，加入 AXI 背压及错误返回，核对提交 PC、恢复 PC、访存指令次数和退休计数。随后运行已有流水线、特权、访存和缓存回归。普通 DiffTest 尚无异步中断注入，本回归使用独立系统测试平台，不声称已验证中断差分流程。
-
-## 回归发现的 FENCE.I 边界修复
-
-加入缓存冲突和 FENCE.I 的完整系统自检后，历史实现触发了 I-cache 的 `a_lookup_request_stable_while_stalled`。原因是维护状态直接屏蔽请求 valid，撤回了已经对外可见的背压请求。当前增加一位“请求正在背压”状态及 DRAIN 阶段：保持旧请求直到握手，等待 I-cache 排空，然后清理 D-cache 并使 I-cache 失效。保留原稳定性断言，用同一系统场景复查。
-
-## 完整系统结果（2026-09-05）
-
-配置：`rv32-baseline`，I-cache 256 B/1 路/16 B 行，D-cache 256 B/2 路/16 B 行，Verilator 5.043 devel，启用 SVA。
-
-| 程序 | AXI 附加延迟 | 结果 | 中断次数 | 外部写回数据拍数 | 中断 pending 与写事务重叠周期 |
-| --- | --- | --- | --- | --- | --- |
-| 汇编自检 | 0 | 通过 | 11 | 3976 | 173 |
-| 汇编自检 | 17 | 通过 | 11 | 2008 | 391 |
-| 汇编自检 | 83 | 通过 | 11 | 448 | 635 |
-| AM C 程序 | 0 | 通过 | 5 | 4 | 0 |
-| AM C 程序 | 83 | 通过 | 5 | 4 | 0 |
-
-合计 43 次中断。三个汇编场景均执行了脏替换与 FENCE.I，并检查 pending 在访存错误等待期间出现、同步异常优先完成、mret 后重新响应。错误读人为延迟 6000 个周期，软件预留 20 个 mtime tick（2000 个核周期）才到期，避免冷 I-cache 延迟使请求在访存发出前就触发。表中写回拍数不等于 store 指令条数；测试另行核对 LSU 接受与提交的 store 指令数量，并以程序读回检查数据。
-
-复现（恢复工作目录下）：
-
-```bash
-export NPC_HOME="$PWD/npc"
-make -C npc NPC_CONFIG=rv32-baseline git_commit= test-timer-interrupt
-make -C npc NPC_CONFIG=rv32-baseline git_commit= lint-npc
-make -C npc -k -j2 NPC_CONFIG=rv32-baseline git_commit= \
-  test-privileged test-pipeline test-lsu test-dcache test-uncached test-core-merge
-```
-
-系统及单元日志保存在 `npc/build/tests/interrupt/`，汇总日志在 `npc/build/interview-audit/timer-regression.log`。已有六个模块回归通过；整核 lint 退出码为 0，仍有未使用信号/参数等告警，没有 LATCH、UNOPTFLAT、MULTIDRIVEN 或 PINMISSING 告警。此次未重测面积、频率，未运行完整 ysyxSoC/RT-Thread，也未接通异步中断 DiffTest 同步。
-
-CLINT、interrupt_controller、IFU 与真实预测器连接的三个 RTL 单元测试均通过。完整入口最终退出码为 0：5 次程序运行 + 3 个 RTL 单元测试，共 8 项。CLINT 检查比较边界、重新定时、64 位比较、字节写、W 先于 AW、R/B 背压及非法 burst；控制器检查空闲受理、排空、撤销、维护、提交互斥及架构 PC；IFU 检查背压、连续重定向和旧响应排空。
+`make -C npc git_commit= NPC_CONFIG=rv32-baseline test-timer-interrupt` 包含
+3 组汇编系统测试、2 组 AM 程序测试和 3 个 RTL 单元测试，启用反压与断言。
+普通 DiffTest 尚未注入异步中断；本测试使用独立系统平台核对恢复 PC、访存次数和退休数。
+当前结果见[可读性验证](../verification/RV32_READABILITY_2026-09-16.md)，
+[历史测量](archive/TIMER_INTERRUPT_DESIGN_RECORD_BEFORE_2026-09-16.md)仅供追溯。

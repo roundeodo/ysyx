@@ -117,7 +117,7 @@ ysyxSoC 依赖的 Rocket Chip 框架本身包含 RV64 配置能力，但这不�
 修改范围：
 
 - `common/riscv32_pkg.sv`：增加 RV64I 所需 opcode、ALU 操作和访存语义枚举；
-- `core/riscv32_idu.sv`：实现 RV64I 合法性检查、立即数扩展和控制生成；
+- `core/decode/riscv32_idu.sv`：实现 RV64I 合法性检查、立即数扩展和控制生成；
 - Controller 或遗留重复译码不得重新出现，IDU 是指令语义进入 micro-op 的唯一所有者。
 
 首批必须覆盖：
@@ -160,7 +160,7 @@ make lint-configs PROJECT=riscv32
 
 修改范围：
 
-- `core/riscv32_exu.sv`：增加所有 `*W` 运算；
+- `core/execute/riscv32_exu.sv`：增加所有 `*W` 运算；
 - 普通算术、逻辑、比较和分支继续复用 `xlen_data_t` 数据通路；
 - `*W` 运算必须显式截取低 32 位并符号扩展，不能依赖赋值截断产生隐式行为。
 
@@ -191,7 +191,7 @@ make lint-configs PROJECT=riscv32
 
 修改范围：
 
-- `core/riscv32_lsu.sv`：实现 `LWU/LD/SD`、8 字节对齐、符号扩展和 8 字节 strobe；
+- `core/memory/riscv32_lsu.sv`：实现 `LWU/LD/SD`、8 字节对齐、符号扩展和 8 字节 strobe；
 - uncached adapter：core 侧 64 位语义请求直接生成 64 位 memory AXI 事务；
 - I-cache refill adapter：使用 64 位 memory AXI beat 填充 cache line；
 - ysyxSoC system wrapper：在处理器 AXI64 与现有 ysyxSoC AXI32 插槽之间完成拆分、合并、
@@ -249,9 +249,9 @@ RV64软件镜像、64位DiffTest/DPI架构状态仍属于P3-F，不作为P3-D退
 
 修改范围：
 
-- `core/riscv32_csr_file.sv`：检查 RV64 machine CSR 的可见位宽和 WARL 行为；
+- `core/writeback/riscv32_csr_file.sv`：检查 RV64 machine CSR 的可见位宽和 WARL 行为；
 - trap controller：确保 `mepc/mcause/mtval`、异常 PC 和 redirect 目标均为 XLEN 语义；
-- `core/riscv32_pmu.sv`：RV64 直接整宽访问 64 位计数器，RV32 保持高低半访问；
+- `core/writeback/riscv32_pmu.sv`：RV64 直接整宽访问 64 位计数器，RV32 保持高低半访问；
 - commit：以架构提交事件驱动 `minstret` 和 DiffTest，不以执行完成代替退休。
 
 首版只实现运行 AM 和 DiffTest 所需的 M-mode CSR，不在 P3 顺带加入 S/U-mode。

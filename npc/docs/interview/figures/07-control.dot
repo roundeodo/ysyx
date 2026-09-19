@@ -1,0 +1,36 @@
+digraph architecture {
+  graph [fontname="Noto Sans CJK SC", fontsize=20, labelloc=t, bgcolor="white", rankdir=LR, nodesep=0.38, ranksep=0.55, pad=0.25, compound=true];
+  node [fontname="Noto Sans CJK SC", fontsize=12, shape=box, style="rounded,filled", fillcolor="#ffffff", color="#526175", penwidth=1.2, margin="0.14,0.10"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#506278", arrowsize=0.7];
+  label="07  精确控制与维护\n虚线：控制；实线：事件/状态数据；当前只接通 M-mode 定时中断";
+  clint [label="本地 CLINT\nmtime ≥ mtimecmp", fillcolor="#fff1dd", peripheries=2];
+  csr [label="CSR / PMU\nMTIP / MTIE / MIE\nmtvec / mepc / mcause\nmcycle / minstret", fillcolor="#e8f5e9"];
+  irq [label="interrupt_controller\n保存 resume PC\n停入口，等后端 / 维护排空", fillcolor="#fff1dd", peripheries=2];
+  commit [label="WB → 组合 commit\n指令异常 / mret / fence.i\n架构 next PC"];
+  trap [label="trap_controller\n异常 > mret > 定时中断", fillcolor="#fff1dd"];
+  branch [label="执行结果级输出\n真实 next PC ≠ 预测 next PC"];
+  fence [label="core 内 FENCE.I FSM\nDRAIN_FRONTEND\n→ CLEAN_DCACHE\n→ INVALIDATE_ICACHE", fillcolor="#fff1dd", peripheries=2];
+  redirect [label="frontend_redirect_register\n3 个来源分别采样\n提交恢复 > fence.i > 分支", fillcolor="#fff1dd", peripheries=2];
+  front [label="IFU / 查询流水 / fetch_buffer\n重定向与 flush\n旧取指响应接收后丢弃"];
+  hazard [label="冒险 / 入口门控\nRAW / 串行化 / LSU 忙\n恢复当拍抑制年轻执行", fillcolor="#fff1dd"];
+  caches [label="D-cache clean\nI-cache invalidate\nBTB / RAS invalidate", fillcolor="#e8f5e9"];
+  clint -> csr [label="timer_interrupt"];
+  csr -> irq [label="MTIP & MTIE & MIE"];
+  commit -> irq [label="架构后继 PC"];
+  irq -> hazard [label="停止 ID/EX 新输入", style=dashed, color="#b76e13"];
+  irq -> trap [label="安全边界受理 / resume PC"];
+  commit -> trap [label="同步异常 / mret"];
+  csr -> trap [label="mtvec / mepc"];
+  trap -> csr [label="trap / mret 更新", constraint=false];
+  trap -> irq [label="架构恢复目标", constraint=false];
+  commit -> fence [label="已提交 FENCE.I"];
+  commit -> csr [label="CSR 写 / 正常退休计数", constraint=false];
+  trap -> redirect [label="最高优先级"];
+  commit -> redirect [label="FENCE.I 后继"];
+  branch -> redirect [label="预测纠错"];
+  redirect -> front [label="下一拍恢复", style=dashed, color="#b76e13"];
+  branch -> hazard [label="当拍阻止年轻执行", style=dashed, color="#b76e13"];
+  trap -> hazard [label="当拍架构恢复", style=dashed, color="#b76e13"];
+  fence -> caches [label="先 clean 后 invalidate", style=dashed, color="#b76e13"];
+  fence -> front [label="维护期间停新访问", style=dashed, color="#b76e13"];
+}

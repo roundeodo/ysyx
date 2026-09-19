@@ -1,0 +1,51 @@
+digraph architecture {
+  graph [fontname="Noto Sans CJK SC", fontsize=20, labelloc=t, bgcolor="white", rankdir=LR, nodesep=0.38, ranksep=0.55, pad=0.25, compound=true];
+  node [fontname="Noto Sans CJK SC", fontsize=12, shape=box, style="rounded,filled", fillcolor="#ffffff", color="#526175", penwidth=1.2, margin="0.14,0.10"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#506278", arrowsize=0.7];
+  label="06  数据子系统与 D-cache\n256 B · 8 组 · 2 路 · 16 B/行 · 阻塞式 WB / WA";
+  lsu [label="LSU\nload / store 语义请求"];
+  subgraph cluster_dms {
+    label="riscv32_data_memory_subsystem"; color="#9aabc0"; style=rounded;
+    pma [label="PMA / 权限 / 路由选择"];
+    owner [label="路由状态\n保存至响应被接收", fillcolor="#eaf2ff", peripheries=2];
+    fault [label="本地 access fault"];
+    uc [label="uncached_axi4_master\n一个事务 / 单 beat\nAW / W 独立接受", fillcolor="#f2edff", peripheries=2];
+    subgraph cluster_dc {
+      label="riscv32_dcache"; color="#9aabc0"; style=rounded;
+      ingress [label="S0 请求入口"];
+      query [label="S1 请求 / 命中逻辑\n两路比较与选字", fillcolor="#eaf2ff", peripheries=2];
+      arrays [label="tag_array / data_array\n同步读；上升沿写触发器阵列\n有效 / dirty / 25-bit tag", fillcolor="#e8f5e9"];
+      bypass [label="store hit 写入\n后继读数据 / dirty 旁路"];
+      miss [label="miss_unit\n单上下文 + 4 字 victim\n写回 / refill / 安装", fillcolor="#eaf2ff", peripheries=2];
+      line [label="line_axi4_master\n独立读 / 写状态机\n4 beat INCR", fillcolor="#f2edff", peripheries=2];
+      clean [label="clean 遍历\n按组 / 路写回 dirty\n成功清 dirty，保留有效", fillcolor="#fff1dd", peripheries=2];
+      ingress -> arrays [label="S0 读地址"];
+      ingress -> query [label="握手寄存身份"];
+      arrays -> query [label="S1 数组输出"];
+      query -> bypass [label="store hit 握手"];
+      bypass -> arrays [label="字节写 / dirty"];
+      bypass -> query [label="后继读旁路", style=dashed, color="#287ab0", constraint=false];
+      query -> miss [label="miss / victim"];
+      arrays -> miss [label="采集脏行"];
+      miss -> arrays [label="refill / 安装", color="#287ab0", constraint=false];
+      clean -> miss [label="清理脏行", style=dashed, color="#b76e13"];
+      miss -> line [label="读新行 / 写旧行", dir=both];
+    }
+    response [label="按事务路由选择响应"];
+    busmux [label="data AXI 选择\nclean 时选 D-cache", fillcolor="#f2edff"];
+    pma -> ingress [label="cacheable"];
+    pma -> uc [label="uncached"];
+    pma -> fault [label="无权限 / 未映射"];
+    pma -> owner [label="握手锁定"];
+    query -> response [label="hit"];
+    miss -> response [label="整行和必要 B 成功后\n完成；否则 fault"];
+    uc -> response; fault -> response;
+    owner -> response [style=dashed, color="#b76e13"];
+    owner -> busmux [style=dashed, color="#b76e13"];
+    line -> busmux [dir=both]; uc -> busmux [dir=both];
+  }
+  axi [label="data AXI32\n→ I/D merge", fillcolor="#f2edff"];
+  lsu -> pma;
+  response -> lsu [label="数据 / fault", constraint=false];
+  busmux -> axi [dir=both];
+}
