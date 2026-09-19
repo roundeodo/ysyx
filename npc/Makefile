@@ -637,6 +637,19 @@ test-dcache-configs:
 test-core-merge: $(CORE_MERGE_TEST_BINARY)
 	$(CORE_MERGE_TEST_BINARY)
 
+# 仲裁器与路由器的跨目标同拍交接，覆盖 R/B 反压与 AW/W 分离。
+.PHONY: test-axi-handoff
+test-axi-handoff:
+	$(VERILATOR) --binary --timing --assert -Wno-fatal -j 2 \
+		$(NPC_CONFIG_DEFINE) --top-module riscv32_axi4_handoff_tb \
+		$(abspath vsrc/riscv32/common/riscv_config_pkg.sv) \
+		$(abspath vsrc/riscv32/common/riscv32_axi4_pkg.sv) \
+		$(abspath vsrc/riscv32/system/riscv32_axi4_arbiter.sv) \
+		$(abspath vsrc/riscv32/system/riscv32_axi4_router.sv) \
+		$(abspath tests/rtl/riscv32_axi4_handoff_tb.sv) \
+		--Mdir $(BUILD_DIR)/obj_dir_axi_handoff
+	$(BUILD_DIR)/obj_dir_axi_handoff/Vriscv32_axi4_handoff_tb
+
 test-core-merge-configs:
 	$(MAKE) test-core-merge PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) test-core-merge PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential

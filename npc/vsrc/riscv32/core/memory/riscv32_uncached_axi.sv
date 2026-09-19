@@ -74,28 +74,41 @@ module riscv32_uncached_axi
       (axi_manager_i.b.resp != AXI4_RESP_OKAY) &&
       (axi_manager_i.b.resp != AXI4_RESP_EXOKAY);
 
-  // 第一段：组合输出。IDLE只接收并锁存本地请求，AXI payload始终由
-  // request_context_q驱动。这里有意保留本地请求与外部AXI之间的寄存边界，切断
-  // EX -> LSU -> AXI output的跨模块组合路径。uncached/MMIO事务多一拍发出，但不会把
-  // 外部总线时序压力传播回执行级；后续接入更深流水线或更复杂互连时也无需改变接口。
-  // AXI R/B响应直接通过本地ready/valid边界交给LSU；当LSU反压时，r_ready/b_ready
-  // 同步拉低，由AXI target保持payload，不再在adapter内复制一份response寄存器。
-  // AW和W分别使用pending位，允许两个独立channel以任意先后顺序完成握手。
+  // 第一段：空闲时直接展示请求，未握手的通道在沿后由上下文继续驱动。
+  // AW/W 各自记账；响应由 target 保持，直到本地消费者接收。
   always_comb begin
     data_memory_req_ready_o  = state_q == UNCACHED_IDLE;
     data_memory_resp_o       = '0;
     data_memory_resp_valid_o = 1'b0;
     axi_manager_o            = '0;
 
+    // 地址和数据只按寄存状态选源，不用 valid 清零整份 payload。
+    // 空闲直通受阻后，沿上捕获的上下文继续驱动相同值；是否发出由下面的 valid 决定。
+    axi_manager_o.ar.addr = (state_q == UNCACHED_IDLE) ?
+        data_memory_req_i.addr : request_context_q.addr;
+    axi_manager_o.ar.id    = READ_TRANSACTION_ID;
+    axi_manager_o.ar.len   = 8'd0;
+    axi_manager_o.ar.size  = (state_q == UNCACHED_IDLE) ?
+        3'(data_memory_req_i.size) : 3'(request_context_q.size);
+    axi_manager_o.ar.burst = AXI4_BURST_INCR;
+    axi_manager_o.aw       = axi_manager_o.ar;
+    axi_manager_o.aw.id    = WRITE_TRANSACTION_ID;
+    axi_manager_o.w.data   = (state_q == UNCACHED_IDLE) ?
+        axi4_data_t'(data_memory_req_i.write_data) : axi4_data_t'(request_context_q.write_data);
+    axi_manager_o.w.strb   = (state_q == UNCACHED_IDLE) ?
+        axi4_strb_t'(data_memory_req_i.byte_strobe) : axi4_strb_t'(request_context_q.byte_strobe);
+    axi_manager_o.w.last   = 1'b1;
+
     unique case (state_q)
-      UNCACHED_IDLE: ;
+      UNCACHED_IDLE: begin
+        axi_manager_o.ar_valid = data_memory_req_valid_i &&
+            data_memory_req_i.cmd == MEM_CMD_LOAD;
+        axi_manager_o.aw_valid = data_memory_req_valid_i &&
+            data_memory_req_i.cmd != MEM_CMD_LOAD;
+        axi_manager_o.w_valid = axi_manager_o.aw_valid;
+      end
 
       UNCACHED_SEND_READ_ADDRESS: begin
-        axi_manager_o.ar.addr  = request_context_q.addr;
-        axi_manager_o.ar.id    = READ_TRANSACTION_ID;
-        axi_manager_o.ar.len   = 8'd0;
-        axi_manager_o.ar.size  = 3'(request_context_q.size);
-        axi_manager_o.ar.burst = AXI4_BURST_INCR;
         axi_manager_o.ar_valid = 1'b1;
       end
 
@@ -108,16 +121,7 @@ module riscv32_uncached_axi
       end
 
       UNCACHED_SEND_WRITE_ADDRESS_DATA: begin
-        axi_manager_o.aw.addr  = request_context_q.addr;
-        axi_manager_o.aw.id    = WRITE_TRANSACTION_ID;
-        axi_manager_o.aw.len   = 8'd0;
-        axi_manager_o.aw.size  = 3'(request_context_q.size);
-        axi_manager_o.aw.burst = AXI4_BURST_INCR;
         axi_manager_o.aw_valid = write_address_pending_q;
-
-        axi_manager_o.w.data  = axi4_data_t'(request_context_q.write_data);
-        axi_manager_o.w.strb  = axi4_strb_t'(request_context_q.byte_strobe);
-        axi_manager_o.w.last  = 1'b1;
         axi_manager_o.w_valid = write_data_pending_q;
       end
 
@@ -149,11 +153,13 @@ module riscv32_uncached_axi
           request_context_d.byte_strobe    = data_memory_req_i.byte_strobe;
           request_context_d.transaction_id = data_memory_req_i.transaction_id;
           if (data_memory_req_i.cmd == MEM_CMD_LOAD) begin
-            state_d = UNCACHED_SEND_READ_ADDRESS;
+            state_d = axi_read_address_handshake ?
+                UNCACHED_RECEIVE_READ_DATA : UNCACHED_SEND_READ_ADDRESS;
           end else begin
-            write_address_pending_d = 1'b1;
-            write_data_pending_d    = 1'b1;
-            state_d                 = UNCACHED_SEND_WRITE_ADDRESS_DATA;
+            write_address_pending_d = !axi_write_address_handshake;
+            write_data_pending_d    = !axi_write_data_handshake;
+            state_d = (axi_write_address_handshake && axi_write_data_handshake) ?
+                UNCACHED_RECEIVE_WRITE_RESPONSE : UNCACHED_SEND_WRITE_ADDRESS_DATA;
           end
         end
       end

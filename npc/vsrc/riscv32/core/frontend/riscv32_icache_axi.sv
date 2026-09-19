@@ -49,6 +49,11 @@ module riscv32_icache_axi
   axi4_addr_t current_word_addr_q;
   axi4_addr_t current_word_addr_d;
   int unsigned current_word_bit_offset;
+  axi4_addr_t request_word_addr;
+
+  assign request_word_addr = refill_req_i.line_base_addr +
+      ((refill_req_i.requested_word_count == icache_refill_word_count_t'(1)) ?
+       MEM_AXI_ADDR_WIDTH'(refill_req_i.critical_word_index * ICACHE_FETCH_BYTES) : '0);
 
   logic refill_req_handshake;
   logic axi_read_address_handshake;
@@ -77,13 +82,16 @@ module riscv32_icache_axi
     axi_manager_o       = '0;
 
     unique case (state_q)
-      REFILL_SEND_READ_ADDRESS: begin
-        axi_manager_o.ar.addr  = current_word_addr_q;
+      REFILL_IDLE, REFILL_SEND_READ_ADDRESS: begin
+        // 空闲时直接呈现输入；若 AR 被反压，握手沿保存地址并转入 SEND。
+        axi_manager_o.ar.addr  = (state_q == REFILL_IDLE) ? request_word_addr : current_word_addr_q;
         axi_manager_o.ar.id    = READ_TRANSACTION_ID;
-        axi_manager_o.ar.len   = 8'(refill_transaction_context_q.requested_word_count - 1'b1);
+        axi_manager_o.ar.len   = 8'(((state_q == REFILL_IDLE) ?
+            refill_req_i.requested_word_count :
+            refill_transaction_context_q.requested_word_count) - 1'b1);
         axi_manager_o.ar.size  = 3'($clog2(ICACHE_FETCH_BYTES));
         axi_manager_o.ar.burst = AXI4_BURST_INCR;
-        axi_manager_o.ar_valid = 1'b1;
+        axi_manager_o.ar_valid = (state_q == REFILL_SEND_READ_ADDRESS) || refill_req_valid_i;
       end
 
       REFILL_RECEIVE_READ_DATA: begin
@@ -122,7 +130,8 @@ module riscv32_icache_axi
             received_word_index_d = '0;
             current_word_addr_d   = refill_req_i.line_base_addr;
           end
-          state_d = REFILL_SEND_READ_ADDRESS;
+          state_d = axi_read_address_handshake ?
+              REFILL_RECEIVE_READ_DATA : REFILL_SEND_READ_ADDRESS;
         end
       end
 

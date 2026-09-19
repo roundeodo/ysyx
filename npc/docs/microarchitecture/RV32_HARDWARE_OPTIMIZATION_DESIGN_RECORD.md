@@ -1,5 +1,8 @@
 # RV32 面积与 MicroBench train 优化实验
 
+本文保留 2026-09-06 的历史实验与 CSR 计分口径，不描述当前 RTL 或计时方法。
+当前实现和无 CSR 插桩的测量见[周期优化验证](../verification/RV32_CYCLE_OPT_2026-09-19.md)。
+
 本轮保持 rv32-baseline 的 ISA、缓存和预测器容量、SoC、工具与负载不变。
 先保存当前源码，再建立可重复基线；一次修改一个硬件因素。计分依据是程序输出的
 mcycle/minstret 差值。整个仿真的 IPC 不能代替计分窗口 IPC。

@@ -56,6 +56,8 @@ module riscv32_dcache_miss_unit
     input  logic                refill_resp_valid_i,
     output logic                refill_resp_ready_o,
 
+    // 行数据独立于请求 payload，保持到 writeback response 握手。
+    output dcache_line_data_t      writeback_line_data_o,
     output dcache_writeback_req_t  writeback_req_o,
     output logic                   writeback_req_valid_o,
     input  logic                   writeback_req_ready_i,
@@ -70,7 +72,6 @@ module riscv32_dcache_miss_unit
     MISS_CAPTURE_VICTIM_WORD,
     MISS_SEND_WRITEBACK,
     MISS_WAIT_WRITEBACK_RESPONSE,
-    MISS_INVALIDATE_VICTIM,
     MISS_SEND_REFILL,
     MISS_RECEIVE_REFILL,
     MISS_INSTALL_LINE,
@@ -189,7 +190,7 @@ module riscv32_dcache_miss_unit
 
     writeback_req_o                = '0;
     writeback_req_o.line_base_addr = victim_line_base_addr;
-    writeback_req_o.line_data      = victim_line_data_q;
+    writeback_line_data_o          = victim_line_data_q;
     writeback_req_o.transaction_id = clean_operation_q ? '0 :
         miss_context_q.memory_req.transaction_id;
     writeback_req_valid_o = 1'b0;
@@ -214,12 +215,10 @@ module riscv32_dcache_miss_unit
         writeback_req_valid_o = 1'b1;
       end
 
-      MISS_INVALIDATE_VICTIM: begin
+      MISS_SEND_REFILL: begin
+        // 请求等待期间可重复写 invalid；在任一 refill beat 到达前完成失效。
         metadata_write_valid_o        = 1'b1;
         metadata_write_line_present_o = 1'b0;
-      end
-
-      MISS_SEND_REFILL: begin
         refill_req_valid_o = 1'b1;
       end
 
@@ -236,6 +235,9 @@ module riscv32_dcache_miss_unit
         metadata_write_line_present_o = 1'b1;
         metadata_write_line_dirty_o   = miss_context_q.memory_req.cmd == MEM_CMD_STORE;
         line_install_event_o          = 1'b1;
+        miss_resp_o.read_data          = requested_word_data_q;
+        miss_resp_o.transaction_id     = miss_context_q.memory_req.transaction_id;
+        miss_resp_valid_o              = 1'b1;
       end
 
       MISS_RETURN_RESPONSE: begin
@@ -250,6 +252,7 @@ module riscv32_dcache_miss_unit
         metadata_write_tag_o          = victim_tag_q;
         metadata_write_line_present_o = 1'b1;
         metadata_write_line_dirty_o   = 1'b0;
+        clean_done_o                  = 1'b1;
       end
 
       MISS_COMPLETE_CLEAN: begin
@@ -307,7 +310,7 @@ module riscv32_dcache_miss_unit
           active_way_index_d = miss_req_i.replacement_way_index;
           victim_tag_d       = miss_req_i.victim_tag;
           state_d            = (miss_req_i.victim_present && miss_req_i.victim_dirty) ?
-                    MISS_READ_VICTIM_WORD : MISS_INVALIDATE_VICTIM;
+                    MISS_READ_VICTIM_WORD : MISS_SEND_REFILL;
         end
       end
 
@@ -331,7 +334,7 @@ module riscv32_dcache_miss_unit
           writeback_response_pending_d = 1'b1;
           // clean必须等B响应后才能清dirty；普通miss可立即使用独立AR/R通道refill。
           state_d = clean_operation_q ? MISS_WAIT_WRITEBACK_RESPONSE :
-              MISS_INVALIDATE_VICTIM;
+              MISS_SEND_REFILL;
         end
       end
 
@@ -349,10 +352,6 @@ module riscv32_dcache_miss_unit
                 MISS_INSTALL_LINE;
           end
         end
-      end
-
-      MISS_INVALIDATE_VICTIM: begin
-        state_d = MISS_SEND_REFILL;
       end
 
       MISS_SEND_REFILL: begin
@@ -379,7 +378,7 @@ module riscv32_dcache_miss_unit
       end
 
       MISS_INSTALL_LINE: begin
-        state_d = MISS_RETURN_RESPONSE;
+        state_d = miss_resp_ready_i ? MISS_IDLE : MISS_RETURN_RESPONSE;
       end
 
       MISS_RETURN_RESPONSE: begin
@@ -388,7 +387,7 @@ module riscv32_dcache_miss_unit
       end
 
       MISS_UPDATE_CLEAN_METADATA: begin
-        state_d = MISS_COMPLETE_CLEAN;
+        state_d = MISS_IDLE;
       end
 
       MISS_COMPLETE_CLEAN: begin

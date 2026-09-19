@@ -32,6 +32,9 @@ module riscv32_axi4_clint
   } clint_register_e;
   clint_register_e write_register_index_q;
   clint_register_e write_register_index_d;
+  clint_register_e active_write_register;
+  clint_register_e request_write_register;
+  logic request_write_supported;
 
   assign timer_interrupt_o = (mtime_q >= mtimecmp_q);
 
@@ -69,7 +72,7 @@ module riscv32_axi4_clint
     end
     // 软件写优先于自动计数；零 WSTRB 不阻止计时。
     if (register_write_valid && (|axi_target_i.w.strb)) begin
-      case (write_register_index_q)
+      case (active_write_register)
         MTIME_LOW_REGISTER:
           mtime_d = {
           mtime_q[63:32], merge_write_bytes(mtime_q[31:0], axi_target_i.w.data, axi_target_i.w.strb)
@@ -98,7 +101,7 @@ module riscv32_axi4_clint
     if (!rst_ni) begin
       mtimecmp_q <= '1;
     end else if (register_write_valid) begin
-      case (write_register_index_q)
+      case (active_write_register)
         MTIMECMP_LOW_REGISTER:
           mtimecmp_q[31:0] <= merge_write_bytes(
             mtimecmp_q[31:0], axi_target_i.w.data, axi_target_i.w.strb
@@ -169,7 +172,8 @@ module riscv32_axi4_clint
     axi_target_o.r        = read_response_q;
     axi_target_o.r_valid  = (read_state_q == READ_RETURN_DATA);
     axi_target_o.aw_ready = (write_state_q == WRITE_ACCEPT_ADDRESS);
-    axi_target_o.w_ready  = (write_state_q == WRITE_RECEIVE_DATA);
+    axi_target_o.w_ready  = (write_state_q == WRITE_RECEIVE_DATA) ||
+        ((write_state_q == WRITE_ACCEPT_ADDRESS) && axi_target_i.aw_valid);
     axi_target_o.b        = write_response_q;
     axi_target_o.b_valid  = (write_state_q == WRITE_RETURN_RESPONSE);
   end
@@ -271,6 +275,23 @@ module riscv32_axi4_clint
     end
   end
 
+  // AW/W 同拍到达时直接使用当前地址；分开到达时使用已保存的寄存器选择。
+  always_comb begin
+    request_write_register = MTIME_LOW_REGISTER;
+    request_write_supported = (axi_target_i.aw.len == 0) &&
+        (axi_target_i.aw.size == 3'd2) &&
+        (axi_target_i.aw.burst inside {AXI4_BURST_FIXED, AXI4_BURST_INCR});
+    unique case (axi_target_i.aw.addr)
+      CLINT_MTIME_LOW_ADDR:     request_write_register = MTIME_LOW_REGISTER;
+      CLINT_MTIME_HIGH_ADDR:    request_write_register = MTIME_HIGH_REGISTER;
+      CLINT_MTIMECMP_LOW_ADDR:  request_write_register = MTIMECMP_LOW_REGISTER;
+      CLINT_MTIMECMP_HIGH_ADDR: request_write_register = MTIMECMP_HIGH_REGISTER;
+      default: request_write_supported = 1'b0;
+    endcase
+  end
+  assign active_write_register = (write_state_q == WRITE_ACCEPT_ADDRESS) ?
+      request_write_register : write_register_index_q;
+
   always_comb begin
     write_state_d             = write_state_q;
     write_response_d          = write_response_q;
@@ -285,16 +306,17 @@ module riscv32_axi4_clint
           write_response_d.resp     = AXI4_RESP_SLVERR;
           write_state_d             = WRITE_RECEIVE_DATA;
           write_beats_remaining_d   = axi_target_i.aw.len;
-          write_request_supported_d = (axi_target_i.aw.len == 0) &&
-              (axi_target_i.aw.size == 3'd2) &&
-              (axi_target_i.aw.burst inside {AXI4_BURST_FIXED, AXI4_BURST_INCR});
-          unique case (axi_target_i.aw.addr)
-            CLINT_MTIME_LOW_ADDR:     write_register_index_d = MTIME_LOW_REGISTER;
-            CLINT_MTIME_HIGH_ADDR:    write_register_index_d = MTIME_HIGH_REGISTER;
-            CLINT_MTIMECMP_LOW_ADDR:  write_register_index_d = MTIMECMP_LOW_REGISTER;
-            CLINT_MTIMECMP_HIGH_ADDR: write_register_index_d = MTIMECMP_HIGH_REGISTER;
-            default:                  write_request_supported_d = 1'b0;
-          endcase
+          write_request_supported_d = request_write_supported;
+          write_register_index_d = request_write_register;
+          if (write_data_handshake) begin
+            if (axi_target_i.aw.len == 0) begin
+              write_state_d = WRITE_RETURN_RESPONSE;
+              if (request_write_supported && axi_target_i.w.last)
+                write_response_d.resp = AXI4_RESP_OKAY;
+            end else begin
+              write_beats_remaining_d = axi_target_i.aw.len - 1'b1;
+            end
+          end
         end
       end
 
@@ -336,8 +358,9 @@ module riscv32_axi4_clint
     end
   end
 
-  assign register_write_valid = write_data_handshake && write_request_supported_q &&
-      axi_target_i.w.last;
+  assign register_write_valid = write_data_handshake && axi_target_i.w.last &&
+      ((write_state_q == WRITE_ACCEPT_ADDRESS) ?
+       request_write_supported : write_request_supported_q);
 
 `ifndef SYNTHESIS
   initial begin

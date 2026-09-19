@@ -12,7 +12,7 @@ module riscv32_ifu
     input logic          redirect_req_valid_i,
 
     // IFU顺序产生预测请求；预测器用一级寄存响应切断PC自反馈关键路径。非跳转响应被
-    // 消费时同拍发出下一顺序PC，taken响应则取消该拍PC+4请求并从目标PC重新开始。
+    // 消费时同拍查询下一 PC：顺序时 PC+4，taken 时直接使用响应目标。
     output program_counter_t   next_pc_predictor_lookup_request_pc_o,
     output fetch_epoch_t       next_pc_predictor_lookup_request_epoch_o,
     output logic               next_pc_predictor_lookup_request_valid_o,
@@ -50,7 +50,8 @@ module riscv32_ifu
   logic lookup_queue_enqueue_event;
 
   assign lookup_queue_enqueue_ready =
-      lookup_queue_entry_count_q < lookup_queue_count_t'(LOOKUP_QUEUE_ENTRY_COUNT);
+      (lookup_queue_entry_count_q < lookup_queue_count_t'(LOOKUP_QUEUE_ENTRY_COUNT)) ||
+      icache_lookup_req_ready_i;
 
   // 1. PC 与预测查询：顺序请求每拍前进，taken 或 redirect 更新下一查询地址。
   program_counter_t predictor_fetch_pc_q, predictor_fetch_pc_d;
@@ -61,6 +62,7 @@ module riscv32_ifu
   logic             predictor_lookup_response_handshake;
   logic             predictor_lookup_response_is_current;
   logic             predictor_taken_response_event;
+  logic             predictor_taken_response_present;
   program_counter_t predicted_next_pc;
 
   assign lookup_queue_enqueue_event =
@@ -73,23 +75,24 @@ module riscv32_ifu
       next_pc_predictor_prediction_i.predicted_target :
       next_pc_predictor_lookup_response_pc_i + program_counter_t'(INSTRUCTION_BYTES);
 
-  // redirect禁止本拍预测握手，并在时钟沿把fetch PC切到新epoch目标。正常流中，预测
-  // ready只取决于窄请求队列空间，不再依赖I-cache、fetch buffer或后端ready。
-  // taken响应被接收时，禁止同拍发出顺序PC请求，并清除预测响应有效位。
-  // 本沿更新PC，下一拍从预测目标重新开始查询。
-  assign next_pc_predictor_flush_o                 = redirect_req_valid_i || predictor_taken_response_event;
+  // redirect 取消预测流水；taken 响应直接选择本拍的新查询地址。
+  assign next_pc_predictor_flush_o                 = redirect_req_valid_i;
   assign next_pc_predictor_lookup_response_ready_o =
       !redirect_req_valid_i &&
       (!predictor_lookup_response_is_current || lookup_queue_enqueue_ready);
-  assign next_pc_predictor_lookup_request_pc_o    = predictor_fetch_pc_q;
+  assign predictor_taken_response_present =
+      next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
+      next_pc_predictor_prediction_i.predicted_taken;
+  // 数据选择不等待 ready，握手仅决定何时保存已算出的地址。
+  assign next_pc_predictor_lookup_request_pc_o = predictor_taken_response_present ?
+      predicted_next_pc : predictor_fetch_pc_q;
   assign next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q;
   assign predictor_taken_response_event        =
       predictor_lookup_response_handshake &&
       predictor_lookup_response_is_current &&
       next_pc_predictor_prediction_i.predicted_taken;
   assign next_pc_predictor_lookup_request_valid_o =
-      lookup_queue_enqueue_ready && !redirect_req_valid_i &&
-      !predictor_taken_response_event;
+      lookup_queue_enqueue_ready && !redirect_req_valid_i;
 
   assign predictor_lookup_request_handshake =
       next_pc_predictor_lookup_request_valid_o &&
@@ -106,13 +109,12 @@ module riscv32_ifu
     if (redirect_req_valid_i) begin
       current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
       predictor_fetch_pc_d  = redirect_req_i.target_pc;
-    end else if (predictor_taken_response_event) begin
-      // taken响应到达时，本拍没有接受顺序PC+4请求，所以下一拍可直接查询目标PC。
-      predictor_fetch_pc_d = predicted_next_pc;
     end else if (predictor_lookup_request_handshake) begin
-      // 预测查询流水化后，请求被接收时先按顺序路径前推；若该请求随后预测taken，
-      // 上面的高优先级分支会在响应拍改写为目标PC。
-      predictor_fetch_pc_d = predictor_fetch_pc_q + program_counter_t'(INSTRUCTION_BYTES);
+      predictor_fetch_pc_d = predictor_taken_response_present ?
+          (predicted_next_pc + program_counter_t'(INSTRUCTION_BYTES)) :
+          (predictor_fetch_pc_q + program_counter_t'(INSTRUCTION_BYTES));
+    end else if (predictor_taken_response_event) begin
+      predictor_fetch_pc_d = predicted_next_pc;
     end
 
     if (lookup_queue_enqueue_event) begin
@@ -147,8 +149,12 @@ module riscv32_ifu
   logic icache_lookup_request_handshake;
 
   always_comb begin
-    lookup_queue_front_request    = '0;
-    lookup_queue_front_prediction = '0;
+    // 空队列直接展示预测响应，反压时在本沿保存，随后由队首保持。
+    lookup_queue_front_request = '0;
+    lookup_queue_front_request.fetch_addr = phys_addr_t'(next_pc_predictor_lookup_response_pc_i);
+    lookup_queue_front_request.frontend_tag = next_frontend_tag_q;
+    lookup_queue_front_request.fetch_epoch = next_pc_predictor_lookup_response_epoch_i;
+    lookup_queue_front_prediction = next_pc_predictor_prediction_i;
     if (lookup_queue_entry_count_q != '0) begin
       lookup_queue_front_request    = lookup_queue_request_array_q[lookup_queue_read_index_q];
       lookup_queue_front_prediction = lookup_queue_prediction_array_q[lookup_queue_read_index_q];
@@ -158,7 +164,9 @@ module riscv32_ifu
   assign icache_lookup_req_o = lookup_queue_front_request;
   // 一旦请求已经呈现在ready/valid通道上，即使redirect到来，也不能撤销valid。
   // 旧epoch请求可以继续握手，返回时按epoch丢弃；这比破坏协议稳定性更可控。
-  assign icache_lookup_req_valid_o       = lookup_queue_entry_count_q != '0;
+  assign icache_lookup_req_valid_o = (lookup_queue_entry_count_q != '0) ||
+      (next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
+       !redirect_req_valid_i);
   assign icache_lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
 
   assign lookup_queue_dequeue_event = icache_lookup_request_handshake;
@@ -209,7 +217,8 @@ module riscv32_ifu
       lookup_queue_read_index_q  <= lookup_queue_read_index_d;
       lookup_queue_write_index_q <= lookup_queue_write_index_d;
       lookup_queue_entry_count_q <= lookup_queue_entry_count_d;
-      if (lookup_queue_enqueue_event) begin
+      if (lookup_queue_enqueue_event &&
+          !((lookup_queue_entry_count_q == '0) && lookup_queue_dequeue_event)) begin
         lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_addr <=
             phys_addr_t'(next_pc_predictor_lookup_response_pc_i);
         lookup_queue_request_array_q[lookup_queue_write_index_q].frontend_tag <=
@@ -222,10 +231,9 @@ module riscv32_ifu
     end
   end
 
-  // 3. 返回配对与交付：按tag取预测，按epoch丢弃旧指令；预测表在请求握手时写入。
-  // 每个被I-cache接收的frontend tag对应一份预测信息；响应返回相同tag，
-  // IFU据此取出该指令的预测结果，不要求预测响应与I-cache响应同拍到达。
-  branch_prediction_t prediction_by_frontend_tag_array_q[FRONTEND_TAG_COUNT];
+  // 3. 阻塞 I-cache 至多有一个已接受且未响应的 lookup。
+  // 同沿旧响应/新请求交接时，旧响应读取旧预测，沿后保存新预测；redirect 不清上下文。
+  branch_prediction_t pending_prediction_q;
 
   logic icache_lookup_response_handshake;
   logic icache_lookup_response_is_current;
@@ -240,7 +248,7 @@ module riscv32_ifu
     fetch_entry_o.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
     fetch_entry_o.instruction     = icache_lookup_resp_i.fetch_data;
     fetch_entry_o.frontend_tag    = icache_lookup_resp_i.frontend_tag;
-    fetch_entry_o.prediction      = prediction_by_frontend_tag_array_q[icache_lookup_resp_i.frontend_tag];
+    fetch_entry_o.prediction      = pending_prediction_q;
     fetch_entry_o.exception_valid = icache_lookup_resp_i.access_fault;
     fetch_entry_o.exception_cause = EXC_INSTR_ACCESS_FAULT;
     fetch_entry_o.exception_tval  = xlen_data_t'(icache_lookup_resp_i.fetch_addr);
@@ -253,10 +261,10 @@ module riscv32_ifu
         1'b1 : fetch_entry_ready_i;
   end
 
-  // 请求被I-cache接收时保存预测载荷，供上方响应路径按tag读取。
+  // 只在请求被 I-cache 接收时替换这份预测上下文。
   always_ff @(posedge clk_i) begin
     if (icache_lookup_request_handshake)
-      prediction_by_frontend_tag_array_q[lookup_queue_front_request.frontend_tag] <=
+      pending_prediction_q <=
           lookup_queue_front_prediction;
   end
 
@@ -264,6 +272,11 @@ module riscv32_ifu
   // 以下存在位和 epoch 副本只用于验证 tag 生命周期，不属于芯片功能状态。
   fetch_epoch_t                  prediction_epoch_by_frontend_tag_array_q[FRONTEND_TAG_COUNT];
   logic [FRONTEND_TAG_COUNT-1:0] prediction_present_vector_q;
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    icache_lookup_request_handshake |->
+      ((prediction_present_vector_q == '0) || icache_lookup_response_handshake))
+  else $error("Blocking I-cache accepted a second outstanding lookup");
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -286,10 +299,11 @@ module riscv32_ifu
     |-> predictor_lookup_request_handshake)
   else $error("IFU inserted a bubble after a current non-taken prediction");
 
-  a_taken_predictor_response_blocks_wrong_sequential_request :
+  a_taken_response_queries_target :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    predictor_taken_response_event |-> !predictor_lookup_request_handshake)
-  else $error("IFU launched a sequential request while accepting a taken prediction");
+    predictor_taken_response_event |->
+      (next_pc_predictor_lookup_request_pc_o == predicted_next_pc))
+  else $error("IFU failed to query the taken prediction target");
 
   a_predictor_request_stable_while_stalled :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

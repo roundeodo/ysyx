@@ -298,9 +298,11 @@ module riscv32_core
   logic              execute_serializing_instruction_present;
   logic              rs1_execute_forwarding_selected;
   logic              rs1_execute_result_forwarding_selected;
+  logic              rs1_lsu_forwarding_selected;
   logic              rs1_writeback_forwarding_selected;
   logic              rs2_execute_forwarding_selected;
   logic              rs2_execute_result_forwarding_selected;
+  logic              rs2_lsu_forwarding_selected;
   logic              rs2_writeback_forwarding_selected;
 
   assign execute_result_forwarding_available = resolved_execute_result_valid &&
@@ -359,9 +361,11 @@ module riscv32_core
       .structural_hazard_present_o              (structural_hazard_present),
       .rs1_execute_forwarding_selected_o        (rs1_execute_forwarding_selected),
       .rs1_execute_result_forwarding_selected_o (rs1_execute_result_forwarding_selected),
+      .rs1_lsu_forwarding_selected_o            (rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o      (rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o        (rs2_execute_forwarding_selected),
       .rs2_execute_result_forwarding_selected_o (rs2_execute_result_forwarding_selected),
+      .rs2_lsu_forwarding_selected_o            (rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o      (rs2_writeback_forwarding_selected)
   );
 
@@ -376,12 +380,15 @@ module riscv32_core
       .csr_read_illegal_i                       (csr_read_illegal),
       .execute_forwarding_value_i               (exu_result.result),
       .execute_result_forwarding_value_i        (resolved_execute_result.result),
+      .lsu_forwarding_value_i                   (lsu_writeback.result),
       .writeback_forwarding_value_i             (writeback_result.result),
       .rs1_execute_forwarding_selected_i        (rs1_execute_forwarding_selected),
       .rs1_execute_result_forwarding_selected_i (rs1_execute_result_forwarding_selected),
+      .rs1_lsu_forwarding_selected_i            (rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_i      (rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_i        (rs2_execute_forwarding_selected),
       .rs2_execute_result_forwarding_selected_i (rs2_execute_result_forwarding_selected),
+      .rs2_lsu_forwarding_selected_i            (rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_i      (rs2_writeback_forwarding_selected),
       .decoded_execute_packet_o                 (decoded_execute_packet)
   );
@@ -588,7 +595,7 @@ module riscv32_core
           execute_packet_valid || resolved_execute_result_valid ||
           lsu_transaction_active || writeback_result_valid
       ),
-      .maintenance_busy_i (fence_i_maintenance_active || dcache_busy || selected_redirect_req_valid),
+      .maintenance_busy_i (fence_i_maintenance_active || dcache_busy),
       .commit_valid_i     (commit_valid),
       .commit_i           (commit),
       .redirect_valid_i   (commit_redirect_resolution_event),
@@ -621,9 +628,7 @@ module riscv32_core
       resolved_execute_result_valid && resolved_execute_result_ready &&
       resolved_execute_result.redirect_valid;
 
-  // 各来源的请求数据直接进入自己的采样寄存器；优先级逻辑只选择来源索引。
-  // commit位于最高下标，因此同拍发生多个请求时，精确异常或mret优先于fence.i和
-  // 推测执行恢复。交给IFU和流水线flush的valid直接来自统一恢复边界的触发器。
+  // 提交恢复优先于 FENCE.I，再优先于分支修正；同拍直接送达前端与 flush。
   redirect_req_t                    redirect_req_at_resolution_array[REDIRECT_SOURCE_COUNT];
   logic [REDIRECT_SOURCE_COUNT-1:0] redirect_req_at_resolution_valid_vector;
 
@@ -640,21 +645,19 @@ module riscv32_core
   assign redirect_req_at_resolution_valid_vector[COMMIT_REDIRECT_INDEX] =
       commit_redirect_resolution_event;
 
-  riscv32_redirect_stage #(
+  riscv32_redirect_mux #(
       .SOURCE_COUNT                   (REDIRECT_SOURCE_COUNT)
-  ) u_redirect_stage (
-      .clk_i                           (clk_i),
-      .rst_ni                          (rst_ni),
+  ) u_redirect_mux (
       .redirect_req_i                  (redirect_req_at_resolution_array),
       .redirect_req_valid_i            (redirect_req_at_resolution_valid_vector),
-      .registered_redirect_req_o       (selected_redirect_req),
-      .registered_redirect_req_valid_o (selected_redirect_req_valid)
+      .redirect_req_o                  (selected_redirect_req),
+      .redirect_req_valid_o            (selected_redirect_req_valid)
   );
 
   // trap/mret必须在提交边界立即清除更年轻的后端工作。FENCE.I已经被IDU标记为
   // serializing：它只有在所有老指令排空后才能进入，且在自己提交前不会接收年轻指令，
   // 因此提交拍不需要再通过通用commit flush组合地kill LSU。FENCE.I的前端恢复仍经过
-  // u_redirect_stage，并与D-cache clean、I-cache invalidate维护状态机协同。
+  // u_redirect_mux，并与D-cache clean、I-cache invalidate维护状态机协同。
   // 将两类事件分开也避免commit -> LSU -> D-cache array的跨模块关键路径。
   assign commit_redirect_event   = commit_redirect_resolution_event;
   assign frontend_recovery_event = selected_redirect_req_valid;
@@ -721,8 +724,8 @@ module riscv32_core
       .pipeline_control_flush_event_i           (frontend_recovery_event),
       .pipeline_execute_instruction_discarded_i (commit_redirect_event && execute_packet_valid),
       .fetch_taken_prediction_event_i           (fetch_taken_prediction_event),
-      // 性能分类必须在EX结果有效的原始拍采样op；registered redirect晚一拍，
-      // 若用它与当前exu_result配对，会把纠错归到下一条无关指令。
+      // 纠错事件和控制流字段必须来自同一条 EX 结果，
+      // 不能与当前 EXU 中下一条指令的字段配对。
       .execute_misprediction_redirect_event_i (execute_redirect_resolution_event),
       .control_flow_resolution_event_i        (
           resolved_execute_result_valid && resolved_execute_result_ready &&

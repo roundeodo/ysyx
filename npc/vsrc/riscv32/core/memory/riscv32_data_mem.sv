@@ -146,24 +146,42 @@ module riscv32_data_mem
       selected_data_request_ready;
   assign selected_request_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
 
-  // clean写回在没有LSU事务时也会使用D-cache AXI端口，因此不能只按route_state选择。
-  // 普通事务只使用请求握手后锁存的route_state选择AXI来源。D-cache首拍仅启动array
-  // lookup，uncached adapter首拍仅锁存请求，两者都不会在IDLE首拍发出有效AXI请求；
-  // 因此不能用当前请求的PMA结果组合选择AXI输出，否则会重新形成EX -> LSU -> PMA ->
-  // data AXI output的长路径。
-  always_comb begin
-    axi_manager_o         = '0;
-    dcache_axi_response   = '0;
-    uncached_axi_response = '0;
+  // 请求与响应分别选路：交接拍的新 uncached 请求不改变旧响应的归属。
+  logic dcache_request_selected;
+  logic dcache_response_selected;
+  assign dcache_response_selected = dcache_clean_req_i || route_state_q == DATA_ROUTE_DCACHE;
+  assign dcache_request_selected = dcache_response_selected && !uncached_req_valid;
 
-    if (dcache_clean_req_i || route_state_q == DATA_ROUTE_DCACHE) begin
-      axi_manager_o       = dcache_axi_manager;
-      dcache_axi_response = axi_manager_i;
-    end else begin
-      axi_manager_o         = uncached_axi_manager;
-      uncached_axi_response = axi_manager_i;
-    end
-  end
+  assign axi_manager_o.ar = dcache_request_selected ?
+      dcache_axi_manager.ar : uncached_axi_manager.ar;
+  assign axi_manager_o.ar_valid = dcache_request_selected ?
+      dcache_axi_manager.ar_valid : uncached_axi_manager.ar_valid;
+  assign axi_manager_o.aw = dcache_request_selected ?
+      dcache_axi_manager.aw : uncached_axi_manager.aw;
+  assign axi_manager_o.aw_valid = dcache_request_selected ?
+      dcache_axi_manager.aw_valid : uncached_axi_manager.aw_valid;
+  assign axi_manager_o.w = dcache_request_selected ? dcache_axi_manager.w : uncached_axi_manager.w;
+  assign axi_manager_o.w_valid = dcache_request_selected ?
+      dcache_axi_manager.w_valid : uncached_axi_manager.w_valid;
+  assign axi_manager_o.r_ready = dcache_response_selected ?
+      dcache_axi_manager.r_ready : uncached_axi_manager.r_ready;
+  assign axi_manager_o.b_ready = dcache_response_selected ?
+      dcache_axi_manager.b_ready : uncached_axi_manager.b_ready;
+
+  assign dcache_axi_response.ar_ready = dcache_request_selected && axi_manager_i.ar_ready;
+  assign dcache_axi_response.aw_ready = dcache_request_selected && axi_manager_i.aw_ready;
+  assign dcache_axi_response.w_ready = dcache_request_selected && axi_manager_i.w_ready;
+  assign dcache_axi_response.r = axi_manager_i.r;
+  assign dcache_axi_response.r_valid = dcache_response_selected && axi_manager_i.r_valid;
+  assign dcache_axi_response.b = axi_manager_i.b;
+  assign dcache_axi_response.b_valid = dcache_response_selected && axi_manager_i.b_valid;
+  assign uncached_axi_response.ar_ready = !dcache_request_selected && axi_manager_i.ar_ready;
+  assign uncached_axi_response.aw_ready = !dcache_request_selected && axi_manager_i.aw_ready;
+  assign uncached_axi_response.w_ready = !dcache_request_selected && axi_manager_i.w_ready;
+  assign uncached_axi_response.r = axi_manager_i.r;
+  assign uncached_axi_response.r_valid = !dcache_response_selected && axi_manager_i.r_valid;
+  assign uncached_axi_response.b = axi_manager_i.b;
+  assign uncached_axi_response.b_valid = !dcache_response_selected && axi_manager_i.b_valid;
 
   always_comb begin
     route_state_d          = route_state_q;

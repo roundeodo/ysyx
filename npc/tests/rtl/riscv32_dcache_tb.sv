@@ -272,6 +272,52 @@ module riscv32_dcache_tb;
     assert (!data_memory_resp.access_fault)
       else $fatal(1, "D-cache rollover load returned an unexpected access fault");
     load_data = data_memory_resp.read_data;
+    // 即使下一请求使用另一个地址，当前 load 及其字节旁路都必须保持到响应握手。
+    data_memory_resp_ready = 1'b0;
+    data_memory_req.addr = addr + phys_addr_t'(DCACHE_WORD_BYTES);
+    repeat (4) begin
+      @(negedge clk);
+      assert (data_memory_resp_valid && data_memory_resp.read_data == load_data &&
+              data_memory_resp.transaction_id == mem_txn_id_t'(4))
+        else $fatal(1, "D-cache changed a stalled store-bypass response");
+    end
+    data_memory_resp_ready = 1'b1;
+    @(negedge clk);
+  endtask
+
+  task automatic check_stalled_hit(input phys_addr_t addr, input core_data_t expected_data);
+    @(negedge clk);
+    data_memory_req = '0;
+    data_memory_req.addr = addr;
+    data_memory_req.cmd = MEM_CMD_LOAD;
+    data_memory_req.size = TEST_WORD_SIZE;
+    data_memory_req_valid = 1'b1;
+    data_memory_resp_ready = 1'b0;
+    while (!data_memory_req_ready) @(negedge clk);
+    @(negedge clk);
+    // 先改变无效 payload，再呈现被反压的新请求，二者都不能覆盖旧响应。
+    data_memory_req_valid = 1'b0;
+    repeat (6) begin
+      data_memory_req.addr = data_memory_req.addr + phys_addr_t'(DCACHE_WORD_BYTES);
+      @(negedge clk);
+      assert (data_memory_resp_valid && data_memory_resp.read_data == expected_data)
+        else $fatal(1, "D-cache stalled hit followed an unaccepted input address");
+      assert (!data_memory_req_ready)
+        else $fatal(1, "D-cache accepted a request over an unconsumed response");
+    end
+    data_memory_req.addr = addr;
+    data_memory_req_valid = 1'b1;
+    repeat (3) begin
+      @(negedge clk);
+      assert (!data_memory_req_ready && data_memory_resp_valid &&
+              data_memory_resp.read_data == expected_data)
+        else $fatal(1, "D-cache lost a hit while a second request waited");
+    end
+    data_memory_resp_ready = 1'b1;
+    @(negedge clk);
+    data_memory_req_valid = 1'b0;
+    assert (data_memory_resp_valid && data_memory_resp.read_data == expected_data)
+      else $fatal(1, "D-cache failed simultaneous response/request handoff");
     @(negedge clk);
   endtask
 
@@ -311,6 +357,7 @@ module riscv32_dcache_tb;
       else $fatal(1, "first D-cache load did not issue exactly one AXI burst");
 
     read_count_after_first_miss = read_address_handshake_count;
+    check_stalled_hit(TEST_ADDR_A, original_a);
     issue_memory_request(TEST_ADDR_A, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(2), read_data);
     assert (read_data == original_a)
       else $fatal(1, "D-cache hit returned incorrect data for line A");

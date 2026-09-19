@@ -1,0 +1,22 @@
+{
+  "commit": "c253a1a8fdc168ffaab4e7ea1713617a815d6346",
+  "production_rtl_modified": false,
+  "scope": "RV32 structural audit; no new synthesis, STA or workload timing",
+  "dcache_backpressure_probe": {
+    "unchanged_invalid_address": "passed",
+    "changed_invalid_address": "failed: held response data changed",
+    "whole_core_reproduction": "not established; current LSU retains address and WB is always ready"
+  },
+  "probe_source_sha256": {
+    "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "3d7cb4b6cc0bfb6e686127f8f3bd09f04cae71ace680238ca2f2a458c0f382fc",
+    "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+    "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+    "npc/vsrc/riscv32/common/riscv32_pkg.sv": "e27524bc985cbab9d6a9ebf64cb21428a0a2ac3079a3e9058760a20c82b9e8bf",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "ad5fe99923a81f71a66220250ab5c2480b54af2ab1334bd713cb844ca5f7e93a",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "0e45a3fbbef2cdfdfcd10d5cab8b245504fe64f34dbaac88e139b242def7c394",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "b494ae051f4a43918eca8b93534731d5fd199c3fb03c174a54c49be6bd624f84",
+    "npc/result/verification/rv32-register-cycle-audit-20260919/dcache_response_hold_tb.sv": "0daef6b4d50ea025705cc72dba08a224cf16c308d9a5396c73fdf879a078fc3a"
+  }
+}

@@ -1,0 +1,10 @@
+[
+  "make",
+  "-C",
+  "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+  "git_commit=",
+  "NPC_CONFIG=rv32-baseline",
+  "test-pipeline",
+  "lint-npc",
+  "lint-soc"
+]

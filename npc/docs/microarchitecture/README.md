@@ -31,8 +31,8 @@
 | `redirect_arbiter.sv` | `experiments/pipeline/`：旧组合重定向仲裁 |
 | `axi4_error_target.sv` | `experiments/interconnect/`：未接入的独立 AXI 错误响应目标 |
 
-当前 `id_ex_reg`、`ex_result_reg`、`wb_reg` 和 `redirect_stage` 均被 core 实例化。
-前三者保存指令/结果，后者保存控制流恢复请求；不能把它们与旧 decode/RR 寄存级混淆。
+当前 `id_ex_reg`、`ex_result_reg`、`wb_reg` 保存指令/结果；`redirect_mux` 组合选择恢复来源，
+没有恢复寄存级。不能把这些模块与旧 decode/RR 寄存级混淆。
 仿真监视器仍由仿真宏启用，复位测量封装仍是综合顶层，均有明确用途。
 未实例化源码原本就不生成硬件，迁移这些文件不会改变面积、流水级数或 IPC。
 

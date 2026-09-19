@@ -9,7 +9,7 @@
 | --- | --- |
 | `icache_axi` | 行回填转换为 INCR 读 burst，保持反压请求与响应 |
 | `dcache_axi` | 独立处理行回填和脏行写回，读写通道可重叠 |
-| `uncached_axi` | 保存一个本地请求，发起单 beat 读或写，AW/W 独立握手 |
+| `uncached_axi` | 空闲时直通、反压时保存一个请求，发起单 beat 读或写，AW/W 独立握手 |
 | `axi4_arbiter` | I/D 读轮询；从展示 ARVALID 起锁定来源，直到 RLAST 握手；写通道由数据侧独占 |
 | `axi4_router` | 地址比较 → 请求/响应选择 → 读写下一状态 → 更新；两个方向分别保存目标 |
 | `axi4_clint` | 本地定时器、比较寄存器和独立 AXI 读写状态机；中断返回核 |
@@ -28,7 +28,9 @@ D-cache 和 uncached 在数据存储子系统内合并，再与 I-cache 共享�
 
 I/D 仲裁器最多保留一个读 burst，不按 ID 重排。路由器的读、写可以并行，
 每个方向在事务期间保持同一个目标。AW/W 独立握手，不能要求地址和数据同拍到达。
-读写输出分别从已保存状态产生，下一状态根据握手更新；聚合 AXI 输出只由一处打包。
+最后一个 R 或 B 被消费时可以同拍接收下一地址。旧响应按寄存的来源/目标路由，
+新地址独立选路；新 AR 被反压后继续锁定来源。五个通道分别驱动，避免无关字段的组合依赖。
+CLINT 支持 AW/W 同拍接收，也支持先呈现 W、等待 AW 后再握手。
 RV32 同宽转换不增加缓冲或流水级。
 
 这一结构便于控制面积和追踪事务归属，代价是 I/D 读竞争共享带宽。
@@ -37,6 +39,6 @@ RV32 同宽转换不增加缓冲或流水级。
 
 ## 验证入口
 
-`test-core-merge`、`test-soc-width-converter`、`test-uncached` 与 `test-timer-interrupt`。
-本轮结果见[可读性验证](../verification/RV32_READABILITY_2026-09-16.md)。
+`test-axi-handoff`、`test-core-merge`、`test-soc-width-converter`、`test-uncached` 与 `test-timer-interrupt`。
+本轮结果见[周期优化验证](../verification/RV32_CYCLE_OPT_2026-09-19.md)。
 [原设计记录](archive/AXI4_ARCHITECTURE_BEFORE_2026-09-16.md)保留供追溯。

@@ -33,6 +33,8 @@ module riscv32_axi4_arbiter
   logic read_address_pending_d;
   logic read_address_handshake;
   logic read_last_handshake;
+  logic read_address_window;
+  assign read_address_window = !read_transaction_present_q || read_last_handshake;
 
   // 空闲时对同时到达的指令和数据读请求做轮询仲裁。只要已经向下游展示
   // ARVALID，即使尚未握手，也必须锁定请求来源并保持AR payload稳定；完成AR
@@ -40,97 +42,52 @@ module riscv32_axi4_arbiter
   always_comb begin
     selected_read_requester = read_transaction_requester_q;
 
-    if (!read_transaction_present_q && !read_address_pending_q) begin
+    if (read_address_window && !read_address_pending_q) begin
       unique case ({data_manager_i.ar_valid, instruction_manager_i.ar_valid})
         2'b10: selected_read_requester = READ_REQUESTER_DATA;
         2'b01: selected_read_requester = READ_REQUESTER_INSTRUCTION;
-        2'b11: selected_read_requester = next_priority_read_requester_q;
-        default: selected_read_requester = next_priority_read_requester_q;
+        2'b11: selected_read_requester = read_last_handshake ?
+            read_requester_e'(!read_transaction_requester_q) : next_priority_read_requester_q;
+        default: selected_read_requester = read_last_handshake ?
+            read_requester_e'(!read_transaction_requester_q) : next_priority_read_requester_q;
       endcase
     end
   end
 
-  // 第一段：只生成下游manager请求。这个组合块不读取下游响应，避免把完整
-  // request/response结构体放进同一个组合依赖环。
-  always_comb begin
-    downstream_manager_o = '0;
+  // 新 AR 由当前选择驱动，旧 R 按寄存的事务归属路由。
+  assign downstream_manager_o.aw = data_manager_i.aw;
+  assign downstream_manager_o.aw_valid = data_manager_i.aw_valid;
+  assign downstream_manager_o.w = data_manager_i.w;
+  assign downstream_manager_o.w_valid = data_manager_i.w_valid;
+  assign downstream_manager_o.b_ready = data_manager_i.b_ready;
+  assign downstream_manager_o.ar = (selected_read_requester == READ_REQUESTER_DATA) ?
+      data_manager_i.ar : instruction_manager_i.ar;
+  assign downstream_manager_o.ar_valid = read_address_window &&
+      ((selected_read_requester == READ_REQUESTER_DATA) ?
+       data_manager_i.ar_valid : instruction_manager_i.ar_valid);
+  assign downstream_manager_o.r_ready = read_transaction_present_q &&
+      ((read_transaction_requester_q == READ_REQUESTER_DATA) ?
+       data_manager_i.r_ready : instruction_manager_i.r_ready);
 
-    downstream_manager_o.aw       = data_manager_i.aw;
-    downstream_manager_o.aw_valid = data_manager_i.aw_valid;
+  assign instruction_manager_o.aw_ready = 1'b0;
+  assign instruction_manager_o.w_ready = 1'b0;
+  assign instruction_manager_o.b = '0;
+  assign instruction_manager_o.b_valid = 1'b0;
+  assign instruction_manager_o.ar_ready = read_address_window &&
+      selected_read_requester == READ_REQUESTER_INSTRUCTION && downstream_manager_i.ar_ready;
+  assign instruction_manager_o.r = downstream_manager_i.r;
+  assign instruction_manager_o.r_valid = read_transaction_present_q &&
+      read_transaction_requester_q == READ_REQUESTER_INSTRUCTION && downstream_manager_i.r_valid;
 
-    downstream_manager_o.w       = data_manager_i.w;
-    downstream_manager_o.w_valid = data_manager_i.w_valid;
-    downstream_manager_o.b_ready = data_manager_i.b_ready;
-
-    if (!read_transaction_present_q) begin
-      unique case (selected_read_requester)
-        READ_REQUESTER_INSTRUCTION: begin
-          downstream_manager_o.ar       = instruction_manager_i.ar;
-          downstream_manager_o.ar_valid = instruction_manager_i.ar_valid;
-        end
-
-        READ_REQUESTER_DATA: begin
-          downstream_manager_o.ar       = data_manager_i.ar;
-          downstream_manager_o.ar_valid = data_manager_i.ar_valid;
-        end
-
-        default: ;
-      endcase
-    end
-
-    // R通道只依据AR握手后登记的事务来源路由。AXI4没有要求target必须在AR握手
-    // 当拍返回R；取消这一组合旁路后，请求选择和响应ready之间不再形成跨模块组合环。
-    if (read_transaction_present_q) begin
-      unique case (read_transaction_requester_q)
-        READ_REQUESTER_INSTRUCTION: begin
-          downstream_manager_o.r_ready = instruction_manager_i.r_ready;
-        end
-
-        READ_REQUESTER_DATA: begin
-          downstream_manager_o.r_ready = data_manager_i.r_ready;
-        end
-
-        default: ;
-      endcase
-    end
-  end
-
-  // 指令侧只接收AR ready和属于自己的R burst。
-  always_comb begin
-    instruction_manager_o = '0;
-
-    if (!read_transaction_present_q &&
-        selected_read_requester == READ_REQUESTER_INSTRUCTION) begin
-      instruction_manager_o.ar_ready = downstream_manager_i.ar_ready;
-    end
-
-    if (read_transaction_present_q &&
-        read_transaction_requester_q == READ_REQUESTER_INSTRUCTION) begin
-      instruction_manager_o.r       = downstream_manager_i.r;
-      instruction_manager_o.r_valid = downstream_manager_i.r_valid;
-    end
-  end
-
-  // 数据侧独占写通道，并只接收属于自己的读响应。
-  always_comb begin
-    data_manager_o = '0;
-
-    data_manager_o.aw_ready = downstream_manager_i.aw_ready;
-    data_manager_o.w_ready  = downstream_manager_i.w_ready;
-    data_manager_o.b        = downstream_manager_i.b;
-    data_manager_o.b_valid  = downstream_manager_i.b_valid;
-
-    if (!read_transaction_present_q &&
-        selected_read_requester == READ_REQUESTER_DATA) begin
-      data_manager_o.ar_ready = downstream_manager_i.ar_ready;
-    end
-
-    if (read_transaction_present_q &&
-        read_transaction_requester_q == READ_REQUESTER_DATA) begin
-      data_manager_o.r       = downstream_manager_i.r;
-      data_manager_o.r_valid = downstream_manager_i.r_valid;
-    end
-  end
+  assign data_manager_o.aw_ready = downstream_manager_i.aw_ready;
+  assign data_manager_o.w_ready = downstream_manager_i.w_ready;
+  assign data_manager_o.b = downstream_manager_i.b;
+  assign data_manager_o.b_valid = downstream_manager_i.b_valid;
+  assign data_manager_o.ar_ready = read_address_window &&
+      selected_read_requester == READ_REQUESTER_DATA && downstream_manager_i.ar_ready;
+  assign data_manager_o.r = downstream_manager_i.r;
+  assign data_manager_o.r_valid = read_transaction_present_q &&
+      read_transaction_requester_q == READ_REQUESTER_DATA && downstream_manager_i.r_valid;
 
   assign read_address_handshake =
       downstream_manager_o.ar_valid && downstream_manager_i.ar_ready;
@@ -146,7 +103,18 @@ module riscv32_axi4_arbiter
     read_transaction_present_d     = read_transaction_present_q;
     read_address_pending_d         = read_address_pending_q;
 
-    if (!read_transaction_present_q) begin
+    if (read_last_handshake) begin
+      read_transaction_present_d = 1'b0;
+      unique case (read_transaction_requester_q)
+        READ_REQUESTER_INSTRUCTION:
+          next_priority_read_requester_d = READ_REQUESTER_DATA;
+        READ_REQUESTER_DATA:
+          next_priority_read_requester_d = READ_REQUESTER_INSTRUCTION;
+        default:
+          next_priority_read_requester_d = READ_REQUESTER_INSTRUCTION;
+      endcase
+    end
+    if (read_address_window) begin
       if (!read_address_pending_q && downstream_manager_o.ar_valid) begin
         read_transaction_requester_d = selected_read_requester;
         read_address_pending_d       = !read_address_handshake;
@@ -159,17 +127,6 @@ module riscv32_axi4_arbiter
       end
     end
 
-    if (read_last_handshake) begin
-      read_transaction_present_d = 1'b0;
-      unique case (read_transaction_requester_q)
-        READ_REQUESTER_INSTRUCTION:
-          next_priority_read_requester_d = READ_REQUESTER_DATA;
-        READ_REQUESTER_DATA:
-          next_priority_read_requester_d = READ_REQUESTER_INSTRUCTION;
-        default:
-          next_priority_read_requester_d = READ_REQUESTER_INSTRUCTION;
-      endcase
-    end
   end
 
   // 第三段：事务锁和轮询状态分组更新。
