@@ -326,6 +326,7 @@ module riscv32_core
       .execute_serializing_instruction_present_i (execute_serializing_instruction_present),
       .execute_result_valid_i                    (resolved_execute_result_valid),
       .execute_result_ready_i                    (resolved_execute_result_ready),
+      .execute_result_exception_valid_i          (resolved_execute_result.uop.exception_valid),
       .execute_result_writes_rd_i                (resolved_execute_result.uop.writes_rd),
       .execute_result_rd_i                       (resolved_execute_result.uop.rd),
       .execute_result_forwarding_available_i     (execute_result_forwarding_available),
@@ -825,13 +826,20 @@ module riscv32_core
   else
     $error("FENCE.I committed while younger backend work was still present");
 
-  // 精确异常只允许在commit成为架构事件。该拍必须阻止更年轻的EX指令发出副作用，
-  // 并同时清空ID/EX与可能同拍进入WB的年轻completion。
+  // 老异常在 EX 结果级时就阻止年轻 LSU 请求，不能等到 WB 恢复再取消已接收的访存。
+  a_execute_exception_blocks_younger_memory :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (resolved_execute_result_valid && resolved_execute_result.uop.exception_valid) |->
+      (!execute_progress_allowed && !execute_issue_allowed && !lsu_req_valid))
+  else
+    $error("older EX result exception allowed a younger memory request");
+
+  // 精确异常在 commit 成为架构事件，此时也不能残留此前接收的年轻 LSU 事务。
   a_committed_exception_flushes_younger_instructions :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (commit_valid && commit.trap_taken) |->
     (commit_redirect_event && decode_execute_flush && writeback_flush &&
-     !execute_issue_allowed))
+     !execute_issue_allowed && !lsu_transaction_active))
   else
     $error("committed exception did not block and flush younger pipeline work");
 

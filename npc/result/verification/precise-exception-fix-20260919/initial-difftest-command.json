@@ -1,0 +1,8 @@
+[
+  "make",
+  "-C",
+  "npc",
+  "git_commit=",
+  "NPC_CONFIG=rv32-baseline",
+  "regression-p3-f-rv32"
+]

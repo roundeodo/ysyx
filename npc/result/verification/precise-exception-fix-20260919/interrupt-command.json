@@ -1,0 +1,8 @@
+[
+  "make",
+  "-C",
+  "npc",
+  "git_commit=",
+  "NPC_CONFIG=rv32-baseline",
+  "test-timer-interrupt"
+]

@@ -1,0 +1,57 @@
+
+4. Printing statistics.
+
+=== riscv32_core_reset_boundary ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        |
+    42905        - wires
+    42905        - wire bits
+    42905        - public wires
+    42905        - public wire bits
+      383        - ports
+      383        - port bits
+    34261 7.31E+04 cells
+      298  317.072   AND2_X1
+      227   301.91   AND3_X1
+      303  483.588   AND4_X1
+      606   805.98   AOI211_X1
+     1932 2.06E+03   AOI21_X1
+      313  499.548   AOI221_X1
+      155   329.84   AOI222_X1
+     1161  1544.13   AOI22_X1
+     1083  864.234   BUF_X1
+        1    1.064   BUF_X2
+       63  117.306   BUF_X4
+      111   88.578   CLKBUF_X1
+      477 1.65E+03   CLKGATE_X1
+      539  2867.48   DFFR_X1
+       24   127.68   DFFS_X1
+     7847 3.55E+04   DFF_X1
+     2048  5447.68   DLH_X1
+      571  303.772   INV_X1
+        1    0.532   LOGIC0_X1
+        1    0.532   LOGIC1_X1
+     1430  2662.66   MUX2_X1
+     1610  1284.78   NAND2_X1
+      735   782.04   NAND3_X1
+      534   710.22   NAND4_X1
+     2059 1.64E+03   NOR2_X1
+     1443 1.54E+03   NOR3_X1
+      564   750.12   NOR4_X1
+        1    2.394   NOR4_X2
+     1206  1603.98   OAI211_X1
+     3351 3.57E+03   OAI21_X1
+     1339 2.14E+03   OAI221_X1
+       41   87.248   OAI222_X1
+     1124  1494.92   OAI22_X1
+       89  165.718   OAI33_X1
+      261  277.704   OR2_X1
+      186   247.38   OR3_X1
+      102  162.792   OR4_X1
+      296  472.416   XNOR2_X1
+      129  205.884   XOR2_X1
+
+   Chip area for module '\riscv32_core_reset_boundary': 73081.372000
+     of which used for sequential elements: 38479.294000 (52.65%)

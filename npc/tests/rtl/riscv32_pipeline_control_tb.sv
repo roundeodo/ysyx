@@ -107,6 +107,7 @@ module riscv32_pipeline_control_tb;
   logic                hazard_execute_serializing_instruction_present;
   logic                execute_result_valid;
   logic                execute_result_ready;
+  logic                execute_result_exception_valid;
   logic                execute_result_writes_rd;
   arch_reg_idx_t       execute_result_rd;
   logic                execute_result_forwarding_available;
@@ -257,6 +258,7 @@ module riscv32_pipeline_control_tb;
           hazard_execute_serializing_instruction_present),
       .execute_result_valid_i                  (execute_result_valid),
       .execute_result_ready_i                  (execute_result_ready),
+      .execute_result_exception_valid_i        (execute_result_exception_valid),
       .execute_result_writes_rd_i              (execute_result_writes_rd),
       .execute_result_rd_i                     (execute_result_rd),
       .execute_result_forwarding_available_i   (execute_result_forwarding_available),
@@ -371,6 +373,7 @@ module riscv32_pipeline_control_tb;
     hazard_execute_serializing_instruction_present = 1'b0;
     execute_result_valid                = 1'b0;
     execute_result_ready                = 1'b1;
+    execute_result_exception_valid      = 1'b0;
     execute_result_writes_rd            = 1'b0;
     execute_result_rd                   = '0;
     execute_result_forwarding_available = 1'b0;
@@ -848,6 +851,30 @@ module riscv32_pipeline_control_tb;
     clear_hazard_inputs();
   endtask
 
+  task automatic check_execute_exception_blocks_issue;
+    clear_hazard_inputs();
+    execute_result_exception_valid = 1'b1;
+    #1;
+    assert (execute_progress_allowed && execute_issue_allowed)
+    else $fatal(1, "invalid EX result payload blocked execution");
+
+    execute_result_valid = 1'b1;
+    for (int ready_value = 0; ready_value < 2; ready_value++) begin
+      execute_result_ready = 1'(ready_value);
+      #1;
+      assert (!execute_progress_allowed && !execute_issue_allowed)
+      else $fatal(1, "older EX exception allowed a younger instruction to advance");
+      assert (!hazard_writeback_flush)
+      else $fatal(1, "EX exception prematurely flushed older WB work");
+    end
+
+    execute_result_exception_valid = 1'b0;
+    #1;
+    assert (execute_progress_allowed && execute_issue_allowed)
+    else $fatal(1, "ordinary EX result unnecessarily blocked execution");
+    clear_hazard_inputs();
+  endtask
+
   task automatic check_fetch_buffer;
     fetch_entry_t first_entry;
     fetch_entry_t second_entry;
@@ -1272,6 +1299,7 @@ module riscv32_pipeline_control_tb;
     check_decode_execute_stage();
     check_writeback_stage();
     check_hazard_controller();
+    check_execute_exception_blocks_issue();
     check_fetch_buffer();
     check_fetch_buffer_wrap_and_flush();
     check_fetch_control_flow_predictor();

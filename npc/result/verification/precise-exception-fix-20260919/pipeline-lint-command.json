@@ -1,0 +1,10 @@
+[
+  "make",
+  "-C",
+  "npc",
+  "git_commit=",
+  "NPC_CONFIG=rv32-baseline",
+  "test-pipeline-configs",
+  "lint-npc",
+  "lint-soc"
+]
