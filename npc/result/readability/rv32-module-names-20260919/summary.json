@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "boundary_decision": "retain independent state/protocol/selection responsibilities",
+  "renamed_modules": 23,
+  "rtl_file_count": 67,
+  "source_check": "exact match after explicit module/instance/path renames",
+  "validation": {
+    "lint-rv32": "passed",
+    "lint-rv64": "passed",
+    "slang": "passed",
+    "frontend": "passed",
+    "backend-bus": "passed"
+  },
+  "predictor": "5 configurations, 60000 cycles",
+  "fetch": "100 deliveries",
+  "icache": "13 cases",
+  "pipeline": "991 queue outputs plus control checks",
+  "execute_result": "1024 cases",
+  "document_source_links": 92,
+  "area_sta_microbench": "not rerun; previous PPA binds pre-rename snapshot"
+}

@@ -39,7 +39,7 @@ package riscv_config_pkg;
   localparam int unsigned MEM_AXI_ADDR_WIDTH = 32;
   localparam int unsigned MEM_AXI_ID_WIDTH = 4;
 
-  // 当前ysyxSoC CPU插槽固定为AXI32。P3-D只允许在system wrapper中转换宽度，
+  // 当前 ysyxSoC CPU 插槽固定为 AXI32，只在 system wrapper 中转换宽度，
   // 不能把开发板限制传播到core、cache或standalone memory AXI中。
   localparam int unsigned YSYX_SOC_AXI_ADDR_WIDTH = 32;
   localparam int unsigned YSYX_SOC_AXI_DATA_WIDTH = 32;
@@ -69,23 +69,20 @@ package riscv_config_pkg;
   // 全核共享的微架构容量和构建选择。这些参数描述“选择什么实现”，不是payload类型。
   localparam int unsigned FETCH_WIDTH = 1;
   localparam int unsigned DECODE_WIDTH = 1;
+  // RENAME_WIDTH / DISPATCH_WIDTH 供保留的实验类型使用，当前核不含重命名。
   localparam int unsigned RENAME_WIDTH = 1;
   localparam int unsigned DISPATCH_WIDTH = 1;
   localparam int unsigned COMMIT_WIDTH = 1;
   localparam int unsigned INT_ISSUE_WIDTH = 1;
   localparam int unsigned MEM_ISSUE_WIDTH = 1;
-  //
+  // 以下容量供实验类型使用；当前核未实例化物理寄存器堆、ROB 或 LSQ。
   localparam int unsigned PHYS_REG_COUNT = 64;
   localparam int unsigned ROB_ENTRY_COUNT = 32;
   localparam int unsigned LOAD_QUEUE_COUNT = 16;
   localparam int unsigned STORE_QUEUE_COUNT = 16;
   localparam int unsigned MEM_TXN_COUNT = 16;
-  // 前端预测流水、I-cache请求队列和I-cache S1最多同时保存3个不同请求，使用
-  // 4个frontend tag避免较老响应返回前发生tag回绕。epoch的位宽不能只按在途请求数决定：同一条分支可先在ID级
-  // 产生预测redirect，再在EX级产生修正redirect。若epoch只有1位，两次递增会
-  // 回绕到旧值，使本应作废的顺序取指响应被误判为当前响应。当前单在途前端在
-  // 旧响应排空前最多发生这两次redirect，因此使用4个epoch值。未来增加多个在途
-  // 取指时，必须重新证明tag和epoch的不回绕窗口，不能在子模块中私自加宽。
+  // frontend tag 关联预测结果与取指请求，epoch 区分重定向前后的请求。
+  // 当前各保留 4 个编码；修改队列容量或重定向流程时，需重新验证旧响应不会误匹配。
   localparam int unsigned FRONTEND_TAG_COUNT = 4;
   // 请求侧next-PC predictor的容量也属于命名配置。BTB_ENTRY_COUNT是总表项数，
   // BTB_WAY_COUNT是每个set的路数；改变二者不能改变IFU携带prediction的协议。
@@ -104,8 +101,7 @@ package riscv_config_pkg;
   // 课程面积配置在elaboration时完全移除D-cache实例；这不是运行时旁路，也不会为
   // 未实例化的array保留触发器。LSU/PMA/AXI协议保持不变，cacheable请求改走uncached路径。
   localparam bit DCACHE_ENABLED = (`YSYX_DCACHE_ENABLE != 0);
-  // 当前D-cache检查点采用阻塞式单miss结构，但容量、相联度和line大小均由构建配置
-  // 决定。接口不绑定单MSHR，后续增加load/store queue、多个MSHR和bank时无需改LSU。
+  // 当前 D-cache 为阻塞式单 miss 结构，容量、路数和行大小由构建配置决定。
   localparam int unsigned DCACHE_CAPACITY_BYTES = `YSYX_DCACHE_CAPACITY_BYTES;
   localparam int unsigned DCACHE_WAY_COUNT = `YSYX_DCACHE_WAY_COUNT;
   localparam int unsigned DCACHE_LINE_BYTES = `YSYX_DCACHE_LINE_BYTES;
@@ -113,8 +109,7 @@ package riscv_config_pkg;
   localparam int unsigned FETCH_EPOCH_COUNT = 4;
   //
   // 命名规则：数量使用*_COUNT，位宽使用*_WIDTH，容量明确写出单位*_BYTES。
-  // 不再使用*_NUM、*_ENTRIES和*_W表达同一类概念。这里的单发射和单MSHR是P2基线，
-  // 不是长期性能目标；将来扩大配置时，模块必须通过同一配置入口暴露不支持的组合。
+  // 当前实现为单发射、单 MSHR；不支持的参数组合须在构建或 elaboration 时报告。
   //
   // 不要把ARCH_REG索引宽度、ROB索引宽度、I-cache set数量或tag宽度搬到这里。
   // 它们依赖具体类型或模块几何，仍由riscv32_pkg在配置值之上派生。

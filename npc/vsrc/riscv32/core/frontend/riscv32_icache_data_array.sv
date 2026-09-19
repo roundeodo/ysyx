@@ -14,9 +14,9 @@ module riscv32_icache_data_array
     input logic clk_i,
     input logic rst_ni,
 
-    input  logic               read_enable_i,
-    input  icache_set_index_t  read_set_index_i,
-    input  icache_word_index_t read_word_index_i,
+    input logic               read_enable_i,
+    input icache_set_index_t  read_set_index_i,
+    input icache_word_index_t read_word_index_i,
     // I-cache word宽度由前端fetch配置决定，不随GPR的XLEN自动变化。
     output icache_fetch_data_t read_word_data_array_o[WAY_COUNT],
 
@@ -33,8 +33,8 @@ module riscv32_icache_data_array
   // compare/select路径。未来FETCH_WIDTH增加时再评估一次读多个word或扩大bank宽度。
   // 数组的每个[way][word]组合表示一个独立bank，set是该bank内部的读写地址。
   // 因此同一次lookup会并行读取所有way中相同word bank、相同set位置的数据。
-  icache_fetch_data_t data_array_q          [WAY_COUNT] [WORDS_PER_LINE] [SET_COUNT];
-  icache_fetch_data_t read_word_data_array_q[WAY_COUNT];
+  icache_fetch_data_t data_array_q                     [WAY_COUNT] [WORDS_PER_LINE][SET_COUNT];
+  icache_fetch_data_t read_word_data_array_q           [WAY_COUNT];
 
   // refill写请求先在上升沿进入staging寄存器，随后在低电平阶段写入数据阵列。
   // staging切断miss-unit组合输出到透明阵列的路径，也保证write payload在整个低电平
@@ -46,7 +46,7 @@ module riscv32_icache_data_array
   logic               staged_refill_write_enable_q;
 
   // read_enable_i为1的上升沿，读取所有way中由set和word共同索引的word。读地址必须
-  // 与tag array使用同一个set，并由cache pipeline的S0寄存器共同驱动。
+  // 与tag array使用同一个set，二者在lookup请求握手的同一时钟沿采样。
   always_ff @(posedge clk_i) begin
     if (read_enable_i) begin
       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
@@ -67,8 +67,8 @@ module riscv32_icache_data_array
   // present位决定。这里使用显式staging加低电平透明锁存阵列，降低小容量数据阵列由
   // 标准单元实现时的面积；未来换成SRAM宏时，只需在本模块内部替换存储体和端口时序。
   //
-  // 顶层在refill期间只允许读取当前line中更早周期已经写入的word，其他lookup等待
-  // 整条line安装完成。该约束保留early restart，同时避免依赖SRAM同地址读写语义。
+  // 顶层在整个 refill 期间禁止新 lookup；关键 word 由 miss unit 直接返回。
+  // 保留写入暂存和低电平锁存阵列，保证写入期间地址、数据与使能稳定。
   //
   // 这里不是循环写完整条line。每次refill response握手只携带一个word及其word index，
   // miss unit连续驱动本写口，逐word填满cache line。

@@ -1,0 +1,7 @@
+[
+  "yosys",
+  "-m",
+  "slang",
+  "-s",
+  "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/readability/rv32-module-names-20260919/read-slang.ys"
+]

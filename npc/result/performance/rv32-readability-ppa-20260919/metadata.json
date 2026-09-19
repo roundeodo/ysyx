@@ -1,0 +1,22 @@
+{
+  "branch": "rv32-interview-20260911",
+  "head": "d8bb7dd819b55a5062e521b0c58ea6856156708c",
+  "baseline": "npc/result/performance/frontend-rewrite-20260915",
+  "config": "rv32-baseline",
+  "synthesis_target_mhz": 820,
+  "synth_strategy": "DELAY 0",
+  "benchmark_comparison_mhz": 700,
+  "benchmark_scale": "test",
+  "tool_files": {
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/Makefile": "5879f1676efc0aeb16984659ad0d11303da862420e56333dea1e1feb96e1b891",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/yosys.tcl": "d5a626fc1d1a9590586a3bc113feec94a5d1baef56ca84e6454eedc53270a4ea",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl": "fcb14879d0be86119c17a3fb2e6b531020fb12e3a91e0bd5615a39ad111ba55d",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/common.tcl": "9e6b02f172d2d3b5f04cfb6d5ab0d185b35390aa32a006be6109b59da7ca4659",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_typ.lib": "2efd0b32eb580e4e60e72fc0575bb3bc69aac907c91d908442e4ae6d7fe55895",
+    "npc/scripts/build_reset_tree.py": "9080d8a6b607c1dca673bc072fe8fd2e48bb801131210c566a4cb5ff3a4804f2",
+    "npc/scripts/check_reset_netlist.py": "7575b8a5c6361fe81fafb0a67f4a9b8acb99f4fc22a971450636f503b88a6b00"
+  },
+  "yosys": "Yosys 0.60+70 (git sha1 8101c87fa, clang++ 18.1.8 -fPIC -O3)",
+  "benchmark_source_note": "Benchmark binds pre-repair RTL. Final changes: declaration/assign relocation and two display strings only; archived in rtl-fixes.patch. Synthesis snapshot matches all final synthesis inputs.",
+  "full_log_comparison": "All numerical values identical to baseline. Two BHT label typos corrected in final RTL."
+}

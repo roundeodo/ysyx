@@ -5,21 +5,10 @@ package riscv32_pkg;
   // 本package消费唯一配置源，并向只导入riscv32_pkg的core模块继续导出全局配置。
   import riscv_config_pkg::*;
   export riscv_config_pkg::*;
-  // 删除旧定义非常重要：如果两个package都能决定XLEN，未来会出现“改了配置却只有
-  // 部分模块变宽”的静默错误。P2要求每个全局配置只有一个所有者。
   import riscv32_addr_map_pkg::*;
 
-  // 架构与微架构配置
-
-
-  // 当前仍为单发射；未来增加lane数量时保持payload语义和模块职责不变。
-  /* verilator lint_off UNUSEDPARAM */
-
-  /* verilator lint_on UNUSEDPARAM */
-
-  // 后端容量集中定义，使rename、ROB、issue和恢复逻辑使用同一套索引宽度。
-
-
+  // 当前核使用架构寄存器索引与前端标签。物理寄存器、ROB、LQ/SQ 索引供保留的
+  // 实验类型使用；声明这些类型不代表当前核包含对应硬件。
   localparam int unsigned ARCH_REG_IDX_W = (ARCH_REG_COUNT > 1) ? $clog2(ARCH_REG_COUNT) : 1;
   localparam int unsigned PHYS_REG_IDX_W = (PHYS_REG_COUNT > 1) ? $clog2(PHYS_REG_COUNT) : 1;
   localparam int unsigned ROB_IDX_W = (ROB_ENTRY_COUNT > 1) ? $clog2(ROB_ENTRY_COUNT) : 1;
@@ -36,9 +25,8 @@ package riscv32_pkg;
   typedef logic [XLEN-1:0] program_counter_t;
   typedef logic [XLEN-1:0] effective_addr_t;
   localparam int unsigned INSTRUCTION_BYTES = INSTR_WIDTH / 8;
-  // effective_addr_t表示ALU/AGU刚算出的架构地址；phys_addr_t表示经过地址转换并准备
-  // 访问PMA/cache/总线的物理地址。现在没有MMU时二者数值相同，但类型必须解耦，避免
-  // 将来加入Sv39后让LSU、PMA和AXI边界继续混用同一含义。
+  // effective_addr_t 为 ALU/AGU 产生的 XLEN 位地址；phys_addr_t 为 PMA/AXI 使用的
+  // 物理地址。LSU 在边界处显式转换为 32 位物理地址；当前没有 MMU 或高位地址检查。
   // INSTRUCTION_BYTES只描述ISA顺序PC步长，不得用ICACHE_FETCH_BYTES代替；后者是
   // cache每次返回的数据量，将来可以一次返回多条指令。
   typedef logic [CORE_DATA_WIDTH-1:0] core_data_t;
@@ -143,13 +131,13 @@ package riscv32_pkg;
     OPA_ZERO = 2'd0,
     OPA_RS1  = 2'd1,
     OPA_PC   = 2'd2
-  } operand_a_sel_e;
+  } operand_a_select_e;
 
   typedef enum logic [1:0] {
     OPB_ZERO = 2'd0,
     OPB_RS2  = 2'd1,
     OPB_IMM  = 2'd2
-  } operand_b_sel_e;
+  } operand_b_select_e;
 
   typedef enum logic [3:0] {
     ALU_ADD  = 4'd0,
@@ -162,7 +150,7 @@ package riscv32_pkg;
     ALU_SRA  = 4'd7,
     ALU_OR   = 4'd8,
     ALU_AND  = 4'd9,
-    // *W操作必须保留独立语义：EXU在P3-C中负责截取低32位并符号扩展到XLEN。
+    // *W操作必须保留独立语义：EXU负责截取低32位并符号扩展到XLEN。
     ALU_ADDW = 4'd10,
     ALU_SUBW = 4'd11,
     ALU_SLLW = 4'd12,
@@ -266,9 +254,9 @@ package riscv32_pkg;
   // 译码控制分组。decoded_uop_t用于常规lane连线；进入时序敏感的后端路径前，使用
   // 专用issue payload去掉与目标执行单元无关的字段。
   typedef struct packed {
-    alu_op_e        op;
-    operand_a_sel_e operand_a_sel;
-    operand_b_sel_e operand_b_sel;
+    alu_op_e           op;
+    operand_a_select_e operand_a_select;
+    operand_b_select_e operand_b_select;
   } int_uop_ctrl_t;
 
   typedef struct packed {
@@ -315,7 +303,6 @@ package riscv32_pkg;
   localparam int unsigned ICACHE_TAG_W =
       PADDR_WIDTH - ICACHE_LINE_OFFSET_W - ICACHE_SET_INDEX_BITS;
   localparam int unsigned FETCH_EPOCH_W = (FETCH_EPOCH_COUNT > 1) ? $clog2(FETCH_EPOCH_COUNT) : 1;
-
 
   // fetch_epoch不是总线transaction ID。redirect发生时IFU递增epoch；较老epoch的
   // 返回结果仍可完成memory握手，但不能进入fetch buffer。epoch回绕安全的前提是
@@ -411,21 +398,21 @@ package riscv32_pkg;
   // PMU观察接口不得反向控制cache。occurred字段是单周期事件脉冲；present/is字段
   // 描述当前响应口状态，由PMU自身的活动请求状态保证每个响应只统计一次。
   typedef struct packed {
-    logic lookup_occurred;
+    logic lookup_event;
     // AMAT的终点是cache首次给出结果，不是下游最终完成握手。否则fetch buffer反压
     // 会被错误计入cache访问时间。
     logic lookup_response_present;
     logic lookup_response_is_cache_hit;
     // waiting表示请求已有效但cache本周期不能接收，用于累计前端阻塞周期。
     logic lookup_request_waiting;
-    logic miss_occurred;
-    logic uncached_access_occurred;
-    logic refill_word_occurred;
+    logic miss_event;
+    logic uncached_access_event;
+    logic refill_word_event;
     // transaction completion表示末一个refill word已握手，不要与“新line成功安装”混淆。
-    // 访存错误会结束transaction，但不会产生refill_line_completed_occurred。
-    logic refill_transaction_completed_occurred;
-    logic refill_line_completed_occurred;
-    logic stale_response_discarded_occurred;
+    // 访存错误会结束transaction，但不会产生refill_line_completed_event。
+    logic refill_transaction_completed_event;
+    logic refill_line_completed_event;
+    logic stale_response_discarded_event;
   } icache_event_t;
 
   // LSU与数据存储层之间传递语义请求，不在LSU内暴露AXI4通道。
@@ -475,18 +462,18 @@ package riscv32_pkg;
   typedef logic [DCACHE_LINE_BYTES*8-1:0] dcache_line_data_t;
 
   typedef struct packed {
-    data_memory_req_t  memory_req;
-    dcache_set_index_t set_index;
+    data_memory_req_t   memory_req;
+    dcache_set_index_t  set_index;
     dcache_word_index_t word_index;
-    dcache_tag_t       requested_tag;
-    dcache_way_index_t replacement_way_index;
-    dcache_tag_t       victim_tag;
-    logic              victim_present;
-    logic              victim_dirty;
+    dcache_tag_t        requested_tag;
+    dcache_way_index_t  replacement_way_index;
+    dcache_tag_t        victim_tag;
+    logic               victim_present;
+    logic               victim_dirty;
   } dcache_miss_req_t;
 
   typedef struct packed {
-    phys_addr_t line_base_addr;
+    phys_addr_t  line_base_addr;
     mem_txn_id_t transaction_id;
   } dcache_refill_req_t;
 
@@ -513,7 +500,7 @@ package riscv32_pkg;
   // occurred字段均表示本周期确实完成了对应握手或状态动作，而不是valid曾经出现。
   // lookup只统计进入D-cache的cacheable请求；uncached和访问错误由数据存储子系统另行处理。
   typedef struct packed {
-    logic lookup_occurred;
+    logic lookup_event;
     logic lookup_is_store;
     // 响应首次present是D-cache访问延迟的终点；不等待LSU最终握手，避免把下游反压
     // 误计为cache访问时间。监视器负责保证一个响应只统计一次。
@@ -522,15 +509,15 @@ package riscv32_pkg;
     logic lookup_request_waiting;
     // store hit交付旧响应的同拍又接收了下一请求。该事件用于量化显式
     // read-during-write bypass实际消除的气泡数。
-    logic store_hit_and_next_lookup_occurred;
-    logic miss_occurred;
-    logic dirty_victim_miss_occurred;
-    logic refill_request_occurred;
-    logic refill_word_occurred;
-    logic refill_transaction_completed_occurred;
-    logic line_install_occurred;
-    logic writeback_request_occurred;
-    logic writeback_response_occurred;
+    logic store_hit_and_next_lookup_event;
+    logic miss_event;
+    logic dirty_victim_miss_event;
+    logic refill_request_event;
+    logic refill_word_event;
+    logic refill_transaction_completed_event;
+    logic line_install_event;
+    logic writeback_request_event;
+    logic writeback_response_event;
   } dcache_event_t;
 
   // Frontend payloads
@@ -562,9 +549,7 @@ package riscv32_pkg;
     xlen_data_t         exception_tval;
   } fetch_entry_t;
 
-  // Decode and rename payloads
-  // IDU is the only module that translates opcode/funct fields. All unused
-  // control groups must be zeroed before the payload leaves IDU.
+  // 译码载荷：IDU 唯一解释 opcode/funct，未使用的控制字段在输出前清零。
   typedef struct packed {
     program_counter_t   pc;
     instruction_t       instruction;
@@ -592,6 +577,7 @@ package riscv32_pkg;
     xlen_data_t       exception_tval;
   } decoded_uop_t;
 
+  // 保留的重命名实验载荷，当前顺序核不使用。
   typedef struct packed {
     decoded_uop_t  uop;
     phys_reg_idx_t psrc1;
@@ -601,9 +587,7 @@ package riscv32_pkg;
     rob_idx_t      rob_idx;
   } renamed_uop_t;
 
-  // Redirect and execution payloads
-  // rob_idx identifies instruction age. flush_inclusive distinguishes recovery
-  // that keeps the source instruction from recovery that removes it as well.
+  // 重定向载荷：当前核使用目标 PC、来源 PC 和原因；ROB 年龄字段为实验预留。
   typedef struct packed {
     program_counter_t target_pc;
     program_counter_t source_pc;
@@ -664,8 +648,7 @@ package riscv32_pkg;
     logic          writes_preg;
   } csr_execute_req_t;
 
-  // Every execution unit returns the same completion shape. This unifies PRF
-  // writeback, wakeup, and ROB completion without making completion equal commit.
+  // 保留的乱序完成载荷，当前顺序核使用下方 execute_result_t / writeback_t。
   typedef struct packed {
     // completion只表达执行完成，不携带任何AXI/cache宽度假设。
     rob_idx_t      rob_idx;
@@ -730,10 +713,10 @@ package riscv32_pkg;
     decoded_uop_t uop;
     // ID级已经依据执行类型选择好语义源。整数指令分别对应ALU A/B输入；分支、LSU和
     // CSR仍分别对应rs1/rs2语义。EX级因此不再把operand select mux串在运算器前面。
-    xlen_data_t   source_a_value;
-    xlen_data_t   source_b_value;
-    xlen_data_t   csr_rdata;
-    logic         csr_illegal;
+    xlen_data_t source_a_value;
+    xlen_data_t source_b_value;
+    xlen_data_t csr_rdata;
+    logic       csr_illegal;
   } execute_packet_t;
 
   typedef struct packed {
@@ -745,9 +728,7 @@ package riscv32_pkg;
     redirect_req_t    redirect_req;
   } execute_result_t;
 
-  // EXU-to-LSU request for the current in-order core. This is a request, not a
-  // memory result: the LSU has not issued a data-memory transaction yet.
-  // P6 replaces decoded_uop_t with ROB/LSQ identity carried by lsu_execute_req_t.
+  // 当前顺序核的 EXU → LSU 请求：携带译码结果、有效地址和 store 数据，尚未发起访存。
   typedef struct packed {
     decoded_uop_t     uop;
     program_counter_t next_pc;

@@ -93,7 +93,7 @@ module riscv32_pipeline_control_tb;
   logic                lsu_pending_writes_rd;
   arch_reg_idx_t       lsu_pending_rd;
   logic                frontend_redirect_applied;
-  logic                commit_redirect_occurred;
+  logic                commit_redirect_event;
   logic                decode_accept_allowed;
   logic                execute_progress_allowed;
   logic                execute_issue_allowed;
@@ -147,7 +147,7 @@ module riscv32_pipeline_control_tb;
       .fetch_entry_ready_i           (ifu_fetch_entry_ready)
   );
 
-  riscv32_decode_execute_stage u_decode_execute_stage (
+  riscv32_id_ex_reg u_id_ex_reg (
       .clk_i                         (clk),
       .rst_ni                        (rst_ni),
       .decoded_execute_packet_i      (decoded_execute_packet),
@@ -174,7 +174,7 @@ module riscv32_pipeline_control_tb;
       .flush_i                (fetch_buffer_flush)
   );
 
-  riscv32_fetch_control_flow_predictor u_fetch_control_flow_predictor (
+  riscv32_branch_predictor u_branch_predictor (
       .clk_i                           (clk),
       .rst_ni                          (rst_ni),
       .lookup_request_pc_i             (predictor_lookup_pc),
@@ -193,13 +193,13 @@ module riscv32_pipeline_control_tb;
       .resolved_control_flow_op_i      (predictor_resolved_control_flow_op),
       .resolved_control_flow_rs1_i     (predictor_resolved_control_flow_rs1),
       .resolved_control_flow_rd_i      (predictor_resolved_control_flow_rd),
-      .resolved_control_flow_occurred_i(predictor_resolved_control_flow_occurred),
+      .resolved_control_flow_event_i(predictor_resolved_control_flow_occurred),
       .resolved_control_flow_taken_i   (predictor_resolved_control_flow_taken),
       .flush_lookup_i                  (predictor_flush),
       .invalidate_i                    (predictor_invalidate)
   );
 
-  riscv32_writeback_stage u_writeback_stage (
+  riscv32_wb_reg u_wb_reg (
       .clk_i                    (clk),
       .rst_ni                   (rst_ni),
       .completion_result_i      (completion_result),
@@ -222,7 +222,7 @@ module riscv32_pipeline_control_tb;
       .gpr_write_enable_o      ()
   );
 
-  riscv32_trap_controller u_trap_controller (
+  riscv32_trap_ctrl u_trap_ctrl (
       .interrupt_valid_i(1'b0),
       .interrupt_pc_i('0),
       .commit_i            (staged_commit),
@@ -238,7 +238,7 @@ module riscv32_pipeline_control_tb;
       .redirect_req_valid_o(staged_trap_redirect_valid)
   );
 
-  riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
+  riscv32_hazard_ctrl u_hazard_ctrl (
       .clk_i                                   (clk),
       .rst_ni                                  (rst_ni),
       .decoded_uop_valid_i                     (hazard_decoded_uop_valid),
@@ -272,7 +272,7 @@ module riscv32_pipeline_control_tb;
       .lsu_pending_rd_i                        (lsu_pending_rd),
       .execute_redirect_present_i              (1'b0),
       .frontend_redirect_applied_i             (frontend_redirect_applied),
-      .commit_redirect_occurred_i              (commit_redirect_occurred),
+      .commit_redirect_event_i              (commit_redirect_event),
       .decode_accept_allowed_o                 (decode_accept_allowed),
       .execute_progress_allowed_o              (execute_progress_allowed),
       .execute_issue_allowed_o                 (execute_issue_allowed),
@@ -365,7 +365,7 @@ module riscv32_pipeline_control_tb;
     lsu_pending_writes_rd               = 1'b0;
     lsu_pending_rd                      = '0;
     frontend_redirect_applied           = 1'b0;
-    commit_redirect_occurred            = 1'b0;
+    commit_redirect_event            = 1'b0;
     hazard_execute_forwardable_producer_present = 1'b0;
     hazard_execute_blocking_producer_present    = 1'b0;
     hazard_execute_serializing_instruction_present = 1'b0;
@@ -421,10 +421,9 @@ module riscv32_pipeline_control_tb;
     @(posedge clk);
     @(negedge clk);
     predictor_lookup_request_valid = 1'b0;
-    @(posedge clk);
     #1;
     assert (predictor_lookup_response_valid && (predictor_lookup_response_pc == lookup_pc))
-    else $fatal(1, "predictor did not publish the two-stage lookup response");
+    else $fatal(1, "predictor did not publish the single-stage lookup response");
   endtask
 
   task automatic check_fetch_control_flow_predictor;
@@ -435,37 +434,35 @@ module riscv32_pipeline_control_tb;
     localparam program_counter_t JAL_TARGET = JAL_PC + program_counter_t'(8);
     localparam program_counter_t BRANCH_TARGET = BRANCH_PC + program_counter_t'(8);
 
-    // 冷BTB只能给出顺序PC。查询经过数组读取级和比较响应级后返回。
+    // 冷BTB只能给出顺序PC。查询在一次采样后返回。
     query_predictor(JAL_PC);
     assert (!predictor_lookup_prediction.predicted_taken &&
             (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
     else $fatal(1, "cold BTB lookup did not select the sequential PC");
 
-    // 响应反压时，空闲的查询级仍能吸收一个请求；两级都占满后才停止接收。
+    // 单个响应槽被反压时拒绝新请求；解除反压可同沿消费旧响应并接收新请求。
     predictor_lookup_response_ready = 1'b0;
-    predictor_lookup_pc              = JAL_PC + program_counter_t'(INSTRUCTION_BYTES);
-    predictor_lookup_request_valid   = 1'b1;
+    predictor_lookup_pc = JAL_PC + program_counter_t'(INSTRUCTION_BYTES);
+    predictor_lookup_request_valid = 1'b1;
+    #1;
+    assert (!predictor_lookup_request_ready)
+    else $fatal(1, "predictor accepted a request while its response slot was full");
+    repeat (3) begin
+      @(posedge clk);
+      @(negedge clk);
+      assert (predictor_lookup_response_valid && predictor_lookup_response_pc == JAL_PC)
+      else $fatal(1, "predictor changed its stalled response");
+    end
+    predictor_lookup_response_ready = 1'b1;
     #1;
     assert (predictor_lookup_request_ready)
-    else $fatal(1, "predictor did not use its free query stage during response backpressure");
+    else $fatal(1, "predictor did not replace a consumed response");
     @(posedge clk);
     @(negedge clk);
     predictor_lookup_request_valid = 1'b0;
-    #1;
-    assert (!predictor_lookup_request_ready)
-    else $fatal(1, "predictor accepted a third lookup while both pipeline stages were occupied");
-    @(posedge clk);
     assert (predictor_lookup_response_valid &&
-            (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
-    else $fatal(1, "predictor response changed while backpressured");
-    @(negedge clk);
-    predictor_lookup_response_ready = 1'b1;
-    @(posedge clk);
-    #1;
-    assert (predictor_lookup_response_valid &&
-            (predictor_lookup_response_pc ==
-             JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
-    else $fatal(1, "predictor did not advance its buffered query after backpressure");
+            predictor_lookup_response_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES))
+    else $fatal(1, "predictor failed simultaneous consume and capture");
 
     // EX解析JAL后训练BTB，随后查询同一PC应直接采用目标地址。
     predictor_resolved_control_flow_pc       = JAL_PC;
@@ -842,7 +839,7 @@ module riscv32_pipeline_control_tb;
 
     clear_hazard_inputs();
     hazard_decoded_uop_valid = 1'b1;
-    commit_redirect_occurred = 1'b1;
+    commit_redirect_event = 1'b1;
     #1;
     assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && hazard_writeback_flush)
@@ -996,7 +993,7 @@ module riscv32_pipeline_control_tb;
             (staged_trap_redirect.target_pc == program_counter_t'(64'h8000_0100)))
     else $fatal(1, "oldest exception did not produce the trap redirect");
 
-    commit_redirect_occurred = staged_trap_redirect_valid;
+    commit_redirect_event = staged_trap_redirect_valid;
     #1;
     assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && hazard_writeback_flush)

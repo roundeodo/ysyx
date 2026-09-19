@@ -1,9 +1,11 @@
 # NPC 文档中心
 
+当前设计从[模块说明目录](microarchitecture/README.md)进入；前端、后端、访存和总线分别维护电路与源码顺序。
+
 > 本工作树恢复自 `bb03677`，并已新增本地定时中断，用于 RV32 简历核对与面试准备。请先读
 > [RV32 架构与模块说明](interview/RV32_ARCHITECTURE_ATLAS.md) 和
-> [RV32 简历核对与面试准备](interview/RV32_RESUME_AUDIT.md)。其余设计记录保留历史内容，
-> 其中的阶段性默认参数、待办和 PPA 不能不加版本区分地当作本分支现状。
+> [RV32 简历核对与面试准备](interview/RV32_RESUME_AUDIT.md)。历史实验和归档记录中的
+> 默认参数、待办及 PPA 需要按对应版本理解。
 
 本目录是 NPC 项目的唯一文档入口。RTL 目录只保存源码和紧邻实现位置的局部注释；跨模块
 契约、架构决策、开发规范、实验结果和学习记录统一放在这里。
@@ -29,12 +31,17 @@
 
 - [RV32 架构与模块说明](interview/RV32_ARCHITECTURE_ATLAS.md)：实际寄存边界、模块职责、数据流、当前参数和实现边界。
 - [取消独立 RR（2026-09-15）](interview/RV32_RR_REMOVAL_2026-09-15.md)：译码、GPR 读取与前递直连 ID/EX，功能回归及新面积、频率和 MicroBench 测量。
-- [取指预测器模块设计](microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md)：BHT、BTB、RAS 的独立状态、统一查询控制和保持原有拍数的接口契约。
+- [取指预测器模块设计](microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md)：BHT、BTB、RAS 的独立状态、单级查询和训练时序。
+- [I-cache 模块说明](microarchitecture/ICACHE_DESIGN_RECORD.md)：当前同步查询、阻塞回填与失效结构。
 - [RV32 定时中断](microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)：CLINT、流水线精确受理及验证范围。
 
-- [完整AXI4互连架构](interconnect/AXI4_ARCHITECTURE.md)：当前主链边界、事务能力和后续扩展规则。
+- [完整 AXI4 互连架构](interconnect/AXI4_ARCHITECTURE.md)：当前数据路径、事务归属和系统边界。
 - [I-cache设计空间探索](verification/CACHE_DESIGN_SPACE_EXPLORATION.md)：NEMU itrace、3C模型、AMAT/TMT和cachesim命令。
-- [顺序流水线设计记录](microarchitecture/PIPELINE_DESIGN_RECORD.md)：流水级payload、冒险控制、flush和精确提交契约。
+- [顺序流水线说明](microarchitecture/PIPELINE_DESIGN_RECORD.md)：操作数准备、执行、前递、提交和 FENCE.I 控制。
+- [D-cache 说明](microarchitecture/DCACHE_DESIGN_RECORD.md)：同步查询、store 旁路、写回/回填和 clean。
+- [完整目录整理验证](verification/RV32_FULL_DIRECTORY_REVIEW_2026-09-19.md)：全部 67 个文件的检查范围、补充修改与回归。
+- [整理后的面积、时序与性能复测](verification/RV32_READABILITY_PPA_2026-09-19.md)：同条件比较、综合编译修复和 microbench test 结果。
+- [前次后端与系统整理](verification/RV32_READABILITY_2026-09-16.md)：模块提取与代码重排的原始记录。
 
 - 最终产品和架构路线：[`architecture/ARCHITECTURE_PLAN.md`](architecture/ARCHITECTURE_PLAN.md)
 - P2配置和宽度解耦：[`architecture/P2_CONFIGURATION_PLAN.md`](architecture/P2_CONFIGURATION_PLAN.md)
@@ -55,6 +62,8 @@
 3. 参数、端口或协议发生变化时，同一次修改必须更新父模块、断言、测试和相关文档。
 4. 性能结论必须附带 Git commit、配置、命令和原始计数器数据。
 5. 学习记录区分“已经由证据支持的结论”和“仍需验证的假设”。
+6. 模块说明只维护当前原理、结构、工作过程与关键取舍；参数表、实验结果和历史过程
+   各有唯一维护位置，通过链接引用。更新已有说明，避免每次修改都再增加一份重复说明。
 
 - [RV32 D-cache 时序优化（2026-09-06）](verification/RV32_TIMING_FIX_2026-09-06.md)：820 MHz setup 通过，复位 removal 待修复。
 

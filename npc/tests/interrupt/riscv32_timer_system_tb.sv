@@ -146,18 +146,18 @@ module riscv32_timer_system_tb;
               dut.u_core.commit.pc
           );
         if (!dut.u_core.commit.trap_taken) retired_count <= retired_count + 1;
-        if (dut.u_core.committed_fence_i_occurred) fence_count <= fence_count + 1;
+        if (dut.u_core.committed_fence_i_event) fence_count <= fence_count + 1;
         if (dut.u_core.commit.memory_access && dut.u_core.commit.memory_cmd == MEM_CMD_STORE &&
             dut.u_core.commit.memory_addr >= 32'h8000_0000)
           committed_store_count <= committed_store_count + 1;
         expected_pc <= dut.u_core.commit.next_pc;
         if (dut.u_core.commit.system_op == SYS_EBREAK) begin
-          assert (dut.u_core.u_arch_regfile.gpr_q[10] == 0)
+          assert (dut.u_core.u_regfile.gpr_array_q[10] == 0)
           else
             $fatal(
                 1,
                 "software self-test failed: stage=%0d pc=%h",
-                dut.u_core.u_arch_regfile.gpr_q[10],
+                dut.u_core.u_regfile.gpr_array_q[10],
                 dut.u_core.commit.pc
             );
           assert ((am_test != 0) ? (interrupt_count == 5) :
@@ -186,7 +186,7 @@ module riscv32_timer_system_tb;
           $finish;
         end
       end
-      if (dut.u_core.commit_redirect_resolution_occurred)
+      if (dut.u_core.commit_redirect_resolution_event)
         expected_pc <= dut.u_core.commit_redirect_req_at_resolution.target_pc;
       assert ({dut.u_core.u_csr_file.u_pmu.minstret_high_q, dut.u_core.u_csr_file.u_pmu.minstret_low_q} == 64'(retired_count))
       else $fatal(1, "interrupt or exception incorrectly counted as retired instruction");

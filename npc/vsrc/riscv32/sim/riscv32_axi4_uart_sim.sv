@@ -5,8 +5,8 @@ module riscv32_axi4_uart_sim
   import riscv32_addr_map_pkg::*;
   import riscv32_axi4_pkg::*;
 (
-    input logic clk_i,
-    input logic rst_ni,
+    input  logic clk_i,
+    input  logic rst_ni,
 
     input  axi4_manager_to_target_t uart_axi_i,
     output axi4_target_to_manager_t uart_axi_o
@@ -33,17 +33,17 @@ module riscv32_axi4_uart_sim
 
   logic [MEM_AXI_ID_WIDTH-1:0] read_id_q;
   logic [MEM_AXI_ID_WIDTH-1:0] read_id_d;
-  logic [7:0] read_last_beat_index_q;
-  logic [7:0] read_last_beat_index_d;
-  logic [7:0] read_beat_index_q;
-  logic [7:0] read_beat_index_d;
-  axi4_resp_e read_response_q;
-  axi4_resp_e read_response_d;
+  logic [7:0]                  read_last_beat_index_q;
+  logic [7:0]                  read_last_beat_index_d;
+  logic [7:0]                  read_beat_index_q;
+  logic [7:0]                  read_beat_index_d;
+  axi4_resp_e                  read_response_q;
+  axi4_resp_e                  read_response_d;
 
   logic [MEM_AXI_ID_WIDTH-1:0] write_id_q;
   logic [MEM_AXI_ID_WIDTH-1:0] write_id_d;
-  axi4_resp_e write_response_q;
-  axi4_resp_e write_response_d;
+  axi4_resp_e                  write_response_q;
+  axi4_resp_e                  write_response_d;
 
   logic read_address_handshake;
   logic read_data_handshake;
@@ -51,13 +51,13 @@ module riscv32_axi4_uart_sim
   logic write_data_handshake;
   logic write_response_handshake;
 
-  logic write_character_event;
+  logic       write_character_event;
   logic [7:0] write_character_data;
 
-  assign read_address_handshake = uart_axi_i.ar_valid && uart_axi_o.ar_ready;
-  assign read_data_handshake = uart_axi_o.r_valid && uart_axi_i.r_ready;
-  assign write_address_handshake = uart_axi_i.aw_valid && uart_axi_o.aw_ready;
-  assign write_data_handshake = uart_axi_i.w_valid && uart_axi_o.w_ready;
+  assign read_address_handshake   = uart_axi_i.ar_valid && uart_axi_o.ar_ready;
+  assign read_data_handshake      = uart_axi_o.r_valid && uart_axi_i.r_ready;
+  assign write_address_handshake  = uart_axi_i.aw_valid && uart_axi_o.aw_ready;
+  assign write_data_handshake     = uart_axi_i.w_valid && uart_axi_o.w_ready;
   assign write_response_handshake = uart_axi_o.b_valid && uart_axi_i.b_ready;
 
   // 第一段：AXI4输出。AW出现时允许首个W beat同拍直通。

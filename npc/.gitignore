@@ -11,6 +11,8 @@
 !*.cpp
 !*.py
 !*.md
+!docs/interview/figures/*.dot
+!docs/interview/figures/*.svg
 !constr/riscv32_npc_axi.sdc
 !.gitignore
 !README.md

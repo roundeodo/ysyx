@@ -1,8 +1,9 @@
 # RV32 架构与模块说明
 
-更新日期：2026-09-15，已取消独立 RR 寄存级，并将预测器中的 BHT、BTB、RAS 拆为独立模块。
+更新日期：2026-09-19。独立 RR 已取消，BHT/BTB/RAS 已拆分；前端重写后采用单级查询，
+BTB 训练直接写表，RAS 组合读取栈顶。当前面积、时序和性能见[整理后复测](../verification/RV32_READABILITY_PPA_2026-09-19.md)。
 本文依据面试工作树 `ysyx-workbench-rv32-interview` 的实际 RTL 连接，源代码基点为
-`4d0716e` 加上述工作树改动，配置为 `PROJECT=riscv32 NPC_CONFIG=rv32-baseline`。
+`d8bb7dd` 加前端重写、后端整理及目录分层，配置为 `PROJECT=riscv32 NPC_CONFIG=rv32-baseline`。
 远程面试快照及依赖恢复方式见 [远程版本说明](RV32_REMOTE_SNAPSHOT.md)。
 
 这是一颗 **RV32I 单发射、顺序执行、顺序提交的处理器**，带分离的 L1 指令/数据缓存、
@@ -30,7 +31,7 @@ ALU、AGU、命中选择器等可能只是一个 RTL 模块内部的逻辑，不
 | BHT | 16 项，每项 2 位饱和计数器 | PC 索引，不是全局历史或 gshare |
 | BTB | 总计 16 项，2 路，8 组 | 不要写成“16 组 × 2 路” |
 | RAS | 4 项 | 按已解析调用/返回更新，无推测检查点 |
-| 预测查询 | 两级弹性寄存 | 表读取与 tag/目标选择分开 |
+| 预测查询 | 一级结果寄存 | BHT/BTB/RAS 并行组合查询，统一保存预测结果 |
 | IFU 请求队列 | 2 项 | 保存待送 I-cache 的 PC/tag/epoch 及预测，不是完成指令队列 |
 | frontend tag / epoch | 各 4 个取值，均为 2 位 | tag 配对请求元数据，epoch 区分恢复前后的取指 |
 | fetch_buffer | 两项环形 FIFO | 寄存的读指针选择输出；空队列无组合穿透 |
@@ -50,8 +51,8 @@ ysyxSoCFull                         外部 SoC，不属于纯核
    ├─ riscv32_npc_system
    │  ├─ riscv32_reset_controller
    │  ├─ riscv32_core              前端、执行流水线、I/D-cache、CSR 等
-   │  ├─ riscv32_axi4_core_merge   合并核的 instruction/data AXI
-   │  ├─ riscv32_axi4_address_router
+   │  ├─ riscv32_axi4_arbiter   合并核的 instruction/data AXI
+   │  ├─ riscv32_axi4_router
    │  └─ riscv32_axi4_clint        本地 MMIO 定时器，IRQ 直接返回 core
    └─ riscv32_axi4_soc_width_converter
       └─ RV32 同宽分支             字段映射，无额外寄存级
@@ -70,8 +71,8 @@ SoC 集成包含 SRAM、MROM、SPI/Flash、PSRAM、SDRAM 以及 UART/GPIO 等外
 | [riscv32_npc_axi](../../vsrc/riscv32/system/riscv32_npc_axi.sv) | 扁平 AXI 引脚与结构体信号映射，连接 system 和 width converter；CPU 的外部 slave 端口未提供有效服务，外部 `io_interrupt` 未接成核内外部中断 |
 | [riscv32_npc_system](../../vsrc/riscv32/system/riscv32_npc_system.sv) | 本地系统装配层；CLINT 区间 `0x02000000–0x0200ffff` 单独路由，其他地址默认送 SoC |
 | [riscv32_reset_controller](../../vsrc/riscv32/system/riscv32_reset_controller.sv) | 异步进入复位，两级上升沿同步，再在下降沿释放；给下游上升沿触发器留出释放时间 |
-| [riscv32_axi4_core_merge](../../vsrc/riscv32/system/riscv32_axi4_core_merge.sv) | I/D 读请求轮询仲裁；ARVALID 已展示但受阻时就锁定来源，直到 RLAST 握手才释放；最多 1 个读 burst 在途；AW/W/B 由数据侧独占 |
-| [riscv32_axi4_address_router](../../vsrc/riscv32/system/riscv32_axi4_address_router.sv) | 地址比较、目标选择及响应返回；读、写分别保存事务目标。读状态为地址路由/返回数据，写状态为地址路由/传送数据/返回 B；不是多在途交叉开关 |
+| [riscv32_axi4_arbiter](../../vsrc/riscv32/system/riscv32_axi4_arbiter.sv) | I/D 读请求轮询仲裁；ARVALID 已展示但受阻时就锁定来源，直到 RLAST 握手才释放；最多 1 个读 burst 在途；AW/W/B 由数据侧独占 |
+| [riscv32_axi4_router](../../vsrc/riscv32/system/riscv32_axi4_router.sv) | 地址比较、目标选择及响应返回；读、写分别保存事务目标。读状态为地址路由/返回数据，写状态为地址路由/传送数据/返回 B；不是多在途交叉开关 |
 | [riscv32_axi4_soc_width_converter](../../vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv) | 当前 32→32 位，只做组合字段映射；文件中的 64→32 拆分状态机属于其他配置，不属于当前配置 |
 | [riscv32_axi4_clint](../../vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv) | AXI 读/写状态机、分频计数器、64 位 mtime 和 mtimecmp、比较器；`mtime >= mtimecmp` 产生电平中断；当前没有 MSIP 软件中断寄存器 |
 
@@ -93,16 +94,16 @@ ID/EX → EXU → 执行结果寄存级 → 完成选择 → WB → 组合提交
 
 | RTL 模块 | 具体结构、数据保存与控制 |
 | --- | --- |
-| [riscv32_core](../../vsrc/riscv32/core/riscv32_core.sv) | 顶层装配，同时包含操作数前递 mux、入口握手门控、重定向源连接和 FENCE.I 状态机；这些没有另拆成 RTL 文件 |
-| [riscv32_idu](../../vsrc/riscv32/core/riscv32_idu.sv) | 组合 opcode/funct 译码、立即数生成、rs/rd 使用标志、功能单元选择、CSR/访存/分支控制、非法指令和系统指令分类；不保存独立译码寄存状态 |
-| [riscv32_arch_regfile](../../vsrc/riscv32/core/riscv32_arch_regfile.sv) | 2 个组合读端口、1 个上升沿写端口，物理数组 31×32 位；x0 读零、写忽略；其余数据不复位 |
-| 组合操作数准备（core 内） | GPR 组合读取、源选择及 EX/结果级/WB 前递直接形成 ID/EX 输入；CSR 按指令固定地址字段并行读取。停顿期间指令留在 fetch buffer，读取/前递值可随生产者更新，不再保存或刷新 RR 快照 |
-| [riscv32_pipeline_hazard_controller](../../vsrc/riscv32/core/riscv32_pipeline_hazard_controller.sv) | 组合比较源寄存器和各生产者 rd，生成前递选择、RAW 等待、串行化等待、LSU/执行结果结构阻塞及恢复抑制；不含记分牌 RAM 或指令调度队列 |
-| [riscv32_decode_execute_stage](../../vsrc/riscv32/core/riscv32_decode_execute_stage.sv) | 主项 + skid 项，保存已选好操作数的执行包及生产者/串行化元数据。入口 ready 取决于 skid 是否空，从而截断跨级 ready 路径；flush 清有效位，不清宽 payload |
-| [riscv32_execute_result_stage](../../vsrc/riscv32/core/riscv32_execute_result_stage.sv) | 1 项弹性结果寄存，同时保存预测 next PC；在寄存输出端比较真实与预测后继，产生分支纠错请求 |
-| [riscv32_completion_mux](../../vsrc/riscv32/core/riscv32_completion_mux.sv) | 组合二选一，LSU 结果优先，其次普通执行结果；ready 返回对应来源；它没有按 ROB 年龄排序的功能 |
-| [riscv32_writeback_stage](../../vsrc/riscv32/core/riscv32_writeback_stage.sv) | 1 项弹性寄存，给提交和架构写端提供稳定 payload；架构恢复时清除年轻有效项 |
-| [riscv32_commit](../../vsrc/riscv32/core/riscv32_commit.sv) | 组合生成唯一 commit 事件及 GPR/CSR 写使能，异常抑制正常写回；输出下游 ready 恒为 1。访存副作用不是等到此处才第一次发生 |
+| [riscv32_core](../../vsrc/riscv32/core/riscv32_core.sv) | 按数据流组织子模块连接、入口握手门控与重定向来源；操作数 mux 和 FENCE.I 状态分别归属独立模块 |
+| [riscv32_idu](../../vsrc/riscv32/core/decode/riscv32_idu.sv) | 组合 opcode/funct 译码、立即数生成、rs/rd 使用标志、功能单元选择、CSR/访存/分支控制、非法指令和系统指令分类；不保存独立译码寄存状态 |
+| [riscv32_regfile](../../vsrc/riscv32/core/decode/riscv32_regfile.sv) | 2 个组合读端口、1 个上升沿写端口，物理数组 31×32 位；x0 读零、写忽略；其余数据不复位 |
+| [riscv32_operand_mux](../../vsrc/riscv32/core/decode/riscv32_operand_mux.sv) | GPR 组合读取、源选择及 EX/结果级/WB 前递直接形成 ID/EX 输入；CSR 按指令固定地址字段并行读取。停顿期间指令留在 fetch buffer，读取/前递值可随生产者更新，不再保存或刷新 RR 快照 |
+| [riscv32_hazard_ctrl](../../vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv) | 组合比较源寄存器和各生产者 rd，生成前递选择、RAW 等待、串行化等待、LSU/执行结果结构阻塞及恢复抑制；不含记分牌 RAM 或指令调度队列 |
+| [riscv32_id_ex_reg](../../vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv) | 主项 + skid 项，保存已选好操作数的执行包及生产者/串行化元数据。入口 ready 取决于 skid 是否空，从而截断跨级 ready 路径；flush 清有效位，不清宽 payload |
+| [riscv32_ex_result_reg](../../vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv) | 1 项弹性结果寄存，同时保存预测 next PC；在寄存输出端比较真实与预测后继，产生分支纠错请求 |
+| [riscv32_completion_mux](../../vsrc/riscv32/core/writeback/riscv32_completion_mux.sv) | 组合二选一，LSU 结果优先，其次普通执行结果；ready 返回对应来源；它没有按 ROB 年龄排序的功能 |
+| [riscv32_wb_reg](../../vsrc/riscv32/core/writeback/riscv32_wb_reg.sv) | 1 项弹性寄存，给提交和架构写端提供稳定 payload；架构恢复时清除年轻有效项 |
+| [riscv32_commit](../../vsrc/riscv32/core/writeback/riscv32_commit.sv) | 组合生成唯一 commit 事件及 GPR/CSR 写使能，异常抑制正常写回；输出下游 ready 恒为 1。访存副作用不是等到此处才第一次发生 |
 
 ### 独立 RR 寄存级是否必需
 
@@ -125,7 +126,7 @@ rs1/rs2 地址来自指令固定字段，读 GPR 与其余译码可以并行，�
 取消 RR 时测得网表面积为 76,585.656 μm²；820 MHz setup slack 为 −0.096 ns，降到 750 MHz 后
 setup slack 为 +0.018 ns，hold 和门控时钟检查均通过。这里是综合后估算，未做布局布线。
 验证和测量结果见 [取消 RR 的实现记录](RV32_RR_REMOVAL_2026-09-15.md)。
-后续预测器拆分后的新网表为 76,480.320 μm²，采用通过检查的 730 MHz；
+同日首次预测器拆分的历史网表为 76,480.320 μm²，采用通过检查的 730 MHz；
 最新结果见 [预测器拆分验证](../verification/RV32_PREDICTOR_SPLIT_2026-09-15.md)。
 
 ### 前递端点与优先级
@@ -155,31 +156,33 @@ SYSTEM、FENCE/FENCE.I 等指令按串行化处理。控制恢复在产生当拍
 
 ## 4. 前端与分支预测器
 
-这里有三个不同的保存位置：预测器的两级查询寄存器、IFU 的两项待发请求队列、
+当前前端已缩短查询与训练路径；最新验证见
+[前端重写记录](../verification/RV32_FRONTEND_REWRITE_2026-09-15.md)。
+
+这里有三个不同的保存位置：预测器的单级响应寄存器、IFU 的两项待发请求队列、
 fetch_buffer 的两项已完成指令缓冲。它们保存的数据和释放条件不同，不能合画成一个
 “4 项取指队列”，也不能把深度简单相加后宣称可同时处理相同数量的 cache miss。
 
 | RTL 模块 | 内部架构与接口 |
 | --- | --- |
-| [riscv32_ifu](../../vsrc/riscv32/core/riscv32_ifu.sv) | PC 状态、2 项请求环形队列及读写指针/数量、随队列保存的预测、4 个 tag 的在途预测元数据、当前 epoch；向预测器发 PC，收预测后排队访问 I-cache；用 tag 配对预测与指令，用 epoch 丢弃旧路径响应 |
-| [riscv32_fetch_control_flow_predictor](../../vsrc/riscv32/core/frontend/riscv32_fetch_control_flow_predictor.sv) | 预测控制模块：统一查询握手、PC/epoch 与快照对齐、响应寄存、最终方向/目标选择和共享解析事件寄存；实例化下面三个状态模块 |
-| [riscv32_branch_history_table](../../vsrc/riscv32/core/frontend/riscv32_branch_history_table.sv) | BHT 计数器数组、组合查询和训练更新；只接收父模块已经寄存的条件分支训练事件，没有新增训练寄存级 |
-| [riscv32_branch_target_buffer](../../vsrc/riscv32/core/frontend/riscv32_branch_target_buffer.sv) | BTB 数组、替换位置、查询 set 快照与 tag 比较、训练 set 快照、选 way、写事务及训练旁路；这些内部状态不暴露给父模块 |
-| [riscv32_return_address_stack](../../vsrc/riscv32/core/frontend/riscv32_return_address_stack.sv) | 调用/返回识别、栈操作寄存、返回地址数组、写指针、数量和栈顶副本；与共享解析事件并行接收原始解析结果 |
+| [riscv32_ifu](../../vsrc/riscv32/core/frontend/riscv32_ifu.sv) | PC 状态、2 项请求环形队列及读写指针/数量、随队列保存的预测、4 个 tag 的在途预测元数据、当前 epoch；向预测器发 PC，收预测后排队访问 I-cache；用 tag 配对预测与指令，用 epoch 丢弃旧路径响应 |
+| [riscv32_branch_predictor](../../vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv) | 预测控制模块：统一查询握手、PC/epoch 与组合预测对齐、单级响应寄存、最终方向/目标选择和共享解析事件寄存；实例化下面三个状态模块 |
+| [riscv32_bht](../../vsrc/riscv32/core/frontend/riscv32_bht.sv) | BHT 计数器数组、组合查询和训练更新；只接收父模块已经寄存的条件分支训练事件，没有新增训练寄存级 |
+| [riscv32_btb](../../vsrc/riscv32/core/frontend/riscv32_btb.sv) | BTB 数组、有效位和替换位置；组合 set 选择、tag 比较与目标合并，训练直接选 way 同步写入，无查询或训练快照 |
+| [riscv32_ras](../../vsrc/riscv32/core/frontend/riscv32_ras.sv) | 调用/返回识别、栈操作寄存、返回地址数组、写指针与数量；组合读取栈顶；与共享解析事件并行接收原始解析结果 |
 | [riscv32_fetch_buffer](../../vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv) | 两项环形 FIFO；读、写指针各 1 位，数量 2 位。出队切换读指针，入队写空闲槽；入口 ready 只依赖寄存数量及 flush，避免译码出队控制驱动宽数据搬移。输出由寄存读指针选择，无空队列穿透；非满稳态支持每拍同时入队和出队 |
 
 | 预测器内部部分 | 当前算法/状态 | 代价与边界 |
 | --- | --- | --- |
 | BHT | `PC[5:2]` 索引 16 个 2-bit 饱和计数器，初始 01；最高位给方向，条件分支解析后训练 | 无 PC tag，不同分支可发生索引冲突；无全局历史 |
 | BTB | `PC[4:2]` 索引 8 组，两路并行比较 `PC[31:5]`；项含有效、tag、目标 PC、控制流种类 | 共 16 项；已有同 tag 项优先更新，否则无效 way 优先，再用轮询替换指针；不是 LRU |
-| RAS | 保存 4 个返回 PC、栈指针/计数及栈顶副本；依据 x1/x5 调用/返回组合形成 push/pop/pop+push | 根据已解析控制流训练，不在每次预测调用时推测修改；无 RAS checkpoint |
-| 查询一级 | 按 PC 取出一个 BTB set、BHT 计数及 RAS 栈顶并寄存 | 数组选择与后续 tag 比较分离 |
-| 查询二级 | 比较 BTB tag，选方向/目标，寄存预测响应 | BTB miss 走 PC+4；return 命中时优先用非空 RAS，否则用 BTB 目标 |
-| 训练 | 无异常的分支执行结果被完成端接收后，采样解析事件；BTB 再经过 set 快照和写事务寄存，BHT/RAS 更新各自状态 | 训练来源不是 commit。BTB 训练快照有待写项前递，查询没有最新训练值前递；此前错误描述查询旁路的注释已修正 |
+| RAS | 保存 4 个返回 PC、栈指针/计数；依据 x1/x5 调用/返回组合形成 push/pop/pop+push | 根据已解析控制流训练，不在每次预测调用时推测修改；无 RAS checkpoint |
+| 唯一查询级 | 按 PC 并行查 BHT/BTB/RAS，完成 tag 比较与目标选择，再保存完整响应 | BTB miss 走 PC+4；返回优先用非空 RAS。反压保持响应，不保存中间 set 和栈顶快照 |
+| 训练 | E0 保存解析事件，E1 更新 BHT/BTB/RAS；RAS 的栈操作与 BHT/BTB 事件并行寄存 | 来源是执行结果被接收。BTB 直接更新数组，没有待写事务及训练旁路；查询同沿读取旧值 |
 
-模块拆分没有增加流水级。一次查询握手同时采样 PC/epoch、BHT 计数、RAS 栈顶和 BTB set；
-父模块统一决定查询推进，子模块不各自维护 ready 链或请求队列。
-详细接口和各拍训练时刻见 [预测器模块设计记录](../microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md)。
+当前单级查询是后续前端重写的结果。BHT、BTB、RAS 的模块边界不要求独立流水级；
+父模块在一次请求握手时保存 PC、epoch 与最终预测。详见
+[预测器模块设计记录](../microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md)。
 
 预测器能在下游允许时每拍接受一个顺序 PC 查询，但预测 taken 的响应会改变下一查询 PC
 并清除年轻查询，不能据此宣称所有控制流都能无气泡取指。真实分支结果不等于预测后继时，
@@ -193,10 +196,10 @@ BHT 计数器只有复位时初始化，不随该 invalidate 全部清零。不�
 
 | RTL 模块 | 内部结构 | 关键边界 |
 | --- | --- | --- |
-| [riscv32_exu](../../vsrc/riscv32/core/riscv32_exu.sv) | 组合整数加减/逻辑/比较/移位、分支条件比较、目标加法、PC+4、CSR 读改写运算、独立访存地址加法器 | ALU、分支、AGU、CSR 执行目前是同一模块内的逻辑区，不是四个独立发射单元；RV32 配置没有硬件乘除法 |
-| [riscv32_lsu](../../vsrc/riscv32/core/riscv32_lsu.sv) | 一个紧凑上下文寄存器、3 状态控制、对齐检查、store 数据移位/字节掩码、load 字节选择和符号/零扩展、access fault 转换 | 有意取消空闲直通：接受 EXU 请求后先寄存，下一周期才向 memory subsystem 发请求；响应通过 completion ready 反压，不复制完整响应寄存器 |
-| [riscv32_csr_file](../../vsrc/riscv32/core/riscv32_csr_file.sv) | 组合地址选择/合法性判断，M-mode 状态寄存器，内部实例化 PMU；提交写入，trap/mret 修改中断状态 | 实现 mstatus 的 MIE/MPIE、固定 MPP=M，mie.MTIE、硬件 mip.MTIP，mtvec/mepc/mscratch/mcause/mtval、misa 和身份只读值；mtvec 为直接模式，不支持向量表模式 |
-| [riscv32_pmu](../../vsrc/riscv32/core/riscv32_pmu.sv) | 64 位 mcycle、minstret 各拆成高/低 32 位计数段，低半溢出递增高半；mcountinhibit 仅存 CY/IR 两位 | RV32 通过基础及 H 后缀 CSR 访问；异常不算退休，中断不是退休指令；Cache/分支详细统计由仿真 monitor 做 |
+| [riscv32_exu](../../vsrc/riscv32/core/execute/riscv32_exu.sv) | 组合整数加减/逻辑/比较/移位、分支条件比较、目标加法、PC+4、CSR 读改写运算、独立访存地址加法器 | ALU、分支、AGU、CSR 执行目前是同一模块内的逻辑区，不是四个独立发射单元；RV32 配置没有硬件乘除法 |
+| [riscv32_lsu](../../vsrc/riscv32/core/memory/riscv32_lsu.sv) | 一个紧凑上下文寄存器、3 状态控制、对齐检查、store 数据移位/字节掩码、load 字节选择和符号/零扩展、access fault 转换 | 有意取消空闲直通：接受 EXU 请求后先寄存，下一周期才向 memory subsystem 发请求；响应通过 completion ready 反压，不复制完整响应寄存器 |
+| [riscv32_csr_file](../../vsrc/riscv32/core/writeback/riscv32_csr_file.sv) | 组合地址选择/合法性判断，M-mode 状态寄存器，内部实例化 PMU；提交写入，trap/mret 修改中断状态 | 实现 mstatus 的 MIE/MPIE、固定 MPP=M，mie.MTIE、硬件 mip.MTIP，mtvec/mepc/mscratch/mcause/mtval、misa 和身份只读值；mtvec 为直接模式，不支持向量表模式 |
+| [riscv32_pmu](../../vsrc/riscv32/core/writeback/riscv32_pmu.sv) | 64 位 mcycle、minstret 各拆成高/低 32 位计数段，低半溢出递增高半；mcountinhibit 仅存 CY/IR 两位 | RV32 通过基础及 H 后缀 CSR 访问；异常不算退休，中断不是退休指令；Cache/分支详细统计由仿真 monitor 做 |
 
 EXU 的访存有效地址是 `rs1 + imm`，由独立加法表达式生成；这只是 AGU 功能，尚无地址
 翻译。store 数据使用 rs2，和 ALU 的第二操作数选择需要区分。JAL/JALR 返回 PC+4，
@@ -232,7 +235,7 @@ tag 比较和数据选择，返回一个 32 位指令字。不要在数组输出
 | [riscv32_icache_tag_array](../../vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv) | 按 way/set 保存 tag 与有效位；同步读取所选 set 的各 way；按 set/way 写元数据；复位清有效位，tag payload 不依赖清零 |
 | [riscv32_icache_data_array](../../vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv) | 按 way/word/set 保存指令数据；上升沿寄存读结果；refill 写口先 staging，再用 always_latch 在低电平写数据存储体，每次写一个字 |
 | [riscv32_icache_miss_unit](../../vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv) | 单请求上下文、refill 进度、所需字与响应是否已生成的状态；状态为 IDLE → SEND_REFILL_REQUEST → RECEIVE_REFILL → COMPLETE |
-| [riscv32_icache_refill_axi4_master](../../vsrc/riscv32/core/frontend/riscv32_icache_refill_axi4_master.sv) | 单读事务控制，IDLE → SEND_AR → RECEIVE_R；将 refill 请求变成 AXI AR，把每个 R beat 转成 refill word/错误信息。实例在 core 中，是 I-cache 的同层模块 |
+| [riscv32_icache_axi](../../vsrc/riscv32/core/frontend/riscv32_icache_axi.sv) | 单读事务控制，IDLE → SEND_AR → RECEIVE_R；将 refill 请求变成 AXI AR，把每个 R beat 转成 refill word/错误信息。实例在 core 中，是 I-cache 的同层模块 |
 | [riscv32_pma](../../vsrc/riscv32/core/frontend/riscv32_pma.sv) | 组合地址区间译码，给出 readable/writable/executable/cacheable/idempotent 等属性；I-cache 与数据子系统分别实例化它，不是共享单端口寄存表 |
 
 cacheable miss 使用行对齐地址，发 `ARLEN=3`、`ARSIZE=2`、INCR burst，按自然地址顺序
@@ -258,13 +261,13 @@ D-cache 地址划分为 **tag[31:7]、set[6:4]、word[3:2]、byte[1:0]**。
 
 | RTL 模块 | 内部结构和职责 |
 | --- | --- |
-| [riscv32_data_memory_subsystem](../../vsrc/riscv32/core/memory/riscv32_data_memory_subsystem.sv) | PMA、D-cache、uncached 三个实例，加 IDLE/DCACHE/UNCACHED/ACCESS_FAULT 路由状态；按已保存事务选择响应和 data AXI 端口，clean 时由 D-cache 占用端口 |
+| [riscv32_data_mem](../../vsrc/riscv32/core/memory/riscv32_data_mem.sv) | PMA、D-cache、uncached 三个实例，加 IDLE/DCACHE/UNCACHED/ACCESS_FAULT 路由状态；按已保存事务选择响应和 data AXI 端口，clean 时由 D-cache 占用端口 |
 | [riscv32_dcache](../../vsrc/riscv32/core/memory/riscv32_dcache.sv) | S1 请求、并行 tag 命中比较、way 数据 mux、store 命中字节写与 dirty 更新、store 后继读取旁路、替换选择、维护遍历、阵列读写仲裁 |
 | [riscv32_dcache_tag_array](../../vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv) | 两路 tag/有效/dirty 阵列，同步读取一个 set，定向写一个 set/way 的元数据 |
 | [riscv32_dcache_data_array](../../vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv) | 两路同步读目标字，上升沿按 way/set/word 和 byte enable 写触发器数据阵列；命中读取与 victim 数据采集共享读口 |
 | [riscv32_dcache_miss_unit](../../vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv) | 一个 miss/clean 上下文，4 字 victim 缓冲、替换/回填字索引、请求字数据、写响应 pending 和错误累计；调度脏写回、refill、store 合并、安装与结果返回 |
-| [riscv32_dcache_line_axi4_master](../../vsrc/riscv32/core/memory/riscv32_dcache_line_axi4_master.sv) | 独立读 FSM（AR/R）和写 FSM（AW/W/B），保存写回整行及 beat 进度；读回填与旧行写响应可重叠，并非多个需求 miss 在途 |
-| [riscv32_uncached_axi4_master](../../vsrc/riscv32/core/memory/riscv32_uncached_axi4_master.sv) | 单个非缓存事务，状态为 IDLE、SEND_AR、RECEIVE_R、SEND_AW_W、RECEIVE_B；AW/W 各自跟踪接受情况，返回 read 数据或写响应错误 |
+| [riscv32_dcache_axi](../../vsrc/riscv32/core/memory/riscv32_dcache_axi.sv) | 独立读 FSM（AR/R）和写 FSM（AW/W/B），保存写回整行及 beat 进度；读回填与旧行写响应可重叠，并非多个需求 miss 在途 |
+| [riscv32_uncached_axi](../../vsrc/riscv32/core/memory/riscv32_uncached_axi.sv) | 单个非缓存事务，状态为 IDLE、SEND_AR、RECEIVE_R、SEND_AW_W、RECEIVE_B；AW/W 各自跟踪接受情况，返回 read 数据或写响应错误 |
 
 **命中。** S0 同步查 tag/data，S1 比较并响应。load 返回选中字，扩展在 LSU；store 在
 响应握手时按字节更新数据并置 dirty，不立即写下层。store hit 与下一次 lookup 可同拍
@@ -315,10 +318,10 @@ clean 与普通 lookup 互斥。维护错误的核级处理边界见下一节。
 | RTL 模块/逻辑 | 架构作用 |
 | --- | --- |
 | pipeline_hazard_controller | 数据相关、生产者可用性、串行化、LSU 忙、结果级受阻及恢复门控；控制能否接收/发出，而不是改变程序顺序 |
-| [riscv32_interrupt_controller](../../vsrc/riscv32/core/riscv32_interrupt_controller.sv) | 保存下一架构 PC；定时中断使能后阻止新指令进入 ID/EX，让已进入后端的指令排空；后端/维护空闲且无当拍 commit 时受理 |
-| [riscv32_trap_controller](../../vsrc/riscv32/core/riscv32_trap_controller.sv) | 组合处理同步 trap、mret、定时中断；生成 CSR 更新字段及架构重定向，同步 trap 优先于 mret，再于中断 |
-| [riscv32_frontend_redirect_register](../../vsrc/riscv32/core/riscv32_frontend_redirect_register.sv) | 当前接 3 个来源，各自寄存 payload，优先级只选来源索引；优先级为提交 trap/mret/中断 > FENCE.I > 分支纠错；下一拍发给 IFU 和前端 flush |
-| core 内 FENCE.I FSM | 提交 FENCE.I 后，停止新取指访存并排空已有请求，clean D-cache，再 invalidate I-cache/BTB/RAS，最后恢复取指 |
+| [riscv32_interrupt_ctrl](../../vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv) | 保存下一架构 PC；定时中断使能后阻止新指令进入 ID/EX，让已进入后端的指令排空；后端/维护空闲且无当拍 commit 时受理 |
+| [riscv32_trap_ctrl](../../vsrc/riscv32/core/control/riscv32_trap_ctrl.sv) | 组合处理同步 trap、mret、定时中断；生成 CSR 更新字段及架构重定向，同步 trap 优先于 mret，再于中断 |
+| [riscv32_redirect_stage](../../vsrc/riscv32/core/control/riscv32_redirect_stage.sv) | 当前接 3 个来源，各自寄存 payload，优先级只选来源索引；优先级为提交 trap/mret/中断 > FENCE.I > 分支纠错；下一拍发给 IFU 和前端 flush |
+| [riscv32_fence_i_ctrl](../../vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv) | 提交 FENCE.I 后，停止新取指访存并排空已有请求，clean D-cache，再 invalidate I-cache/BTB/RAS，最后恢复取指 |
 
 **异常链。** IFU 的访问异常、IDU 的非法指令/ecall/ebreak、EXU 的控制流对齐或 CSR
 非法访问、LSU 的对齐/总线异常，随对应指令带到 WB/commit；trap_controller 再统一更新
@@ -334,25 +337,25 @@ interrupt_controller 给恢复 PC → trap_controller → CSR 保存现场与跳
 已展示 valid 但受阻的请求先保持并完成，再做维护；不能直接撤走总线请求。
 当前 clean 的 fault 信号已从 D-cache 接到 core，但 core 只有仿真断言报告失败，维护 FSM
 仍按 done 前进，没有把维护失败转换成可供软件恢复的架构异常。面试中应明确这是错误处理
-尚未闭合的边界，不能称为“所有缓存维护错误都有精确异常”。本次架构梳理未修改其 RTL。
+尚未闭合的边界，不能称为“所有缓存维护错误都有精确异常”。本轮只调整状态归属，未改变这一错误处理边界。
 
 ## 9. 历史模块、仿真模块与配置声明
 
-文件被 filelist 列出，只说明参与编译，不说明被当前顶层实例化。以下也纳入了本次目录梳理，
-保留它们是为了测试、其他配置或历史追溯。
+文件被 filelist 列出，只说明参与编译，不说明被当前顶层实例化。以下前四个模块已移入
+`experiments/`，并从当前仿真、综合及测试依赖中移除；其余按用途保留。
 
 | 文件/模块 | 定位 |
 | --- | --- |
-| [riscv32_decode_stage](../../vsrc/riscv32/core/riscv32_decode_stage.sv) | 旧独立译码弹性寄存级；当前 core 未实例化 |
-| [riscv32_register_read_stage](../../vsrc/riscv32/core/riscv32_register_read_stage.sv) | 旧 GPR 读取结果寄存级；2026-09-15 已取消实例，文件保留供历史/模块测试参考 |
-| [riscv32_redirect_arbiter](../../vsrc/riscv32/core/riscv32_redirect_arbiter.sv) | 保留的组合优先选择模块；当前 core 使用 frontend_redirect_register，不再实例化它 |
-| [riscv32_axi4_error_target](../../vsrc/riscv32/system/riscv32_axi4_error_target.sv) | 可返回 DECERR 的 AXI 目标；当前 npc_system 未实例化，默认目标接外部 SoC，不能当作本地路由器内部固定错误从机 |
+| [riscv32_decode_stage](../../vsrc/riscv32/experiments/pipeline/riscv32_decode_stage.sv) | 旧独立译码弹性寄存级；当前 core 未实例化 |
+| [riscv32_register_read_stage](../../vsrc/riscv32/experiments/pipeline/riscv32_register_read_stage.sv) | 旧 GPR 读取结果寄存级；2026-09-15 已取消实例 |
+| [riscv32_redirect_arbiter](../../vsrc/riscv32/experiments/pipeline/riscv32_redirect_arbiter.sv) | 旧组合优先选择模块；当前 core 使用 `redirect_stage` |
+| [riscv32_axi4_error_target](../../vsrc/riscv32/experiments/interconnect/riscv32_axi4_error_target.sv) | 未接入的独立 DECERR 目标；当前系统默认目标为外部端口 |
 | [riscv32_core_reset_boundary](../../vsrc/riscv32/system/riscv32_core_reset_boundary.sv) | 综合/STA 使用的“复位控制器 + 纯核”边界，不含 CLINT/SoC，不是实际 npc_system 内又套的一层 |
 | [sim/top](../../vsrc/riscv32/sim/top.sv) | standalone 仿真顶层，实例化本地系统、仿真内存/UART 及路由；当前 SoC train 使用 ysyxSoCFull |
 | [riscv32_axi4_sim_mem](../../vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv) / [riscv32_axi4_uart_sim](../../vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv) | 仿真 AXI 目标及宿主交互，不是需要计入纯核面积的主存/串口 RTL |
-| [riscv32_sim_performance_monitor](../../vsrc/riscv32/sim/riscv32_sim_performance_monitor.sv) | 仿真流水线事件/停顿/预测统计，通过宏控制实例化 |
-| [riscv32_sim_icache_performance_monitor](../../vsrc/riscv32/sim/riscv32_sim_icache_performance_monitor.sv) | 仿真取指缓存需求、命中/缺失、延迟等计数 |
-| [riscv32_sim_dcache_performance_monitor](../../vsrc/riscv32/sim/riscv32_sim_dcache_performance_monitor.sv) | 仿真数据缓存需求、脏替换、refill 等语义事件计数 |
+| [riscv32_sim_perf_monitor](../../vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv) | 仿真流水线事件/停顿/预测统计，通过宏控制实例化 |
+| [riscv32_sim_icache_monitor](../../vsrc/riscv32/sim/riscv32_sim_icache_monitor.sv) | 仿真取指缓存需求、命中/缺失、延迟等计数 |
+| [riscv32_sim_dcache_monitor](../../vsrc/riscv32/sim/riscv32_sim_dcache_monitor.sv) | 仿真数据缓存需求、脏替换、refill 等语义事件计数 |
 | [riscv32_sim_issue_window_monitor](../../vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv) | 保留的 CSR marker 窗口观察逻辑；不要把它当作当前低侵入计分窗口采样的唯一来源 |
 | `riscv32_perf_dpi.svh` 与 C++ 观察器 | 仿真边界导出与宿主统计，不向 workload 插入每条指令一次的 CSR 读指令；低侵入窗口在宿主侧观察已有取时访问 |
 | `experiments/riscv32_ALU_for_sta.sv` / `shl4_for_sta.sv` / `bcd7seg.v` | 独立实验模块，不在当前 CPU 活动实例层次中 |
@@ -388,7 +391,7 @@ train 数值见 [远程版本说明](RV32_REMOTE_SNAPSHOT.md)。本次回归与�
 
 阅读 RTL 时应以当前信号赋值和实例为准。regfile 原有的“当前无转发”注释、预测器内
 “查询旁路看到最新训练值”等旧表述均已修正；部分仿真接口仍保留较早的流水级名称。
-当前实际连接为：前递位于 ID/EX 之前；训练快照有旁路，查询没有该旁路；EXU 内 AGU 送 LSU。
+当前实际连接为：前递位于 ID/EX 之前；BTB 训练直接更新数组，查询无训练旁路；EXU 内 AGU 送 LSU。
 
 后续维护文字说明、参数表、接口契约及测量记录，不再要求更新架构图。
 源码发生改变时记录版本及验证范围；没有重新测量的全核面积、频率或 IPC 继续标为历史数据。

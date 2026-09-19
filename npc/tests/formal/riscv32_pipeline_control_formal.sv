@@ -150,7 +150,7 @@ module riscv32_pipeline_control_formal;
   (* anyseq *)arch_reg_idx_t lsu_pending_rd;
   (* anyseq *)logic          lsu_forwarding_available;
   (* anyseq *)logic          frontend_redirect_applied;
-  (* anyseq *)logic          commit_redirect_occurred;
+  (* anyseq *)logic          commit_redirect_event;
 
   logic          decode_accept_allowed;
   logic          execute_issue_allowed;
@@ -177,7 +177,7 @@ module riscv32_pipeline_control_formal;
   logic          lsu_matches_rs1;
   logic          lsu_matches_rs2;
 
-  riscv32_pipeline_hazard_controller u_pipeline_hazard_controller (
+  riscv32_hazard_ctrl u_hazard_ctrl (
       .clk_i                                   (clk_i),
       .rst_ni                                  (rst_ni),
       .decoded_uop_valid_i                     (decoded_uop_valid),
@@ -208,7 +208,7 @@ module riscv32_pipeline_control_formal;
       .lsu_forwarding_available_i              (lsu_forwarding_available),
       .execute_redirect_present_i              (1'b0),
       .frontend_redirect_applied_i             (frontend_redirect_applied),
-      .commit_redirect_occurred_i              (commit_redirect_occurred),
+      .commit_redirect_event_i              (commit_redirect_event),
       .decode_accept_allowed_o                 (decode_accept_allowed),
       .execute_issue_allowed_o                 (execute_issue_allowed),
       .decode_execute_flush_o                  (decode_execute_flush),
@@ -310,21 +310,21 @@ module riscv32_pipeline_control_formal;
       end
 
       assert (!(raw_hazard_present || serializing_hazard_present ||
-                frontend_redirect_applied || commit_redirect_occurred) ||
+                frontend_redirect_applied || commit_redirect_event) ||
               !decode_accept_allowed);
       assert ((raw_hazard_present || serializing_hazard_present || structural_hazard_present ||
                 frontend_redirect_applied ||
-                commit_redirect_occurred) ||
+                commit_redirect_event) ||
               (decode_accept_allowed && execute_issue_allowed));
       assert (!lsu_busy || !execute_issue_allowed);
       assert (!frontend_redirect_applied || !execute_issue_allowed);
-      assert (!commit_redirect_occurred || !execute_issue_allowed);
-      assert (!(frontend_redirect_applied || commit_redirect_occurred) || decode_execute_flush);
-      assert (!(lsu_busy || frontend_redirect_applied || commit_redirect_occurred) ||
+      assert (!commit_redirect_event || !execute_issue_allowed);
+      assert (!(frontend_redirect_applied || commit_redirect_event) || decode_execute_flush);
+      assert (!(lsu_busy || frontend_redirect_applied || commit_redirect_event) ||
               !execute_issue_allowed);
-      assert ((lsu_busy || frontend_redirect_applied || commit_redirect_occurred) ||
+      assert ((lsu_busy || frontend_redirect_applied || commit_redirect_event) ||
               execute_issue_allowed);
-      assert (writeback_flush == commit_redirect_occurred);
+      assert (writeback_flush == commit_redirect_event);
     end
   end
 

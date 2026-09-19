@@ -288,40 +288,39 @@ IDU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_idu.sv \
+	$(RTL_DIR)/core/decode/riscv32_idu.sv \
 	$(abspath ./tests/rtl/riscv32_idu_decode_tb.sv)
 
 EXU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_exu.sv \
+	$(RTL_DIR)/core/execute/riscv32_exu.sv \
 	$(abspath ./tests/rtl/riscv32_exu_alu_tb.sv)
 
 LSU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_lsu.sv \
+	$(RTL_DIR)/core/memory/riscv32_lsu.sv \
 	$(abspath ./tests/rtl/riscv32_lsu_tb.sv)
 
 PIPELINE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_register_read_stage.sv \
-	$(RTL_DIR)/core/riscv32_decode_execute_stage.sv \
-	$(RTL_DIR)/core/riscv32_pipeline_hazard_controller.sv \
-	$(RTL_DIR)/core/riscv32_completion_mux.sv \
-	$(RTL_DIR)/core/riscv32_writeback_stage.sv \
-	$(RTL_DIR)/core/riscv32_commit.sv \
-	$(RTL_DIR)/core/riscv32_trap_controller.sv \
+	$(RTL_DIR)/core/execute/riscv32_id_ex_reg.sv \
+	$(RTL_DIR)/core/control/riscv32_hazard_ctrl.sv \
+	$(RTL_DIR)/core/writeback/riscv32_completion_mux.sv \
+	$(RTL_DIR)/core/writeback/riscv32_wb_reg.sv \
+	$(RTL_DIR)/core/writeback/riscv32_commit.sv \
+	$(RTL_DIR)/core/control/riscv32_trap_ctrl.sv \
 	$(RTL_DIR)/core/frontend/riscv32_fetch_buffer.sv \
-	$(RTL_DIR)/core/frontend/riscv32_branch_history_table.sv \
-	$(RTL_DIR)/core/frontend/riscv32_branch_target_buffer.sv \
-	$(RTL_DIR)/core/frontend/riscv32_return_address_stack.sv \
-	$(RTL_DIR)/core/frontend/riscv32_fetch_control_flow_predictor.sv \
-	$(RTL_DIR)/core/riscv32_ifu.sv \
+	$(RTL_DIR)/core/frontend/riscv32_bht.sv \
+	$(RTL_DIR)/core/frontend/riscv32_btb.sv \
+	$(RTL_DIR)/core/frontend/riscv32_ras.sv \
+	$(RTL_DIR)/core/frontend/riscv32_branch_predictor.sv \
+	$(RTL_DIR)/core/frontend/riscv32_ifu.sv \
 	$(abspath ./tests/rtl/riscv32_pipeline_control_tb.sv)
 
 UNCACHED_TEST_SOURCES := \
@@ -329,7 +328,7 @@ UNCACHED_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/memory/riscv32_uncached_axi4_master.sv \
+	$(RTL_DIR)/core/memory/riscv32_uncached_axi.sv \
 	$(abspath ./tests/rtl/riscv32_uncached_axi4_master_tb.sv)
 
 DCACHE_TEST_SOURCES := \
@@ -339,7 +338,7 @@ DCACHE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
 	$(RTL_DIR)/core/memory/riscv32_dcache_tag_array.sv \
 	$(RTL_DIR)/core/memory/riscv32_dcache_data_array.sv \
-	$(RTL_DIR)/core/memory/riscv32_dcache_line_axi4_master.sv \
+	$(RTL_DIR)/core/memory/riscv32_dcache_axi.sv \
 	$(RTL_DIR)/core/memory/riscv32_dcache_miss_unit.sv \
 	$(RTL_DIR)/core/memory/riscv32_dcache.sv \
 	$(abspath ./tests/rtl/riscv32_dcache_tb.sv)
@@ -347,7 +346,7 @@ DCACHE_TEST_SOURCES := \
 CORE_MERGE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_axi4_pkg.sv \
-	$(RTL_DIR)/system/riscv32_axi4_core_merge.sv \
+	$(RTL_DIR)/system/riscv32_axi4_arbiter.sv \
 	$(abspath ./tests/rtl/riscv32_axi4_core_merge_tb.sv)
 
 SOC_WIDTH_CONVERTER_TEST_SOURCES := \
@@ -364,10 +363,10 @@ PRIVILEGED_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
-	$(RTL_DIR)/core/riscv32_pmu.sv \
-	$(RTL_DIR)/core/riscv32_csr_file.sv \
-	$(RTL_DIR)/core/riscv32_commit.sv \
-	$(RTL_DIR)/core/riscv32_trap_controller.sv \
+	$(RTL_DIR)/core/writeback/riscv32_pmu.sv \
+	$(RTL_DIR)/core/writeback/riscv32_csr_file.sv \
+	$(RTL_DIR)/core/writeback/riscv32_commit.sv \
+	$(RTL_DIR)/core/control/riscv32_trap_ctrl.sv \
 	$(abspath ./tests/rtl/riscv32_privileged_tb.sv)
 
 SDRAM_AXI_TEST_SOURCES := \
@@ -595,6 +594,17 @@ test-lsu-configs:
 
 test-pipeline: $(PIPELINE_TEST_BINARY)
 	$(PIPELINE_TEST_BINARY)
+
+.PHONY: test-predictor test-icache test-fetch
+FRONTEND_TEST_OUTPUT ?= $(abspath ./build/tests/frontend)
+test-predictor:
+	python3 scripts/test_frontend.py --test predictor --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
+test-fetch:
+	python3 scripts/test_frontend.py --test fetch --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
+test-icache:
+	python3 scripts/test_frontend.py --test icache --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
 
 .PHONY: test-predictor-equivalence
 PREDICTOR_TEST_OUTPUT ?= $(abspath ./build/tests/predictor-equivalence)

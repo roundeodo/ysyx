@@ -1,7 +1,7 @@
 // 阻塞式I-cache miss跟踪与line安装单元，v1只包含一个MSHR等价表项。
 //
 // 本模块保存一次miss从分配到完整refill结束所需的全部状态，包括原取指身份、
-// victim位置、返回word集合和错误状态。标准INCR burst到达critical word时允许先返回
+// victim位置、响应缓冲和错误状态。标准INCR burst到达critical word时允许先返回
 // 给前端，但只有全部word成功写入后才提交metadata。v1在refill期间阻塞新lookup，因此
 // early restart不是hit-under-miss；未来增加多个MSHR时，应扩展表项和事务匹配，而不是
 // 改变IFU接口。
@@ -34,12 +34,12 @@ module riscv32_icache_miss_unit
     output logic                refill_resp_ready_o,
     // Data array逐word写口。每个无错误的cacheable响应beat握手时写入一次，
     // 不必等整条cache line全部返回后再集中写入。
-    output logic                data_write_valid_o,
-    output icache_set_index_t   data_write_set_index_o,
-    output icache_way_index_t   data_write_way_index_o,
-    output icache_word_index_t  data_write_word_index_o,
+    output logic               data_write_valid_o,
+    output icache_set_index_t  data_write_set_index_o,
+    output icache_way_index_t  data_write_way_index_o,
+    output icache_word_index_t data_write_word_index_o,
     // refill、data array写口和lookup响应共享取指数据类型，与XLEN解耦。
-    output icache_fetch_data_t  data_write_word_data_o,
+    output icache_fetch_data_t data_write_word_data_o,
 
     // Tag array元数据写口，同一个接口承担两种操作：
     // 1. 发出refill请求时写line_present=0，先使victim失效；
@@ -50,15 +50,9 @@ module riscv32_icache_miss_unit
     output icache_tag_t       metadata_write_tag_o,
     output logic              metadata_write_line_present_o,
 
-    // 当前回填line的进度允许I-cache读取已经落入data array的word。这里不复制
-    // cache line数据，只暴露MSHR已有的地址/way和逐word完成状态。
-    output phys_addr_t                              active_refill_line_base_addr_o,
-    output icache_way_index_t                       active_refill_way_index_o,
-    output logic [ICACHE_WORDS_PER_LINE-1:0]        refill_word_present_vector_o,
-
     // 占用状态供I-cache限制新lookup；事件脉冲供PMU统计miss和refill行为。
-    output logic                                    miss_transaction_present_o,
-    output icache_event_t                           event_o
+    output logic          miss_transaction_present_o,
+    output icache_event_t event_o
 );
 
   // 单MSHR的状态、上下文寄存器和握手派生信号。
@@ -108,20 +102,37 @@ module riscv32_icache_miss_unit
   logic lookup_resp_present_q, lookup_resp_present_d;
   logic lookup_response_generated_q, lookup_response_generated_d;
 
-  // 每一位表示对应word已经在更早的周期成功写入data array。该向量只保存完成状态，
-  // 不保存第二份数据，因此开销随line中的word数增长，而不是随整条line的数据位数增长。
-  logic [ICACHE_WORDS_PER_LINE-1:0] refill_word_present_vector_q;
-  logic [ICACHE_WORDS_PER_LINE-1:0] refill_word_present_vector_d;
-
   // 以下信号只描述当前周期发生的事件，不保存跨周期状态。
-  logic miss_req_handshake;
-  logic refill_req_handshake;
-  logic refill_resp_handshake;
-  logic lookup_resp_handshake;
-  logic current_refill_word_is_critical;
-  icache_set_index_t critical_set_index;
+  logic               miss_req_handshake;
+  logic               refill_req_handshake;
+  logic               refill_resp_handshake;
+  logic               lookup_resp_handshake;
+  logic               current_refill_word_is_critical;
+  icache_set_index_t  critical_set_index;
   icache_word_index_t critical_word_index;
-  icache_tag_t refill_tag;
+  icache_tag_t        refill_tag;
+
+  // valid和ready同时为1才表示一次传输真正发生。所有状态推进、计数和array写入都以
+  // 对应handshake为条件，不能只看valid或ready其中之一。
+
+  assign miss_req_handshake    = miss_req_valid_i && miss_req_ready_o;
+  assign refill_req_handshake  = refill_req_valid_o && refill_req_ready_i;
+  assign refill_resp_handshake = refill_resp_valid_i && refill_resp_ready_o;
+  assign lookup_resp_handshake = lookup_resp_valid_o && lookup_resp_ready_i;
+  assign critical_set_index    = icache_set_index_t'(
+      miss_context_q.lookup_req.fetch_addr >> ICACHE_LINE_OFFSET_W
+  );
+  // 索引类型为了避免零宽向量至少保留1 bit，但单word line的合法word index仍只有0。
+  // 若直接转换fetch_addr>>2，PC[2]会被误当成line内索引，使一半取指无法匹配critical
+  // word。多word line才从line内偏移中提取word编号。
+  if (ICACHE_WORD_INDEX_BITS == 0) begin : gen_single_refill_word_index
+    assign critical_word_index = '0;
+  end else begin : gen_multiple_refill_word_index
+    assign critical_word_index =
+        icache_word_index_t'(miss_context_q.lookup_req.fetch_addr >> $clog2(ICACHE_FETCH_BYTES));
+  end
+  assign refill_tag                      = miss_context_q.lookup_req.fetch_addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
+  assign current_refill_word_is_critical = refill_resp_i.word_index == critical_word_index;
 
   // 第一段组合逻辑：只根据当前状态驱动输出，不更新_q寄存器。
   // line base必须通过清零fetch_addr低ICACHE_LINE_OFFSET_W位得到，不要减法或硬编码
@@ -163,10 +174,6 @@ module riscv32_icache_miss_unit
     metadata_write_way_index_o    = miss_context_q.replacement_way_index;
     metadata_write_tag_o          = refill_tag;
     metadata_write_line_present_o = 1'b0;
-    active_refill_line_base_addr_o = miss_context_q.lookup_req.fetch_addr;
-    active_refill_line_base_addr_o[ICACHE_LINE_OFFSET_W-1:0] = '0;
-    active_refill_way_index_o      = miss_context_q.replacement_way_index;
-    refill_word_present_vector_o   = refill_word_present_vector_q;
     miss_transaction_present_o    = (state_q != MISS_IDLE);
 
     unique case (state_q)
@@ -182,8 +189,10 @@ module riscv32_icache_miss_unit
         refill_req_o.line_base_addr[ICACHE_LINE_OFFSET_W-1:0] = '0;
         refill_req_o.critical_word_index                      = critical_word_index;
         // Cacheable访问取回整条line；uncached访问只取当前word。
-        refill_req_o.requested_word_count = miss_context_q.cacheable ? icache_refill_word_count_t'(ICACHE_WORDS_PER_LINE) : icache_refill_word_count_t'(1);
-        refill_req_o.transaction_index    = '0;
+        refill_req_o.requested_word_count =
+            miss_context_q.cacheable ? icache_refill_word_count_t'(ICACHE_WORDS_PER_LINE) :
+            icache_refill_word_count_t'(1);
+        refill_req_o.transaction_index = '0;
 
         // 下层正式接收refill请求时立即使victim失效，之后才能安全地逐word覆盖data array。
         metadata_write_valid_o        = refill_req_handshake && miss_context_q.cacheable;
@@ -194,11 +203,15 @@ module riscv32_icache_miss_unit
       // 只有last_word到达、所有word齐全且整个事务无错误时才把metadata置为有效。
       MISS_RECEIVE_REFILL: begin
         refill_resp_ready_o = 1'b1;
-        data_write_valid_o  = refill_resp_handshake && miss_context_q.cacheable && !refill_access_fault_seen_q && !refill_resp_i.access_fault;
+        data_write_valid_o  =
+            refill_resp_handshake && miss_context_q.cacheable &&
+            !refill_access_fault_seen_q && !refill_resp_i.access_fault;
 
-        // RLAST由本项目的refill AXI4 master根据ARLEN和已接收beat生成。line完整性属于
-        // 该接口的协议约束，在仿真断言中检查，不在数据通路中再实现一套重复计数器。
-        metadata_write_valid_o        = refill_resp_handshake && refill_resp_i.last_word && miss_context_q.cacheable && !refill_access_fault_seen_q && !refill_resp_i.access_fault;
+        // last_word由AXI适配器转发下级的RLAST。完整的beat序列是接口约定，
+        // 在仿真断言中检查；数据通路不再增加一套重复计数器。
+        metadata_write_valid_o =
+            refill_resp_handshake && refill_resp_i.last_word && miss_context_q.cacheable &&
+            !refill_access_fault_seen_q && !refill_resp_i.access_fault;
         metadata_write_line_present_o = metadata_write_valid_o;
       end
 
@@ -206,6 +219,19 @@ module riscv32_icache_miss_unit
       MISS_COMPLETE: ;
       default:       ;
     endcase
+  end
+
+  // PMU事件均为单周期脉冲：miss按请求分配计数，refill word按响应握手计数。
+  // transaction completed只表示burst结束；refill line completed还要求整条line无错并
+  // 真正安装metadata。分开两者后，访存错误也不会让PMU的refill计时器永久占用。
+  always_comb begin
+    event_o                   = '0;
+    event_o.miss_event        = miss_req_handshake && miss_req_i.cacheable;
+    event_o.refill_word_event = refill_resp_handshake && miss_context_q.cacheable;
+    event_o.refill_transaction_completed_event =
+        refill_resp_handshake && refill_resp_i.last_word && miss_context_q.cacheable;
+    event_o.refill_line_completed_event =
+        metadata_write_valid_o && metadata_write_line_present_o;
   end
 
   // 第二段组合逻辑：计算状态和数据寄存器的下一值。early restart真正发生在
@@ -217,17 +243,16 @@ module riscv32_icache_miss_unit
   // word，也必须走相同状态路径，但绝不产生data或metadata array写入。
   always_comb begin
     // 默认保持所有寄存器。每个状态只覆盖自己负责改变的字段，避免遗漏路径产生锁存器。
-    state_d                        = state_q;
-    miss_context_d                 = miss_context_q;
-    refill_access_fault_seen_d     = refill_access_fault_seen_q;
-    lookup_resp_data_d             = lookup_resp_data_q;
-    lookup_resp_access_fault_d     = lookup_resp_access_fault_q;
-    lookup_resp_present_d          = lookup_resp_present_q;
-    lookup_response_generated_d    = lookup_response_generated_q;
-    refill_word_present_vector_d   = refill_word_present_vector_q;
+    state_d                     = state_q;
+    miss_context_d              = miss_context_q;
+    refill_access_fault_seen_d  = refill_access_fault_seen_q;
+    lookup_resp_data_d          = lookup_resp_data_q;
+    lookup_resp_access_fault_d  = lookup_resp_access_fault_q;
+    lookup_resp_present_d       = lookup_resp_present_q;
+    lookup_response_generated_d = lookup_response_generated_q;
 
     // IFU接收响应只清空响应缓冲，不立即释放MSHR。若剩余line尚未refill完成，状态机
-    // 仍留在RECEIVE；这正是critical-word-first能与后续beat传输重叠的基础。
+    // 仍留在RECEIVE，因此关键指令可以先执行，同时继续接收后续beat。
     if (lookup_resp_handshake) begin
       lookup_resp_present_d = 1'b0;
     end
@@ -239,13 +264,12 @@ module riscv32_icache_miss_unit
           miss_context_d.lookup_req            = miss_req_i.lookup_req;
           miss_context_d.replacement_way_index = miss_req_i.replacement_way_index;
           miss_context_d.cacheable             = miss_req_i.cacheable;
-          refill_access_fault_seen_d  = 1'b0;
-          lookup_resp_data_d          = '0;
-          lookup_resp_access_fault_d  = 1'b0;
-          lookup_resp_present_d       = 1'b0;
-          lookup_response_generated_d = 1'b0;
-          refill_word_present_vector_d = '0;
-          state_d                     = MISS_SEND_REFILL_REQUEST;
+          refill_access_fault_seen_d           = 1'b0;
+          lookup_resp_data_d                   = '0;
+          lookup_resp_access_fault_d           = 1'b0;
+          lookup_resp_present_d                = 1'b0;
+          lookup_response_generated_d          = 1'b0;
+          state_d                              = MISS_SEND_REFILL_REQUEST;
         end
       end
 
@@ -261,24 +285,19 @@ module riscv32_icache_miss_unit
           // 当前beat已由本模块接收，把错误永久累计到本次事务。
           refill_access_fault_seen_d = refill_access_fault_seen_q || refill_resp_i.access_fault;
 
-          // 只有真正写入data array的word才能对后续lookup可见。任一beat报错后清空
-          // 可见向量，阻止新的回填旁路请求；此前已交付的critical word无需撤销。
-          if (refill_resp_i.access_fault) begin
-            refill_word_present_vector_d = '0;
-          end else if (data_write_valid_o) begin
-            refill_word_present_vector_d[refill_resp_i.word_index] = 1'b1;
-          end
-
           // critical word握手后立即生成唯一一次lookup response，不等待整条line完成。
           if (!lookup_response_generated_q && current_refill_word_is_critical) begin
-            lookup_resp_access_fault_d  = refill_access_fault_seen_q || refill_resp_i.access_fault;
-            lookup_resp_data_d          = (refill_access_fault_seen_q || refill_resp_i.access_fault) ? '0 : refill_resp_i.word_data;
+            lookup_resp_access_fault_d = refill_access_fault_seen_q || refill_resp_i.access_fault;
+            lookup_resp_data_d         =
+                (refill_access_fault_seen_q || refill_resp_i.access_fault) ?
+                '0 : refill_resp_i.word_data;
             lookup_resp_present_d       = 1'b1;
             lookup_response_generated_d = 1'b1;
           end
 
           // last_word前未出现critical word表示下层违反refill协议，用fault响应释放MSHR。
-          if (refill_resp_i.last_word && !lookup_response_generated_q && !current_refill_word_is_critical) begin
+          if (refill_resp_i.last_word && !lookup_response_generated_q &&
+              !current_refill_word_is_critical) begin
             lookup_resp_data_d          = '0;
             lookup_resp_access_fault_d  = 1'b1;
             lookup_resp_present_d       = 1'b1;
@@ -306,13 +325,12 @@ module riscv32_icache_miss_unit
 
       default: begin
         // 非法状态恢复为完全空闲，避免残留valid或旧事务上下文继续驱动接口。
-        state_d                        = MISS_IDLE;
+        state_d                     = MISS_IDLE;
         refill_access_fault_seen_d  = 1'b0;
         lookup_resp_data_d          = '0;
         lookup_resp_access_fault_d  = 1'b0;
         lookup_resp_present_d       = 1'b0;
         lookup_response_generated_d = 1'b0;
-        refill_word_present_vector_d = '0;
       end
     endcase
   end
@@ -321,8 +339,10 @@ module riscv32_icache_miss_unit
 
   // 状态寄存器：只负责事务阶段推进。
   always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) state_q <= MISS_IDLE;
-    else state_q <= state_d;
+    if (!rst_ni)
+      state_q <= MISS_IDLE;
+    else
+      state_q <= state_d;
   end
 
   // MSHR payload只在分配时有意义，事务阶段由state_q表明，因此payload无需复位。
@@ -343,51 +363,14 @@ module riscv32_icache_miss_unit
     if (!rst_ni) begin
       lookup_resp_present_q       <= 1'b0;
       lookup_response_generated_q <= 1'b0;
-      refill_word_present_vector_q <= '0;
     end else begin
       lookup_resp_present_q       <= lookup_resp_present_d;
       lookup_response_generated_q <= lookup_response_generated_d;
-      refill_word_present_vector_q <= refill_word_present_vector_d;
     end
   end
 
-
-  // valid和ready同时为1才表示一次传输真正发生。所有状态推进、计数和array写入都以
-  // 对应handshake为条件，不能只看valid或ready其中之一。
-
-  assign miss_req_handshake = miss_req_valid_i && miss_req_ready_o;
-  assign refill_req_handshake = refill_req_valid_o && refill_req_ready_i;
-  assign refill_resp_handshake = refill_resp_valid_i && refill_resp_ready_o;
-  assign lookup_resp_handshake = lookup_resp_valid_o && lookup_resp_ready_i;
-  assign critical_set_index = icache_set_index_t'(
-      miss_context_q.lookup_req.fetch_addr >> ICACHE_LINE_OFFSET_W
-  );
-  // 索引类型为了避免零宽向量至少保留1 bit，但单word line的合法word index仍只有0。
-  // 若直接转换fetch_addr>>2，PC[2]会被误当成line内索引，使一半取指无法匹配critical
-  // word。多word line才从line内偏移中提取word编号。
-  if (ICACHE_WORD_INDEX_BITS == 0) begin : gen_single_refill_word_index
-    assign critical_word_index = '0;
-  end else begin : gen_multiple_refill_word_index
-    assign critical_word_index = icache_word_index_t'(
-        miss_context_q.lookup_req.fetch_addr >> $clog2(ICACHE_FETCH_BYTES)
-    );
-  end
-  assign refill_tag = miss_context_q.lookup_req.fetch_addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
-  assign current_refill_word_is_critical = refill_resp_i.word_index == critical_word_index;
-
-  // PMU事件均为单周期脉冲：miss按请求分配计数，refill word按响应握手计数。
-  // transaction completed只表示burst结束；refill line completed还要求整条line无错并
-  // 真正安装metadata。分开两者后，访存错误也不会让PMU的refill计时器永久占用。
-  always_comb begin
-    event_o                                       = '0;
-    event_o.miss_occurred                         = miss_req_handshake && miss_req_i.cacheable;
-    event_o.refill_word_occurred                  = refill_resp_handshake && miss_context_q.cacheable;
-    event_o.refill_transaction_completed_occurred =
-                                                    refill_resp_handshake && refill_resp_i.last_word && miss_context_q.cacheable;
-    event_o.refill_line_completed_occurred        = metadata_write_valid_o && metadata_write_line_present_o;
-  end
 `ifndef SYNTHESIS
-  // Beat完整性只属于验证逻辑。RTL数据通路信任同一工程内refill master产生的RLAST，
+  // Beat完整性只属于验证逻辑。RTL数据通路使用refill adapter转发的下级RLAST，
   // 不为内部协议再增加一套运行时防御计数器。
   logic [ICACHE_WORDS_PER_LINE-1:0] observed_refill_word_vector_q;
 
@@ -421,18 +404,14 @@ module riscv32_icache_miss_unit
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (refill_req_valid_o && !refill_req_ready_i) |=>
-          (refill_req_valid_o && $stable(
-      refill_req_o
-  )))
+          (refill_req_valid_o && $stable(refill_req_o)))
   else $error("I-cache refill request changed while stalled");
 
   a_lookup_response_stable_while_stalled :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (lookup_resp_valid_o && !lookup_resp_ready_i) |=>
-          (lookup_resp_valid_o && $stable(
-      lookup_resp_o
-  )))
+          (lookup_resp_valid_o && $stable(lookup_resp_o)))
   else $error("I-cache lookup response changed while stalled");
 
   // 事务身份和beat完整性约束：当前版本只接受transaction 0，并禁止同一word重复返回。
@@ -508,9 +487,7 @@ module riscv32_icache_miss_unit
   a_generated_lookup_response_is_known :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
-      lookup_response_generated_q |-> !$isunknown(
-      lookup_resp_o
-  ))
+      lookup_response_generated_q |-> !$isunknown(lookup_resp_o))
   else $error("I-cache generated a lookup response containing unknown values");
 `endif
 

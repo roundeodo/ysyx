@@ -23,11 +23,23 @@ python3 npc/scripts/restore_rv32_dependencies.py
 
 移除独立 RR 流水级，并将取指预测器拆分为 BHT、BTB、RAS 与查询控制模块。
 回归测试及同频 MicroBench test 对照通过；拆分前后周期数与 IPC 一致。
-当前综合单元面积 76,480.320 μm²，730 MHz 下 setup slack 为 +0.023 ns。
+该阶段综合单元面积 76,480.320 μm²，730 MHz 下 setup slack 为 +0.023 ns。
 此版本尚未重跑 train，下方 train 数据属于 9 月 11 日发布的旧版硬件。
 详细条件见 `../verification/RV32_PREDICTOR_SPLIT_2026-09-15.md`。
 预测器对照测试引用远程历史提交 `f7a8f2568ea98c9a3492f60bedd7340f936baca4`，
 其原始预测器源码 SHA-256 与开发分支冻结版本相同。
+
+## 2026-09-19 更新
+
+前端采用单级预测查询；其余 RTL 按电路结构整理，目录按流水线功能分层，模块名缩短。
+旧 decode/RR 寄存级、组合重定向仲裁和未接入的 AXI 错误目标移入 `experiments/`，
+不再进入当前编译清单。源码、编码规范、当前模块说明与测试入口同步更新。
+
+最近一次综合后测量：面积 73,037.748 μm²，估算 Fmax 712.892 MHz；700 MHz 的
+setup、hold 与门控检查通过。MicroBench **test** 的 Total 定时器时间为 0.006426 s，
+同窗口 IPC 为 0.169737606；本版尚未重跑 train。测量口径及源码快照见
+[复测记录](../verification/RV32_READABILITY_PPA_2026-09-19.md)。之后的命名与历史模块迁移
+通过内容核对及编译/流水控制检查，迁移前后展开的 CPU RTLIL 完全相同。
 
 ## 历史版本已验证的性能
 
@@ -45,7 +57,7 @@ RV32 baseline，CPU 820 MHz，设备 100 MHz，MicroBench train 十项 PASS、GO
 复测使用源码构建，生成新的结果目录：
 
 ```sh
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 730
+python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 700
 ```
 
 远程保存 RTL、脚本、测试、文档、依赖补丁和精选测量证据；宿主仿真器、编译缓存及

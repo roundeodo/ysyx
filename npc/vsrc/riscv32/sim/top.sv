@@ -12,8 +12,8 @@ module top
     parameter int unsigned SIM_RANDOM_LATENCY_MAX  = 20,
     parameter program_counter_t RESET_PC            = program_counter_t'(32'h8000_0000)
 ) (
-    input logic clk,
-    input logic rstn
+    input  logic clk,
+    input  logic rstn
 );
 
   localparam int unsigned SIM_TARGET_COUNT       = 2;
@@ -49,46 +49,46 @@ module top
   riscv32_npc_system #(
       .RESET_PC(RESET_PC)
   ) u_npc_system (
-      .clk_i                  (clk),
-      .rst_ni                 (rstn),
-      .system_rst_no          (),
-      .external_axi4_manager_o(npc_external_axi4_manager),
-      .external_axi4_manager_i(npc_external_axi4_response)
+      .clk_i                   (clk),
+      .rst_ni                  (rstn),
+      .system_rst_no           (),
+      .external_axi4_manager_o (npc_external_axi4_manager),
+      .external_axi4_manager_i (npc_external_axi4_response)
   );
 
-  riscv32_axi4_address_router #(
-      .TARGET_COUNT                      (SIM_TARGET_COUNT),
-      .TARGET_ADDRESS_BASE_ARRAY         (SIM_TARGET_ADDRESS_BASE_ARRAY),
-      .TARGET_ADDRESS_LAST_ARRAY         (SIM_TARGET_ADDRESS_LAST_ARRAY),
-      .TARGET_ADDRESS_SELECT_ENABLE_ARRAY(SIM_TARGET_ADDRESS_SELECT_ENABLE_ARRAY),
-      .DEFAULT_TARGET_ENABLE             (1'b1),
-      .DEFAULT_TARGET_INDEX              (MEMORY_TARGET_INDEX)
+  riscv32_axi4_router #(
+      .TARGET_COUNT                       (SIM_TARGET_COUNT),
+      .TARGET_ADDRESS_BASE_ARRAY          (SIM_TARGET_ADDRESS_BASE_ARRAY),
+      .TARGET_ADDRESS_LAST_ARRAY          (SIM_TARGET_ADDRESS_LAST_ARRAY),
+      .TARGET_ADDRESS_SELECT_ENABLE_ARRAY (SIM_TARGET_ADDRESS_SELECT_ENABLE_ARRAY),
+      .DEFAULT_TARGET_ENABLE              (1'b1),
+      .DEFAULT_TARGET_INDEX               (MEMORY_TARGET_INDEX)
   ) u_sim_address_router (
-      .clk_i                 (clk),
-      .rst_ni                (rstn),
-      .upstream_manager_i    (npc_external_axi4_manager),
-      .upstream_manager_o    (npc_external_axi4_response),
-      .target_manager_array_o(sim_target_manager_array),
-      .target_manager_array_i(sim_target_response_array)
+      .clk_i                  (clk),
+      .rst_ni                 (rstn),
+      .upstream_manager_i     (npc_external_axi4_manager),
+      .upstream_manager_o     (npc_external_axi4_response),
+      .target_manager_array_o (sim_target_manager_array),
+      .target_manager_array_i (sim_target_response_array)
   );
 
   riscv32_axi4_uart_sim u_uart_sim (
-      .clk_i       (clk),
-      .rst_ni      (rstn),
-      .uart_axi_i  (sim_target_manager_array[UART_TARGET_INDEX]),
-      .uart_axi_o  (sim_target_response_array[UART_TARGET_INDEX])
+      .clk_i      (clk),
+      .rst_ni     (rstn),
+      .uart_axi_i (sim_target_manager_array[UART_TARGET_INDEX]),
+      .uart_axi_o (sim_target_response_array[UART_TARGET_INDEX])
   );
 
   riscv32_axi4_sim_mem #(
-      .IFU_READ_LATENCY  (SIM_IFU_READ_LATENCY),
-      .LSU_READ_LATENCY  (SIM_LSU_READ_LATENCY),
-      .LSU_WRITE_LATENCY (SIM_LSU_WRITE_LATENCY),
-      .RANDOM_LATENCY_MAX(SIM_RANDOM_LATENCY_MAX)
+      .IFU_READ_LATENCY_CYCLES   (SIM_IFU_READ_LATENCY),
+      .LSU_READ_LATENCY_CYCLES   (SIM_LSU_READ_LATENCY),
+      .LSU_WRITE_LATENCY_CYCLES  (SIM_LSU_WRITE_LATENCY),
+      .RANDOM_LATENCY_MAX_CYCLES (SIM_RANDOM_LATENCY_MAX)
   ) u_sim_mem (
-      .clk_i    (clk),
-      .rst_ni   (rstn),
-      .mem_axi_i(sim_target_manager_array[MEMORY_TARGET_INDEX]),
-      .mem_axi_o(sim_target_response_array[MEMORY_TARGET_INDEX])
+      .clk_i     (clk),
+      .rst_ni    (rstn),
+      .mem_axi_i (sim_target_manager_array[MEMORY_TARGET_INDEX]),
+      .mem_axi_o (sim_target_response_array[MEMORY_TARGET_INDEX])
   );
 
   import "DPI-C" context function void npc_set_dpi_scope();
@@ -150,7 +150,7 @@ module top
     end else begin
       npc_get_gpr_dpi =
           (index == 0) ? 64'd0 :
-          64'($unsigned(u_npc_system.u_core.u_arch_regfile.gpr_q[index]));
+          64'($unsigned(u_npc_system.u_core.u_regfile.gpr_array_q[index]));
     end
   endfunction
 

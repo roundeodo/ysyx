@@ -20,7 +20,7 @@ module riscv32_uncached_axi4_master_tb;
       (CORE_DATA_WIDTH == 64) ? MEM_SIZE_DOUBLE : MEM_SIZE_WORD;
   localparam axi4_data_t TEST_DATA = axi4_data_t'(64'h8877_6655_4433_2211);
 
-  riscv32_uncached_axi4_master u_uncached_axi4_master (
+  riscv32_uncached_axi u_uncached_axi (
       .clk_i                    (clk),
       .rst_ni                   (rst_ni),
       .data_memory_req_i        (data_memory_req),

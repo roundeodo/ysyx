@@ -1,40 +1,42 @@
-# 完整 AXI4 互连架构
+# RV32 总线与系统连接
 
-## 当前拓扑
+当前 `rv32-baseline`。核内请求使用类型明确的 valid/ready 接口，AXI 协议由缓存与
+非缓存适配器处理；纯核输出独立的 instruction/data AXI 端口。
 
-IFU 与 I-cache、LSU 与数据存储层使用本地 typed valid/ready 接口。完整 AXI4 只存在于
-cache refill、uncached adapter、core merge、地址路由器和 SoC 边界。
+## 数据路径与模块职责
 
-```text
-IFU -> I-cache -> refill AXI4 manager --+
-                                        +-> core merge -> address router -> targets
-LSU -> uncached AXI4 manager -----------+
-```
+| 模块 | 电路与状态归属 |
+| --- | --- |
+| `icache_axi` | 行回填转换为 INCR 读 burst，保持反压请求与响应 |
+| `dcache_axi` | 独立处理行回填和脏行写回，读写通道可重叠 |
+| `uncached_axi` | 保存一个本地请求，发起单 beat 读或写，AW/W 独立握手 |
+| `axi4_arbiter` | I/D 读轮询；从展示 ARVALID 起锁定来源，直到 RLAST 握手；写通道由数据侧独占 |
+| `axi4_router` | 地址比较 → 请求/响应选择 → 读写下一状态 → 更新；两个方向分别保存目标 |
+| `axi4_clint` | 本地定时器、比较寄存器和独立 AXI 读写状态机；中断返回核 |
+| `reset_controller` | 异步进入复位，两级上升沿同步后在下降沿释放 |
+| `core_reset_boundary` | 综合用封装，只连接复位控制器与纯核 |
+| `npc_system` | 连接复位、纯核、I/D 仲裁、地址路由与 CLINT |
+| `axi4_soc_width_converter` | 当前 32→32 位纯组合映射；其他配置的 64→32 位分支保留独立读写状态机 |
+| `npc_axi` | 将内部结构体映射到 ysyxSoC 的扁平引脚 |
 
-活动 RTL 不保留旧协议兼容层，也不允许 IFU、LSU 或 cache 状态机直接操作 AXI4 通道。
+D-cache 和 uncached 在数据存储子系统内合并，再与 I-cache 共享外部读端口。
+系统将 `0x02000000–0x0200ffff` 路由至本地 CLINT，其余请求默认交给外部 SoC；
+独立 `axi4_error_target` 未接入当前路径，现保存在 `experiments/interconnect/`，
+不参与当前构建。AXI 主端仍检查 RRESP/BRESP，将错误响应转换为访问异常。
 
-## 模块所有权
+## 接口边界与取舍
 
-- `riscv32_icache_refill_axi4_master`：把一条 line refill 翻译为 AXI4 INCR read burst；
-- `riscv32_uncached_axi4_master`：把一次本地 load/store 翻译为单 beat AXI4 事务；
-- `riscv32_axi4_core_merge`：仲裁 instruction/data read，数据侧独占 write；
-- `riscv32_axi4_address_router`：按地址选择 target，并锁定到事务结束；
-- `riscv32_axi4_error_target`：为未映射访问返回 DECERR；
-- `riscv32_npc_system`：连接 core、CLINT 和外部系统端口；
-- `riscv32_npc_axi`：把内部结构体展开为 ysyxSoC 要求的扁平 AXI4 端口。
+I/D 仲裁器最多保留一个读 burst，不按 ID 重排。路由器的读、写可以并行，
+每个方向在事务期间保持同一个目标。AW/W 独立握手，不能要求地址和数据同拍到达。
+读写输出分别从已保存状态产生，下一状态根据握手更新；聚合 AXI 输出只由一处打包。
+RV32 同宽转换不增加缓冲或流水级。
 
-## 当前事务能力
+这一结构便于控制面积和追踪事务归属，代价是 I/D 读竞争共享带宽。
+[访存说明](../microarchitecture/DCACHE_DESIGN_RECORD.md)解释缓存内的命中、缺失与维护；
+[中断说明](../microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)解释 CLINT 与核的边界。
 
-- refill read 支持 `LEN/SIZE/BURST/ID/RLAST`；
-- uncached load/store 当前均为单 beat；
-- core merge 当前最多保留一个 read burst，AR 握手后记录请求来源；
-- 地址路由器分别锁定 read 和 write target；
-- write address 和 write data 遵循 AXI4 独立握手，不假设二者同拍到达；
-- 不支持跨 ID 重排。增加多在途事务时，应新增 ID 跟踪表，不能扩大现有状态机猜测响应来源。
+## 验证入口
 
-## 后续演进
-
-1. 完成 I-cache 单 MSHR 和 line refill；
-2. 用真实计数器测量 burst 长度、等待周期和总线利用率；
-3. 根据证据增加多个 MSHR、更多 read outstanding 或独立 instruction/data 系统端口；
-4. D-cache、L2、DMA 和 AI accelerator 继续复用完整 AXI4 类型，不重新引入兼容协议。
+`test-core-merge`、`test-soc-width-converter`、`test-uncached` 与 `test-timer-interrupt`。
+本轮结果见[可读性验证](../verification/RV32_READABILITY_2026-09-16.md)。
+[原设计记录](archive/AXI4_ARCHITECTURE_BEFORE_2026-09-16.md)保留供追溯。
