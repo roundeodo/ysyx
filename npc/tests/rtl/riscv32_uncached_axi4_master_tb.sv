@@ -164,6 +164,97 @@ module riscv32_uncached_axi4_master_tb;
     axi_target.b_valid = 1'b0;
   endtask
 
+  // 四种读写交接、旧响应反压/错误以及新 AW/W 分别受阻。
+  task automatic check_handoff(input bit old_write, input bit new_write,
+                               input bit old_fault, input int stalled_channel);
+    data_memory_req_t old_request, new_request;
+    old_request = '0;
+    old_request.addr = phys_addr_t'(32'h80000100);
+    old_request.cmd = old_write ? MEM_CMD_STORE : MEM_CMD_LOAD;
+    old_request.size = MAX_ACCESS_SIZE;
+    old_request.write_data = core_data_t'(TEST_DATA);
+    old_request.byte_strobe = '1;
+    old_request.transaction_id = 4'h9;
+    axi_target = '0;
+    axi_target.ar_ready = 1;
+    axi_target.aw_ready = 1;
+    axi_target.w_ready = 1;
+    send_local_request(old_request);
+
+    @(negedge clk);
+    new_request = old_request;
+    new_request.addr = phys_addr_t'(32'h80000200);
+    new_request.cmd = new_write ? MEM_CMD_STORE : MEM_CMD_LOAD;
+    new_request.write_data = core_data_t'(~TEST_DATA);
+    new_request.transaction_id = 4'ha;
+    data_memory_req = new_request;
+    data_memory_req_valid = 1;
+    axi_target.r = '{id:axi4_id_t'(1), data:TEST_DATA,
+                     resp:old_fault ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY, last:1'b1};
+    axi_target.b = '{id:axi4_id_t'(2), resp:old_fault ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY};
+    axi_target.r_valid = !old_write;
+    axi_target.b_valid = old_write;
+    axi_target.ar_ready = stalled_channel != 1;
+    axi_target.aw_ready = stalled_channel != 1;
+    axi_target.w_ready = stalled_channel != 2;
+    #1;
+    assert(data_memory_resp_valid && data_memory_resp.transaction_id==4'h9 &&
+           !data_memory_req_ready && !axi_manager.ar_valid && !axi_manager.aw_valid)
+      else $fatal(1,"blocked old response allowed a new uncached transaction");
+    @(negedge clk);
+    data_memory_resp_ready = 1;
+    #1;
+    assert(data_memory_resp.transaction_id==4'h9 && data_memory_resp.access_fault==old_fault)
+      else $fatal(1,"handoff changed old response identity");
+    assert(data_memory_req_ready==!old_fault)
+      else $fatal(1,"handoff ready did not match successful completion");
+    if (!old_fault) begin
+      assert((new_write ? axi_manager.aw_valid : axi_manager.ar_valid) &&
+             (new_write ? axi_manager.aw.addr : axi_manager.ar.addr)==new_request.addr)
+        else $fatal(1,"successful response did not issue next address in the same cycle");
+    end
+    @(negedge clk);
+    axi_target.r_valid = 0;
+    axi_target.b_valid = 0;
+    data_memory_resp_ready = 0;
+    if (old_fault) begin
+      // 故障仅阻止完成拍交接，清空事务后入口可以重新接受独立请求。
+      #1; assert(data_memory_req_ready) else $fatal(1,"fault left adapter busy");
+      @(negedge clk);
+    end
+    data_memory_req_valid = 0;
+    data_memory_req = '0;
+    #1;
+    if (stalled_channel==1) begin
+      assert((new_write ? axi_manager.aw_valid : axi_manager.ar_valid) &&
+             (new_write ? axi_manager.aw.addr : axi_manager.ar.addr)==new_request.addr)
+        else $fatal(1,"stalled handoff address was not saved");
+      if (new_write)
+        assert(!axi_manager.w_valid) else $fatal(1,"accepted handoff W was repeated");
+    end
+    if (stalled_channel==2 && new_write) begin
+      assert(!axi_manager.aw_valid && axi_manager.w_valid &&
+             axi_manager.w.data==axi4_data_t'(new_request.write_data))
+        else $fatal(1,"stalled handoff W was not saved independently");
+    end
+    axi_target.ar_ready = 1;
+    axi_target.aw_ready = 1;
+    axi_target.w_ready = 1;
+    @(negedge clk);
+    axi_target.r.resp = AXI4_RESP_OKAY;
+    axi_target.b.resp = AXI4_RESP_OKAY;
+    axi_target.r_valid = !new_write;
+    axi_target.b_valid = new_write;
+    data_memory_resp_ready = 1;
+    #1;
+    assert(data_memory_resp_valid && data_memory_resp.transaction_id==4'ha &&
+           !data_memory_resp.access_fault)
+      else $fatal(1,"new transaction lost its identity after handoff");
+    @(negedge clk);
+    axi_target = '0;
+    data_memory_resp_ready = 0;
+  endtask
+
   initial begin
     clk                    = 1'b0;
     rst_ni                 = 1'b0;
@@ -177,6 +268,12 @@ module riscv32_uncached_axi4_master_tb;
 
     check_read_path();
     check_write_path();
+    for (int old_write=0; old_write<2; old_write++)
+      for (int new_write=0; new_write<2; new_write++)
+        for (int fault=0; fault<2; fault++)
+          for (int stall=0; stall<3; stall++)
+            check_handoff(1'(old_write),1'(new_write),1'(fault),stall);
+    $display("PASS uncached handoff: 24 combinations of read/write, fault, backpressure and AW/W stalls");
 
     $display("Uncached AXI4 directed test passed for data width=%0d", MEM_AXI_DATA_WIDTH);
     $finish;

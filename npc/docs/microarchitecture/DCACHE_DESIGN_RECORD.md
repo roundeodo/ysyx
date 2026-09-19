@@ -32,18 +32,20 @@ miss 优先选择无效路，否则按每组轮转指针选路。指针在新行
 
 ## miss 与 clean
 
-一次 miss 保存原请求及替换位置。若被替换行有效且脏，先逐字同步读出并缓存整行，
+一次 miss 保存原请求及替换位置。干净替换在分配拍直接发 refill；脏替换在分配拍启动
+首字同步读，随后逐拍采集并缓存整行，
 写回请求发出后，将旧行失效与回填请求合并处理；B 响应独立跟踪，可以与回填重叠。
 安装新行前必须确认 B 和全部 R 均无错。普通 miss 的写回失败不恢复旧行，返回 access fault；
 clean 写回失败则保留该行的 dirty 状态。
 
 回填用 INCR burst 从行首顺序读取，各 beat 写阵列；store miss 在目标字处合并待写字节。
-只有整行无错才能安装新 tag/present/dirty；安装当拍即可交付响应，反压后只保持响应，
+最后必要的 R/B 到达且整行无错时，当拍安装新 tag/present/dirty 并交付响应；反压后只保持响应，
 不重复安装。响应等待整行完成，不做关键字提前返回，
 因此响应完成也能用作本次数据 AXI 占用结束的边界。
 
-clean 的状态为“空闲、读取组、检查路、等待写回、完成”。逐组逐路检查有效脏行，
-交给同一个 miss 单元写回；成功清 dirty，失败终止并报告。clean 占用期间阻止普通请求。
+clean 的状态为“空闲、检查组内脏路、等待写回”。一次读出组内所有有效/dirty 位，
+跳过无需写回的路；检查完当前组的同拍读取下一组。写回 B 成功时清 dirty，失败终止并报告，
+最终操作当拍给出 done。clean 占用期间阻止普通请求。
 
 | 保存的状态 | 用途及释放条件 |
 | --- | --- |
@@ -56,8 +58,9 @@ clean 的状态为“空闲、读取组、检查路、等待写回、完成”�
 ## 接口与取舍
 
 阵列读口优先服务被替换行读取与 clean，写口优先服务 miss；正常 store hit 只在 miss 空闲时发生。
-响应及总线载荷在反压时保持。clean 在没有 LSU 事务时也会发出 AXI 写回，因此系统选择
-D-cache AXI 时同时考虑维护请求，不能只看普通路由状态。
+响应及总线载荷在反压时保持。clean 在没有 LSU 事务时也会发出 AXI 写回。
+系统按各通道实际 valid 选择 D-cache 请求，旧 R/B 按事务路由返回；
+不以年轻请求的发射允许信号选择地址。
 
 单 miss 简化了顺序和错误处理，代价是访存期间阻塞。没有 store buffer、写回队列或多 MSHR。
 I/D 共用总线的仲裁与目标路由见[互连说明](../interconnect/AXI4_ARCHITECTURE.md)。
@@ -65,9 +68,11 @@ FENCE.I 的维护顺序由[流水线说明](PIPELINE_DESIGN_RECORD.md)中的控�
 
 ## 验证入口
 
-`test-dcache` 覆盖命中、store 旁路、脏替换和 clean；`test-uncached` 检查独立通道握手。
-当前回归与源码对应关系见[周期优化验证](../verification/RV32_CYCLE_OPT_2026-09-19.md)。
+`test-dcache` 覆盖命中、store 旁路、脏替换与全组/路 clean；`test-dcache-miss` 检查最后 R/B
+完成、错误与反压；`test-uncached` 检查独立通道及连续事务交接。
+当前回归与源码对应关系见[等待周期复查](../verification/RV32_WAIT_AUDIT_2026-09-19.md)。
 [历史设计与测量](archive/DCACHE_DESIGN_RECORD_BEFORE_2026-09-16.md)仅供追溯。
 
 uncached 与 I-cache AXI adapter 空闲时直接发出请求，反压时由上下文保持。
+uncached 成功响应交付的同拍也可接收下一请求，旧响应与新地址分别取值。
 本轮周期与面积验证见[优化记录](RV32_CYCLE_OPT_DESIGN.md)。

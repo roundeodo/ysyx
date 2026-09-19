@@ -1,0 +1,18 @@
+make: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+python3 tests/exception/run.py --output "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/build/tests/exception" +define+YSYX_RV32_BASELINE  +define+YSYX_ICACHE_CAPACITY_BYTES=256 +define+YSYX_ICACHE_WAY_COUNT=1 +define+YSYX_ICACHE_LINE_BYTES=16 +define+YSYX_DCACHE_ENABLE=1 +define+YSYX_DCACHE_CAPACITY_BYTES=256 +define+YSYX_DCACHE_WAY_COUNT=2 +define+YSYX_DCACHE_LINE_BYTES=16 +define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16 +define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16 +define+YSYX_BRANCH_TARGET_WAY_COUNT=2 +define+YSYX_RETURN_STACK_ENTRY_COUNT=4 +define+YSYX_SDRAM_NATIVE_READ_BURST=1
+Traceback (most recent call last):
+  File "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/run.py", line 27, in <module>
+    result = subprocess.run(command, env=dict(os.environ, NPC_HOME=str(NPC)),
+  File "/usr/lib/python3.10/subprocess.py", line 505, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 1154, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 2047, in _communicate
+    self.wait(timeout=self._remaining_time(endtime))
+  File "/usr/lib/python3.10/subprocess.py", line 1209, in wait
+    return self._wait(timeout=timeout)
+  File "/usr/lib/python3.10/subprocess.py", line 1951, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['verilator', '--binary', '--timing', '--assert', '-Wno-fatal', '-j', '2', '--top-module', 'riscv32_precise_exception_tb', '--Mdir', '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/build/tests/exception/obj', '-I/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim', '+define+YSYX_RV32_BASELINE', '+define+YSYX_ICACHE_CAPACITY_BYTES=256', '+define+YSYX_ICACHE_WAY_COUNT=1', '+define+YSYX_ICACHE_LINE_BYTES=16', '+define+YSYX_DCACHE_ENABLE=1', '+define+YSYX_DCACHE_CAPACITY_BYTES=256', '+define+YSYX_DCACHE_WAY_COUNT=2', '+define+YSYX_DCACHE_LINE_BYTES=16', '+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16', '+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16', '+define+YSYX_BRANCH_TARGET_WAY_COUNT=2', '+define+YSYX_RETURN_STACK_ENTRY_COUNT=4', '+define+YSYX_SDRAM_NATIVE_READ_BURST=1', '-f', '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/filelist/filelist_sta.f', '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/riscv32_precise_exception_tb.sv']' timed out after 299.9999442690023 seconds
+make: *** [Makefile:1325: test-precise-exception] Error 1
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'

@@ -15,7 +15,7 @@ module riscv32_precise_exception_tb;
     .data_axi4_manager_o(data_request), .data_axi4_manager_i(data_response)
   );
 
-  integer mode = 1; // 0: NOP, 1: illegal, 2: misaligned JAL, 3: ECALL
+  integer mode = 1; // 0: NOP, 1: illegal, 2: misaligned JAL, 3: ECALL, 4: FENCE
   integer younger_load = 0;
   integer mmio = 0;
   integer load_delay = 80;
@@ -56,6 +56,7 @@ module riscv32_precise_exception_tb;
           1: return 32'hffffffff; // illegal instruction, not serializing
           2: return 32'h0020006f; // jal zero,+2: misaligned target
           3: return 32'h00000073; // ecall: serializing control case
+          4: return 32'h0ff0000f; // ordinary FENCE uses blocking LSU ordering
           default: return 32'h00000013;
         endcase
       end
@@ -136,8 +137,11 @@ module riscv32_precise_exception_tb;
       if (dut.resolved_execute_result_valid && dut.resolved_execute_result.uop.exception_valid &&
           dut.execute_packet_valid && dut.execute_packet.uop.pc == 32'h8000001c)
         exception_overlap_count <= exception_overlap_count + 1;
-      if (dut.lsu_req_valid && dut.lsu_req_ready && dut.lsu_req.uop.pc == 32'h8000001c)
+      if (dut.lsu_req_valid && dut.lsu_req_ready && dut.lsu_req.uop.pc == 32'h8000001c) begin
+        assert(!data_read_present || (data_response.r_valid && data_request.r_ready))
+          else $fatal(1, "younger memory passed the unfinished older access/FENCE");
         accepted_young_memory <= accepted_young_memory + 1;
+      end
       if (dut.resolved_execute_result_valid && dut.resolved_execute_result.uop.exception_valid)
         $display("TRACE cycle=%0d EX_EXCEPTION pc=%h serializing=%b ready=%b branch_redirect=%b issue_allowed=%b young_pc=%h young_valid=%b LSU_accept=%b",
           cycle, dut.resolved_execute_result.uop.pc, dut.resolved_execute_result.uop.serializing,
@@ -162,20 +166,20 @@ module riscv32_precise_exception_tb;
       end
       if (dut.commit_valid && dut.commit.memory_access && dut.commit.memory_cmd == MEM_CMD_STORE) begin
         retired_stores <= retired_stores + 1;
-        if (mode == 0) last_event_cycle <= cycle;
+        if (mode == 0 || mode == 4) last_event_cycle <= cycle;
         $display("TRACE cycle=%0d COMMIT_STORE pc=%h", cycle, dut.commit.pc);
       end
       if (dut.commit_valid && dut.commit.memory_access && dut.commit.memory_cmd == MEM_CMD_LOAD &&
           dut.commit.pc == 32'h8000001c) begin
         retired_young_loads <= retired_young_loads + 1;
         assert (dut.commit.gpr_wdata == 32'h12345678) else $fatal(1, "incorrect normal load data");
-        if (mode == 0) last_event_cycle <= cycle;
+        if (mode == 0 || mode == 4) last_event_cycle <= cycle;
       end
       if (last_event_cycle >= 0 && cycle > last_event_cycle + load_delay + 40) begin
         $display("RESULT mode=%0d load=%0d mmio=%0d delay=%0d traps=%0d accepted_young=%0d writes=%0d reads=%0d retired_stores=%0d retired_loads=%0d overlap=%0d sentinel=%h",
           mode, younger_load, mmio, load_delay, traps, accepted_young_memory, physical_writes,
           young_read_count, retired_stores, retired_young_loads, exception_overlap_count, sentinel);
-        if (mode == 0) begin
+        if (mode == 0 || mode == 4) begin
           assert (traps == 0 && accepted_young_memory == 1) else $fatal(1, "normal memory control failed");
           if (younger_load) begin
             assert (physical_writes == 0 && young_read_count == 1 && retired_young_loads == 1)

@@ -437,7 +437,12 @@ module riscv32_idu
         decoded_uop_o.fu_type     = FU_SYSTEM;
         decoded_uop_o.serializing = 1'b1;
         unique case (funct3)
-          3'b000:  decoded_uop_o.system_op = SYS_FENCE;
+          3'b000: begin
+            decoded_uop_o.system_op = SYS_FENCE;
+            // 当前核所有访存顺序发出，LSU 完成前禁止年轻指令执行。
+            // 普通 FENCE 不需要额外排空 ALU/WB；FENCE.I 的维护仍须串行化。
+            decoded_uop_o.serializing = 1'b0;
+          end
           3'b001:  decoded_uop_o.system_op = SYS_FENCE_I;
           default: decoded_uop_o.exception_valid = 1'b1;
         endcase

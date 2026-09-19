@@ -162,6 +162,12 @@ module riscv32_idu_decode_tb;
     expect_store(encode_s(12'h008, 5'd2, 5'd1, FUNCT3_SW, OPCODE_STORE), MEM_SIZE_WORD);
     expect_system_exception(32'h0000_0073, SYS_ECALL, EXC_ECALL_M);
     expect_system_exception(32'h0010_0073, SYS_EBREAK, EXC_BREAKPOINT);
+    apply_instruction(32'h0ff0_000f);
+    assert(!decoded_uop.exception_valid && decoded_uop.system_op==SYS_FENCE && !decoded_uop.serializing)
+      else $fatal(1,"in-order FENCE added a full backend serialization");
+    apply_instruction(32'h0000_100f);
+    assert(!decoded_uop.exception_valid && decoded_uop.system_op==SYS_FENCE_I && decoded_uop.serializing)
+      else $fatal(1,"FENCE.I lost its maintenance serialization");
     expect_fetch_exception_priority();
 
 `ifdef YSYX_RV64_SEQUENTIAL

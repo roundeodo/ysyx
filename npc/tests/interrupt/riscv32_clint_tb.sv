@@ -88,6 +88,59 @@ module riscv32_clint_tb;
     end
   endtask
 
+  task automatic check_response_handoff;
+    write_register(CLINT_MTIMECMP_LOW_ADDR, 32'h12345678);
+    write_register(CLINT_MTIMECMP_HIGH_ADDR, 32'h9abcdef0);
+    @(negedge clk);
+    request.ar='{addr:CLINT_MTIMECMP_LOW_ADDR,id:4'h1,len:8'd0,size:3'd2,burst:AXI4_BURST_INCR};
+    request.ar_valid=1;
+    @(negedge clk);
+    request.ar.addr=CLINT_MTIMECMP_HIGH_ADDR;
+    request.ar.id=4'h2;
+    #1;
+    assert(response.r_valid && response.r.id==1 && response.r.data==32'h12345678 && !response.ar_ready)
+      else $fatal(1,"CLINT read backpressure did not preserve old response");
+    request.r_ready=1;
+    #1; assert(response.ar_ready) else $fatal(1,"CLINT R/AR handoff inserted an idle cycle");
+    @(negedge clk); request.ar_valid=0; request.r_ready=0;
+    #1;
+    assert(response.r_valid && response.r.id==2 && response.r.data==32'h9abcdef0)
+      else $fatal(1,"CLINT R/AR handoff lost new identity");
+    request.r_ready=1;
+    @(negedge clk); request.r_ready=0;
+
+    for (int split_w=0; split_w<2; split_w++) begin
+      request.aw='{addr:CLINT_MTIMECMP_LOW_ADDR,id:4'h3,len:8'd0,size:3'd2,burst:AXI4_BURST_INCR};
+      request.aw_valid=1;
+      request.w='{data:32'h55,strb:4'hf,last:1'b1}; request.w_valid=1;
+      @(negedge clk);
+      request.aw.addr=CLINT_MTIMECMP_HIGH_ADDR; request.aw.id=4'h4;
+      request.w.data=32'ha5; request.w_valid=!split_w;
+      #1;
+      assert(response.b_valid && response.b.id==3 && !response.aw_ready && !response.w_ready)
+        else $fatal(1,"CLINT write backpressure did not preserve old response");
+      request.b_ready=1;
+      #1;
+      assert(response.aw_ready && response.w_ready && response.b.id==3)
+        else $fatal(1,"CLINT B/AW handoff inserted an idle cycle");
+      @(negedge clk); request.aw_valid=0; request.w_valid=0; request.b_ready=0;
+      if (split_w) begin
+        request.w_valid=1;
+        #1; assert(response.w_ready && !response.b_valid)
+          else $fatal(1,"CLINT handoff lost separately arriving W");
+        @(negedge clk); request.w_valid=0;
+      end
+      #1;
+      assert(response.b_valid && response.b.id==4 && response.b.resp==AXI4_RESP_OKAY)
+        else $fatal(1,"CLINT B/AW handoff changed new write response");
+      request.b_ready=1;
+      @(negedge clk); request.b_ready=0;
+      read_register(CLINT_MTIMECMP_LOW_ADDR,32'h55);
+      read_register(CLINT_MTIMECMP_HIGH_ADDR,32'ha5);
+    end
+    $display("PASS CLINT handoff: R/AR and B/AW, old/new identity, stalled responses, separate W");
+  endtask
+
   initial begin
     request = '0;
     repeat (4) @(negedge clk);
@@ -135,6 +188,7 @@ module riscv32_clint_tb;
     write_register(CLINT_MTIME_HIGH_ADDR, 32'h8000_0001);
     assert (timer_interrupt)
     else $fatal(1, "64-bit comparison failed");
+    check_response_handoff();
     $display(
         "PASS CLINT: reset, equality, rearm, 64-bit compare, byte writes, W-before-AW, R/B backpressure, invalid access/bursts, mtime snapshot");
     $finish;

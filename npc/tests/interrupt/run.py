@@ -21,8 +21,9 @@ def run(args, log=None):
         subprocess.run(list(map(str, args)), env=ENV, cwd=NPC, check=True, timeout=300)
         return
     with log.open('w') as output:
+        timeout = int(ENV.get('NPC_TEST_BUILD_TIMEOUT', '1200')) if str(args[0]) == 'verilator' else 300
         result = subprocess.run(list(map(str, args)), env=ENV, cwd=NPC,
-                                stdout=output, stderr=subprocess.STDOUT, timeout=300)
+                                stdout=output, stderr=subprocess.STDOUT, timeout=timeout)
     if result.returncode:
         print(log.read_text()[-12000:])
         raise SystemExit(result.returncode)

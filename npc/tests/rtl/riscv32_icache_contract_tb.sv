@@ -46,22 +46,28 @@ module riscv32_icache_contract_tb;
     return icache_fetch_data_t'(addr ^ 32'h12345678);
   endfunction
 
-  task automatic issue(input phys_addr_t addr);
+  task automatic issue(input phys_addr_t addr, input bit expect_miss_bypass=0);
     @(negedge clk);
     request='{fetch_addr:addr, frontend_tag:frontend_tag_t'(checks), fetch_epoch:fetch_epoch_t'(2)};
     request_valid=1;
     do begin @(posedge clk); end while (!request_ready);
+    if (expect_miss_bypass) begin
+      #1;
+      assert(manager.ar_valid) else $fatal(1,"miss allocation inserted an AR wait cycle");
+    end
     @(negedge clk); request_valid=0;
   endtask
 
-  task automatic refill(input bit cacheable, input int fault_word=-1);
+  task automatic refill(input bit cacheable, input int fault_word=-1, input bit direct_response=0);
     axi4_read_address_t captured_address;
-    int words, lane, critical;
+    int words, lane, critical, before_responses;
     phys_addr_t addr;
     while (!manager.ar_valid) @(negedge clk);
     captured_address=manager.ar;
     words=cacheable ? ICACHE_WORDS_PER_LINE : 1;
     critical=cacheable ? int'((request.fetch_addr/ICACHE_FETCH_BYTES)%ICACHE_WORDS_PER_LINE) : 0;
+    before_responses=response_count;
+    response_ready=direct_response;
     assert (int'(manager.ar.len)==words-1 && manager.ar.size==$clog2(ICACHE_FETCH_BYTES) &&
             manager.ar.burst==AXI4_BURST_INCR) else $fatal(1,"wrong refill burst geometry");
     repeat(3) begin
@@ -80,14 +86,30 @@ module riscv32_icache_contract_tb;
       target.r.resp=(beat==fault_word) ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY;
       target.r.last=beat==words-1;
       target.r_valid=1;
+      if (direct_response && beat==critical) begin
+        #1;
+        assert(response_valid && response.fetch_addr==request.fetch_addr &&
+               response.frontend_tag==request.frontend_tag && response.fetch_epoch==request.fetch_epoch &&
+               response.access_fault==((fault_word>=0) && (fault_word<=critical)))
+          else $fatal(1,"critical response did not bypass its empty buffer");
+        assert(response.fetch_data==(response.access_fault ? '0 : memory_word(request.fetch_addr)))
+          else $fatal(1,"direct critical response data mismatch");
+      end
       do begin @(posedge clk); end while (!manager.r_ready);
       @(negedge clk); target.r_valid=0;
       if (beat<words-1) begin
         assert(!request_ready) else $fatal(1,"blocking cache opened lookup before last beat");
-        if (beat==critical && fault_word<0)
+        if (beat==critical && fault_word<0 && !direct_response)
           assert(response_valid && response.fetch_data==memory_word(request.fetch_addr))
             else $fatal(1,"critical word did not restart before the last beat");
       end
+    end
+    if (direct_response) begin
+      repeat(3) @(negedge clk);
+      assert(response_count==before_responses+1 && !response_valid)
+        else $fatal(1,"direct response was lost or repeated");
+      response_ready=0;
+      checks++;
     end
   endtask
 
@@ -115,6 +137,9 @@ module riscv32_icache_contract_tb;
 
   task automatic clear_cache;
     @(negedge clk); invalidate=1;
+    #1;
+    assert(invalidate_done && !request_ready)
+      else $fatal(1,"idle invalidate inserted a metadata scan delay");
     while(!invalidate_done) begin
       @(negedge clk);
       assert(!request_ready) else $fatal(1,"lookup accepted during invalidate");
@@ -160,6 +185,20 @@ module riscv32_icache_contract_tb;
     end
     // invalidate 应使此前命中行重新 miss。
     clear_cache(); issue(pc); refill(1); consume(0);
+    clear_cache(); issue(pc,1); refill(1,-1,1);
+    clear_cache(); issue(pc+phys_addr_t'((ICACHE_WORDS_PER_LINE-1)*ICACHE_FETCH_BYTES),1);
+    refill(1,0,1);
+    issue(32'h0f000004,1); refill(0,-1,1);
+    // 正在 refill 或等待响应消费时不得提前宣告失效完成。
+    clear_cache(); issue(pc,1);
+    invalidate=1;
+    refill(1);
+    assert(!invalidate_done && !request_ready)
+      else $fatal(1,"invalidate skipped a blocked old miss response");
+    consume(0);
+    #1; assert(invalidate_done) else $fatal(1,"drained invalidate did not finish");
+    @(negedge clk); invalidate=0;
+    issue(pc,1); refill(1); consume(0);
     $display("PASS I-cache contract: ways=%0d line=%0d checks=%0d AXI reads=%0d responses=%0d",
              ICACHE_WAY_COUNT,ICACHE_LINE_BYTES,checks,address_count,response_count);
     $finish;
