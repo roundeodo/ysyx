@@ -1,4 +1,4 @@
-// 非推测 RAS：解析事件先寄存为栈操作，下一沿更新地址数组和指针。
+// 非推测 RAS：已寄存的解析事件直接更新地址数组和指针。
 // 查询组合读取当前栈顶；不额外保存一份栈顶地址。
 module riscv32_ras
   import riscv32_pkg::*;
@@ -29,15 +29,16 @@ module riscv32_ras
       $fatal(1, "RAS entries must be a power of two and at least 2");
   end
 
-  // 1. 解析入口：rd/rs1 提示转为栈操作，隔开 EX 与数组写使能。
+  // 1. 解析入口：rd/rs1 提示组合译为本沿的栈操作。
   typedef enum logic [1:0] {
     STACK_NONE,
     STACK_PUSH,
     STACK_POP,
     STACK_POP_PUSH
   } stack_op_e;
-  stack_op_e operation_q, operation_d;
-  program_counter_t return_pc_q;
+  stack_op_e operation;
+  program_counter_t return_pc;
+  assign return_pc = resolved_control_flow_pc_i + program_counter_t'(INSTRUCTION_BYTES);
   logic             rd_is_link;
   logic             rs1_is_link;
   logic             push_requested;
@@ -60,27 +61,15 @@ module riscv32_ras
       (resolved_control_flow_imm_i == '0);
 
   always_comb begin
-    operation_d = STACK_NONE;
+    operation = STACK_NONE;
     if (!invalidate_i) begin
       unique case ({pop_requested, push_requested})
-        2'b01:   operation_d = STACK_PUSH;
-        2'b10:   operation_d = STACK_POP;
-        2'b11:   operation_d = STACK_POP_PUSH;
+        2'b01:   operation = STACK_PUSH;
+        2'b10:   operation = STACK_POP;
+        2'b11:   operation = STACK_POP_PUSH;
         default: ;
       endcase
     end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni)
-      operation_q <= STACK_NONE;
-    else
-      operation_q <= operation_d;
-  end
-
-  always_ff @(posedge clk_i) begin
-    if (push_requested)
-      return_pc_q <= resolved_control_flow_pc_i + program_counter_t'(INSTRUCTION_BYTES);
   end
 
   // 2. 栈读口：write_index 指向下一次 push 的位置，减一即当前栈顶。
@@ -100,7 +89,7 @@ module riscv32_ras
   always_comb begin
     array_write_enable = 1'b0;
     array_write_index  = write_index_q;
-    unique case (operation_q)
+    unique case (operation)
       STACK_PUSH: array_write_enable = 1'b1;
       STACK_POP_PUSH: begin
         array_write_enable = 1'b1;
@@ -117,7 +106,7 @@ module riscv32_ras
   always_comb begin
     write_index_d = write_index_q;
     entry_count_d = entry_count_q;
-    unique case (operation_q)
+    unique case (operation)
       STACK_PUSH: begin
         write_index_d = write_index_q + stack_index_t'(1);
         if (entry_count_q != stack_count_t'(RAS_ENTRY_COUNT))
@@ -156,7 +145,7 @@ module riscv32_ras
 
   always_ff @(posedge clk_i) begin
     if (array_write_enable)
-      address_array_q[array_write_index] <= return_pc_q;
+      address_array_q[array_write_index] <= return_pc;
   end
 
 `ifndef SYNTHESIS

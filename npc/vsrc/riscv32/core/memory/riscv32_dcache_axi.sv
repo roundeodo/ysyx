@@ -20,6 +20,8 @@ module riscv32_dcache_axi
     output logic                refill_resp_valid_o,
     input  logic                refill_resp_ready_i,
 
+    // 所有权属于 miss unit：从请求呈现起一直保持到 B 被消费。
+    input  dcache_line_data_t      writeback_line_data_i,
     input  dcache_writeback_req_t  writeback_req_i,
     input  logic                   writeback_req_valid_i,
     output logic                   writeback_req_ready_o,
@@ -128,7 +130,7 @@ module riscv32_dcache_axi
           axi_manager_o.aw.burst = AXI4_BURST_INCR;
           axi_manager_o.aw_valid = 1'b1;
           axi_manager_o.w.data   = axi4_data_t'(
-              writeback_req_i.line_data[0+:CORE_DATA_WIDTH]
+              writeback_line_data_i[0+:CORE_DATA_WIDTH]
           );
           axi_manager_o.w.strb  = '1;
           axi_manager_o.w.last  = DCACHE_WORDS_PER_LINE == 1;
@@ -144,7 +146,7 @@ module riscv32_dcache_axi
         axi_manager_o.aw.burst = AXI4_BURST_INCR;
         axi_manager_o.aw_valid = write_address_pending_q;
         axi_manager_o.w.data   = axi4_data_t'(
-            writeback_context_q.line_data[
+            writeback_line_data_i[
                 int'(writeback_word_index_q)*CORE_DATA_WIDTH+:CORE_DATA_WIDTH
             ]
         );
@@ -288,6 +290,12 @@ module riscv32_dcache_axi
   end
 
 `ifndef SYNTHESIS
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (writeback_req_handshake ||
+     (writeback_state_q != WRITEBACK_AXI_IDLE && !axi_write_response_handshake))
+    |=> $stable(writeback_line_data_i))
+  else $error("D-cache victim line changed before writeback completed");
+
   initial begin
     assert (CORE_DATA_WIDTH == MEM_AXI_DATA_WIDTH)
       else

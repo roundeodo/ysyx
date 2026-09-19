@@ -23,6 +23,8 @@ module riscv32_clint_tb;
                                 input logic [3:0] strobe = 4'hf, input logic [2:0] size = 3'd2,
                                 input logic [7:0] length = 0,
                                 input axi4_resp_e expected_response = AXI4_RESP_OKAY);
+    int accepted_beats;
+    accepted_beats = 0;
     // W 先于 AW 到达，target 可以反压，但不能丢失请求。
     @(negedge clk);
     request.w_valid = 1;
@@ -30,10 +32,13 @@ module riscv32_clint_tb;
     repeat (3) @(negedge clk);
     request.aw       = '{addr: address, id: 4'h9, len: length, size: size, burst: AXI4_BURST_INCR};
     request.aw_valid = 1;
-    do @(posedge clk); while (!response.aw_ready);
+    do begin
+      @(posedge clk);
+      if (response.w_ready) accepted_beats++;
+    end while (!response.aw_ready);
     @(negedge clk);
     request.aw_valid = 0;
-    for (int beat_index = 0; beat_index <= int'(length); beat_index++) begin
+    for (int beat_index = accepted_beats; beat_index <= int'(length); beat_index++) begin
       request.w.last = (beat_index == int'(length));
       do @(posedge clk); while (!response.w_ready);
       @(negedge clk);

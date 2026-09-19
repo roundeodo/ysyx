@@ -36,7 +36,7 @@ module riscv32_branch_predictor
     input logic invalidate_i
 );
 
-  // 1. 训练入口：只保存 BHT/BTB 写表需要的信息。
+  // 1. 训练入口：已寄存的解析结果直接驱动写表，不再增加训练流水级。
   typedef struct packed {
     program_counter_t    pc;
     program_counter_t    target_pc;
@@ -44,8 +44,8 @@ module riscv32_branch_predictor
     logic                taken;
   } training_entry_t;
 
-  training_entry_t training_q, training_d;
-  logic training_present_q, training_present_d;
+  training_entry_t training;
+  logic training_valid;
   logic resolved_rd_is_link;
   logic resolved_rs1_is_link;
   logic resolved_is_return;
@@ -62,34 +62,20 @@ module riscv32_branch_predictor
        (resolved_control_flow_rd_i != resolved_control_flow_rs1_i)) &&
       (resolved_control_flow_imm_i == '0);
 
+  // payload 从解析寄存器直接产生；valid 只控制表写使能，不先把地址数据清零。
   always_comb begin
-    training_d         = training_q;
-    training_present_d = resolved_control_flow_event_i && !invalidate_i;
-    if (resolved_control_flow_event_i) begin
-      training_d.pc        = resolved_control_flow_pc_i;
-      training_d.target_pc = resolved_control_flow_target_i;
-      training_d.taken     = resolved_control_flow_taken_i;
-      training_d.kind      = TARGET_KIND_CONDITIONAL_BRANCH;
-      unique case (resolved_control_flow_op_i)
-        CF_JAL:
-          training_d.kind = TARGET_KIND_DIRECT_JUMP;
-        CF_JALR:
-          training_d.kind = resolved_is_return ? TARGET_KIND_RETURN : TARGET_KIND_INDIRECT_JUMP;
-        default: ;
-      endcase
-    end
+    training.pc        = resolved_control_flow_pc_i;
+    training.target_pc = resolved_control_flow_target_i;
+    training.taken     = resolved_control_flow_taken_i;
+    training.kind      = TARGET_KIND_CONDITIONAL_BRANCH;
+    unique case (resolved_control_flow_op_i)
+      CF_JAL: training.kind = TARGET_KIND_DIRECT_JUMP;
+      CF_JALR:
+        training.kind = resolved_is_return ? TARGET_KIND_RETURN : TARGET_KIND_INDIRECT_JUMP;
+      default: ;
+    endcase
   end
-
-  always_ff @(posedge clk_i) begin
-    training_q <= training_d;
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni)
-      training_present_q <= 1'b0;
-    else
-      training_present_q <= training_present_d;
-  end
+  assign training_valid = resolved_control_flow_event_i && !invalidate_i;
 
   // 2. 并行查表：三个单元都读取当前请求，没有各自的查询流水或握手状态。
   logic [1:0]          history_counter;
@@ -106,9 +92,9 @@ module riscv32_branch_predictor
       .rst_ni           (rst_ni),
       .lookup_pc_i      (lookup_request_pc_i),
       .lookup_counter_o (history_counter),
-      .training_pc_i    (training_q.pc),
-      .training_valid_i (training_present_q && (training_q.kind == TARGET_KIND_CONDITIONAL_BRANCH)),
-      .training_taken_i (training_q.taken)
+      .training_pc_i    (training.pc),
+      .training_valid_i (training_valid && (training.kind == TARGET_KIND_CONDITIONAL_BRANCH)),
+      .training_taken_i (training.taken)
   );
 
   riscv32_btb #(
@@ -121,10 +107,10 @@ module riscv32_branch_predictor
       .lookup_target_present_o (target_present),
       .lookup_target_pc_o      (target_pc),
       .lookup_target_kind_o    (target_kind),
-      .training_pc_i           (training_q.pc),
-      .training_target_pc_i    (training_q.target_pc),
-      .training_kind_i         (training_q.kind),
-      .training_valid_i        (training_present_q),
+      .training_pc_i           (training.pc),
+      .training_target_pc_i    (training.target_pc),
+      .training_kind_i         (training.kind),
+      .training_valid_i        (training_valid),
       .invalidate_i            (invalidate_i)
   );
 

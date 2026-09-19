@@ -1,0 +1,18 @@
+{
+  "0": {
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-register-cycle-audit-20260919/obj/Vriscv32_dcache_tb",
+      "+change_address=0"
+    ],
+    "exit": 0,
+    "log": "AUDIT change_address=0 req_valid=0 resp_ready=0 expected=59585b5a observed=59585b5a valid=1\nPASS audit held response\n- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-register-cycle-audit-20260919/dcache_response_hold_tb.sv:318: Verilog $finish\n- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel\n- Verilator: $finish at 185ps; walltime 0.000 s; speed 687.576 ns/s\n- Verilator: cpu 0.000 s on 1 threads; alloced 6 MB\n"
+  },
+  "1": {
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-register-cycle-audit-20260919/obj/Vriscv32_dcache_tb",
+      "+change_address=1"
+    ],
+    "exit": 1,
+    "log": "AUDIT change_address=1 req_valid=0 resp_ready=0 expected=59585b5a observed=5d5c5f5e valid=1\n[180] %Fatal: dcache_response_hold_tb.sv:316: Assertion failed in riscv32_dcache_tb.unnamedblk3: AUDIT_RESPONSE_NOT_STABLE\n%Error: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-register-cycle-audit-20260919/dcache_response_hold_tb.sv:316: Verilog $stop\nAborting...\n"
+  }
+}

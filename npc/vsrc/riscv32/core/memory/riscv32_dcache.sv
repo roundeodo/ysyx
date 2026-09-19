@@ -144,6 +144,7 @@ module riscv32_dcache
   dcache_refill_resp_t    refill_resp;
   logic                   refill_resp_valid;
   logic                   refill_resp_ready;
+  dcache_line_data_t      writeback_line_data;
   dcache_writeback_req_t  writeback_req;
   logic                   writeback_req_valid;
   logic                   writeback_req_ready;
@@ -342,7 +343,7 @@ module riscv32_dcache
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       store_write_bypass_present_q <= 1'b0;
-    end else begin
+    end else if (lookup_req_handshake || !lookup_s1_present_d) begin
       store_write_bypass_present_q <= store_hit_write_event && lookup_req_handshake;
       if (store_hit_write_event && lookup_req_handshake) begin
         store_write_bypass_set_index_q   <= get_set_index(lookup_s1_q.addr);
@@ -439,23 +440,23 @@ module riscv32_dcache
       clean_access_fault_q <= clean_access_fault_d;
   end
 
-  // array端口仲裁只依赖寄存状态，不依赖当前lookup是否命中或响应是否被消费。
-  // 空闲时每拍预读输入地址；只有lookup握手才会同时保存请求身份并解释下一拍输出。
-  // 这会切断“S1命中 -> response ready -> 下一次array读口”的跨级组合反馈。
-  // clean在检查一个set的全部way期间必须保持tag输出；victim采集则优先占用data读口。
+  // S1 请求与同步读输出一起保持，只有接收新请求才能覆盖 lookup 数据。
+  // clean 扫描优先使用 tag 口，victim 采集优先使用 data 口。
   always_comb begin
-    tag_read_enable    = 1'b1;
+    tag_read_enable    = lookup_req_handshake;
     tag_read_set_index = get_set_index(data_memory_req_i.addr);
     if (clean_state_q == CLEAN_READ_SET) begin
+      tag_read_enable    = 1'b1;
       tag_read_set_index = clean_set_index_q;
     end else if (clean_state_q != CLEAN_IDLE) begin
       tag_read_enable = 1'b0;
     end
 
-    data_read_enable     = 1'b1;
+    data_read_enable     = lookup_req_handshake;
     data_read_set_index  = get_set_index(data_memory_req_i.addr);
     data_read_word_index = get_word_index(data_memory_req_i.addr);
     if (miss_victim_read_enable) begin
+      data_read_enable     = 1'b1;
       data_read_set_index  = miss_victim_read_set_index;
       data_read_word_index = miss_victim_read_word_index;
     end
@@ -540,6 +541,7 @@ module riscv32_dcache
       .refill_resp_i                 (refill_resp),
       .refill_resp_valid_i           (refill_resp_valid),
       .refill_resp_ready_o           (refill_resp_ready),
+      .writeback_line_data_o          (writeback_line_data),
       .writeback_req_o               (writeback_req),
       .writeback_req_valid_o         (writeback_req_valid),
       .writeback_req_ready_i         (writeback_req_ready),
@@ -557,6 +559,7 @@ module riscv32_dcache
       .refill_resp_o          (refill_resp),
       .refill_resp_valid_o    (refill_resp_valid),
       .refill_resp_ready_i    (refill_resp_ready),
+      .writeback_line_data_i          (writeback_line_data),
       .writeback_req_i        (writeback_req),
       .writeback_req_valid_i  (writeback_req_valid),
       .writeback_req_ready_o  (writeback_req_ready),

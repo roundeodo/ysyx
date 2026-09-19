@@ -1,0 +1,6 @@
+AUDIT change_address=0 req_valid=0 resp_ready=0 expected=59585b5a observed=59585b5a valid=1
+PASS audit held response
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-register-cycle-audit-20260919/dcache_response_hold_tb.sv:318: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 185ps; walltime 0.000 s; speed 687.576 ns/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 6 MB

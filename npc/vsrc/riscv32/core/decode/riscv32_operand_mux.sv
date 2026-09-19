@@ -9,12 +9,15 @@ module riscv32_operand_mux
     input  logic            csr_read_illegal_i,
     input  xlen_data_t      execute_forwarding_value_i,
     input  xlen_data_t      execute_result_forwarding_value_i,
+    input  xlen_data_t      lsu_forwarding_value_i,
     input  xlen_data_t      writeback_forwarding_value_i,
     input  logic            rs1_execute_forwarding_selected_i,
     input  logic            rs1_execute_result_forwarding_selected_i,
+    input  logic            rs1_lsu_forwarding_selected_i,
     input  logic            rs1_writeback_forwarding_selected_i,
     input  logic            rs2_execute_forwarding_selected_i,
     input  logic            rs2_execute_result_forwarding_selected_i,
+    input  logic            rs2_lsu_forwarding_selected_i,
     input  logic            rs2_writeback_forwarding_selected_i,
     output execute_packet_t decoded_execute_packet_o
 );
@@ -43,14 +46,17 @@ module riscv32_operand_mux
       endcase
     end
 
-    // 冒险控制器选择最近的可用生产者。覆盖顺序为 WB → EX/MEM → EX；
-    // load 数据只从 WB 前递，避免将存储响应路径接入本级操作数选择。
+    // 冒险控制器选择最近的可用生产者：EX、EX 结果、LSU 完成、WB。
     if (rs1_writeback_forwarding_selected_i) begin
       decoded_execute_packet_o.source_a_value = writeback_forwarding_value_i;
     end
     if (rs2_writeback_forwarding_selected_i) begin
       decoded_execute_packet_o.source_b_value = writeback_forwarding_value_i;
     end
+    if (rs1_lsu_forwarding_selected_i)
+      decoded_execute_packet_o.source_a_value = lsu_forwarding_value_i;
+    if (rs2_lsu_forwarding_selected_i)
+      decoded_execute_packet_o.source_b_value = lsu_forwarding_value_i;
     if (rs1_execute_result_forwarding_selected_i) begin
       decoded_execute_packet_o.source_a_value = execute_result_forwarding_value_i;
     end

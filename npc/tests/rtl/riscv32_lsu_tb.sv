@@ -68,10 +68,10 @@ module riscv32_lsu_tb;
     @(negedge clk);
     lsu_req               = request;
     lsu_req_valid         = 1'b1;
-    data_memory_req_ready = 1'b1;
+    data_memory_req_ready = 1'b0;
     #1;
-    assert (lsu_req_ready && !data_memory_req_valid)
-    else $fatal(1, "LSU did not register the request before issuing it");
+    assert (lsu_req_ready && data_memory_req_valid)
+    else $fatal(1, "LSU did not bypass an idle request");
 
     @(posedge clk);
     #1;
@@ -80,7 +80,8 @@ module riscv32_lsu_tb;
     @(negedge clk);
     #1;
     assert (data_memory_req_valid)
-    else $fatal(1, "LSU did not issue the registered memory request");
+    else $fatal(1, "LSU did not retain a blocked memory request");
+    data_memory_req_ready = 1'b1;
   endtask
 
   // 异常和未对齐请求同样必须先经过入口寄存器，不能为了减少一拍而重新建立
@@ -275,8 +276,8 @@ module riscv32_lsu_tb;
     data_memory_req_ready = 1'b0;
     lsu_writeback_ready   = 1'b1;
     #1;
-    assert (lsu_req_ready && !data_memory_req_valid)
-    else $fatal(1, "LSU bypassed its request register under memory backpressure");
+    assert (lsu_req_ready && data_memory_req_valid)
+    else $fatal(1, "LSU idle request did not reach the blocked memory port");
 
     @(posedge clk);
     #1;
@@ -347,8 +348,8 @@ module riscv32_lsu_tb;
     lsu_writeback_ready           = 1'b1;
     data_memory_req_ready         = 1'b0;
     #1;
-    assert (data_memory_resp_ready && lsu_writeback_valid && !lsu_req_ready)
-    else $fatal(1, "LSU accepted a younger load before the older load completed");
+    assert (data_memory_resp_ready && lsu_writeback_valid && lsu_req_ready)
+    else $fatal(1, "LSU failed same-cycle completion/request handoff");
     assert ((lsu_writeback.uop.rd == arch_reg_idx_t'(6)) &&
             (lsu_writeback.result == xlen_data_t'(32'h1111_1111)))
     else $fatal(1, "LSU mixed the older response with the younger request payload");
@@ -356,23 +357,14 @@ module riscv32_lsu_tb;
     @(posedge clk);
     #1;
     data_memory_resp_valid = 1'b0;
-    @(negedge clk);
-    #1;
-    assert (lsu_req_ready && !data_memory_req_valid)
-    else $fatal(1, "LSU did not return to IDLE after the older response completed");
-    data_memory_req_ready = 1'b1;
-
-    @(posedge clk);
-    #1;
     lsu_req_valid = 1'b0;
-
     @(negedge clk);
     #1;
-    assert (data_memory_req_valid &&
-            (data_memory_req.addr == phys_addr_t'(32'h8000_0200)) &&
-            (lsu_pending_rd == arch_reg_idx_t'(7)))
-    else $fatal(1, "LSU did not issue the younger load from its registered context");
-
+    assert (!lsu_req_ready && data_memory_req_valid &&
+            data_memory_req.addr == phys_addr_t'(32'h8000_0200) &&
+            lsu_pending_rd == arch_reg_idx_t'(7))
+    else $fatal(1, "LSU did not preserve the rollover request under backpressure");
+    data_memory_req_ready = 1'b1;
     @(posedge clk);
     #1;
     data_memory_req_ready         = 1'b0;
@@ -389,6 +381,52 @@ module riscv32_lsu_tb;
 
     @(posedge clk);
     #1;
+    data_memory_resp_valid = 1'b0;
+  endtask
+
+  task automatic check_direct_rollover;
+    @(negedge clk);
+    lsu_req = make_memory_request(MEM_CMD_LOAD, MEM_SIZE_BYTE, 1'b0,
+        effective_addr_t'(32'h80000003), '0);
+    lsu_req.uop.rd = arch_reg_idx_t'(11);
+    lsu_req_valid = 1'b1;
+    data_memory_req_ready = 1'b1;
+    #1;
+    assert (lsu_req_ready && data_memory_req_valid)
+      else $fatal(1, "idle ready memory path did not bypass request storage");
+    @(posedge clk);
+    @(negedge clk);
+    lsu_req = make_memory_request(MEM_CMD_STORE, MEM_SIZE_BYTE, 1'b0,
+        effective_addr_t'(32'h80000005), xlen_data_t'(8'h55));
+    data_memory_resp = '0;
+    data_memory_resp.read_data = core_data_t'(32'haa000000);
+    data_memory_resp_valid = 1'b1;
+    lsu_writeback_ready = 1'b0;
+    #1;
+    assert (!lsu_req_ready && !data_memory_req_valid && lsu_writeback_valid)
+      else $fatal(1, "rollover ignored writeback backpressure");
+    @(posedge clk);
+    @(negedge clk);
+    lsu_writeback_ready = 1'b1;
+    #1;
+    assert (lsu_req_ready && data_memory_req_valid && data_memory_resp_ready &&
+            data_memory_req.addr == 32'h80000005 && data_memory_req.cmd == MEM_CMD_STORE &&
+            lsu_writeback.uop.rd == 11 && lsu_writeback.memory_addr == 32'h80000003 &&
+            lsu_writeback.result == xlen_data_t'(-86))
+      else $fatal(1, "same-cycle load completion and byte store mixed contexts");
+    @(posedge clk);
+    @(negedge clk);
+    lsu_req_valid = 1'b0;
+    data_memory_resp_valid = 1'b0;
+    @(negedge clk);
+    data_memory_resp_valid = 1'b1;
+    #1;
+    assert (lsu_writeback_valid && lsu_writeback.memory_addr == 32'h80000005 &&
+            !lsu_writeback.uop.writes_rd && lsu_writeback.memory_wmask ==
+            (core_byte_strobe_t'(1) << (5 % CORE_DATA_BYTE_COUNT)))
+      else $fatal(1, "directly dispatched store context was lost");
+    @(posedge clk);
+    @(negedge clk);
     data_memory_resp_valid = 1'b0;
   endtask
 
@@ -451,6 +489,7 @@ module riscv32_lsu_tb;
 
     check_response_backpressure();
     check_consecutive_load_serialization();
+    check_direct_rollover();
 
     $display("LSU directed memory test passed for XLEN=%0d", XLEN);
     $finish;

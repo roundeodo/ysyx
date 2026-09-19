@@ -1,0 +1,22 @@
+{
+  "data_max": {
+    "endpoint": "data_axi4_manager_o_27_",
+    "slack_ns": 0.153,
+    "fmax_mhz": 588.917
+  },
+  "gating_max": {
+    "endpoint": "u_core.u_ifu.lookup_queue_entry_count_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+    "slack_ns": 0.211,
+    "fmax_mhz": null
+  },
+  "data_min": {
+    "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+    "slack_ns": 0.059,
+    "fmax_mhz": null
+  },
+  "gating_min": {
+    "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p_QN_NOR4_X1_A3_ZN_CLKGATE_X1_E:E",
+    "slack_ns": 0.094,
+    "fmax_mhz": null
+  }
+}

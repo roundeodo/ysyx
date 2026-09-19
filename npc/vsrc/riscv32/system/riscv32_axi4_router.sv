@@ -68,6 +68,16 @@ module riscv32_axi4_router
   logic upstream_write_data_handshake;
   logic upstream_write_response_handshake;
 
+  logic read_address_window;
+  logic write_address_window;
+  logic write_last_already_accepted;
+  assign read_address_window = (read_state_q == READ_ROUTE_ADDRESS) ||
+      (upstream_read_data_handshake && upstream_manager_o.r.last);
+  assign write_address_window = (write_state_q == WRITE_ROUTE_ADDRESS) ||
+      upstream_write_response_handshake;
+  assign write_last_already_accepted =
+      (write_state_q == WRITE_ROUTE_ADDRESS) && write_last_data_occurred_q;
+
   function automatic target_index_t select_index_from_vector(
       input  logic [TARGET_COUNT-1:0] target_select_vector
   );
@@ -125,176 +135,78 @@ module riscv32_axi4_router
   assign upstream_write_response_handshake =
       upstream_manager_o.b_valid && upstream_manager_i.b_ready;
 
-  // 第一段A：只生成发往target的请求。该块不读取target响应。
-  always_comb begin
-    for (int unsigned target = 0; target < TARGET_COUNT; target++) begin
-      target_manager_array_o[target] = '0;
-    end
-
-    unique case (read_state_q)
-      READ_ROUTE_ADDRESS: begin
-        if (read_target_selection_present) begin
-          target_manager_array_o[read_target_select_index].ar = upstream_manager_i.ar;
-          target_manager_array_o[read_target_select_index].ar_valid =
-              upstream_manager_i.ar_valid;
-        end
-      end
-
-      READ_FORWARD_DATA: begin
-        target_manager_array_o[selected_read_target_index_q].r_ready =
-            upstream_manager_i.r_ready;
-      end
-
-      default: ;
-    endcase
-
-    unique case (write_state_q)
-      WRITE_ROUTE_ADDRESS: begin
-        if (write_target_selection_present) begin
-          target_manager_array_o[write_target_select_index].aw = upstream_manager_i.aw;
-          target_manager_array_o[write_target_select_index].aw_valid =
-              upstream_manager_i.aw_valid;
-
-          // AW给出了写事务目标。AW出现后，首个W beat可同拍直接到达该target。
-          if (upstream_manager_i.aw_valid && !write_last_data_occurred_q) begin
-            target_manager_array_o[write_target_select_index].w = upstream_manager_i.w;
-            target_manager_array_o[write_target_select_index].w_valid =
-                upstream_manager_i.w_valid;
-          end
-        end
-      end
-
-      WRITE_FORWARD_DATA: begin
-        target_manager_array_o[selected_write_target_index_q].w = upstream_manager_i.w;
-        target_manager_array_o[selected_write_target_index_q].w_valid =
-            upstream_manager_i.w_valid;
-      end
-
-      WRITE_FORWARD_RESPONSE: begin
-        target_manager_array_o[selected_write_target_index_q].b_ready =
-            upstream_manager_i.b_ready;
-      end
-
-      default: ;
-    endcase
+  // 五个通道分别驱动：新地址选择不能成为旧响应或 RREADY 的组合依赖。
+  for (genvar target = 0; target < TARGET_COUNT; target++) begin : gen_target_channels
+    assign target_manager_array_o[target].ar = upstream_manager_i.ar;
+    assign target_manager_array_o[target].ar_valid = read_address_window &&
+        read_target_selection_present && read_target_select_index == target_index_t'(target) &&
+        upstream_manager_i.ar_valid;
+    assign target_manager_array_o[target].r_ready = (read_state_q == READ_FORWARD_DATA) &&
+        selected_read_target_index_q == target_index_t'(target) && upstream_manager_i.r_ready;
+    assign target_manager_array_o[target].aw = upstream_manager_i.aw;
+    assign target_manager_array_o[target].aw_valid = write_address_window &&
+        write_target_selection_present && write_target_select_index == target_index_t'(target) &&
+        upstream_manager_i.aw_valid;
+    assign target_manager_array_o[target].w = upstream_manager_i.w;
+    assign target_manager_array_o[target].w_valid = upstream_manager_i.w_valid &&
+        ((write_address_window && write_target_selection_present && upstream_manager_i.aw_valid &&
+          !write_last_already_accepted && write_target_select_index == target_index_t'(target)) ||
+         ((write_state_q == WRITE_FORWARD_DATA) &&
+          selected_write_target_index_q == target_index_t'(target)));
+    assign target_manager_array_o[target].b_ready = (write_state_q == WRITE_FORWARD_RESPONSE) &&
+        selected_write_target_index_q == target_index_t'(target) && upstream_manager_i.b_ready;
   end
 
-  // 第一段B：只生成返回upstream的响应。请求和响应分别由一个组合块驱动，
-  // 使完整AXI4结构体的依赖方向与五个通道的实际方向一致。
-  always_comb begin
-    upstream_manager_o = '0;
-
-    unique case (read_state_q)
-      READ_ROUTE_ADDRESS: begin
-        if (read_target_selection_present) begin
-          upstream_manager_o.ar_ready =
-              target_manager_array_i[read_target_select_index].ar_ready;
-        end
-      end
-
-      READ_FORWARD_DATA: begin
-        upstream_manager_o.r =
-            target_manager_array_i[selected_read_target_index_q].r;
-        upstream_manager_o.r_valid =
-            target_manager_array_i[selected_read_target_index_q].r_valid;
-      end
-
-      default: ;
-    endcase
-
-    unique case (write_state_q)
-      WRITE_ROUTE_ADDRESS: begin
-        if (write_target_selection_present) begin
-          upstream_manager_o.aw_ready =
-              target_manager_array_i[write_target_select_index].aw_ready;
-
-          if (upstream_manager_i.aw_valid && !write_last_data_occurred_q) begin
-            upstream_manager_o.w_ready =
-                target_manager_array_i[write_target_select_index].w_ready;
-          end
-        end
-      end
-
-      WRITE_FORWARD_DATA: begin
-        upstream_manager_o.w_ready =
-            target_manager_array_i[selected_write_target_index_q].w_ready;
-      end
-
-      WRITE_FORWARD_RESPONSE: begin
-        upstream_manager_o.b =
-            target_manager_array_i[selected_write_target_index_q].b;
-        upstream_manager_o.b_valid =
-            target_manager_array_i[selected_write_target_index_q].b_valid;
-      end
-
-      default: ;
-    endcase
-  end
+  assign upstream_manager_o.ar_ready = read_address_window && read_target_selection_present &&
+      target_manager_array_i[read_target_select_index].ar_ready;
+  assign upstream_manager_o.r = target_manager_array_i[selected_read_target_index_q].r;
+  assign upstream_manager_o.r_valid = (read_state_q == READ_FORWARD_DATA) &&
+      target_manager_array_i[selected_read_target_index_q].r_valid;
+  assign upstream_manager_o.aw_ready = write_address_window && write_target_selection_present &&
+      target_manager_array_i[write_target_select_index].aw_ready;
+  assign upstream_manager_o.w_ready = write_address_window ?
+      (write_target_selection_present && upstream_manager_i.aw_valid && !write_last_already_accepted &&
+       target_manager_array_i[write_target_select_index].w_ready) :
+      ((write_state_q == WRITE_FORWARD_DATA) && target_manager_array_i[selected_write_target_index_q].w_ready);
+  assign upstream_manager_o.b = target_manager_array_i[selected_write_target_index_q].b;
+  assign upstream_manager_o.b_valid = (write_state_q == WRITE_FORWARD_RESPONSE) &&
+      target_manager_array_i[selected_write_target_index_q].b_valid;
 
   // 第二段：状态转换。选择索引在请求地址握手后锁定，直到最后一个响应完成。
   always_comb begin
     read_state_d                 = read_state_q;
     selected_read_target_index_d = selected_read_target_index_q;
 
-    unique case (read_state_q)
-      READ_ROUTE_ADDRESS: begin
-        if (upstream_read_address_handshake) begin
-          selected_read_target_index_d = read_target_select_index;
-          read_state_d                 = READ_FORWARD_DATA;
-        end
-      end
-
-      READ_FORWARD_DATA: begin
-        if (upstream_read_data_handshake && upstream_manager_o.r.last) begin
-          read_state_d = READ_ROUTE_ADDRESS;
-        end
-      end
-
-      default: read_state_d = READ_ROUTE_ADDRESS;
-    endcase
+    if (upstream_read_data_handshake && upstream_manager_o.r.last)
+      read_state_d = READ_ROUTE_ADDRESS;
+    if (upstream_read_address_handshake) begin
+      selected_read_target_index_d = read_target_select_index;
+      read_state_d = READ_FORWARD_DATA;
+    end
   end
 
   always_comb begin
-    write_state_d                 = write_state_q;
+    write_state_d = write_state_q;
     selected_write_target_index_d = selected_write_target_index_q;
-    write_last_data_occurred_d    = write_last_data_occurred_q;
-
-    unique case (write_state_q)
-      WRITE_ROUTE_ADDRESS: begin
-        if (upstream_write_data_handshake && upstream_manager_i.w.last) begin
-          write_last_data_occurred_d = 1'b1;
-        end
-
-        if (upstream_write_address_handshake) begin
-          selected_write_target_index_d = write_target_select_index;
-          if (write_last_data_occurred_q ||
-              (upstream_write_data_handshake && upstream_manager_i.w.last)) begin
-            write_state_d = WRITE_FORWARD_RESPONSE;
-          end else begin
-            write_state_d = WRITE_FORWARD_DATA;
-          end
-        end
+    write_last_data_occurred_d = write_last_data_occurred_q;
+    if (upstream_write_response_handshake) begin
+      write_last_data_occurred_d = 1'b0;
+      write_state_d = WRITE_ROUTE_ADDRESS;
+    end
+    if (write_address_window) begin
+      if (upstream_write_data_handshake && upstream_manager_i.w.last)
+        write_last_data_occurred_d = 1'b1;
+      if (upstream_write_address_handshake) begin
+        selected_write_target_index_d = write_target_select_index;
+        write_state_d = (write_last_already_accepted ||
+            (upstream_write_data_handshake && upstream_manager_i.w.last)) ?
+            WRITE_FORWARD_RESPONSE : WRITE_FORWARD_DATA;
       end
-
-      WRITE_FORWARD_DATA: begin
-        if (upstream_write_data_handshake && upstream_manager_i.w.last) begin
-          write_last_data_occurred_d = 1'b1;
-          write_state_d              = WRITE_FORWARD_RESPONSE;
-        end
-      end
-
-      WRITE_FORWARD_RESPONSE: begin
-        if (upstream_write_response_handshake) begin
-          write_last_data_occurred_d = 1'b0;
-          write_state_d              = WRITE_ROUTE_ADDRESS;
-        end
-      end
-
-      default: begin
-        write_last_data_occurred_d = 1'b0;
-        write_state_d              = WRITE_ROUTE_ADDRESS;
-      end
-    endcase
+    end else if (write_state_q == WRITE_FORWARD_DATA &&
+                 upstream_write_data_handshake && upstream_manager_i.w.last) begin
+      write_last_data_occurred_d = 1'b1;
+      write_state_d = WRITE_FORWARD_RESPONSE;
+    end
   end
 
   // 第三段：读路由、写路由和写数据进度分别更新。

@@ -487,7 +487,6 @@ package riscv32_pkg;
 
   typedef struct packed {
     phys_addr_t        line_base_addr;
-    dcache_line_data_t line_data;
     mem_txn_id_t       transaction_id;
   } dcache_writeback_req_t;
 

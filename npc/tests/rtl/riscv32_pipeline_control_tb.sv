@@ -115,9 +115,11 @@ module riscv32_pipeline_control_tb;
   logic                writeback_forwarding_available;
   logic                rs1_execute_forwarding_selected;
   logic                rs1_execute_result_forwarding_selected;
+  logic rs1_lsu_forwarding_selected;
   logic                rs1_writeback_forwarding_selected;
   logic                rs2_execute_forwarding_selected;
   logic                rs2_execute_result_forwarding_selected;
+  logic rs2_lsu_forwarding_selected;
   logic                rs2_writeback_forwarding_selected;
 
   riscv32_ifu #(
@@ -285,9 +287,11 @@ module riscv32_pipeline_control_tb;
       .structural_hazard_present_o             (structural_hazard_present),
       .rs1_execute_forwarding_selected_o       (rs1_execute_forwarding_selected),
       .rs1_execute_result_forwarding_selected_o(rs1_execute_result_forwarding_selected),
+      .rs1_lsu_forwarding_selected_o (rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o     (rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o       (rs2_execute_forwarding_selected),
       .rs2_execute_result_forwarding_selected_o(rs2_execute_result_forwarding_selected),
+      .rs2_lsu_forwarding_selected_o (rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o     (rs2_writeback_forwarding_selected)
   );
 
@@ -488,7 +492,7 @@ module riscv32_pipeline_control_tb;
             (predictor_lookup_next_pc == JAL_TARGET))
     else $fatal(1, "trained JAL BTB entry did not predict its target");
 
-    // 条件分支BTB和BHT分别训练；BHT写口晚一级，因此等待训练真正落入数组后再查询。
+    // 条件分支同时更新 BTB 和 BHT；训练沿后查询新表值。
     predictor_resolved_control_flow_pc       = BRANCH_PC;
     predictor_resolved_control_flow_target   = BRANCH_TARGET;
     predictor_resolved_control_flow_op       = CF_BRANCH;
@@ -582,8 +586,8 @@ module riscv32_pipeline_control_tb;
     buffered_packet = decoded_execute_packet;
     decoded_execute_packet_valid = 1'b1;
     #1;
-    assert (decoded_execute_packet_ready)
-    else $fatal(1, "ID/EX skid entry did not absorb one cycle of backpressure");
+    assert (!decoded_execute_packet_ready)
+    else $fatal(1, "Occupied ID/EX accepted a request while blocked");
 
     @(posedge clk);
     #1;
@@ -591,17 +595,16 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "ID/EX stage changed its payload while backpressured");
 
     @(negedge clk);
-    decoded_execute_packet =
-        make_execute_packet(program_counter_t'('h240), arch_reg_idx_t'(7), xlen_data_t'('h9abc));
+    // 保持尚未握手的第二条指令，直到旧指令离开。
     #1;
     assert (!decoded_execute_packet_ready)
-    else $fatal(1, "ID/EX stage accepted a third payload while both entries were occupied");
+    else $fatal(1, "ID/EX stage accepted a request while its only entry was occupied");
 
     execute_packet_ready = 1'b1;
     @(posedge clk);
     #1;
     assert (execute_packet_valid && (execute_packet == buffered_packet))
-    else $fatal(1, "ID/EX stage did not promote the buffered payload after output handshake");
+    else $fatal(1, "ID/EX stage did not accept the waiting payload after output handshake");
 
     @(negedge clk);
     decode_execute_flush = 1'b1;
@@ -781,7 +784,7 @@ module riscv32_pipeline_control_tb;
     assert (structural_hazard_present && decode_accept_allowed && !execute_issue_allowed)
     else $fatal(1, "pipeline issued a younger instruction ahead of an older LSU transaction");
 
-    // 成功完成拍只解除结构阻塞；有异常或反压时 succeeded 必须保持为 0。
+    // 成功完成拍解除结构阻塞并允许前递；异常或反压时 succeeded 必须为 0。
     lsu_completion_succeeded = 1'b1;
     #1;
     assert (!structural_hazard_present && execute_issue_allowed && execute_progress_allowed)
@@ -794,22 +797,21 @@ module riscv32_pipeline_control_tb;
     execute_result_valid = 1'b0;
     execute_result_ready = 1'b1;
 
-    // 在途load的数据尚未跨越WB寄存边界，因此依赖指令必须停在ID。LSU响应不能直接
-    // 穿过D-cache、LSU和冒险控制进入ID/EX，否则会形成跨多个模块的组合长路径。
+    // 成功交付的 load 可直接前递；未完成或故障返回不得解除相关等待。
     lsu_pending_writes_rd       = 1'b1;
     lsu_pending_rd              = arch_reg_idx_t'(13);
     hazard_decoded_uop.uses_rs1 = 1'b1;
     hazard_decoded_uop.rs1      = arch_reg_idx_t'(13);
     #1;
-    assert (raw_hazard_present && !decode_accept_allowed)
-    else $fatal(1, "pending LSU load dependency was not blocked before response");
+    assert (!raw_hazard_present && decode_accept_allowed && rs1_lsu_forwarding_selected)
+    else $fatal(1, "successful LSU completion did not forward to its consumer");
 
     lsu_completion_succeeded = 1'b0;
     #1;
-    assert (!execute_issue_allowed)
+    assert (!execute_issue_allowed && raw_hazard_present && !rs1_lsu_forwarding_selected)
     else $fatal(1, "unfinished or faulting LSU completion enabled execution");
 
-    // LSU完成后，结果先进入WB寄存器。下一拍由现有WB前递网络解除相关冒险。
+    // 完成沿后结果进入 WB，由 WB 前递继续提供操作数。
     lsu_busy                                      = 1'b0;
     lsu_pending_writes_rd                         = 1'b0;
     hazard_writeback_result_valid                 = 1'b1;
@@ -830,15 +832,14 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "pipeline did not prioritize the younger EX producer over WB load result");
 
     clear_hazard_inputs();
-    clear_hazard_inputs();
     hazard_decoded_uop_valid  = 1'b1;
     frontend_redirect_applied = 1'b1;
     #1;
-    // redirect经过寄存边界并应用到前端时，残留的旧路径EX内容必须停止执行。
+    // redirect 组合应用到前端的同拍，旧路径 EX 内容必须停止执行。
     // decode accept保持为容量/数据冒险决策；flush负责使同拍采样的payload失效。
     assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && !hazard_writeback_flush)
-    else $fatal(1, "registered frontend redirect did not block stale execute work");
+    else $fatal(1, "frontend redirect did not block stale execute work");
 
     clear_hazard_inputs();
     hazard_decoded_uop_valid = 1'b1;
@@ -891,7 +892,8 @@ module riscv32_pipeline_control_tb;
     fetch_buffer_input_entry = first_entry;
     fetch_buffer_input_valid = 1'b1;
     #1;
-    assert (fetch_buffer_input_ready && !fetch_buffer_output_valid)
+    assert (fetch_buffer_input_ready && fetch_buffer_output_valid &&
+            fetch_buffer_output_entry == first_entry)
     else $fatal(1, "empty fetch buffer did not accept its first entry");
     @(posedge clk);
 
@@ -913,12 +915,13 @@ module riscv32_pipeline_control_tb;
 
     fetch_buffer_output_ready = 1'b1;
     #1;
-    assert (!fetch_buffer_input_ready)
-    else $fatal(1, "full fetch buffer ready retained a downstream combinational dependency");
+    assert (fetch_buffer_input_ready)
+    else $fatal(1, "full fetch buffer failed simultaneous dequeue/enqueue");
     @(posedge clk);
 
     @(negedge clk);
     #1;
+    fetch_buffer_input_valid = 1'b0;
     assert (fetch_buffer_input_ready && fetch_buffer_output_valid &&
             (fetch_buffer_output_entry == second_entry))
     else $fatal(1, "fetch buffer did not restore input capacity after dequeue");
@@ -1083,10 +1086,12 @@ module riscv32_pipeline_control_tb;
       fetch_buffer_output_ready = stimulus_state[1] || stimulus_state[2];
       fetch_buffer_flush        = stimulus_state[8:3] == 6'h17;
       #1;
-      assert (fetch_buffer_output_valid == (expected_entries.size() != 0))
+      assert (fetch_buffer_output_valid == ((expected_entries.size() != 0) ||
+          (fetch_buffer_input_valid && !fetch_buffer_flush)))
         else $fatal(1, "fetch queue valid differs from transaction history");
       if (fetch_buffer_output_valid) begin
-        assert (fetch_buffer_output_entry === expected_entries[0])
+        assert (fetch_buffer_output_entry === ((expected_entries.size() != 0) ?
+            expected_entries[0] : fetch_buffer_input_entry))
           else $fatal(1, "fetch queue reordered or corrupted an entry at cycle %0d", cycle_index);
       end
       push_occurred = fetch_buffer_input_valid && fetch_buffer_input_ready;
@@ -1097,13 +1102,13 @@ module riscv32_pipeline_control_tb;
         expected_entries.delete();
         flush_count++;
       end else begin
-        if (pop_occurred) begin
-          consumed_entry = expected_entries.pop_front();
-          checked_pop_count++;
-        end
         if (push_occurred) begin
           expected_entries.push_back(fetch_buffer_input_entry);
           input_pending = 1'b0;
+        end
+        if (pop_occurred) begin
+          consumed_entry = expected_entries.pop_front();
+          checked_pop_count++;
         end
         if (push_occurred && pop_occurred) simultaneous_count++;
       end
@@ -1176,11 +1181,11 @@ module riscv32_pipeline_control_tb;
       next_predictor_response_request_pc    = ifu_predictor_lookup_request_pc;
       next_predictor_response_request_epoch = ifu_predictor_lookup_request_epoch;
 
-      if (instruction_index != 0) begin
+      begin
         assert (icache_lookup_req_valid &&
                 (icache_lookup_req.fetch_addr ==
                  phys_addr_t'(IFU_TEST_START_PC) +
-                 phys_addr_t'((instruction_index - 1) * INSTRUCTION_BYTES)))
+                 phys_addr_t'(instruction_index * INSTRUCTION_BYTES)))
         else $fatal(1, "IFU predicted lookup queue inserted an I-cache request bubble");
         accepted_request = icache_lookup_req;
       end
@@ -1194,7 +1199,7 @@ module riscv32_pipeline_control_tb;
       @(posedge clk);
       predictor_response_request_pc    = next_predictor_response_request_pc;
       predictor_response_request_epoch = next_predictor_response_request_epoch;
-      if (instruction_index != 0) begin
+      begin
         response_request         = accepted_request;
         response_request_present = 1'b1;
       end
@@ -1209,7 +1214,7 @@ module riscv32_pipeline_control_tb;
     @(negedge clk);
     rst_ni                              = 1'b1;
     ifu_predictor_lookup_request_ready  = 1'b1;
-    icache_lookup_req_ready             = 1'b1;
+    icache_lookup_req_ready             = 1'b0;
     ifu_fetch_entry_ready               = 1'b1;
     #1;
     initial_epoch = ifu_predictor_lookup_request_epoch;
@@ -1230,6 +1235,7 @@ module riscv32_pipeline_control_tb;
     assert (icache_lookup_req_valid)
     else $fatal(1, "IFU did not issue the predicted reset-vector request");
     accepted_request = icache_lookup_req;
+    icache_lookup_req_ready = 1'b1;
     @(posedge clk);
 
     @(negedge clk);
@@ -1257,6 +1263,7 @@ module riscv32_pipeline_control_tb;
     @(posedge clk);
 
     @(negedge clk);
+    icache_lookup_req_ready                 = 1'b0;
     icache_lookup_resp_valid                = 1'b0;
     ifu_predictor_lookup_response_pc        = redirect_request.target_pc;
     ifu_predictor_lookup_response_epoch     = ifu_predictor_lookup_request_epoch;

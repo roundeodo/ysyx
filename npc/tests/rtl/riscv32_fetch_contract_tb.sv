@@ -54,7 +54,7 @@ module riscv32_fetch_contract_tb;
       assert(cache_request.fetch_addr == BASE + program_counter_t'((requests%4)*4))
         else $fatal(1,"IFU sent an incorrect predicted PC");
       if(previous_cycle>=0)
-        assert(cycle-previous_cycle==2) else $fatal(1,"taken target interval should be two cycles");
+        assert(cycle-previous_cycle==1) else $fatal(1,"taken target interval should be one cycle");
       previous_cycle=cycle; requests++;
       cache_response <= '{fetch_addr:cache_request.fetch_addr, fetch_data:32'h00000013,
                            frontend_tag:cache_request.frontend_tag,
@@ -68,7 +68,7 @@ module riscv32_fetch_contract_tb;
       deliveries++;
     end
     if(deliveries==100) begin
-      $display("PASS fetch taken loop: 100 deliveries, target interval 2 cycles (one empty cycle)");
+      $display("PASS fetch taken loop: 100 deliveries, target interval 1 cycle");
       $finish;
     end
   end

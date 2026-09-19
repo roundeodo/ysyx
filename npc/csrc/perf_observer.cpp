@@ -12,25 +12,24 @@ void PerfObserver::open(const char *path, uint64_t cpu_hz, uint64_t timer_hz) {
 
 void PerfObserver::sample(const PerfTimerSample &sample) {
   if (!enabled()) return;
-  if (pending_) valid_ = false;  // The current blocking LSU permits one sample.
-  sample_ = sample;
-  pending_ = true;
+  pending_samples_.push_back(sample);
 }
 
 void PerfObserver::commit(uint64_t cycle, uint64_t pc, uint32_t instruction,
                           bool retired) {
-  if (!enabled() || !pending_ || pc != sample_.load_pc) return;
+  if (!enabled() || pending_samples_.empty() || pc != pending_samples_.front().load_pc) return;
+  const PerfTimerSample &sample = pending_samples_.front();
   const bool successful_load = retired && (instruction & 0x707f) == 0x2003;
   valid_ &= successful_load;
   fprintf(output_, "{\"type\":\"timer_sample\",\"cycle\":%" PRIu64
           ",\"retired\":%" PRIu64 ",\"ticks\":%" PRIu64
           ",\"load_pc\":%" PRIu64 ",\"return_pc\":%" PRIu64
           ",\"interrupts\":%" PRIu64 ",\"load_commit_cycle\":%" PRIu64
-          ",\"successful_load\":%s}\n", sample_.cycle, sample_.retired,
-          sample_.ticks, sample_.load_pc, sample_.return_pc, sample_.interrupts,
+          ",\"successful_load\":%s}\n", sample.cycle, sample.retired,
+          sample.ticks, sample.load_pc, sample.return_pc, sample.interrupts,
           cycle, successful_load ? "true" : "false");
   fflush(output_);
-  pending_ = false;
+  pending_samples_.pop_front();
 }
 
 void PerfObserver::finish(uint64_t cycles, uint64_t retired, uint64_t interrupts,
@@ -39,7 +38,7 @@ void PerfObserver::finish(uint64_t cycles, uint64_t retired, uint64_t interrupts
   fprintf(output_, "{\"type\":\"finish\",\"valid\":%s,\"good_exit\":%s,"
           "\"cycles\":%" PRIu64 ",\"retired\":%" PRIu64
           ",\"interrupts\":%" PRIu64 ",\"clint_writes\":%" PRIu64 "}\n",
-          valid_ && !pending_ ? "true" : "false", good_exit ? "true" : "false",
+          valid_ && pending_samples_.empty() ? "true" : "false", good_exit ? "true" : "false",
           cycles, retired, interrupts, clint_writes);
   if (fclose(output_) != 0) { perror("performance observer close"); exit(1); }
   output_ = nullptr;

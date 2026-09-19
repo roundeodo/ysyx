@@ -1,0 +1,119 @@
+NPC: No MROM image supplied
+NPC: loaded 23768 bytes into flash
+======= Running MicroBench [input *test*] =======
+[qsort] Quick sort: * Passed.
+[queen] Queen placement: * Passed.
+[bf] Brainf**k interpreter: * Passed.
+[fib] Fibonacci number: * Passed.
+[sieve] Eratosthenes sieve: * Passed.
+[15pz] A* 15-puzzle search: * Passed.
+[dinic] Dinic's maxflow algorithm: * Passed.
+[lzip] Lzip compression: * Passed.
+[ssort] Suffix sort: * Passed.
+[md5] MD5 digest: * Passed.
+==================================================
+MicroBench PASS
+Scored time: 2.479 ms
+Total  time: 5.740 ms
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0xa0003b10
+NPC performance statistics:
+ retired instructions = 808369
+ CPU cycle            = 4520066
+ IPC                  = 0.178840
+NPC architectural audit = b01d05d8a4188e9c
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 4520054
+decoded instructions               : 871614
+retired instructions               : 808369
+IPC                                : 0.178841
+
+instruction class        count       ratio       average execution cycles
+integer                  495677    56.869%         1.924
+branch/jump              245177    28.129%         1.192
+load/store               130756    15.002%         6.881
+  load                    71446     8.197%
+  store                   59310     6.805%
+CSR                            0     0.000%         0.000
+system                         4     0.000%         1.500
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 948034 / 948034 / 871614
+IFU average response latency           : 4.152 cycles
+IFU AR backpressure cycles             : 3487193 (77.149%)
+IFU response-wait cycles               : 3936160 (87.082%)
+IFU downstream-backpressure cycles     : 1544854 (34.178%)
+IFU discarded wrong-path responses     : 66916
+
+LSU requests / completions             : 124857 / 124857
+LSU load operation average latency     : 8.119 cycles (61862 operations)
+LSU store operation average latency    : 9.522 cycles (43927 operations)
+LSU AXI read average latency           : 29.164 cycles (35413 transactions)
+LSU AXI write-response average latency : 20.088 cycles (30734 transactions)
+EXU / LSU completions                  : 683513 / 124857
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 871614 (19.283%)
+  control recovery stalls             : 883170 (19.539%)
+  LSU structural stalls               : 1514168 (33.499%)
+  unresolved RAW stalls               : 30512 (0.675%)
+  serializing stalls                  : 3 (0.000%)
+  frontend supply stalls              : 1129146 (24.981%)
+    request backpressure              : 1110297 (24.564%)
+    I-cache miss service              : 0 (0.000%)
+    lookup response in flight         : 18848 (0.417%)
+    request launch or delivery gap    : 1 (0.000%)
+  other empty issue slots             : 91441 (2.023%)
+recovery redirects / taken fetch predictions / EX corrections: 52601 / 164785 / 52599
+actual EX corrections by branch / JAL / JALR          : 36479 / 8282 / 7838
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 188685 / 120821 (64.033% taken)
+  backward / taken                  : 93046 / 72234 (77.633% taken)
+  forward / taken                   : 95639 / 48587 (50.802% taken)
+direct / indirect jumps             : 35379 / 15211
+always-not-taken prediction errors  : 171411 (71.638% of control flow)
+BTFNT+JAL prediction errors          : 84610 (35.361% of control flow)
+16-entry BHT+JAL errors              : 49088 (conditional 33877 + JALR 15211)
+64-entry BHT+JAL errors              : 47705 (conditional 32494 + JALR 15211)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 768911.000
+I-cache critical miss excess cycles   : 1561580.000
+oracle 1-cycle data memory / speedup   : 3751143.000 / 1.205x
+ideal single-issue pipeline cycles     : 3138860.000 / 1.440x
+ideal pipeline + oracle data memory    : 2369949.000 / 1.907x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 948034 / 921015 / 27019
+I-cache hit rate                            : 97.150%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 58.796 cycles
+average miss penalty                        : 57.796 cycles
+I-cache AMAT                                : 2.647 cycles
+average complete refill latency             : 75.283 cycles
+lookup request waiting cycles               : 3486147
+successful line installs / refill finishes  : 27018 / 27018
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 79008 / 66820 / 12188
+D-cache hit rate                           : 84.574%
+load lookups / hits / misses               : 43654 / 38566 / 5088
+store lookups / hits / misses              : 35354 / 28254 / 7100
+average hit response latency               : 1.000 cycles
+average miss response latency              : 124.904 cycles
+  clean-victim miss latency                : 86.093 cycles (4092)
+  dirty-victim miss latency                : 144.521 cycles (8096)
+average miss penalty                       : 123.904 cycles
+D-cache AMAT                               : 20.114 cycles
+dirty victim misses                        : 8096 (66.426% of misses)
+refill requests / words / completions      : 12188 / 48752 / 12188
+line installs / writeback requests/responses: 12188 / 8110 / 8110
+lookup request waiting cycles              : 5035
+store-hit same-cycle next lookups          : 5480
+==========================================================

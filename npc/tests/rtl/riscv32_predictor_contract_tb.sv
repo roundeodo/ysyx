@@ -44,7 +44,7 @@ module predictor_contract_case
     control_flow_op_e op;
     arch_reg_idx_t rs1, rd;
   } event_t;
-  event_t pending;
+  event_t current_event;
   bit expected_valid;
   program_counter_t expected_pc;
   fetch_epoch_t expected_epoch;
@@ -89,16 +89,18 @@ module predictor_contract_case
     foreach (counters[i]) counters[i]=1;
     foreach (table_valid[i]) table_valid[i]=0;
     foreach (victim[i]) victim[i]=0;
-    stack_size=0; pending='0; expected_valid=0;
+    stack_size=0; current_event='0; expected_valid=0;
   endtask
 
   task automatic apply_training;
     int row, chosen, history_index;
     bit hit, empty, push, pop;
-    // BHT 保留跨 invalidate 的计数，之前保存的训练仍可在本沿完成。
-    if (pending.valid && pending.op == CF_BRANCH) begin
-      history_index=int'((pending.pc >> 2) % BHT);
-      if (pending.taken) begin
+    current_event='{valid:(train_valid && !invalidate), taken:train_taken, pc:train_pc,
+              target:train_target, imm:train_imm, op:train_op, rs1:train_rs1, rd:train_rd};
+    // 查询在沿前观察旧表；当前解析事件在本沿更新，invalidate 当拍不训练 BHT。
+    if (current_event.valid && current_event.op == CF_BRANCH) begin
+      history_index=int'((current_event.pc >> 2) % BHT);
+      if (current_event.taken) begin
         if (counters[history_index] < 3) counters[history_index]++;
         else saturation++;
       end else begin
@@ -110,13 +112,13 @@ module predictor_contract_case
       foreach (table_valid[i]) table_valid[i]=0;
       foreach (victim[i]) victim[i]=0;
       stack_size=0; clears++;
-    end else if (pending.valid) begin
+    end else if (current_event.valid) begin
       updates++;
-      row=int'((pending.pc >> 2) % SETS);
+      row=int'((current_event.pc >> 2) % SETS);
       chosen=-1; hit=0; empty=0;
       // 模型先找已有 PC，再找空槽，最后替换，不采用 RTL 的同一循环选择结构。
       for (int i=0; i<WAYS; i++)
-        if (table_valid[row*WAYS+i] && (table_pc[row*WAYS+i] >> 2) == (pending.pc >> 2))
+        if (table_valid[row*WAYS+i] && (table_pc[row*WAYS+i] >> 2) == (current_event.pc >> 2))
           chosen=i;
       hit=chosen>=0;
       if (!hit) begin
@@ -125,11 +127,11 @@ module predictor_contract_case
       end
       if (chosen<0) begin chosen=victim[row]; victim[row]=(victim[row]+1)%WAYS; end
       table_valid[row*WAYS+chosen]=1;
-      table_pc[row*WAYS+chosen]=pending.pc;
-      table_target[row*WAYS+chosen]=pending.target;
-      table_kind[row*WAYS+chosen]=classify(pending);
-      push=pending.taken && is_link(pending.rd) && (pending.op==CF_JAL || pending.op==CF_JALR);
-      pop=pending.taken && is_return(pending);
+      table_pc[row*WAYS+chosen]=current_event.pc;
+      table_target[row*WAYS+chosen]=current_event.target;
+      table_kind[row*WAYS+chosen]=classify(current_event);
+      push=current_event.taken && is_link(current_event.rd) && (current_event.op==CF_JAL || current_event.op==CF_JALR);
+      pop=current_event.taken && is_return(current_event);
       if (pop && push) swaps++;
       else if (push) pushes++;
       else if (pop) pops++;
@@ -139,12 +141,11 @@ module predictor_contract_case
           for (int i=0; i<RAS-1; i++) stack[i]=stack[i+1];
           stack_size--;
         end
-        stack[stack_size]=pending.pc+program_counter_t'(INSTRUCTION_BYTES);
+        stack[stack_size]=current_event.pc+program_counter_t'(INSTRUCTION_BYTES);
         stack_size++;
       end
     end
-    pending='{valid:(train_valid && !invalidate), taken:train_taken, pc:train_pc,
-              target:train_target, imm:train_imm, op:train_op, rs1:train_rs1, rd:train_rd};
+
   endtask
 
   task automatic check_response;

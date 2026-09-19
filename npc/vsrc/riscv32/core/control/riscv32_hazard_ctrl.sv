@@ -35,14 +35,13 @@ module riscv32_hazard_ctrl
     input  logic          writeback_serializing_i,
     input  logic          writeback_forwarding_available_i,
 
-    // 在途LSU事务位于EX与WB之间。目的寄存器必须参与RAW比较；load结果先跨过WB
-    // 寄存边界，再通过writeback前递。独立指令允许进入EX等待。
+    // 在途 LSU 目的寄存器参与 RAW 比较；成功交付时结果可直接前递。
     input  logic          lsu_busy_i,
     input  logic          lsu_completion_succeeded_i,
     input  logic          lsu_pending_writes_rd_i,
     input  arch_reg_idx_t lsu_pending_rd_i,
     // 误预测判断来自EX/MEM寄存结果，不经过EXU组合路径。发现误预测的同拍必须阻止
-    // 年轻指令产生副作用；frontend_redirect_applied_i在下一拍恢复IFU取指地址。
+    // 年轻指令产生副作用；frontend_redirect_applied_i 同拍恢复 IFU 取指地址。
     input  logic execute_redirect_present_i,
     input  logic frontend_redirect_applied_i,
     input  logic commit_redirect_event_i,
@@ -59,9 +58,11 @@ module riscv32_hazard_ctrl
 
     output logic rs1_execute_forwarding_selected_o,
     output logic rs1_execute_result_forwarding_selected_o,
+    output logic rs1_lsu_forwarding_selected_o,
     output logic rs1_writeback_forwarding_selected_o,
     output logic rs2_execute_forwarding_selected_o,
     output logic rs2_execute_result_forwarding_selected_o,
+    output logic rs2_lsu_forwarding_selected_o,
     output logic rs2_writeback_forwarding_selected_o
 );
 
@@ -126,6 +127,8 @@ module riscv32_hazard_ctrl
     rs1_execute_forwarding_selected_o        = execute_forwardable_writes_rs1;
     rs1_execute_result_forwarding_selected_o = !execute_writes_rs1 &&
         execute_result_writes_rs1 && execute_result_forwarding_available_i;
+    rs1_lsu_forwarding_selected_o = !execute_writes_rs1 &&
+        !execute_result_writes_rs1 && lsu_writes_rs1 && lsu_completion_succeeded_i;
     rs1_writeback_forwarding_selected_o = !execute_writes_rs1 &&
         !execute_result_writes_rs1 &&
         !lsu_writes_rs1 &&
@@ -134,6 +137,8 @@ module riscv32_hazard_ctrl
     rs2_execute_forwarding_selected_o        = execute_forwardable_writes_rs2;
     rs2_execute_result_forwarding_selected_o = !execute_writes_rs2 &&
         execute_result_writes_rs2 && execute_result_forwarding_available_i;
+    rs2_lsu_forwarding_selected_o = !execute_writes_rs2 &&
+        !execute_result_writes_rs2 && lsu_writes_rs2 && lsu_completion_succeeded_i;
     rs2_writeback_forwarding_selected_o = !execute_writes_rs2 &&
         !execute_result_writes_rs2 &&
         !lsu_writes_rs2 &&
@@ -144,7 +149,7 @@ module riscv32_hazard_ctrl
         (!execute_writes_rs1 && execute_result_writes_rs1 &&
         !execute_result_forwarding_available_i) ||
         (!execute_writes_rs1 && !execute_result_writes_rs1 &&
-        lsu_writes_rs1) ||
+        lsu_writes_rs1 && !lsu_completion_succeeded_i) ||
         (!execute_writes_rs1 && !execute_result_writes_rs1 &&
         !lsu_writes_rs1 &&
         writeback_writes_rs1 &&
@@ -153,7 +158,7 @@ module riscv32_hazard_ctrl
         (!execute_writes_rs2 && execute_result_writes_rs2 &&
         !execute_result_forwarding_available_i) ||
         (!execute_writes_rs2 && !execute_result_writes_rs2 &&
-        lsu_writes_rs2) ||
+        lsu_writes_rs2 && !lsu_completion_succeeded_i) ||
         (!execute_writes_rs2 && !execute_result_writes_rs2 &&
         !lsu_writes_rs2 &&
         writeback_writes_rs2 &&
@@ -183,12 +188,11 @@ module riscv32_hazard_ctrl
       (older_serializing_instruction_present ||
        (decoded_serializing_i && older_instruction_present));
 
-  // EX/MEM发现误预测的同拍就清除年轻ID/EX指令并禁止其产生副作用。redirect经过
-  // 专用寄存器后，下一拍真正交给前端并再次清除期间可能到达的错误路径指令。
+  // EX 结果发现误预测的同拍，组合恢复前端并清除年轻 ID/EX，禁止年轻副作用。
   assign control_recovery_event = frontend_redirect_applied_i || commit_redirect_event_i;
 
   // LSU 成功交付 WB 的同拍，年轻普通指令可以进入空的 EX 结果寄存器。
-  // 这不提供 load 响应到 ID/EX 的旁路；上面的 pending-rd RAW 检查保持不变。
+  // 同拍 load 结果也可前递给译码；故障或反压时继续阻塞相关指令。
   assign structural_hazard_present_o = lsu_busy_i && !lsu_completion_succeeded_i;
   assign execute_result_stalled      = execute_result_valid_i && !execute_result_ready_i;
   assign execute_result_exception_present = execute_result_valid_i &&
@@ -247,10 +251,12 @@ module riscv32_hazard_ctrl
   assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(
       {rs1_execute_forwarding_selected_o,
               rs1_execute_result_forwarding_selected_o,
+              rs1_lsu_forwarding_selected_o,
               rs1_writeback_forwarding_selected_o}
   ) && $onehot0(
       {rs2_execute_forwarding_selected_o,
               rs2_execute_result_forwarding_selected_o,
+              rs2_lsu_forwarding_selected_o,
               rs2_writeback_forwarding_selected_o}
   ))
   else
@@ -269,16 +275,29 @@ module riscv32_hazard_ctrl
     $error("pipeline accepted stale rs2 data while the newest EX producer was unavailable");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs1 && lsu_writes_rs1)
+    (decoded_uop_valid_i && !execute_writes_rs1 && !execute_result_writes_rs1 &&
+     lsu_writes_rs1 && !lsu_completion_succeeded_i)
     |-> raw_hazard_present_o)
   else
     $error("pipeline accepted stale rs1 data while an LSU producer was pending");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs2 && lsu_writes_rs2)
+    (decoded_uop_valid_i && !execute_writes_rs2 && !execute_result_writes_rs2 &&
+     lsu_writes_rs2 && !lsu_completion_succeeded_i)
     |-> raw_hazard_present_o)
   else
     $error("pipeline accepted stale rs2 data while an LSU producer was pending");
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lsu_completion_succeeded_i && lsu_writes_rs1 &&
+     !execute_writes_rs1 && !execute_result_writes_rs1)
+    |-> rs1_lsu_forwarding_selected_o)
+  else $error("Successful LSU result did not forward to rs1");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lsu_completion_succeeded_i && lsu_writes_rs2 &&
+     !execute_writes_rs2 && !execute_result_writes_rs2)
+    |-> rs2_lsu_forwarding_selected_o)
+  else $error("Successful LSU result did not forward to rs2");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 

@@ -33,7 +33,7 @@ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_btb.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_ras.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
 ${NPC_HOME}/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv
-${NPC_HOME}/vsrc/riscv32/core/control/riscv32_redirect_stage.sv
+${NPC_HOME}/vsrc/riscv32/core/control/riscv32_redirect_mux.sv
 ${NPC_HOME}/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv
 ${NPC_HOME}/vsrc/riscv32/core/execute/riscv32_exu.sv
 ${NPC_HOME}/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv

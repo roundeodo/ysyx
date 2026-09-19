@@ -1,0 +1,4 @@
+AUDIT change_address=1 req_valid=0 resp_ready=0 expected=59585b5a observed=5d5c5f5e valid=1
+[180] %Fatal: dcache_response_hold_tb.sv:316: Assertion failed in riscv32_dcache_tb.unnamedblk3: AUDIT_RESPONSE_NOT_STABLE
+%Error: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-register-cycle-audit-20260919/dcache_response_hold_tb.sv:316: Verilog $stop
+Aborting...
