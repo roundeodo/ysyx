@@ -151,7 +151,7 @@ LSU 未完成时阻止年轻指令离开执行入口。旧 LSU 成功交付 WB �
 参与完成选择，因此不会早于旧 LSU 写回。成功完成时也可接收下一访存，并提供 load 前递；
 旧响应始终读旧上下文，故障和反压禁止交接。
 
-SYSTEM、FENCE/FENCE.I 等指令按串行化处理。控制恢复在产生当拍抑制年轻执行/副作用，
+SYSTEM、FENCE.I 按串行化处理；普通 FENCE 依靠阻塞 LSU 的访存顺序，不额外排空 ALU/WB。控制恢复在产生当拍抑制年轻执行/副作用，
 前端恢复组合直达 IFU。顺序保证来自这些发出与完成条件，不能归因于完成 mux 的优先级本身。
 
 ## 4. 前端与分支预测器
@@ -241,8 +241,7 @@ PMA 允许执行但不缓存的区域走单次读取，`ARLEN=0`，不安装缓�
 返回取指异常。若提前返回后后续 beat 报错，整行不能有效，但不能撤回已经交付的指令字。
 异常归属应按具体请求字及总线返回语义解释，不能笼统说提前返回等于整行已验证完成。
 
-失效流程为 IDLE → DRAIN_LOOKUPS → CLEAR_METADATA → COMPLETE，等待旧事务并逐组
-清有效状态。当前单路无替换选择自由度；配置多路时，优先无效 way，否则用轮询指针，非 LRU。
+失效请求先等待旧查询和 miss 排空，在完成握手沿一次清除全部有效位，不再逐组扫描。当前单路无替换选择自由度；配置多路时，优先无效 way，否则用轮询指针，非 LRU。
 
 ## 7. 数据子系统与 D-cache
 
@@ -261,7 +260,7 @@ D-cache 地址划分为 **tag[31:7]、set[6:4]、word[3:2]、byte[1:0]**。
 | [riscv32_dcache_data_array](../../vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv) | 两路同步读目标字，上升沿按 way/set/word 和 byte enable 写触发器数据阵列；命中读取与 victim 数据采集共享读口 |
 | [riscv32_dcache_miss_unit](../../vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv) | 一个 miss/clean 上下文，4 字 victim 缓冲、替换/回填字索引、请求字数据、写响应 pending 和错误累计；调度脏写回、refill、store 合并、安装与结果返回 |
 | [riscv32_dcache_axi](../../vsrc/riscv32/core/memory/riscv32_dcache_axi.sv) | 独立读 FSM（AR/R）和写 FSM（AW/W/B），保存地址及 beat 进度，行数据由 miss unit 保持到 B；读回填与旧行写响应可重叠，并非多个需求 miss 在途 |
-| [riscv32_uncached_axi](../../vsrc/riscv32/core/memory/riscv32_uncached_axi.sv) | 单个非缓存事务，状态为 IDLE、SEND_AR、RECEIVE_R、SEND_AW_W、RECEIVE_B；AW/W 各自跟踪接受情况，返回 read 数据或写响应错误 |
+| [riscv32_uncached_axi](../../vsrc/riscv32/core/memory/riscv32_uncached_axi.sv) | 单个非缓存事务，状态为 IDLE、SEND_AR、RECEIVE_R、SEND_AW_W、RECEIVE_B；AW/W 各自跟踪接受情况，成功 R/B 交付时可同拍接新请求，错误时禁止交接 |
 
 **命中。** S0 同步查 tag/data，S1 比较并响应。load 返回选中字，扩展在 LSU；store 在
 响应握手时按字节更新数据并置 dirty，不立即写下层。store hit 与下一次 lookup 可同拍

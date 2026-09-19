@@ -55,3 +55,26 @@ I/D-cache 的同步阵列读级保留，不能假设 SRAM 能组合返回。FENC
 以及未完成 AXI 事务的上下文也继续保留。
 
 最终回归、面积、时序及相同程序的实测取舍见[验证记录](../verification/RV32_CYCLE_OPT_2026-09-19.md)。
+
+## 第二轮：消除条件已满足时的等待
+
+基线为 `71e44bf`。以下电路已实现，最终组合在同频下改善执行时间并通过时序；
+中间候选的失败与取舍见[等待周期复查](../verification/RV32_WAIT_AUDIT_2026-09-19.md)。
+
+- I-cache miss 分配与 refill 发出共用入口上下文选择器；仅 SEND 重试状态使用已保存请求。
+  AR 受阻时仍由 adapter 保存协议上下文。victim 失效与实际 refill 接收同沿发生。
+- 关键字响应缓冲改为可直通：首次匹配的 refill beat 直接驱动响应，反压才保存在原缓冲。
+  事务身份始终来自 miss 上下文；响应生成历史与缓冲占用分别更新，剩余 beat 继续排空。
+- Uncached adapter 在成功 R/B 交付时开放新请求。旧响应读取旧上下文，新地址直接取入口；
+  只有 SEND 状态选择保存的 AXI payload。新握手优先决定下一状态，错误响应禁止交接。
+- I-cache 有效位当前由触发器保存，改为一次清除全部有效位，避免为假设的单口存储体
+  逐 set/way 清除；tag/data 内容保留。维护请求必须等旧查询与 refill 排空后才完成。
+- D-cache 在分配拍读取 victim 首字或直接发 clean-victim refill；最后必要的 R/B
+  返回当拍安装并呈现完成，只有反压才进入响应保持状态。clean 同拍更新 dirty 并完成。
+- clean 检查一个 set 的全部 dirty 位，跳过无需写回的 way；检查完当前 set 的同拍
+  发出下一 set 同步读，去掉独立 READ 与 COMPLETE 空拍，错误仍立即结束并报告。
+- 数据总线每个请求通道优先选择实际有效的 D-cache 请求，默认呈现 uncached payload；
+  新请求是否允许发出只控制 valid，不再用它选择整份总线地址。旧响应按原事务路由。
+- CLINT 的末 R 与新 AR、旧 B 与新 AW/W 可以交接，响应仍由旧 q 输出，新地址只更新 d。
+  普通 FENCE 依靠当前阻塞 LSU 的顺序发出规则，不再排空无关 ALU/WB；CSR、FENCE.I 和
+  MRET 的串行化保持，不能把普通 FENCE 的条件推广到它们。

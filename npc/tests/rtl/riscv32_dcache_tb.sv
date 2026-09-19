@@ -208,10 +208,18 @@ module riscv32_dcache_tb;
     @(negedge clk);
   endtask
 
-  task automatic clean_cache;
+  task automatic clean_cache(input bit expect_clean_scan=0);
+    int cycles;
+    cycles=0;
     @(negedge clk);
     clean_req = 1'b1;
-    while (!clean_done) @(negedge clk);
+    while (!clean_done) begin
+      @(negedge clk);
+      cycles++;
+    end
+    if (expect_clean_scan)
+      assert(cycles<=DCACHE_SET_COUNT)
+        else $fatal(1,"clean scan inserted per-way/read wait cycles: %0d",cycles);
     assert (!clean_access_fault)
       else $fatal(1, "D-cache clean returned an unexpected access fault");
     @(negedge clk);
@@ -401,6 +409,25 @@ module riscv32_dcache_tb;
       else $fatal(1, "D-cache clean did not write back the remaining dirty line");
     assert (core_data_t'(read_memory_word(axi4_addr_t'(TEST_ADDR_C))) == stored_c)
       else $fatal(1, "D-cache clean did not update backing memory");
+    clean_cache(1);
+    // 填满各 set/way 的脏行，确认跳过 clean way 的扫描没有遗漏任何 dirty way。
+    for (int way=0; way<DCACHE_WAY_COUNT; way++)
+      for (int set_index=0; set_index<DCACHE_SET_COUNT; set_index++)
+        issue_memory_request(phys_addr_t'(32'h80001000+way*DCACHE_SET_COUNT*DCACHE_LINE_BYTES+
+                             set_index*DCACHE_LINE_BYTES), MEM_CMD_STORE,
+                             core_data_t'(32'h77000000+way*DCACHE_SET_COUNT+set_index),'1,
+                             mem_txn_id_t'(3),read_data);
+    read_count_after_first_miss=write_address_handshake_count;
+    clean_cache();
+    assert(write_address_handshake_count==read_count_after_first_miss+DCACHE_SET_COUNT*DCACHE_WAY_COUNT)
+      else $fatal(1,"clean scan skipped or repeated a dirty line");
+    for (int way=0; way<DCACHE_WAY_COUNT; way++)
+      for (int set_index=0; set_index<DCACHE_SET_COUNT; set_index++)
+        assert(core_data_t'(read_memory_word(axi4_addr_t'(32'h80001000+
+                   way*DCACHE_SET_COUNT*DCACHE_LINE_BYTES+set_index*DCACHE_LINE_BYTES)))==
+                   core_data_t'(32'h77000000+way*DCACHE_SET_COUNT+set_index))
+          else $fatal(1,"clean scan wrote wrong set/way data");
+    clean_cache(1);
 
     $display("D-cache directed test passed: XLEN=%0d sets=%0d ways=%0d line=%0dB",
              XLEN, DCACHE_SET_COUNT, DCACHE_WAY_COUNT, DCACHE_LINE_BYTES);

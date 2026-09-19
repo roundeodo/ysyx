@@ -66,18 +66,14 @@ module riscv32_dcache_miss_unit
     output logic                   writeback_resp_ready_o
 );
 
-  typedef enum logic [3:0] {
+  typedef enum logic [2:0] {
     MISS_IDLE,
-    MISS_READ_VICTIM_WORD,
     MISS_CAPTURE_VICTIM_WORD,
     MISS_SEND_WRITEBACK,
     MISS_WAIT_WRITEBACK_RESPONSE,
     MISS_SEND_REFILL,
     MISS_RECEIVE_REFILL,
-    MISS_INSTALL_LINE,
-    MISS_RETURN_RESPONSE,
-    MISS_UPDATE_CLEAN_METADATA,
-    MISS_COMPLETE_CLEAN
+    MISS_RETURN_RESPONSE
   } miss_state_e;
 
   miss_state_e        state_q, state_d;
@@ -106,6 +102,10 @@ module riscv32_dcache_miss_unit
   phys_addr_t victim_line_base_addr;
   phys_addr_t requested_line_base_addr;
   core_data_t refill_word_after_store_merge;
+  logic       incoming_dirty_victim;
+  logic       memory_completion_event;
+  logic       clean_completion_event;
+  core_data_t completed_word_data;
 
   function automatic core_data_t merge_store_bytes(
       input  core_data_t        original_word,
@@ -148,6 +148,16 @@ module riscv32_dcache_miss_unit
       miss_context_q.memory_req.write_data,
       miss_context_q.memory_req.byte_strobe) :
       refill_resp_i.word_data;
+  assign incoming_dirty_victim = miss_req_i.victim_present && miss_req_i.victim_dirty;
+  assign memory_completion_event =
+      ((state_q == MISS_RECEIVE_REFILL) && refill_resp_handshake && refill_resp_i.last_word &&
+       writeback_response_completed_after_handshake) ||
+      ((state_q == MISS_WAIT_WRITEBACK_RESPONSE) && !clean_operation_q && writeback_resp_handshake);
+  assign clean_completion_event = (state_q == MISS_WAIT_WRITEBACK_RESPONSE) &&
+      clean_operation_q && writeback_resp_handshake;
+  assign completed_word_data = ((state_q == MISS_RECEIVE_REFILL) &&
+      refill_resp_i.word_index == miss_context_q.word_index) ?
+      refill_word_after_store_merge : requested_word_data_q;
 
   assign transaction_present_o = state_q != MISS_IDLE;
 
@@ -198,8 +208,18 @@ module riscv32_dcache_miss_unit
     writeback_resp_ready_o = writeback_response_pending_q;
 
     unique case (state_q)
-      MISS_READ_VICTIM_WORD: begin
-        victim_read_enable_o = 1'b1;
+      MISS_IDLE: begin
+        // 分配沿已知首字地址：同时启动同步读，下一拍即可捕获首字。
+        victim_read_enable_o = clean_req_handshake || (miss_req_handshake && incoming_dirty_victim);
+        victim_read_set_index_o = clean_req_valid_i ? clean_set_index_i : miss_req_i.set_index;
+        victim_read_word_index_o = '0;
+        // 无脏 victim 时直接请求 refill；反压时才进入 SEND 重试。
+        refill_req_o.line_base_addr = miss_req_i.memory_req.addr & ~phys_addr_t'(DCACHE_LINE_BYTES - 1);
+        refill_req_o.transaction_id = miss_req_i.memory_req.transaction_id;
+        refill_req_valid_o = miss_req_valid_i && !clean_req_valid_i && !incoming_dirty_victim;
+        metadata_write_valid_o = refill_req_handshake;
+        metadata_write_set_index_o = miss_req_i.set_index;
+        metadata_write_way_index_o = miss_req_i.replacement_way_index;
       end
 
       // data array是同步读口。捕获当前word的同时发起下一个word的读取，使dirty
@@ -229,17 +249,6 @@ module riscv32_dcache_miss_unit
         end
       end
 
-      MISS_INSTALL_LINE: begin
-        metadata_write_valid_o        = 1'b1;
-        metadata_write_tag_o          = miss_context_q.requested_tag;
-        metadata_write_line_present_o = 1'b1;
-        metadata_write_line_dirty_o   = miss_context_q.memory_req.cmd == MEM_CMD_STORE;
-        line_install_event_o          = 1'b1;
-        miss_resp_o.read_data          = requested_word_data_q;
-        miss_resp_o.transaction_id     = miss_context_q.memory_req.transaction_id;
-        miss_resp_valid_o              = 1'b1;
-      end
-
       MISS_RETURN_RESPONSE: begin
         miss_resp_o.read_data      = requested_word_data_q;
         miss_resp_o.access_fault   = transaction_access_fault_q;
@@ -247,20 +256,29 @@ module riscv32_dcache_miss_unit
         miss_resp_valid_o          = 1'b1;
       end
 
-      MISS_UPDATE_CLEAN_METADATA: begin
-        metadata_write_valid_o        = 1'b1;
-        metadata_write_tag_o          = victim_tag_q;
-        metadata_write_line_present_o = 1'b1;
-        metadata_write_line_dirty_o   = 1'b0;
-        clean_done_o                  = 1'b1;
-      end
-
-      MISS_COMPLETE_CLEAN: begin
-        clean_done_o = 1'b1;
-      end
-
       default: ;
     endcase
+
+    // 最后一个必要总线响应当拍即可完成，反压时沿后由原请求字寄存器保持。
+    // 安装仅发生一次，且必须同时确认所有 R 和写回 B 无错。
+    if (memory_completion_event) begin
+      miss_resp_o.read_data      = completed_word_data;
+      miss_resp_o.transaction_id = miss_context_q.memory_req.transaction_id;
+      miss_resp_o.access_fault   = transaction_fault_after_bus_handshakes;
+      miss_resp_valid_o          = 1'b1;
+      metadata_write_valid_o        = !transaction_fault_after_bus_handshakes;
+      metadata_write_tag_o          = miss_context_q.requested_tag;
+      metadata_write_line_present_o = 1'b1;
+      metadata_write_line_dirty_o   = miss_context_q.memory_req.cmd == MEM_CMD_STORE;
+      line_install_event_o          = metadata_write_valid_o;
+    end
+    if (clean_completion_event) begin
+      clean_done_o                 = 1'b1;
+      clean_access_fault_o         = clean_access_fault_q || writeback_resp_i.access_fault;
+      metadata_write_valid_o        = !clean_access_fault_o;
+      metadata_write_line_present_o = 1'b1;
+      metadata_write_line_dirty_o   = 1'b0;
+    end
   end
 
   // 第二段：状态转换和紧凑事务上下文。
@@ -278,7 +296,7 @@ module riscv32_dcache_miss_unit
     clean_access_fault_d         = clean_access_fault_q;
     writeback_response_pending_d = writeback_response_pending_q;
 
-    // dirty miss期间B响应可能在INVALIDATE、SEND_REFILL或RECEIVE_REFILL任一状态返回。
+    // dirty miss期间B响应可能在 SEND_REFILL 或 RECEIVE_REFILL 状态返回。
     // 先统一保存结果，再由当前状态决定何时提交line或异常响应。
     if (writeback_resp_handshake) begin
       writeback_response_pending_d = 1'b0;
@@ -302,20 +320,16 @@ module riscv32_dcache_miss_unit
           active_set_index_d = clean_set_index_i;
           active_way_index_d = clean_way_index_i;
           victim_tag_d       = clean_tag_i;
-          state_d            = MISS_READ_VICTIM_WORD;
+          state_d            = MISS_CAPTURE_VICTIM_WORD;
         end else if (miss_req_handshake) begin
           clean_operation_d  = 1'b0;
           miss_context_d     = miss_req_i;
           active_set_index_d = miss_req_i.set_index;
           active_way_index_d = miss_req_i.replacement_way_index;
           victim_tag_d       = miss_req_i.victim_tag;
-          state_d            = (miss_req_i.victim_present && miss_req_i.victim_dirty) ?
-                    MISS_READ_VICTIM_WORD : MISS_SEND_REFILL;
+          state_d = incoming_dirty_victim ? MISS_CAPTURE_VICTIM_WORD :
+              (refill_req_handshake ? MISS_RECEIVE_REFILL : MISS_SEND_REFILL);
         end
-      end
-
-      MISS_READ_VICTIM_WORD: begin
-        state_d = MISS_CAPTURE_VICTIM_WORD;
       end
 
       MISS_CAPTURE_VICTIM_WORD: begin
@@ -340,17 +354,7 @@ module riscv32_dcache_miss_unit
 
       MISS_WAIT_WRITEBACK_RESPONSE: begin
         if (writeback_resp_handshake) begin
-          if (clean_operation_q) begin
-            if (writeback_resp_i.access_fault) begin
-              clean_access_fault_d = 1'b1;
-              state_d              = MISS_COMPLETE_CLEAN;
-            end else begin
-              state_d = MISS_UPDATE_CLEAN_METADATA;
-            end
-          end else begin
-            state_d = transaction_fault_after_bus_handshakes ? MISS_RETURN_RESPONSE :
-                MISS_INSTALL_LINE;
-          end
+          state_d = (clean_operation_q || miss_resp_ready_i) ? MISS_IDLE : MISS_RETURN_RESPONSE;
         end
       end
 
@@ -369,29 +373,15 @@ module riscv32_dcache_miss_unit
             if (!writeback_response_completed_after_handshake) begin
               state_d = MISS_WAIT_WRITEBACK_RESPONSE;
             end else begin
-              state_d = transaction_fault_after_bus_handshakes ?
-                        MISS_RETURN_RESPONSE :
-                        MISS_INSTALL_LINE;
+              state_d = miss_resp_ready_i ? MISS_IDLE : MISS_RETURN_RESPONSE;
             end
           end
         end
       end
 
-      MISS_INSTALL_LINE: begin
-        state_d = miss_resp_ready_i ? MISS_IDLE : MISS_RETURN_RESPONSE;
-      end
-
       MISS_RETURN_RESPONSE: begin
         if (miss_resp_valid_o && miss_resp_ready_i)
           state_d = MISS_IDLE;
-      end
-
-      MISS_UPDATE_CLEAN_METADATA: begin
-        state_d = MISS_IDLE;
-      end
-
-      MISS_COMPLETE_CLEAN: begin
-        state_d = MISS_IDLE;
       end
 
       default: state_d = MISS_IDLE;
@@ -448,8 +438,8 @@ module riscv32_dcache_miss_unit
     $error("D-cache refill RLAST arrived at an unexpected word index");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    state_q == MISS_INSTALL_LINE |->
-      (!writeback_response_pending_q && !transaction_access_fault_q))
+    line_install_event_o |->
+      (writeback_response_completed_after_handshake && !transaction_fault_after_bus_handshakes))
   else
     $error("D-cache installed a line before all bus responses completed successfully");
 

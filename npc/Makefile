@@ -630,6 +630,16 @@ test-uncached-configs:
 test-dcache: $(DCACHE_TEST_BINARY)
 	$(DCACHE_TEST_BINARY)
 
+.PHONY: test-dcache-miss
+test-dcache-miss:
+	$(VERILATOR) --binary --timing --assert -Wno-fatal -j 2 $(NPC_CONFIG_DEFINE) \
+		--top-module riscv32_dcache_miss_contract_tb \
+		$(RTL_DIR)/common/riscv_config_pkg.sv $(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
+		$(RTL_DIR)/common/riscv32_pkg.sv $(RTL_DIR)/core/memory/riscv32_dcache_miss_unit.sv \
+		$(abspath tests/rtl/riscv32_dcache_miss_contract_tb.sv) \
+		--Mdir $(BUILD_DIR)/obj_dir_dcache_miss_test
+	$(BUILD_DIR)/obj_dir_dcache_miss_test/Vriscv32_dcache_miss_contract_tb
+
 test-dcache-configs:
 	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential

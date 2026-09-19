@@ -1,0 +1,753 @@
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv
+@@ -1,8 +1,7 @@
+ // I-cache元数据存储阵列。
+ //
+ // 本模块只保存每个set、每个way的tag和line-present位，并提供同步读口和受控写口。
+-// 命中判断、miss状态和invalidate遍历都不属于本模块。保持这种边界后，
+-// 当前触发器阵列可以独立替换成SRAM宏，而不需要改写I-cache控制路径。
++// 命中判断和 miss 状态由上层负责；有效位独立于 tag/data，一次清除即可失效全表。
+ module riscv32_icache_tag_array
+   import riscv32_pkg::*;
+ #(
+@@ -11,6 +10,7 @@
+ ) (
+     input logic clk_i,
+     input logic rst_ni,
++    input logic invalidate_all_i,
+ 
+     input  logic                              read_enable_i,
+     input  icache_set_index_t                 read_set_index_i,
+@@ -55,7 +55,7 @@
+   // 写口：清 present 使旧 tag 失效；安装时同时更新 tag 和 present。
+   // blocking cache 不并发接收 refill 期间的查询，不依赖同地址读写旁路。
+   always_ff @(posedge clk_i) begin
+-    if (!rst_ni) begin
++    if (!rst_ni || invalidate_all_i) begin
+       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
+         for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
+           line_present_array_q[way_index][set_index] <= 1'b0;
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
+@@ -90,6 +90,7 @@
+   } miss_context_t;
+ 
+   miss_context_t miss_context_q, miss_context_d;
++  miss_context_t refill_context;
+ 
+   // sticky错误位：本次refill任意一个已接收beat报错后保持为1，直到MSHR释放。
+   // 这样后续正常beat也不能错误地把一条曾经出错的line安装为有效。
+@@ -111,6 +112,24 @@
+   icache_set_index_t  critical_set_index;
+   icache_word_index_t critical_word_index;
+   icache_tag_t        refill_tag;
++  icache_set_index_t  refill_set_index;
++  icache_word_index_t refill_critical_word_index;
++  logic               incoming_response_valid;
++  logic               incoming_response_fault;
++
++  // 空闲请求直接发往 adapter；只有请求受阻时才经过 SEND 状态重试。
++  always_comb begin
++    refill_context = miss_context_q;
++    if (state_q == MISS_IDLE) begin
++      refill_context.lookup_req            = miss_req_i.lookup_req;
++      refill_context.replacement_way_index = miss_req_i.replacement_way_index;
++      refill_context.cacheable             = miss_req_i.cacheable;
++    end
++  end
++  assign refill_set_index = icache_set_index_t'(
++      refill_context.lookup_req.fetch_addr >> ICACHE_LINE_OFFSET_W);
++  assign refill_critical_word_index = (ICACHE_WORD_INDEX_BITS == 0) ? '0 :
++      icache_word_index_t'(refill_context.lookup_req.fetch_addr >> $clog2(ICACHE_FETCH_BYTES));
+ 
+   // valid和ready同时为1才表示一次传输真正发生。所有状态推进、计数和array写入都以
+   // 对应handshake为条件，不能只看valid或ready其中之一。
+@@ -131,13 +150,19 @@
+     assign critical_word_index =
+         icache_word_index_t'(miss_context_q.lookup_req.fetch_addr >> $clog2(ICACHE_FETCH_BYTES));
+   end
+-  assign refill_tag                      = miss_context_q.lookup_req.fetch_addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
++  assign refill_tag                      = refill_context.lookup_req.fetch_addr[PADDR_WIDTH-1-:ICACHE_TAG_W];
+   assign current_refill_word_is_critical = refill_resp_i.word_index == critical_word_index;
++  // 每个 miss 最多产生一个响应；最后一拍仍未见关键字时返回协议错误。
++  assign incoming_response_valid = (state_q == MISS_RECEIVE_REFILL) &&
++      refill_resp_valid_i && !lookup_response_generated_q &&
++      (current_refill_word_is_critical || refill_resp_i.last_word);
++  assign incoming_response_fault = refill_access_fault_seen_q || refill_resp_i.access_fault ||
++      !current_refill_word_is_critical;
+ 
+   // 第一段组合逻辑：只根据当前状态驱动输出，不更新_q寄存器。
+   // line base必须通过清零fetch_addr低ICACHE_LINE_OFFSET_W位得到，不要减法或硬编码
+   // `5'b0`。lookup响应不只在COMPLETE状态输出：critical word可能在RECEIVE状态提前到达，
+-  // 所以valid应始终直接由lookup_resp_present_q驱动，直至IFU握手。
++  // 空缓冲时当拍呈现关键字；受阻时保存，在其后的周期保持到 IFU 握手。
+   //
+   // refill_resp_ready_o在RECEIVE中可以恒为1。一个miss只产生一个lookup response；响应
+   // buffer满以后，后续非critical beat仍应继续被接收并排空AXI burst，不能因IFU反压
+@@ -156,11 +181,13 @@
+     miss_req_ready_o              = 1'b0;
+     lookup_resp_o                 = '0;
+     lookup_resp_o.fetch_addr      = miss_context_q.lookup_req.fetch_addr;
+-    lookup_resp_o.fetch_data      = lookup_resp_data_q;
++    lookup_resp_o.fetch_data      = lookup_resp_present_q ? lookup_resp_data_q :
++        (incoming_response_fault ? '0 : refill_resp_i.word_data);
+     lookup_resp_o.frontend_tag    = miss_context_q.lookup_req.frontend_tag;
+     lookup_resp_o.fetch_epoch     = miss_context_q.lookup_req.fetch_epoch;
+-    lookup_resp_o.access_fault    = lookup_resp_access_fault_q;
+-    lookup_resp_valid_o           = lookup_resp_present_q;
++    lookup_resp_o.access_fault    = lookup_resp_present_q ? lookup_resp_access_fault_q :
++        incoming_response_fault;
++    lookup_resp_valid_o           = lookup_resp_present_q || incoming_response_valid;
+     refill_req_o                  = '0;
+     refill_req_valid_o            = 1'b0;
+     refill_resp_ready_o           = 1'b0;
+@@ -170,32 +197,28 @@
+     data_write_word_index_o       = refill_resp_i.word_index;
+     data_write_word_data_o        = refill_resp_i.word_data;
+     metadata_write_valid_o        = 1'b0;
+-    metadata_write_set_index_o    = critical_set_index;
+-    metadata_write_way_index_o    = miss_context_q.replacement_way_index;
++    metadata_write_set_index_o    = refill_set_index;
++    metadata_write_way_index_o    = refill_context.replacement_way_index;
+     metadata_write_tag_o          = refill_tag;
+     metadata_write_line_present_o = 1'b0;
+     miss_transaction_present_o    = (state_q != MISS_IDLE);
+ 
+     unique case (state_q)
+-      // 空闲时只开放miss分配口；其他输出保持默认无效。
+-      MISS_IDLE: miss_req_ready_o = 1'b1;
+-
+-      // 将已锁存的MSHR上下文转换为下级refill请求。valid必须一直保持，直到
+-      // refill_req_ready_i使握手发生；同一握手周期先使cacheable victim失效。
+-      MISS_SEND_REFILL_REQUEST: begin
+-        refill_req_valid_o = 1'b1;
++      MISS_IDLE, MISS_SEND_REFILL_REQUEST: begin
++        miss_req_ready_o = state_q == MISS_IDLE;
++        refill_req_valid_o = (state_q == MISS_SEND_REFILL_REQUEST) || miss_req_valid_i;
+         // 复制完整物理地址后清除line内偏移，避免用XLEN切片物理地址。
+-        refill_req_o.line_base_addr                           = miss_context_q.lookup_req.fetch_addr;
++        refill_req_o.line_base_addr                           = refill_context.lookup_req.fetch_addr;
+         refill_req_o.line_base_addr[ICACHE_LINE_OFFSET_W-1:0] = '0;
+-        refill_req_o.critical_word_index                      = critical_word_index;
++        refill_req_o.critical_word_index                      = refill_critical_word_index;
+         // Cacheable访问取回整条line；uncached访问只取当前word。
+         refill_req_o.requested_word_count =
+-            miss_context_q.cacheable ? icache_refill_word_count_t'(ICACHE_WORDS_PER_LINE) :
++            refill_context.cacheable ? icache_refill_word_count_t'(ICACHE_WORDS_PER_LINE) :
+             icache_refill_word_count_t'(1);
+         refill_req_o.transaction_index = '0;
+ 
+         // 下层正式接收refill请求时立即使victim失效，之后才能安全地逐word覆盖data array。
+-        metadata_write_valid_o        = refill_req_handshake && miss_context_q.cacheable;
++        metadata_write_valid_o        = refill_req_handshake && refill_context.cacheable;
+         metadata_write_line_present_o = 1'b0;
+       end
+ 
+@@ -235,9 +258,8 @@
+   end
+ 
+   // 第二段组合逻辑：计算状态和数据寄存器的下一值。early restart真正发生在
+-  // MISS_RECEIVE_REFILL中：critical word握手后立即写入lookup response寄存器，不等待
+-  // last_word；下一拍lookup_resp_valid_o即可拉高，而状态仍停留在RECEIVE继续接收剩余
+-  // beat。
++  // MISS_RECEIVE_REFILL 中当拍交付 critical word；反压时才占用响应缓冲。
++  // 无论响应是否已消费，generated 都保持到事务结束，剩余 beat 不再重复生成响应。
+   // 状态结束必须以refill_resp_i.last_word握手为准，因为下层AXI4 adapter拥有burst
+   // 边界。完整beat序列由仿真断言检查，不复制成综合数据通路。uncached请求只请求一个
+   // word，也必须走相同状态路径，但绝不产生data或metadata array写入。
+@@ -269,7 +291,7 @@
+           lookup_resp_access_fault_d           = 1'b0;
+           lookup_resp_present_d                = 1'b0;
+           lookup_response_generated_d          = 1'b0;
+-          state_d                              = MISS_SEND_REFILL_REQUEST;
++          state_d = refill_req_handshake ? MISS_RECEIVE_REFILL : MISS_SEND_REFILL_REQUEST;
+         end
+       end
+ 
+@@ -286,21 +308,10 @@
+           refill_access_fault_seen_d = refill_access_fault_seen_q || refill_resp_i.access_fault;
+ 
+           // critical word握手后立即生成唯一一次lookup response，不等待整条line完成。
+-          if (!lookup_response_generated_q && current_refill_word_is_critical) begin
+-            lookup_resp_access_fault_d = refill_access_fault_seen_q || refill_resp_i.access_fault;
+-            lookup_resp_data_d         =
+-                (refill_access_fault_seen_q || refill_resp_i.access_fault) ?
+-                '0 : refill_resp_i.word_data;
+-            lookup_resp_present_d       = 1'b1;
+-            lookup_response_generated_d = 1'b1;
+-          end
+-
+-          // last_word前未出现critical word表示下层违反refill协议，用fault响应释放MSHR。
+-          if (refill_resp_i.last_word && !lookup_response_generated_q &&
+-              !current_refill_word_is_critical) begin
+-            lookup_resp_data_d          = '0;
+-            lookup_resp_access_fault_d  = 1'b1;
+-            lookup_resp_present_d       = 1'b1;
++          if (incoming_response_valid) begin
++            lookup_resp_access_fault_d  = incoming_response_fault;
++            lookup_resp_data_d          = incoming_response_fault ? '0 : refill_resp_i.word_data;
++            lookup_resp_present_d       = !lookup_resp_ready_i;
+             lookup_response_generated_d = 1'b1;
+           end
+ 
+@@ -461,7 +472,7 @@
+   a_cacheable_refill_invalidates_victim_before_data_overwrite :
+   assert property (
+       @(posedge clk_i) disable iff (!rst_ni)
+-      (refill_req_handshake && miss_context_q.cacheable) |->
++      (refill_req_handshake && refill_context.cacheable) |->
+           (metadata_write_valid_o && !metadata_write_line_present_o)
+   )
+   else $error("I-cache refill did not invalidate its victim before data overwrite");
+@@ -483,11 +494,11 @@
+   )
+   else $error("I-cache installed a line from a faulted refill");
+ 
+-  // 响应内容约束：一旦generated置位，交给IFU的全部身份、数据和错误字段必须已知。
++  // 直通或已保存的有效响应，其身份、数据和错误字段必须已知。
+   a_generated_lookup_response_is_known :
+   assert property (
+       @(posedge clk_i) disable iff (!rst_ni)
+-      lookup_response_generated_q |-> !$isunknown(lookup_resp_o))
++      lookup_resp_valid_o |-> !$isunknown(lookup_resp_o))
+   else $error("I-cache generated a lookup response containing unknown values");
+ `endif
+ 
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv
+@@ -84,6 +84,7 @@
+       .read_set_index_i              (array_read_set_index),
+       .read_tag_array_o              (array_read_tag_array),
+       .read_line_present_vector_o    (array_read_line_present_vector),
++      .invalidate_all_i              (invalidate_done_o),
+       .metadata_write_valid_i        (metadata_write_valid),
+       .metadata_write_set_index_i    (metadata_write_set_index),
+       .metadata_write_way_index_i    (metadata_write_way_index),
+@@ -349,136 +350,18 @@
+     end
+   end
+ 
+-  // fence.i/invalidate先阻止新lookup并排空旧lookup和miss，再逐set清除
+-  // present位，最后产生单拍done。tag/data无需清零，因为present=0使旧内容不可见。
+-  // 已经发出的下层事务必须完整握手，不能因fence.i中途撤销。上游保持请求直到done；
+-  // 本状态机只在IDLE采样一次请求，done产生的同一时钟沿上游必须撤销请求，避免重复启动。
+-  // 当前单核无DMA一致性，fence.i用于保证软件修改代码后不再取到旧指令line。
+-  typedef enum logic [1:0] {
+-    INVALIDATE_IDLE,
+-    INVALIDATE_DRAIN_LOOKUPS,
+-    INVALIDATE_CLEAR_METADATA,
+-    INVALIDATE_COMPLETE
+-  } invalidate_state_e;
+-
+-  invalidate_state_e invalidate_state_q, invalidate_state_d;
+-  icache_set_index_t invalidate_set_index_q, invalidate_set_index_d;
+-  icache_way_index_t invalidate_way_index_q, invalidate_way_index_d;
+-  logic invalidate_blocks_lookup;
+-  logic invalidate_metadata_write_valid;
+-
+-  always_comb begin
+-    invalidate_blocks_lookup        = (invalidate_state_q != INVALIDATE_IDLE);
+-    invalidate_done_o               = 1'b0;
+-    invalidate_metadata_write_valid = 1'b0;
+-
+-    unique case (invalidate_state_q)
+-      INVALIDATE_CLEAR_METADATA: begin
+-        invalidate_metadata_write_valid = 1'b1;
+-      end
+-
+-      INVALIDATE_COMPLETE: begin
+-        invalidate_done_o = 1'b1;
+-      end
+-
+-      default: ;
+-    endcase
+-  end
+-
+-  // 失效控制的输出：元数据写口在回填与清除之间选择，busy汇总当前占用。
+-  always_comb begin
+-    metadata_write_valid        = refill_metadata_write_valid;
+-    metadata_write_set_index    = refill_metadata_write_set_index;
+-    metadata_write_way_index    = refill_metadata_write_way_index;
+-    metadata_write_tag          = refill_metadata_write_tag;
+-    metadata_write_line_present = refill_metadata_write_line_present;
+-
+-    if (invalidate_metadata_write_valid) begin
+-      metadata_write_valid        = 1'b1;
+-      metadata_write_set_index    = invalidate_set_index_q;
+-      metadata_write_way_index    = invalidate_way_index_q;
+-      metadata_write_tag          = '0;
+-      metadata_write_line_present = 1'b0;
+-    end
+-  end
+-
+-  assign cache_busy_o =
+-      lookup_s1_present_q || miss_transaction_present || invalidate_req_i ||
+-      (invalidate_state_q != INVALIDATE_IDLE);
+-  // invalidate请求到达的当拍立即停止接收新请求；其余时间由S1是否可覆盖决定ready。
+-  // array read、S1请求身份和PMA属性只会在同一次lookup握手时同步更新。
+-  assign lookup_req_ready_o =
+-      lookup_s1_ready && !miss_transaction_present &&
+-      !invalidate_blocks_lookup && !invalidate_req_i;
+-
+-  always_comb begin
+-    invalidate_state_d     = invalidate_state_q;
+-    invalidate_set_index_d = invalidate_set_index_q;
+-    invalidate_way_index_d = invalidate_way_index_q;
+-
+-    unique case (invalidate_state_q)
+-      INVALIDATE_IDLE: begin
+-        if (invalidate_req_i) begin
+-          invalidate_state_d = INVALIDATE_DRAIN_LOOKUPS;
+-        end
+-      end
+-
+-      INVALIDATE_DRAIN_LOOKUPS: begin
+-        if (!lookup_s1_present_q && !miss_transaction_present) begin
+-          invalidate_set_index_d = '0;
+-          invalidate_way_index_d = '0;
+-          invalidate_state_d     = INVALIDATE_CLEAR_METADATA;
+-        end
+-      end
+-
+-      INVALIDATE_CLEAR_METADATA: begin
+-        if (invalidate_way_index_q == icache_way_index_t'(ICACHE_WAY_COUNT - 1)) begin
+-          invalidate_way_index_d = '0;
+-          if (invalidate_set_index_q == icache_set_index_t'(ICACHE_SET_COUNT - 1)) begin
+-            invalidate_state_d = INVALIDATE_COMPLETE;
+-          end else begin
+-            invalidate_set_index_d = invalidate_set_index_q + icache_set_index_t'(1);
+-          end
+-        end else begin
+-          invalidate_way_index_d = invalidate_way_index_q + icache_way_index_t'(1);
+-        end
+-      end
+-
+-      INVALIDATE_COMPLETE: begin
+-        invalidate_state_d = INVALIDATE_IDLE;
+-      end
+-
+-      default: begin
+-        invalidate_state_d     = INVALIDATE_IDLE;
+-        invalidate_set_index_d = '0;
+-        invalidate_way_index_d = '0;
+-      end
+-    endcase
+-  end
+-
+-  always_ff @(posedge clk_i) begin
+-    if (!rst_ni) begin
+-      invalidate_state_q <= INVALIDATE_IDLE;
+-    end else begin
+-      invalidate_state_q <= invalidate_state_d;
+-    end
+-  end
+-
+-  always_ff @(posedge clk_i) begin
+-    if (!rst_ni) begin
+-      invalidate_way_index_q <= '0;
+-    end else begin
+-      invalidate_way_index_q <= invalidate_way_index_d;
+-    end
+-  end
+-
+-  always_ff @(posedge clk_i) begin
+-    if (!rst_ni) begin
+-      invalidate_set_index_q <= '0;
+-    end else begin
+-      invalidate_set_index_q <= invalidate_set_index_d;
+-    end
+-  end
++  // 维护请求保持到 done。先排空旧查询/refill，再在该握手沿清除全部有效位。
++  // 有效位是独立触发器，tag/data 不清零；不为假设的单口宏逐项遍历。
++  assign invalidate_done_o = invalidate_req_i && !lookup_s1_present_q &&
++      !miss_transaction_present;
++  assign cache_busy_o = lookup_s1_present_q || miss_transaction_present || invalidate_req_i;
++  assign lookup_req_ready_o = lookup_s1_ready && !miss_transaction_present && !invalidate_req_i;
++
++  assign metadata_write_valid        = refill_metadata_write_valid;
++  assign metadata_write_set_index    = refill_metadata_write_set_index;
++  assign metadata_write_way_index    = refill_metadata_write_way_index;
++  assign metadata_write_tag          = refill_metadata_write_tag;
++  assign metadata_write_line_present = refill_metadata_write_line_present;
+ 
+   // event只观察cache接口和miss-unit事件，不参与cache控制。lookup response使用present
+   // 作为AMAT终点；PMU用活动请求状态保证响应反压时不会重复计数。过期fetch epoch由IFU识别，因此
+@@ -549,14 +432,14 @@
+   a_metadata_write_sources_are_exclusive :
+   assert property (
+       @(posedge clk_i) disable iff (!rst_ni)
+-      !(refill_metadata_write_valid && invalidate_metadata_write_valid)
++      !(refill_metadata_write_valid && invalidate_done_o)
+   )
+   else $error("I-cache refill and invalidate metadata writes conflict");
+ 
+   a_invalidate_blocks_new_lookup :
+   assert property (
+       @(posedge clk_i) disable iff (!rst_ni)
+-      (invalidate_req_i || invalidate_blocks_lookup) |-> !lookup_req_ready_o
++      invalidate_req_i |-> !lookup_req_ready_o
+   )
+   else $error("I-cache accepted lookup during invalidate");
+ 
+@@ -573,7 +456,7 @@
+   assert property (
+       @(posedge clk_i) disable iff (!rst_ni)
+       (metadata_write_valid && !metadata_write_line_present) |->
+-          (invalidate_metadata_write_valid ||
++          (invalidate_done_o ||
+            (refill_metadata_write_valid && !refill_metadata_write_line_present))
+   )
+   else $error("I-cache present clear has no valid source");
+--- a/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv
+@@ -66,18 +66,14 @@
+     output logic                   writeback_resp_ready_o
+ );
+ 
+-  typedef enum logic [3:0] {
++  typedef enum logic [2:0] {
+     MISS_IDLE,
+-    MISS_READ_VICTIM_WORD,
+     MISS_CAPTURE_VICTIM_WORD,
+     MISS_SEND_WRITEBACK,
+     MISS_WAIT_WRITEBACK_RESPONSE,
+     MISS_SEND_REFILL,
+     MISS_RECEIVE_REFILL,
+-    MISS_INSTALL_LINE,
+-    MISS_RETURN_RESPONSE,
+-    MISS_UPDATE_CLEAN_METADATA,
+-    MISS_COMPLETE_CLEAN
++    MISS_RETURN_RESPONSE
+   } miss_state_e;
+ 
+   miss_state_e        state_q, state_d;
+@@ -106,6 +102,10 @@
+   phys_addr_t victim_line_base_addr;
+   phys_addr_t requested_line_base_addr;
+   core_data_t refill_word_after_store_merge;
++  logic       incoming_dirty_victim;
++  logic       memory_completion_event;
++  logic       clean_completion_event;
++  core_data_t completed_word_data;
+ 
+   function automatic core_data_t merge_store_bytes(
+       input  core_data_t        original_word,
+@@ -148,6 +148,16 @@
+       miss_context_q.memory_req.write_data,
+       miss_context_q.memory_req.byte_strobe) :
+       refill_resp_i.word_data;
++  assign incoming_dirty_victim = miss_req_i.victim_present && miss_req_i.victim_dirty;
++  assign memory_completion_event =
++      ((state_q == MISS_RECEIVE_REFILL) && refill_resp_handshake && refill_resp_i.last_word &&
++       writeback_response_completed_after_handshake) ||
++      ((state_q == MISS_WAIT_WRITEBACK_RESPONSE) && !clean_operation_q && writeback_resp_handshake);
++  assign clean_completion_event = (state_q == MISS_WAIT_WRITEBACK_RESPONSE) &&
++      clean_operation_q && writeback_resp_handshake;
++  assign completed_word_data = ((state_q == MISS_RECEIVE_REFILL) &&
++      refill_resp_i.word_index == miss_context_q.word_index) ?
++      refill_word_after_store_merge : requested_word_data_q;
+ 
+   assign transaction_present_o = state_q != MISS_IDLE;
+ 
+@@ -198,8 +208,18 @@
+     writeback_resp_ready_o = writeback_response_pending_q;
+ 
+     unique case (state_q)
+-      MISS_READ_VICTIM_WORD: begin
+-        victim_read_enable_o = 1'b1;
++      MISS_IDLE: begin
++        // 分配沿已知首字地址：同时启动同步读，下一拍即可捕获首字。
++        victim_read_enable_o = clean_req_handshake || (miss_req_handshake && incoming_dirty_victim);
++        victim_read_set_index_o = clean_req_valid_i ? clean_set_index_i : miss_req_i.set_index;
++        victim_read_word_index_o = '0;
++        // 无脏 victim 时直接请求 refill；反压时才进入 SEND 重试。
++        refill_req_o.line_base_addr = miss_req_i.memory_req.addr & ~phys_addr_t'(DCACHE_LINE_BYTES - 1);
++        refill_req_o.transaction_id = miss_req_i.memory_req.transaction_id;
++        refill_req_valid_o = miss_req_valid_i && !clean_req_valid_i && !incoming_dirty_victim;
++        metadata_write_valid_o = refill_req_handshake;
++        metadata_write_set_index_o = miss_req_i.set_index;
++        metadata_write_way_index_o = miss_req_i.replacement_way_index;
+       end
+ 
+       // data array是同步读口。捕获当前word的同时发起下一个word的读取，使dirty
+@@ -229,17 +249,6 @@
+         end
+       end
+ 
+-      MISS_INSTALL_LINE: begin
+-        metadata_write_valid_o        = 1'b1;
+-        metadata_write_tag_o          = miss_context_q.requested_tag;
+-        metadata_write_line_present_o = 1'b1;
+-        metadata_write_line_dirty_o   = miss_context_q.memory_req.cmd == MEM_CMD_STORE;
+-        line_install_event_o          = 1'b1;
+-        miss_resp_o.read_data          = requested_word_data_q;
+-        miss_resp_o.transaction_id     = miss_context_q.memory_req.transaction_id;
+-        miss_resp_valid_o              = 1'b1;
+-      end
+-
+       MISS_RETURN_RESPONSE: begin
+         miss_resp_o.read_data      = requested_word_data_q;
+         miss_resp_o.access_fault   = transaction_access_fault_q;
+@@ -247,20 +256,29 @@
+         miss_resp_valid_o          = 1'b1;
+       end
+ 
+-      MISS_UPDATE_CLEAN_METADATA: begin
+-        metadata_write_valid_o        = 1'b1;
+-        metadata_write_tag_o          = victim_tag_q;
+-        metadata_write_line_present_o = 1'b1;
+-        metadata_write_line_dirty_o   = 1'b0;
+-        clean_done_o                  = 1'b1;
+-      end
+-
+-      MISS_COMPLETE_CLEAN: begin
+-        clean_done_o = 1'b1;
+-      end
+-
+       default: ;
+     endcase
++
++    // 最后一个必要总线响应当拍即可完成，反压时沿后由原请求字寄存器保持。
++    // 安装仅发生一次，且必须同时确认所有 R 和写回 B 无错。
++    if (memory_completion_event) begin
++      miss_resp_o.read_data      = completed_word_data;
++      miss_resp_o.transaction_id = miss_context_q.memory_req.transaction_id;
++      miss_resp_o.access_fault   = transaction_fault_after_bus_handshakes;
++      miss_resp_valid_o          = 1'b1;
++      metadata_write_valid_o        = !transaction_fault_after_bus_handshakes;
++      metadata_write_tag_o          = miss_context_q.requested_tag;
++      metadata_write_line_present_o = 1'b1;
++      metadata_write_line_dirty_o   = miss_context_q.memory_req.cmd == MEM_CMD_STORE;
++      line_install_event_o          = metadata_write_valid_o;
++    end
++    if (clean_completion_event) begin
++      clean_done_o                 = 1'b1;
++      clean_access_fault_o         = clean_access_fault_q || writeback_resp_i.access_fault;
++      metadata_write_valid_o        = !clean_access_fault_o;
++      metadata_write_line_present_o = 1'b1;
++      metadata_write_line_dirty_o   = 1'b0;
++    end
+   end
+ 
+   // 第二段：状态转换和紧凑事务上下文。
+@@ -302,20 +320,16 @@
+           active_set_index_d = clean_set_index_i;
+           active_way_index_d = clean_way_index_i;
+           victim_tag_d       = clean_tag_i;
+-          state_d            = MISS_READ_VICTIM_WORD;
++          state_d            = MISS_CAPTURE_VICTIM_WORD;
+         end else if (miss_req_handshake) begin
+           clean_operation_d  = 1'b0;
+           miss_context_d     = miss_req_i;
+           active_set_index_d = miss_req_i.set_index;
+           active_way_index_d = miss_req_i.replacement_way_index;
+           victim_tag_d       = miss_req_i.victim_tag;
+-          state_d            = (miss_req_i.victim_present && miss_req_i.victim_dirty) ?
+-                    MISS_READ_VICTIM_WORD : MISS_SEND_REFILL;
+-        end
+-      end
+-
+-      MISS_READ_VICTIM_WORD: begin
+-        state_d = MISS_CAPTURE_VICTIM_WORD;
++          state_d = incoming_dirty_victim ? MISS_CAPTURE_VICTIM_WORD :
++              (refill_req_handshake ? MISS_RECEIVE_REFILL : MISS_SEND_REFILL);
++        end
+       end
+ 
+       MISS_CAPTURE_VICTIM_WORD: begin
+@@ -340,17 +354,7 @@
+ 
+       MISS_WAIT_WRITEBACK_RESPONSE: begin
+         if (writeback_resp_handshake) begin
+-          if (clean_operation_q) begin
+-            if (writeback_resp_i.access_fault) begin
+-              clean_access_fault_d = 1'b1;
+-              state_d              = MISS_COMPLETE_CLEAN;
+-            end else begin
+-              state_d = MISS_UPDATE_CLEAN_METADATA;
+-            end
+-          end else begin
+-            state_d = transaction_fault_after_bus_handshakes ? MISS_RETURN_RESPONSE :
+-                MISS_INSTALL_LINE;
+-          end
++          state_d = (clean_operation_q || miss_resp_ready_i) ? MISS_IDLE : MISS_RETURN_RESPONSE;
+         end
+       end
+ 
+@@ -369,29 +373,15 @@
+             if (!writeback_response_completed_after_handshake) begin
+               state_d = MISS_WAIT_WRITEBACK_RESPONSE;
+             end else begin
+-              state_d = transaction_fault_after_bus_handshakes ?
+-                        MISS_RETURN_RESPONSE :
+-                        MISS_INSTALL_LINE;
++              state_d = miss_resp_ready_i ? MISS_IDLE : MISS_RETURN_RESPONSE;
+             end
+           end
+         end
+-      end
+-
+-      MISS_INSTALL_LINE: begin
+-        state_d = miss_resp_ready_i ? MISS_IDLE : MISS_RETURN_RESPONSE;
+       end
+ 
+       MISS_RETURN_RESPONSE: begin
+         if (miss_resp_valid_o && miss_resp_ready_i)
+           state_d = MISS_IDLE;
+-      end
+-
+-      MISS_UPDATE_CLEAN_METADATA: begin
+-        state_d = MISS_IDLE;
+-      end
+-
+-      MISS_COMPLETE_CLEAN: begin
+-        state_d = MISS_IDLE;
+       end
+ 
+       default: state_d = MISS_IDLE;
+@@ -448,8 +438,8 @@
+     $error("D-cache refill RLAST arrived at an unexpected word index");
+ 
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+-    state_q == MISS_INSTALL_LINE |->
+-      (!writeback_response_pending_q && !transaction_access_fault_q))
++    line_install_event_o |->
++      (writeback_response_completed_after_handshake && !transaction_fault_after_bus_handshakes))
+   else
+     $error("D-cache installed a line before all bus responses completed successfully");
+ 
+--- a/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv
+@@ -60,6 +60,9 @@
+   logic axi_write_response_handshake;
+   logic read_response_has_access_fault;
+   logic write_response_has_access_fault;
++  logic new_request_window_open;
++  logic hold_read_address;
++  logic hold_write_payload;
+ 
+   assign local_req_handshake          = data_memory_req_valid_i && data_memory_req_ready_o;
+   assign axi_read_address_handshake   = axi_manager_o.ar_valid && axi_manager_i.ar_ready;
+@@ -73,41 +76,40 @@
+   assign write_response_has_access_fault =
+       (axi_manager_i.b.resp != AXI4_RESP_OKAY) &&
+       (axi_manager_i.b.resp != AXI4_RESP_EXOKAY);
++  assign new_request_window_open = (state_q == UNCACHED_IDLE) ||
++      ((state_q == UNCACHED_RECEIVE_READ_DATA) && axi_read_data_handshake &&
++       !read_response_has_access_fault) ||
++      ((state_q == UNCACHED_RECEIVE_WRITE_RESPONSE) && axi_write_response_handshake &&
++       !write_response_has_access_fault);
++  assign hold_read_address  = state_q == UNCACHED_SEND_READ_ADDRESS;
++  assign hold_write_payload = state_q == UNCACHED_SEND_WRITE_ADDRESS_DATA;
+ 
+   // 第一段：空闲时直接展示请求，未握手的通道在沿后由上下文继续驱动。
+   // AW/W 各自记账；响应由 target 保持，直到本地消费者接收。
+   always_comb begin
+-    data_memory_req_ready_o  = state_q == UNCACHED_IDLE;
++    data_memory_req_ready_o  = new_request_window_open;
+     data_memory_resp_o       = '0;
+     data_memory_resp_valid_o = 1'b0;
+     axi_manager_o            = '0;
+ 
+     // 地址和数据只按寄存状态选源，不用 valid 清零整份 payload。
+     // 空闲直通受阻后，沿上捕获的上下文继续驱动相同值；是否发出由下面的 valid 决定。
+-    axi_manager_o.ar.addr = (state_q == UNCACHED_IDLE) ?
+-        data_memory_req_i.addr : request_context_q.addr;
++    axi_manager_o.ar.addr = hold_read_address ? request_context_q.addr : data_memory_req_i.addr;
+     axi_manager_o.ar.id    = READ_TRANSACTION_ID;
+     axi_manager_o.ar.len   = 8'd0;
+-    axi_manager_o.ar.size  = (state_q == UNCACHED_IDLE) ?
+-        3'(data_memory_req_i.size) : 3'(request_context_q.size);
++    axi_manager_o.ar.size  = hold_read_address ? 3'(request_context_q.size) : 3'(data_memory_req_i.size);
+     axi_manager_o.ar.burst = AXI4_BURST_INCR;
+     axi_manager_o.aw       = axi_manager_o.ar;
++    axi_manager_o.aw.addr = hold_write_payload ? request_context_q.addr : data_memory_req_i.addr;
++    axi_manager_o.aw.size = hold_write_payload ? 3'(request_context_q.size) : 3'(data_memory_req_i.size);
+     axi_manager_o.aw.id    = WRITE_TRANSACTION_ID;
+-    axi_manager_o.w.data   = (state_q == UNCACHED_IDLE) ?
+-        axi4_data_t'(data_memory_req_i.write_data) : axi4_data_t'(request_context_q.write_data);
+-    axi_manager_o.w.strb   = (state_q == UNCACHED_IDLE) ?
+-        axi4_strb_t'(data_memory_req_i.byte_strobe) : axi4_strb_t'(request_context_q.byte_strobe);
++    axi_manager_o.w.data = hold_write_payload ?
++        axi4_data_t'(request_context_q.write_data) : axi4_data_t'(data_memory_req_i.write_data);
++    axi_manager_o.w.strb = hold_write_payload ?
++        axi4_strb_t'(request_context_q.byte_strobe) : axi4_strb_t'(data_memory_req_i.byte_strobe);
+     axi_manager_o.w.last   = 1'b1;
+ 
+     unique case (state_q)
+-      UNCACHED_IDLE: begin
+-        axi_manager_o.ar_valid = data_memory_req_valid_i &&
+-            data_memory_req_i.cmd == MEM_CMD_LOAD;
+-        axi_manager_o.aw_valid = data_memory_req_valid_i &&
+-            data_memory_req_i.cmd != MEM_CMD_LOAD;
+-        axi_manager_o.w_valid = axi_manager_o.aw_valid;
+-      end
+-
+       UNCACHED_SEND_READ_ADDRESS: begin
+         axi_manager_o.ar_valid = 1'b1;
+       end
+@@ -135,6 +137,13 @@
+ 
+       default: ;
+     endcase
++
++    // 旧响应仍使用 request_context_q；新请求独立驱动地址/数据通道。
++    if (new_request_window_open) begin
++      axi_manager_o.ar_valid = data_memory_req_valid_i && data_memory_req_i.cmd == MEM_CMD_LOAD;
++      axi_manager_o.aw_valid = data_memory_req_valid_i && data_memory_req_i.cmd != MEM_CMD_LOAD;
++      axi_manager_o.w_valid  = axi_manager_o.aw_valid;
++    end
+   end
+ 
+   // 第二段：状态转换与下一值。一个本地请求严格对应一个AXI事务和一个本地响应。
+@@ -145,24 +154,7 @@
+     write_data_pending_d    = write_data_pending_q;
+ 
+     unique case (state_q)
+-      UNCACHED_IDLE: begin
+-        if (local_req_handshake) begin
+-          request_context_d.addr           = data_memory_req_i.addr;
+-          request_context_d.size           = data_memory_req_i.size;
+-          request_context_d.write_data     = data_memory_req_i.write_data;
+-          request_context_d.byte_strobe    = data_memory_req_i.byte_strobe;
+-          request_context_d.transaction_id = data_memory_req_i.transaction_id;
+-          if (data_memory_req_i.cmd == MEM_CMD_LOAD) begin
+-            state_d = axi_read_address_handshake ?
+-                UNCACHED_RECEIVE_READ_DATA : UNCACHED_SEND_READ_ADDRESS;
+-          end else begin
+-            write_address_pending_d = !axi_write_address_handshake;
+-            write_data_pending_d    = !axi_write_data_handshake;
+-            state_d = (axi_write_address_handshake && axi_write_data_handshake) ?
+-                UNCACHED_RECEIVE_WRITE_RESPONSE : UNCACHED_SEND_WRITE_ADDRESS_DATA;
+-          end
+-        end
+-      end
++      UNCACHED_IDLE: ;
+ 
+       UNCACHED_SEND_READ_ADDRESS: begin
+         if (axi_read_address_handshake)
+@@ -199,6 +191,24 @@
+         write_data_pending_d    = 1'b0;
+       end
+     endcase
++
++    // 交接拍先完成旧响应，再用新请求决定下一状态和协议进度。
++    if (local_req_handshake) begin
++      request_context_d.addr           = data_memory_req_i.addr;
++      request_context_d.size           = data_memory_req_i.size;
++      request_context_d.write_data     = data_memory_req_i.write_data;
++      request_context_d.byte_strobe    = data_memory_req_i.byte_strobe;
++      request_context_d.transaction_id = data_memory_req_i.transaction_id;
++      if (data_memory_req_i.cmd == MEM_CMD_LOAD) begin
++        state_d = axi_read_address_handshake ?
++            UNCACHED_RECEIVE_READ_DATA : UNCACHED_SEND_READ_ADDRESS;
++      end else begin
++        write_address_pending_d = !axi_write_address_handshake;
++        write_data_pending_d    = !axi_write_data_handshake;
++        state_d = (axi_write_address_handshake && axi_write_data_handshake) ?
++            UNCACHED_RECEIVE_WRITE_RESPONSE : UNCACHED_SEND_WRITE_ADDRESS_DATA;
++      end
++    end
+   end
+ 
+   // 第三段：状态、紧凑请求上下文和独立write channel进度分别更新。

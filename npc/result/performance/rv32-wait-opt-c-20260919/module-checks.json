@@ -1,0 +1,49 @@
+{
+  "rv32-modules": {
+    "log": "modules.log",
+    "passed": [
+      "idu",
+      "dcache",
+      "dcache-miss-24"
+    ],
+    "note": "The subsequent timer compile exceeded the old 300 s host build timeout; interrupt rerun passed in checks.json.",
+    "log_sha256": "da7a9e74f6cc0d4bce14e697d52dbe652bda9266b892665342a6940d8c0f6666"
+  },
+  "rv32-icache-single-word": {
+    "log": "icache-single.log",
+    "checks": 15,
+    "status": "passed",
+    "log_sha256": "b7c2e6849e5a7804bd26fb3ae0eded8de73af486a31847d98f2d6310f077b311"
+  },
+  "rv64-caches": {
+    "log": "rv64-caches.log",
+    "passed": [
+      "icache-19",
+      "dcache",
+      "dcache-miss-24"
+    ],
+    "log_sha256": "40bf7148aed87cc3a6018f18ba9534cb846e4acdd0888f01bdec8c7eb137b25c"
+  },
+  "precise-exception": {
+    "log": "exception-v2.log",
+    "passed": 40,
+    "log_sha256": "4907507f57788d1f53253f231459321acd4c48c691cd6e4cbec0e238f047ecd6"
+  },
+  "timer-retirement": {
+    "log": "timer-retirement.log",
+    "report": "timer-retirement/report.json",
+    "status": "passed",
+    "log_sha256": "ba7a7843fe1f2560f01078ee83ac3c3a1ff96bd1bdf11f21ded3f0a2e5c1c1c8"
+  },
+  "host-measurement": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "test_passive_measurement",
+      "test_perf_observer"
+    ],
+    "cwd": "npc/tests/performance",
+    "passed": 8
+  }
+}

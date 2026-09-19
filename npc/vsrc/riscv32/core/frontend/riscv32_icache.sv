@@ -84,6 +84,7 @@ module riscv32_icache
       .read_set_index_i              (array_read_set_index),
       .read_tag_array_o              (array_read_tag_array),
       .read_line_present_vector_o    (array_read_line_present_vector),
+      .invalidate_all_i              (invalidate_done_o),
       .metadata_write_valid_i        (metadata_write_valid),
       .metadata_write_set_index_i    (metadata_write_set_index),
       .metadata_write_way_index_i    (metadata_write_way_index),
@@ -349,136 +350,18 @@ module riscv32_icache
     end
   end
 
-  // fence.i/invalidate先阻止新lookup并排空旧lookup和miss，再逐set清除
-  // present位，最后产生单拍done。tag/data无需清零，因为present=0使旧内容不可见。
-  // 已经发出的下层事务必须完整握手，不能因fence.i中途撤销。上游保持请求直到done；
-  // 本状态机只在IDLE采样一次请求，done产生的同一时钟沿上游必须撤销请求，避免重复启动。
-  // 当前单核无DMA一致性，fence.i用于保证软件修改代码后不再取到旧指令line。
-  typedef enum logic [1:0] {
-    INVALIDATE_IDLE,
-    INVALIDATE_DRAIN_LOOKUPS,
-    INVALIDATE_CLEAR_METADATA,
-    INVALIDATE_COMPLETE
-  } invalidate_state_e;
+  // 维护请求保持到 done。先排空旧查询/refill，再在该握手沿清除全部有效位。
+  // 有效位是独立触发器，tag/data 不清零；不为假设的单口宏逐项遍历。
+  assign invalidate_done_o = invalidate_req_i && !lookup_s1_present_q &&
+      !miss_transaction_present;
+  assign cache_busy_o = lookup_s1_present_q || miss_transaction_present || invalidate_req_i;
+  assign lookup_req_ready_o = lookup_s1_ready && !miss_transaction_present && !invalidate_req_i;
 
-  invalidate_state_e invalidate_state_q, invalidate_state_d;
-  icache_set_index_t invalidate_set_index_q, invalidate_set_index_d;
-  icache_way_index_t invalidate_way_index_q, invalidate_way_index_d;
-  logic invalidate_blocks_lookup;
-  logic invalidate_metadata_write_valid;
-
-  always_comb begin
-    invalidate_blocks_lookup        = (invalidate_state_q != INVALIDATE_IDLE);
-    invalidate_done_o               = 1'b0;
-    invalidate_metadata_write_valid = 1'b0;
-
-    unique case (invalidate_state_q)
-      INVALIDATE_CLEAR_METADATA: begin
-        invalidate_metadata_write_valid = 1'b1;
-      end
-
-      INVALIDATE_COMPLETE: begin
-        invalidate_done_o = 1'b1;
-      end
-
-      default: ;
-    endcase
-  end
-
-  // 失效控制的输出：元数据写口在回填与清除之间选择，busy汇总当前占用。
-  always_comb begin
-    metadata_write_valid        = refill_metadata_write_valid;
-    metadata_write_set_index    = refill_metadata_write_set_index;
-    metadata_write_way_index    = refill_metadata_write_way_index;
-    metadata_write_tag          = refill_metadata_write_tag;
-    metadata_write_line_present = refill_metadata_write_line_present;
-
-    if (invalidate_metadata_write_valid) begin
-      metadata_write_valid        = 1'b1;
-      metadata_write_set_index    = invalidate_set_index_q;
-      metadata_write_way_index    = invalidate_way_index_q;
-      metadata_write_tag          = '0;
-      metadata_write_line_present = 1'b0;
-    end
-  end
-
-  assign cache_busy_o =
-      lookup_s1_present_q || miss_transaction_present || invalidate_req_i ||
-      (invalidate_state_q != INVALIDATE_IDLE);
-  // invalidate请求到达的当拍立即停止接收新请求；其余时间由S1是否可覆盖决定ready。
-  // array read、S1请求身份和PMA属性只会在同一次lookup握手时同步更新。
-  assign lookup_req_ready_o =
-      lookup_s1_ready && !miss_transaction_present &&
-      !invalidate_blocks_lookup && !invalidate_req_i;
-
-  always_comb begin
-    invalidate_state_d     = invalidate_state_q;
-    invalidate_set_index_d = invalidate_set_index_q;
-    invalidate_way_index_d = invalidate_way_index_q;
-
-    unique case (invalidate_state_q)
-      INVALIDATE_IDLE: begin
-        if (invalidate_req_i) begin
-          invalidate_state_d = INVALIDATE_DRAIN_LOOKUPS;
-        end
-      end
-
-      INVALIDATE_DRAIN_LOOKUPS: begin
-        if (!lookup_s1_present_q && !miss_transaction_present) begin
-          invalidate_set_index_d = '0;
-          invalidate_way_index_d = '0;
-          invalidate_state_d     = INVALIDATE_CLEAR_METADATA;
-        end
-      end
-
-      INVALIDATE_CLEAR_METADATA: begin
-        if (invalidate_way_index_q == icache_way_index_t'(ICACHE_WAY_COUNT - 1)) begin
-          invalidate_way_index_d = '0;
-          if (invalidate_set_index_q == icache_set_index_t'(ICACHE_SET_COUNT - 1)) begin
-            invalidate_state_d = INVALIDATE_COMPLETE;
-          end else begin
-            invalidate_set_index_d = invalidate_set_index_q + icache_set_index_t'(1);
-          end
-        end else begin
-          invalidate_way_index_d = invalidate_way_index_q + icache_way_index_t'(1);
-        end
-      end
-
-      INVALIDATE_COMPLETE: begin
-        invalidate_state_d = INVALIDATE_IDLE;
-      end
-
-      default: begin
-        invalidate_state_d     = INVALIDATE_IDLE;
-        invalidate_set_index_d = '0;
-        invalidate_way_index_d = '0;
-      end
-    endcase
-  end
-
-  always_ff @(posedge clk_i) begin
-    if (!rst_ni) begin
-      invalidate_state_q <= INVALIDATE_IDLE;
-    end else begin
-      invalidate_state_q <= invalidate_state_d;
-    end
-  end
-
-  always_ff @(posedge clk_i) begin
-    if (!rst_ni) begin
-      invalidate_way_index_q <= '0;
-    end else begin
-      invalidate_way_index_q <= invalidate_way_index_d;
-    end
-  end
-
-  always_ff @(posedge clk_i) begin
-    if (!rst_ni) begin
-      invalidate_set_index_q <= '0;
-    end else begin
-      invalidate_set_index_q <= invalidate_set_index_d;
-    end
-  end
+  assign metadata_write_valid        = refill_metadata_write_valid;
+  assign metadata_write_set_index    = refill_metadata_write_set_index;
+  assign metadata_write_way_index    = refill_metadata_write_way_index;
+  assign metadata_write_tag          = refill_metadata_write_tag;
+  assign metadata_write_line_present = refill_metadata_write_line_present;
 
   // event只观察cache接口和miss-unit事件，不参与cache控制。lookup response使用present
   // 作为AMAT终点；PMU用活动请求状态保证响应反压时不会重复计数。过期fetch epoch由IFU识别，因此
@@ -549,14 +432,14 @@ module riscv32_icache
   a_metadata_write_sources_are_exclusive :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
-      !(refill_metadata_write_valid && invalidate_metadata_write_valid)
+      !(refill_metadata_write_valid && invalidate_done_o)
   )
   else $error("I-cache refill and invalidate metadata writes conflict");
 
   a_invalidate_blocks_new_lookup :
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
-      (invalidate_req_i || invalidate_blocks_lookup) |-> !lookup_req_ready_o
+      invalidate_req_i |-> !lookup_req_ready_o
   )
   else $error("I-cache accepted lookup during invalidate");
 
@@ -573,7 +456,7 @@ module riscv32_icache
   assert property (
       @(posedge clk_i) disable iff (!rst_ni)
       (metadata_write_valid && !metadata_write_line_present) |->
-          (invalidate_metadata_write_valid ||
+          (invalidate_done_o ||
            (refill_metadata_write_valid && !refill_metadata_write_line_present))
   )
   else $error("I-cache present clear has no valid source");

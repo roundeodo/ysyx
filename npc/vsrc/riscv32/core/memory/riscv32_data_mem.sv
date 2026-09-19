@@ -147,37 +147,34 @@ module riscv32_data_mem
   assign selected_request_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
 
   // 请求与响应分别选路：交接拍的新 uncached 请求不改变旧响应的归属。
-  logic dcache_request_selected;
   logic dcache_response_selected;
   assign dcache_response_selected = dcache_clean_req_i || route_state_q == DATA_ROUTE_DCACHE;
-  assign dcache_request_selected = dcache_response_selected && !uncached_req_valid;
 
-  assign axi_manager_o.ar = dcache_request_selected ?
+  // cache 的总线请求在内部 S1/miss 状态确定，优先选择其实际有效通道。
+  // 其余时间预先呈现 uncached payload，不让 LSU 发射允许条件控制宽地址 mux。
+  assign axi_manager_o.ar = dcache_axi_manager.ar_valid ?
       dcache_axi_manager.ar : uncached_axi_manager.ar;
-  assign axi_manager_o.ar_valid = dcache_request_selected ?
-      dcache_axi_manager.ar_valid : uncached_axi_manager.ar_valid;
-  assign axi_manager_o.aw = dcache_request_selected ?
+  assign axi_manager_o.ar_valid = dcache_axi_manager.ar_valid || uncached_axi_manager.ar_valid;
+  assign axi_manager_o.aw = dcache_axi_manager.aw_valid ?
       dcache_axi_manager.aw : uncached_axi_manager.aw;
-  assign axi_manager_o.aw_valid = dcache_request_selected ?
-      dcache_axi_manager.aw_valid : uncached_axi_manager.aw_valid;
-  assign axi_manager_o.w = dcache_request_selected ? dcache_axi_manager.w : uncached_axi_manager.w;
-  assign axi_manager_o.w_valid = dcache_request_selected ?
-      dcache_axi_manager.w_valid : uncached_axi_manager.w_valid;
+  assign axi_manager_o.aw_valid = dcache_axi_manager.aw_valid || uncached_axi_manager.aw_valid;
+  assign axi_manager_o.w = dcache_axi_manager.w_valid ? dcache_axi_manager.w : uncached_axi_manager.w;
+  assign axi_manager_o.w_valid = dcache_axi_manager.w_valid || uncached_axi_manager.w_valid;
   assign axi_manager_o.r_ready = dcache_response_selected ?
       dcache_axi_manager.r_ready : uncached_axi_manager.r_ready;
   assign axi_manager_o.b_ready = dcache_response_selected ?
       dcache_axi_manager.b_ready : uncached_axi_manager.b_ready;
 
-  assign dcache_axi_response.ar_ready = dcache_request_selected && axi_manager_i.ar_ready;
-  assign dcache_axi_response.aw_ready = dcache_request_selected && axi_manager_i.aw_ready;
-  assign dcache_axi_response.w_ready = dcache_request_selected && axi_manager_i.w_ready;
+  assign dcache_axi_response.ar_ready = axi_manager_i.ar_ready;
+  assign dcache_axi_response.aw_ready = axi_manager_i.aw_ready;
+  assign dcache_axi_response.w_ready = axi_manager_i.w_ready;
   assign dcache_axi_response.r = axi_manager_i.r;
   assign dcache_axi_response.r_valid = dcache_response_selected && axi_manager_i.r_valid;
   assign dcache_axi_response.b = axi_manager_i.b;
   assign dcache_axi_response.b_valid = dcache_response_selected && axi_manager_i.b_valid;
-  assign uncached_axi_response.ar_ready = !dcache_request_selected && axi_manager_i.ar_ready;
-  assign uncached_axi_response.aw_ready = !dcache_request_selected && axi_manager_i.aw_ready;
-  assign uncached_axi_response.w_ready = !dcache_request_selected && axi_manager_i.w_ready;
+  assign uncached_axi_response.ar_ready = !dcache_axi_manager.ar_valid && axi_manager_i.ar_ready;
+  assign uncached_axi_response.aw_ready = !dcache_axi_manager.aw_valid && axi_manager_i.aw_ready;
+  assign uncached_axi_response.w_ready = !dcache_axi_manager.w_valid && axi_manager_i.w_ready;
   assign uncached_axi_response.r = axi_manager_i.r;
   assign uncached_axi_response.r_valid = !dcache_response_selected && axi_manager_i.r_valid;
   assign uncached_axi_response.b = axi_manager_i.b;
@@ -252,6 +249,12 @@ module riscv32_data_mem
   );
 
 `ifndef SYNTHESIS
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    !((dcache_axi_manager.ar_valid && uncached_axi_manager.ar_valid) ||
+      (dcache_axi_manager.aw_valid && uncached_axi_manager.aw_valid) ||
+      (dcache_axi_manager.w_valid && uncached_axi_manager.w_valid)))
+  else $error("D-cache and uncached requests competed on one AXI channel");
+
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     dcache_clean_req_i |-> route_state_q == DATA_ROUTE_IDLE)
   else

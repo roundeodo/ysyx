@@ -1,0 +1,476 @@
+{
+  "baseline_commit": "71e44bf",
+  "scale": "test",
+  "passing_clock_mhz": 600,
+  "ppa_scope": "core plus reset controller and fanout-16 BUF_X4 tree; Nangate45 typical; ideal wires",
+  "candidates": {
+    "baseline": {
+      "cells": {
+        "area_um2": 69580.014,
+        "dff": 7647,
+        "data_latches": 2048,
+        "clock_gates": 464,
+        "cells": {
+          "AND2_X1": 235,
+          "AND3_X1": 405,
+          "AND4_X1": 229,
+          "AOI211_X1": 652,
+          "AOI21_X1": 2081,
+          "AOI21_X2": 2,
+          "AOI221_X1": 1091,
+          "AOI222_X1": 66,
+          "AOI22_X1": 1218,
+          "BUF_X1": 965,
+          "BUF_X2": 63,
+          "BUF_X4": 50,
+          "CLKBUF_X1": 148,
+          "CLKBUF_X2": 1,
+          "CLKGATE_X1": 464,
+          "DFFR_X1": 432,
+          "DFFS_X1": 24,
+          "DFF_X1": 7191,
+          "DLH_X1": 2048,
+          "INV_X1": 627,
+          "INV_X2": 6,
+          "LOGIC0_X1": 1,
+          "LOGIC1_X1": 1,
+          "MUX2_X1": 1785,
+          "NAND2_X1": 1608,
+          "NAND2_X2": 1,
+          "NAND3_X1": 381,
+          "NAND3_X2": 1,
+          "NAND4_X1": 536,
+          "NAND4_X2": 3,
+          "NOR2_X1": 1566,
+          "NOR2_X2": 3,
+          "NOR3_X1": 575,
+          "NOR3_X2": 1,
+          "NOR4_X1": 593,
+          "NOR4_X2": 1,
+          "OAI211_X1": 2141,
+          "OAI211_X2": 3,
+          "OAI21_X1": 2520,
+          "OAI21_X2": 1,
+          "OAI221_X1": 1025,
+          "OAI222_X1": 11,
+          "OAI22_X1": 803,
+          "OAI33_X1": 52,
+          "OR2_X1": 708,
+          "OR3_X1": 124,
+          "OR4_X1": 49,
+          "XNOR2_X1": 272,
+          "XOR2_X1": 168
+        }
+      },
+      "timing_600": {
+        "data_max": {
+          "endpoint": "data_axi4_manager_o_27_",
+          "slack_ns": 0.005,
+          "fmax_mhz": 602.048
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.lookup_queue_entry_count_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.063,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+          "slack_ns": 0.059,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p_QN_NOR4_X1_A3_ZN_CLKGATE_X1_E:E",
+          "slack_ns": 0.094,
+          "fmax_mhz": null
+        }
+      },
+      "total": {
+        "cycles": 3603144,
+        "retired_instructions": 764334,
+        "ipc": 0.21212974002704305,
+        "timer_ticks": 6005,
+        "timer_seconds": 0.006005,
+        "cycle_seconds": 0.00600524,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1574401,
+        "retired_instructions": 430311,
+        "ipc": 0.27331728066737765,
+        "timer_ticks": 2624,
+        "timer_seconds": 0.002624,
+        "cycle_seconds": 0.0026240016666666667,
+        "interrupts": 0
+      },
+      "observer_on_off_verified": false,
+      "binary_sha256": "e8ef4f270c257d6bfe74cf3d1ccdef2d46c151f1522fc1c82104a3813f28c89b"
+    },
+    "a": {
+      "cells": {
+        "area_um2": 69388.76,
+        "dff": 7647,
+        "data_latches": 2048,
+        "clock_gates": 462,
+        "cells": {
+          "AND2_X1": 245,
+          "AND3_X1": 686,
+          "AND4_X1": 236,
+          "AOI211_X1": 1342,
+          "AOI21_X1": 2030,
+          "AOI21_X2": 2,
+          "AOI221_X1": 1006,
+          "AOI222_X1": 85,
+          "AOI22_X1": 753,
+          "BUF_X1": 959,
+          "BUF_X2": 72,
+          "BUF_X4": 69,
+          "CLKBUF_X1": 109,
+          "CLKBUF_X3": 1,
+          "CLKGATE_X1": 462,
+          "DFFR_X1": 432,
+          "DFFS_X1": 24,
+          "DFF_X1": 7191,
+          "DLH_X1": 2048,
+          "INV_X1": 593,
+          "INV_X2": 4,
+          "INV_X4": 1,
+          "LOGIC0_X1": 1,
+          "LOGIC1_X1": 1,
+          "MUX2_X1": 2015,
+          "NAND2_X1": 1301,
+          "NAND2_X2": 1,
+          "NAND3_X1": 461,
+          "NAND3_X2": 1,
+          "NAND4_X1": 480,
+          "NAND4_X2": 3,
+          "NOR2_X1": 1306,
+          "NOR2_X2": 1,
+          "NOR3_X1": 440,
+          "NOR3_X2": 4,
+          "NOR3_X4": 1,
+          "NOR4_X1": 648,
+          "NOR4_X2": 5,
+          "OAI211_X1": 1864,
+          "OAI211_X2": 1,
+          "OAI211_X4": 1,
+          "OAI21_X1": 2666,
+          "OAI21_X2": 2,
+          "OAI221_X1": 806,
+          "OAI222_X1": 15,
+          "OAI22_X1": 768,
+          "OAI22_X2": 2,
+          "OAI33_X1": 17,
+          "OR2_X1": 748,
+          "OR3_X1": 127,
+          "OR4_X1": 52,
+          "XNOR2_X1": 252,
+          "XOR2_X1": 160
+        }
+      },
+      "timing_600": {
+        "data_max": {
+          "endpoint": "data_axi4_manager_o_35_",
+          "slack_ns": -0.018,
+          "fmax_mhz": 593.903
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_d_2__OAI221_X1_ZN_B2_CLKGATE_X1_E:E",
+          "slack_ns": 0.106,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+          "slack_ns": 0.059,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p_QN_NOR4_X1_A3_ZN_CLKGATE_X1_E:E",
+          "slack_ns": 0.094,
+          "fmax_mhz": null
+        }
+      },
+      "total": {
+        "cycles": 3576624,
+        "retired_instructions": 764346,
+        "ipc": 0.2137059976111551,
+        "timer_ticks": 5962,
+        "timer_seconds": 0.005962,
+        "cycle_seconds": 0.00596104,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1562335,
+        "retired_instructions": 430311,
+        "ipc": 0.2754281252100222,
+        "timer_ticks": 2603,
+        "timer_seconds": 0.002603,
+        "cycle_seconds": 0.002603891666666667,
+        "interrupts": 0
+      },
+      "observer_on_off_verified": false,
+      "binary_sha256": "e8ef4f270c257d6bfe74cf3d1ccdef2d46c151f1522fc1c82104a3813f28c89b"
+    },
+    "b": {
+      "cells": {
+        "area_um2": 69398.07,
+        "dff": 7640,
+        "data_latches": 2048,
+        "clock_gates": 475,
+        "cells": {
+          "AND2_X1": 255,
+          "AND3_X1": 477,
+          "AND4_X1": 257,
+          "AOI211_X1": 1198,
+          "AOI21_X1": 1781,
+          "AOI21_X2": 1,
+          "AOI221_X1": 853,
+          "AOI222_X1": 52,
+          "AOI22_X1": 981,
+          "BUF_X1": 934,
+          "BUF_X2": 64,
+          "BUF_X4": 54,
+          "BUF_X8": 1,
+          "CLKBUF_X1": 124,
+          "CLKBUF_X2": 3,
+          "CLKBUF_X3": 3,
+          "CLKGATE_X1": 475,
+          "DFFR_X1": 431,
+          "DFFS_X1": 24,
+          "DFF_X1": 7185,
+          "DLH_X1": 2048,
+          "INV_X1": 629,
+          "INV_X2": 4,
+          "INV_X4": 2,
+          "LOGIC0_X1": 1,
+          "LOGIC1_X1": 1,
+          "MUX2_X1": 2157,
+          "NAND2_X1": 1286,
+          "NAND2_X2": 1,
+          "NAND3_X1": 516,
+          "NAND4_X1": 449,
+          "NAND4_X2": 4,
+          "NAND4_X4": 1,
+          "NOR2_X1": 1634,
+          "NOR2_X2": 1,
+          "NOR3_X1": 375,
+          "NOR3_X2": 3,
+          "NOR3_X4": 1,
+          "NOR4_X1": 685,
+          "NOR4_X4": 1,
+          "OAI211_X1": 1917,
+          "OAI211_X2": 5,
+          "OAI211_X4": 1,
+          "OAI21_X1": 2483,
+          "OAI21_X2": 3,
+          "OAI221_X1": 909,
+          "OAI222_X1": 14,
+          "OAI22_X1": 657,
+          "OAI22_X2": 1,
+          "OAI33_X1": 67,
+          "OR2_X1": 904,
+          "OR3_X1": 131,
+          "OR4_X1": 64,
+          "XNOR2_X1": 289,
+          "XOR2_X1": 138
+        }
+      },
+      "timing_600": {
+        "data_max": {
+          "endpoint": "data_axi4_manager_o_116_",
+          "slack_ns": -0.146,
+          "fmax_mhz": 551.896
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.05,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+          "slack_ns": 0.059,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.clean_access_fault_q_reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.1,
+          "fmax_mhz": null
+        }
+      },
+      "total": {
+        "cycles": 3553445,
+        "retired_instructions": 764358,
+        "ipc": 0.21510337151693637,
+        "timer_ticks": 5923,
+        "timer_seconds": 0.005923,
+        "cycle_seconds": 0.005922408333333334,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1556582,
+        "retired_instructions": 430311,
+        "ipc": 0.2764460850761476,
+        "timer_ticks": 2596,
+        "timer_seconds": 0.002596,
+        "cycle_seconds": 0.0025943033333333332,
+        "interrupts": 0
+      },
+      "observer_on_off_verified": false,
+      "binary_sha256": "e8ef4f270c257d6bfe74cf3d1ccdef2d46c151f1522fc1c82104a3813f28c89b"
+    },
+    "c": {
+      "cells": {
+        "area_um2": 69536.922,
+        "dff": 7640,
+        "data_latches": 2048,
+        "clock_gates": 475,
+        "cells": {
+          "AND2_X1": 270,
+          "AND3_X1": 564,
+          "AND4_X1": 289,
+          "AOI211_X1": 1218,
+          "AOI211_X2": 1,
+          "AOI21_X1": 1874,
+          "AOI21_X2": 2,
+          "AOI221_X1": 813,
+          "AOI222_X1": 47,
+          "AOI22_X1": 1162,
+          "BUF_X1": 954,
+          "BUF_X2": 73,
+          "BUF_X4": 58,
+          "CLKBUF_X1": 114,
+          "CLKBUF_X2": 2,
+          "CLKGATE_X1": 475,
+          "DFFR_X1": 431,
+          "DFFS_X1": 24,
+          "DFF_X1": 7185,
+          "DLH_X1": 2048,
+          "INV_X1": 599,
+          "INV_X2": 5,
+          "LOGIC0_X1": 1,
+          "LOGIC1_X1": 1,
+          "MUX2_X1": 1971,
+          "NAND2_X1": 1187,
+          "NAND2_X2": 1,
+          "NAND3_X1": 500,
+          "NAND4_X1": 467,
+          "NAND4_X4": 1,
+          "NOR2_X1": 1726,
+          "NOR2_X2": 2,
+          "NOR3_X1": 364,
+          "NOR3_X2": 1,
+          "NOR4_X1": 521,
+          "NOR4_X2": 1,
+          "NOR4_X4": 1,
+          "OAI211_X1": 2120,
+          "OAI211_X2": 3,
+          "OAI21_X1": 2598,
+          "OAI21_X2": 2,
+          "OAI221_X1": 884,
+          "OAI222_X1": 6,
+          "OAI22_X1": 668,
+          "OAI22_X2": 2,
+          "OAI33_X1": 50,
+          "OR2_X1": 869,
+          "OR3_X1": 163,
+          "OR4_X1": 55,
+          "XNOR2_X1": 292,
+          "XOR2_X1": 103
+        }
+      },
+      "timing_600": {
+        "data_max": {
+          "endpoint": "data_axi4_manager_o_1_",
+          "slack_ns": 0.034,
+          "fmax_mhz": 612.62
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.lookup_queue_entry_count_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.061,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+          "slack_ns": 0.059,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_req_ready_o_reg_p_QN_AOI211_X1_C1_ZN_CLKGATE_X1_E:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "total": {
+        "cycles": 3553436,
+        "retired_instructions": 764352,
+        "ipc": 0.21510222781555655,
+        "timer_ticks": 5923,
+        "timer_seconds": 0.005923,
+        "cycle_seconds": 0.005922393333333333,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1556380,
+        "retired_instructions": 430311,
+        "ipc": 0.2764819645587838,
+        "timer_ticks": 2595,
+        "timer_seconds": 0.002595,
+        "cycle_seconds": 0.002593966666666667,
+        "interrupts": 0
+      },
+      "observer_on_off_verified": true,
+      "binary_sha256": "e8ef4f270c257d6bfe74cf3d1ccdef2d46c151f1522fc1c82104a3813f28c89b"
+    }
+  },
+  "final": {
+    "timing": {
+      "data_max": {
+        "endpoint": "data_axi4_manager_o_1_",
+        "slack_ns": 0.034,
+        "fmax_mhz": 612.62
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.lookup_queue_entry_count_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.061,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_req_ready_o_reg_p_QN_AOI211_X1_C1_ZN_CLKGATE_X1_E:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "total": {
+      "cycles": 3553436,
+      "retired_instructions": 764352,
+      "ipc": 0.21510222781555655,
+      "timer_ticks": 5923,
+      "timer_seconds": 0.005923,
+      "cycle_seconds": 0.005922393333333333,
+      "interrupts": 0
+    },
+    "scored": {
+      "cycles": 1556380,
+      "retired_instructions": 430311,
+      "ipc": 0.2764819645587838,
+      "timer_ticks": 2595,
+      "timer_seconds": 0.002595,
+      "cycle_seconds": 0.002593966666666667,
+      "interrupts": 0
+    }
+  },
+  "change_percent": {
+    "area": -0.06193157707612418,
+    "total_ipc_same_clock": 1.401259336920213,
+    "total_cycles_same_clock": -1.3795729507341314,
+    "total_time_passing_clock": -1.3655287260616045,
+    "scored_time_passing_clock": -1.1051829268292623
+  },
+  "synthesis_inputs_match_current": 50,
+  "unchanged_measurement_inputs": true,
+  "final_simulation_matches_synthesis_sources": 50
+}

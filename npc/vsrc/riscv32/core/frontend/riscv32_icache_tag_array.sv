@@ -1,8 +1,7 @@
 // I-cache元数据存储阵列。
 //
 // 本模块只保存每个set、每个way的tag和line-present位，并提供同步读口和受控写口。
-// 命中判断、miss状态和invalidate遍历都不属于本模块。保持这种边界后，
-// 当前触发器阵列可以独立替换成SRAM宏，而不需要改写I-cache控制路径。
+// 命中判断和 miss 状态由上层负责；有效位独立于 tag/data，一次清除即可失效全表。
 module riscv32_icache_tag_array
   import riscv32_pkg::*;
 #(
@@ -11,6 +10,7 @@ module riscv32_icache_tag_array
 ) (
     input logic clk_i,
     input logic rst_ni,
+    input logic invalidate_all_i,
 
     input  logic                              read_enable_i,
     input  icache_set_index_t                 read_set_index_i,
@@ -55,7 +55,7 @@ module riscv32_icache_tag_array
   // 写口：清 present 使旧 tag 失效；安装时同时更新 tag 和 present。
   // blocking cache 不并发接收 refill 期间的查询，不依赖同地址读写旁路。
   always_ff @(posedge clk_i) begin
-    if (!rst_ni) begin
+    if (!rst_ni || invalidate_all_i) begin
       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
         for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
           line_present_array_q[way_index][set_index] <= 1'b0;

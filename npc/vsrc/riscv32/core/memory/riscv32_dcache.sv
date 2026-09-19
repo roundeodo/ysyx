@@ -152,13 +152,11 @@ module riscv32_dcache
   logic                   writeback_resp_valid;
   logic                   writeback_resp_ready;
 
-  // clean遍历每个set/way；只有dirty line进入miss unit执行writeback。
-  typedef enum logic [2:0] {
+  // clean 每拍检查一个已同步读出的 set；直接选择尚未处理的 dirty way。
+  typedef enum logic [1:0] {
     CLEAN_IDLE,
-    CLEAN_READ_SET,
     CLEAN_CHECK_WAY,
-    CLEAN_WAIT_WRITEBACK,
-    CLEAN_COMPLETE
+    CLEAN_WAIT_WRITEBACK
   } clean_state_e;
 
   clean_state_e      clean_state_q, clean_state_d;
@@ -170,14 +168,33 @@ module riscv32_dcache
   logic clean_engine_access_fault;
   logic              clean_access_fault_q, clean_access_fault_d;
   logic clean_blocks_lookup;
-  logic clean_current_line_dirty;
+  logic clean_dirty_way_present;
+  dcache_way_index_t clean_selected_way_index;
+  logic clean_set_finished;
+  logic clean_advance_set;
 
   assign clean_blocks_lookup = clean_req_i || (clean_state_q != CLEAN_IDLE);
-  assign clean_current_line_dirty =
-      array_read_line_present_vector[clean_way_index_q] &&
-      array_read_line_dirty_vector[clean_way_index_q];
-  assign clean_engine_req_valid = (clean_state_q == CLEAN_CHECK_WAY) &&
-      clean_current_line_dirty;
+  always_comb begin
+    clean_dirty_way_present = 1'b0;
+    clean_selected_way_index = clean_way_index_q;
+    for (int unsigned way_index=0; way_index<DCACHE_WAY_COUNT; way_index++) begin
+      if (!clean_dirty_way_present && way_index >= int'(clean_way_index_q) &&
+          array_read_line_present_vector[way_index] && array_read_line_dirty_vector[way_index]) begin
+        clean_dirty_way_present = 1'b1;
+        clean_selected_way_index = dcache_way_index_t'(way_index);
+      end
+    end
+  end
+  assign clean_engine_req_valid = (clean_state_q == CLEAN_CHECK_WAY) && clean_dirty_way_present;
+  assign clean_set_finished =
+      ((clean_state_q == CLEAN_CHECK_WAY) && !clean_dirty_way_present) ||
+      ((clean_state_q == CLEAN_WAIT_WRITEBACK) && clean_engine_done &&
+       (clean_engine_access_fault || clean_way_index_q == dcache_way_index_t'(DCACHE_WAY_COUNT-1)));
+  assign clean_access_fault_o = clean_access_fault_q ||
+      ((clean_state_q == CLEAN_WAIT_WRITEBACK) && clean_engine_done && clean_engine_access_fault);
+  assign clean_done_o = clean_set_finished &&
+      (clean_access_fault_o || clean_set_index_q == dcache_set_index_t'(DCACHE_SET_COUNT-1));
+  assign clean_advance_set = clean_set_finished && !clean_done_o;
 
   // S0握手同时启动同步array read；S1保存请求身份并在下一拍完成tag compare。
   data_memory_req_t lookup_s1_q;
@@ -355,70 +372,43 @@ module riscv32_dcache
     end
   end
 
-  always_comb begin
-    clean_done_o         = clean_state_q == CLEAN_COMPLETE;
-    clean_access_fault_o = clean_access_fault_q;
-  end
-
+  // 完成当前 set 的同拍启动下一 set 同步读；下一拍即可继续检查。
   always_comb begin
     clean_state_d        = clean_state_q;
     clean_set_index_d    = clean_set_index_q;
     clean_way_index_d    = clean_way_index_q;
     clean_access_fault_d = clean_access_fault_q;
-
     unique case (clean_state_q)
       CLEAN_IDLE: begin
         clean_access_fault_d = 1'b0;
         if (clean_req_i) begin
           clean_set_index_d = '0;
           clean_way_index_d = '0;
-          clean_state_d     = CLEAN_READ_SET;
+          clean_state_d = CLEAN_CHECK_WAY;
         end
       end
-
-      CLEAN_READ_SET: clean_state_d = CLEAN_CHECK_WAY;
-
       CLEAN_CHECK_WAY: begin
-        if (clean_current_line_dirty) begin
-          if (clean_engine_req_valid && clean_engine_req_ready) begin
-            clean_state_d = CLEAN_WAIT_WRITEBACK;
-          end
-        end else if (clean_way_index_q == dcache_way_index_t'(DCACHE_WAY_COUNT - 1)) begin
-          clean_way_index_d = '0;
-          if (clean_set_index_q == dcache_set_index_t'(DCACHE_SET_COUNT - 1)) begin
-            clean_state_d = CLEAN_COMPLETE;
-          end else begin
-            clean_set_index_d = clean_set_index_q + dcache_set_index_t'(1);
-            clean_state_d     = CLEAN_READ_SET;
-          end
-        end else begin
-          clean_way_index_d = clean_way_index_q + dcache_way_index_t'(1);
+        if (clean_engine_req_valid && clean_engine_req_ready) begin
+          clean_way_index_d = clean_selected_way_index;
+          clean_state_d = CLEAN_WAIT_WRITEBACK;
         end
       end
-
       CLEAN_WAIT_WRITEBACK: begin
         if (clean_engine_done) begin
           clean_access_fault_d = clean_access_fault_q || clean_engine_access_fault;
-          if (clean_engine_access_fault) begin
-            clean_state_d = CLEAN_COMPLETE;
-          end else if (clean_way_index_q == dcache_way_index_t'(DCACHE_WAY_COUNT - 1)) begin
-            clean_way_index_d = '0;
-            if (clean_set_index_q == dcache_set_index_t'(DCACHE_SET_COUNT - 1)) begin
-              clean_state_d = CLEAN_COMPLETE;
-            end else begin
-              clean_set_index_d = clean_set_index_q + dcache_set_index_t'(1);
-              clean_state_d     = CLEAN_READ_SET;
-            end
-          end else begin
-            clean_way_index_d = clean_way_index_q + dcache_way_index_t'(1);
-            clean_state_d     = CLEAN_CHECK_WAY;
-          end
+          clean_way_index_d = clean_way_index_q + dcache_way_index_t'(1);
+          clean_state_d = CLEAN_CHECK_WAY;
         end
       end
-
-      CLEAN_COMPLETE: clean_state_d = CLEAN_IDLE;
       default: clean_state_d = CLEAN_IDLE;
     endcase
+    if (clean_done_o)
+      clean_state_d = CLEAN_IDLE;
+    else if (clean_advance_set) begin
+      clean_set_index_d = clean_set_index_q + dcache_set_index_t'(1);
+      clean_way_index_d = '0;
+      clean_state_d = CLEAN_CHECK_WAY;
+    end
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -445,11 +435,10 @@ module riscv32_dcache
   always_comb begin
     tag_read_enable    = lookup_req_handshake;
     tag_read_set_index = get_set_index(data_memory_req_i.addr);
-    if (clean_state_q == CLEAN_READ_SET) begin
-      tag_read_enable    = 1'b1;
-      tag_read_set_index = clean_set_index_q;
-    end else if (clean_state_q != CLEAN_IDLE) begin
-      tag_read_enable = 1'b0;
+    if (clean_blocks_lookup) begin
+      tag_read_enable = ((clean_state_q == CLEAN_IDLE) && clean_req_i) || clean_advance_set;
+      tag_read_set_index = (clean_state_q == CLEAN_IDLE) ? '0 :
+          clean_set_index_q + dcache_set_index_t'(1);
     end
 
     data_read_enable     = lookup_req_handshake;
@@ -509,8 +498,8 @@ module riscv32_dcache
       .miss_resp_valid_o             (miss_resp_valid),
       .miss_resp_ready_i             (miss_resp_ready),
       .clean_set_index_i             (clean_set_index_q),
-      .clean_way_index_i             (clean_way_index_q),
-      .clean_tag_i                   (array_read_tag_array[clean_way_index_q]),
+      .clean_way_index_i             (clean_selected_way_index),
+      .clean_tag_i                   (array_read_tag_array[clean_selected_way_index]),
       .clean_req_valid_i             (clean_engine_req_valid),
       .clean_req_ready_o             (clean_engine_req_ready),
       .clean_done_o                  (clean_engine_done),

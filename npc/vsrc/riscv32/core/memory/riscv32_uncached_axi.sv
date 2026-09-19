@@ -60,6 +60,9 @@ module riscv32_uncached_axi
   logic axi_write_response_handshake;
   logic read_response_has_access_fault;
   logic write_response_has_access_fault;
+  logic new_request_window_open;
+  logic hold_read_address;
+  logic hold_write_payload;
 
   assign local_req_handshake          = data_memory_req_valid_i && data_memory_req_ready_o;
   assign axi_read_address_handshake   = axi_manager_o.ar_valid && axi_manager_i.ar_ready;
@@ -73,41 +76,40 @@ module riscv32_uncached_axi
   assign write_response_has_access_fault =
       (axi_manager_i.b.resp != AXI4_RESP_OKAY) &&
       (axi_manager_i.b.resp != AXI4_RESP_EXOKAY);
+  assign new_request_window_open = (state_q == UNCACHED_IDLE) ||
+      ((state_q == UNCACHED_RECEIVE_READ_DATA) && axi_read_data_handshake &&
+       !read_response_has_access_fault) ||
+      ((state_q == UNCACHED_RECEIVE_WRITE_RESPONSE) && axi_write_response_handshake &&
+       !write_response_has_access_fault);
+  assign hold_read_address  = state_q == UNCACHED_SEND_READ_ADDRESS;
+  assign hold_write_payload = state_q == UNCACHED_SEND_WRITE_ADDRESS_DATA;
 
   // 第一段：空闲时直接展示请求，未握手的通道在沿后由上下文继续驱动。
   // AW/W 各自记账；响应由 target 保持，直到本地消费者接收。
   always_comb begin
-    data_memory_req_ready_o  = state_q == UNCACHED_IDLE;
+    data_memory_req_ready_o  = new_request_window_open;
     data_memory_resp_o       = '0;
     data_memory_resp_valid_o = 1'b0;
     axi_manager_o            = '0;
 
     // 地址和数据只按寄存状态选源，不用 valid 清零整份 payload。
     // 空闲直通受阻后，沿上捕获的上下文继续驱动相同值；是否发出由下面的 valid 决定。
-    axi_manager_o.ar.addr = (state_q == UNCACHED_IDLE) ?
-        data_memory_req_i.addr : request_context_q.addr;
+    axi_manager_o.ar.addr = hold_read_address ? request_context_q.addr : data_memory_req_i.addr;
     axi_manager_o.ar.id    = READ_TRANSACTION_ID;
     axi_manager_o.ar.len   = 8'd0;
-    axi_manager_o.ar.size  = (state_q == UNCACHED_IDLE) ?
-        3'(data_memory_req_i.size) : 3'(request_context_q.size);
+    axi_manager_o.ar.size  = hold_read_address ? 3'(request_context_q.size) : 3'(data_memory_req_i.size);
     axi_manager_o.ar.burst = AXI4_BURST_INCR;
     axi_manager_o.aw       = axi_manager_o.ar;
+    axi_manager_o.aw.addr = hold_write_payload ? request_context_q.addr : data_memory_req_i.addr;
+    axi_manager_o.aw.size = hold_write_payload ? 3'(request_context_q.size) : 3'(data_memory_req_i.size);
     axi_manager_o.aw.id    = WRITE_TRANSACTION_ID;
-    axi_manager_o.w.data   = (state_q == UNCACHED_IDLE) ?
-        axi4_data_t'(data_memory_req_i.write_data) : axi4_data_t'(request_context_q.write_data);
-    axi_manager_o.w.strb   = (state_q == UNCACHED_IDLE) ?
-        axi4_strb_t'(data_memory_req_i.byte_strobe) : axi4_strb_t'(request_context_q.byte_strobe);
+    axi_manager_o.w.data = hold_write_payload ?
+        axi4_data_t'(request_context_q.write_data) : axi4_data_t'(data_memory_req_i.write_data);
+    axi_manager_o.w.strb = hold_write_payload ?
+        axi4_strb_t'(request_context_q.byte_strobe) : axi4_strb_t'(data_memory_req_i.byte_strobe);
     axi_manager_o.w.last   = 1'b1;
 
     unique case (state_q)
-      UNCACHED_IDLE: begin
-        axi_manager_o.ar_valid = data_memory_req_valid_i &&
-            data_memory_req_i.cmd == MEM_CMD_LOAD;
-        axi_manager_o.aw_valid = data_memory_req_valid_i &&
-            data_memory_req_i.cmd != MEM_CMD_LOAD;
-        axi_manager_o.w_valid = axi_manager_o.aw_valid;
-      end
-
       UNCACHED_SEND_READ_ADDRESS: begin
         axi_manager_o.ar_valid = 1'b1;
       end
@@ -135,6 +137,13 @@ module riscv32_uncached_axi
 
       default: ;
     endcase
+
+    // 旧响应仍使用 request_context_q；新请求独立驱动地址/数据通道。
+    if (new_request_window_open) begin
+      axi_manager_o.ar_valid = data_memory_req_valid_i && data_memory_req_i.cmd == MEM_CMD_LOAD;
+      axi_manager_o.aw_valid = data_memory_req_valid_i && data_memory_req_i.cmd != MEM_CMD_LOAD;
+      axi_manager_o.w_valid  = axi_manager_o.aw_valid;
+    end
   end
 
   // 第二段：状态转换与下一值。一个本地请求严格对应一个AXI事务和一个本地响应。
@@ -145,24 +154,7 @@ module riscv32_uncached_axi
     write_data_pending_d    = write_data_pending_q;
 
     unique case (state_q)
-      UNCACHED_IDLE: begin
-        if (local_req_handshake) begin
-          request_context_d.addr           = data_memory_req_i.addr;
-          request_context_d.size           = data_memory_req_i.size;
-          request_context_d.write_data     = data_memory_req_i.write_data;
-          request_context_d.byte_strobe    = data_memory_req_i.byte_strobe;
-          request_context_d.transaction_id = data_memory_req_i.transaction_id;
-          if (data_memory_req_i.cmd == MEM_CMD_LOAD) begin
-            state_d = axi_read_address_handshake ?
-                UNCACHED_RECEIVE_READ_DATA : UNCACHED_SEND_READ_ADDRESS;
-          end else begin
-            write_address_pending_d = !axi_write_address_handshake;
-            write_data_pending_d    = !axi_write_data_handshake;
-            state_d = (axi_write_address_handshake && axi_write_data_handshake) ?
-                UNCACHED_RECEIVE_WRITE_RESPONSE : UNCACHED_SEND_WRITE_ADDRESS_DATA;
-          end
-        end
-      end
+      UNCACHED_IDLE: ;
 
       UNCACHED_SEND_READ_ADDRESS: begin
         if (axi_read_address_handshake)
@@ -199,6 +191,24 @@ module riscv32_uncached_axi
         write_data_pending_d    = 1'b0;
       end
     endcase
+
+    // 交接拍先完成旧响应，再用新请求决定下一状态和协议进度。
+    if (local_req_handshake) begin
+      request_context_d.addr           = data_memory_req_i.addr;
+      request_context_d.size           = data_memory_req_i.size;
+      request_context_d.write_data     = data_memory_req_i.write_data;
+      request_context_d.byte_strobe    = data_memory_req_i.byte_strobe;
+      request_context_d.transaction_id = data_memory_req_i.transaction_id;
+      if (data_memory_req_i.cmd == MEM_CMD_LOAD) begin
+        state_d = axi_read_address_handshake ?
+            UNCACHED_RECEIVE_READ_DATA : UNCACHED_SEND_READ_ADDRESS;
+      end else begin
+        write_address_pending_d = !axi_write_address_handshake;
+        write_data_pending_d    = !axi_write_data_handshake;
+        state_d = (axi_write_address_handshake && axi_write_data_handshake) ?
+            UNCACHED_RECEIVE_WRITE_RESPONSE : UNCACHED_SEND_WRITE_ADDRESS_DATA;
+      end
+    end
   end
 
   // 第三段：状态、紧凑请求上下文和独立write channel进度分别更新。

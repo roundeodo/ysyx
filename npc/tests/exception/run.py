@@ -25,12 +25,13 @@ command = ['verilator', '--binary', '--timing', '--assert', '-Wno-fatal', '-j', 
            str(Path(__file__).with_name(top + '.sv'))]
 with (out / 'build.log').open('w') as log:
     result = subprocess.run(command, env=dict(os.environ, NPC_HOME=str(NPC)),
-                            stdout=log, stderr=subprocess.STDOUT, timeout=300)
+                            stdout=log, stderr=subprocess.STDOUT,
+                            timeout=int(os.environ.get('NPC_TEST_BUILD_TIMEOUT', '1200')))
 if result.returncode:
     print((out / 'build.log').read_text()[-6000:])
     raise SystemExit(result.returncode)
 results = []
-for mode in range(4):
+for mode in range(5):
     for load in (0, 1):
         for mmio in (0, 1):
             for delay in (0, 80):
