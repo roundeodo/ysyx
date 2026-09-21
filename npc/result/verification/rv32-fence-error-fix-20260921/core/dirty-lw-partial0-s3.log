@@ -1,0 +1,27 @@
+COMMIT cycle=13 pc=80000000 next=80000004 trap=0
+COMMIT cycle=18 pc=80000004 next=80000008 trap=0
+COMMIT cycle=19 pc=80000008 next=8000000c trap=0
+COMMIT cycle=20 pc=8000000c next=80000010 trap=0
+COMMIT cycle=29 pc=80000010 next=80000014 trap=0
+COMMIT cycle=34 pc=80000014 next=80000018 trap=0
+COMMIT cycle=38 pc=80000018 next=8000001c trap=0
+COMMIT cycle=39 pc=8000001c next=80000020 trap=0
+COMMIT cycle=58 pc=80000020 next=80000024 trap=0
+COMMIT cycle=73 pc=80000024 next=80000028 trap=0
+B cycle=106 addr=80000400 resp=2
+COMMIT cycle=111 pc=80000028 next=8000002c trap=1
+COMMIT cycle=125 pc=80000100 next=80000104 trap=0
+COMMIT cycle=130 pc=80000104 next=80000108 trap=0
+B cycle=162 addr=80000400 resp=0
+COMMIT cycle=163 pc=80000108 next=8000010c trap=0
+COMMIT cycle=178 pc=8000010c next=80000110 trap=0
+COMMIT cycle=180 pc=80000110 next=80000114 trap=0
+B cycle=202 addr=10002004 resp=0
+COMMIT cycle=203 pc=80000114 next=80000118 trap=0
+COMMIT cycle=204 pc=80000118 next=800001c0 trap=0
+RESULT fences=0 site=0 wrong_target_stores=0 correct_path_stores=1
+PASS retired-store preservation across trap and retry
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/riscv32_fence_i_tb.sv:220: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 15ns; walltime 0.002 s; speed 6.468 us/s
+- Verilator: cpu 0.002 s on 1 threads; alloced 6 MB

@@ -194,7 +194,7 @@ module riscv32_dcache_miss_contract_tb;
       #1;
       assert (refill_response_ready)
       else $fatal(1, "response backpressure blocked refill drain");
-      if (refill_response.last_word && (!dirty || b_order != 2)) begin
+      if (refill_response.last_word && (!dirty || b_order != 2) && !(dirty && expected_fault)) begin
         assert (response_valid && response.access_fault == expected_fault)
         else $fatal(1, "last R did not produce immediate completion");
       end else begin
@@ -214,10 +214,27 @@ module riscv32_dcache_miss_contract_tb;
       end
       writeback_response_valid = 1;
       #1;
-      assert (response_valid && response.access_fault == expected_fault)
-      else $fatal(1, "last B did not produce immediate completion");
+      assert (response_valid == !expected_fault)
+      else $fatal(1, "last B bypassed required victim restoration");
       @(negedge clk);
       writeback_response_valid = 0;
+    end
+    if (dirty && expected_fault) begin
+      // Old dirty data must be restored completely before the fault becomes visible.
+      for (int word_index = 0; word_index < DCACHE_WORDS_PER_LINE; word_index++) begin
+        #1;
+        assert (busy && !request_ready && data_write && data_word==dcache_word_index_t'(word_index) &&
+                data_value==core_data_t'(32'h12000000+word_index) && data_strobe=='1 &&
+                data_set==request.set_index && data_way==request.replacement_way_index)
+          else $fatal(1, "victim restore data or ownership mismatch");
+        assert (metadata_write == (word_index==DCACHE_WORDS_PER_LINE-1) &&
+                response_valid == (word_index==DCACHE_WORDS_PER_LINE-1) && !installed)
+          else $fatal(1, "fault response exposed incomplete restoration");
+        if (metadata_write)
+          assert (metadata_present && metadata_dirty && metadata_tag==request.victim_tag && response.access_fault)
+            else $fatal(1, "restored victim metadata was not preserved");
+        @(negedge clk);
+      end
     end
     if (stall_response) begin
       held = response;

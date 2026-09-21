@@ -1,0 +1,26 @@
+{
+  "data_max": {
+    "endpoint": "data_axi4_manager_o_52_",
+    "slack_ns": -0.017,
+    "fmax_mhz": 594.281
+  },
+  "gating_max": {
+    "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+    "slack_ns": 0.05,
+    "fmax_mhz": null
+  },
+  "data_min": {
+    "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+    "slack_ns": 0.06,
+    "fmax_mhz": null
+  },
+  "gating_min": {
+    "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN_CLKGATE_X1_E:E",
+    "slack_ns": 0.096,
+    "fmax_mhz": null
+  }
+}
+Traceback (most recent call last):
+  File "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/retime.py", line 42, in <module>
+    assert all(group['slack_ns'] >= 0 for group in timing.values()), 'Timing does not close'
+AssertionError: Timing does not close

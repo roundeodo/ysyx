@@ -242,7 +242,8 @@ package riscv32_pkg;
     REDIRECT_MRET              = 3'd3,
     REDIRECT_MEMORY_REPLAY     = 3'd4,
     REDIRECT_DEBUG             = 3'd5,
-    REDIRECT_FENCE_I           = 3'd6
+    REDIRECT_FENCE_I           = 3'd6,
+    REDIRECT_NONBRANCH         = 3'd7
   } redirect_reason_e;
 
   typedef enum logic [1:0] {

@@ -45,6 +45,7 @@
 - [完整目录整理验证](verification/RV32_FULL_DIRECTORY_REVIEW_2026-09-19.md)：全部 67 个文件的检查范围、补充修改与回归。
 - [整理后的面积、时序与性能复测](verification/RV32_READABILITY_PPA_2026-09-19.md)：同条件比较、综合编译修复和 microbench test 结果。
 - [逻辑与可读性复查及优化取舍（2026-09-21）](verification/RV32_LOGIC_STYLE_AUDIT_2026-09-21.md)：剩余等待、代码冗余、触发频率与处理优先级。
+- [FENCE.I 与写回错误修复（2026-09-21）](verification/RV32_CACHE_RECOVERY_2026-09-21.md)：预测恢复、维护失败停机、脏行恢复及定向测试/PPA。
 - [源码整理与缓存交接实测（2026-09-21）](verification/RV32_REFINEMENT_2026-09-21.md)：候选实现、同条件测量与设备延迟模型限制。
 - [前次后端与系统整理](verification/RV32_READABILITY_2026-09-16.md)：模块提取与代码重排的原始记录。
 

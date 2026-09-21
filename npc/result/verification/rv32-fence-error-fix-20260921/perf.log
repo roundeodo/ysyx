@@ -1,0 +1,129 @@
+Artifacts: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/test-600
+Building RV32 simulator and uninstrumented MicroBench...
+Starting test; CPU=600 MHz, device=100 MHz.
+NPC: No MROM image supplied
+NPC: loaded 23768 bytes into flash
+======= Running MicroBench [input *test*] =======
+[qsort] Quick sort: * Passed.
+[queen] Queen placement: * Passed.
+[bf] Brainf**k interpreter: * Passed.
+[fib] Fibonacci number: * Passed.
+[sieve] Eratosthenes sieve: * Passed.
+[15pz] A* 15-puzzle search: * Passed.
+[dinic] Dinic's maxflow algorithm: * Passed.
+[lzip] Lzip compression: * Passed.
+[ssort] Suffix sort: * Passed.
+[md5] MD5 digest: * Passed.
+==================================================
+MicroBench PASS
+Scored time: 2.586 ms
+Total  time: 5.909 ms
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0xa0003b10
+NPC performance statistics:
+ retired instructions = 808750
+ CPU cycle            = 3983274
+ IPC                  = 0.203036
+NPC architectural audit = c7c330dc2fcce777
+CACHE_WAIT I-cache: completions=27256 next_waiting_same_set=22703 next_waiting_other_set=4553
+CACHE_WAIT D-cache: completions=12188 next_waiting_same_set=4763 next_waiting_other_set=272
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 3983262
+decoded instructions               : 872255
+retired instructions               : 808750
+IPC                                : 0.203037
+
+instruction class        count       ratio       average execution cycles
+integer                  495830    56.845%         1.766
+branch/jump              245427    28.137%         1.149
+load/store               130994    15.018%         5.900
+  load                    71565     8.205%
+  store                   59429     6.813%
+CSR                            0     0.000%         0.000
+system                         4     0.000%         1.500
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 948935 / 948935 / 872255
+IFU average response latency           : 3.626 cycles
+IFU AR backpressure cycles             : 2948607 (74.025%)
+IFU response-wait cycles               : 3441241 (86.393%)
+IFU downstream-backpressure cycles     : 1301329 (32.670%)
+IFU discarded wrong-path responses     : 67176
+
+LSU requests / completions             : 124976 / 124976
+LSU load operation average latency     : 7.045 cycles (61980 operations)
+LSU store operation average latency    : 8.171 cycles (43906 operations)
+LSU AXI read average latency           : 26.858 cycles (31911 transactions)
+LSU AXI write-response average latency : 16.996 cycles (30734 transactions)
+EXU / LSU completions                  : 683775 / 124976
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 872255 (21.898%)
+  control recovery stalls             : 777677 (19.524%)
+  LSU structural stalls               : 1270643 (31.900%)
+  unresolved RAW stalls               : 30512 (0.766%)
+  serializing stalls                  : 3 (0.000%)
+  frontend supply stalls              : 946918 (23.772%)
+    request backpressure              : 928119 (23.300%)
+    I-cache miss service              : 0 (0.000%)
+    lookup response in flight         : 18798 (0.472%)
+    request launch or delivery gap    : 1 (0.000%)
+  other empty issue slots             : 85254 (2.140%)
+recovery redirects / taken fetch predictions / EX corrections: 52742 / 164916 / 52740
+actual EX corrections by branch / JAL / JALR          : 36620 / 8282 / 7838
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 188816 / 120949 (64.057% taken)
+  backward / taken                  : 93171 / 72359 (77.663% taken)
+  forward / taken                   : 95645 / 48590 (50.802% taken)
+direct / indirect jumps             : 35379 / 15211
+always-not-taken prediction errors  : 171539 (71.652% of control flow)
+BTFNT+JAL prediction errors          : 84613 (35.343% of control flow)
+16-entry BHT+JAL errors              : 49229 (conditional 34018 + JALR 15211)
+64-entry BHT+JAL errors              : 47846 (conditional 32635 + JALR 15211)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 641923.000
+I-cache critical miss excess cycles   : 1298057.000
+oracle 1-cycle data memory / speedup   : 3341339.000 / 1.192x
+ideal single-issue pipeline cycles     : 2748730.000 / 1.449x
+ideal pipeline + oracle data memory    : 2106807.000 / 1.891x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 948935 / 921678 / 27257
+I-cache hit rate                            : 97.128%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 48.623 cycles
+average miss penalty                        : 47.623 cycles
+I-cache AMAT                                : 2.368 cycles
+average complete refill latency             : 63.462 cycles
+lookup request waiting cycles               : 2948607
+successful line installs / refill finishes  : 27256 / 27256
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 79008 / 66820 / 12188
+D-cache hit rate                           : 84.574%
+load lookups / hits / misses               : 43654 / 38566 / 5088
+store lookups / hits / misses              : 35354 / 28254 / 7100
+average hit response latency               : 1.000 cycles
+average miss response latency              : 104.364 cycles
+  clean-victim miss latency                : 72.787 cycles (4092)
+  dirty-victim miss latency                : 120.324 cycles (8096)
+average miss penalty                       : 103.364 cycles
+D-cache AMAT                               : 16.945 cycles
+dirty victim misses                        : 8096 (66.426% of misses)
+refill requests / words / completions      : 12188 / 48752 / 12188
+line installs / writeback requests/responses: 12188 / 8110 / 8110
+lookup request waiting cycles              : 5035
+store-hit same-cycle next lookups          : 5480
+==========================================================
+Verifying observer off with the same simulator and image...
+
+PASS: test native Total time = 0.005909 s; same-window IPC = 0.215580622
+      native Scored time = 0.002586 s; same-window IPC = 0.277248666
+Report: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/test-600/report.json

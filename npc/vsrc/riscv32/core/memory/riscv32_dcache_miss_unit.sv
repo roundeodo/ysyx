@@ -56,7 +56,7 @@ module riscv32_dcache_miss_unit
     input  logic                refill_resp_valid_i,
     output logic                refill_resp_ready_o,
 
-    // 行数据独立于请求 payload，保持到 writeback response 握手。
+    // 行数据独立于请求 payload；错误恢复完成前也必须保持。
     output dcache_line_data_t      writeback_line_data_o,
     output dcache_writeback_req_t  writeback_req_o,
     output logic                   writeback_req_valid_o,
@@ -73,6 +73,7 @@ module riscv32_dcache_miss_unit
     MISS_WAIT_WRITEBACK_RESPONSE,
     MISS_SEND_REFILL,
     MISS_RECEIVE_REFILL,
+    MISS_RESTORE_VICTIM,
     MISS_RETURN_RESPONSE
   } miss_state_e;
 
@@ -146,6 +147,9 @@ module riscv32_dcache_miss_unit
       refill_resp_i.word_index == miss_context_q.word_index) ?
       refill_word_after_store_merge : requested_word_data_q;
 
+  logic restore_victim_required;
+  assign restore_victim_required = miss_context_q.victim_present && miss_context_q.victim_dirty &&
+      transaction_fault_after_bus_handshakes;
   assign transaction_present_o = state_q != MISS_IDLE;
 
   // 第一段：外部握手与阵列副作用。元数据只有在完整写回/refill成功后才提交。
@@ -232,6 +236,21 @@ module riscv32_dcache_miss_unit
         end
       end
 
+      MISS_RESTORE_VICTIM: begin
+        // R/B 已排空；复用 victim 缓冲逐字恢复，最后一字才恢复元数据并报告当前访问失败。
+        data_write_valid_o            = 1'b1;
+        data_write_word_index_o       = victim_word_index_q;
+        data_write_word_data_o        =
+            victim_line_data_q[int'(victim_word_index_q)*CORE_DATA_WIDTH+:CORE_DATA_WIDTH];
+        metadata_write_valid_o        = victim_last_word;
+        metadata_write_line_present_o = 1'b1;
+        metadata_write_line_dirty_o   = 1'b1;
+        miss_resp_o.read_data          = requested_word_data_q;
+        miss_resp_o.access_fault       = 1'b1;
+        miss_resp_o.transaction_id     = miss_context_q.memory_req.transaction_id;
+        miss_resp_valid_o              = victim_last_word;
+      end
+
       MISS_RETURN_RESPONSE: begin
         miss_resp_o.read_data      = requested_word_data_q;
         miss_resp_o.access_fault   = transaction_access_fault_q;
@@ -258,7 +277,7 @@ module riscv32_dcache_miss_unit
       miss_resp_o.read_data         = completed_word_data;
       miss_resp_o.transaction_id    = miss_context_q.memory_req.transaction_id;
       miss_resp_o.access_fault      = transaction_fault_after_bus_handshakes;
-      miss_resp_valid_o             = 1'b1;
+      miss_resp_valid_o             = !restore_victim_required;
       metadata_write_valid_o        = !transaction_fault_after_bus_handshakes;
       metadata_write_tag_o          = miss_context_q.requested_tag;
       metadata_write_line_present_o = 1'b1;
@@ -365,6 +384,13 @@ module riscv32_dcache_miss_unit
         end
       end
 
+      MISS_RESTORE_VICTIM: begin
+        if (victim_last_word)
+          state_d = miss_resp_ready_i ? MISS_IDLE : MISS_RETURN_RESPONSE;
+        else
+          victim_word_index_d = victim_word_index_q + dcache_word_index_t'(1);
+      end
+
       MISS_RETURN_RESPONSE: begin
         if (miss_resp_valid_o && miss_resp_ready_i)
           state_d = MISS_IDLE;
@@ -372,6 +398,11 @@ module riscv32_dcache_miss_unit
 
       default: state_d = MISS_IDLE;
     endcase
+
+    if (memory_completion_event && restore_victim_required) begin
+      victim_word_index_d = '0;
+      state_d            = MISS_RESTORE_VICTIM;
+    end
 
     if (writeback_req_handshake) begin
       writeback_response_pending_d = 1'b1;
@@ -414,6 +445,12 @@ module riscv32_dcache_miss_unit
   end
 
 `ifndef SYNTHESIS
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (state_q == MISS_RESTORE_VICTIM) |->
+      (!writeback_response_pending_q && !miss_req_ready_o && !clean_req_ready_o &&
+       !refill_req_valid_o && !writeback_req_valid_o && !line_install_event_o))
+  else $error("Victim recovery released ownership or issued another transaction");
+
   assert property (@(posedge clk_i) disable iff (!rst_ni) !(miss_req_valid_i && clean_req_valid_i))
   else
     $error("D-cache miss and clean requests were presented together");

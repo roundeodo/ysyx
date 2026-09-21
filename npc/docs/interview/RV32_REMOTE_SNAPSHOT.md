@@ -57,6 +57,15 @@ MicroBench **test** 的 Total 定时器时间为 0.005908 s，同窗口 IPC 为 
 本轮未重跑 train。取舍、验证范围及访存延迟模型限制见
 [优化记录](../verification/RV32_REFINEMENT_2026-09-21.md)。
 
+## 2026-09-21 异常恢复修复
+
+修复 FENCE.I 维护期间的旧预测残留，并在普通执行与 LSU 分流前统一纠正非分支 taken 预测。
+clean 写回错误进入只能复位退出的硬件停止状态；普通脏替换失败先恢复旧行，再报告当前访存异常。
+新增 RV32 定向测试 169/169、精确异常 40/40、DiffTest 35/35 通过。
+面积 69,469.358 μm²；600 MHz 未通过时序，580 MHz 的 setup/hold 与门控检查通过。
+580 MHz 下 MicroBench **test** Total 原生时间 0.005987 s，IPC 0.220133883；train 未重跑。
+具体策略、限制与证据见[修复记录](../verification/RV32_CACHE_RECOVERY_2026-09-21.md)。
+
 ## 历史版本已验证的性能
 
 RV32 baseline，CPU 820 MHz，设备 100 MHz，MicroBench train 十项 PASS、GOOD TRAP：
@@ -73,7 +82,7 @@ RV32 baseline，CPU 820 MHz，设备 100 MHz，MicroBench train 十项 PASS、GO
 复测使用源码构建，生成新的结果目录：
 
 ```sh
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 600
+python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 580
 ```
 
 远程保存 RTL、脚本、测试、文档、依赖补丁和精选测量证据；宿主仿真器、编译缓存及

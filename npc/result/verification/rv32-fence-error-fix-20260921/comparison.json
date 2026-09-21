@@ -1,0 +1,129 @@
+{
+  "baseline_commit": "7dfa2d6",
+  "same_clock_mhz": 600,
+  "baseline": {
+    "total": {
+      "cycles": 3544972,
+      "retired_instructions": 764331,
+      "ipc": 0.21560988351953134,
+      "timer_ticks": 5908,
+      "timer_seconds": 0.005908,
+      "cycle_seconds": 0.005908286666666667,
+      "interrupts": 0
+    },
+    "scored": {
+      "cycles": 1552076,
+      "retired_instructions": 430311,
+      "ipc": 0.277248665658125,
+      "timer_ticks": 2586,
+      "timer_seconds": 0.002586,
+      "cycle_seconds": 0.002586793333333333,
+      "interrupts": 0
+    }
+  },
+  "fixed": {
+    "total": {
+      "cycles": 3545481,
+      "retired_instructions": 764337,
+      "ipc": 0.21558062220612662,
+      "timer_ticks": 5909,
+      "timer_seconds": 0.005909,
+      "cycle_seconds": 0.005909135,
+      "interrupts": 0
+    },
+    "scored": {
+      "cycles": 1552076,
+      "retired_instructions": 430311,
+      "ipc": 0.277248665658125,
+      "timer_ticks": 2586,
+      "timer_seconds": 0.002586,
+      "cycle_seconds": 0.002586793333333333,
+      "interrupts": 0
+    }
+  },
+  "same_binary": true,
+  "same_elf": true,
+  "same_tools": true,
+  "other_input_changes": [],
+  "area_before_um2": 69575.758,
+  "area_after_um2": 69469.358,
+  "area_change_percent": -0.15292682833581983,
+  "total_cycles_change_percent": 0.014358364466637852,
+  "timing": {
+    "600": {
+      "groups": {
+        "data_max": {
+          "endpoint": "data_axi4_manager_o_52_",
+          "slack_ns": -0.017,
+          "fmax_mhz": 594.281
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.05,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN_CLKGATE_X1_E:E",
+          "slack_ns": 0.096,
+          "fmax_mhz": null
+        }
+      },
+      "violated_path_count": 2
+    },
+    "590": {
+      "groups": {
+        "data_max": {
+          "endpoint": "data_axi4_manager_o_90_",
+          "slack_ns": -0.0,
+          "fmax_mhz": 590.316
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.072,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN_CLKGATE_X1_E:E",
+          "slack_ns": 0.096,
+          "fmax_mhz": null
+        }
+      },
+      "violated_path_count": 2
+    },
+    "580": {
+      "groups": {
+        "data_max": {
+          "endpoint": "data_axi4_manager_o_90_",
+          "slack_ns": 0.018,
+          "fmax_mhz": 586.271
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.096,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN_CLKGATE_X1_E:E",
+          "slack_ns": 0.096,
+          "fmax_mhz": null
+        }
+      },
+      "violated_path_count": 0
+    }
+  }
+}

@@ -1,0 +1,5 @@
+FENCE commit cycle=72
+QUERY A cycle=73 maintenance=1 invalidate=0
+[975] %Error: riscv32_core.sv:808: Assertion failed in fence_probe_tb.dut.a_dcache_clean_fault_is_reported: D-cache writeback failed during fence.i maintenance
+%Error: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:808: Verilog $stop
+Aborting...

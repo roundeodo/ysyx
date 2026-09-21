@@ -1,0 +1,1024 @@
+{
+  "build": [
+    "verilator",
+    "--binary",
+    "--timing",
+    "--assert",
+    "-Wno-fatal",
+    "-j",
+    "2",
+    "+define+YSYX_RV64_SEQUENTIAL",
+    "+define+YSYX_ICACHE_CAPACITY_BYTES=64",
+    "+define+YSYX_ICACHE_WAY_COUNT=2",
+    "+define+YSYX_ICACHE_LINE_BYTES=16",
+    "+define+YSYX_DCACHE_ENABLE=1",
+    "+define+YSYX_DCACHE_CAPACITY_BYTES=1024",
+    "+define+YSYX_DCACHE_WAY_COUNT=2",
+    "+define+YSYX_DCACHE_LINE_BYTES=32",
+    "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+    "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+    "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+    "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+    "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+    "--top-module",
+    "riscv32_dcache_recovery_tb",
+    "--Mdir",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_dcache_recovery_tb.sv"
+  ],
+  "sources": {
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv": "3d7cb4b6cc0bfb6e686127f8f3bd09f04cae71ace680238ca2f2a458c0f382fc",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv": "f46a5df7b824ae068d178fc0faa073cb1f5477b0d8627884b64d55ebdefc12f3",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_dcache_recovery_tb.sv": "383125f75e379bb4762d56c7fca146fb751a570da047f1282b65f91b6aca65b0"
+  },
+  "cases": [
+    {
+      "name": "b0-bd0-rd0-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd0-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd0-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd0-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd0-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd0-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd0-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd0-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd25-rd0-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd25-rd0-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd25-rd0-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd25-rd0-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd25-rd0-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd25-rd0-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd25-rd0-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd25-rd0-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd25-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd25-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd25-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd25-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd25-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd25-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd25-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b0-bd0-rd25-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd0-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd0-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd0-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd0-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd0-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd0-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd0-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd0-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd25-rd0-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd25-rd0-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd25-rd0-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd25-rd0-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd25-rd0-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd25-rd0-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd25-rd0-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd25-rd0-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd25-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd25-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd25-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd25-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd25-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd25-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd25-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b2-bd0-rd25-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd0-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd0-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd0-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd0-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd0-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd0-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd0-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd0-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd25-rd0-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd25-rd0-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd25-rd0-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd25-rd0-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd25-rd0-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd25-rd0-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd25-rd0-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd25-rd0-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=25",
+        "+r_delay=0",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd25-p0-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd25-p0-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd25-p0-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd25-p0-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=0",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd25-p1-s0-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd25-p1-s0-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=0",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd25-p1-s1-stall0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=0"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "b3-bd0-rd25-p1-s1-stall4",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+b_delay=0",
+        "+r_delay=25",
+        "+partial=1",
+        "+store=1",
+        "+response_stall=4"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "refill-error-b0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=0",
+        "+r_error=1",
+        "+b_delay=25",
+        "+response_stall=4",
+        "+store=1"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "refill-error-b2",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=2",
+        "+r_error=1",
+        "+b_delay=25",
+        "+response_stall=4",
+        "+store=1"
+      ],
+      "status": "passed"
+    },
+    {
+      "name": "refill-error-b3",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64/cache/obj/Vriscv32_dcache_recovery_tb",
+        "+fault=3",
+        "+r_error=1",
+        "+b_delay=25",
+        "+response_stall=4",
+        "+store=1"
+      ],
+      "status": "passed"
+    }
+  ]
+}

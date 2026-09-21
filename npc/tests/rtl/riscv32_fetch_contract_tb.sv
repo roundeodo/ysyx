@@ -18,6 +18,7 @@ module riscv32_fetch_contract_tb;
   int cycle=0, requests=0, deliveries=0, previous_cycle=-1;
 
   riscv32_ifu #(.PC_START(BASE)) ifu (
+      .prediction_enable_i(1'b1),
       .clk_i(clk), .rst_ni(ifu_reset_n), .redirect_req_i('0), .redirect_req_valid_i(1'b0),
       .next_pc_predictor_lookup_request_pc_o(query_pc),
       .next_pc_predictor_lookup_request_epoch_o(query_epoch),

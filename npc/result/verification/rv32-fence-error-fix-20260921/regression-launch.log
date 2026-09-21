@@ -1,0 +1,5 @@
+safety 0
+lint 0
+difftest 0
+rv64 0
+single-word 2

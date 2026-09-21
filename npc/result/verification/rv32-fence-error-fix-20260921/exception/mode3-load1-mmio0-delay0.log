@@ -1,0 +1,8 @@
+TRACE cycle=24 EX_EXCEPTION pc=80000018 serializing=1 ready=1 branch_redirect=0 issue_allowed=0 young_pc=8000001c young_valid=0 LSU_accept=0
+TRACE cycle=25 WB_TRAP pc=80000018 cause=11 redirect=1 LSU_state=0 memory_valid=0
+RESULT mode=3 load=1 mmio=0 delay=0 traps=1 accepted_young=0 writes=0 reads=0 retired_stores=0 retired_loads=0 overlap=0 sentinel=12345678
+PASS precise exception mode=3 load=1 mmio=0 delay=0
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/riscv32_precise_exception_tb.sv:200: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 720ps; walltime 0.000 s; speed 2.508 us/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 6 MB

@@ -1,0 +1,14 @@
+FENCE commit cycle=73
+QUERY A cycle=74 maintenance=1 invalidate=0
+B cycle=94 addr=80000080 resp=0
+INVALIDATE cycle=103 done=1
+FETCH A cycle=106 instr=0040006f predicted_taken=1 target=80000100
+COMMIT cycle=109 pc=80000080 next=80000084 trap=0
+COMMIT cycle=120 pc=80000084 next=80000180 trap=0
+SITE_SUCCESSOR actual=80000084 expected=80000084
+B cycle=138 addr=10002004 resp=0
+COMMIT cycle=139 pc=80000180 next=80000184 trap=0
+COMMIT cycle=140 pc=80000184 next=80000188 trap=1
+[1445] %Fatal: fence_probe_tb.sv:78: Assertion failed in fence_probe_tb: unexpected trap
+%Error: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-audit-20260921/fence_probe_tb.sv:78: Verilog $stop
+Aborting...

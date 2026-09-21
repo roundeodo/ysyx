@@ -1,0 +1,791 @@
+Generate the report at 2026-09-21T12:37:52, GitVersion: aa25008b3778a76ae1975c839d4cc459f7f7b3b7.
++--------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| Endpoint                                                                                               | Clock Group              | Delay Type | Path Delay | Path Required | CPPR  | Slack  | Freq(MHz) |
++--------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| u_core.u_icache.local_lookup_resp_39__reg_p:D                                                          | core_clock               | max        | 3.043r     | 1.187         | 0.000 | -1.857 | 325.142   |
+| u_core.u_icache.local_lookup_resp_39__reg_p:D                                                          | core_clock               | max        | 3.043r     | 1.187         | 0.000 | -1.857 | 325.142   |
+| u_core.u_icache.local_lookup_resp_40__reg_p:D                                                          | core_clock               | max        | 3.043r     | 1.187         | 0.000 | -1.857 | 325.142   |
+| u_core.u_icache.local_lookup_resp_40__reg_p:D                                                          | core_clock               | max        | 3.043r     | 1.187         | 0.000 | -1.857 | 325.142   |
+| u_core.u_icache.local_lookup_resp_43__reg_p:D                                                          | core_clock               | max        | 3.042r     | 1.187         | 0.000 | -1.855 | 325.320   |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK:E   | **clock_gating_default** | max        | 2.735f     | 1.164         | 0.000 | -1.571 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK:E   | **clock_gating_default** | max        | 2.735f     | 1.164         | 0.000 | -1.571 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E   | **clock_gating_default** | max        | 2.735f     | 1.164         | 0.000 | -1.571 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:E   | **clock_gating_default** | max        | 2.735f     | 1.164         | 0.000 | -1.571 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_5__reg_p_CK_CLKGATE_X1_GCK:E   | **clock_gating_default** | max        | 2.735f     | 1.164         | 0.000 | -1.571 | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                               | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D                                                         | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D                                                         | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                               | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D                                                         | core_clock               | min        | 0.065f     | 0.003         | 0.000 | 0.062  | NA        |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN_CLKGATE_X1_E:E                          | **clock_gating_default** | min        | 0.095r     | -0.002        | 0.000 | 0.096  | NA        |
+| u_core.completion_result_valid_CLKGATE_X1_E:E                                                          | **clock_gating_default** | min        | 0.097r     | -0.000        | 0.000 | 0.098  | NA        |
+| u_core.decoded_execute_packet_ready_CLKGATE_X1_E:E                                                     | **clock_gating_default** | min        | 0.105r     | -0.002        | 0.000 | 0.107  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E    | **clock_gating_default** | min        | 0.092f     | -0.015        | 0.000 | 0.107  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | min        | 0.107r     | -0.001        | 0.000 | 0.108  | NA        |
++--------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
++------------+------------+-----------+
+| Clock      | Delay Type | TNS       |
++------------+------------+-----------+
+| core_clock | max        | -2390.439 |
+| core_clock | min        | 0.000     |
++------------+------------+-----------+
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                           | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                    |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                       |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                 | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                    |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                    |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:A (CLKBUF_X1)           |        | 0.001       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:Z (CLKBUF_X1)           |        | 0.023       | 0.000      | 0.076      |             | 0.338  | 2.996r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2 (net)                               | 24     |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_39__reg_p_D_AND2_X1_ZN:A1 (AND2_X1)                           |        | 0.001       | 0.000      | 0.076      |             | 0.000  | 2.996r         |
+| u_core.u_icache.local_lookup_resp_39__reg_p_D_AND2_X1_ZN:ZN (AND2_X1)                           |        | 0.001       | 0.000      | 0.011      |             | 0.047  | 3.043r         |
+| u_core.u_icache.local_lookup_resp_39__reg_p_D (net)                                             | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_39__reg_p:D (DFF_X1)                                          |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 3.043r         |
+|                                                                                                 |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:GCK (CLKGATE_X1) |        | 0.034       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.local_lookup_resp_1__reg_p_CK (clock net)                                       | 36     |             |            |            | NA          |        |                |
+| u_core.u_icache.local_lookup_resp_39__reg_p:CK (DFF_X1)                                         |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                    |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_icache.local_lookup_resp_39__reg_p:CK (DFF_X1)                                         |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                              |        |             |            |            |             | -0.032 | 1.187          |
+| clock reconvergence pessimism                                                                   |        |             |            |            |             | 0.000  | 1.187          |
+|                                                                                                 |        |             |            |            |             |        |                |
+| path cell delay                                                                                 |        |             |            |            |             |        | 2.434(79.990%) |
+| path net delay                                                                                  |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                 |        |             |            |            |             |        |                |
+| data require time                                                                               |        |             |            |            |             |        | 1.187          |
+| data arrival time                                                                               |        |             |            |            |             |        | 3.043          |
+| slack (VIOLATED)                                                                                |        |             |            |            |             |        | -1.857         |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                           | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                    |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                       |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                 | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                    |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                    |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:A (CLKBUF_X1)           |        | 0.001       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:Z (CLKBUF_X1)           |        | 0.023       | 0.000      | 0.076      |             | 0.338  | 2.996r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2 (net)                               | 24     |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_39__reg_p_D_AND2_X1_ZN:A1 (AND2_X1)                           |        | 0.001       | 0.000      | 0.076      |             | 0.000  | 2.996r         |
+| u_core.u_icache.local_lookup_resp_39__reg_p_D_AND2_X1_ZN:ZN (AND2_X1)                           |        | 0.001       | 0.000      | 0.011      |             | 0.047  | 3.043r         |
+| u_core.u_icache.local_lookup_resp_39__reg_p_D (net)                                             | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_39__reg_p:D (DFF_X1)                                          |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 3.043r         |
+|                                                                                                 |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:GCK (CLKGATE_X1) |        | 0.034       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.local_lookup_resp_1__reg_p_CK (clock net)                                       | 36     |             |            |            | NA          |        |                |
+| u_core.u_icache.local_lookup_resp_39__reg_p:CK (DFF_X1)                                         |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                    |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_icache.local_lookup_resp_39__reg_p:CK (DFF_X1)                                         |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                              |        |             |            |            |             | -0.032 | 1.187          |
+| clock reconvergence pessimism                                                                   |        |             |            |            |             | 0.000  | 1.187          |
+|                                                                                                 |        |             |            |            |             |        |                |
+| path cell delay                                                                                 |        |             |            |            |             |        | 2.434(79.990%) |
+| path net delay                                                                                  |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                 |        |             |            |            |             |        |                |
+| data require time                                                                               |        |             |            |            |             |        | 1.187          |
+| data arrival time                                                                               |        |             |            |            |             |        | 3.043          |
+| slack (VIOLATED)                                                                                |        |             |            |            |             |        | -1.857         |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                           | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                    |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                       |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                 | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                    |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                    |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:A (CLKBUF_X1)           |        | 0.001       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:Z (CLKBUF_X1)           |        | 0.023       | 0.000      | 0.076      |             | 0.338  | 2.996r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2 (net)                               | 24     |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_40__reg_p_D_AND2_X1_ZN:A1 (AND2_X1)                           |        | 0.001       | 0.000      | 0.076      |             | 0.000  | 2.996r         |
+| u_core.u_icache.local_lookup_resp_40__reg_p_D_AND2_X1_ZN:ZN (AND2_X1)                           |        | 0.001       | 0.000      | 0.011      |             | 0.047  | 3.043r         |
+| u_core.u_icache.local_lookup_resp_40__reg_p_D (net)                                             | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_40__reg_p:D (DFF_X1)                                          |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 3.043r         |
+|                                                                                                 |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:GCK (CLKGATE_X1) |        | 0.034       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.local_lookup_resp_1__reg_p_CK (clock net)                                       | 36     |             |            |            | NA          |        |                |
+| u_core.u_icache.local_lookup_resp_40__reg_p:CK (DFF_X1)                                         |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                    |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_icache.local_lookup_resp_40__reg_p:CK (DFF_X1)                                         |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                              |        |             |            |            |             | -0.032 | 1.187          |
+| clock reconvergence pessimism                                                                   |        |             |            |            |             | 0.000  | 1.187          |
+|                                                                                                 |        |             |            |            |             |        |                |
+| path cell delay                                                                                 |        |             |            |            |             |        | 2.434(79.990%) |
+| path net delay                                                                                  |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                 |        |             |            |            |             |        |                |
+| data require time                                                                               |        |             |            |            |             |        | 1.187          |
+| data arrival time                                                                               |        |             |            |            |             |        | 3.043          |
+| slack (VIOLATED)                                                                                |        |             |            |            |             |        | -1.857         |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                           | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                    |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                       |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                 | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                    |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                    |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:A (CLKBUF_X1)           |        | 0.001       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:Z (CLKBUF_X1)           |        | 0.023       | 0.000      | 0.076      |             | 0.338  | 2.996r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2 (net)                               | 24     |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_40__reg_p_D_AND2_X1_ZN:A1 (AND2_X1)                           |        | 0.001       | 0.000      | 0.076      |             | 0.000  | 2.996r         |
+| u_core.u_icache.local_lookup_resp_40__reg_p_D_AND2_X1_ZN:ZN (AND2_X1)                           |        | 0.001       | 0.000      | 0.011      |             | 0.047  | 3.043r         |
+| u_core.u_icache.local_lookup_resp_40__reg_p_D (net)                                             | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_40__reg_p:D (DFF_X1)                                          |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 3.043r         |
+|                                                                                                 |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:GCK (CLKGATE_X1) |        | 0.034       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.local_lookup_resp_1__reg_p_CK (clock net)                                       | 36     |             |            |            | NA          |        |                |
+| u_core.u_icache.local_lookup_resp_40__reg_p:CK (DFF_X1)                                         |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                    |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_icache.local_lookup_resp_40__reg_p:CK (DFF_X1)                                         |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                              |        |             |            |            |             | -0.032 | 1.187          |
+| clock reconvergence pessimism                                                                   |        |             |            |            |             | 0.000  | 1.187          |
+|                                                                                                 |        |             |            |            |             |        |                |
+| path cell delay                                                                                 |        |             |            |            |             |        | 2.434(79.990%) |
+| path net delay                                                                                  |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                 |        |             |            |            |             |        |                |
+| data require time                                                                               |        |             |            |            |             |        | 1.187          |
+| data arrival time                                                                               |        |             |            |            |             |        | 3.043          |
+| slack (VIOLATED)                                                                                |        |             |            |            |             |        | -1.857         |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                           | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                    |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                       |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                 | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                    |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                    |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:A (CLKBUF_X1)           |        | 0.001       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2_CLKBUF_X1_Z:Z (CLKBUF_X1)           |        | 0.023       | 0.000      | 0.076      |             | 0.338  | 2.996r         |
+| u_core.u_icache.lookup_cacheable_s1_q_reg_p_D_AND2_X1_ZN_A2 (net)                               | 24     |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_43__reg_p_D_AND2_X1_ZN:A2 (AND2_X1)                           |        | 0.001       | 0.000      | 0.076      |             | 0.000  | 2.996r         |
+| u_core.u_icache.local_lookup_resp_43__reg_p_D_AND2_X1_ZN:ZN (AND2_X1)                           |        | 0.001       | 0.000      | 0.012      |             | 0.045  | 3.042r         |
+| u_core.u_icache.local_lookup_resp_43__reg_p_D (net)                                             | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_43__reg_p:D (DFF_X1)                                          |        | 0.001       | 0.000      | 0.012      |             | 0.000  | 3.042r         |
+|                                                                                                 |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                               | 552    |             |            |            | NA          |        |                |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.array_read_enable_AOI211_X1_ZN_C1_AOI211_X1_C1_ZN_CLKGATE_X1_E:GCK (CLKGATE_X1) |        | 0.034       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| u_core.u_icache.local_lookup_resp_1__reg_p_CK (clock net)                                       | 36     |             |            |            | NA          |        |                |
+| u_core.u_icache.local_lookup_resp_43__reg_p:CK (DFF_X1)                                         |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                    |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                     |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_icache.local_lookup_resp_43__reg_p:CK (DFF_X1)                                         |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                              |        |             |            |            |             | -0.032 | 1.187          |
+| clock reconvergence pessimism                                                                   |        |             |            |            |             | 0.000  | 1.187          |
+|                                                                                                 |        |             |            |            |             |        |                |
+| path cell delay                                                                                 |        |             |            |            |             |        | 2.433(79.977%) |
+| path net delay                                                                                  |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                 |        |             |            |            |             |        |                |
+| data require time                                                                               |        |             |            |            |             |        | 1.187          |
+| data arrival time                                                                               |        |             |            |            |             |        | 3.042          |
+| slack (VIOLATED)                                                                                |        |             |            |            |             |        | -1.855         |
++-------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                                                            | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                                                     |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                                                         |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                                                  | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                                                     |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                                                     |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                                                 | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:A (INV_X1)                                                 |        | 0.002       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:ZN (INV_X1)                                                |        | 0.003       | 0.000      | 0.269      |             | -0.115 | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1 (net)                                                                | 2      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:A2 (NOR2_X1)                                              |        | 0.002       | 0.000      | 0.269      |             | 0.000  | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:ZN (NOR2_X1)                                              |        | 0.012       | 0.000      | 0.089      |             | 0.173  | 2.716r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2_ZN (net)                                                  | 7      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:B (AOI211_X1)  |        | 0.002       | 0.000      | 0.089      |             | 0.000  | 2.716r         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:ZN (AOI211_X1) |        | 0.001       | 0.000      | 0.033      |             | 0.019  | 2.735f         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK_E (net)                       | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK:E (CLKGATE_X1)                |        | 0.001       | 0.000      | 0.033      |             | 0.000  | 2.735f         |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                                                     |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                                                     |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                                                               |        |             |            |            |             | -0.055 | 1.164          |
+| clock reconvergence pessimism                                                                                                    |        |             |            |            |             | 0.000  | 1.164          |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| path cell delay                                                                                                                  |        |             |            |            |             |        | 2.126(77.734%) |
+| path net delay                                                                                                                   |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| data require time                                                                                                                |        |             |            |            |             |        | 1.164          |
+| data arrival time                                                                                                                |        |             |            |            |             |        | 2.735          |
+| slack (VIOLATED)                                                                                                                 |        |             |            |            |             |        | -1.571         |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                                                            | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                                                     |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                                                         |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                                                  | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                                                     |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                                                     |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                                                 | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:A (INV_X1)                                                 |        | 0.002       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:ZN (INV_X1)                                                |        | 0.003       | 0.000      | 0.269      |             | -0.115 | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1 (net)                                                                | 2      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:A2 (NOR2_X1)                                              |        | 0.002       | 0.000      | 0.269      |             | 0.000  | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:ZN (NOR2_X1)                                              |        | 0.012       | 0.000      | 0.089      |             | 0.173  | 2.716r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2_ZN (net)                                                  | 7      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:B (AOI211_X1)  |        | 0.002       | 0.000      | 0.089      |             | 0.000  | 2.716r         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:ZN (AOI211_X1) |        | 0.001       | 0.000      | 0.033      |             | 0.019  | 2.735f         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK_E (net)                       | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK:E (CLKGATE_X1)                |        | 0.001       | 0.000      | 0.033      |             | 0.000  | 2.735f         |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                                                     |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                                                     |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                                                               |        |             |            |            |             | -0.055 | 1.164          |
+| clock reconvergence pessimism                                                                                                    |        |             |            |            |             | 0.000  | 1.164          |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| path cell delay                                                                                                                  |        |             |            |            |             |        | 2.126(77.734%) |
+| path net delay                                                                                                                   |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| data require time                                                                                                                |        |             |            |            |             |        | 1.164          |
+| data arrival time                                                                                                                |        |             |            |            |             |        | 2.735          |
+| slack (VIOLATED)                                                                                                                 |        |             |            |            |             |        | -1.571         |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                                                            | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                                                     |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                                                         |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                                                  | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                                                     |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                                                     |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                                                 | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:A (INV_X1)                                                 |        | 0.002       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:ZN (INV_X1)                                                |        | 0.003       | 0.000      | 0.269      |             | -0.115 | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1 (net)                                                                | 2      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:A2 (NOR2_X1)                                              |        | 0.002       | 0.000      | 0.269      |             | 0.000  | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:ZN (NOR2_X1)                                              |        | 0.012       | 0.000      | 0.089      |             | 0.173  | 2.716r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2_ZN (net)                                                  | 7      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:B (AOI211_X1)  |        | 0.002       | 0.000      | 0.089      |             | 0.000  | 2.716r         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:ZN (AOI211_X1) |        | 0.001       | 0.000      | 0.033      |             | 0.019  | 2.735f         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK_E (net)                       | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E (CLKGATE_X1)                |        | 0.001       | 0.000      | 0.033      |             | 0.000  | 2.735f         |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                                                     |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                                                     |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                                                               |        |             |            |            |             | -0.055 | 1.164          |
+| clock reconvergence pessimism                                                                                                    |        |             |            |            |             | 0.000  | 1.164          |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| path cell delay                                                                                                                  |        |             |            |            |             |        | 2.126(77.734%) |
+| path net delay                                                                                                                   |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| data require time                                                                                                                |        |             |            |            |             |        | 1.164          |
+| data arrival time                                                                                                                |        |             |            |            |             |        | 2.735          |
+| slack (VIOLATED)                                                                                                                 |        |             |            |            |             |        | -1.571         |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                                                            | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                                                     |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                                                         |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                                                  | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                                                     |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                                                     |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                                                 | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:A (INV_X1)                                                 |        | 0.002       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:ZN (INV_X1)                                                |        | 0.003       | 0.000      | 0.269      |             | -0.115 | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1 (net)                                                                | 2      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:A2 (NOR2_X1)                                              |        | 0.002       | 0.000      | 0.269      |             | 0.000  | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:ZN (NOR2_X1)                                              |        | 0.012       | 0.000      | 0.089      |             | 0.173  | 2.716r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2_ZN (net)                                                  | 7      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:B (AOI211_X1)  |        | 0.002       | 0.000      | 0.089      |             | 0.000  | 2.716r         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:ZN (AOI211_X1) |        | 0.001       | 0.000      | 0.033      |             | 0.019  | 2.735f         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK_E (net)                       | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:E (CLKGATE_X1)                |        | 0.001       | 0.000      | 0.033      |             | 0.000  | 2.735f         |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                                                     |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                                                     |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                                                               |        |             |            |            |             | -0.055 | 1.164          |
+| clock reconvergence pessimism                                                                                                    |        |             |            |            |             | 0.000  | 1.164          |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| path cell delay                                                                                                                  |        |             |            |            |             |        | 2.126(77.734%) |
+| path net delay                                                                                                                   |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| data require time                                                                                                                |        |             |            |            |             |        | 1.164          |
+| data arrival time                                                                                                                |        |             |            |            |             |        | 2.735          |
+| slack (VIOLATED)                                                                                                                 |        |             |            |            |             |        | -1.571         |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| Point                                                                                                                            | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path           |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
+| clk_i (port)                                                                                                                     |        | 0.878       | 0.000      | 0.100      |             | 0.000  | 0.000f         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| core_rst_n_reg_n_CK_INV_X1_ZN:A (INV_X1)                                                                                         |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000f         |
+| core_rst_n_reg_n_CK_INV_X1_ZN:ZN (INV_X1)                                                                                        |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| core_rst_n_reg_n_CK (clock net)                                                                                                  | 2      |             |            |            | NA          |        |                |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (fall edge)                                                                                                     |        |             |            |            |             | 0.609  | 0.609          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 0.609          |
+| core_rst_n_reg_n:CK (DFFR_X1)                                                                                                    |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.609r         |
+| core_rst_n_reg_n:Q (DFFR_X1)                                                                                                     |        | 0.818       | 0.000      | 1.871      |             | 2.049  | 2.658r         |
+| core_rst_n (net)                                                                                                                 | 468    |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:A (INV_X1)                                                 |        | 0.002       | 0.000      | 1.871      |             | 0.000  | 2.658r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_INV_X1_ZN:ZN (INV_X1)                                                |        | 0.003       | 0.000      | 0.269      |             | -0.115 | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1 (net)                                                                | 2      |             |            |            | 0.000       |        |                |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:A2 (NOR2_X1)                                              |        | 0.002       | 0.000      | 0.269      |             | 0.000  | 2.543f         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2:ZN (NOR2_X1)                                              |        | 0.012       | 0.000      | 0.089      |             | 0.173  | 2.716r         |
+| u_core.u_icache.local_lookup_resp_66__reg_p_D_NOR2_X1_ZN_A1_NOR2_X1_A2_ZN (net)                                                  | 7      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_5__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:B (AOI211_X1)  |        | 0.002       | 0.000      | 0.089      |             | 0.000  | 2.716r         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_5__reg_p_CK_CLKGATE_X1_GCK_E_AOI211_X1_ZN:ZN (AOI211_X1) |        | 0.001       | 0.000      | 0.033      |             | 0.019  | 2.735f         |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_5__reg_p_CK_CLKGATE_X1_GCK_E (net)                       | 1      |             |            |            | 0.000       |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_5__reg_p_CK_CLKGATE_X1_GCK:E (CLKGATE_X1)                |        | 0.001       | 0.000      | 0.033      |             | 0.000  | 2.735f         |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| clk_i (port)                                                                                                                     |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r         |
+| clk_i (clock net)                                                                                                                | 552    |             |            |            | NA          |        |                |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_5__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r         |
+| clock core_clock (rise edge)                                                                                                     |        |             |            |            |             | 1.219  | 1.219          |
+| clock network delay (ideal)                                                                                                      |        |             |            |            |             | 0.000  | 1.219          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_5__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)               |        |             |            |            |             |        | 1.219r         |
+| library setup time                                                                                                               |        |             |            |            |             | -0.055 | 1.164          |
+| clock reconvergence pessimism                                                                                                    |        |             |            |            |             | 0.000  | 1.164          |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| path cell delay                                                                                                                  |        |             |            |            |             |        | 2.126(77.734%) |
+| path net delay                                                                                                                   |        |             |            |            |             |        | 0.000(0.000%)  |
+|                                                                                                                                  |        |             |            |            |             |        |                |
+| data require time                                                                                                                |        |             |            |            |             |        | 1.164          |
+| data arrival time                                                                                                                |        |             |            |            |             |        | 2.735          |
+| slack (VIOLATED)                                                                                                                 |        |             |            |            |             |        | -1.571         |
++----------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+----------------+
++-------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                                     | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++-------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                              |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                         | 552    |             |            |            | NA          |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK (clock net)                     | 2      |             |            |            | NA          |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                              |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                               |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:QN (DFFR_X1)                       |        | 0.001       | 0.000      | 0.011      |             | 0.066  | 0.066r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_D (net)                            | 1      |             |            |            | 0.000       |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D (DFFR_X1)                        |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 0.066r          |
+|                                                                                           |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                              |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                         | 552    |             |            |            | NA          |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK (clock net)                     | 2      |             |            |            | NA          |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                              |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                               |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:CK (DFFR_X1)                       |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                                         |        |             |            |            |             | 0.006  | 0.006           |
+| clock reconvergence pessimism                                                             |        |             |            |            |             | -0.000 | 0.006           |
+|                                                                                           |        |             |            |            |             |        |                 |
+| path cell delay                                                                           |        |             |            |            |             |        | 0.066(100.000%) |
+| path net delay                                                                            |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                                           |        |             |            |            |             |        |                 |
+| data require time                                                                         |        |             |            |            |             |        | 0.006           |
+| data arrival time                                                                         |        |             |            |            |             |        | 0.066           |
+| slack (MET)                                                                               |        |             |            |            |             |        | 0.060           |
++-------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                           | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                               | 552    |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK (clock net)                     | 1      |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                    |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                     |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:QN (DFFR_X1)                       |        | 0.002       | 0.000      | 0.011      |             | 0.066  | 0.066r          |
+| u_core.u_ifu.lookup_queue_read_index_d (net)                                    | 2      |             |            |            | 0.000       |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D (DFFR_X1)                        |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 0.066r          |
+|                                                                                 |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                               | 552    |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK (clock net)                     | 1      |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                    |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                     |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                               |        |             |            |            |             | 0.006  | 0.006           |
+| clock reconvergence pessimism                                                   |        |             |            |            |             | -0.000 | 0.006           |
+|                                                                                 |        |             |            |            |             |        |                 |
+| path cell delay                                                                 |        |             |            |            |             |        | 0.066(100.000%) |
+| path net delay                                                                  |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                                 |        |             |            |            |             |        |                 |
+| data require time                                                               |        |             |            |            |             |        | 0.006           |
+| data arrival time                                                               |        |             |            |            |             |        | 0.066           |
+| slack (MET)                                                                     |        |             |            |            |             |        | 0.060           |
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                           | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                               | 552    |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK (clock net)                     | 1      |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                    |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                     |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:QN (DFFR_X1)                       |        | 0.002       | 0.000      | 0.011      |             | 0.066  | 0.066r          |
+| u_core.u_ifu.lookup_queue_read_index_d (net)                                    | 2      |             |            |            | 0.000       |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D (DFFR_X1)                        |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 0.066r          |
+|                                                                                 |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                               | 552    |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK (clock net)                     | 1      |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                    |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                     |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                               |        |             |            |            |             | 0.006  | 0.006           |
+| clock reconvergence pessimism                                                   |        |             |            |            |             | -0.000 | 0.006           |
+|                                                                                 |        |             |            |            |             |        |                 |
+| path cell delay                                                                 |        |             |            |            |             |        | 0.066(100.000%) |
+| path net delay                                                                  |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                                 |        |             |            |            |             |        |                 |
+| data require time                                                               |        |             |            |            |             |        | 0.006           |
+| data arrival time                                                               |        |             |            |            |             |        | 0.066           |
+| slack (MET)                                                                     |        |             |            |            |             |        | 0.060           |
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++-------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                                     | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++-------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                              |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                         | 552    |             |            |            | NA          |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK (clock net)                     | 2      |             |            |            | NA          |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                              |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                               |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:QN (DFFR_X1)                       |        | 0.001       | 0.000      | 0.011      |             | 0.066  | 0.066r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_D (net)                            | 1      |             |            |            | 0.000       |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D (DFFR_X1)                        |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 0.066r          |
+|                                                                                           |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                              |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                         | 552    |             |            |            | NA          |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p_CK (clock net)                     | 2      |             |            |            | NA          |        |                 |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                              |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                               |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:CK (DFFR_X1)                       |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                                         |        |             |            |            |             | 0.006  | 0.006           |
+| clock reconvergence pessimism                                                             |        |             |            |            |             | -0.000 | 0.006           |
+|                                                                                           |        |             |            |            |             |        |                 |
+| path cell delay                                                                           |        |             |            |            |             |        | 0.066(100.000%) |
+| path net delay                                                                            |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                                           |        |             |            |            |             |        |                 |
+| data require time                                                                         |        |             |            |            |             |        | 0.006           |
+| data arrival time                                                                         |        |             |            |            |             |        | 0.066           |
+| slack (MET)                                                                               |        |             |            |            |             |        | 0.060           |
++-------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                           | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                               | 552    |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK (clock net)                     | 1      |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                    |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                     |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:QN (DFFR_X1)                       |        | 0.002       | 0.000      | 0.012      |             | 0.065  | 0.065f          |
+| u_core.u_ifu.lookup_queue_read_index_d (net)                                    | 2      |             |            |            | 0.000       |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D (DFFR_X1)                        |        | 0.001       | 0.000      | 0.012      |             | 0.000  | 0.065f          |
+|                                                                                 |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                    |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                               | 552    |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK (clock net)                     | 1      |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                    |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                     |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:CK (DFFR_X1)                       |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                               |        |             |            |            |             | 0.003  | 0.003           |
+| clock reconvergence pessimism                                                   |        |             |            |            |             | -0.000 | 0.003           |
+|                                                                                 |        |             |            |            |             |        |                 |
+| path cell delay                                                                 |        |             |            |            |             |        | 0.065(100.000%) |
+| path net delay                                                                  |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                                 |        |             |            |            |             |        |                 |
+| data require time                                                               |        |             |            |            |             |        | 0.003           |
+| data arrival time                                                               |        |             |            |            |             |        | 0.065           |
+| slack (MET)                                                                     |        |             |            |            |             |        | 0.062           |
++---------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++---------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                                       | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++---------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                                |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                           | 552    |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)             |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1)            |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_CK (clock net)                                | 1      |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p:CK (DFFR_X1)                                  |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                                |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                                 |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p:CK (DFFR_X1)                                  |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p:QN (DFFR_X1)                                  |        | 0.002       | 0.000      | 0.011      |             | 0.066  | 0.066r          |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN (net)                                      | 2      |             |            |            | 0.000       |        |                 |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1:A1 (AND2_X1)                    |        | 0.001       | 0.000      | 0.011      |             | 0.000  | 0.066r          |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1:ZN (AND2_X1)                    |        | 0.001       | 0.000      | 0.007      |             | 0.029  | 0.095r          |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN (net)                        | 1      |             |            |            | 0.000       |        |                 |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN_CLKGATE_X1_E:E (CLKGATE_X1)  |        | 0.001       | 0.000      | 0.007      |             | 0.000  | 0.095r          |
+|                                                                                             |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                                |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                           | 552    |             |            |            | NA          |        |                 |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN_CLKGATE_X1_E:CK (CLKGATE_X1) |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                                |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                                 |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_AND2_X1_A1_ZN_CLKGATE_X1_E:CK (CLKGATE_X1) |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                                           |        |             |            |            |             | -0.002 | -0.002          |
+| clock reconvergence pessimism                                                               |        |             |            |            |             | -0.000 | -0.002          |
+|                                                                                             |        |             |            |            |             |        |                 |
+| path cell delay                                                                             |        |             |            |            |             |        | 0.095(100.000%) |
+| path net delay                                                                              |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                                             |        |             |            |            |             |        |                 |
+| data require time                                                                           |        |             |            |            |             |        | -0.002          |
+| data arrival time                                                                           |        |             |            |            |             |        | 0.095           |
+| slack (MET)                                                                                 |        |             |            |            |             |        | 0.096           |
++---------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++-------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                         | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++-------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                  |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                             | 552    |             |            |            | NA          |        |                 |
+| u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.resolved_execute_result_valid_reg_p_CK (clock net)                     | 1      |             |            |            | NA          |        |                 |
+| u_core.resolved_execute_result_valid_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                  |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                   |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.resolved_execute_result_valid_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.resolved_execute_result_valid_reg_p:QN (DFFR_X1)                       |        | 0.006       | 0.000      | 0.017      |             | 0.075  | 0.075f          |
+| u_core.completion_result_valid_OAI221_X1_ZN_A (net)                           | 4      |             |            |            | 0.000       |        |                 |
+| u_core.completion_result_valid_OAI221_X1_ZN:A (OAI221_X1)                     |        | 0.002       | 0.000      | 0.017      |             | 0.000  | 0.075f          |
+| u_core.completion_result_valid_OAI221_X1_ZN:ZN (OAI221_X1)                    |        | 0.001       | 0.000      | 0.015      |             | 0.023  | 0.097r          |
+| u_core.completion_result_valid (net)                                          | 1      |             |            |            | 0.000       |        |                 |
+| u_core.completion_result_valid_CLKGATE_X1_E:E (CLKGATE_X1)                    |        | 0.001       | 0.000      | 0.015      |             | 0.000  | 0.097r          |
+|                                                                               |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                  |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                             | 552    |             |            |            | NA          |        |                 |
+| u_core.completion_result_valid_CLKGATE_X1_E:CK (CLKGATE_X1)                   |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                  |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                   |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.completion_result_valid_CLKGATE_X1_E:CK (CLKGATE_X1)                   |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                             |        |             |            |            |             | -0.000 | -0.000          |
+| clock reconvergence pessimism                                                 |        |             |            |            |             | -0.000 | -0.000          |
+|                                                                               |        |             |            |            |             |        |                 |
+| path cell delay                                                               |        |             |            |            |             |        | 0.097(100.000%) |
+| path net delay                                                                |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                               |        |             |            |            |             |        |                 |
+| data require time                                                             |        |             |            |            |             |        | -0.000          |
+| data arrival time                                                             |        |             |            |            |             |        | 0.097           |
+| slack (MET)                                                                   |        |             |            |            |             |        | 0.098           |
++-------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++----------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++----------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                         |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                    | 552    |             |            |            | NA          |        |                 |
+| u_core.execute_packet_valid_reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)  |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.execute_packet_valid_reg_p_CK_CLKGATE_X1_GCK:GCK (CLKGATE_X1) |        | 0.004       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.execute_packet_valid_reg_p_CK (clock net)                     | 4      |             |            |            | NA          |        |                 |
+| u_core.execute_packet_valid_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                         |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                          |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.execute_packet_valid_reg_p:CK (DFFR_X1)                       |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.execute_packet_valid_reg_p:QN (DFFR_X1)                       |        | 0.003       | 0.000      | 0.015      |             | 0.072  | 0.072r          |
+| u_core.execute_packet_valid_reg_p_QN (net)                           | 2      |             |            |            | 0.000       |        |                 |
+| u_core.execute_packet_valid_reg_p_QN_AOI21_X1_A:A (AOI21_X1)         |        | 0.002       | 0.000      | 0.015      |             | 0.000  | 0.072r          |
+| u_core.execute_packet_valid_reg_p_QN_AOI21_X1_A:ZN (AOI21_X1)        |        | 0.006       | 0.000      | 0.012      |             | 0.022  | 0.094f          |
+| u_core.decoded_execute_packet_ready_INV_X1_ZN_A (net)                | 4      |             |            |            | 0.000       |        |                 |
+| u_core.decoded_execute_packet_ready_INV_X1_ZN:A (INV_X1)             |        | 0.002       | 0.000      | 0.012      |             | 0.000  | 0.094f          |
+| u_core.decoded_execute_packet_ready_INV_X1_ZN:ZN (INV_X1)            |        | 0.001       | 0.000      | 0.006      |             | 0.012  | 0.105r          |
+| u_core.decoded_execute_packet_ready (net)                            | 1      |             |            |            | 0.000       |        |                 |
+| u_core.decoded_execute_packet_ready_CLKGATE_X1_E:E (CLKGATE_X1)      |        | 0.001       | 0.000      | 0.006      |             | 0.000  | 0.105r          |
+|                                                                      |        |             |            |            |             |        |                 |
+| clk_i (port)                                                         |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                    | 552    |             |            |            | NA          |        |                 |
+| u_core.decoded_execute_packet_ready_CLKGATE_X1_E:CK (CLKGATE_X1)     |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                         |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                          |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.decoded_execute_packet_ready_CLKGATE_X1_E:CK (CLKGATE_X1)     |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                    |        |             |            |            |             | -0.002 | -0.002          |
+| clock reconvergence pessimism                                        |        |             |            |            |             | -0.000 | -0.002          |
+|                                                                      |        |             |            |            |             |        |                 |
+| path cell delay                                                      |        |             |            |            |             |        | 0.105(100.000%) |
+| path net delay                                                       |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                      |        |             |            |            |             |        |                 |
+| data require time                                                    |        |             |            |            |             |        | -0.002          |
+| data arrival time                                                    |        |             |            |            |             |        | 0.105           |
+| slack (MET)                                                          |        |             |            |            |             |        | 0.107           |
++----------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++-------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                                                             | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++-------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                                                      |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                                                 | 552    |             |            |            | NA          |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p:CK (DFFS_X1)                                         |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                                                      |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                                                       |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p:CK (DFFS_X1)                                         |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p:QN (DFFS_X1)                                         |        | 0.003       | 0.000      | 0.015      |             | 0.071  | 0.071r          |
+| u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p_QN (net)                                             | 2      |             |            |            | 0.000       |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p_QN_OAI22_X1_B2:B2 (OAI22_X1)                         |        | 0.002       | 0.000      | 0.015      |             | 0.000  | 0.071r          |
+| u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p_QN_OAI22_X1_B2:ZN (OAI22_X1)                         |        | 0.001       | 0.000      | 0.009      |             | 0.021  | 0.092f          |
+| u_core.u_data_mem.gen_dcache.u_dcache.refill_req_ready_reg_p_QN_OAI22_X1_B2_ZN (net)                              | 1      |             |            |            | 0.000       |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E (CLKGATE_X1)  |        | 0.001       | 0.000      | 0.009      |             | 0.000  | 0.092f          |
+|                                                                                                                   |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                                                      |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                                                 | 552    |             |            |            | NA          |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1) |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                                                      |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                                                       |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1) |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                                                                 |        |             |            |            |             | -0.015 | -0.015          |
+| clock reconvergence pessimism                                                                                     |        |             |            |            |             | -0.000 | -0.015          |
+|                                                                                                                   |        |             |            |            |             |        |                 |
+| path cell delay                                                                                                   |        |             |            |            |             |        | 0.092(100.000%) |
+| path net delay                                                                                                    |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                                                                   |        |             |            |            |             |        |                 |
+| data require time                                                                                                 |        |             |            |            |             |        | -0.015          |
+| data arrival time                                                                                                 |        |             |            |            |             |        | 0.092           |
+| slack (MET)                                                                                                       |        |             |            |            |             |        | 0.107           |
++-------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
++----------------------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| Point                                                                                                                                        | Fanout | Capacitance | Resistance | Transition | Delta Delay | Incr   | Path            |
++----------------------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+
+| clk_i (port)                                                                                                                                 |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                                                                            | 552    |             |            |            | NA          |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_state_q_2__reg_p:CK (DFFR_X1)                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                                                                                 |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                                                                                  |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_state_q_2__reg_p:CK (DFFR_X1)                                                   |        | 0.001       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_state_q_2__reg_p:QN (DFFR_X1)                                                   |        | 0.004       | 0.000      | 0.015      |             | 0.072  | 0.072r          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_state_q_2__reg_p_QN (net)                                                       | 3      |             |            |            | 0.000       |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK_E_NOR2_X1_ZN_A2_NOR4_X1_ZN:A1 (NOR4_X1) |        | 0.002       | 0.000      | 0.015      |             | 0.000  | 0.072r          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK_E_NOR2_X1_ZN_A2_NOR4_X1_ZN:ZN (NOR4_X1) |        | 0.002       | 0.000      | 0.007      |             | 0.012  | 0.084f          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK_E_NOR2_X1_ZN_A2 (net)                   | 1      |             |            |            | 0.000       |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK_E_NOR2_X1_ZN:A2 (NOR2_X1)               |        | 0.002       | 0.000      | 0.007      |             | 0.000  | 0.084f          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK_E_NOR2_X1_ZN:ZN (NOR2_X1)               |        | 0.001       | 0.000      | 0.012      |             | 0.023  | 0.107r          |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK_E (net)                                 | 1      |             |            |            | 0.000       |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E (CLKGATE_X1)                          |        | 0.001       | 0.000      | 0.012      |             | 0.000  | 0.107r          |
+|                                                                                                                                              |        |             |            |            |             |        |                 |
+| clk_i (port)                                                                                                                                 |        | 0.952       | 0.000      | 0.100      |             | 0.000  | 0.000r          |
+| clk_i (clock net)                                                                                                                            | 552    |             |            |            | NA          |        |                 |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)                         |        | 0.002       | 0.000      | 0.000      |             | 0.000  | 0.000r          |
+| clock core_clock (rise edge)                                                                                                                 |        |             |            |            |             | 0      | 0               |
+| clock network delay (ideal)                                                                                                                  |        |             |            |            |             | 0.000  | 0.000           |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:CK (CLKGATE_X1)                         |        |             |            |            |             |        | 0.000r          |
+| library hold time                                                                                                                            |        |             |            |            |             | -0.001 | -0.001          |
+| clock reconvergence pessimism                                                                                                                |        |             |            |            |             | -0.000 | -0.001          |
+|                                                                                                                                              |        |             |            |            |             |        |                 |
+| path cell delay                                                                                                                              |        |             |            |            |             |        | 0.107(100.000%) |
+| path net delay                                                                                                                               |        |             |            |            |             |        | 0.000(0.000%)   |
+|                                                                                                                                              |        |             |            |            |             |        |                 |
+| data require time                                                                                                                            |        |             |            |            |             |        | -0.001          |
+| data arrival time                                                                                                                            |        |             |            |            |             |        | 0.107           |
+| slack (MET)                                                                                                                                  |        |             |            |            |             |        | 0.108           |
++----------------------------------------------------------------------------------------------------------------------------------------------+--------+-------------+------------+------------+-------------+--------+-----------------+

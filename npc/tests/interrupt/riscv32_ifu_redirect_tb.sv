@@ -46,6 +46,7 @@ module riscv32_ifu_redirect_tb;
       .next_pc_predictor_lookup_response_valid_i(predictor_response_valid),
       .next_pc_predictor_lookup_response_ready_o(predictor_response_ready),
       .next_pc_predictor_flush_o(predictor_flush),
+      .prediction_enable_i(1'b1),
       .clk_i(clk), .rst_ni(rst_n), .redirect_req_i(redirect),
       .redirect_req_valid_i(redirect_valid), .icache_lookup_req_o(request),
       .icache_lookup_req_valid_o(request_valid), .icache_lookup_req_ready_i(request_ready),

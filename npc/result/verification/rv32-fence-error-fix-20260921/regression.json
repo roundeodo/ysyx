@@ -1,0 +1,73 @@
+{
+  "safety": {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-baseline",
+      "test-precise-exception",
+      "test-timer-interrupt",
+      "test-dcache",
+      "test-fence-i-ctrl",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/exception",
+      "INTERRUPT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/interrupt"
+    ],
+    "exit": 0
+  },
+  "lint": {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-baseline",
+      "lint-npc",
+      "lint-soc"
+    ],
+    "exit": 0
+  },
+  "difftest": {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests",
+      "git_commit=",
+      "ARCH=riscv32-npc",
+      "NPC_CONFIG=rv32-baseline",
+      "NPC_RUN_TARGET=sim-difftest",
+      "REF=/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+      "CAPSTONE_LIB=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+      "run"
+    ],
+    "exit": 0
+  },
+  "rv64": {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv64-sequential",
+      "test-dcache-miss",
+      "test-dcache-recovery",
+      "test-exu",
+      "test-fetch",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64"
+    ],
+    "exit": 0
+  },
+  "single-word": {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-baseline",
+      "NPC_DCACHE_LINE_BYTES=4",
+      "test-dcache-miss"
+    ],
+    "exit": 2
+  }
+}
