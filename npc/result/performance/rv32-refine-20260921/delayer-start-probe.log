@@ -1,0 +1,6 @@
+case=0 ratio=1 valid_start=1 native_AR=8 native_R=10 upstream_R=10
+case=1 ratio=1 valid_start=2 native_AR=8 native_R=10 upstream_R=10
+case=2 ratio=6 valid_start=1 native_AR=8 native_R=10 upstream_R=55
+case=3 ratio=6 valid_start=2 native_AR=8 native_R=10 upstream_R=50
+PASS: ratio 6 makes earlier VALID return five cycles later despite identical native AR/R
+npc/result/performance/rv32-refine-20260921/delayer_start_order_tb.sv:73: $finish called at 1030 (1s)

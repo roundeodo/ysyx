@@ -78,7 +78,12 @@ module riscv32_dcache_axi
   assign write_access_fault = (axi_manager_i.b.resp != AXI4_RESP_OKAY) &&
       (axi_manager_i.b.resp != AXI4_RESP_EXOKAY);
 
-  // 组合输出：读、写状态机分别驱动 AXI 独立通道，在此统一打包。
+  // 当前入口或已保存上下文共用一套 AXI 属性和数据选择；valid 单独控制传输。
+  dcache_word_index_t selected_writeback_word_index;
+  assign selected_writeback_word_index = (writeback_state_q == WRITEBACK_AXI_IDLE) ?
+      '0 : writeback_word_index_q;
+
+  // 第一段：独立读写通道的组合输出。
   always_comb begin
     axi_manager_o          = '0;
     refill_resp_o          = '0;
@@ -86,85 +91,49 @@ module riscv32_dcache_axi
     writeback_resp_o       = '0;
     writeback_resp_valid_o = 1'b0;
 
-    unique case (refill_state_q)
-      REFILL_AXI_IDLE: begin
-        if (refill_req_valid_i) begin
-          axi_manager_o.ar.addr  = refill_req_i.line_base_addr;
-          axi_manager_o.ar.id    = READ_TRANSACTION_ID;
-          axi_manager_o.ar.len   = 8'(DCACHE_WORDS_PER_LINE - 1);
-          axi_manager_o.ar.size  = 3'($clog2(DCACHE_WORD_BYTES));
-          axi_manager_o.ar.burst = AXI4_BURST_INCR;
-          axi_manager_o.ar_valid = 1'b1;
-        end
-      end
+    if (refill_state_q == REFILL_AXI_SEND_ADDRESS ||
+        (refill_state_q == REFILL_AXI_IDLE && refill_req_valid_i)) begin
+      axi_manager_o.ar.addr = (refill_state_q == REFILL_AXI_IDLE) ?
+          refill_req_i.line_base_addr : refill_context_q.line_base_addr;
+      axi_manager_o.ar.id    = READ_TRANSACTION_ID;
+      axi_manager_o.ar.len   = 8'(DCACHE_WORDS_PER_LINE - 1);
+      axi_manager_o.ar.size  = 3'($clog2(DCACHE_WORD_BYTES));
+      axi_manager_o.ar.burst = AXI4_BURST_INCR;
+      axi_manager_o.ar_valid = 1'b1;
+    end
+    if (refill_state_q == REFILL_AXI_RECEIVE_DATA) begin
+      refill_resp_o.word_data      = core_data_t'(axi_manager_i.r.data);
+      refill_resp_o.word_index     = refill_word_index_q;
+      refill_resp_o.last_word      = axi_manager_i.r.last;
+      refill_resp_o.access_fault   = read_access_fault;
+      refill_resp_o.transaction_id = refill_context_q.transaction_id;
+      refill_resp_valid_o          = axi_manager_i.r_valid;
+      axi_manager_o.r_ready        = refill_resp_ready_i;
+    end
 
-      REFILL_AXI_SEND_ADDRESS: begin
-        axi_manager_o.ar.addr  = refill_context_q.line_base_addr;
-        axi_manager_o.ar.id    = READ_TRANSACTION_ID;
-        axi_manager_o.ar.len   = 8'(DCACHE_WORDS_PER_LINE - 1);
-        axi_manager_o.ar.size  = 3'($clog2(DCACHE_WORD_BYTES));
-        axi_manager_o.ar.burst = AXI4_BURST_INCR;
-        axi_manager_o.ar_valid = 1'b1;
-      end
-
-      REFILL_AXI_RECEIVE_DATA: begin
-        refill_resp_o.word_data      = core_data_t'(axi_manager_i.r.data);
-        refill_resp_o.word_index     = refill_word_index_q;
-        refill_resp_o.last_word      = axi_manager_i.r.last;
-        refill_resp_o.access_fault   = read_access_fault;
-        refill_resp_o.transaction_id = refill_context_q.transaction_id;
-        refill_resp_valid_o          = axi_manager_i.r_valid;
-        axi_manager_o.r_ready        = refill_resp_ready_i;
-      end
-
-      default: ;
-    endcase
-
-    unique case (writeback_state_q)
-      WRITEBACK_AXI_IDLE: begin
-        if (writeback_req_valid_i) begin
-          axi_manager_o.aw.addr  = writeback_req_i.line_base_addr;
-          axi_manager_o.aw.id    = WRITE_TRANSACTION_ID;
-          axi_manager_o.aw.len   = 8'(DCACHE_WORDS_PER_LINE - 1);
-          axi_manager_o.aw.size  = 3'($clog2(DCACHE_WORD_BYTES));
-          axi_manager_o.aw.burst = AXI4_BURST_INCR;
-          axi_manager_o.aw_valid = 1'b1;
-          axi_manager_o.w.data   = axi4_data_t'(
-              writeback_line_data_i[0+:CORE_DATA_WIDTH]
-          );
-          axi_manager_o.w.strb  = '1;
-          axi_manager_o.w.last  = DCACHE_WORDS_PER_LINE == 1;
-          axi_manager_o.w_valid = 1'b1;
-        end
-      end
-
-      WRITEBACK_AXI_SEND_ADDRESS_DATA: begin
-        axi_manager_o.aw.addr  = writeback_context_q.line_base_addr;
-        axi_manager_o.aw.id    = WRITE_TRANSACTION_ID;
-        axi_manager_o.aw.len   = 8'(DCACHE_WORDS_PER_LINE - 1);
-        axi_manager_o.aw.size  = 3'($clog2(DCACHE_WORD_BYTES));
-        axi_manager_o.aw.burst = AXI4_BURST_INCR;
-        axi_manager_o.aw_valid = write_address_pending_q;
-        axi_manager_o.w.data   = axi4_data_t'(
-            writeback_line_data_i[
-                int'(writeback_word_index_q)*CORE_DATA_WIDTH+:CORE_DATA_WIDTH
-            ]
-        );
-        axi_manager_o.w.strb = '1;
-        axi_manager_o.w.last =
-            writeback_word_index_q == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1);
-        axi_manager_o.w_valid = write_data_pending_q;
-      end
-
-      WRITEBACK_AXI_RECEIVE_RESPONSE: begin
-        writeback_resp_o.access_fault   = write_access_fault;
-        writeback_resp_o.transaction_id = writeback_context_q.transaction_id;
-        writeback_resp_valid_o          = axi_manager_i.b_valid;
-        axi_manager_o.b_ready           = writeback_resp_ready_i;
-      end
-
-      default: ;
-    endcase
+    if (writeback_state_q == WRITEBACK_AXI_SEND_ADDRESS_DATA ||
+        (writeback_state_q == WRITEBACK_AXI_IDLE && writeback_req_valid_i)) begin
+      axi_manager_o.aw.addr = (writeback_state_q == WRITEBACK_AXI_IDLE) ?
+          writeback_req_i.line_base_addr : writeback_context_q.line_base_addr;
+      axi_manager_o.aw.id    = WRITE_TRANSACTION_ID;
+      axi_manager_o.aw.len   = 8'(DCACHE_WORDS_PER_LINE - 1);
+      axi_manager_o.aw.size  = 3'($clog2(DCACHE_WORD_BYTES));
+      axi_manager_o.aw.burst = AXI4_BURST_INCR;
+      axi_manager_o.aw_valid = (writeback_state_q == WRITEBACK_AXI_IDLE) || write_address_pending_q;
+      axi_manager_o.w.data   = axi4_data_t'(
+          writeback_line_data_i[int'(selected_writeback_word_index)*CORE_DATA_WIDTH+:CORE_DATA_WIDTH]
+      );
+      axi_manager_o.w.strb = '1;
+      axi_manager_o.w.last =
+          selected_writeback_word_index == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1);
+      axi_manager_o.w_valid = (writeback_state_q == WRITEBACK_AXI_IDLE) || write_data_pending_q;
+    end
+    if (writeback_state_q == WRITEBACK_AXI_RECEIVE_RESPONSE) begin
+      writeback_resp_o.access_fault   = write_access_fault;
+      writeback_resp_o.transaction_id = writeback_context_q.transaction_id;
+      writeback_resp_valid_o          = axi_manager_i.b_valid;
+      axi_manager_o.b_ready           = writeback_resp_ready_i;
+    end
   end
 
   // 回填下一状态：AR 反压时保存请求，R 握手推进字索引，RLAST 释放事务。
@@ -226,7 +195,7 @@ module riscv32_dcache_axi
           end
           writeback_state_d = (!write_address_pending_d && !write_data_pending_d) ?
               WRITEBACK_AXI_RECEIVE_RESPONSE :
-              WRITEBACK_AXI_SEND_ADDRESS_DATA;
+                WRITEBACK_AXI_SEND_ADDRESS_DATA;
         end
       end
 
@@ -293,33 +262,46 @@ module riscv32_dcache_axi
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (writeback_req_handshake ||
      (writeback_state_q != WRITEBACK_AXI_IDLE && !axi_write_response_handshake))
-    |=> $stable(writeback_line_data_i))
-  else $error("D-cache victim line changed before writeback completed");
+    |=> $stable(
+      writeback_line_data_i
+  ))
+  else
+    $error("D-cache victim line changed before writeback completed");
 
   initial begin
     assert (CORE_DATA_WIDTH == MEM_AXI_DATA_WIDTH)
-      else
-        $fatal(1, "D-cache word and memory AXI beat widths must match");
+    else
+      $fatal(1, "D-cache word and memory AXI beat widths must match");
     assert ((DCACHE_LINE_BYTES % DCACHE_WORD_BYTES) == 0)
-      else
-        $fatal(1, "D-cache line must contain an integer number of AXI beats");
+    else
+      $fatal(1, "D-cache line must contain an integer number of AXI beats");
     assert (DCACHE_WORDS_PER_LINE <= 256)
-      else
-        $fatal(1, "AXI4 burst length exceeds 256 beats");
+    else
+      $fatal(1, "AXI4 burst length exceeds 256 beats");
   end
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    axi_manager_o.ar_valid && !axi_manager_i.ar_ready |=> $stable(axi_manager_o.ar));
+    axi_manager_o.ar_valid && !axi_manager_i.ar_ready |=> $stable(
+      axi_manager_o.ar
+  ));
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    axi_manager_o.aw_valid && !axi_manager_i.aw_ready |=> $stable(axi_manager_o.aw));
+    axi_manager_o.aw_valid && !axi_manager_i.aw_ready |=> $stable(
+      axi_manager_o.aw
+  ));
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    axi_manager_o.w_valid && !axi_manager_i.w_ready |=> $stable(axi_manager_o.w));
+    axi_manager_o.w_valid && !axi_manager_i.w_ready |=> $stable(
+      axi_manager_o.w
+  ));
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     refill_resp_valid_o && !refill_resp_ready_i |=>
-      (refill_resp_valid_o && $stable(refill_resp_o)));
+      (refill_resp_valid_o && $stable(
+      refill_resp_o
+  )));
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     writeback_resp_valid_o && !writeback_resp_ready_i |=>
-      (writeback_resp_valid_o && $stable(writeback_resp_o)));
+      (writeback_resp_valid_o && $stable(
+      writeback_resp_o
+  )));
 `endif
 
 endmodule

@@ -87,8 +87,8 @@ module riscv32_core
   logic                icache_busy;
 
   riscv32_icache u_icache (
-      .clk_i               (clk_i),
-      .rst_ni              (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .lookup_req_i        (icache_lookup_req),
       .lookup_req_valid_i  (icache_lookup_req_valid && frontend_memory_access_allowed),
       .lookup_req_ready_o  (icache_lookup_req_ready),
@@ -113,8 +113,8 @@ module riscv32_core
   logic         frontend_recovery_event;
 
   riscv32_fetch_buffer u_fetch_buffer (
-      .clk_i                   (clk_i),
-      .rst_ni                  (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .ifu_fetch_entry_i       (ifu_fetch_entry),
       .ifu_fetch_entry_valid_i (ifu_fetch_entry_valid),
       .ifu_fetch_entry_ready_o (ifu_fetch_entry_ready),
@@ -125,7 +125,7 @@ module riscv32_core
   );
 
   // 预测器在I-cache之前运行。预测响应与下一次预测请求可以同拍握手；IFU用frontend
-  // tag保存预测元数据，I-cache响应不再组合反馈到下一次预测和取指请求。
+  // tag 保存预测元数据；队列 ready 传递容量，预测结果寄存器切断 next-PC 反馈。
   program_counter_t resolved_control_flow_target;
   execute_result_t  resolved_execute_result;
 
@@ -139,8 +139,8 @@ module riscv32_core
   logic resolved_execute_result_ready;
 
   riscv32_branch_predictor u_branch_predictor (
-      .clk_i                          (clk_i),
-      .rst_ni                         (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .lookup_request_pc_i            (next_pc_predictor_lookup_request_pc),
       .lookup_request_epoch_i         (next_pc_predictor_lookup_request_epoch),
       .lookup_request_valid_i         (next_pc_predictor_lookup_request_valid),
@@ -179,8 +179,8 @@ module riscv32_core
       ifu_fetch_entry.prediction.predicted_taken;
 
   riscv32_icache_axi u_icache_axi (
-      .clk_i               (clk_i),
-      .rst_ni              (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .refill_req_i        (icache_refill_req),
       .refill_req_valid_i  (icache_refill_req_valid),
       .refill_req_ready_o  (icache_refill_req_ready),
@@ -191,28 +191,19 @@ module riscv32_core
       .axi_manager_i       (instruction_axi4_manager_i)
   );
 
-  decoded_uop_t idu_decoded_uop;
-  logic         idu_decoded_uop_valid;
-  logic         idu_decoded_uop_ready;
+  decoded_uop_t decoded_uop;
+  logic         decoded_uop_valid;
+  logic         decoded_uop_ready;
 
   riscv32_idu u_idu (
       // IDU反压先由fetch queue吸收；队列填满后才会向IFU和I-cache传播。
       .fetch_entry_i       (idu_fetch_entry),
       .fetch_entry_valid_i (idu_fetch_entry_valid),
       .fetch_entry_ready_o (idu_fetch_entry_ready),
-      .decoded_uop_o       (idu_decoded_uop),
-      .decoded_uop_valid_o (idu_decoded_uop_valid),
-      .decoded_uop_ready_i (idu_decoded_uop_ready)
+      .decoded_uop_o      (decoded_uop),
+      .decoded_uop_valid_o(decoded_uop_valid),
+      .decoded_uop_ready_i(decoded_uop_ready)
   );
-
-  // IDU 组合输出直接参与操作数准备；只有 ID/EX 接收时才消费 fetch entry。
-  decoded_uop_t decoded_uop;
-  logic         decoded_uop_valid;
-  logic         decoded_uop_ready;
-
-  assign decoded_uop           = idu_decoded_uop;
-  assign decoded_uop_valid     = idu_decoded_uop_valid;
-  assign idu_decoded_uop_ready = decoded_uop_ready;
 
   xlen_data_t    rs1_value;
   xlen_data_t    rs2_value;
@@ -221,7 +212,7 @@ module riscv32_core
   logic          gpr_write_enable;
 
   riscv32_regfile u_regfile (
-      .clk_i              (clk_i),
+      .clk_i                                     (clk_i),
       .gpr_write_data_i   (gpr_write_data),
       .gpr_write_addr_i   (gpr_write_addr),
       .gpr_write_enable_i (gpr_write_enable),
@@ -246,8 +237,8 @@ module riscv32_core
   logic             mret_valid;
 
   riscv32_csr_file u_csr_file (
-      .clk_i             (clk_i),
-      .rst_ni            (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .csr_read_enable_i (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
       // CSR地址是固定指令字段，可与opcode译码并行选择；使能仍由合法译码产生。
       .csr_read_addr_i             (idu_fetch_entry.instruction[31:20]),
@@ -446,8 +437,8 @@ module riscv32_core
   logic execute_redirect_resolution_event;
 
   riscv32_ex_result_reg u_ex_result_reg (
-      .clk_i                   (clk_i),
-      .rst_ni                  (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .executed_result_i       (exu_result),
       .executed_result_valid_i (exu_result_valid),
       .executed_result_ready_o (exu_result_ready),
@@ -467,8 +458,8 @@ module riscv32_core
   logic              data_memory_resp_ready;
 
   riscv32_lsu u_lsu (
-      .clk_i                    (clk_i),
-      .rst_ni                   (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .lsu_req_i                (lsu_req),
       .lsu_req_valid_i          (lsu_req_valid),
       .lsu_req_ready_o          (lsu_req_ready),
@@ -493,8 +484,8 @@ module riscv32_core
   logic          dcache_busy;
 
   riscv32_data_mem u_data_mem (
-      .clk_i                       (clk_i),
-      .rst_ni                      (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .data_memory_req_i           (data_memory_req),
       .data_memory_req_valid_i     (data_memory_req_valid),
       .data_memory_req_ready_o     (data_memory_req_ready),
@@ -531,8 +522,8 @@ module riscv32_core
   logic writeback_result_ready;
 
   riscv32_wb_reg u_wb_reg (
-      .clk_i                     (clk_i),
-      .rst_ni                    (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .completion_result_i       (completion_result),
       .completion_result_valid_i (completion_result_valid),
       .completion_result_ready_o (completion_result_ready),
@@ -544,7 +535,7 @@ module riscv32_core
 
   riscv32_commit u_commit (
       .writeback_result_i       (writeback_result),
-      .writeback_result_valid_i (writeback_result_valid),
+      .writeback_result_valid_i                  (writeback_result_valid),
       .writeback_result_ready_o (writeback_result_ready),
       .commit_o                 (commit),
       .commit_valid_o           (commit_valid),
@@ -562,8 +553,8 @@ module riscv32_core
   redirect_req_t fence_i_redirect_req;
 
   riscv32_fence_i_ctrl u_fence_i_ctrl (
-      .clk_i                            (clk_i),
-      .rst_ni                           (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .commit_valid_i                   (commit_valid),
       .commit_i                         (commit),
       .icache_lookup_req_valid_i        (icache_lookup_req_valid),
@@ -588,16 +579,16 @@ module riscv32_core
   riscv32_interrupt_ctrl #(
       .RESET_PC                 (RESET_PC)
   ) u_interrupt_ctrl (
-      .clk_i                     (clk_i),
-      .rst_ni                    (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .timer_interrupt_enabled_i (timer_interrupt_enabled),
       .backend_busy_i            (
           execute_packet_valid || resolved_execute_result_valid ||
           lsu_transaction_active || writeback_result_valid
       ),
       .maintenance_busy_i (fence_i_maintenance_active || dcache_busy),
-      .commit_valid_i     (commit_valid),
-      .commit_i           (commit),
+      .commit_valid_i                   (commit_valid),
+      .commit_i                         (commit),
       .redirect_valid_i   (commit_redirect_resolution_event),
       .redirect_i         (commit_redirect_req_at_resolution),
       .issue_hold_o       (interrupt_issue_hold),
@@ -606,8 +597,8 @@ module riscv32_core
   );
 
   riscv32_trap_ctrl u_trap_ctrl (
-      .commit_i             (commit),
-      .commit_valid_i       (commit_valid),
+      .commit_i                         (commit),
+      .commit_valid_i                   (commit_valid),
       .interrupt_valid_i    (interrupt_valid),
       .interrupt_pc_i       (interrupt_pc),
       .mtvec_i              (csr_mtvec),
@@ -624,7 +615,7 @@ module riscv32_core
   redirect_req_t execute_redirect_req_at_resolution;
 
   assign execute_redirect_req_at_resolution = resolved_execute_result.redirect_req;
-  assign execute_redirect_resolution_event =
+  assign execute_redirect_resolution_event  =
       resolved_execute_result_valid && resolved_execute_result_ready &&
       resolved_execute_result.redirect_valid;
 
@@ -632,14 +623,12 @@ module riscv32_core
   redirect_req_t                    redirect_req_at_resolution_array[REDIRECT_SOURCE_COUNT];
   logic [REDIRECT_SOURCE_COUNT-1:0] redirect_req_at_resolution_valid_vector;
 
-  assign redirect_req_at_resolution_array[EXU_REDIRECT_INDEX] =
-      execute_redirect_req_at_resolution;
+  assign redirect_req_at_resolution_array[EXU_REDIRECT_INDEX] = execute_redirect_req_at_resolution;
 
   assign redirect_req_at_resolution_valid_vector[EXU_REDIRECT_INDEX] =
       execute_redirect_resolution_event;
   assign redirect_req_at_resolution_array[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
-  assign redirect_req_at_resolution_valid_vector[FENCE_I_REDIRECT_INDEX] =
-      committed_fence_i_event;
+  assign redirect_req_at_resolution_valid_vector[FENCE_I_REDIRECT_INDEX] = committed_fence_i_event;
   assign redirect_req_at_resolution_array[COMMIT_REDIRECT_INDEX] =
       commit_redirect_req_at_resolution;
   assign redirect_req_at_resolution_valid_vector[COMMIT_REDIRECT_INDEX] =
@@ -671,14 +660,14 @@ module riscv32_core
 
 `ifdef NPC_ENABLE_SIM_MONITOR
   riscv32_sim_issue_window_monitor u_sim_issue_window_monitor (
-      .clk_i                        (clk_i),
-      .rst_ni                       (rst_ni),
-      .commit_valid_i               (commit_valid),
-      .commit_i                     (commit),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
+      .commit_valid_i                   (commit_valid),
+      .commit_i                         (commit),
       .issue_event_i                ((exu_result_valid && exu_result_ready) || (lsu_req_valid && lsu_req_ready)),
       .execute_valid_i              (execute_packet_valid),
       .redirect_event_i             (execute_redirect_resolution_event || commit_redirect_event),
-      .lsu_busy_i                   (lsu_transaction_active),
+      .lsu_busy_i                                (lsu_transaction_active),
       .execute_result_blocked_i     (resolved_execute_result_valid && !resolved_execute_result_ready),
       .register_read_valid_i        (decoded_uop_valid),
       .raw_hazard_present_i         (raw_hazard_present),
@@ -690,8 +679,8 @@ module riscv32_core
   // lookup request/response属于IFU与I-cache边界；delivery和waiting属于IFU与IDU边界。
   // 分开统计才能区分cache等待与译码反压。
   riscv32_sim_perf_monitor u_sim_perf_monitor (
-      .clk_i                           (clk_i),
-      .rst_ni                          (rst_ni),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
       .ifu_instruction_request_event_i (
           icache_lookup_req_valid && icache_lookup_req_ready && frontend_memory_access_allowed
       ),
@@ -706,12 +695,10 @@ module riscv32_core
       .ifu_instruction_delivery_event_i (idu_fetch_entry_valid && idu_fetch_entry_ready),
       .ifu_downstream_waiting_i         (idu_fetch_entry_valid && !idu_fetch_entry_ready),
       .icache_miss_event_i              (icache_event.miss_event),
-      .instruction_decode_event_i       (idu_decoded_uop_valid && idu_decoded_uop_ready),
-      .decoded_fu_type_i                (idu_decoded_uop.fu_type),
-      .decoded_memory_cmd_i             (idu_decoded_uop.mem_ctrl.cmd),
-      .exu_completion_event_i           (
-          resolved_execute_result_valid && resolved_execute_result_ready
-      ),
+      .instruction_decode_event_i(decoded_uop_valid && decoded_uop_ready),
+      .decoded_fu_type_i(decoded_uop.fu_type),
+      .decoded_memory_cmd_i(decoded_uop.mem_ctrl.cmd),
+      .exu_completion_event_i(resolved_execute_result_valid && resolved_execute_result_ready),
       .lsu_completion_event_i         (lsu_writeback_valid && lsu_writeback_ready),
       .instruction_retirement_event_i (retired_instruction_event),
       .pipeline_raw_hazard_waiting_i  (raw_hazard_present),
@@ -732,9 +719,9 @@ module riscv32_core
           (resolved_execute_result.uop.fu_type == FU_BRANCH) &&
           !resolved_execute_result.uop.exception_valid
       ),
-      .resolved_control_flow_op_i    (resolved_execute_result.uop.branch_ctrl.op),
-      .resolved_control_flow_pc_i    (resolved_execute_result.uop.pc),
-      .resolved_control_flow_taken_i (
+      .resolved_control_flow_op_i     (resolved_execute_result.uop.branch_ctrl.op),
+      .resolved_control_flow_pc_i     (resolved_execute_result.uop.pc),
+      .resolved_control_flow_taken_i(
           (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
           (resolved_execute_result.next_pc !=
           (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
@@ -756,9 +743,9 @@ module riscv32_core
   // Cache性能统计只存在于仿真配置。它观察I-cache定义的语义事件，不从AXI
   // beat反推hit/miss，因此不会把一次cache line refill误计成多次miss。
   riscv32_sim_icache_monitor u_sim_icache_monitor (
-      .clk_i                             (clk_i),
-      .rst_ni                            (rst_ni),
-      .icache_event_i                    (icache_event),
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
+      .icache_event_i               (icache_event),
       .cacheable_hit_count_o             (sim_icache_cacheable_hit_count),
       .cacheable_miss_response_count_o   (sim_icache_cacheable_miss_response_count),
       .hit_latency_cycle_sum_o           (sim_icache_hit_latency_cycle_sum),
@@ -768,9 +755,9 @@ module riscv32_core
   // D-cache监视器直接消费cache语义事件，不根据AXI beat反推hit/miss。这样一条
   // cache-line refill仍然只对应一次需求miss，并可独立观察脏替换写回成本。
   riscv32_sim_dcache_monitor u_sim_dcache_monitor (
-      .clk_i          (clk_i),
-      .rst_ni         (rst_ni),
-      .dcache_event_i (dcache_event)
+      .clk_i                                     (clk_i),
+      .rst_ni                                    (rst_ni),
+      .dcache_event_i               (dcache_event)
   );
 `endif
 
@@ -821,7 +808,7 @@ module riscv32_core
     $error("D-cache writeback failed during fence.i maintenance");
 
   // FENCE.I依靠serializing语义排空后端，而不是在提交拍用组合flush补救。该性质成立时，
-  // committed_fence_i_event可以只启动已寄存的重定向和cache维护事务。
+  // committed_fence_i_event 同拍发起重定向，并启动 cache 维护事务。
   a_committed_fence_i_has_no_younger_backend_work :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     committed_fence_i_event |->

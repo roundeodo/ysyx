@@ -24,21 +24,15 @@ module top
 
   // UART uses its real platform window. Every other address reaches the DPI
   // memory target so the standalone environment can continue to run flat PMEM.
-  localparam logic [MEM_AXI_ADDR_WIDTH-1:0]
-      SIM_TARGET_ADDRESS_BASE_ARRAY[SIM_TARGET_COUNT] = '{
-        UART_BASE_ADDR,
-        '0
-      };
-  localparam logic [MEM_AXI_ADDR_WIDTH-1:0]
-      SIM_TARGET_ADDRESS_LAST_ARRAY[SIM_TARGET_COUNT] = '{
-        UART_LAST_ADDR,
-        '1
-      };
-  localparam logic
-      SIM_TARGET_ADDRESS_SELECT_ENABLE_ARRAY[SIM_TARGET_COUNT] = '{
-        1'b1,
-        1'b0
-      };
+  localparam logic [MEM_AXI_ADDR_WIDTH-1:0] SIM_TARGET_ADDRESS_BASE_ARRAY[SIM_TARGET_COUNT] = '{
+      UART_BASE_ADDR,
+      '0
+  };
+  localparam logic [MEM_AXI_ADDR_WIDTH-1:0] SIM_TARGET_ADDRESS_LAST_ARRAY[SIM_TARGET_COUNT] = '{
+      UART_LAST_ADDR,
+      '1
+  };
+  localparam logic SIM_TARGET_ADDRESS_SELECT_ENABLE_ARRAY[SIM_TARGET_COUNT] = '{1'b1, 1'b0};
 
   axi4_manager_to_target_t npc_external_axi4_manager;
   axi4_target_to_manager_t npc_external_axi4_response;
@@ -64,8 +58,8 @@ module top
       .DEFAULT_TARGET_ENABLE              (1'b1),
       .DEFAULT_TARGET_INDEX               (MEMORY_TARGET_INDEX)
   ) u_sim_address_router (
-      .clk_i                  (clk),
-      .rst_ni                 (rstn),
+      .clk_i                   (clk),
+      .rst_ni                  (rstn),
       .upstream_manager_i     (npc_external_axi4_manager),
       .upstream_manager_o     (npc_external_axi4_response),
       .target_manager_array_o (sim_target_manager_array),
@@ -73,8 +67,8 @@ module top
   );
 
   riscv32_axi4_uart_sim u_uart_sim (
-      .clk_i      (clk),
-      .rst_ni     (rstn),
+      .clk_i                   (clk),
+      .rst_ni                  (rstn),
       .uart_axi_i (sim_target_manager_array[UART_TARGET_INDEX]),
       .uart_axi_o (sim_target_response_array[UART_TARGET_INDEX])
   );
@@ -85,8 +79,8 @@ module top
       .LSU_WRITE_LATENCY_CYCLES  (SIM_LSU_WRITE_LATENCY),
       .RANDOM_LATENCY_MAX_CYCLES (SIM_RANDOM_LATENCY_MAX)
   ) u_sim_mem (
-      .clk_i     (clk),
-      .rst_ni    (rstn),
+      .clk_i                   (clk),
+      .rst_ni                  (rstn),
       .mem_axi_i (sim_target_manager_array[MEMORY_TARGET_INDEX]),
       .mem_axi_o (sim_target_response_array[MEMORY_TARGET_INDEX])
   );
@@ -136,11 +130,10 @@ module top
         u_npc_system.u_core.commit_valid &&
         (u_npc_system.u_core.selected_redirect_req.source_pc ==
          u_npc_system.u_core.commit.pc)) begin
-      npc_get_commit_next_pc_dpi = 64'($unsigned(
-          u_npc_system.u_core.selected_redirect_req.target_pc));
-    end else begin
       npc_get_commit_next_pc_dpi =
-          64'($unsigned(u_npc_system.u_core.commit.next_pc));
+          64'($unsigned(u_npc_system.u_core.selected_redirect_req.target_pc));
+    end else begin
+      npc_get_commit_next_pc_dpi = 64'($unsigned(u_npc_system.u_core.commit.next_pc));
     end
   endfunction
 
@@ -148,9 +141,7 @@ module top
     if ((index <= 0) || (index >= ARCH_REG_COUNT)) begin
       npc_get_gpr_dpi = '0;
     end else begin
-      npc_get_gpr_dpi =
-          (index == 0) ? 64'd0 :
-          64'($unsigned(u_npc_system.u_core.u_regfile.gpr_array_q[index]));
+      npc_get_gpr_dpi = 64'($unsigned(u_npc_system.u_core.u_regfile.gpr_array_q[index]));
     end
   endfunction
 

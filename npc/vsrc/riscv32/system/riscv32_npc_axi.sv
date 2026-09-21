@@ -158,7 +158,7 @@ module riscv32_npc_axi
   );
 
   riscv32_axi4_soc_width_converter u_soc_width_converter (
-      .clk_i                (clock),
+      .clk_i                   (clock),
       .rst_ni               (system_rst_n),
       .upstream_manager_i   (processor_memory_axi4_manager),
       .upstream_manager_o   (processor_memory_axi4_response),
@@ -214,11 +214,10 @@ module riscv32_npc_axi
         u_npc_system.u_core.commit_valid &&
         (u_npc_system.u_core.selected_redirect_req.source_pc ==
          u_npc_system.u_core.commit.pc)) begin
-      npc_get_commit_next_pc_dpi = 64'($unsigned(
-          u_npc_system.u_core.selected_redirect_req.target_pc));
-    end else begin
       npc_get_commit_next_pc_dpi =
-          64'($unsigned(u_npc_system.u_core.commit.next_pc));
+          64'($unsigned(u_npc_system.u_core.selected_redirect_req.target_pc));
+    end else begin
+      npc_get_commit_next_pc_dpi = 64'($unsigned(u_npc_system.u_core.commit.next_pc));
     end
   endfunction
 
@@ -226,9 +225,7 @@ module riscv32_npc_axi
     if ((index <= 0) || (index >= ARCH_REG_COUNT)) begin
       npc_get_gpr_dpi = '0;
     end else begin
-      npc_get_gpr_dpi =
-          (index == 0) ? 64'd0 :
-          64'($unsigned(u_npc_system.u_core.u_regfile.gpr_array_q[index]));
+      npc_get_gpr_dpi = 64'($unsigned(u_npc_system.u_core.u_regfile.gpr_array_q[index]));
     end
   endfunction
 

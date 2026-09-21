@@ -1,6 +1,6 @@
 # MicroBench 的计时与比较规则
 
-2026-09-06，核对对象为 `ysyx-workbench-rv32-interview` 的 RV32 配置。
+建立于 2026-09-06；当前入口更新于 2026-09-21。对象为 `ysyx-workbench-rv32-interview` 的 RV32 配置。
 
 ## 2026-09-11 发布核对
 
@@ -16,19 +16,26 @@ IPC 0.178135953。十项 PASS、GOOD TRAP。文中“尚未运行”的表述属
 
 ```sh
 cd /home/yong/ysyx/ysyx-workbench-rv32-interview
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 820
+python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 600
 ```
 
 脚本先构建并归档，再启动仿真。`--prepare-only` 只准备文件；之后使用 `--resume 目录`
 运行归档的模拟器和镜像，并核对哈希。默认采用 RV32 baseline、I-cache 256 B/1-way、
-D-cache 256 B/2-way、BHT 16、BTB 16 项/2-way、RAS 4、SDRAM burst；CPU 820 MHz、
-设备 100 MHz，CLINT 每 820 拍增加 1 微秒。输出目录不可覆盖，重测请创建新目录。
+D-cache 256 B/2-way、BHT 16、BTB 16 项/2-way、RAS 4、SDRAM burst。当前通过完整 STA 检查
+的测量点为 CPU 600 MHz：设备等效 100 MHz，CLINT 每 600 拍增加 1 微秒。
+脚本仍有历史默认值 820，当前须显式传入 `--cpu-mhz 600`。输出目录不可覆盖，重测创建新目录。
 
 用户所说的“完成 train 的定时器时间”优先报告 **原生 Total time**，并同时给出该窗口
 IPC；**Scored time** 与它的 IPC 单独列出，用于比较十个计分区间。JSON 中分别为
 `total.timer_seconds` / `total.ipc` 与 `scored.timer_seconds` / `scored.ipc`。
 `whole_program` 从复位释放到退出，`host_wall_seconds` 是宿主机运行模拟器所用时间。
 这些数字不混用。
+
+原生计时和退休数准确对应仿真窗口，不等于设备模型已经准确复现真实系统时序。
+2026-09-21 的独立实验发现：下游接收和返回时刻不变，提前呈现 VALID 会在当前 AXI
+延迟换算中使上游更晚收到响应。因此当前模型对并发请求的性能排序有局限，不能仅凭
+这种退化认定硬件旁路更差，也不能把模型中的秒数当作硅上实测。
+复现与本轮取舍见[缓存交接实测](RV32_REFINEMENT_2026-09-21.md#设备延迟模型的限制)。
 
 ## 历史计时审计：本次发现
 

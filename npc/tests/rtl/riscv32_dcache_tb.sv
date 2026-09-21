@@ -47,6 +47,7 @@ module riscv32_dcache_tb;
   int unsigned read_address_handshake_count;
   int unsigned write_address_handshake_count;
   logic dirty_miss_read_write_overlap_observed_q;
+  int unsigned simultaneous_read_write_address_count;
 
   riscv32_dcache u_dut (
       .clk_i                    (clk),
@@ -125,13 +126,18 @@ module riscv32_dcache_tb;
     end
   end
 
-  // dirty victim尚在W/B通道推进时，新line的AR已经完成握手，证明两个方向没有串行化。
+  // AR 可在 AW 的同一接收沿发出；该沿之前 target 的在途标志仍为 0。
+  // 同时检查刚接收的 AW 和已经在 W/B 通道推进的事务，不能漏掉更早的交接。
   always_ff @(posedge clk or negedge rst_ni) begin
     if (!rst_ni) begin
       dirty_miss_read_write_overlap_observed_q <= 1'b0;
-    end else if (axi_manager.ar_valid && axi_target.ar_ready &&
-                 (write_transaction_present_q || write_response_present_q)) begin
-      dirty_miss_read_write_overlap_observed_q <= 1'b1;
+      simultaneous_read_write_address_count <= 0;
+    end else if (axi_manager.ar_valid && axi_target.ar_ready) begin
+      if (write_transaction_present_q || write_response_present_q ||
+          (axi_manager.aw_valid && axi_target.aw_ready))
+        dirty_miss_read_write_overlap_observed_q <= 1'b1;
+      if (axi_manager.aw_valid && axi_target.aw_ready)
+        simultaneous_read_write_address_count <= simultaneous_read_write_address_count + 1;
     end
   end
 
@@ -399,6 +405,8 @@ module riscv32_dcache_tb;
       else $fatal(1, "dirty conflict victim was not written back exactly once");
     assert (dirty_miss_read_write_overlap_observed_q)
       else $fatal(1, "dirty miss serialized refill behind the complete writeback response");
+    $display("D-cache simultaneous refill/writeback address handshakes: %0d",
+             simultaneous_read_write_address_count);
     assert (core_data_t'(read_memory_word(axi4_addr_t'(TEST_ADDR_A))) == stored_a)
       else $fatal(1, "dirty victim writeback did not update backing memory");
 

@@ -41,7 +41,7 @@ module riscv32_lsu
 
   // 外部lsu_req_t包含完整译码结果，便于EXU/LSU边界表达一条指令；但访存发出后，
   // LSU只保存完成和提交真正需要的字段。分支预测、ALU操作、CSR控制和源寄存器索引
-  // 不参与访存返回，若把整个decoded_uop_t锁存会为每个无关字段生成触发器。
+  // 不参与访存返回，紧凑类型直接说明实际需要保存的信息。
   typedef struct packed {
     program_counter_t pc;
     instruction_t     instruction;
@@ -81,6 +81,7 @@ module riscv32_lsu
   core_data_t store_write_data;
   // strobe描述core数据口每个字节通道是否写入，它取决于CORE_DATA_WIDTH，而不是XLEN。
   core_byte_strobe_t store_byte_strobe;
+  core_data_t               shifted_load_data;
   logic [7:0]        selected_byte;
   logic [15:0]       selected_halfword;
   logic [31:0]       selected_word;
@@ -95,15 +96,11 @@ module riscv32_lsu
     endcase
   endfunction
 
-  function automatic logic request_has_memory_access(input lsu_req_t request);
-    return (request.uop.mem_ctrl.cmd == MEM_CMD_LOAD) ||
-           (request.uop.mem_ctrl.cmd == MEM_CMD_STORE);
-  endfunction
-
-  function automatic core_byte_strobe_t request_store_byte_strobe(input lsu_req_t request);
+  function automatic core_byte_strobe_t request_store_byte_strobe(input effective_addr_t addr,
+                                                                  input mem_size_e size);
     logic [CORE_BYTE_OFFSET_WIDTH-1:0] request_byte_offset;
-    request_byte_offset = request.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0];
-    unique case (request.uop.mem_ctrl.size)
+    request_byte_offset = addr[CORE_BYTE_OFFSET_WIDTH-1:0];
+    unique case (size)
       MEM_SIZE_BYTE:   return core_byte_strobe_t'(1) << request_byte_offset;
       MEM_SIZE_HALF:   return core_byte_strobe_t'(2'b11) << request_byte_offset;
       MEM_SIZE_WORD:   return core_byte_strobe_t'(4'b1111) << request_byte_offset;
@@ -112,17 +109,15 @@ module riscv32_lsu
     endcase
   endfunction
 
-  function automatic core_data_t request_store_write_data(input lsu_req_t request);
+  function automatic core_data_t request_store_write_data(
+      input effective_addr_t addr, input mem_size_e size, input xlen_data_t store_data);
     logic [CORE_BYTE_OFFSET_WIDTH-1:0] request_byte_offset;
-    request_byte_offset = request.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0];
-    unique case (request.uop.mem_ctrl.size)
-      MEM_SIZE_BYTE:
-        return core_data_t'(request.store_data[7:0]) << (request_byte_offset * 8);
-      MEM_SIZE_HALF:
-        return core_data_t'(request.store_data[15:0]) << (request_byte_offset * 8);
-      MEM_SIZE_WORD:
-        return core_data_t'(request.store_data[31:0]) << (request_byte_offset * 8);
-      MEM_SIZE_DOUBLE: return core_data_t'(request.store_data);
+    request_byte_offset = addr[CORE_BYTE_OFFSET_WIDTH-1:0];
+    unique case (size)
+      MEM_SIZE_BYTE:   return core_data_t'(store_data[7:0]) << (request_byte_offset * 8);
+      MEM_SIZE_HALF:   return core_data_t'(store_data[15:0]) << (request_byte_offset * 8);
+      MEM_SIZE_WORD:   return core_data_t'(store_data[31:0]) << (request_byte_offset * 8);
+      MEM_SIZE_DOUBLE: return core_data_t'(store_data);
       default:         return '0;
     endcase
   endfunction
@@ -132,8 +127,7 @@ module riscv32_lsu
   // 把当前输入valid重新反馈到流水线允许信号中形成组合环。
   assign lsu_transaction_active_o = state_q != LSU_IDLE;
   // 在途目的寄存器用于 RAW 检查，成功完成时可从返回结果前递。
-  assign lsu_pending_writes_rd_o = (state_q != LSU_IDLE) &&
-      pending_lsu_context_q.writes_rd;
+  assign lsu_pending_writes_rd_o    = (state_q != LSU_IDLE) && pending_lsu_context_q.writes_rd;
   assign lsu_pending_rd_o           = pending_lsu_context_q.rd;
   assign data_memory_req_handshake  = data_memory_req_valid_o && data_memory_req_ready_i;
   assign data_memory_resp_handshake = data_memory_resp_valid_i && data_memory_resp_ready_o;
@@ -157,8 +151,7 @@ module riscv32_lsu
   always_comb begin
     // 只有重试状态需要旧请求。等待响应时可预先计算入口数据，valid 单独阻止发出；
     // 不让旧响应的完成/错误条件先经过 payload mux，再进入地址与字节选择。
-    active_lsu_req = (state_q == LSU_DISPATCH_REGISTERED_REQUEST) ?
-        pending_lsu_req : lsu_req_i;
+    active_lsu_req = (state_q == LSU_DISPATCH_REGISTERED_REQUEST) ? pending_lsu_req : lsu_req_i;
 
     is_load           = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
     is_store          = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
@@ -169,8 +162,10 @@ module riscv32_lsu
         address_misaligned || !has_memory_access;
 
     // strobe只覆盖本条store写入的字节。WORD不能使用'1，否则64位存储口会误写8字节。
-    store_write_data  = request_store_write_data(active_lsu_req);
-    store_byte_strobe = request_store_byte_strobe(active_lsu_req);
+    store_write_data = request_store_write_data(
+        active_lsu_req.effective_addr, active_lsu_req.uop.mem_ctrl.size, active_lsu_req.store_data);
+    store_byte_strobe =
+        request_store_byte_strobe(active_lsu_req.effective_addr, active_lsu_req.uop.mem_ctrl.size);
   end
 
   // 本地请求保留字节地址和访问宽度。协议adapter负责把size翻译成AXI4 AxSIZE，
@@ -189,12 +184,11 @@ module riscv32_lsu
   // 存储层返回完整数据字。LSU根据原始地址低位选择byte/halfword并完成符号扩展。
   // RV64下LW将bit 31符号扩展，LWU零扩展；不能把总线返回宽度直接当作load结果宽度。
   always_comb begin
-    selected_byte = 8'(data_memory_resp_i.read_data >>
-        (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
-    selected_halfword = 16'(data_memory_resp_i.read_data >>
-        (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
-    selected_word = 32'(data_memory_resp_i.read_data >>
-        (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8));
+    shifted_load_data = data_memory_resp_i.read_data >>
+        (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8);
+    selected_byte       = 8'(shifted_load_data);
+    selected_halfword   = 16'(shifted_load_data);
+    selected_word       = 32'(shifted_load_data);
     formatted_load_data = '0;
 
     unique case (pending_lsu_context_q.mem_ctrl.size)
@@ -256,14 +250,19 @@ module riscv32_lsu
     memory_writeback.uop.mem_ctrl    = pending_lsu_context_q.mem_ctrl;
     memory_writeback.result          =
         (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_LOAD) ? formatted_load_data : '0;
-    memory_writeback.next_pc         = pending_lsu_context_q.next_pc;
-    memory_writeback.memory_addr     = pending_lsu_context_q.effective_addr;
-    memory_writeback.memory_rdata    =
+    memory_writeback.next_pc      = pending_lsu_context_q.next_pc;
+    memory_writeback.memory_addr  = pending_lsu_context_q.effective_addr;
+    memory_writeback.memory_rdata =
         (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_LOAD) ? core_data_t'(formatted_load_data) : '0;
-    memory_writeback.memory_wdata    =
-        (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_STORE) ? request_store_write_data(pending_lsu_req) : '0;
-    memory_writeback.memory_wmask    =
-        (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_STORE) ? request_store_byte_strobe(pending_lsu_req) : '0;
+    memory_writeback.memory_wdata =
+        (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_STORE) ?
+            request_store_write_data(pending_lsu_context_q.effective_addr,
+                                     pending_lsu_context_q.mem_ctrl.size,
+                                     pending_lsu_context_q.store_data) : '0;
+    memory_writeback.memory_wmask =
+        (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_STORE) ?
+            request_store_byte_strobe(pending_lsu_context_q.effective_addr,
+                                      pending_lsu_context_q.mem_ctrl.size) : '0;
 
     if (data_memory_resp_i.access_fault) begin
       memory_writeback.uop.exception_valid = 1'b1;
@@ -397,13 +396,15 @@ module riscv32_lsu
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == LSU_WAIT_MEMORY_RESPONSE && data_memory_resp_valid_i &&
      data_memory_resp_i.access_fault) |-> !lsu_req_ready_o)
-  else $error("LSU accepted a younger request while returning a fault");
+  else
+    $error("LSU accepted a younger request while returning a fault");
 
   a_direct_request_is_remembered :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (lsu_req_handshake && data_memory_req_handshake)
     |=> state_q == LSU_WAIT_MEMORY_RESPONSE)
-  else $error("LSU lost a directly dispatched request");
+  else
+    $error("LSU lost a directly dispatched request");
 
   a_dispatch_has_one_completion_route :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

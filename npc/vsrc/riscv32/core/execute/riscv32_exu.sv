@@ -43,10 +43,13 @@ module riscv32_exu
     unique case (execute_packet_i.uop.int_ctrl.op)
       ALU_ADDW: word_result = execute_rs1_value[WORD_WIDTH-1:0] + execute_rs2_value[WORD_WIDTH-1:0];
       ALU_SUBW: word_result = execute_rs1_value[WORD_WIDTH-1:0] - execute_rs2_value[WORD_WIDTH-1:0];
-      ALU_SLLW: word_result = execute_rs1_value[WORD_WIDTH-1:0] << execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
-      ALU_SRLW: word_result = execute_rs1_value[WORD_WIDTH-1:0] >> execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
+      ALU_SLLW:
+        word_result = execute_rs1_value[WORD_WIDTH-1:0] << execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
+      ALU_SRLW:
+        word_result = execute_rs1_value[WORD_WIDTH-1:0] >> execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
       ALU_SRAW:
-        word_result = $signed(execute_rs1_value[WORD_WIDTH-1:0]) >>> execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
+        word_result = $signed(execute_rs1_value[WORD_WIDTH-1:0]) >>>
+          execute_rs2_value[WORD_SHIFT_WIDTH-1:0];
       default: word_result = '0;
     endcase
   end
@@ -61,7 +64,8 @@ module riscv32_exu
       ALU_SLTU: alu_result[0] = execute_rs1_value < execute_rs2_value;
       ALU_XOR: alu_result = execute_rs1_value ^ execute_rs2_value;
       ALU_SRL: alu_result = execute_rs1_value >> execute_rs2_value[SHIFT_AMOUNT_WIDTH-1:0];
-      ALU_SRA: alu_result = $signed(execute_rs1_value) >>> execute_rs2_value[SHIFT_AMOUNT_WIDTH-1:0];
+      ALU_SRA:
+        alu_result = $signed(execute_rs1_value) >>> execute_rs2_value[SHIFT_AMOUNT_WIDTH-1:0];
       ALU_OR: alu_result = execute_rs1_value | execute_rs2_value;
       ALU_AND: alu_result = execute_rs1_value & execute_rs2_value;
       ALU_ADDW, ALU_SUBW, ALU_SLLW, ALU_SRLW, ALU_SRAW:
@@ -95,18 +99,14 @@ module riscv32_exu
     branch_target = '0;
 
     unique case (execute_packet_i.uop.branch_ctrl.op)
-      CF_BRANCH: begin
-        branch_taken  = branch_condition_met;
-        branch_target = execute_packet_i.uop.pc + execute_packet_i.uop.imm;
-      end
-      CF_JAL: begin
-        branch_taken  = 1'b1;
+      CF_BRANCH, CF_JAL: begin
+        branch_taken  = (execute_packet_i.uop.branch_ctrl.op == CF_JAL) || branch_condition_met;
         branch_target = execute_packet_i.uop.pc + execute_packet_i.uop.imm;
       end
       CF_JALR: begin
         branch_taken = 1'b1;
         // JALR只规定目标地址bit 0清零，不规定实现必须是32位。
-        branch_target    = execute_rs1_value + execute_packet_i.uop.imm;
+        branch_target = execute_rs1_value + execute_packet_i.uop.imm;
         branch_target[0] = 1'b0;
       end
       default: ;
@@ -143,9 +143,8 @@ module riscv32_exu
   execute_result_t exu_result;
 
   always_comb begin
-    exu_result        = '0;
-    exu_result.uop    = execute_packet_i.uop;
-    exu_result.result = '0;
+    exu_result     = '0;
+    exu_result.uop = execute_packet_i.uop;
     // 不要使用32'd4，也不要使用I-cache line/取指口宽度。顺序下一条指令的位置由ISA指令
     // 长度决定；cache一次返回多少字节属于前端微架构，两者必须解耦。
     exu_result.next_pc   = sequential_next_pc;
@@ -180,7 +179,7 @@ module riscv32_exu
     unique case (execute_packet_i.uop.fu_type)
       FU_INT:  exu_result.result = alu_result;
       FU_BRANCH: begin
-        exu_result.result = execute_packet_i.uop.pc + program_counter_t'(INSTRUCTION_BYTES);
+        exu_result.result = sequential_next_pc;
       end
       FU_CSR:  exu_result.result = execute_packet_i.csr_rdata;
       default: ;

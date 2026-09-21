@@ -99,6 +99,7 @@ module riscv32_dcache_miss_unit
   logic       transaction_fault_after_bus_handshakes;
   logic       writeback_response_completed_after_handshake;
   logic       victim_last_word;
+  logic       writeback_dispatch_present;
   phys_addr_t victim_line_base_addr;
   phys_addr_t requested_line_base_addr;
   core_data_t refill_word_after_store_merge;
@@ -107,35 +108,21 @@ module riscv32_dcache_miss_unit
   logic       clean_completion_event;
   core_data_t completed_word_data;
 
-  function automatic core_data_t merge_store_bytes(
-      input  core_data_t        original_word,
-      input  core_data_t        store_word,
-      input  core_byte_strobe_t byte_strobe
-  );
-    core_data_t merged_word;
-    merged_word = original_word;
-    for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
-      if (byte_strobe[byte_index]) begin
-        merged_word[byte_index*8+:8] = store_word[byte_index*8+:8];
-      end
-    end
-    return merged_word;
-  endfunction
-
-  assign miss_req_handshake       = miss_req_valid_i && miss_req_ready_o;
-  assign clean_req_handshake      = clean_req_valid_i && clean_req_ready_o;
-  assign refill_req_handshake     = refill_req_valid_o && refill_req_ready_i;
-  assign refill_resp_handshake    = refill_resp_valid_i && refill_resp_ready_o;
-  assign writeback_req_handshake  = writeback_req_valid_o && writeback_req_ready_i;
-  assign writeback_resp_handshake = writeback_resp_valid_i && writeback_resp_ready_o;
+  assign miss_req_handshake                     = miss_req_valid_i && miss_req_ready_o;
+  assign clean_req_handshake                    = clean_req_valid_i && clean_req_ready_o;
+  assign refill_req_handshake                   = refill_req_valid_o && refill_req_ready_i;
+  assign refill_resp_handshake                  = refill_resp_valid_i && refill_resp_ready_o;
+  assign writeback_req_handshake                = writeback_req_valid_o && writeback_req_ready_i;
+  assign writeback_resp_handshake               = writeback_resp_valid_i && writeback_resp_ready_o;
   assign transaction_fault_after_bus_handshakes =
       transaction_access_fault_q ||
       (refill_resp_handshake && refill_resp_i.access_fault) ||
       (writeback_resp_handshake && writeback_resp_i.access_fault);
   assign writeback_response_completed_after_handshake =
       !writeback_response_pending_q || writeback_resp_handshake;
-  assign victim_last_word =
-      victim_word_index_q == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1);
+  assign victim_last_word           = victim_word_index_q == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1);
+  assign writeback_dispatch_present = (state_q == MISS_SEND_WRITEBACK) ||
+      ((state_q == MISS_CAPTURE_VICTIM_WORD) && victim_last_word);
   assign victim_line_base_addr =
       (phys_addr_t'(victim_tag_q) << (DCACHE_LINE_OFFSET_W + DCACHE_SET_INDEX_BITS)) |
       (phys_addr_t'(active_set_index_q) << DCACHE_LINE_OFFSET_W);
@@ -144,11 +131,11 @@ module riscv32_dcache_miss_unit
   assign refill_word_after_store_merge =
       (miss_context_q.memory_req.cmd == MEM_CMD_STORE) &&
       (refill_resp_i.word_index == miss_context_q.word_index) ?
-      merge_store_bytes(refill_resp_i.word_data,
-      miss_context_q.memory_req.write_data,
-      miss_context_q.memory_req.byte_strobe) :
-      refill_resp_i.word_data;
-  assign incoming_dirty_victim = miss_req_i.victim_present && miss_req_i.victim_dirty;
+          merge_store_bytes(refill_resp_i.word_data,
+                            miss_context_q.memory_req.write_data,
+                            miss_context_q.memory_req.byte_strobe) :
+          refill_resp_i.word_data;
+  assign incoming_dirty_victim   = miss_req_i.victim_present && miss_req_i.victim_dirty;
   assign memory_completion_event =
       ((state_q == MISS_RECEIVE_REFILL) && refill_resp_handshake && refill_resp_i.last_word &&
        writeback_response_completed_after_handshake) ||
@@ -210,16 +197,16 @@ module riscv32_dcache_miss_unit
     unique case (state_q)
       MISS_IDLE: begin
         // 分配沿已知首字地址：同时启动同步读，下一拍即可捕获首字。
-        victim_read_enable_o = clean_req_handshake || (miss_req_handshake && incoming_dirty_victim);
-        victim_read_set_index_o = clean_req_valid_i ? clean_set_index_i : miss_req_i.set_index;
+        victim_read_enable_o     = clean_req_handshake || (miss_req_handshake && incoming_dirty_victim);
+        victim_read_set_index_o  = clean_req_valid_i ? clean_set_index_i : miss_req_i.set_index;
         victim_read_word_index_o = '0;
         // 无脏 victim 时直接请求 refill；反压时才进入 SEND 重试。
         refill_req_o.line_base_addr = miss_req_i.memory_req.addr & ~phys_addr_t'(DCACHE_LINE_BYTES - 1);
         refill_req_o.transaction_id = miss_req_i.memory_req.transaction_id;
-        refill_req_valid_o = miss_req_valid_i && !clean_req_valid_i && !incoming_dirty_victim;
-        metadata_write_valid_o = refill_req_handshake;
-        metadata_write_set_index_o = miss_req_i.set_index;
-        metadata_write_way_index_o = miss_req_i.replacement_way_index;
+        refill_req_valid_o          = miss_req_valid_i && !clean_req_valid_i && !incoming_dirty_victim;
+        metadata_write_valid_o      = refill_req_handshake;
+        metadata_write_set_index_o  = miss_req_i.set_index;
+        metadata_write_way_index_o  = miss_req_i.replacement_way_index;
       end
 
       // data array是同步读口。捕获当前word的同时发起下一个word的读取，使dirty
@@ -231,15 +218,11 @@ module riscv32_dcache_miss_unit
         end
       end
 
-      MISS_SEND_WRITEBACK: begin
-        writeback_req_valid_o = 1'b1;
-      end
-
       MISS_SEND_REFILL: begin
         // 请求等待期间可重复写 invalid；在任一 refill beat 到达前完成失效。
         metadata_write_valid_o        = 1'b1;
         metadata_write_line_present_o = 1'b0;
-        refill_req_valid_o = 1'b1;
+        refill_req_valid_o            = 1'b1;
       end
 
       MISS_RECEIVE_REFILL: begin
@@ -259,13 +242,23 @@ module riscv32_dcache_miss_unit
       default: ;
     endcase
 
+    // 同步读最后一字已到达：直接补入行数据并发写回，无须再等寄存一拍。
+    // 若 adapter 反压，沿后完整行保存在 victim_line_data_q，SEND 状态继续保持。
+    if (writeback_dispatch_present) begin
+      if (state_q == MISS_CAPTURE_VICTIM_WORD) begin
+        writeback_line_data_o[(DCACHE_WORDS_PER_LINE-1)*CORE_DATA_WIDTH+:CORE_DATA_WIDTH] =
+            victim_read_word_data_array_i[active_way_index_q];
+      end
+      writeback_req_valid_o = 1'b1;
+    end
+
     // 最后一个必要总线响应当拍即可完成，反压时沿后由原请求字寄存器保持。
     // 安装仅发生一次，且必须同时确认所有 R 和写回 B 无错。
     if (memory_completion_event) begin
-      miss_resp_o.read_data      = completed_word_data;
-      miss_resp_o.transaction_id = miss_context_q.memory_req.transaction_id;
-      miss_resp_o.access_fault   = transaction_fault_after_bus_handshakes;
-      miss_resp_valid_o          = 1'b1;
+      miss_resp_o.read_data         = completed_word_data;
+      miss_resp_o.transaction_id    = miss_context_q.memory_req.transaction_id;
+      miss_resp_o.access_fault      = transaction_fault_after_bus_handshakes;
+      miss_resp_valid_o             = 1'b1;
       metadata_write_valid_o        = !transaction_fault_after_bus_handshakes;
       metadata_write_tag_o          = miss_context_q.requested_tag;
       metadata_write_line_present_o = 1'b1;
@@ -273,8 +266,8 @@ module riscv32_dcache_miss_unit
       line_install_event_o          = metadata_write_valid_o;
     end
     if (clean_completion_event) begin
-      clean_done_o                 = 1'b1;
-      clean_access_fault_o         = clean_access_fault_q || writeback_resp_i.access_fault;
+      clean_done_o                  = 1'b1;
+      clean_access_fault_o          = clean_access_fault_q || writeback_resp_i.access_fault;
       metadata_write_valid_o        = !clean_access_fault_o;
       metadata_write_line_present_o = 1'b1;
       metadata_write_line_dirty_o   = 1'b0;
@@ -327,7 +320,7 @@ module riscv32_dcache_miss_unit
           active_set_index_d = miss_req_i.set_index;
           active_way_index_d = miss_req_i.replacement_way_index;
           victim_tag_d       = miss_req_i.victim_tag;
-          state_d = incoming_dirty_victim ? MISS_CAPTURE_VICTIM_WORD :
+          state_d            = incoming_dirty_victim ? MISS_CAPTURE_VICTIM_WORD :
               (refill_req_handshake ? MISS_RECEIVE_REFILL : MISS_SEND_REFILL);
         end
       end
@@ -343,14 +336,7 @@ module riscv32_dcache_miss_unit
         end
       end
 
-      MISS_SEND_WRITEBACK: begin
-        if (writeback_req_handshake) begin
-          writeback_response_pending_d = 1'b1;
-          // clean必须等B响应后才能清dirty；普通miss可立即使用独立AR/R通道refill。
-          state_d = clean_operation_q ? MISS_WAIT_WRITEBACK_RESPONSE :
-              MISS_SEND_REFILL;
-        end
-      end
+      MISS_SEND_WRITEBACK: ;
 
       MISS_WAIT_WRITEBACK_RESPONSE: begin
         if (writeback_resp_handshake) begin
@@ -386,6 +372,13 @@ module riscv32_dcache_miss_unit
 
       default: state_d = MISS_IDLE;
     endcase
+
+    if (writeback_req_handshake) begin
+      writeback_response_pending_d = 1'b1;
+      // 普通 miss 下一拍发 refill，写回与读请求错开一个发起周期。
+      // B 仍独立跟踪，refill 不等待完整写回结束。
+      state_d = clean_operation_q ? MISS_WAIT_WRITEBACK_RESPONSE : MISS_SEND_REFILL;
+    end
   end
 
   // 第三段：控制状态、地址身份、line buffer和异常状态分组更新。
@@ -421,8 +414,7 @@ module riscv32_dcache_miss_unit
   end
 
 `ifndef SYNTHESIS
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    !(miss_req_valid_i && clean_req_valid_i))
+  assert property (@(posedge clk_i) disable iff (!rst_ni) !(miss_req_valid_i && clean_req_valid_i))
   else
     $error("D-cache miss and clean requests were presented together");
 

@@ -640,6 +640,17 @@ test-dcache-miss:
 		--Mdir $(BUILD_DIR)/obj_dir_dcache_miss_test
 	$(BUILD_DIR)/obj_dir_dcache_miss_test/Vriscv32_dcache_miss_contract_tb
 
+.PHONY: test-dcache-axi
+test-dcache-axi:
+	$(VERILATOR) --binary --timing --assert -Wno-fatal -j 2 $(NPC_CONFIG_DEFINE) \
+		--top-module riscv32_dcache_axi_contract_tb \
+		$(RTL_DIR)/common/riscv_config_pkg.sv $(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
+		$(RTL_DIR)/common/riscv32_pkg.sv $(RTL_DIR)/common/riscv32_axi4_pkg.sv \
+		$(RTL_DIR)/core/memory/riscv32_dcache_axi.sv \
+		$(abspath tests/rtl/riscv32_dcache_axi_contract_tb.sv) \
+		--Mdir $(BUILD_DIR)/obj_dir_dcache_axi_test
+	$(BUILD_DIR)/obj_dir_dcache_axi_test/Vriscv32_dcache_axi_contract_tb
+
 test-dcache-configs:
 	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
 	$(MAKE) test-dcache PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
@@ -1262,6 +1273,8 @@ help:
 	@echo "  test-pipeline-configs  Test pipeline registers, hazards, and redirects"
 	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
 	@echo "  test-dcache-configs  Test D-cache hit, refill, writeback, and clean in RV32/RV64"
+	@echo "  test-dcache-miss     Test victim capture, refill completion, errors, and stalls"
+	@echo "  test-dcache-axi      Test independent D-cache AXI channels and response stalls"
 	@echo "  test-core-merge-configs  Test I/D shared AXI read arbitration in RV32/RV64"
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
 	@echo "  test-sdram-axi  Test AXI transaction classification and native SDRAM BL8 reads"

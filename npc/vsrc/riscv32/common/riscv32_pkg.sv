@@ -278,6 +278,19 @@ package riscv32_pkg;
     logic        use_imm;
   } csr_uop_ctrl_t;
 
+  function automatic core_data_t merge_store_bytes(input core_data_t original_word,
+                                                   input core_data_t store_word,
+                                                   input core_byte_strobe_t byte_strobe);
+    core_data_t merged_word;
+    merged_word = original_word;
+    for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
+      if (byte_strobe[byte_index]) begin
+        merged_word[byte_index*8+:8] = store_word[byte_index*8+:8];
+      end
+    end
+    return merged_word;
+  endfunction
+
   // I-cache构建参数来自riscv_config_pkg，下面只保留由cache几何派生的局部宽度。
   // 前端各子模块统一使用这些派生宽度，禁止硬编码tag/set/line offset地址切片。
 
@@ -300,8 +313,7 @@ package riscv32_pkg;
       ICACHE_WAY_COUNT
   ) : 1;
   localparam int unsigned ICACHE_LINE_OFFSET_W = $clog2(ICACHE_LINE_BYTES);
-  localparam int unsigned ICACHE_TAG_W =
-      PADDR_WIDTH - ICACHE_LINE_OFFSET_W - ICACHE_SET_INDEX_BITS;
+  localparam int unsigned ICACHE_TAG_W = PADDR_WIDTH - ICACHE_LINE_OFFSET_W - ICACHE_SET_INDEX_BITS;
   localparam int unsigned FETCH_EPOCH_W = (FETCH_EPOCH_COUNT > 1) ? $clog2(FETCH_EPOCH_COUNT) : 1;
 
   // fetch_epoch不是总线transaction ID。redirect发生时IFU递增epoch；较老epoch的
@@ -346,10 +358,10 @@ package riscv32_pkg;
   typedef struct packed {
     // 响应原样带回请求物理地址，IFU再将它与当前PC关联。
     // 地址宽度、cache交付宽度和XLEN属于三个独立配置维度，不能让整个响应随XLEN加宽。
-    phys_addr_t         fetch_addr;
+    phys_addr_t    fetch_addr;
     icache_fetch_data_t fetch_data;
-    frontend_tag_t      frontend_tag;
-    fetch_epoch_t       fetch_epoch;
+    frontend_tag_t frontend_tag;
+    fetch_epoch_t  fetch_epoch;
     logic               access_fault;
   } icache_lookup_resp_t;
 
@@ -367,7 +379,7 @@ package riscv32_pkg;
     // set、word和tag均可从fetch_addr唯一派生；replacement way由lookup阶段根据
     // 当前metadata和替换状态选定，必须随miss事务传递，不能在miss unit中重新决定。
     icache_way_index_t replacement_way_index;
-    logic              cacheable;
+    logic cacheable;
   } icache_miss_req_t;
 
   localparam int unsigned ICACHE_REFILL_TRANSACTION_COUNT = ICACHE_MSHR_COUNT;
@@ -392,7 +404,7 @@ package riscv32_pkg;
     icache_fetch_data_t               word_data;
     icache_word_index_t               word_index;
     logic                             last_word;
-    logic                             access_fault;
+    logic               access_fault;
     icache_refill_transaction_index_t transaction_index;
   } icache_refill_resp_t;
   // PMU观察接口不得反向控制cache。occurred字段是单周期事件脉冲；present/is字段
@@ -421,8 +433,8 @@ package riscv32_pkg;
   typedef struct packed {
     // 地址、ISA数据和core存储beat是三个独立配置维度。
     phys_addr_t        addr;
-    mem_cmd_e          cmd;
-    mem_size_e         size;
+    mem_cmd_e  cmd;
+    mem_size_e size;
     core_data_t        write_data;
     core_byte_strobe_t byte_strobe;
     mem_txn_id_t       transaction_id;
@@ -431,8 +443,8 @@ package riscv32_pkg;
   typedef struct packed {
     // 存储层一个beat的数据宽度不由XLEN描述。
     core_data_t  read_data;
-    logic        access_fault;
-    mem_txn_id_t transaction_id;
+    logic               access_fault;
+    mem_txn_id_t       transaction_id;
   } data_memory_resp_t;
 
   // D-cache几何只从全局构建配置派生。cache word等于core数据beat，因此LSU保持
@@ -441,19 +453,21 @@ package riscv32_pkg;
       DCACHE_CAPACITY_BYTES / (DCACHE_WAY_COUNT * DCACHE_LINE_BYTES);
   localparam int unsigned DCACHE_WORD_BYTES = CORE_DATA_BYTE_COUNT;
   localparam int unsigned DCACHE_WORDS_PER_LINE = DCACHE_LINE_BYTES / DCACHE_WORD_BYTES;
-  localparam int unsigned DCACHE_SET_INDEX_BITS =
-      (DCACHE_SET_COUNT > 1) ? $clog2(DCACHE_SET_COUNT) : 0;
-  localparam int unsigned DCACHE_WORD_INDEX_BITS =
-      (DCACHE_WORDS_PER_LINE > 1) ? $clog2(DCACHE_WORDS_PER_LINE) : 0;
+  localparam int unsigned DCACHE_SET_INDEX_BITS = (DCACHE_SET_COUNT > 1) ? $clog2(
+      DCACHE_SET_COUNT
+  ) : 0;
+  localparam int unsigned DCACHE_WORD_INDEX_BITS = (DCACHE_WORDS_PER_LINE > 1) ? $clog2(
+      DCACHE_WORDS_PER_LINE
+  ) : 0;
   localparam int unsigned DCACHE_SET_INDEX_W =
       (DCACHE_SET_INDEX_BITS > 0) ? DCACHE_SET_INDEX_BITS : 1;
   localparam int unsigned DCACHE_WORD_INDEX_W =
       (DCACHE_WORD_INDEX_BITS > 0) ? DCACHE_WORD_INDEX_BITS : 1;
-  localparam int unsigned DCACHE_WAY_INDEX_W =
-      (DCACHE_WAY_COUNT > 1) ? $clog2(DCACHE_WAY_COUNT) : 1;
+  localparam int unsigned DCACHE_WAY_INDEX_W = (DCACHE_WAY_COUNT > 1) ? $clog2(
+      DCACHE_WAY_COUNT
+  ) : 1;
   localparam int unsigned DCACHE_LINE_OFFSET_W = $clog2(DCACHE_LINE_BYTES);
-  localparam int unsigned DCACHE_TAG_W =
-      PADDR_WIDTH - DCACHE_LINE_OFFSET_W - DCACHE_SET_INDEX_BITS;
+  localparam int unsigned DCACHE_TAG_W = PADDR_WIDTH - DCACHE_LINE_OFFSET_W - DCACHE_SET_INDEX_BITS;
 
   typedef logic [DCACHE_SET_INDEX_W-1:0]  dcache_set_index_t;
   typedef logic [DCACHE_WORD_INDEX_W-1:0] dcache_word_index_t;
@@ -473,26 +487,26 @@ package riscv32_pkg;
   } dcache_miss_req_t;
 
   typedef struct packed {
-    phys_addr_t  line_base_addr;
-    mem_txn_id_t transaction_id;
+    phys_addr_t                       line_base_addr;
+    mem_txn_id_t       transaction_id;
   } dcache_refill_req_t;
 
   typedef struct packed {
     core_data_t         word_data;
     dcache_word_index_t word_index;
-    logic               last_word;
+    logic                             last_word;
     logic               access_fault;
-    mem_txn_id_t        transaction_id;
+    mem_txn_id_t       transaction_id;
   } dcache_refill_resp_t;
 
   typedef struct packed {
-    phys_addr_t        line_base_addr;
+    phys_addr_t                       line_base_addr;
     mem_txn_id_t       transaction_id;
   } dcache_writeback_req_t;
 
   typedef struct packed {
-    logic        access_fault;
-    mem_txn_id_t transaction_id;
+    logic               access_fault;
+    mem_txn_id_t       transaction_id;
   } dcache_writeback_resp_t;
 
   // D-cache事件接口只允许从cache流向仿真监视器，不得参与ready或stall控制。
@@ -541,7 +555,7 @@ package riscv32_pkg;
     // fetch entry是架构取指信息，不是总线payload。
     program_counter_t   pc;
     instruction_t       instruction;
-    frontend_tag_t      frontend_tag;
+    frontend_tag_t frontend_tag;
     branch_prediction_t prediction;
     logic               exception_valid;
     exception_cause_e   exception_cause;
@@ -552,7 +566,7 @@ package riscv32_pkg;
   typedef struct packed {
     program_counter_t   pc;
     instruction_t       instruction;
-    frontend_tag_t      frontend_tag;
+    frontend_tag_t frontend_tag;
     branch_prediction_t prediction;
 
     arch_reg_idx_t rs1;
@@ -571,9 +585,9 @@ package riscv32_pkg;
     system_op_e       system_op;
     logic             serializing;
 
-    logic             exception_valid;
-    exception_cause_e exception_cause;
-    xlen_data_t       exception_tval;
+    logic               exception_valid;
+    exception_cause_e   exception_cause;
+    xlen_data_t         exception_tval;
   } decoded_uop_t;
 
   // 保留的重命名实验载荷，当前顺序核不使用。
@@ -590,14 +604,14 @@ package riscv32_pkg;
   typedef struct packed {
     program_counter_t target_pc;
     program_counter_t source_pc;
-    rob_idx_t         rob_idx;
+    rob_idx_t      rob_idx;
     logic             rob_idx_valid;
     logic             flush_inclusive;
     redirect_reason_e reason;
   } redirect_req_t;
 
   typedef struct packed {
-    alu_op_e       op;
+    alu_op_e           op;
     xlen_data_t    operand_a;
     xlen_data_t    operand_b;
     phys_reg_idx_t pdst;
@@ -607,22 +621,22 @@ package riscv32_pkg;
 
   typedef struct packed {
     // 分支单元输出PC，但参与比较的是XLEN数据。
-    control_flow_op_e   op;
-    branch_cond_e       condition;
+    control_flow_op_e op;
+    branch_cond_e     condition;
     program_counter_t   pc;
-    xlen_data_t         imm;
+    xlen_data_t       imm;
     xlen_data_t         src1_value;
     xlen_data_t         src2_value;
-    phys_reg_idx_t      pdst;
-    rob_idx_t           rob_idx;
-    logic               writes_preg;
-    frontend_tag_t      frontend_tag;
+    phys_reg_idx_t pdst;
+    rob_idx_t      rob_idx;
+    logic          writes_preg;
+    frontend_tag_t frontend_tag;
     branch_prediction_t prediction;
   } branch_execute_req_t;
 
   typedef struct packed {
     // 后续AGU输出才使用effective_addr_t，不能在输入端提前宣称它们已经是地址。
-    mem_uop_ctrl_t mem_ctrl;
+    mem_uop_ctrl_t    mem_ctrl;
     xlen_data_t    base_value;
     xlen_data_t    offset;
     xlen_data_t    store_data;
@@ -636,14 +650,14 @@ package riscv32_pkg;
   } lsu_execute_req_t;
 
   typedef struct packed {
-    csr_op_e       op;
-    logic [11:0]   addr;
+    csr_op_e     op;
+    logic [11:0] addr;
     xlen_data_t    operand;
     xlen_data_t    old_value;
     phys_reg_idx_t pdst;
     rob_idx_t      rob_idx;
-    logic          read_enable;
-    logic          write_enable;
+    logic        read_enable;
+    logic        write_enable;
     logic          writes_preg;
   } csr_execute_req_t;
 
@@ -659,9 +673,9 @@ package riscv32_pkg;
     logic [11:0] csr_addr;
     xlen_data_t  csr_wdata;
 
-    logic             exception_valid;
-    exception_cause_e exception_cause;
-    xlen_data_t       exception_tval;
+    logic               exception_valid;
+    exception_cause_e   exception_cause;
+    xlen_data_t         exception_tval;
 
     logic          redirect_valid;
     redirect_req_t redirect_req;
@@ -677,8 +691,8 @@ package riscv32_pkg;
   typedef struct packed {
     // commit是架构可见事件，memory_addr记录指令产生的有效地址，不能把它伪装成
     // 已完成转换的物理地址。这样DiffTest/trace也不会依赖AXI数据位宽。
-    program_counter_t pc;
-    instruction_t     instruction;
+    program_counter_t   pc;
+    instruction_t       instruction;
     program_counter_t next_pc;
 
     logic          gpr_write;
@@ -702,14 +716,12 @@ package riscv32_pkg;
     logic [XLEN-2:0] trap_cause_code;
     xlen_data_t      trap_tval;
     priv_mode_e      privilege;
-    system_op_e      system_op;
+    system_op_e       system_op;
   } commit_t;
 
-  // P0 single-cycle execution payloads
-  // Channel valid/ready is intentionally separate from every payload. P0 keeps
-  // one combinational instruction path; P4 may register the same boundaries.
+  // 当前顺序核的执行与访存载荷；valid/ready 独立于数据结构。
   typedef struct packed {
-    decoded_uop_t uop;
+    decoded_uop_t  uop;
     // ID级已经依据执行类型选择好语义源。整数指令分别对应ALU A/B输入；分支、LSU和
     // CSR仍分别对应rs1/rs2语义。EX级因此不再把operand select mux串在运算器前面。
     xlen_data_t source_a_value;
@@ -719,27 +731,27 @@ package riscv32_pkg;
   } execute_packet_t;
 
   typedef struct packed {
-    decoded_uop_t     uop;
-    xlen_data_t       result;
+    decoded_uop_t  uop;
+    xlen_data_t    result;
     program_counter_t next_pc;
-    xlen_data_t       csr_wdata;
-    logic             redirect_valid;
-    redirect_req_t    redirect_req;
+    xlen_data_t  csr_wdata;
+    logic          redirect_valid;
+    redirect_req_t redirect_req;
   } execute_result_t;
 
   // 当前顺序核的 EXU → LSU 请求：携带译码结果、有效地址和 store 数据，尚未发起访存。
   typedef struct packed {
-    decoded_uop_t     uop;
+    decoded_uop_t  uop;
     program_counter_t next_pc;
     effective_addr_t  effective_addr;
-    xlen_data_t       store_data;
+    xlen_data_t    store_data;
   } lsu_req_t;
 
   typedef struct packed {
-    decoded_uop_t      uop;
-    xlen_data_t        result;
-    program_counter_t  next_pc;
-    xlen_data_t        csr_wdata;
+    decoded_uop_t  uop;
+    xlen_data_t    result;
+    program_counter_t next_pc;
+    xlen_data_t  csr_wdata;
     effective_addr_t   memory_addr;
     core_data_t        memory_rdata;
     core_data_t        memory_wdata;
