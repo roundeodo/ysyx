@@ -1,0 +1,18 @@
+FENCE commit cycle=90
+B cycle=105 addr=80000080 resp=0
+INVALIDATE cycle=114 done=1
+QUERY A cycle=115 maintenance=0 invalidate=0
+FETCH A cycle=119 instr=0089a023 predicted_taken=1 target=80000100
+B cycle=123 addr=0f000000 resp=0
+COMMIT cycle=124 pc=80000080 next=80000084 trap=0
+COMMIT cycle=133 pc=80000084 next=80000180 trap=0
+SITE_SUCCESSOR actual=80000084 expected=80000084
+B cycle=144 addr=10002004 resp=0
+COMMIT cycle=145 pc=80000180 next=80000184 trap=0
+COMMIT cycle=149 pc=80000184 next=800001c0 trap=0
+RESULT fences=1 site=2 wrong_target_stores=0 correct_path_stores=1
+PASS fence recovery: injection=1 clean_error=0 memory_error=0 schedule=0
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/riscv32_fence_i_tb.sv:220: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 15ns; walltime 0.002 s; speed 6.613 us/s
+- Verilator: cpu 0.002 s on 1 threads; alloced 6 MB

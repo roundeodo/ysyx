@@ -10,6 +10,8 @@ module riscv32_ifu
 
     input redirect_req_t redirect_req_i,
     input logic          redirect_req_valid_i,
+    // 维护期间只停止新预测；已展示的 I-cache 请求仍按原握手排空。
+    input logic          prediction_enable_i,
 
     // IFU顺序产生预测请求；预测器用一级寄存响应切断PC自反馈关键路径。非跳转响应被
     // 消费时同拍查询下一 PC：顺序时 PC+4，taken 时直接使用响应目标。
@@ -92,7 +94,7 @@ module riscv32_ifu
       predictor_lookup_response_is_current &&
       next_pc_predictor_prediction_i.predicted_taken;
   assign next_pc_predictor_lookup_request_valid_o =
-      lookup_queue_enqueue_ready && !redirect_req_valid_i;
+      lookup_queue_enqueue_ready && !redirect_req_valid_i && prediction_enable_i;
 
   assign predictor_lookup_request_handshake =
       next_pc_predictor_lookup_request_valid_o &&

@@ -15,7 +15,11 @@ module riscv32_exu
 
     output lsu_req_t lsu_req_o,
     output logic     lsu_req_valid_o,
-    input  logic     lsu_req_ready_i
+    input  logic     lsu_req_ready_i,
+
+    // 当前非分支交付时恢复顺序后继，覆盖普通执行与 LSU 两条路径。
+    output redirect_req_t sequential_redirect_o,
+    output logic          sequential_redirect_valid_o
 );
   // EXU应只依赖ISA架构宽度；物理地址宽度和AXI数据宽度都不应进入ALU。这样将来把
   // 地址翻译放到AGU/MMU、把总线加宽时，不会迫使整数执行单元一起修改。
@@ -203,6 +207,20 @@ module riscv32_exu
       (execute_packet_i.uop.fu_type == FU_LSU);
   assign execute_packet_ready_o = (execute_packet_i.uop.fu_type == FU_LSU) ?
       lsu_req_ready_i : exu_result_ready_i;
+
+  // 共用译码后的指令类型；不在前端重复译码。恢复只在交付沿发生，反压时保留当前项。
+  always_comb begin
+    sequential_redirect_o                 = '0;
+    sequential_redirect_o.target_pc       = sequential_next_pc;
+    sequential_redirect_o.source_pc       = execute_packet_i.uop.pc;
+    sequential_redirect_o.reason          = REDIRECT_NONBRANCH;
+    sequential_redirect_o.flush_inclusive = 1'b0;
+  end
+  assign sequential_redirect_valid_o = execute_packet_valid_i &&
+      execute_packet_issue_allowed_i && execute_packet_ready_o &&
+      (execute_packet_i.uop.fu_type != FU_BRANCH) && !exu_result.uop.exception_valid &&
+      execute_packet_i.uop.prediction.predicted_taken &&
+      (execute_packet_i.uop.prediction.predicted_target != sequential_next_pc);
 
 `ifndef SYNTHESIS
   always_comb begin : check_exception_side_effects

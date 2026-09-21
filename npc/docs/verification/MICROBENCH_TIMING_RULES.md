@@ -16,14 +16,14 @@ IPC 0.178135953。十项 PASS、GOOD TRAP。文中“尚未运行”的表述属
 
 ```sh
 cd /home/yong/ysyx/ysyx-workbench-rv32-interview
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 600
+python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 580
 ```
 
 脚本先构建并归档，再启动仿真。`--prepare-only` 只准备文件；之后使用 `--resume 目录`
 运行归档的模拟器和镜像，并核对哈希。默认采用 RV32 baseline、I-cache 256 B/1-way、
 D-cache 256 B/2-way、BHT 16、BTB 16 项/2-way、RAS 4、SDRAM burst。当前通过完整 STA 检查
-的测量点为 CPU 600 MHz：设备等效 100 MHz，CLINT 每 600 拍增加 1 微秒。
-脚本仍有历史默认值 820，当前须显式传入 `--cpu-mhz 600`。输出目录不可覆盖，重测创建新目录。
+的测量点为 CPU 580 MHz：设备等效 100 MHz，CLINT 每 580 拍增加 1 微秒。
+脚本仍有历史默认值 820，当前须显式传入 `--cpu-mhz 580`。输出目录不可覆盖，重测创建新目录。
 
 用户所说的“完成 train 的定时器时间”优先报告 **原生 Total time**，并同时给出该窗口
 IPC；**Scored time** 与它的 IPC 单独列出，用于比较十个计分区间。JSON 中分别为

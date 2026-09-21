@@ -19,10 +19,11 @@ module riscv32_core
     output axi4_manager_to_target_t data_axi4_manager_o,
     input  axi4_target_to_manager_t data_axi4_manager_i
 );
-  localparam int unsigned REDIRECT_SOURCE_COUNT = 3;
-  localparam int unsigned EXU_REDIRECT_INDEX = 0;
-  localparam int unsigned FENCE_I_REDIRECT_INDEX = 1;
-  localparam int unsigned COMMIT_REDIRECT_INDEX = 2;
+  localparam int unsigned REDIRECT_SOURCE_COUNT = 4;
+  localparam int unsigned SEQUENTIAL_REDIRECT_INDEX = 0;
+  localparam int unsigned EXU_REDIRECT_INDEX = 1;
+  localparam int unsigned FENCE_I_REDIRECT_INDEX = 2;
+  localparam int unsigned COMMIT_REDIRECT_INDEX = 3;
 
   icache_lookup_req_t  icache_lookup_req;
   logic                icache_lookup_req_valid;
@@ -46,6 +47,10 @@ module riscv32_core
   logic                next_pc_predictor_flush;
   redirect_req_t       selected_redirect_req;
   logic                selected_redirect_req_valid;
+  logic                older_redirect_event;
+  logic                frontend_prediction_allowed;
+  redirect_req_t       sequential_redirect;
+  logic                sequential_redirect_valid;
 
   riscv32_ifu #(
       .PC_START                                 (RESET_PC)
@@ -54,6 +59,7 @@ module riscv32_core
       .rst_ni                                    (rst_ni),
       .redirect_req_i                            (selected_redirect_req),
       .redirect_req_valid_i                      (selected_redirect_req_valid),
+      .prediction_enable_i                      (frontend_prediction_allowed),
       .next_pc_predictor_lookup_request_pc_o     (next_pc_predictor_lookup_request_pc),
       .next_pc_predictor_lookup_request_epoch_o  (next_pc_predictor_lookup_request_epoch),
       .next_pc_predictor_lookup_request_valid_o  (next_pc_predictor_lookup_request_valid),
@@ -340,7 +346,7 @@ module riscv32_core
           resolved_execute_result_valid &&
           resolved_execute_result.redirect_valid
       ),
-      .frontend_redirect_applied_i              (selected_redirect_req_valid),
+      .frontend_redirect_applied_i              (older_redirect_event),
       .commit_redirect_event_i                  (commit_redirect_event),
       .decode_accept_allowed_o                  (decode_accept_allowed),
       .execute_progress_allowed_o               (execute_progress_allowed),
@@ -410,7 +416,7 @@ module riscv32_core
       .execute_forwardable_producer_present_o    (execute_forwardable_producer_present),
       .execute_blocking_producer_present_o       (execute_blocking_producer_present),
       .execute_serializing_instruction_present_o (execute_serializing_instruction_present),
-      .flush_i                                   (decode_execute_flush)
+      .flush_i                                   (decode_execute_flush || sequential_redirect_valid)
   );
 
   logic     exu_result_valid;
@@ -429,7 +435,9 @@ module riscv32_core
       .exu_result_ready_i             (exu_result_ready),
       .lsu_req_o                      (lsu_req),
       .lsu_req_valid_o                (lsu_req_valid),
-      .lsu_req_ready_i                (lsu_req_ready)
+      .lsu_req_ready_i                (lsu_req_ready),
+      .sequential_redirect_o         (sequential_redirect),
+      .sequential_redirect_valid_o   (sequential_redirect_valid)
   );
 
   // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过；
@@ -549,6 +557,7 @@ module riscv32_core
 
   // 提交后的缓存维护与前端恢复。
   logic          fence_i_maintenance_active;
+  logic          fence_i_failed;
   logic          committed_fence_i_event;
   redirect_req_t fence_i_redirect_req;
 
@@ -561,11 +570,14 @@ module riscv32_core
       .icache_lookup_req_ready_i        (icache_lookup_req_ready),
       .icache_busy_i                    (icache_busy),
       .dcache_clean_done_i              (dcache_clean_done),
+      .dcache_clean_access_fault_i      (dcache_clean_access_fault),
       .icache_invalidate_done_i         (icache_invalidate_done),
       .committed_fence_i_event_o        (committed_fence_i_event),
       .fence_i_redirect_req_o           (fence_i_redirect_req),
       .fence_i_maintenance_active_o     (fence_i_maintenance_active),
       .frontend_memory_access_allowed_o (frontend_memory_access_allowed),
+      .frontend_prediction_allowed_o    (frontend_prediction_allowed),
+      .maintenance_failed_o             (fence_i_failed),
       .dcache_clean_req_o               (dcache_clean_req),
       .icache_invalidate_req_o          (icache_invalidate_req)
   );
@@ -623,6 +635,11 @@ module riscv32_core
   redirect_req_t                    redirect_req_at_resolution_array[REDIRECT_SOURCE_COUNT];
   logic [REDIRECT_SOURCE_COUNT-1:0] redirect_req_at_resolution_valid_vector;
 
+  // 当前 EXU 非分支纠错只清年轻项，不能反馈阻塞自己的交付或清掉自己的结果。
+  assign older_redirect_event = execute_redirect_resolution_event ||
+      committed_fence_i_event || commit_redirect_resolution_event;
+  assign redirect_req_at_resolution_array[SEQUENTIAL_REDIRECT_INDEX] = sequential_redirect;
+  assign redirect_req_at_resolution_valid_vector[SEQUENTIAL_REDIRECT_INDEX] = sequential_redirect_valid;
   assign redirect_req_at_resolution_array[EXU_REDIRECT_INDEX] = execute_redirect_req_at_resolution;
 
   assign redirect_req_at_resolution_valid_vector[EXU_REDIRECT_INDEX] =
@@ -802,10 +819,16 @@ module riscv32_core
   else
     $error("D-cache dropped busy while a clean transaction was pending");
 
-  a_dcache_clean_fault_is_reported :
-  assert property (@(posedge clk_i) disable iff (!rst_ni) !dcache_clean_access_fault)
-  else
-    $error("D-cache writeback failed during fence.i maintenance");
+  a_dcache_clean_fault_stops_execution :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (dcache_clean_req && dcache_clean_done && dcache_clean_access_fault) |=> fence_i_failed)
+  else $error("FENCE.I clean error did not enter the failed state");
+
+  a_failed_maintenance_has_no_side_effects :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    fence_i_failed |-> (!commit_valid && !lsu_req_valid && !icache_invalidate_req &&
+                       !next_pc_predictor_lookup_request_valid && !interrupt_valid))
+  else $error("Core continued execution after fatal FENCE.I maintenance error");
 
   // FENCE.I依靠serializing语义排空后端，而不是在提交拍用组合flush补救。该性质成立时，
   // committed_fence_i_event 同拍发起重定向，并启动 cache 维护事务。

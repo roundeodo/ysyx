@@ -125,6 +125,7 @@ module riscv32_pipeline_control_tb;
   riscv32_ifu #(
       .PC_START(IFU_TEST_START_PC)
   ) u_ifu (
+      .prediction_enable_i(1'b1),
       .clk_i                         (clk),
       .rst_ni                        (rst_ni),
       .redirect_req_i                (ifu_redirect_req),

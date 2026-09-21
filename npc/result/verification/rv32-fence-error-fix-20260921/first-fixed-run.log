@@ -1,0 +1,27 @@
+nop 0
+FENCE commit cycle=72
+QUERY A cycle=73 maintenance=1 invalidate=0
+FETCH A cycle=105 instr=00000013 predicted_taken=1 target=80000100
+SITE_SUCCESSOR actual=80000100 expected=80000084
+OBSERVED wrong-target MMIO store cycle=120 data=00000001
+RESULT fences=1 site=2 wrong_target_stores=1 correct_path_stores=0
+load 0
+FENCE commit cycle=73
+QUERY A cycle=74 maintenance=1 invalidate=0
+FETCH A cycle=106 instr=0009a303 predicted_taken=1 target=80000100
+SITE_SUCCESSOR actual=80000100 expected=80000084
+OBSERVED wrong-target MMIO store cycle=121 data=00000001
+RESULT fences=1 site=2 wrong_target_stores=1 correct_path_stores=0
+store 0
+FENCE commit cycle=73
+QUERY A cycle=74 maintenance=1 invalidate=0
+FETCH A cycle=106 instr=0089a023 predicted_taken=1 target=80000100
+SITE_SUCCESSOR actual=80000100 expected=80000084
+OBSERVED wrong-target MMIO store cycle=128 data=00000001
+RESULT fences=1 site=2 wrong_target_stores=1 correct_path_stores=0
+jal 0
+FENCE commit cycle=73
+QUERY A cycle=74 maintenance=1 invalidate=0
+FETCH A cycle=106 instr=0040006f predicted_taken=1 target=80000100
+SITE_SUCCESSOR actual=80000084 expected=80000084
+RESULT fences=1 site=2 wrong_target_stores=0 correct_path_stores=1

@@ -10,6 +10,7 @@ module riscv32_exu_alu_tb;
   logic            lsu_req_valid;
 
   riscv32_exu u_exu (
+      .sequential_redirect_o(), .sequential_redirect_valid_o(),
       .execute_packet_i(execute_packet),
       .execute_packet_valid_i(execute_packet_valid),
       .execute_packet_issue_allowed_i(1'b1),

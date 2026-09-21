@@ -283,7 +283,7 @@ D-cache 地址划分为 **tag[31:7]、set[6:4]、word[3:2]、byte[1:0]**。
                                        ↓       │
                          等待必要 B，并确认全部成功
                             ├─成功：安装 tag/dirty → 返回
-                            └─失败：返回 access fault
+                            └─失败：先恢复被覆盖的旧脏行，再返回 access fault
 ```
 
 上面的处理顺序不表示独立时钟沿：旧行失效与发送 refill 同拍，成功安装与返回也可同拍。
@@ -291,7 +291,7 @@ D-cache 地址划分为 **tag[31:7]、set[6:4]、word[3:2]、byte[1:0]**。
 D-cache 当前没有 Early Restart、hit-under-miss、store buffer 或多个需求 MSHR。
 阻塞式写回结构降低了并发控制成本，但 miss 会影响整个顺序后端；脏替换还占用写带宽。
 
-**clean。** 顶层按 READ_SET → CHECK_WAY → WAIT_WRITEBACK 遍历各组各路，调用 miss unit
+**clean。** 顶层按 CHECK_WAY → WAIT_WRITEBACK 遍历各组各路，跨组时同步读取下一组，调用 miss unit
 写回 dirty 行；成功后清 dirty 并保留有效数据。它是写回清理，不是把全部 D-cache 行失效。
 clean 与普通 lookup 互斥。维护错误的核级处理边界见下一节。
 
@@ -315,8 +315,8 @@ clean 与普通 lookup 互斥。维护错误的核级处理边界见下一节。
 | riscv32_hazard_ctrl | 数据相关、生产者可用性、串行化、LSU 忙、结果级反压或有效异常及恢复门控；控制指令能否接收/发出 |
 | [riscv32_interrupt_ctrl](../../vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv) | 保存下一架构 PC；定时中断使能后阻止新指令进入 ID/EX，让已进入后端的指令排空；后端/维护空闲且无当拍 commit 时受理 |
 | [riscv32_trap_ctrl](../../vsrc/riscv32/core/control/riscv32_trap_ctrl.sv) | 组合处理同步 trap、mret、定时中断；生成 CSR 更新字段及架构重定向，同步 trap 优先于 mret，再于中断 |
-| [riscv32_redirect_mux](../../vsrc/riscv32/core/control/riscv32_redirect_mux.sv) | 组合选择 3 个来源；优先级为提交 trap/mret/中断 > FENCE.I > 分支纠错；同拍发给 IFU 和前端 flush |
-| [riscv32_fence_i_ctrl](../../vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv) | 提交 FENCE.I 后，停止新取指访存并排空已有请求，clean D-cache，再 invalidate I-cache/BTB/RAS，最后恢复取指 |
+| [riscv32_redirect_mux](../../vsrc/riscv32/core/control/riscv32_redirect_mux.sv) | 组合选择 4 个来源；优先级为提交 trap/mret/中断 > FENCE.I > 老分支纠错 > 当前非分支纠错；同拍发给 IFU 和前端 flush |
+| [riscv32_fence_i_ctrl](../../vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv) | 提交 FENCE.I 后，停止新预测与取指访存并排空已有请求，clean D-cache，再 invalidate I-cache/BTB/RAS，最后恢复取指 |
 
 **异常链。** IFU 的访问异常、IDU 的非法指令/ecall/ebreak、EXU 的控制流对齐或 CSR
 非法访问、LSU 的对齐/总线异常，随对应指令带到 WB/commit；trap_controller 再统一更新
@@ -332,9 +332,12 @@ interrupt_controller 给恢复 PC → trap_controller → CSR 保存现场与跳
 
 **FENCE.I 正常路径。** `IDLE → DRAIN_FRONTEND → CLEAN_DCACHE → INVALIDATE_ICACHE → IDLE`。
 已展示 valid 但受阻的请求先保持并完成，再做维护；不能直接撤走总线请求。
-当前 clean 的 fault 信号已从 D-cache 接到 core，但 core 只有仿真断言报告失败，维护 FSM
-仍按 done 前进，没有把维护失败转换成可供软件恢复的架构异常。面试中应明确这是错误处理
-尚未闭合的边界，不能称为“所有缓存维护错误都有精确异常”。本轮只调整状态归属，未改变这一错误处理边界。
+维护完成前暂停新预测查询；失效完成后才恢复，避免旧预测快照与新指令配对。
+EXU 另有覆盖普通/LSU 两条路径的非分支错误 taken 纠正，交付当前指令时恢复到 PC+4。
+clean 失败进入只能由系统复位退出的 FAILED 状态，停止后续取指和提交，阻止中断受理；
+不继续 invalidate，也不为已退休的 FENCE.I 补发普通精确异常。恢复策略和电路见
+[流水线说明](../microarchitecture/PIPELINE_DESIGN_RECORD.md)，测试与 PPA 见
+[修复验证](../verification/RV32_CACHE_RECOVERY_2026-09-21.md)。
 
 ## 9. 历史模块、仿真模块与配置声明
 

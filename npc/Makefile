@@ -595,6 +595,26 @@ test-lsu-configs:
 test-pipeline: $(PIPELINE_TEST_BINARY)
 	$(PIPELINE_TEST_BINARY)
 
+CACHE_RECOVERY_OUTPUT ?= $(abspath ./build/tests/cache-recovery)
+.PHONY: test-fence-i test-fence-i-ctrl test-dcache-recovery
+test-fence-i-ctrl:
+	mkdir -p "$(CACHE_RECOVERY_OUTPUT)/control"
+	$(VERILATOR) --binary --timing --assert -Wno-fatal -j 2 $(NPC_CONFIG_DEFINE) \
+		--top-module riscv32_fence_i_ctrl_tb --Mdir "$(CACHE_RECOVERY_OUTPUT)/control/obj" \
+		$(abspath vsrc/riscv32/common/riscv_config_pkg.sv) \
+		$(abspath vsrc/riscv32/common/riscv32_addr_map_pkg.sv) \
+		$(abspath vsrc/riscv32/common/riscv32_pkg.sv) \
+		$(abspath vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv) \
+		$(abspath tests/rtl/riscv32_fence_i_ctrl_tb.sv)
+	$(CACHE_RECOVERY_OUTPUT)/control/obj/Vriscv32_fence_i_ctrl_tb
+
+test-fence-i:
+	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
+	python3 scripts/test_cache_recovery.py --test core --output "$(CACHE_RECOVERY_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
+test-dcache-recovery:
+	python3 scripts/test_cache_recovery.py --test cache --output "$(CACHE_RECOVERY_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
 .PHONY: test-predictor test-icache test-fetch
 FRONTEND_TEST_OUTPUT ?= $(abspath ./build/tests/frontend)
 test-predictor:
@@ -632,6 +652,7 @@ test-dcache: $(DCACHE_TEST_BINARY)
 
 .PHONY: test-dcache-miss
 test-dcache-miss:
+	mkdir -p "$(BUILD_DIR)/obj_dir_dcache_miss_test"
 	$(VERILATOR) --binary --timing --assert -Wno-fatal -j 2 $(NPC_CONFIG_DEFINE) \
 		--top-module riscv32_dcache_miss_contract_tb \
 		$(RTL_DIR)/common/riscv_config_pkg.sv $(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
@@ -1270,6 +1291,9 @@ help:
 	@echo "  test-idu-configs  Run directed IDU tests for RV32 and RV64"
 	@echo "  test-exu-configs  Run directed EXU tests for RV32 and RV64"
 	@echo "  test-lsu-configs  Run directed LSU tests for RV32 and RV64"
+	@echo "  test-fence-i           Test FENCE.I, false-taken recovery, and dirty-victim trap retry"
+	@echo "  test-fence-i-ctrl      Test maintenance drain, fatal state, and reset"
+	@echo "  test-dcache-recovery   Test victim restoration with bus faults and response stalls"
 	@echo "  test-pipeline-configs  Test pipeline registers, hazards, and redirects"
 	@echo "  test-uncached-configs  Run uncached AXI4 tests for RV32 and RV64"
 	@echo "  test-dcache-configs  Test D-cache hit, refill, writeback, and clean in RV32/RV64"
