@@ -1,6 +1,6 @@
 # RV32 数据访存：原理与电路结构
 
-当前工作树，2026-09-19。`rv32-baseline` 的 D-cache 为 256 B、两路、16 B/行，
+当前工作树，2026-09-21。`rv32-baseline` 的 D-cache 为 256 B、两路、16 B/行，
 采用阻塞式写回、写分配。参数从 [Makefile](../../Makefile) 统一进入 RTL。
 
 ## 请求路径与状态归属
@@ -8,7 +8,7 @@
 | 模块 | 电路与源码顺序 |
 | --- | --- |
 | `riscv32_data_mem` | PMA 分类 → 本地/缓存/非缓存接口输出及 AXI 选择 → 路由下一状态 → 更新 → 子模块连接 |
-| `riscv32_dcache` | 阵列接口 → 同步查询、store 旁路与替换 → hit/miss 响应 → clean 遍历 → 阵列端口选择 → miss/AXI 连接 → 事件 |
+| `riscv32_dcache` | 共享反馈接口 → 请求与阵列读选择 → 同步阵列 → 查询/store 旁路与替换 → hit/miss 响应 → clean 状态机 → 写端口反馈 → miss/AXI 连接 → 事件 |
 | `riscv32_dcache_tag_array` | 每组/路保存 tag、present、dirty，同步读取；写口在回填、store 和 clean 时更新 |
 | `riscv32_dcache_data_array` | 按路/组/字保存数据，同步读取、字节掩码写入；阵列自身不处理 store 旁路 |
 | `riscv32_dcache_miss_unit` | 单事务上下文、被替换行缓冲、错误与响应状态；输出 → 下一状态 → 更新 |
@@ -33,8 +33,12 @@ miss 优先选择无效路，否则按每组轮转指针选路。指针在新行
 ## miss 与 clean
 
 一次 miss 保存原请求及替换位置。干净替换在分配拍直接发 refill；脏替换在分配拍启动
-首字同步读，随后逐拍采集并缓存整行，
-写回请求发出后，将旧行失效与回填请求合并处理；B 响应独立跟踪，可以与回填重叠。
+首字同步读，随后逐拍采集整行。最后一个字返回时直接补入行数据并发出写回请求；
+受阻时完整行已保存，进入发送状态继续保持，不强制多等一拍。
+
+普通脏替换在写回请求被接收的下一拍发 refill，并使旧行失效；B 响应独立跟踪，
+读回填可以与尚未结束的写回重叠。这个发起交接拍不是 AXI 协议要求，同拍方案及暂缓原因见
+[本轮取舍](../verification/RV32_REFINEMENT_2026-09-21.md)。clean 只写回，不发 refill。
 安装新行前必须确认 B 和全部 R 均无错。普通 miss 的写回失败不恢复旧行，返回 access fault；
 clean 写回失败则保留该行的 dirty 状态。
 
@@ -68,9 +72,10 @@ FENCE.I 的维护顺序由[流水线说明](PIPELINE_DESIGN_RECORD.md)中的控�
 
 ## 验证入口
 
-`test-dcache` 覆盖命中、store 旁路、脏替换与全组/路 clean；`test-dcache-miss` 检查最后 R/B
-完成、错误与反压；`test-uncached` 检查独立通道及连续事务交接。
-当前回归与源码对应关系见[等待周期复查](../verification/RV32_WAIT_AUDIT_2026-09-19.md)。
+`test-dcache` 覆盖命中、store 旁路、脏替换与全组/路 clean；`test-dcache-miss` 检查最后一字
+旁路、整行保持、R/B 完成、错误与反压；`test-dcache-axi` 检查 AW/W/AR 独立反压和响应身份；
+`test-uncached` 检查连续事务交接。当前回归与测量见
+[缓存交接实测](../verification/RV32_REFINEMENT_2026-09-21.md)。
 [历史设计与测量](archive/DCACHE_DESIGN_RECORD_BEFORE_2026-09-16.md)仅供追溯。
 
 uncached 与 I-cache AXI adapter 空闲时直接发出请求，反压时由上下文保持。

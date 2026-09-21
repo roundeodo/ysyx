@@ -67,6 +67,7 @@ ${NPC_HOME}/vsrc/riscv32/system/riscv32_npc_axi.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_icache_monitor.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_dcache_monitor.sv
+${NPC_HOME}/vsrc/riscv32/sim/riscv32_sim_cache_wait_monitor.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv
 ${NPC_HOME}/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv
 ${NPC_HOME}/vsrc/riscv32/sim/top.sv

@@ -2,6 +2,9 @@
 
 当前设计从[模块说明目录](microarchitecture/README.md)进入；前端、后端、访存和总线分别维护电路与源码顺序。
 
+每次开始 RTL 设计、修改或评审，先读[开发流程](development/DEVELOPMENT_PROCESS.md)和
+[编码规范](development/NAMING_GUIDE.md)，执行其中的寄存器、等待与旁路检查。
+
 > 本工作树恢复自 `bb03677`，并已新增本地定时中断，用于 RV32 简历核对与面试准备。请先读
 > [RV32 架构与模块说明](interview/RV32_ARCHITECTURE_ATLAS.md) 和
 > [RV32 简历核对与面试准备](interview/RV32_RESUME_AUDIT.md)。历史实验和归档记录中的
@@ -41,6 +44,8 @@
 - [D-cache 说明](microarchitecture/DCACHE_DESIGN_RECORD.md)：同步查询、store 旁路、写回/回填和 clean。
 - [完整目录整理验证](verification/RV32_FULL_DIRECTORY_REVIEW_2026-09-19.md)：全部 67 个文件的检查范围、补充修改与回归。
 - [整理后的面积、时序与性能复测](verification/RV32_READABILITY_PPA_2026-09-19.md)：同条件比较、综合编译修复和 microbench test 结果。
+- [逻辑与可读性复查及优化取舍（2026-09-21）](verification/RV32_LOGIC_STYLE_AUDIT_2026-09-21.md)：剩余等待、代码冗余、触发频率与处理优先级。
+- [源码整理与缓存交接实测（2026-09-21）](verification/RV32_REFINEMENT_2026-09-21.md)：候选实现、同条件测量与设备延迟模型限制。
 - [前次后端与系统整理](verification/RV32_READABILITY_2026-09-16.md)：模块提取与代码重排的原始记录。
 
 - 最终产品和架构路线：[`architecture/ARCHITECTURE_PLAN.md`](architecture/ARCHITECTURE_PLAN.md)

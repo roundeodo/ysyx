@@ -19,7 +19,9 @@ module riscv32_axi4_clint
       CLINT_CLOCK_FREQ_HZ / MTIME_INCREMENT_FREQ_HZ;
   localparam int unsigned CLINT_CLOCK_CYCLE_COUNT_WIDTH =
       (CLINT_CLOCK_CYCLES_PER_MTIME_INCREMENT <= 1) ?
-      1 : $clog2(CLINT_CLOCK_CYCLES_PER_MTIME_INCREMENT);
+      1 : $clog2(
+      CLINT_CLOCK_CYCLES_PER_MTIME_INCREMENT
+  );
 
   logic [63:0] mtimecmp_q;
   logic [63:0] mtime_q;
@@ -50,6 +52,258 @@ module riscv32_axi4_clint
     return merged_data;
   endfunction
 
+  typedef enum logic {
+    READ_ACCEPT_ADDRESS,
+    READ_RETURN_DATA
+  } read_state_e;
+
+  read_state_e read_state_q;
+  read_state_e read_state_d;
+
+  axi4_read_data_t read_response_q;
+  axi4_read_data_t read_response_d;
+  logic [7:0]      read_burst_length_q;
+  logic [7:0]      read_burst_length_d;
+  logic [7:0]      read_beat_index_q;
+  logic [7:0]      read_beat_index_d;
+
+  logic            [31:0] mtime_high_snapshot_q;
+  logic            [31:0] mtime_high_snapshot_d;
+  logic        mtime_read_snapshot_present_q;
+  logic        mtime_read_snapshot_present_d;
+
+  logic read_address_handshake;
+  logic read_data_handshake;
+
+  assign read_address_handshake = axi_target_i.ar_valid && axi_target_o.ar_ready;
+  assign read_data_handshake    = axi_target_o.r_valid && axi_target_i.r_ready;
+
+  typedef enum logic [1:0] {
+    WRITE_ACCEPT_ADDRESS,
+    WRITE_RECEIVE_DATA,
+    WRITE_RETURN_RESPONSE
+  } write_state_e;
+
+  write_state_e         write_state_q;
+  write_state_e         write_state_d;
+  axi4_write_response_t write_response_q;
+  axi4_write_response_t write_response_d;
+
+  logic       write_request_supported_q;
+  logic       write_request_supported_d;
+  logic [7:0] write_beats_remaining_q;
+  logic [7:0] write_beats_remaining_d;
+
+  logic write_address_handshake;
+  logic write_data_handshake;
+  logic write_response_handshake;
+
+  assign write_address_handshake  = axi_target_i.aw_valid && axi_target_o.aw_ready;
+  assign write_data_handshake     = axi_target_i.w_valid && axi_target_o.w_ready;
+  assign write_response_handshake = axi_target_o.b_valid && axi_target_i.b_ready;
+
+  // AW 和 W 分别握手。只有合法的单拍写能更新寄存器；非法 burst 消耗全部
+  // LEN+1 拍后返回一次 SLVERR，不因第一拍的地址碰巧合法而部分修改寄存器。
+  always_comb begin
+    axi_target_o.ar_ready = (read_state_q == READ_ACCEPT_ADDRESS) ||
+        (read_state_q == READ_RETURN_DATA && axi_target_i.r_ready && read_response_q.last);
+    axi_target_o.r        = read_response_q;
+    axi_target_o.r_valid  = (read_state_q == READ_RETURN_DATA);
+    axi_target_o.aw_ready = (write_state_q == WRITE_ACCEPT_ADDRESS) ||
+        (write_state_q == WRITE_RETURN_RESPONSE && axi_target_i.b_ready);
+    axi_target_o.w_ready = (write_state_q == WRITE_RECEIVE_DATA) ||
+        (axi_target_o.aw_ready && axi_target_i.aw_valid);
+    axi_target_o.b       = write_response_q;
+    axi_target_o.b_valid = (write_state_q == WRITE_RETURN_RESPONSE);
+  end
+
+  always_comb begin
+    read_state_d                  = read_state_q;
+    read_response_d               = read_response_q;
+    read_burst_length_d           = read_burst_length_q;
+    read_beat_index_d             = read_beat_index_q;
+    mtime_high_snapshot_d         = mtime_high_snapshot_q;
+    mtime_read_snapshot_present_d = mtime_read_snapshot_present_q;
+
+    unique case (read_state_q)
+      READ_ACCEPT_ADDRESS: ;
+
+      READ_RETURN_DATA: begin
+        if (read_data_handshake) begin
+          if (read_beat_index_q == read_burst_length_q) begin
+            read_state_d = READ_ACCEPT_ADDRESS;
+          end else begin
+            read_beat_index_d    = read_beat_index_q + 1'b1;
+            read_response_d.data = '0;
+            read_response_d.resp = AXI4_RESP_SLVERR;
+            read_response_d.last = (read_beat_index_q + 1'b1 == read_burst_length_q);
+          end
+        end
+      end
+
+      default: read_state_d = READ_ACCEPT_ADDRESS;
+    endcase
+
+    // 新地址握手覆盖已完成的旧事务；旧响应仍由 q 输出。
+    if (read_address_handshake) begin
+      read_burst_length_d  = axi_target_i.ar.len;
+      read_beat_index_d    = '0;
+      read_response_d      = '0;
+      read_response_d.id   = axi_target_i.ar.id;
+      read_response_d.resp = AXI4_RESP_SLVERR;
+      read_response_d.last = (axi_target_i.ar.len == 0);
+
+      // 普通寄存器访问为单拍 32 位；非法 burst 仍返回 LEN+1 个错误 beat。
+      // 64 位配置另支持整宽 mtime 读取，不改变当前 RV32 访问规则。
+      if ((MEM_AXI_DATA_WIDTH == 64) && (axi_target_i.ar.len == 0) &&
+          (axi_target_i.ar.size == 3'd3) &&
+          (axi_target_i.ar.addr == CLINT_MTIME_LOW_ADDR)) begin
+        read_response_d.data          = axi4_data_t'(mtime_q);
+        read_response_d.resp          = AXI4_RESP_OKAY;
+        mtime_read_snapshot_present_d = 1'b0;
+      end else if ((axi_target_i.ar.len == 0) &&
+          (axi_target_i.ar.size == 3'd2) &&
+          (axi_target_i.ar.burst inside {AXI4_BURST_FIXED, AXI4_BURST_INCR})) begin
+        unique case (axi_target_i.ar.addr)
+          CLINT_MTIME_LOW_ADDR: begin
+            mtime_high_snapshot_d         = mtime_q[63:32];
+            mtime_read_snapshot_present_d = 1'b1;
+            read_response_d.data          = mtime_q[31:0];
+            read_response_d.resp          = AXI4_RESP_OKAY;
+          end
+
+          CLINT_MTIME_HIGH_ADDR: begin
+            read_response_d.data = mtime_read_snapshot_present_q ?
+                mtime_high_snapshot_q : mtime_q[63:32];
+            mtime_read_snapshot_present_d = 1'b0;
+            read_response_d.resp          = AXI4_RESP_OKAY;
+          end
+
+          CLINT_MTIMECMP_LOW_ADDR: begin
+            read_response_d.data = mtimecmp_q[31:0];
+            read_response_d.resp = AXI4_RESP_OKAY;
+          end
+
+          CLINT_MTIMECMP_HIGH_ADDR: begin
+            read_response_d.data = mtimecmp_q[63:32];
+            read_response_d.resp = AXI4_RESP_OKAY;
+          end
+
+          default: ;
+        endcase
+      end
+
+      read_state_d = READ_RETURN_DATA;
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      read_state_q                  <= READ_ACCEPT_ADDRESS;
+      read_response_q               <= '0;
+      read_burst_length_q           <= '0;
+      read_beat_index_q             <= '0;
+      mtime_high_snapshot_q         <= '0;
+      mtime_read_snapshot_present_q <= 1'b0;
+    end else begin
+      read_state_q                  <= read_state_d;
+      read_response_q               <= read_response_d;
+      read_burst_length_q           <= read_burst_length_d;
+      read_beat_index_q             <= read_beat_index_d;
+      mtime_high_snapshot_q         <= mtime_high_snapshot_d;
+      mtime_read_snapshot_present_q <= mtime_read_snapshot_present_d;
+    end
+  end
+
+  // AW/W 同拍到达时直接使用当前地址；分开到达时使用已保存的寄存器选择。
+  always_comb begin
+    request_write_register  = MTIME_LOW_REGISTER;
+    request_write_supported = (axi_target_i.aw.len == 0) &&
+        (axi_target_i.aw.size == 3'd2) &&
+        (axi_target_i.aw.burst inside {AXI4_BURST_FIXED, AXI4_BURST_INCR});
+    unique case (axi_target_i.aw.addr)
+      CLINT_MTIME_LOW_ADDR:     request_write_register = MTIME_LOW_REGISTER;
+      CLINT_MTIME_HIGH_ADDR:    request_write_register = MTIME_HIGH_REGISTER;
+      CLINT_MTIMECMP_LOW_ADDR:  request_write_register = MTIMECMP_LOW_REGISTER;
+      CLINT_MTIMECMP_HIGH_ADDR: request_write_register = MTIMECMP_HIGH_REGISTER;
+      default: request_write_supported = 1'b0;
+    endcase
+  end
+  assign active_write_register = (write_state_q == WRITE_RECEIVE_DATA) ?
+      write_register_index_q : request_write_register;
+
+  always_comb begin
+    write_state_d             = write_state_q;
+    write_response_d          = write_response_q;
+    write_register_index_d    = write_register_index_q;
+    write_request_supported_d = write_request_supported_q;
+    write_beats_remaining_d   = write_beats_remaining_q;
+
+    unique case (write_state_q)
+      WRITE_ACCEPT_ADDRESS: ;
+
+      WRITE_RECEIVE_DATA: begin
+        if (write_data_handshake) begin
+          if (write_beats_remaining_q == 0) begin
+            write_state_d = WRITE_RETURN_RESPONSE;
+            if (write_request_supported_q && axi_target_i.w.last)
+              write_response_d.resp = AXI4_RESP_OKAY;
+          end else begin
+            write_beats_remaining_d = write_beats_remaining_q - 1'b1;
+          end
+        end
+      end
+
+      WRITE_RETURN_RESPONSE: begin
+        if (write_response_handshake) begin
+          write_state_d = WRITE_ACCEPT_ADDRESS;
+        end
+      end
+
+      default: write_state_d = WRITE_ACCEPT_ADDRESS;
+    endcase
+
+    // 新地址握手覆盖已完成的旧事务；旧响应仍由 q 输出。
+    if (write_address_handshake) begin
+      write_response_d.id       = axi_target_i.aw.id;
+      write_response_d.resp     = AXI4_RESP_SLVERR;
+      write_state_d             = WRITE_RECEIVE_DATA;
+      write_beats_remaining_d   = axi_target_i.aw.len;
+      write_request_supported_d = request_write_supported;
+      write_register_index_d    = request_write_register;
+      if (write_data_handshake) begin
+        if (axi_target_i.aw.len == 0) begin
+          write_state_d = WRITE_RETURN_RESPONSE;
+          if (request_write_supported && axi_target_i.w.last)
+            write_response_d.resp = AXI4_RESP_OKAY;
+        end else begin
+          write_beats_remaining_d = axi_target_i.aw.len - 1'b1;
+        end
+      end
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      write_state_q             <= WRITE_ACCEPT_ADDRESS;
+      write_response_q          <= '0;
+      write_register_index_q    <= MTIME_LOW_REGISTER;
+      write_request_supported_q <= 1'b0;
+      write_beats_remaining_q   <= '0;
+    end else begin
+      write_state_q             <= write_state_d;
+      write_response_q          <= write_response_d;
+      write_register_index_q    <= write_register_index_d;
+      write_request_supported_q <= write_request_supported_d;
+      write_beats_remaining_q   <= write_beats_remaining_d;
+    end
+  end
+
+  assign register_write_valid = write_data_handshake && axi_target_i.w.last &&
+      ((write_state_q == WRITE_RECEIVE_DATA) ?
+       write_request_supported_q : request_write_supported);
+
+  // 定时器数据通路：上方 AXI 写译码决定更新，下方计数值反馈到读响应。
   logic [63:0]                              mtime_d;
   logic [CLINT_CLOCK_CYCLE_COUNT_WIDTH-1:0] clint_clock_cycle_count_q;
   logic [CLINT_CLOCK_CYCLE_COUNT_WIDTH-1:0] clint_clock_cycle_count_d;
@@ -115,257 +369,6 @@ module riscv32_axi4_clint
     end
   end
 
-  typedef enum logic {
-    READ_ACCEPT_ADDRESS,
-    READ_RETURN_DATA
-  } read_state_e;
-
-  read_state_e read_state_q;
-  read_state_e read_state_d;
-
-  axi4_read_data_t read_response_q;
-  axi4_read_data_t read_response_d;
-  logic [7:0]      read_burst_length_q;
-  logic [7:0]      read_burst_length_d;
-  logic [7:0]      read_beat_index_q;
-  logic [7:0]      read_beat_index_d;
-
-  logic [63:0] mtime_read_snapshot_q;
-  logic [63:0] mtime_read_snapshot_d;
-  logic        mtime_read_snapshot_present_q;
-  logic        mtime_read_snapshot_present_d;
-
-  logic read_address_handshake;
-  logic read_data_handshake;
-
-  assign read_address_handshake = axi_target_i.ar_valid && axi_target_o.ar_ready;
-  assign read_data_handshake    = axi_target_o.r_valid && axi_target_i.r_ready;
-
-  typedef enum logic [1:0] {
-    WRITE_ACCEPT_ADDRESS,
-    WRITE_RECEIVE_DATA,
-    WRITE_RETURN_RESPONSE
-  } write_state_e;
-
-  write_state_e         write_state_q;
-  write_state_e         write_state_d;
-  axi4_write_response_t write_response_q;
-  axi4_write_response_t write_response_d;
-
-  logic       write_request_supported_q;
-  logic       write_request_supported_d;
-  logic [7:0] write_beats_remaining_q;
-  logic [7:0] write_beats_remaining_d;
-
-  logic write_address_handshake;
-  logic write_data_handshake;
-  logic write_response_handshake;
-
-  assign write_address_handshake  = axi_target_i.aw_valid && axi_target_o.aw_ready;
-  assign write_data_handshake     = axi_target_i.w_valid && axi_target_o.w_ready;
-  assign write_response_handshake = axi_target_o.b_valid && axi_target_i.b_ready;
-
-  // AW 和 W 分别握手。只有合法的单拍写能更新寄存器；非法 burst 消耗全部
-  // LEN+1 拍后返回一次 SLVERR，不因第一拍的地址碰巧合法而部分修改寄存器。
-  always_comb begin
-    axi_target_o.ar_ready = (read_state_q == READ_ACCEPT_ADDRESS) ||
-        (read_state_q == READ_RETURN_DATA && axi_target_i.r_ready && read_response_q.last);
-    axi_target_o.r        = read_response_q;
-    axi_target_o.r_valid  = (read_state_q == READ_RETURN_DATA);
-    axi_target_o.aw_ready = (write_state_q == WRITE_ACCEPT_ADDRESS) ||
-        (write_state_q == WRITE_RETURN_RESPONSE && axi_target_i.b_ready);
-    axi_target_o.w_ready  = (write_state_q == WRITE_RECEIVE_DATA) ||
-        (axi_target_o.aw_ready && axi_target_i.aw_valid);
-    axi_target_o.b        = write_response_q;
-    axi_target_o.b_valid  = (write_state_q == WRITE_RETURN_RESPONSE);
-  end
-
-  always_comb begin
-    read_state_d                  = read_state_q;
-    read_response_d               = read_response_q;
-    read_burst_length_d           = read_burst_length_q;
-    read_beat_index_d             = read_beat_index_q;
-    mtime_read_snapshot_d         = mtime_read_snapshot_q;
-    mtime_read_snapshot_present_d = mtime_read_snapshot_present_q;
-
-    unique case (read_state_q)
-      READ_ACCEPT_ADDRESS: ;
-
-      READ_RETURN_DATA: begin
-        if (read_data_handshake) begin
-          if (read_beat_index_q == read_burst_length_q) begin
-            read_state_d = READ_ACCEPT_ADDRESS;
-          end else begin
-            read_beat_index_d    = read_beat_index_q + 1'b1;
-            read_response_d.data = '0;
-            read_response_d.resp = AXI4_RESP_SLVERR;
-            read_response_d.last = (read_beat_index_q + 1'b1 == read_burst_length_q);
-          end
-        end
-      end
-
-      default: read_state_d = READ_ACCEPT_ADDRESS;
-    endcase
-
-    // 新地址握手覆盖已完成的旧事务；旧响应仍由 q 输出。
-    if (read_address_handshake) begin
-      read_burst_length_d  = axi_target_i.ar.len;
-      read_beat_index_d    = '0;
-      read_response_d      = '0;
-      read_response_d.id   = axi_target_i.ar.id;
-      read_response_d.resp = AXI4_RESP_SLVERR;
-      read_response_d.last = (axi_target_i.ar.len == 0);
-
-      // 普通寄存器访问为单拍 32 位；非法 burst 仍返回 LEN+1 个错误 beat。
-      // 64 位配置另支持整宽 mtime 读取，不改变当前 RV32 访问规则。
-      if ((MEM_AXI_DATA_WIDTH == 64) && (axi_target_i.ar.len == 0) &&
-          (axi_target_i.ar.size == 3'd3) &&
-          (axi_target_i.ar.addr == CLINT_MTIME_LOW_ADDR)) begin
-        read_response_d.data          = axi4_data_t'(mtime_q);
-        read_response_d.resp          = AXI4_RESP_OKAY;
-        mtime_read_snapshot_present_d = 1'b0;
-      end else if ((axi_target_i.ar.len == 0) &&
-          (axi_target_i.ar.size == 3'd2) &&
-          (axi_target_i.ar.burst inside {AXI4_BURST_FIXED, AXI4_BURST_INCR})) begin
-        unique case (axi_target_i.ar.addr)
-          CLINT_MTIME_LOW_ADDR: begin
-            mtime_read_snapshot_d         = mtime_q;
-            mtime_read_snapshot_present_d = 1'b1;
-            read_response_d.data          = mtime_q[31:0];
-            read_response_d.resp          = AXI4_RESP_OKAY;
-          end
-
-          CLINT_MTIME_HIGH_ADDR: begin
-            read_response_d.data = mtime_read_snapshot_present_q ?
-                mtime_read_snapshot_q[63:32] : mtime_q[63:32];
-            mtime_read_snapshot_present_d = 1'b0;
-            read_response_d.resp          = AXI4_RESP_OKAY;
-          end
-
-          CLINT_MTIMECMP_LOW_ADDR: begin
-            read_response_d.data = mtimecmp_q[31:0];
-            read_response_d.resp = AXI4_RESP_OKAY;
-          end
-
-          CLINT_MTIMECMP_HIGH_ADDR: begin
-            read_response_d.data = mtimecmp_q[63:32];
-            read_response_d.resp = AXI4_RESP_OKAY;
-          end
-
-          default: ;
-        endcase
-      end
-
-      read_state_d = READ_RETURN_DATA;
-    end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      read_state_q                  <= READ_ACCEPT_ADDRESS;
-      read_response_q               <= '0;
-      read_burst_length_q           <= '0;
-      read_beat_index_q             <= '0;
-      mtime_read_snapshot_q         <= '0;
-      mtime_read_snapshot_present_q <= 1'b0;
-    end else begin
-      read_state_q                  <= read_state_d;
-      read_response_q               <= read_response_d;
-      read_burst_length_q           <= read_burst_length_d;
-      read_beat_index_q             <= read_beat_index_d;
-      mtime_read_snapshot_q         <= mtime_read_snapshot_d;
-      mtime_read_snapshot_present_q <= mtime_read_snapshot_present_d;
-    end
-  end
-
-  // AW/W 同拍到达时直接使用当前地址；分开到达时使用已保存的寄存器选择。
-  always_comb begin
-    request_write_register = MTIME_LOW_REGISTER;
-    request_write_supported = (axi_target_i.aw.len == 0) &&
-        (axi_target_i.aw.size == 3'd2) &&
-        (axi_target_i.aw.burst inside {AXI4_BURST_FIXED, AXI4_BURST_INCR});
-    unique case (axi_target_i.aw.addr)
-      CLINT_MTIME_LOW_ADDR:     request_write_register = MTIME_LOW_REGISTER;
-      CLINT_MTIME_HIGH_ADDR:    request_write_register = MTIME_HIGH_REGISTER;
-      CLINT_MTIMECMP_LOW_ADDR:  request_write_register = MTIMECMP_LOW_REGISTER;
-      CLINT_MTIMECMP_HIGH_ADDR: request_write_register = MTIMECMP_HIGH_REGISTER;
-      default: request_write_supported = 1'b0;
-    endcase
-  end
-  assign active_write_register = (write_state_q == WRITE_RECEIVE_DATA) ?
-      write_register_index_q : request_write_register;
-
-  always_comb begin
-    write_state_d             = write_state_q;
-    write_response_d          = write_response_q;
-    write_register_index_d    = write_register_index_q;
-    write_request_supported_d = write_request_supported_q;
-    write_beats_remaining_d   = write_beats_remaining_q;
-
-    unique case (write_state_q)
-      WRITE_ACCEPT_ADDRESS: ;
-
-      WRITE_RECEIVE_DATA: begin
-        if (write_data_handshake) begin
-          if (write_beats_remaining_q == 0) begin
-            write_state_d = WRITE_RETURN_RESPONSE;
-            if (write_request_supported_q && axi_target_i.w.last)
-              write_response_d.resp = AXI4_RESP_OKAY;
-          end else begin
-            write_beats_remaining_d = write_beats_remaining_q - 1'b1;
-          end
-        end
-      end
-
-      WRITE_RETURN_RESPONSE: begin
-        if (write_response_handshake) begin
-          write_state_d = WRITE_ACCEPT_ADDRESS;
-        end
-      end
-
-      default: write_state_d = WRITE_ACCEPT_ADDRESS;
-    endcase
-
-    // 新地址握手覆盖已完成的旧事务；旧响应仍由 q 输出。
-    if (write_address_handshake) begin
-      write_response_d.id       = axi_target_i.aw.id;
-      write_response_d.resp     = AXI4_RESP_SLVERR;
-      write_state_d             = WRITE_RECEIVE_DATA;
-      write_beats_remaining_d   = axi_target_i.aw.len;
-      write_request_supported_d = request_write_supported;
-      write_register_index_d = request_write_register;
-      if (write_data_handshake) begin
-        if (axi_target_i.aw.len == 0) begin
-          write_state_d = WRITE_RETURN_RESPONSE;
-          if (request_write_supported && axi_target_i.w.last)
-            write_response_d.resp = AXI4_RESP_OKAY;
-        end else begin
-          write_beats_remaining_d = axi_target_i.aw.len - 1'b1;
-        end
-      end
-    end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      write_state_q             <= WRITE_ACCEPT_ADDRESS;
-      write_response_q          <= '0;
-      write_register_index_q    <= MTIME_LOW_REGISTER;
-      write_request_supported_q <= 1'b0;
-      write_beats_remaining_q   <= '0;
-    end else begin
-      write_state_q             <= write_state_d;
-      write_response_q          <= write_response_d;
-      write_register_index_q    <= write_register_index_d;
-      write_request_supported_q <= write_request_supported_d;
-      write_beats_remaining_q   <= write_beats_remaining_d;
-    end
-  end
-
-  assign register_write_valid = write_data_handshake && axi_target_i.w.last &&
-      ((write_state_q == WRITE_RECEIVE_DATA) ?
-       write_request_supported_q : request_write_supported);
-
 `ifndef SYNTHESIS
   initial begin
     assert (MTIME_INCREMENT_FREQ_HZ > 0 &&
@@ -376,9 +379,13 @@ module riscv32_axi4_clint
   end
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     axi_target_o.r_valid && !axi_target_i.r_ready |=>
-      axi_target_o.r_valid && $stable(axi_target_o.r));
+      axi_target_o.r_valid && $stable(
+      axi_target_o.r
+  ));
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     axi_target_o.b_valid && !axi_target_i.b_ready |=>
-      axi_target_o.b_valid && $stable(axi_target_o.b));
+      axi_target_o.b_valid && $stable(
+      axi_target_o.b
+  ));
 `endif
 endmodule : riscv32_axi4_clint

@@ -1,0 +1,60 @@
+{
+  "cache-exception": {
+    "exit": 0,
+    "messages": [
+      "D-cache directed test passed: XLEN=32 sets=8 ways=2 line=16B",
+      "PASS D-cache miss contract: 102 cases, R/B order, faults, response stalls, allocation bypass, clean",
+      "Precise exception: 40/40 passed"
+    ]
+  },
+  "difftest": {
+    "exit": 0,
+    "messages": [
+      "[      goldbach] \u001b[1;32mPASS\u001b[0m",
+      "[ to-lower-case] \u001b[1;32mPASS\u001b[0m",
+      "[    load-store] \u001b[1;32mPASS\u001b[0m",
+      "[     recursion] \u001b[1;32mPASS\u001b[0m",
+      "[      mersenne] \u001b[1;32mPASS\u001b[0m",
+      "[        switch] \u001b[1;32mPASS\u001b[0m",
+      "[   bubble-sort] \u001b[1;32mPASS\u001b[0m",
+      "[        wanshu] \u001b[1;32mPASS\u001b[0m",
+      "[  add-longlong] \u001b[1;32mPASS\u001b[0m",
+      "[    quick-sort] \u001b[1;32mPASS\u001b[0m",
+      "[       unalign] \u001b[1;32mPASS\u001b[0m",
+      "[  sub-longlong] \u001b[1;32mPASS\u001b[0m",
+      "[    matrix-mul] \u001b[1;32mPASS\u001b[0m",
+      "[   select-sort] \u001b[1;32mPASS\u001b[0m",
+      "[         prime] \u001b[1;32mPASS\u001b[0m",
+      "[       if-else] \u001b[1;32mPASS\u001b[0m",
+      "[           bit] \u001b[1;32mPASS\u001b[0m",
+      "[          min3] \u001b[1;32mPASS\u001b[0m",
+      "[          fact] \u001b[1;32mPASS\u001b[0m",
+      "[        string] \u001b[1;32mPASS\u001b[0m",
+      "[         dummy] \u001b[1;32mPASS\u001b[0m",
+      "[         movsx] \u001b[1;32mPASS\u001b[0m",
+      "[     hello-str] \u001b[1;32mPASS\u001b[0m",
+      "[           div] \u001b[1;32mPASS\u001b[0m",
+      "[           sum] \u001b[1;32mPASS\u001b[0m",
+      "[        pascal] \u001b[1;32mPASS\u001b[0m",
+      "[         shift] \u001b[1;32mPASS\u001b[0m",
+      "[         mov-c] \u001b[1;32mPASS\u001b[0m",
+      "[           fib] \u001b[1;32mPASS\u001b[0m",
+      "[           add] \u001b[1;32mPASS\u001b[0m",
+      "[           max] \u001b[1;32mPASS\u001b[0m",
+      "[     leap-year] \u001b[1;32mPASS\u001b[0m",
+      "[   shuixianhua] \u001b[1;32mPASS\u001b[0m",
+      "[         crc32] \u001b[1;32mPASS\u001b[0m",
+      "[  mul-longlong] \u001b[1;32mPASS\u001b[0m"
+    ]
+  },
+  "lint": {
+    "exit": 0,
+    "messages": []
+  },
+  "scc": {
+    "exit": 0,
+    "messages": [
+      "Found 0 SCCs in module riscv32_npc_system."
+    ]
+  }
+}

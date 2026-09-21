@@ -9,7 +9,7 @@ module riscv32_redirect_arbiter
     output redirect_req_t selected_redirect_req_o,
     output logic          selected_redirect_req_valid_o
 );
-  // 通用组合仲裁器：数组索引越高，优先级越高。当前 core 使用带寄存器的恢复模块。
+  // 通用组合仲裁器：数组索引越高，优先级越高。当前 core 使用组合 redirect_mux；此模块只保留作实验。
   always_comb begin
     selected_redirect_req_o       = '0;
     selected_redirect_req_valid_o = 1'b0;

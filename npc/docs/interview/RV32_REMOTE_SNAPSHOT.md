@@ -49,6 +49,14 @@ MicroBench **test** 的 Total 定时器时间为 0.005923 s，同窗口 IPC 为 
 精确异常 40/40、DiffTest 35/35、定时中断 8/8 通过。当前版 train 尚待复测。
 逐模块取舍和测量口径见[等待周期复查](../verification/RV32_WAIT_AUDIT_2026-09-19.md)。
 
+## 2026-09-21 更新
+
+整理 RTL 电路连接顺序和重复逻辑，保留 D-cache 最后一个脏行读出字直接进入写回的直通路径。
+面积 69,575.758 μm²；600 MHz 的 setup、hold 与门控检查通过。
+MicroBench **test** 的 Total 定时器时间为 0.005908 s，同窗口 IPC 为 0.215609884。
+本轮未重跑 train。取舍、验证范围及访存延迟模型限制见
+[优化记录](../verification/RV32_REFINEMENT_2026-09-21.md)。
+
 ## 历史版本已验证的性能
 
 RV32 baseline，CPU 820 MHz，设备 100 MHz，MicroBench train 十项 PASS、GOOD TRAP：
@@ -71,4 +79,4 @@ python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 600
 远程保存 RTL、脚本、测试、文档、依赖补丁和精选测量证据；宿主仿真器、编译缓存及
 大体积中间网表仍留在原工作机。因宿主仿真器未上传，不对远程克隆的历史归档使用
 `--resume`，应使用上面的源码构建入口。归档 manifest 中的绝对路径与哈希保留测量时原值。
-面积和时序沿用已有综合记录，本次发布没有重新综合，也没有重新运行长时间 train。
+面积和时序来自各更新条目对应的综合记录；本次发布未重新运行长时间 train。

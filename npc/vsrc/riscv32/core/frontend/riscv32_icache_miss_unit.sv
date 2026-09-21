@@ -170,8 +170,8 @@ module riscv32_icache_miss_unit
   //
   // refill请求被下层接收时先清除victim present。否则后续beat已经逐拍覆盖data array，
   // 而总线错误又阻止新metadata安装时，旧tag仍可能命中到被部分覆盖的数据。
-  // 最后一个成功data word和metadata可以在同一个上升沿写入：该沿之前present仍为0，
-  // 该沿之后最后一个word和present同时生效，因此不存在部分line被lookup命中的窗口。
+  // 最后一个成功 beat 的采样沿提交 metadata，并把 data 送入写暂存；data 在随后
+  // 的低电平写入阵列。顶层禁止该沿接收新查询，下一读沿前 tag 和 data 均已生效。
   // 第一版early restart只提前交付critical word；miss unit仍占用唯一MSHR，直到整条line
   // 安装完成。因此它能重叠“关键指令后端执行”和“剩余line refill”，但不能在miss期间
   // 接收另一个lookup，也不能提供hit-under-miss。critical word成功交付后，后续beat若报错，
@@ -315,8 +315,8 @@ module riscv32_icache_miss_unit
             lookup_response_generated_d = 1'b1;
           end
 
-          // last_word结束下级事务，但不代表IFU一定已经接收响应；因此先进入COMPLETE，
-          // 再由响应缓冲的present状态决定何时真正释放MSHR。
+          // last_word 结束下级事务。响应已交付时直接释放 MSHR；只有尚未被接收的
+          // 响应才留在 COMPLETE 中等待，不为已满足的条件增加固定完成周期。
           if (refill_resp_i.last_word) begin
             state_d = lookup_resp_present_d ? MISS_COMPLETE : MISS_IDLE;
           end

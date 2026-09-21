@@ -20,8 +20,12 @@ parser.add_argument('--top', default='riscv32_core_reset_boundary')
 parser.add_argument('--fanout', type=int, default=16)
 parser.add_argument('--cell', default='BUF_X4',
                     choices=['BUF_X1', 'BUF_X2', 'BUF_X4', 'BUF_X8', 'BUF_X16'])
+parser.add_argument('--yosys-timeout-seconds', type=int, default=600,
+                    help='Maximum runtime of each netlist read/write step (default: 600)')
 args = parser.parse_args()
 assert args.fanout >= 2
+if args.yosys_timeout_seconds <= 0:
+    parser.error('--yosys-timeout-seconds must be positive')
 out = args.output_dir.resolve()
 out.mkdir(parents=True, exist_ok=True)
 assert args.netlist.resolve() != out / f'{args.top}.netlist.v', 'Preserve the input netlist'
@@ -34,7 +38,8 @@ def yosys(name, commands):
     script.write_text(commands)
     with (out / f'{name}.log').open('w') as log:
         subprocess.run(['yosys', '-Q', '-T', '-s', str(script)],
-                       stdout=log, stderr=subprocess.STDOUT, check=True, timeout=120)
+                       stdout=log, stderr=subprocess.STDOUT, check=True,
+                       timeout=args.yosys_timeout_seconds)
 
 yosys('read', f'read_liberty -lib {quote(args.liberty.resolve())}\n'
              f'read_verilog {quote(args.netlist.resolve())}\n'

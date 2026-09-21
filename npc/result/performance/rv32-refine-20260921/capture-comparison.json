@@ -1,0 +1,51 @@
+{
+  "baseline": "63206ba (cleanup benchmark is cycle-identical)",
+  "candidate": "capture-only",
+  "total": {
+    "cycles": 3544972,
+    "retired_instructions": 764331,
+    "ipc": 0.21560988351953134,
+    "timer_ticks": 5908,
+    "timer_seconds": 0.005908,
+    "cycle_seconds": 0.005908286666666667,
+    "interrupts": 0
+  },
+  "scored": {
+    "cycles": 1552076,
+    "retired_instructions": 430311,
+    "ipc": 0.277248665658125,
+    "timer_ticks": 2586,
+    "timer_seconds": 0.002586,
+    "cycle_seconds": 0.002586793333333333,
+    "interrupts": 0
+  },
+  "whole_program": {
+    "cycles": 3982493,
+    "retired_instructions": 808741,
+    "ipc": 0.20307405436745274,
+    "cycle_seconds": 0.006637488333333334,
+    "interrupts": 0
+  },
+  "subtest_retirement_counts_equal": true,
+  "binary_identical": true,
+  "elf_identical": true,
+  "tools_identical": true,
+  "non_rtl_input_changes": [],
+  "delta": {
+    "total": {
+      "cycles": -8464,
+      "cycle_percent": -0.23819199220135312,
+      "ipc_percent": 0.23600671602996837
+    },
+    "scored": {
+      "cycles": -4304,
+      "cycle_percent": -0.2765391485369917,
+      "ipc_percent": 0.2773060082109424
+    },
+    "whole_program": {
+      "cycles": -14162,
+      "cycle_percent": -0.3543463221118648,
+      "ipc_percent": 0.3500227202191786
+    }
+  }
+}
