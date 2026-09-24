@@ -9,6 +9,7 @@ module riscv32_lsu
     input  lsu_req_t lsu_req_i,
     input  logic     lsu_req_valid_i,
     output logic     lsu_req_ready_o,
+    output logic     busy_o,
 
     output data_memory_req_t data_memory_req_o,
     output logic             data_memory_req_valid_o,
@@ -35,6 +36,8 @@ module riscv32_lsu
 
   lsu_state_e state_q;
   lsu_state_e state_d;
+
+  assign busy_o = (state_q != LSU_IDLE);
 
   lsu_req_t lsu_req_q;
   lsu_req_t lsu_req_d;

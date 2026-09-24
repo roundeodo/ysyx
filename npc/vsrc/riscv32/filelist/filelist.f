@@ -27,6 +27,7 @@ ${NPC_HOME}/vsrc/riscv32/core/riscv32_exu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_lsu.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_completion_mux.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_commit.sv
+${NPC_HOME}/vsrc/riscv32/core/riscv32_interrupt_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_trap_controller.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_ifu.sv

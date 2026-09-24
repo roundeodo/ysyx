@@ -84,3 +84,13 @@
 - critical-word-first结合AXI4 INCR burst后的可见miss延迟和总线利用率。
 - SRAM和MROM保持uncached是否优于统一cacheable策略。
 - 两项以上MSHR、prefetch或way prediction中哪一项首先产生可测量收益。
+
+
+## 2026-09-05：重定向之后完成的旧请求不能更新恢复 PC
+
+RV32 中断联调的 AM C 程序暴露了旧 IFU 的时序缺陷。请求在 valid/ready 通道等待时，
+redirect 更新了恢复 PC；旧请求随后握手又写入旧 PC+4，覆盖新目标。
+
+请求 payload 保持稳定和恢复目标保持正确是两项不同要求。旧请求仍要完成握手，但只有
+请求 epoch 与当前控制流一致时才能更新顺序 PC。独立 IFU 测试在修复前失败、修复后通过，
+AM C 程序也通过，证据见本次定时器中断实验记录。

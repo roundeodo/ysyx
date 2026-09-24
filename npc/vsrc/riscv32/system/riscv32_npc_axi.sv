@@ -9,7 +9,7 @@ module riscv32_npc_axi
     input logic clock,
     input logic reset,
 
-    // External interrupts are not consumed by the current single-cycle core.
+    // External interrupts remain unsupported; the core-local timer interrupt is wired internally.
     /* verilator lint_off UNUSEDSIGNAL */
     input logic io_interrupt,
 

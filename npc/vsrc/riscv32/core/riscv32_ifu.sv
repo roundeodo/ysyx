@@ -126,7 +126,9 @@ module riscv32_ifu
         if (lookup_request_handshake) begin
           state_d             = IFU_WAIT_LOOKUP_RESPONSE;
           next_frontend_tag_d = next_frontend_tag_q + frontend_tag_t'(1);
-          if (!redirect_req_valid_i) begin
+          // 被反压的旧请求可能在 redirect 之后才握手。它仍须完成事务，
+          // 但其顺序 PC 不能覆盖已经保存的新控制流目标。
+          if (!redirect_req_valid_i && (lookup_fetch_epoch_q == current_fetch_epoch_q)) begin
             resume_pc_d = lookup_pc_q + XLEN'(ICACHE_FETCH_BYTES);
           end
         end

@@ -36,6 +36,8 @@ module riscv32_npc_system
         1'b0
       };
 
+  logic timer_interrupt;
+
   axi4_manager_to_target_t instruction_axi4_manager;
   axi4_target_to_manager_t instruction_axi4_manager_response;
   axi4_manager_to_target_t data_axi4_manager;
@@ -52,6 +54,7 @@ module riscv32_npc_system
   ) u_core (
       .clk_i                              (clk_i),
       .rst_ni                             (rst_ni),
+      .timer_interrupt_i                  (timer_interrupt),
       .instruction_axi4_manager_o         (instruction_axi4_manager),
       .instruction_axi4_manager_i         (instruction_axi4_manager_response),
       .data_axi4_manager_o                (data_axi4_manager),
@@ -91,6 +94,7 @@ module riscv32_npc_system
   ) u_clint (
       .clk_i        (clk_i),
       .rst_ni       (rst_ni),
+      .timer_interrupt_o(timer_interrupt),
       .axi_target_i (local_target_manager_array[CLINT_TARGET_INDEX]),
       .axi_target_o (local_target_manager_response_array[CLINT_TARGET_INDEX])
   );

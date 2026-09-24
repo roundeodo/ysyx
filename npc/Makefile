@@ -51,7 +51,7 @@ RTL_DEPENDENCIES := $(shell sed \
 SOC_HOME             := $(abspath ../ysyxSoC)
 SOC_PERIPHERAL_DIR   := $(SOC_HOME)/perip
 SOC_GENERATED_TOP    := $(SOC_HOME)/build/ysyxSoCFull.v
-SOC_VERILOG_SOURCES  := $(shell find $(SOC_PERIPHERAL_DIR) -type f -name "*.v" | sort)
+SOC_VERILOG_SOURCES  := $(if $(wildcard $(SOC_PERIPHERAL_DIR)),$(shell find $(SOC_PERIPHERAL_DIR) -type f -name "*.v" | sort))
 SOC_VERILOG_SOURCES  += $(SOC_GENERATED_TOP)
 SOC_RTL_INCLUDE_FLAGS := \
 	-I$(SOC_PERIPHERAL_DIR)/uart16550/rtl \
@@ -340,3 +340,8 @@ help:
 	@echo "  make sim-npc IMG=path/to/riscv32-npc.bin"
 	@echo "  make sim-soc FLASH_IMG=path/to/riscv32-ysyxsoc.bin"
 	@echo "  make sim-npc SIM_ARGS= IMG=path/to/riscv32-npc.bin"
+
+# 独立 RV32 定时器中断回归，不依赖 SoC 生成文件或 NEMU 动态库。
+.PHONY: test-timer-interrupt
+test-timer-interrupt:
+	python3 tests/interrupt/run.py

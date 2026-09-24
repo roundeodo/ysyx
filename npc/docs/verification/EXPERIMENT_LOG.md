@@ -124,3 +124,21 @@
 - 该记录把P1基本功能检查绑定到确定提交，可由相同命令复现。
 - 结果只证明最短控制流、一次store、redirect响应丢弃以及I-cache基本取指路径可工作；P1仍需
   I-cache定向测试、完整功能回归、microbench A/B和综合/STA后才能关闭。
+
+
+## 2026-09-05：独立 RV32 定时器中断联调
+
+- 基线：`a6f6cc0`，分支 `rv32-timer-interrupt`，本次新增改动尚未提交。
+- 配置：RV32I + Zicsr/Zifencei，历史 I-cache 默认配置，非缓存数据访存；CLINT
+  100 MHz 输入、1 MHz mtime。外部内存模型注入基础延迟、AXI 反压及一次 load SLVERR。
+- 命令：`cd npc && python3 tests/interrupt/run.py`。
+- 结果：3 组汇编整核测试、2 组 AM C 整核测试、3 个 RTL 单元测试，共 8/8 通过。
+  五次整核运行合计 43 次定时器中断；AM 测试实际使用项目的 `cte.c` 和 `trap.S`。
+- 联调发现 IFU 在过期请求延后握手时覆盖重定向目标。定向复现期望 `80002000`，
+  实际 `80000004`；增加 epoch 条件后通过，AM 程序同时恢复通过。
+- standalone top、SoC CPU wrapper 和综合 filelist 的 Verilator lint 通过。
+- 范围限制：未运行中断 DiffTest、RT-Thread、完整 SoC、FPGA、综合面积和 STA。
+  本次未修改原 RV64 工作目录。
+
+接口、测试步骤、原始日志位置和完整验证范围见
+[定时器中断设计记录](../microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)。

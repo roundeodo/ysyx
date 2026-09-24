@@ -23,6 +23,9 @@ module riscv32_csr_file
     input logic          [XLEN-1:0] trap_tval_i,
     input logic                     mret_valid_i,
 
+    input  logic timer_interrupt_i,
+    output logic timer_interrupt_enabled_o,
+
     output logic [XLEN-1:0] mtvec_o,
     output logic [XLEN-1:0] mepc_o
 );
@@ -46,7 +49,11 @@ module riscv32_csr_file
   logic [    31:0] mepc_q;
   logic [    31:0] mcause_q;
   logic [    31:0] mtval_q;
-  logic [    31:0] mip_q;
+  logic [    31:0] mip;
+
+  // MTIP 只反映硬件电平；软件通过 mtimecmp 清除请求，通过 MIE/MTIE 屏蔽。
+  assign mip = {24'b0, timer_interrupt_i, 7'b0};
+  assign timer_interrupt_enabled_o = timer_interrupt_i && mie_q[7] && mstatus_q[3];
 
   logic            pmu_csr_read_select;
   logic [XLEN-1:0] pmu_csr_read_data;
@@ -82,7 +89,7 @@ module riscv32_csr_file
         CSR_MEPC:      csr_read_data_o = mepc_q;
         CSR_MCAUSE:    csr_read_data_o = mcause_q;
         CSR_MTVAL:     csr_read_data_o = mtval_q;
-        CSR_MIP:       csr_read_data_o = mip_q;
+        CSR_MIP:       csr_read_data_o = mip;
         default: begin
           if (pmu_csr_read_select) begin
             csr_read_data_o = pmu_csr_read_data;
@@ -97,14 +104,13 @@ module riscv32_csr_file
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      mstatus_q  <= '0;
+      mstatus_q  <= 32'h0000_1800;
       mie_q      <= '0;
       mtvec_q    <= '0;
       mscratch_q <= '0;
       mepc_q     <= '0;
       mcause_q   <= '0;
       mtval_q    <= '0;
-      mip_q      <= '0;
     end else begin
       if (trap_valid_i) begin
         mepc_q           <= trap_pc_i;
@@ -116,17 +122,17 @@ module riscv32_csr_file
       end else if (mret_valid_i) begin
         mstatus_q[3]     <= mstatus_q[7];
         mstatus_q[7]     <= 1'b1;
-        mstatus_q[12:11] <= PRIV_MODE_U;
+        mstatus_q[12:11] <= PRIV_MODE_M;
       end else if (csr_write_valid_i) begin
         unique case (csr_write_addr_i)
-          CSR_MSTATUS:  mstatus_q <= csr_write_data_i;
-          CSR_MIE:      mie_q <= csr_write_data_i;
-          CSR_MTVEC:    mtvec_q <= csr_write_data_i;
+          CSR_MSTATUS:  mstatus_q <= (csr_write_data_i & 32'h0000_0088) | 32'h0000_1800;
+          CSR_MIE:      mie_q <= csr_write_data_i & 32'h0000_0080;
+          CSR_MTVEC:    mtvec_q <= {csr_write_data_i[31:2], 2'b00};
           CSR_MSCRATCH: mscratch_q <= csr_write_data_i;
-          CSR_MEPC:     mepc_q <= csr_write_data_i;
+          CSR_MEPC:     mepc_q <= {csr_write_data_i[31:2], 2'b00};
           CSR_MCAUSE:   mcause_q <= csr_write_data_i;
           CSR_MTVAL:    mtval_q <= csr_write_data_i;
-          CSR_MIP:      mip_q <= csr_write_data_i;
+          CSR_MIP:      ; // MTIP 为硬件只读，未实现的 pending 位固定为 0。
           default:      ;
         endcase
       end

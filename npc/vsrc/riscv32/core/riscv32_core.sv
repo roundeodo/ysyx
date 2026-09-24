@@ -8,6 +8,7 @@ module riscv32_core
 ) (
     input logic clk_i,
     input logic rst_ni,
+    input logic timer_interrupt_i,
 
     // 取指和数据访问保持为两个独立manager。系统层负责仲裁和地址路由，
     // core内部不感知SoC拓扑。
@@ -76,6 +77,11 @@ module riscv32_core
   lsu_req_t lsu_req;
   logic lsu_req_valid;
   logic lsu_req_ready;
+  logic lsu_busy;
+  logic timer_interrupt_enabled;
+  logic interrupt_issue_hold;
+  logic interrupt_valid;
+  logic [XLEN-1:0] interrupt_pc;
 
   writeback_result_t lsu_writeback;
   logic lsu_writeback_valid;
@@ -257,13 +263,15 @@ module riscv32_core
       .trap_cause_i                  (trap_cause),
       .trap_tval_i                   (trap_tval),
       .mret_valid_i                  (mret_valid),
+      .timer_interrupt_i             (timer_interrupt_i),
+      .timer_interrupt_enabled_o     (timer_interrupt_enabled),
       .mtvec_o                       (csr_mtvec),
       .mepc_o                        (csr_mepc)
   );
 
   riscv32_exu u_exu (
       .execute_packet_i      (execute_packet),
-      .execute_packet_valid_i(decoded_uop_valid && lsu_req_ready),
+      .execute_packet_valid_i(decoded_uop_valid && lsu_req_ready && !interrupt_issue_hold),
       .execute_packet_ready_o(execute_packet_ready),
       .exu_result_o          (exu_result),
       .exu_result_valid_o    (exu_result_valid),
@@ -275,7 +283,7 @@ module riscv32_core
 
   // This checkpoint retires in order and has no ROB. Hold younger decode work
   // while the LSU owns the single in-flight instruction slot.
-  assign decoded_uop_ready = execute_packet_ready && lsu_req_ready;
+  assign decoded_uop_ready = execute_packet_ready && lsu_req_ready && !interrupt_issue_hold;
 
   riscv32_lsu u_lsu (
       .clk_i                   (clk_i),
@@ -283,6 +291,7 @@ module riscv32_core
       .lsu_req_i               (lsu_req),
       .lsu_req_valid_i         (lsu_req_valid),
       .lsu_req_ready_o         (lsu_req_ready),
+      .busy_o                  (lsu_busy),
       .lsu_writeback_o         (lsu_writeback),
       .lsu_writeback_valid_o   (lsu_writeback_valid),
       .lsu_writeback_ready_i   (lsu_writeback_ready),
@@ -373,11 +382,30 @@ module riscv32_core
   );
 `endif
 
+  riscv32_interrupt_controller #(
+      .RESET_PC(RESET_PC)
+  ) u_interrupt_controller (
+      .clk_i                    (clk_i),
+      .rst_ni                   (rst_ni),
+      .timer_interrupt_enabled_i(timer_interrupt_enabled),
+      .backend_busy_i           (lsu_busy),
+      .maintenance_busy_i       (icache_invalidate_pending_q),
+      .commit_valid_i           (commit_valid),
+      .commit_i                 (commit),
+      .redirect_valid_i         (selected_redirect_req_valid),
+      .redirect_i               (selected_redirect_req),
+      .issue_hold_o             (interrupt_issue_hold),
+      .interrupt_valid_o        (interrupt_valid),
+      .interrupt_pc_o           (interrupt_pc)
+  );
+
   riscv32_trap_controller u_trap_controller (
       .commit_i            (commit),
       .commit_valid_i      (commit_valid),
       .mtvec_i             (csr_mtvec),
       .mepc_i              (csr_mepc),
+      .interrupt_valid_i   (interrupt_valid),
+      .interrupt_pc_i      (interrupt_pc),
       .trap_valid_o        (trap_valid),
       .trap_pc_o           (trap_pc),
       .trap_cause_o        (trap_cause),
@@ -406,7 +434,14 @@ module riscv32_core
   // rst_ni是状态寄存器的异步复位，同时也是SVA的disable条件。Verilator会把后者
   // 视为同步使用并报告SYNCASYNCNET；该诊断不代表复位网络存在功能冲突。
   /* verilator lint_off SYNCASYNCNET */
-  // I-cache失效采用请求保持到完成的协议。busy是状态观测，不参与任何控制反馈。
+  // 接收中断的当拍不允许任何指令继续产生架构副作用。
+  a_interrupt_has_no_instruction_side_effects :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    interrupt_valid |-> (!commit_valid && !lsu_busy && !lsu_req_valid &&
+                         !gpr_write_enable && !decoded_uop_ready))
+    else $error("interrupt accepted with an instruction still executing");
+
+  // I-cache失效采用请求保持到完成的协议。
   a_icache_invalidate_request_held_until_done :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (icache_invalidate_req && !icache_invalidate_done) |=> icache_invalidate_req)
