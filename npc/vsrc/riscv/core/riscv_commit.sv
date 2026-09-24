@@ -41,12 +41,14 @@ module riscv_commit
     commit_o.trap_taken        = writeback_result_i.uop.exception_valid;
     commit_o.trap_is_interrupt = 1'b0;
     // 内部异常枚举显式写入架构mcause低位，避免依赖固定枚举宽度进行拼接。
-    commit_o.trap_cause_code                                                    = '0;
-    commit_o.trap_cause_code[$bits(writeback_result_i.uop.exception_cause)-1:0] = 
-                                                                                  writeback_result_i.uop.exception_cause;
-    commit_o.trap_tval                                                          = writeback_result_i.uop.exception_tval;
-    commit_o.privilege                                                          = PRIV_MODE_M;
-    commit_o.system_op                                                          = writeback_result_i.uop.system_op;
+    commit_o.trap_cause_code = '0;
+
+    commit_o.trap_cause_code[$bits(writeback_result_i.uop.exception_cause)-1:0] =
+        writeback_result_i.uop.exception_cause;
+
+    commit_o.trap_tval = writeback_result_i.uop.exception_tval;
+    commit_o.privilege = PRIV_MODE_M;
+    commit_o.system_op = writeback_result_i.uop.system_op;
   end
 
   assign gpr_write_data_o   = commit_o.gpr_wdata;

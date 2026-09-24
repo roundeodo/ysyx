@@ -27,7 +27,7 @@ module riscv_dcache_data_array
   core_data_t data_array_q[WAY_COUNT][WORDS_PER_LINE][SET_COUNT];
   core_data_t read_word_data_array_q[WAY_COUNT];
 
-  // 同步读时序与真实单周期SRAM宏一致。顶层必须用S1 present限定这些保留型输出。
+  // 同步读出并保持结果，顶层用S1 present限定其有效性；同地址读写由顶层旁路定义。
   always_ff @(posedge clk_i) begin
     if (read_enable_i) begin
       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
@@ -42,7 +42,7 @@ module riscv_dcache_data_array
   end
 
   // 每个byte lane独立写使能，使综合器能够映射到带byte-enable的SRAM或banked array。
-  // 当前blocking设计保证lookup和写回采集不会与本写口访问同一line；未来hit-under-miss
+  // 当前查找与store写入可能同拍发生，顶层提供数据与脏位旁路；未来hit-under-miss
   // 必须在D-cache顶层增加refill/store bypass，不能依赖工艺相关的read-during-write行为。
   always_ff @(posedge clk_i) begin
     if (write_valid_i) begin

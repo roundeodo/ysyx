@@ -6,16 +6,19 @@
 
 PROJECT ?= riscv
 # 当前只维护 RV64 顺序核。容量参数保留为构建参数，方便 cachesim 与 RTL 比较；
-# 默认值定义可回归的功能基线，后续物理实现可在array模块内部替换为SRAM macro。
+# 前端采用RV32面试分支2026-09-24选定的配置；RV64性能与PPA需独立测量。
 NPC_CONFIG ?= rv64-edge-ai
-NPC_ICACHE_WAY_COUNT      ?= 2
-NPC_ICACHE_CAPACITY_BYTES ?= 4096
-NPC_ICACHE_LINE_BYTES     ?= 64
+NPC_ICACHE_WAY_COUNT      ?= 4
+NPC_ICACHE_CAPACITY_BYTES ?= 1024
+NPC_ICACHE_LINE_BYTES     ?= 32
+# 13：分段访问RRIP及同拍命中前递；0：原轮转策略，用于对照。
+NPC_ICACHE_REPLACEMENT_POLICY ?= 13
 NPC_DCACHE_ENABLE         ?= 1
 NPC_DCACHE_WAY_COUNT      ?= 2
 NPC_DCACHE_CAPACITY_BYTES ?= 4096
 NPC_DCACHE_LINE_BYTES     ?= 64
 NPC_SDRAM_NATIVE_READ_BURST ?= 1
+# 源分支最终仍选择PC索引二位BHT、轮转BTB和解析后更新的RAS。
 NPC_BRANCH_HISTORY_ENTRY_COUNT ?= 16
 NPC_BRANCH_TARGET_ENTRY_COUNT  ?= 16
 NPC_BRANCH_TARGET_WAY_COUNT    ?= 2
@@ -28,6 +31,15 @@ ifeq ($(filter $(NPC_SDRAM_NATIVE_READ_BURST),0 1),)
 $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
+ifeq ($(filter $(NPC_ICACHE_REPLACEMENT_POLICY),0 13),)
+$(error NPC_ICACHE_REPLACEMENT_POLICY must be 0 or 13)
+endif
+ifeq ($(NPC_ICACHE_WAY_COUNT),1)
+ifneq ($(NPC_ICACHE_REPLACEMENT_POLICY),0)
+$(error direct-mapped I-cache requires NPC_ICACHE_REPLACEMENT_POLICY=0)
+endif
+endif
+
 SUPPORTED_NPC_CONFIGS := rv64-edge-ai
 ifeq ($(filter $(NPC_CONFIG),$(SUPPORTED_NPC_CONFIGS)),)
 $(error unsupported NPC_CONFIG=$(NPC_CONFIG); expected one of: $(SUPPORTED_NPC_CONFIGS))
@@ -37,6 +49,7 @@ NPC_CONFIG_CXXFLAG := -DNPC_XLEN=64
 NPC_CONFIG_DEFINE := +define+YSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
 	+define+YSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
 	+define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) \
+	+define+YSYX_ICACHE_REPLACEMENT_POLICY=$(NPC_ICACHE_REPLACEMENT_POLICY) \
 	+define+YSYX_DCACHE_ENABLE=$(NPC_DCACHE_ENABLE) \
 	+define+YSYX_DCACHE_CAPACITY_BYTES=$(NPC_DCACHE_CAPACITY_BYTES) \
 	+define+YSYX_DCACHE_WAY_COUNT=$(NPC_DCACHE_WAY_COUNT) \
@@ -50,6 +63,7 @@ NPC_CONFIG_DEFINE := +define+YSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BY
 NPC_SLANG_DEFINE := -DYSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
 	-DYSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
 	-DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) \
+	-DYSYX_ICACHE_REPLACEMENT_POLICY=$(NPC_ICACHE_REPLACEMENT_POLICY) \
 	-DYSYX_DCACHE_ENABLE=$(NPC_DCACHE_ENABLE) \
 	-DYSYX_DCACHE_CAPACITY_BYTES=$(NPC_DCACHE_CAPACITY_BYTES) \
 	-DYSYX_DCACHE_WAY_COUNT=$(NPC_DCACHE_WAY_COUNT) \
@@ -65,7 +79,7 @@ SOC_TOP_MODULE := ysyxSoCFull
 
 DCACHE_BUILD_TAG := $(if $(filter 1,$(NPC_DCACHE_ENABLE)),dcache-$(NPC_DCACHE_CAPACITY_BYTES)b-way-$(NPC_DCACHE_WAY_COUNT)-line-$(NPC_DCACHE_LINE_BYTES)b,dcache-off)
 PREDICTOR_BUILD_TAG := predictor-bht-$(NPC_BRANCH_HISTORY_ENTRY_COUNT)-btb-$(NPC_BRANCH_TARGET_ENTRY_COUNT)x$(NPC_BRANCH_TARGET_WAY_COUNT)-ras-$(NPC_RETURN_STACK_ENTRY_COUNT)
-BUILD_DIR := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))/icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b/$(DCACHE_BUILD_TAG)/$(PREDICTOR_BUILD_TAG)
+BUILD_DIR := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))/icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-policy-$(NPC_ICACHE_REPLACEMENT_POLICY)/$(DCACHE_BUILD_TAG)/$(PREDICTOR_BUILD_TAG)
 ifeq ($(NPC_SDRAM_NATIVE_READ_BURST),0)
 BUILD_DIR := $(BUILD_DIR)/sdram-read-bl1
 endif
@@ -282,6 +296,7 @@ DCACHE_TEST_SOURCES := \
 	$(RTL_DIR)/core/memory/riscv_dcache_line_axi4_master.sv \
 	$(RTL_DIR)/core/memory/riscv_dcache_miss_unit.sv \
 	$(RTL_DIR)/core/memory/riscv_dcache.sv \
+	$(RTL_DIR)/core/riscv_cache_maintenance_controller.sv \
 	$(abspath ./tests/rtl/riscv_dcache_tb.sv)
 
 CORE_MERGE_TEST_SOURCES := \
@@ -349,7 +364,7 @@ $(AXI_DELAYER_TEST_BUILD_DIR):
 	mkdir -p $@
 
 # Fast functional environment: CPU + local AXI models, reset PC 0x8000_0000.
-$(NPC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
+$(NPC_SIM_BINARY): $(wildcard $(RTL_DIR)/sim/*.svh) $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
 		$(NPC_CONFIG_DEFINE) \
@@ -363,7 +378,7 @@ $(NPC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BU
 		-o $(NPC_SIM_BINARY)
 
 # Accurate environment: CPU integrated into ysyxSoC and its peripherals.
-$(SOC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
+$(SOC_SIM_BINARY): $(wildcard $(RTL_DIR)/sim/*.svh) $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 		$(SOC_VERILOG_SOURCES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
@@ -379,7 +394,7 @@ $(SOC_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 		--exe \
 		-o $(SOC_SIM_BINARY)
 
-$(NVBOARD_SIM_BINARY): $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
+$(NVBOARD_SIM_BINARY): $(wildcard $(RTL_DIR)/sim/*.svh) $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 		$(SOC_VERILOG_SOURCES) $(NVBOARD_CPP_SOURCES) $(NVBOARD_ARCHIVE) | $(BUILD_DIR)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
@@ -507,6 +522,14 @@ build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
 	$(CONFIG_TEST_BINARY)
 
+.PHONY: test-icache test-icache-replacement
+FRONTEND_TEST_OUTPUT ?= $(BUILD_DIR)/frontend-tests
+test-icache:
+	python3 scripts/test_icache.py --test cache --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
+test-icache-replacement:
+	python3 scripts/test_icache.py --test replacement --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
 test-configs:
 	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
@@ -594,6 +617,8 @@ regression-rv64-isa:
 # 定向测试先定位模块边界，最后再运行完整ISA DiffTest。
 regression-rv64:
 	$(MAKE) test-configs PROJECT=$(PROJECT)
+	$(MAKE) test-icache PROJECT=$(PROJECT)
+	$(MAKE) test-icache-replacement PROJECT=$(PROJECT)
 	$(MAKE) test-idu-configs PROJECT=$(PROJECT)
 	$(MAKE) test-exu-configs PROJECT=$(PROJECT)
 	$(MAKE) test-lsu-configs PROJECT=$(PROJECT)
@@ -1073,7 +1098,7 @@ STA_SYNTH_STRATEGY ?= DELAY 0
 STA_RUN_POWER_ANALYSIS ?= 0
 STA_SDC_FILE      := $(abspath ./constr/riscv_core.sdc)
 STA_PDK           ?= nangate45
-STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(STA_PDK)-$(NPC_CONFIG)-icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-$(DCACHE_BUILD_TAG)-$(PREDICTOR_BUILD_TAG))
+STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(STA_PDK)-$(NPC_CONFIG)-icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-policy-$(NPC_ICACHE_REPLACEMENT_POLICY)-$(DCACHE_BUILD_TAG)-$(PREDICTOR_BUILD_TAG))
 
 sta: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
 	$(MAKE) -C $(STA_TOOL_DIR) sta \

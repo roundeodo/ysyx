@@ -10,6 +10,7 @@ ${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_tag_array.sv
 ${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_data_array.sv
 ${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_refill_axi4_master.sv
 ${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_miss_unit.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_replacement.sv
 ${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache.sv
 ${NPC_HOME}/vsrc/riscv/core/frontend/riscv_fetch_buffer.sv
 ${NPC_HOME}/vsrc/riscv/core/memory/riscv_dcache_tag_array.sv
@@ -37,13 +38,13 @@ ${NPC_HOME}/vsrc/riscv/core/riscv_completion_mux.sv
 ${NPC_HOME}/vsrc/riscv/core/riscv_writeback_stage.sv
 ${NPC_HOME}/vsrc/riscv/core/riscv_commit.sv
 ${NPC_HOME}/vsrc/riscv/core/riscv_trap_controller.sv
-${NPC_HOME}/vsrc/riscv/core/riscv_redirect_arbiter.sv
 ${NPC_HOME}/vsrc/riscv/core/riscv_ifu.sv
+${NPC_HOME}/vsrc/riscv/core/riscv_operand_select.sv
+${NPC_HOME}/vsrc/riscv/core/riscv_cache_maintenance_controller.sv
 ${NPC_HOME}/vsrc/riscv/core/riscv_core.sv
 
 ${NPC_HOME}/vsrc/riscv/system/riscv_axi4_core_merge.sv
 ${NPC_HOME}/vsrc/riscv/system/riscv_axi4_address_router.sv
-${NPC_HOME}/vsrc/riscv/system/riscv_axi4_error_target.sv
 ${NPC_HOME}/vsrc/riscv/system/peripheral/riscv_axi4_clint.sv
 ${NPC_HOME}/vsrc/riscv/system/riscv_npc_system.sv
 ${NPC_HOME}/vsrc/riscv/system/riscv_axi4_soc_width_converter.sv

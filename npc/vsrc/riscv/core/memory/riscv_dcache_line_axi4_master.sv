@@ -20,6 +20,9 @@ module riscv_dcache_line_axi4_master
     output logic                refill_resp_valid_o,
     input  logic                refill_resp_ready_i,
 
+    // 数据缓冲属于miss unit：请求握手后仍须保持整行，直到writeback响应握手。
+    // 本模块只保存地址、事务号和传输进度，不再复制一份整行寄存器。
+    input  dcache_line_data_t      writeback_line_data_i,
     input  dcache_writeback_req_t  writeback_req_i,
     input  logic                   writeback_req_valid_i,
     output logic                   writeback_req_ready_o,
@@ -126,7 +129,7 @@ module riscv_dcache_line_axi4_master
           axi_manager_o.aw.size  = 3'($clog2(DCACHE_WORD_BYTES));
           axi_manager_o.aw.burst = AXI4_BURST_INCR;
           axi_manager_o.aw_valid = 1'b1;
-          axi_manager_o.w.data   = axi4_data_t'(writeback_req_i.line_data[0+:CORE_DATA_WIDTH]);
+          axi_manager_o.w.data   = axi4_data_t'(writeback_line_data_i[0+:CORE_DATA_WIDTH]);
           axi_manager_o.w.strb   = '1;
           axi_manager_o.w.last   = DCACHE_WORDS_PER_LINE == 1;
           axi_manager_o.w_valid  = 1'b1;
@@ -141,13 +144,13 @@ module riscv_dcache_line_axi4_master
         axi_manager_o.aw.burst = AXI4_BURST_INCR;
         axi_manager_o.aw_valid = write_address_pending_q;
         axi_manager_o.w.data   = axi4_data_t'(
-                                 writeback_context_q.line_data[
-                                 int'(writeback_word_index_q)*CORE_DATA_WIDTH+:CORE_DATA_WIDTH
-                                 ]
-                                 );
+            writeback_line_data_i[
+                int'(writeback_word_index_q)*CORE_DATA_WIDTH+:CORE_DATA_WIDTH
+            ]
+        );
         axi_manager_o.w.strb   = '1;
-        axi_manager_o.w.last   = 
-                                 writeback_word_index_q == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1);
+        axi_manager_o.w.last   =
+            writeback_word_index_q == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1);
         axi_manager_o.w_valid  = write_data_pending_q;
       end
 
@@ -173,7 +176,7 @@ module riscv_dcache_line_axi4_master
         if (refill_req_handshake) begin
           refill_context_d = refill_req_i;
           refill_state_d   = axi_read_address_handshake ? REFILL_AXI_RECEIVE_DATA :
-                             REFILL_AXI_SEND_ADDRESS;
+                                                        REFILL_AXI_SEND_ADDRESS;
         end
       end
 
@@ -276,6 +279,14 @@ module riscv_dcache_line_axi4_master
   end
 
 `ifndef SYNTHESIS
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (writeback_req_handshake ||
+     (writeback_state_q != WRITEBACK_AXI_IDLE && !axi_write_response_handshake)) |=>
+      $stable(
+      writeback_line_data_i
+  ))
+  else $error("D-cache writeback owner changed line data before the response handshake");
+
   initial begin
     assert (CORE_DATA_WIDTH == MEM_AXI_DATA_WIDTH)
     else $fatal(1, "D-cache word and memory AXI beat widths must match");

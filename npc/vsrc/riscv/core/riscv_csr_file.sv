@@ -152,7 +152,7 @@ module riscv_csr_file
     csr_addr_read_only = csr_read_addr_i[11:10] == 2'b11;
     csr_read_illegal_o = (csr_read_enable_i || csr_access_write_enable_i) &&
                          (!csr_addr_implemented ||
-                         (csr_access_write_enable_i && csr_addr_read_only));
+                          (csr_access_write_enable_i && csr_addr_read_only));
 
     csr_read_data_o = '0;
     if (csr_read_enable_i && !csr_read_illegal_o) begin

@@ -43,7 +43,6 @@ module riscv_pipeline_control_tb;
   program_counter_t    predictor_lookup_response_pc;
   fetch_epoch_t        predictor_lookup_response_epoch;
   branch_prediction_t  predictor_lookup_prediction;
-  program_counter_t    predictor_lookup_next_pc;
   logic                predictor_lookup_response_valid;
   logic                predictor_lookup_response_ready;
   branch_prediction_t  ifu_predictor_prediction;
@@ -121,44 +120,44 @@ module riscv_pipeline_control_tb;
   riscv_ifu #(
       .PC_START(IFU_TEST_START_PC)
   ) u_ifu (
-      .clk_i                         (clk),
-      .rst_ni                        (rst_ni),
-      .redirect_req_i                (ifu_redirect_req),
-      .redirect_req_valid_i          (ifu_redirect_req_valid),
-      .next_pc_predictor_lookup_request_pc_o(ifu_predictor_lookup_request_pc),
-      .next_pc_predictor_lookup_request_epoch_o(ifu_predictor_lookup_request_epoch),
-      .next_pc_predictor_lookup_request_valid_o(ifu_predictor_lookup_request_valid),
-      .next_pc_predictor_lookup_request_ready_i(ifu_predictor_lookup_request_ready),
-      .next_pc_predictor_lookup_response_pc_i(ifu_predictor_lookup_response_pc),
+      .clk_i                                    (clk),
+      .rst_ni                                   (rst_ni),
+      .redirect_req_i                           (ifu_redirect_req),
+      .redirect_req_valid_i                     (ifu_redirect_req_valid),
+      .next_pc_predictor_lookup_request_pc_o    (ifu_predictor_lookup_request_pc),
+      .next_pc_predictor_lookup_request_epoch_o (ifu_predictor_lookup_request_epoch),
+      .next_pc_predictor_lookup_request_valid_o (ifu_predictor_lookup_request_valid),
+      .next_pc_predictor_lookup_request_ready_i (ifu_predictor_lookup_request_ready),
+      .next_pc_predictor_lookup_response_pc_i   (ifu_predictor_lookup_response_pc),
       .next_pc_predictor_lookup_response_epoch_i(ifu_predictor_lookup_response_epoch),
-      .next_pc_predictor_prediction_i(ifu_predictor_prediction),
+      .next_pc_predictor_prediction_i           (ifu_predictor_prediction),
       .next_pc_predictor_lookup_response_valid_i(ifu_predictor_lookup_response_valid),
       .next_pc_predictor_lookup_response_ready_o(ifu_predictor_lookup_response_ready),
-      .next_pc_predictor_flush_o     (ifu_predictor_flush),
-      .icache_lookup_req_o           (icache_lookup_req),
-      .icache_lookup_req_valid_o     (icache_lookup_req_valid),
-      .icache_lookup_req_ready_i     (icache_lookup_req_ready),
-      .icache_lookup_resp_i          (icache_lookup_resp),
-      .icache_lookup_resp_valid_i    (icache_lookup_resp_valid),
-      .icache_lookup_resp_ready_o    (icache_lookup_resp_ready),
-      .fetch_entry_o                 (ifu_fetch_entry),
-      .fetch_entry_valid_o           (ifu_fetch_entry_valid),
-      .fetch_entry_ready_i           (ifu_fetch_entry_ready)
+      .next_pc_predictor_flush_o                (ifu_predictor_flush),
+      .icache_lookup_req_o                      (icache_lookup_req),
+      .icache_lookup_req_valid_o                (icache_lookup_req_valid),
+      .icache_lookup_req_ready_i                (icache_lookup_req_ready),
+      .icache_lookup_resp_i                     (icache_lookup_resp),
+      .icache_lookup_resp_valid_i               (icache_lookup_resp_valid),
+      .icache_lookup_resp_ready_o               (icache_lookup_resp_ready),
+      .fetch_entry_o                            (ifu_fetch_entry),
+      .fetch_entry_valid_o                      (ifu_fetch_entry_valid),
+      .fetch_entry_ready_i                      (ifu_fetch_entry_ready)
   );
 
   riscv_decode_execute_stage u_decode_execute_stage (
-      .clk_i                         (clk),
-      .rst_ni                        (rst_ni),
-      .decoded_execute_packet_i      (decoded_execute_packet),
-      .decoded_execute_packet_valid_i(decoded_execute_packet_valid),
-      .decoded_execute_packet_ready_o(decoded_execute_packet_ready),
-      .execute_packet_o              (execute_packet),
-      .execute_packet_valid_o        (execute_packet_valid),
-      .execute_packet_ready_i        (execute_packet_ready),
-      .execute_forwardable_producer_present_o(execute_forwardable_producer_present),
-      .execute_blocking_producer_present_o(execute_blocking_producer_present),
+      .clk_i                                    (clk),
+      .rst_ni                                   (rst_ni),
+      .decoded_execute_packet_i                 (decoded_execute_packet),
+      .decoded_execute_packet_valid_i           (decoded_execute_packet_valid),
+      .decoded_execute_packet_ready_o           (decoded_execute_packet_ready),
+      .execute_packet_o                         (execute_packet),
+      .execute_packet_valid_o                   (execute_packet_valid),
+      .execute_packet_ready_i                   (execute_packet_ready),
+      .execute_forwardable_producer_present_o   (execute_forwardable_producer_present),
+      .execute_blocking_producer_present_o      (execute_blocking_producer_present),
       .execute_serializing_instruction_present_o(execute_serializing_instruction_present),
-      .flush_i                       (decode_execute_flush)
+      .flush_i                                  (decode_execute_flush)
   );
 
   riscv_fetch_buffer u_fetch_buffer (
@@ -183,7 +182,6 @@ module riscv_pipeline_control_tb;
       .lookup_response_pc_o            (predictor_lookup_response_pc),
       .lookup_response_epoch_o         (predictor_lookup_response_epoch),
       .lookup_prediction_o             (predictor_lookup_prediction),
-      .lookup_next_pc_o                (predictor_lookup_next_pc),
       .lookup_response_valid_o         (predictor_lookup_response_valid),
       .lookup_response_ready_i         (predictor_lookup_response_ready),
       .resolved_control_flow_pc_i      (predictor_resolved_control_flow_pc),
@@ -236,53 +234,50 @@ module riscv_pipeline_control_tb;
   );
 
   riscv_pipeline_hazard_controller u_pipeline_hazard_controller (
-      .clk_i                                   (clk),
-      .rst_ni                                  (rst_ni),
-      .decoded_uop_valid_i                     (hazard_decoded_uop_valid),
-      .decoded_uses_rs1_i                      (hazard_decoded_uop.uses_rs1),
-      .decoded_rs1_i                           (hazard_decoded_uop.rs1),
-      .decoded_uses_rs2_i                      (hazard_decoded_uop.uses_rs2),
-      .decoded_rs2_i                           (hazard_decoded_uop.rs2),
-      .decoded_serializing_i                   (hazard_decoded_uop.serializing),
-      .execute_instruction_present_i           (hazard_execute_uop_valid),
-      .execute_forwardable_producer_present_i  (
-          hazard_execute_forwardable_producer_present),
-      .execute_blocking_producer_present_i     (
-          hazard_execute_blocking_producer_present),
-      .execute_rd_i                            (hazard_execute_uop.rd),
-      .execute_serializing_instruction_present_i(
-          hazard_execute_serializing_instruction_present),
-      .execute_result_valid_i                  (execute_result_valid),
-      .execute_result_ready_i                  (execute_result_ready),
-      .execute_result_writes_rd_i              (execute_result_writes_rd),
-      .execute_result_rd_i                     (execute_result_rd),
-      .execute_result_forwarding_available_i   (execute_result_forwarding_available),
-      .execute_result_serializing_i            (execute_result_serializing),
-      .writeback_result_valid_i                (hazard_writeback_result_valid),
-      .writeback_writes_rd_i                   (hazard_writeback_result.uop.writes_rd),
-      .writeback_rd_i                          (hazard_writeback_result.uop.rd),
-      .writeback_serializing_i                 (hazard_writeback_result.uop.serializing),
-      .writeback_forwarding_available_i        (writeback_forwarding_available),
-      .lsu_busy_i                              (lsu_busy),
-      .lsu_pending_writes_rd_i                 (lsu_pending_writes_rd),
-      .lsu_pending_rd_i                        (lsu_pending_rd),
-      .execute_redirect_present_i              (1'b0),
-      .frontend_redirect_applied_i             (frontend_redirect_applied),
-      .commit_redirect_occurred_i              (commit_redirect_occurred),
-      .decode_accept_allowed_o                 (decode_accept_allowed),
-      .execute_progress_allowed_o              (execute_progress_allowed),
-      .execute_issue_allowed_o                 (execute_issue_allowed),
-      .decode_execute_flush_o                  (hazard_decode_execute_flush),
-      .writeback_flush_o                       (hazard_writeback_flush),
-      .raw_hazard_present_o                    (raw_hazard_present),
-      .serializing_hazard_present_o            (serializing_hazard_present),
-      .structural_hazard_present_o             (structural_hazard_present),
-      .rs1_execute_forwarding_selected_o       (rs1_execute_forwarding_selected),
-      .rs1_execute_result_forwarding_selected_o(rs1_execute_result_forwarding_selected),
-      .rs1_writeback_forwarding_selected_o     (rs1_writeback_forwarding_selected),
-      .rs2_execute_forwarding_selected_o       (rs2_execute_forwarding_selected),
-      .rs2_execute_result_forwarding_selected_o(rs2_execute_result_forwarding_selected),
-      .rs2_writeback_forwarding_selected_o     (rs2_writeback_forwarding_selected)
+      .clk_i                                    (clk),
+      .rst_ni                                   (rst_ni),
+      .decoded_uop_valid_i                      (hazard_decoded_uop_valid),
+      .decoded_uses_rs1_i                       (hazard_decoded_uop.uses_rs1),
+      .decoded_rs1_i                            (hazard_decoded_uop.rs1),
+      .decoded_uses_rs2_i                       (hazard_decoded_uop.uses_rs2),
+      .decoded_rs2_i                            (hazard_decoded_uop.rs2),
+      .decoded_serializing_i                    (hazard_decoded_uop.serializing),
+      .execute_instruction_present_i            (hazard_execute_uop_valid),
+      .execute_forwardable_producer_present_i   (hazard_execute_forwardable_producer_present),
+      .execute_blocking_producer_present_i      (hazard_execute_blocking_producer_present),
+      .execute_rd_i                             (hazard_execute_uop.rd),
+      .execute_serializing_instruction_present_i(hazard_execute_serializing_instruction_present),
+      .execute_result_valid_i                   (execute_result_valid),
+      .execute_result_ready_i                   (execute_result_ready),
+      .execute_result_writes_rd_i               (execute_result_writes_rd),
+      .execute_result_rd_i                      (execute_result_rd),
+      .execute_result_forwarding_available_i    (execute_result_forwarding_available),
+      .execute_result_serializing_i             (execute_result_serializing),
+      .writeback_result_valid_i                 (hazard_writeback_result_valid),
+      .writeback_writes_rd_i                    (hazard_writeback_result.uop.writes_rd),
+      .writeback_rd_i                           (hazard_writeback_result.uop.rd),
+      .writeback_serializing_i                  (hazard_writeback_result.uop.serializing),
+      .writeback_forwarding_available_i         (writeback_forwarding_available),
+      .lsu_busy_i                               (lsu_busy),
+      .lsu_pending_writes_rd_i                  (lsu_pending_writes_rd),
+      .lsu_pending_rd_i                         (lsu_pending_rd),
+      .execute_redirect_present_i               (1'b0),
+      .frontend_redirect_applied_i              (frontend_redirect_applied),
+      .commit_redirect_occurred_i               (commit_redirect_occurred),
+      .decode_accept_allowed_o                  (decode_accept_allowed),
+      .execute_progress_allowed_o               (execute_progress_allowed),
+      .execute_issue_allowed_o                  (execute_issue_allowed),
+      .decode_execute_flush_o                   (hazard_decode_execute_flush),
+      .writeback_flush_o                        (hazard_writeback_flush),
+      .raw_hazard_present_o                     (raw_hazard_present),
+      .serializing_hazard_present_o             (serializing_hazard_present),
+      .structural_hazard_present_o              (structural_hazard_present),
+      .rs1_execute_forwarding_selected_o        (rs1_execute_forwarding_selected),
+      .rs1_execute_result_forwarding_selected_o (rs1_execute_result_forwarding_selected),
+      .rs1_writeback_forwarding_selected_o      (rs1_writeback_forwarding_selected),
+      .rs2_execute_forwarding_selected_o        (rs2_execute_forwarding_selected),
+      .rs2_execute_result_forwarding_selected_o (rs2_execute_result_forwarding_selected),
+      .rs2_writeback_forwarding_selected_o      (rs2_writeback_forwarding_selected)
   );
 
   always #5 clk = ~clk;
@@ -291,10 +286,10 @@ module riscv_pipeline_control_tb;
                                                           input arch_reg_idx_t destination_register,
                                                           input xlen_data_t source_value);
     execute_packet_t packet;
-    packet               = '0;
-    packet.uop.pc        = pc;
-    packet.uop.rd        = destination_register;
-    packet.uop.writes_rd = destination_register != '0;
+    packet                = '0;
+    packet.uop.pc         = pc;
+    packet.uop.rd         = destination_register;
+    packet.uop.writes_rd  = destination_register != '0;
     packet.source_a_value = source_value;
     return packet;
   endfunction
@@ -336,41 +331,41 @@ module riscv_pipeline_control_tb;
   endfunction
 
   task automatic clear_ifu_inputs;
-    ifu_redirect_req         = '0;
-    ifu_redirect_req_valid   = 1'b0;
-    icache_lookup_req_ready  = 1'b0;
-    icache_lookup_resp       = '0;
-    icache_lookup_resp_valid = 1'b0;
-    ifu_fetch_entry_ready    = 1'b0;
+    ifu_redirect_req                    = '0;
+    ifu_redirect_req_valid              = 1'b0;
+    icache_lookup_req_ready             = 1'b0;
+    icache_lookup_resp                  = '0;
+    icache_lookup_resp_valid            = 1'b0;
+    ifu_fetch_entry_ready               = 1'b0;
     ifu_predictor_lookup_request_ready  = 1'b0;
     ifu_predictor_lookup_response_pc    = '0;
     ifu_predictor_lookup_response_epoch = '0;
     ifu_predictor_lookup_response_valid = 1'b0;
-    ifu_predictor_prediction = '0;
+    ifu_predictor_prediction            = '0;
   endtask
 
   task automatic clear_hazard_inputs;
-    hazard_decoded_uop                  = '0;
-    hazard_decoded_uop_valid            = 1'b0;
-    hazard_execute_uop                  = '0;
-    hazard_execute_uop_valid            = 1'b0;
-    hazard_writeback_result             = '0;
-    hazard_writeback_result_valid       = 1'b0;
-    lsu_busy                            = 1'b0;
-    lsu_pending_writes_rd               = 1'b0;
-    lsu_pending_rd                      = '0;
-    frontend_redirect_applied           = 1'b0;
-    commit_redirect_occurred            = 1'b0;
-    hazard_execute_forwardable_producer_present = 1'b0;
-    hazard_execute_blocking_producer_present    = 1'b0;
+    hazard_decoded_uop                             = '0;
+    hazard_decoded_uop_valid                       = 1'b0;
+    hazard_execute_uop                             = '0;
+    hazard_execute_uop_valid                       = 1'b0;
+    hazard_writeback_result                        = '0;
+    hazard_writeback_result_valid                  = 1'b0;
+    lsu_busy                                       = 1'b0;
+    lsu_pending_writes_rd                          = 1'b0;
+    lsu_pending_rd                                 = '0;
+    frontend_redirect_applied                      = 1'b0;
+    commit_redirect_occurred                       = 1'b0;
+    hazard_execute_forwardable_producer_present    = 1'b0;
+    hazard_execute_blocking_producer_present       = 1'b0;
     hazard_execute_serializing_instruction_present = 1'b0;
-    execute_result_valid                = 1'b0;
-    execute_result_ready                = 1'b1;
-    execute_result_writes_rd            = 1'b0;
-    execute_result_rd                   = '0;
-    execute_result_forwarding_available = 1'b0;
-    execute_result_serializing          = 1'b0;
-    writeback_forwarding_available      = 1'b0;
+    execute_result_valid                           = 1'b0;
+    execute_result_ready                           = 1'b1;
+    execute_result_writes_rd                       = 1'b0;
+    execute_result_rd                              = '0;
+    execute_result_forwarding_available            = 1'b0;
+    execute_result_serializing                     = 1'b0;
+    writeback_forwarding_available                 = 1'b0;
   endtask
 
   function automatic fetch_entry_t make_fetch_entry(input program_counter_t pc,
@@ -430,16 +425,16 @@ module riscv_pipeline_control_tb;
     localparam program_counter_t JAL_TARGET = JAL_PC + program_counter_t'(8);
     localparam program_counter_t BRANCH_TARGET = BRANCH_PC + program_counter_t'(8);
 
-    // 冷BTB只能给出顺序PC。查询经过数组读取级和比较响应级后返回。
+    // 冷BTB返回不跳预测，并保留查询PC。下一PC由IFU选择，其行为在后面的IFU用例检查。
     query_predictor(JAL_PC);
     assert (!predictor_lookup_prediction.predicted_taken &&
-            (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+            (predictor_lookup_response_pc == JAL_PC))
     else $fatal(1, "cold BTB lookup did not select the sequential PC");
 
     // 响应反压时，空闲的查询级仍能吸收一个请求；两级都占满后才停止接收。
     predictor_lookup_response_ready = 1'b0;
-    predictor_lookup_pc              = JAL_PC + program_counter_t'(INSTRUCTION_BYTES);
-    predictor_lookup_request_valid   = 1'b1;
+    predictor_lookup_pc             = JAL_PC + program_counter_t'(INSTRUCTION_BYTES);
+    predictor_lookup_request_valid  = 1'b1;
     #1;
     assert (predictor_lookup_request_ready)
     else $fatal(1, "predictor did not use its free query stage during response backpressure");
@@ -450,8 +445,7 @@ module riscv_pipeline_control_tb;
     assert (!predictor_lookup_request_ready)
     else $fatal(1, "predictor accepted a third lookup while both pipeline stages were occupied");
     @(posedge clk);
-    assert (predictor_lookup_response_valid &&
-            (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+    assert (predictor_lookup_response_valid && (predictor_lookup_response_pc == JAL_PC))
     else $fatal(1, "predictor response changed while backpressured");
     @(negedge clk);
     predictor_lookup_response_ready = 1'b1;
@@ -480,7 +474,7 @@ module riscv_pipeline_control_tb;
     query_predictor(JAL_PC);
     assert (predictor_lookup_prediction.predicted_taken &&
             (predictor_lookup_prediction.predicted_target == JAL_TARGET) &&
-            (predictor_lookup_next_pc == JAL_TARGET))
+            (predictor_lookup_response_pc == JAL_PC))
     else $fatal(1, "trained JAL BTB entry did not predict its target");
 
     // 条件分支BTB和BHT分别训练；BHT写口晚一级，因此等待训练真正落入数组后再查询。
@@ -509,7 +503,7 @@ module riscv_pipeline_control_tb;
     @(posedge clk);
     query_predictor(BRANCH_PC);
     assert (!predictor_lookup_prediction.predicted_taken &&
-            (predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES)))
+            (predictor_lookup_response_pc == BRANCH_PC))
     else $fatal(1, "BHT saturating counter did not learn the not-taken outcome");
 
     // 先训练return类型，再解析call压入PC+4；查询return时应优先使用RAS栈顶。
@@ -536,7 +530,7 @@ module riscv_pipeline_control_tb;
     @(posedge clk);
     query_predictor(RETURN_PC);
     assert (predictor_lookup_prediction.predicted_taken &&
-            (predictor_lookup_next_pc == CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+            (predictor_lookup_prediction.predicted_target == CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
     else $fatal(1, "return-address stack did not predict the call return target");
 
     // fence.i清除BTB和RAS可见状态，软件改写指令后不能继续采用旧控制流目标。
@@ -556,10 +550,10 @@ module riscv_pipeline_control_tb;
     execute_packet_t buffered_packet;
 
     @(negedge clk);
-    decoded_execute_packet =
+    decoded_execute_packet       =
         make_execute_packet(program_counter_t'('h100), arch_reg_idx_t'(5), xlen_data_t'('h1234));
     decoded_execute_packet_valid = 1'b1;
-    execute_packet_ready = 1'b1;
+    execute_packet_ready         = 1'b1;
     #1;
     assert (decoded_execute_packet_ready)
     else $fatal(1, "ID/EX stage did not accept an input while empty");
@@ -570,11 +564,11 @@ module riscv_pipeline_control_tb;
     else $fatal(1, "ID/EX stage did not publish the accepted payload");
 
     @(negedge clk);
-    held_packet = execute_packet;
-    execute_packet_ready = 1'b0;
-    decoded_execute_packet =
+    held_packet                  = execute_packet;
+    execute_packet_ready         = 1'b0;
+    decoded_execute_packet       =
         make_execute_packet(program_counter_t'('h200), arch_reg_idx_t'(6), xlen_data_t'('h5678));
-    buffered_packet = decoded_execute_packet;
+    buffered_packet              = decoded_execute_packet;
     decoded_execute_packet_valid = 1'b1;
     #1;
     assert (decoded_execute_packet_ready)
@@ -619,10 +613,10 @@ module riscv_pipeline_control_tb;
     writeback_result_t held_result;
 
     @(negedge clk);
-    completion_result =
+    completion_result       =
         make_writeback_result(program_counter_t'('h300), arch_reg_idx_t'(7), xlen_data_t'('h9abc));
     completion_result_valid = 1'b1;
-    writeback_result_ready = 1'b1;
+    writeback_result_ready  = 1'b1;
     #1;
     assert (completion_result_ready)
     else $fatal(1, "WB stage did not accept an input while empty");
@@ -633,9 +627,9 @@ module riscv_pipeline_control_tb;
     else $fatal(1, "WB stage did not publish the accepted result");
 
     @(negedge clk);
-    held_result = writeback_result;
-    writeback_result_ready = 1'b0;
-    completion_result =
+    held_result             = writeback_result;
+    writeback_result_ready  = 1'b0;
+    completion_result       =
         make_writeback_result(program_counter_t'('h400), arch_reg_idx_t'(8), xlen_data_t'('hdef0));
     completion_result_valid = 1'b1;
     #1;
@@ -649,7 +643,7 @@ module riscv_pipeline_control_tb;
 
     @(negedge clk);
     writeback_result_ready = 1'b1;
-    writeback_flush = 1'b1;
+    writeback_flush        = 1'b1;
     #1;
     assert (completion_result_ready)
     else $fatal(1, "WB stage coupled commit recovery into its capacity-only ready signal");
@@ -673,11 +667,11 @@ module riscv_pipeline_control_tb;
     assert (decode_accept_allowed && execute_issue_allowed)
     else $fatal(1, "hazard controller blocked a hazard-free instruction");
 
-    hazard_decoded_uop.uses_rs1  = 1'b1;
-    hazard_decoded_uop.rs1       = arch_reg_idx_t'(5);
-    hazard_execute_uop_valid     = 1'b1;
-    hazard_execute_uop.writes_rd = 1'b1;
-    hazard_execute_uop.rd        = arch_reg_idx_t'(5);
+    hazard_decoded_uop.uses_rs1              = 1'b1;
+    hazard_decoded_uop.rs1                   = arch_reg_idx_t'(5);
+    hazard_execute_uop_valid                 = 1'b1;
+    hazard_execute_uop.writes_rd             = 1'b1;
+    hazard_execute_uop.rd                    = arch_reg_idx_t'(5);
     hazard_execute_blocking_producer_present = 1'b1;
     #1;
     assert (raw_hazard_present && !decode_accept_allowed)
@@ -729,17 +723,17 @@ module riscv_pipeline_control_tb;
 
     // EX是更近的生产者。即使WB中存在同rd的旧值，只要EX结果尚不可用就必须停顿。
     clear_hazard_inputs();
-    hazard_decoded_uop_valid              = 1'b1;
-    hazard_decoded_uop.uses_rs1           = 1'b1;
-    hazard_decoded_uop.rs1                = arch_reg_idx_t'(11);
-    hazard_execute_uop_valid              = 1'b1;
-    hazard_execute_uop.writes_rd          = 1'b1;
-    hazard_execute_uop.rd                 = arch_reg_idx_t'(11);
+    hazard_decoded_uop_valid                 = 1'b1;
+    hazard_decoded_uop.uses_rs1              = 1'b1;
+    hazard_decoded_uop.rs1                   = arch_reg_idx_t'(11);
+    hazard_execute_uop_valid                 = 1'b1;
+    hazard_execute_uop.writes_rd             = 1'b1;
+    hazard_execute_uop.rd                    = arch_reg_idx_t'(11);
     hazard_execute_blocking_producer_present = 1'b1;
-    hazard_writeback_result_valid         = 1'b1;
-    hazard_writeback_result.uop.writes_rd = 1'b1;
-    hazard_writeback_result.uop.rd        = arch_reg_idx_t'(11);
-    writeback_forwarding_available        = 1'b1;
+    hazard_writeback_result_valid            = 1'b1;
+    hazard_writeback_result.uop.writes_rd    = 1'b1;
+    hazard_writeback_result.uop.rd           = arch_reg_idx_t'(11);
+    writeback_forwarding_available           = 1'b1;
     #1;
     assert (raw_hazard_present && !decode_accept_allowed &&
             !rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
@@ -761,9 +755,9 @@ module riscv_pipeline_control_tb;
     else $fatal(1, "serializing instruction entered before older work drained");
 
     clear_hazard_inputs();
-    hazard_decoded_uop_valid       = 1'b1;
-    hazard_execute_uop_valid       = 1'b1;
-    hazard_execute_uop.serializing = 1'b1;
+    hazard_decoded_uop_valid                       = 1'b1;
+    hazard_execute_uop_valid                       = 1'b1;
+    hazard_execute_uop.serializing                 = 1'b1;
     hazard_execute_serializing_instruction_present = 1'b1;
     #1;
     assert (serializing_hazard_present && !decode_accept_allowed)
@@ -787,20 +781,20 @@ module riscv_pipeline_control_tb;
     else $fatal(1, "pending LSU load dependency was not blocked before response");
 
     // LSU完成后，结果先进入WB寄存器。下一拍由现有WB前递网络解除相关冒险。
-    lsu_busy                                      = 1'b0;
-    lsu_pending_writes_rd                         = 1'b0;
-    hazard_writeback_result_valid                 = 1'b1;
-    hazard_writeback_result.uop.writes_rd         = 1'b1;
-    hazard_writeback_result.uop.rd                = arch_reg_idx_t'(13);
-    writeback_forwarding_available                = 1'b1;
+    lsu_busy                              = 1'b0;
+    lsu_pending_writes_rd                 = 1'b0;
+    hazard_writeback_result_valid         = 1'b1;
+    hazard_writeback_result.uop.writes_rd = 1'b1;
+    hazard_writeback_result.uop.rd        = arch_reg_idx_t'(13);
+    writeback_forwarding_available        = 1'b1;
     #1;
     assert (!raw_hazard_present && decode_accept_allowed && rs1_writeback_forwarding_selected)
     else $fatal(1, "registered LSU result was not selected through WB forwarding");
 
     // EX中的生产者年龄比WB中的旧load更小。两者写同一rd时必须选择EX。
-    hazard_execute_uop_valid     = 1'b1;
-    hazard_execute_uop.writes_rd = 1'b1;
-    hazard_execute_uop.rd        = arch_reg_idx_t'(13);
+    hazard_execute_uop_valid                    = 1'b1;
+    hazard_execute_uop.writes_rd                = 1'b1;
+    hazard_execute_uop.rd                       = arch_reg_idx_t'(13);
     hazard_execute_forwardable_producer_present = 1'b1;
     #1;
     assert (rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
@@ -833,9 +827,9 @@ module riscv_pipeline_control_tb;
     fetch_entry_t second_entry;
     fetch_entry_t third_entry;
 
-    first_entry = make_fetch_entry(program_counter_t'('h8000_0000), instruction_t'(32'h0010_0093));
+    first_entry  = make_fetch_entry(program_counter_t'('h8000_0000), instruction_t'(32'h0010_0093));
     second_entry = make_fetch_entry(program_counter_t'('h8000_0004), instruction_t'(32'h0020_0113));
-    third_entry = make_fetch_entry(program_counter_t'('h8000_0008), instruction_t'(32'h0030_0193));
+    third_entry  = make_fetch_entry(program_counter_t'('h8000_0008), instruction_t'(32'h0030_0193));
 
     // IDU停顿时连续接收两项。满队列的入口ready只依赖寄存占用量，不组合依赖本拍
     // 出队；这会切断EX冒险到IFU的跨级ready路径。首项出队后的下一拍即可补入第三项，
@@ -907,15 +901,15 @@ module riscv_pipeline_control_tb;
     writeback_result_t younger_completion;
     execute_packet_t   younger_idu_exception;
 
-    older_lsu_exception                       = '0;
-    older_lsu_exception.uop.pc                = program_counter_t'(64'h8000_0040);
-    older_lsu_exception.uop.instruction       = instruction_t'(32'h0000_2283);
-    older_lsu_exception.uop.rd                = arch_reg_idx_t'(5);
-    older_lsu_exception.uop.writes_rd         = 1'b1;
-    older_lsu_exception.uop.mem_ctrl.cmd      = MEM_CMD_LOAD;
-    older_lsu_exception.uop.exception_valid   = 1'b1;
-    older_lsu_exception.uop.exception_cause   = EXC_LOAD_ACCESS_FAULT;
-    older_lsu_exception.uop.exception_tval    = xlen_data_t'(64'h8000_4000);
+    older_lsu_exception                     = '0;
+    older_lsu_exception.uop.pc              = program_counter_t'(64'h8000_0040);
+    older_lsu_exception.uop.instruction     = instruction_t'(32'h0000_2283);
+    older_lsu_exception.uop.rd              = arch_reg_idx_t'(5);
+    older_lsu_exception.uop.writes_rd       = 1'b1;
+    older_lsu_exception.uop.mem_ctrl.cmd    = MEM_CMD_LOAD;
+    older_lsu_exception.uop.exception_valid = 1'b1;
+    older_lsu_exception.uop.exception_cause = EXC_LOAD_ACCESS_FAULT;
+    older_lsu_exception.uop.exception_tval  = xlen_data_t'(64'h8000_4000);
 
     younger_idu_exception                     = '0;
     younger_idu_exception.uop.pc              = program_counter_t'(64'h8000_0044);
@@ -924,11 +918,11 @@ module riscv_pipeline_control_tb;
     younger_idu_exception.uop.exception_cause = EXC_ILLEGAL_INSTRUCTION;
     younger_idu_exception.uop.exception_tval  = xlen_data_t'(32'hffff_ffff);
 
-    younger_completion                        = '0;
-    younger_completion.uop.pc                 = program_counter_t'(64'h8000_0048);
-    younger_completion.uop.exception_valid    = 1'b1;
-    younger_completion.uop.exception_cause    = EXC_INSTR_ACCESS_FAULT;
-    younger_completion.uop.exception_tval     = xlen_data_t'(64'h8000_0048);
+    younger_completion                     = '0;
+    younger_completion.uop.pc              = program_counter_t'(64'h8000_0048);
+    younger_completion.uop.exception_valid = 1'b1;
+    younger_completion.uop.exception_cause = EXC_INSTR_ACCESS_FAULT;
+    younger_completion.uop.exception_tval  = xlen_data_t'(64'h8000_0048);
 
     // 先让老异常进入WB，同时让下一条异常进入ID/EX。
     @(negedge clk);
@@ -948,21 +942,20 @@ module riscv_pipeline_control_tb;
 
     // WB异常提交的同一拍，再呈现一个更年轻completion和一个仍在decode的IFU异常。
     @(negedge clk);
-    completion_result                  = younger_completion;
-    completion_result_valid            = 1'b1;
-    hazard_writeback_result            = writeback_result;
-    hazard_writeback_result_valid      = writeback_result_valid;
-    hazard_execute_uop                 = execute_packet.uop;
-    hazard_execute_uop_valid           = execute_packet_valid;
-    hazard_execute_forwardable_producer_present = execute_forwardable_producer_present;
-    hazard_execute_blocking_producer_present = execute_blocking_producer_present;
-    hazard_execute_serializing_instruction_present =
-        execute_serializing_instruction_present;
-    hazard_decoded_uop                 = '0;
-    hazard_decoded_uop.exception_valid = 1'b1;
-    hazard_decoded_uop.exception_cause = EXC_INSTR_ACCESS_FAULT;
-    hazard_decoded_uop.exception_tval  = xlen_data_t'(64'h8000_004c);
-    hazard_decoded_uop_valid           = 1'b1;
+    completion_result                              = younger_completion;
+    completion_result_valid                        = 1'b1;
+    hazard_writeback_result                        = writeback_result;
+    hazard_writeback_result_valid                  = writeback_result_valid;
+    hazard_execute_uop                             = execute_packet.uop;
+    hazard_execute_uop_valid                       = execute_packet_valid;
+    hazard_execute_forwardable_producer_present    = execute_forwardable_producer_present;
+    hazard_execute_blocking_producer_present       = execute_blocking_producer_present;
+    hazard_execute_serializing_instruction_present = execute_serializing_instruction_present;
+    hazard_decoded_uop                             = '0;
+    hazard_decoded_uop.exception_valid             = 1'b1;
+    hazard_decoded_uop.exception_cause             = EXC_INSTR_ACCESS_FAULT;
+    hazard_decoded_uop.exception_tval              = xlen_data_t'(64'h8000_004c);
+    hazard_decoded_uop_valid                       = 1'b1;
     #1;
 
     assert (staged_commit_valid && staged_commit.trap_taken && (staged_commit.trap_cause_code[$bits(
@@ -1019,7 +1012,7 @@ module riscv_pipeline_control_tb;
             (ifu_predictor_lookup_request_pc == IFU_TEST_START_PC) &&
             !icache_lookup_req_valid)
     else $fatal(1, "IFU did not start predictor lookup from the reset vector");
-    initial_epoch = ifu_predictor_lookup_request_epoch;
+    initial_epoch                    = ifu_predictor_lookup_request_epoch;
     predictor_response_request_pc    = ifu_predictor_lookup_request_pc;
     predictor_response_request_epoch = ifu_predictor_lookup_request_epoch;
     @(posedge clk);
@@ -1034,11 +1027,10 @@ module riscv_pipeline_control_tb;
       ifu_predictor_lookup_response_valid = 1'b1;
       ifu_predictor_prediction            = '0;
 
-      icache_lookup_resp_valid = response_request_present;
+      icache_lookup_resp_valid            = response_request_present;
       if (response_request_present) begin
         icache_lookup_resp = make_lookup_response(
-            response_request, instruction_t'(32'h0000_0013 + instruction_index)
-        );
+            response_request, instruction_t'(32'h0000_0013 + instruction_index));
       end
 
       #1;
@@ -1085,10 +1077,10 @@ module riscv_pipeline_control_tb;
     clear_ifu_inputs();
     @(posedge clk);
     @(negedge clk);
-    rst_ni                              = 1'b1;
-    ifu_predictor_lookup_request_ready  = 1'b1;
-    icache_lookup_req_ready             = 1'b1;
-    ifu_fetch_entry_ready               = 1'b1;
+    rst_ni                             = 1'b1;
+    ifu_predictor_lookup_request_ready = 1'b1;
+    icache_lookup_req_ready            = 1'b1;
+    ifu_fetch_entry_ready              = 1'b1;
     #1;
     initial_epoch = ifu_predictor_lookup_request_epoch;
     @(posedge clk);
@@ -1123,9 +1115,9 @@ module riscv_pipeline_control_tb;
     @(posedge clk);
 
     @(negedge clk);
-    ifu_redirect_req_valid     = 1'b0;
-    icache_lookup_resp         = make_lookup_response(accepted_request, instruction_t'(32'h13));
-    icache_lookup_resp_valid   = 1'b1;
+    ifu_redirect_req_valid   = 1'b0;
+    icache_lookup_resp       = make_lookup_response(accepted_request, instruction_t'(32'h13));
+    icache_lookup_resp_valid = 1'b1;
     #1;
     assert (!ifu_fetch_entry_valid && icache_lookup_resp_ready &&
             ifu_predictor_lookup_request_valid &&
@@ -1135,10 +1127,10 @@ module riscv_pipeline_control_tb;
     @(posedge clk);
 
     @(negedge clk);
-    icache_lookup_resp_valid                = 1'b0;
-    ifu_predictor_lookup_response_pc        = redirect_request.target_pc;
-    ifu_predictor_lookup_response_epoch     = ifu_predictor_lookup_request_epoch;
-    ifu_predictor_lookup_response_valid     = 1'b1;
+    icache_lookup_resp_valid            = 1'b0;
+    ifu_predictor_lookup_response_pc    = redirect_request.target_pc;
+    ifu_predictor_lookup_response_epoch = ifu_predictor_lookup_request_epoch;
+    ifu_predictor_lookup_response_valid = 1'b1;
     #1;
     assert (ifu_predictor_lookup_response_ready)
     else $fatal(1, "IFU did not accept the redirected prediction response");

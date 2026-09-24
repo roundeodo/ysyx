@@ -56,6 +56,8 @@ module riscv_dcache_miss_unit
     input  logic                refill_resp_valid_i,
     output logic                refill_resp_ready_o,
 
+    // 唯一的整行副本同时供AXI发送和错误恢复使用，完成响应前不得覆盖。
+    output dcache_line_data_t      writeback_line_data_o,
     output dcache_writeback_req_t  writeback_req_o,
     output logic                   writeback_req_valid_o,
     input  logic                   writeback_req_ready_i,
@@ -73,70 +75,73 @@ module riscv_dcache_miss_unit
     MISS_INVALIDATE_VICTIM,
     MISS_SEND_REFILL,
     MISS_RECEIVE_REFILL,
+    MISS_RESTORE_VICTIM_WORD,
+    MISS_RESTORE_VICTIM_METADATA,
     MISS_INSTALL_LINE,
     MISS_RETURN_RESPONSE,
     MISS_UPDATE_CLEAN_METADATA,
     MISS_COMPLETE_CLEAN
   } miss_state_e;
 
-  miss_state_e state_q, state_d;
-  dcache_miss_req_t miss_context_q, miss_context_d;
-  logic clean_operation_q, clean_operation_d;
-  dcache_set_index_t active_set_index_q, active_set_index_d;
-  dcache_way_index_t active_way_index_q, active_way_index_d;
-  dcache_tag_t victim_tag_q, victim_tag_d;
-  dcache_word_index_t victim_word_index_q, victim_word_index_d;
-  dcache_line_data_t victim_line_data_q, victim_line_data_d;
-  core_data_t requested_word_data_q, requested_word_data_d;
-  logic transaction_access_fault_q, transaction_access_fault_d;
-  logic clean_access_fault_q, clean_access_fault_d;
-  // dirty victim的B响应可以与新line的AR/R并行，因此必须独立记录它是否尚未返回。
-  logic writeback_response_pending_q, writeback_response_pending_d;
-
   logic miss_req_handshake;
-  logic clean_req_handshake;
-  logic refill_req_handshake;
-  logic refill_resp_handshake;
-  logic writeback_req_handshake;
-  logic writeback_resp_handshake;
-  logic transaction_fault_after_bus_handshakes;
-  logic writeback_response_completed_after_handshake;
-  logic victim_last_word;
-  phys_addr_t victim_line_base_addr;
-  phys_addr_t requested_line_base_addr;
-  core_data_t refill_word_after_store_merge;
-
-  function automatic core_data_t merge_store_bytes(input core_data_t original_word,
-                                                   input core_data_t store_word,
-                                                   input core_byte_strobe_t byte_strobe);
-    core_data_t merged_word;
-    merged_word = original_word;
-    for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
-      if (byte_strobe[byte_index]) begin
-        merged_word[byte_index*8+:8] = store_word[byte_index*8+:8];
-      end
-    end
-    return merged_word;
-  endfunction
 
   assign miss_req_handshake = miss_req_valid_i && miss_req_ready_o;
+  logic clean_req_handshake;
+
   assign clean_req_handshake = clean_req_valid_i && clean_req_ready_o;
+  logic refill_req_handshake;
+
   assign refill_req_handshake = refill_req_valid_o && refill_req_ready_i;
+  logic refill_resp_handshake;
+
   assign refill_resp_handshake = refill_resp_valid_i && refill_resp_ready_o;
+  logic writeback_req_handshake;
+
   assign writeback_req_handshake = writeback_req_valid_o && writeback_req_ready_i;
+  logic writeback_resp_handshake;
+
   assign writeback_resp_handshake = writeback_resp_valid_i && writeback_resp_ready_o;
+  logic transaction_access_fault_q, transaction_access_fault_d;
+  logic transaction_fault_after_bus_handshakes;
+
   assign transaction_fault_after_bus_handshakes =
       transaction_access_fault_q ||
       (refill_resp_handshake && refill_resp_i.access_fault) ||
       (writeback_resp_handshake && writeback_resp_i.access_fault);
+  // dirty victim的B响应可以与新line的AR/R并行，因此必须独立记录它是否尚未返回。
+  logic writeback_response_pending_q, writeback_response_pending_d;
+  logic writeback_response_completed_after_handshake;
+
   assign writeback_response_completed_after_handshake =
       !writeback_response_pending_q || writeback_resp_handshake;
+  logic writeback_access_fault_q, writeback_access_fault_d;
+  logic writeback_fault_after_handshake;
+
+  assign writeback_fault_after_handshake = writeback_access_fault_q ||
+      (writeback_resp_handshake && writeback_resp_i.access_fault);
+  miss_state_e miss_completion_state;
+
+  // 两个方向均排空后再决定安装、恢复或报错。写回失败必须先恢复旧脏行，R错误本身不需要恢复。
+  assign miss_completion_state = writeback_fault_after_handshake ? MISS_RESTORE_VICTIM_WORD :
+      (transaction_fault_after_bus_handshakes ? MISS_RETURN_RESPONSE : MISS_INSTALL_LINE);
+  dcache_word_index_t victim_word_index_q, victim_word_index_d;
+  logic victim_last_word;
+
   assign victim_last_word = victim_word_index_q == dcache_word_index_t'(DCACHE_WORDS_PER_LINE - 1);
+  dcache_set_index_t active_set_index_q, active_set_index_d;
+  dcache_tag_t victim_tag_q, victim_tag_d;
+  phys_addr_t victim_line_base_addr;
+
   assign victim_line_base_addr =
       (phys_addr_t'(victim_tag_q) << (DCACHE_LINE_OFFSET_W + DCACHE_SET_INDEX_BITS)) |
       (phys_addr_t'(active_set_index_q) << DCACHE_LINE_OFFSET_W);
+  dcache_miss_req_t miss_context_q, miss_context_d;
+  phys_addr_t requested_line_base_addr;
+
   assign requested_line_base_addr = miss_context_q.memory_req.addr &
                                     ~phys_addr_t'(DCACHE_LINE_BYTES - 1);
+  core_data_t refill_word_after_store_merge;
+
   assign refill_word_after_store_merge =
       (miss_context_q.memory_req.cmd == MEM_CMD_STORE) &&
       (refill_resp_i.word_index == miss_context_q.word_index) ?
@@ -146,7 +151,14 @@ module riscv_dcache_miss_unit
       miss_context_q.memory_req.byte_strobe
   ) : refill_resp_i.word_data;
 
-  // 第一段：外部握手与阵列副作用。元数据只有在完整写回/refill成功后才提交。
+  miss_state_e state_q, state_d;
+  logic clean_operation_q, clean_operation_d;
+  dcache_way_index_t active_way_index_q, active_way_index_d;
+  dcache_line_data_t victim_line_data_q, victim_line_data_d;
+  core_data_t requested_word_data_q, requested_word_data_d;
+  logic clean_access_fault_q, clean_access_fault_d;
+
+  // 第一段：外部握手与阵列更新。新行只在事务成功后安装；写回失败则恢复旧脏行。
   always_comb begin
     miss_req_ready_o     = (state_q == MISS_IDLE) && !clean_req_valid_i;
     clean_req_ready_o    = state_q == MISS_IDLE;
@@ -185,9 +197,9 @@ module riscv_dcache_miss_unit
 
     writeback_req_o                = '0;
     writeback_req_o.line_base_addr = victim_line_base_addr;
-    writeback_req_o.line_data      = victim_line_data_q;
+    writeback_line_data_o          = victim_line_data_q;
     writeback_req_o.transaction_id = clean_operation_q ? '0 :
-                                     miss_context_q.memory_req.transaction_id;
+                                         miss_context_q.memory_req.transaction_id;
     writeback_req_valid_o          = 1'b0;
     // B通道独立于refill状态。只要已发出的writeback尚未返回，就持续准备接收响应。
     writeback_resp_ready_o = writeback_response_pending_q;
@@ -234,6 +246,20 @@ module riscv_dcache_miss_unit
         line_install_occurred_o       = 1'b1;
       end
 
+      MISS_RESTORE_VICTIM_WORD: begin
+        data_write_valid_o      = 1'b1;
+        data_write_word_index_o = victim_word_index_q;
+        data_write_word_data_o  =
+            victim_line_data_q[int'(victim_word_index_q)*CORE_DATA_WIDTH+:CORE_DATA_WIDTH];
+      end
+
+      MISS_RESTORE_VICTIM_METADATA: begin
+        metadata_write_valid_o        = 1'b1;
+        metadata_write_tag_o          = victim_tag_q;
+        metadata_write_line_present_o = 1'b1;
+        metadata_write_line_dirty_o   = 1'b1;
+      end
+
       MISS_RETURN_RESPONSE: begin
         miss_resp_o.read_data      = requested_word_data_q;
         miss_resp_o.access_fault   = transaction_access_fault_q;
@@ -270,12 +296,14 @@ module riscv_dcache_miss_unit
     transaction_access_fault_d   = transaction_access_fault_q;
     clean_access_fault_d         = clean_access_fault_q;
     writeback_response_pending_d = writeback_response_pending_q;
+    writeback_access_fault_d     = writeback_access_fault_q;
 
     // dirty miss期间B响应可能在INVALIDATE、SEND_REFILL或RECEIVE_REFILL任一状态返回。
     // 先统一保存结果，再由当前状态决定何时提交line或异常响应。
     if (writeback_resp_handshake) begin
       writeback_response_pending_d = 1'b0;
       if (writeback_resp_i.access_fault) begin
+        writeback_access_fault_d = 1'b1;
         if (clean_operation_q) clean_access_fault_d = 1'b1;
         else begin
           transaction_access_fault_d = 1'b1;
@@ -288,6 +316,7 @@ module riscv_dcache_miss_unit
         transaction_access_fault_d   = 1'b0;
         clean_access_fault_d         = 1'b0;
         writeback_response_pending_d = 1'b0;
+        writeback_access_fault_d     = 1'b0;
         victim_word_index_d          = '0;
         if (clean_req_handshake) begin
           clean_operation_d  = 1'b1;
@@ -302,7 +331,7 @@ module riscv_dcache_miss_unit
           active_way_index_d = miss_req_i.replacement_way_index;
           victim_tag_d       = miss_req_i.victim_tag;
           state_d            = (miss_req_i.victim_present && miss_req_i.victim_dirty) ?
-                               MISS_READ_VICTIM_WORD : MISS_INVALIDATE_VICTIM;
+                    MISS_READ_VICTIM_WORD : MISS_INVALIDATE_VICTIM;
         end
       end
 
@@ -339,8 +368,8 @@ module riscv_dcache_miss_unit
               state_d = MISS_UPDATE_CLEAN_METADATA;
             end
           end else begin
-            state_d = transaction_fault_after_bus_handshakes ? MISS_RETURN_RESPONSE :
-                                                               MISS_INSTALL_LINE;
+            victim_word_index_d = '0;
+            state_d             = miss_completion_state;
           end
         end
       end
@@ -363,15 +392,23 @@ module riscv_dcache_miss_unit
             if (!writeback_response_completed_after_handshake) begin
               state_d = MISS_WAIT_WRITEBACK_RESPONSE;
             end else begin
-              state_d = transaction_fault_after_bus_handshakes ?
-                        MISS_RETURN_RESPONSE :
-                        MISS_INSTALL_LINE;
+              victim_word_index_d = '0;
+              state_d             = miss_completion_state;
             end
           end
         end
       end
 
       MISS_INSTALL_LINE: begin
+        state_d = MISS_RETURN_RESPONSE;
+      end
+
+      MISS_RESTORE_VICTIM_WORD: begin
+        if (victim_last_word) state_d = MISS_RESTORE_VICTIM_METADATA;
+        else victim_word_index_d = victim_word_index_q + dcache_word_index_t'(1);
+      end
+
+      MISS_RESTORE_VICTIM_METADATA: begin
         state_d = MISS_RETURN_RESPONSE;
       end
 
@@ -415,11 +452,13 @@ module riscv_dcache_miss_unit
       transaction_access_fault_q   <= 1'b0;
       clean_access_fault_q         <= 1'b0;
       writeback_response_pending_q <= 1'b0;
+      writeback_access_fault_q     <= 1'b0;
     end else begin
       clean_operation_q            <= clean_operation_d;
       transaction_access_fault_q   <= transaction_access_fault_d;
       clean_access_fault_q         <= clean_access_fault_d;
       writeback_response_pending_q <= writeback_response_pending_d;
+      writeback_access_fault_q     <= writeback_access_fault_d;
     end
   end
 

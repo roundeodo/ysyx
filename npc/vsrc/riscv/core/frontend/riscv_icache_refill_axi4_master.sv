@@ -89,8 +89,8 @@ module riscv_icache_refill_axi4_master
 
       REFILL_RECEIVE_READ_DATA: begin
         refill_resp_o.word_data         = icache_fetch_data_t'(
-                                          axi_manager_i.r.data >> current_word_bit_offset
-                                          );
+            axi_manager_i.r.data >> current_word_bit_offset
+        );
         refill_resp_o.word_index        = received_word_index_q;
         refill_resp_o.last_word         = axi_manager_i.r.last;
         refill_resp_o.access_fault      = response_has_access_fault;
@@ -117,9 +117,9 @@ module riscv_icache_refill_axi4_master
           refill_transaction_context_d.transaction_index    = refill_req_i.transaction_index;
           if (refill_req_i.requested_word_count == icache_refill_word_count_t'(1)) begin
             received_word_index_d = refill_req_i.critical_word_index;
-            current_word_addr_d   = 
-                                    refill_req_i.line_base_addr +
-                                    MEM_AXI_ADDR_WIDTH'(refill_req_i.critical_word_index * ICACHE_FETCH_BYTES);
+            current_word_addr_d   =
+                refill_req_i.line_base_addr +
+                MEM_AXI_ADDR_WIDTH'(refill_req_i.critical_word_index * ICACHE_FETCH_BYTES);
           end else begin
             received_word_index_d = '0;
             current_word_addr_d   = refill_req_i.line_base_addr;

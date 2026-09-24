@@ -146,10 +146,10 @@ module riscv_axi4_sim_mem
 
   always_comb begin
     accepted_read_latency  = select_latency(
-                             read_latency_lfsr_q,
-                             ((read_state_q == READ_ACCEPT_ADDRESS ? mem_axi_i.ar.id : read_address_q.id) ==
-                             INSTRUCTION_READ_ID) ? IFU_READ_LATENCY : LSU_READ_LATENCY
-                             );
+      read_latency_lfsr_q,
+      ((read_state_q == READ_ACCEPT_ADDRESS ? mem_axi_i.ar.id : read_address_q.id) ==
+         INSTRUCTION_READ_ID) ? IFU_READ_LATENCY : LSU_READ_LATENCY
+    );
     accepted_write_latency = select_latency(write_latency_lfsr_q, LSU_WRITE_LATENCY);
   end
 
@@ -239,12 +239,12 @@ module riscv_axi4_sim_mem
             read_state_d = READ_ACCEPT_ADDRESS;
           end else begin
             read_beat_addr_d  = next_burst_addr(
-                                read_beat_addr_q,
-                                read_address_q.addr,
-                                read_address_q.len,
-                                read_address_q.size,
-                                read_address_q.burst
-                                );
+              read_beat_addr_q,
+              read_address_q.addr,
+              read_address_q.len,
+              read_address_q.size,
+              read_address_q.burst
+            );
             read_beat_index_d = read_beat_index_q + 1'b1;
 
             read_response_load_event = 1'b1;
@@ -304,12 +304,12 @@ module riscv_axi4_sim_mem
               end
             end else begin
               write_beat_addr_d  = next_burst_addr(
-                                   mem_axi_i.aw.addr,
-                                   mem_axi_i.aw.addr,
-                                   mem_axi_i.aw.len,
-                                   mem_axi_i.aw.size,
-                                   mem_axi_i.aw.burst
-                                   );
+                mem_axi_i.aw.addr,
+                mem_axi_i.aw.addr,
+                mem_axi_i.aw.len,
+                mem_axi_i.aw.size,
+                mem_axi_i.aw.burst
+              );
               write_beat_index_d = 8'd1;
               write_state_d      = WRITE_RECEIVE_DATA;
             end
@@ -335,12 +335,12 @@ module riscv_axi4_sim_mem
             end
           end else begin
             write_beat_addr_d  = next_burst_addr(
-                                 write_beat_addr_q,
-                                 write_address_q.addr,
-                                 write_address_q.len,
-                                 write_address_q.size,
-                                 write_address_q.burst
-                                 );
+              write_beat_addr_q,
+              write_address_q.addr,
+              write_address_q.len,
+              write_address_q.size,
+              write_address_q.burst
+            );
             write_beat_index_d = write_beat_index_q + 1'b1;
           end
         end
@@ -395,8 +395,8 @@ module riscv_axi4_sim_mem
       read_response_last_q <= 1'b0;
     end else if (read_response_load_event) begin
       read_response_data_q <= axi4_data_t'(pmem_read_data(
-                              int'(read_response_load_addr), 1 << read_response_load_size, MEM_AXI_DATA_BYTE_COUNT
-                              ));
+          int'(read_response_load_addr), 1 << read_response_load_size, MEM_AXI_DATA_BYTE_COUNT
+      ));
       read_response_id_q   <= read_response_load_id;
       read_response_last_q <= read_response_load_last;
     end

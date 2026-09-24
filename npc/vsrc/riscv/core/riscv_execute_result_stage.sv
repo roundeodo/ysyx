@@ -41,13 +41,12 @@ module riscv_execute_result_stage
   assign branch_prediction_mismatch = execute_result_q.next_pc != predicted_next_pc;
 
   always_comb begin
-    resolved_result_o                              = execute_result_q;
-    resolved_result_o.redirect_valid               = 1'b0;
-    resolved_result_o.redirect_req                 = '0;
-    resolved_result_o.redirect_req.target_pc       = execute_result_q.next_pc;
-    resolved_result_o.redirect_req.source_pc       = execute_result_q.uop.pc;
-    resolved_result_o.redirect_req.reason          = REDIRECT_BRANCH_MISPREDICT;
-    resolved_result_o.redirect_req.flush_inclusive = 1'b0;
+    resolved_result_o                        = execute_result_q;
+    resolved_result_o.redirect_valid         = 1'b0;
+    resolved_result_o.redirect_req           = '0;
+    resolved_result_o.redirect_req.target_pc = execute_result_q.next_pc;
+    resolved_result_o.redirect_req.source_pc = execute_result_q.uop.pc;
+    resolved_result_o.redirect_req.reason    = REDIRECT_BRANCH_MISPREDICT;
 
     if ((execute_result_q.uop.fu_type == FU_BRANCH) &&
         !execute_result_q.uop.exception_valid && branch_prediction_mismatch) begin

@@ -10,10 +10,6 @@ package riscv_pkg;
   import riscv_addr_map_pkg::*;
 
   localparam int unsigned ARCH_REG_IDX_W = (ARCH_REG_COUNT > 1) ? $clog2(ARCH_REG_COUNT) : 1;
-  localparam int unsigned PHYS_REG_IDX_W = (PHYS_REG_COUNT > 1) ? $clog2(PHYS_REG_COUNT) : 1;
-  localparam int unsigned ROB_IDX_W = (ROB_ENTRY_COUNT > 1) ? $clog2(ROB_ENTRY_COUNT) : 1;
-  localparam int unsigned LQ_IDX_W = (LOAD_QUEUE_COUNT > 1) ? $clog2(LOAD_QUEUE_COUNT) : 1;
-  localparam int unsigned SQ_IDX_W = (STORE_QUEUE_COUNT > 1) ? $clog2(STORE_QUEUE_COUNT) : 1;
   localparam int unsigned MEM_TXN_IDX_W = (MEM_TXN_COUNT > 1) ? $clog2(MEM_TXN_COUNT) : 1;
   localparam int unsigned FRONTEND_TAG_W = (FRONTEND_TAG_COUNT > 1) ? $clog2(
       FRONTEND_TAG_COUNT
@@ -40,6 +36,20 @@ package riscv_pkg;
   // - core_data_t/core_byte_strobe_t只属于core侧数据存储接口。
   //
   // phys_addr_t由addr_map package唯一拥有，避免多个package分别决定物理地址宽度。
+
+  // 缓存命中和回填共用按字节合并规则。
+  function automatic core_data_t merge_store_bytes(input core_data_t original_word,
+                                                   input core_data_t store_word,
+                                                   input core_byte_strobe_t byte_strobe);
+    core_data_t merged_word;
+    merged_word = original_word;
+    for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
+      if (byte_strobe[byte_index]) begin
+        merged_word[byte_index*8+:8] = store_word[byte_index*8+:8];
+      end
+    end
+    return merged_word;
+  endfunction
 
   /* verilator lint_off UNUSEDPARAM */
   // 复位PC属于架构前端，不应该由AXI地址字段宽度反向决定其声明。
@@ -110,10 +120,6 @@ package riscv_pkg;
 
   // 统一索引类型
   typedef logic [ARCH_REG_IDX_W-1:0] arch_reg_idx_t;
-  typedef logic [PHYS_REG_IDX_W-1:0] phys_reg_idx_t;
-  typedef logic [ROB_IDX_W-1:0] rob_idx_t;
-  typedef logic [LQ_IDX_W-1:0] lq_idx_t;
-  typedef logic [SQ_IDX_W-1:0] sq_idx_t;
   typedef logic [MEM_TXN_IDX_W-1:0] mem_txn_id_t;
   typedef logic [FRONTEND_TAG_W-1:0] frontend_tag_t;
 
@@ -295,7 +301,6 @@ package riscv_pkg;
   localparam int unsigned ICACHE_LINE_OFFSET_W = $clog2(ICACHE_LINE_BYTES);
   localparam int unsigned ICACHE_TAG_W = PADDR_WIDTH - ICACHE_LINE_OFFSET_W - ICACHE_SET_INDEX_BITS;
   localparam int unsigned FETCH_EPOCH_W = (FETCH_EPOCH_COUNT > 1) ? $clog2(FETCH_EPOCH_COUNT) : 1;
-
 
   // fetch_epoch不是总线transaction ID。redirect发生时IFU递增epoch；较老epoch的
   // 返回结果仍可完成memory握手，但不能进入fetch buffer。epoch回绕安全的前提是
@@ -481,10 +486,10 @@ package riscv_pkg;
   } dcache_refill_resp_t;
 
   typedef struct packed {
-    phys_addr_t        line_base_addr;
-    dcache_line_data_t line_data;
-    mem_txn_id_t       transaction_id;
+    phys_addr_t  line_base_addr;
+    mem_txn_id_t transaction_id;
   } dcache_writeback_req_t;
+  // 整行数据由miss unit单独保管，从写回请求握手到响应握手期间保持不变。
 
   typedef struct packed {
     logic        access_fault;
@@ -544,7 +549,7 @@ package riscv_pkg;
     xlen_data_t         exception_tval;
   } fetch_entry_t;
 
-  // Decode and rename payloads
+  // 顺序核译码结果
   // IDU is the only module that translates opcode/funct fields. All unused
   // control groups must be zeroed before the payload leaves IDU.
   typedef struct packed {
@@ -574,99 +579,12 @@ package riscv_pkg;
     xlen_data_t       exception_tval;
   } decoded_uop_t;
 
-  typedef struct packed {
-    decoded_uop_t  uop;
-    phys_reg_idx_t psrc1;
-    phys_reg_idx_t psrc2;
-    phys_reg_idx_t pdst;
-    phys_reg_idx_t stale_pdst;
-    rob_idx_t      rob_idx;
-  } renamed_uop_t;
-
-  // Redirect and execution payloads
-  // rob_idx identifies instruction age. flush_inclusive distinguishes recovery
-  // that keeps the source instruction from recovery that removes it as well.
+  // 顺序核恢复请求。M2的年龄与保留范围随ROB实现定义，不在当前接口中放置无用字段。
   typedef struct packed {
     program_counter_t target_pc;
     program_counter_t source_pc;
-    rob_idx_t         rob_idx;
-    logic             rob_idx_valid;
-    logic             flush_inclusive;
     redirect_reason_e reason;
   } redirect_req_t;
-
-  typedef struct packed {
-    alu_op_e       op;
-    xlen_data_t    operand_a;
-    xlen_data_t    operand_b;
-    phys_reg_idx_t pdst;
-    rob_idx_t      rob_idx;
-    logic          writes_preg;
-  } int_execute_req_t;
-
-  typedef struct packed {
-    // 分支单元输出PC，但参与比较的是XLEN数据。
-    control_flow_op_e   op;
-    branch_cond_e       condition;
-    program_counter_t   pc;
-    xlen_data_t         imm;
-    xlen_data_t         src1_value;
-    xlen_data_t         src2_value;
-    phys_reg_idx_t      pdst;
-    rob_idx_t           rob_idx;
-    logic               writes_preg;
-    frontend_tag_t      frontend_tag;
-    branch_prediction_t prediction;
-  } branch_execute_req_t;
-
-  typedef struct packed {
-    // 后续AGU输出才使用effective_addr_t，不能在输入端提前宣称它们已经是地址。
-    mem_uop_ctrl_t mem_ctrl;
-    xlen_data_t    base_value;
-    xlen_data_t    offset;
-    xlen_data_t    store_data;
-    phys_reg_idx_t pdst;
-    rob_idx_t      rob_idx;
-    lq_idx_t       lq_idx;
-    sq_idx_t       sq_idx;
-    logic          lq_idx_valid;
-    logic          sq_idx_valid;
-    logic          writes_preg;
-  } lsu_execute_req_t;
-
-  typedef struct packed {
-    csr_op_e       op;
-    logic [11:0]   addr;
-    xlen_data_t    operand;
-    xlen_data_t    old_value;
-    phys_reg_idx_t pdst;
-    rob_idx_t      rob_idx;
-    logic          read_enable;
-    logic          write_enable;
-    logic          writes_preg;
-  } csr_execute_req_t;
-
-  // Every execution unit returns the same completion shape. This unifies PRF
-  // writeback, wakeup, and ROB completion without making completion equal commit.
-  typedef struct packed {
-    // completion只表达执行完成，不携带任何AXI/cache宽度假设。
-    rob_idx_t      rob_idx;
-    logic          writes_preg;
-    phys_reg_idx_t pdst;
-    xlen_data_t    result;
-
-    logic        csr_write;
-    logic [11:0] csr_addr;
-    xlen_data_t  csr_wdata;
-
-    logic             exception_valid;
-    exception_cause_e exception_cause;
-    xlen_data_t       exception_tval;
-
-    logic          redirect_valid;
-    redirect_req_t redirect_req;
-    logic          replay;
-  } completion_t;
 
   // AXI4通道payload与方向聚合类型只能定义在riscv_axi4_pkg中。
   // 核内功能单元使用本地语义接口，只有cache refill、uncached manager、
@@ -726,7 +644,7 @@ package riscv_pkg;
   } execute_result_t;
 
   // 当前顺序核从 EXU 发给 LSU 的请求。接收时访存尚未完成；M2 需增加真实的
-  // ROB/LSQ 指令身份，并重新检查已有候选类型能否表达恢复与完成规则。
+  // ROB/LSQ 指令身份，并定义相应恢复与完成规则。
   typedef struct packed {
     decoded_uop_t     uop;
     program_counter_t next_pc;

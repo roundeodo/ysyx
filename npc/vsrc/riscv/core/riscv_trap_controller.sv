@@ -33,19 +33,17 @@ module riscv_trap_controller
     redirect_req_valid_o   = 1'b0;
 
     if (trap_valid_o) begin
-      redirect_req_valid_o           = 1'b1;
+      redirect_req_valid_o          = 1'b1;
       // mtvec低两位是模式/对齐字段，不属于跳转地址。
-      redirect_req_o.target_pc       = mtvec_i;
-      redirect_req_o.target_pc[1:0]  = 2'b00;
-      redirect_req_o.source_pc       = commit_i.pc;
-      redirect_req_o.reason          = REDIRECT_TRAP;
-      redirect_req_o.flush_inclusive = 1'b0;
+      redirect_req_o.target_pc      = mtvec_i;
+      redirect_req_o.target_pc[1:0] = 2'b00;
+      redirect_req_o.source_pc      = commit_i.pc;
+      redirect_req_o.reason         = REDIRECT_TRAP;
     end else if (mret_valid_o) begin
-      redirect_req_valid_o           = 1'b1;
-      redirect_req_o.target_pc       = mepc_i;
-      redirect_req_o.source_pc       = commit_i.pc;
-      redirect_req_o.reason          = REDIRECT_MRET;
-      redirect_req_o.flush_inclusive = 1'b0;
+      redirect_req_valid_o     = 1'b1;
+      redirect_req_o.target_pc = mepc_i;
+      redirect_req_o.source_pc = commit_i.pc;
+      redirect_req_o.reason    = REDIRECT_MRET;
     end
   end
 

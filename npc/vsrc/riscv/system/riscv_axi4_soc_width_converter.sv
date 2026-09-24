@@ -4,6 +4,7 @@
 // 只转换64位data lane；单拍64位访问在普通存储区转换成两个32位beat。MMIO不允许
 // 拆分，转换器在任何下游请求发出前返回DECERR，避免设备只看到半次访问。
 module riscv_axi4_soc_width_converter
+  import riscv_config_pkg::*;
   import riscv_pkg::*;
   import riscv_axi4_pkg::*;
   import riscv_ysyx_soc_axi4_pkg::*;
@@ -127,165 +128,154 @@ module riscv_axi4_soc_width_converter
         WRITE_RETURN_LOCAL_ERROR
       } write_state_e;
 
-      read_state_e                      read_state_q;
-      read_state_e                      read_state_d;
-      write_state_e                     write_state_q;
-      write_state_e                     write_state_d;
-
-      axi4_read_address_t               read_address_q;
-      axi4_read_address_t               read_address_d;
-      axi4_addr_t                       current_read_beat_addr_q;
-      axi4_addr_t                       current_read_beat_addr_d;
-      ysyx_soc_axi4_data_t              wide_read_low_data_q;
-      ysyx_soc_axi4_data_t              wide_read_low_data_d;
-      axi4_resp_e                       wide_read_first_response_q;
-      axi4_resp_e                       wide_read_first_response_d;
-      logic                             wide_read_second_beat_q;
-      logic                             wide_read_second_beat_d;
-
-      axi4_write_address_t              write_address_q;
-      axi4_write_address_t              write_address_d;
-      logic                             write_address_present_q;
-      logic                             write_address_present_d;
-      axi4_write_data_t                 write_data_q;
-      axi4_write_data_t                 write_data_d;
-      logic                             write_data_present_q;
-      logic                             write_data_present_d;
-      axi4_addr_t                       current_write_beat_addr_q;
-      axi4_addr_t                       current_write_beat_addr_d;
-      logic                             write_width_conversion_q;
-      logic                             write_width_conversion_d;
-      logic                             downstream_write_address_pending_q;
-      logic                             downstream_write_address_pending_d;
-      logic                             wide_write_upper_half_q;
-      logic                             wide_write_upper_half_d;
-      logic                             write_last_data_forwarded_q;
-      logic                             write_last_data_forwarded_d;
-
-      logic                             upstream_read_address_handshake;
-      logic                             downstream_read_data_handshake;
-      logic                             upstream_write_address_handshake;
-      logic                             upstream_write_data_handshake;
-      logic                             downstream_write_address_handshake;
-      logic                             downstream_write_data_handshake;
-      logic                             downstream_write_response_handshake;
-      logic                             upstream_write_response_handshake;
-
-      logic                             read_width_conversion_requested;
-      logic                             read_request_supported;
-      logic                             write_width_conversion_requested;
-      logic                             write_request_supported;
-      logic                             current_write_data_completed;
-
-      axi4_target_to_manager_t          read_upstream_response;
-      axi4_target_to_manager_t          write_upstream_response;
-      ysyx_soc_axi4_manager_to_target_t read_downstream_request;
-      ysyx_soc_axi4_manager_to_target_t write_downstream_request;
+      logic read_width_conversion_requested;
 
       assign read_width_conversion_requested =
           upstream_manager_i.ar.size > 3'(DOWNSTREAM_MAX_TRANSFER_SIZE);
+      logic read_request_supported;
+
       assign read_request_supported = !read_width_conversion_requested ||
           ((upstream_manager_i.ar.size == 3'd3) &&
            (upstream_manager_i.ar.len == 8'd0) &&
            (upstream_manager_i.ar.addr[2:0] == 3'b000) &&
            read_address_memory_attr.width_conversion_supported);
 
+      logic write_width_conversion_requested;
+
       assign write_width_conversion_requested =
           upstream_manager_i.aw.size > 3'(DOWNSTREAM_MAX_TRANSFER_SIZE);
+      logic write_request_supported;
+
       assign write_request_supported = !write_width_conversion_requested ||
           ((upstream_manager_i.aw.size == 3'd3) &&
            (upstream_manager_i.aw.len == 8'd0) &&
            (upstream_manager_i.aw.addr[2:0] == 3'b000) &&
            write_address_memory_attr.width_conversion_supported);
 
+      logic upstream_read_address_handshake;
+
       assign upstream_read_address_handshake =
           upstream_manager_i.ar_valid && upstream_manager_o.ar_ready;
+      logic downstream_read_data_handshake;
+
       assign downstream_read_data_handshake =
           downstream_manager_i.r_valid && downstream_manager_o.r_ready;
+      logic upstream_write_address_handshake;
+
       assign upstream_write_address_handshake =
           upstream_manager_i.aw_valid && upstream_manager_o.aw_ready;
+      logic upstream_write_data_handshake;
+
       assign upstream_write_data_handshake =
           upstream_manager_i.w_valid && upstream_manager_o.w_ready;
+      logic downstream_write_address_handshake;
+
       assign downstream_write_address_handshake =
           downstream_manager_o.aw_valid && downstream_manager_i.aw_ready;
+      logic downstream_write_data_handshake;
+
       assign downstream_write_data_handshake =
           downstream_manager_o.w_valid && downstream_manager_i.w_ready;
+      logic downstream_write_response_handshake;
+
       assign downstream_write_response_handshake =
           downstream_manager_i.b_valid && downstream_manager_o.b_ready;
+      logic upstream_write_response_handshake;
+
       assign upstream_write_response_handshake =
           upstream_manager_o.b_valid && upstream_manager_i.b_ready;
+
+      logic write_width_conversion_q;
+      logic wide_write_upper_half_q;
+      logic current_write_data_completed;
 
       assign current_write_data_completed = downstream_write_data_handshake &&
           (!write_width_conversion_q || wide_write_upper_half_q);
 
-      // Read channel output. AR keeps a fast combinational path; once accepted, transaction
-      // identity and beat address are registered until RLAST.
-      always_comb begin
-        read_upstream_response  = '0;
-        read_downstream_request = '0;
+      read_state_e                      read_state_q;
+      axi4_read_address_t               read_address_q;
+      axi4_addr_t                       current_read_beat_addr_q;
+      ysyx_soc_axi4_data_t              wide_read_low_data_q;
+      axi4_resp_e                       wide_read_first_response_q;
+      logic                             wide_read_second_beat_q;
+      axi4_target_to_manager_t          read_upstream_response;
+      ysyx_soc_axi4_manager_to_target_t read_downstream_request;
 
+      // 下游AR和RREADY只依赖上游请求与本地状态；与反向的READY/R数据分开计算，
+      // 避免一个过程把独立方向的组合依赖合并。每个打包接口仍只有一个驱动过程。
+      always_comb begin
+        read_downstream_request = '0;
+        unique case (read_state_q)
+          READ_ACCEPT_ADDRESS: begin
+            if (upstream_manager_i.ar_valid && read_request_supported) begin
+              read_downstream_request.ar.addr  = upstream_manager_i.ar.addr;
+              read_downstream_request.ar.id    = upstream_manager_i.ar.id;
+              read_downstream_request.ar.len   = read_width_conversion_requested
+                  ? 8'd1 : upstream_manager_i.ar.len;
+              read_downstream_request.ar.size  = read_width_conversion_requested
+                  ? 3'(DOWNSTREAM_MAX_TRANSFER_SIZE) : upstream_manager_i.ar.size;
+              read_downstream_request.ar.burst = upstream_manager_i.ar.burst;
+              read_downstream_request.ar_valid = 1'b1;
+            end
+          end
+          READ_FORWARD_NARROW_RESPONSE:
+          read_downstream_request.r_ready = upstream_manager_i.r_ready;
+          READ_RECEIVE_WIDE_RESPONSE:
+          read_downstream_request.r_ready = !wide_read_second_beat_q || upstream_manager_i.r_ready;
+          default: ;
+        endcase
+      end
+
+      // 上游应答：AR握手后保存事务身份与地址，直到最后一个R完成。
+      always_comb begin
+        read_upstream_response = '0;
         unique case (read_state_q)
           READ_ACCEPT_ADDRESS: begin
             if (upstream_manager_i.ar_valid) begin
-              if (read_request_supported) begin
-                read_downstream_request.ar.addr  = upstream_manager_i.ar.addr;
-                read_downstream_request.ar.id    = upstream_manager_i.ar.id;
-                read_downstream_request.ar.len   = read_width_conversion_requested
-                                                   ? 8'd1 : upstream_manager_i.ar.len;
-                read_downstream_request.ar.size  = read_width_conversion_requested
-                                                   ? 3'(DOWNSTREAM_MAX_TRANSFER_SIZE) : upstream_manager_i.ar.size;
-                read_downstream_request.ar.burst = upstream_manager_i.ar.burst;
-                read_downstream_request.ar_valid = 1'b1;
-                read_upstream_response.ar_ready  = downstream_manager_i.ar_ready;
-              end else begin
-                // 本地错误响应也通过AR握手取得事务ID，但绝不向下游发出AR。
-                read_upstream_response.ar_ready = 1'b1;
-              end
+              // 不支持的访问在本地接收并返回错误，不向下游发出AR。
+              read_upstream_response.ar_ready = !read_request_supported || downstream_manager_i.ar_ready;
             end
           end
-
           READ_FORWARD_NARROW_RESPONSE: begin
-            read_upstream_response.r.data = '0;
             if (current_read_beat_addr_q[2]) begin
               read_upstream_response.r.data[63:32] = downstream_manager_i.r.data;
             end else begin
               read_upstream_response.r.data[31:0] = downstream_manager_i.r.data;
             end
-            read_upstream_response.r.id     = downstream_manager_i.r.id;
-            read_upstream_response.r.resp   = downstream_manager_i.r.resp;
-            read_upstream_response.r.last   = downstream_manager_i.r.last;
-            read_upstream_response.r_valid  = downstream_manager_i.r_valid;
-            read_downstream_request.r_ready = upstream_manager_i.r_ready;
+            read_upstream_response.r.id    = downstream_manager_i.r.id;
+            read_upstream_response.r.resp  = downstream_manager_i.r.resp;
+            read_upstream_response.r.last  = downstream_manager_i.r.last;
+            read_upstream_response.r_valid = downstream_manager_i.r_valid;
           end
-
           READ_RECEIVE_WIDE_RESPONSE: begin
-            if (!wide_read_second_beat_q) begin
-              // 第一拍只写入内部低32位缓冲，不提前向上游宣告完整64位数据有效。
-              read_downstream_request.r_ready = 1'b1;
-            end else begin
-              read_upstream_response.r.data   = {downstream_manager_i.r.data, wide_read_low_data_q};
-              read_upstream_response.r.id     = read_address_q.id;
-              read_upstream_response.r.resp   = 
-                                                merge_response(wide_read_first_response_q, downstream_manager_i.r.resp);
-              read_upstream_response.r.last   = 1'b1;
-              read_upstream_response.r_valid  = downstream_manager_i.r_valid;
-              read_downstream_request.r_ready = upstream_manager_i.r_ready;
+            // 第一拍只写入内部低32位缓冲，不提前向上游宣告完整64位数据有效。
+            if (wide_read_second_beat_q) begin
+              read_upstream_response.r.data  = {downstream_manager_i.r.data, wide_read_low_data_q};
+              read_upstream_response.r.id    = read_address_q.id;
+              read_upstream_response.r.resp  =
+                  merge_response(wide_read_first_response_q, downstream_manager_i.r.resp);
+              read_upstream_response.r.last  = 1'b1;
+              read_upstream_response.r_valid = downstream_manager_i.r_valid;
             end
           end
-
           READ_RETURN_LOCAL_ERROR: begin
-            read_upstream_response.r.data  = '0;
             read_upstream_response.r.id    = read_address_q.id;
             read_upstream_response.r.resp  = AXI4_RESP_DECERR;
             read_upstream_response.r.last  = 1'b1;
             read_upstream_response.r_valid = 1'b1;
           end
-
           default: ;
         endcase
       end
 
-      // Read channel state and payload progression.
+      read_state_e         read_state_d;
+      axi4_read_address_t  read_address_d;
+      axi4_addr_t          current_read_beat_addr_d;
+      ysyx_soc_axi4_data_t wide_read_low_data_d;
+      axi4_resp_e          wide_read_first_response_d;
+      logic                wide_read_second_beat_d;
+
+      // 读通路的状态转移与数据下一值。
       always_comb begin
         read_state_d               = read_state_q;
         read_address_d             = read_address_q;
@@ -357,7 +347,37 @@ module riscv_axi4_soc_width_converter
         endcase
       end
 
-      // Write channel output. AW and W are accepted independently into one-entry buffers.
+      // 读事务寄存器与上方读状态转移相邻。
+      always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) begin
+          read_state_q               <= READ_ACCEPT_ADDRESS;
+          read_address_q             <= '0;
+          current_read_beat_addr_q   <= '0;
+          wide_read_low_data_q       <= '0;
+          wide_read_first_response_q <= AXI4_RESP_OKAY;
+          wide_read_second_beat_q    <= 1'b0;
+        end else begin
+          read_state_q               <= read_state_d;
+          read_address_q             <= read_address_d;
+          current_read_beat_addr_q   <= current_read_beat_addr_d;
+          wide_read_low_data_q       <= wide_read_low_data_d;
+          wide_read_first_response_q <= wide_read_first_response_d;
+          wide_read_second_beat_q    <= wide_read_second_beat_d;
+        end
+      end
+
+      write_state_e                     write_state_q;
+      axi4_write_address_t              write_address_q;
+      logic                             write_address_present_q;
+      axi4_write_data_t                 write_data_q;
+      logic                             write_data_present_q;
+      axi4_addr_t                       current_write_beat_addr_q;
+      logic                             downstream_write_address_pending_q;
+      logic                             write_last_data_forwarded_q;
+      axi4_target_to_manager_t          write_upstream_response;
+      ysyx_soc_axi4_manager_to_target_t write_downstream_request;
+
+      // 写通路输出：AW和W分别接收，各自保存在一个缓冲项中。
       // The registered boundary intentionally breaks the wide core path from the SoC pins.
       always_comb begin
         write_upstream_response  = '0;
@@ -374,7 +394,7 @@ module riscv_axi4_soc_width_converter
             write_downstream_request.aw.id    = write_address_q.id;
             write_downstream_request.aw.len   = write_width_conversion_q ? 8'd1 : write_address_q.len;
             write_downstream_request.aw.size  = write_width_conversion_q
-                                                ? 3'(DOWNSTREAM_MAX_TRANSFER_SIZE) : write_address_q.size;
+                ? 3'(DOWNSTREAM_MAX_TRANSFER_SIZE) : write_address_q.size;
             write_downstream_request.aw.burst = write_address_q.burst;
             write_downstream_request.aw_valid = downstream_write_address_pending_q;
 
@@ -382,15 +402,15 @@ module riscv_axi4_soc_width_converter
             if (write_data_present_q) begin
               if (write_width_conversion_q) begin
                 write_downstream_request.w.data = wide_write_upper_half_q
-                                                  ? write_data_q.data[63:32] : write_data_q.data[31:0];
+                    ? write_data_q.data[63:32] : write_data_q.data[31:0];
                 write_downstream_request.w.strb = wide_write_upper_half_q
-                                                  ? write_data_q.strb[7:4] : write_data_q.strb[3:0];
+                    ? write_data_q.strb[7:4] : write_data_q.strb[3:0];
                 write_downstream_request.w.last = wide_write_upper_half_q && write_data_q.last;
               end else begin
                 write_downstream_request.w.data = current_write_beat_addr_q[2]
-                                                  ? write_data_q.data[63:32] : write_data_q.data[31:0];
+                    ? write_data_q.data[63:32] : write_data_q.data[31:0];
                 write_downstream_request.w.strb = current_write_beat_addr_q[2]
-                                                  ? write_data_q.strb[7:4] : write_data_q.strb[3:0];
+                    ? write_data_q.strb[7:4] : write_data_q.strb[3:0];
                 write_downstream_request.w.last = write_data_q.last;
               end
               write_downstream_request.w_valid = 1'b1;
@@ -439,7 +459,18 @@ module riscv_axi4_soc_width_converter
         downstream_manager_o.b_ready  = write_downstream_request.b_ready;
       end
 
-      // Write state, independent AW/W capture, split-beat progression, and response ownership.
+      write_state_e        write_state_d;
+      axi4_write_address_t write_address_d;
+      logic                write_address_present_d;
+      axi4_write_data_t    write_data_d;
+      logic                write_data_present_d;
+      axi4_addr_t          current_write_beat_addr_d;
+      logic                write_width_conversion_d;
+      logic                downstream_write_address_pending_d;
+      logic                wide_write_upper_half_d;
+      logic                write_last_data_forwarded_d;
+
+      // 写通路的状态转移：独立接收AW/W，拆分数据拍并跟踪响应归属。
       always_comb begin
         write_state_d                      = write_state_q;
         write_address_d                    = write_address_q;
@@ -550,24 +581,6 @@ module riscv_axi4_soc_width_converter
 
           default: write_state_d = WRITE_COLLECT_ADDRESS_DATA;
         endcase
-      end
-
-      always_ff @(posedge clk_i or negedge rst_ni) begin
-        if (!rst_ni) begin
-          read_state_q               <= READ_ACCEPT_ADDRESS;
-          read_address_q             <= '0;
-          current_read_beat_addr_q   <= '0;
-          wide_read_low_data_q       <= '0;
-          wide_read_first_response_q <= AXI4_RESP_OKAY;
-          wide_read_second_beat_q    <= 1'b0;
-        end else begin
-          read_state_q               <= read_state_d;
-          read_address_q             <= read_address_d;
-          current_read_beat_addr_q   <= current_read_beat_addr_d;
-          wide_read_low_data_q       <= wide_read_low_data_d;
-          wide_read_first_response_q <= wide_read_first_response_d;
-          wide_read_second_beat_q    <= wide_read_second_beat_d;
-        end
       end
 
       always_ff @(posedge clk_i or negedge rst_ni) begin

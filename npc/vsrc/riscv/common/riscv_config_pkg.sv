@@ -42,13 +42,6 @@ package riscv_config_pkg;
   // XLEN、core数据和memory AXI当前均为64位，但物理地址和指令仍为32位。
   // 相同数值不表示语义相同，各模块必须使用对应typedef表达所有权。
 
-  // 全核共享的当前微架构容量和构建选择。尚未实现的rename、ROB、issue queue和
-  // LSQ模块尚未实例化，但其跨模块契约已经定义在riscv_pkg中，因此容量和索引宽度
-  // 必须由同一配置源拥有。这些值仍是未使用的候选容量，进入 M2 时需重新确定。
-  localparam int unsigned PHYS_REG_COUNT = 64;
-  localparam int unsigned ROB_ENTRY_COUNT = 32;
-  localparam int unsigned LOAD_QUEUE_COUNT = 16;
-  localparam int unsigned STORE_QUEUE_COUNT = 16;
   // transaction_id已经用于当前LSU与数据存储子系统，不能视为未来占位。
   localparam int unsigned MEM_TXN_COUNT = 16;
   // 前端预测流水、I-cache请求队列和I-cache S1最多同时保存3个不同请求，使用
@@ -70,6 +63,8 @@ package riscv_config_pkg;
   localparam int unsigned ICACHE_CAPACITY_BYTES = `YSYX_ICACHE_CAPACITY_BYTES;
   localparam int unsigned ICACHE_WAY_COUNT = `YSYX_ICACHE_WAY_COUNT;
   localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
+  // 0保留轮转基线，13采用分段访问RRIP及同拍命中前递。
+  localparam int unsigned ICACHE_REPLACEMENT_POLICY = `YSYX_ICACHE_REPLACEMENT_POLICY;
   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
   localparam int unsigned ICACHE_MSHR_COUNT = 1;
   localparam bit DCACHE_ENABLED = (`YSYX_DCACHE_ENABLE != 0);

@@ -21,7 +21,6 @@ module riscv_fetch_control_flow_predictor
     output program_counter_t   lookup_response_pc_o,
     output fetch_epoch_t       lookup_response_epoch_o,
     output branch_prediction_t lookup_prediction_o,
-    output program_counter_t   lookup_next_pc_o,
     output logic               lookup_response_valid_o,
     input  logic               lookup_response_ready_i,
 
@@ -38,12 +37,11 @@ module riscv_fetch_control_flow_predictor
     input logic flush_lookup_i,
     input logic invalidate_i
 );
+  localparam int unsigned INSTRUCTION_OFFSET_WIDTH = $clog2(INSTRUCTION_BYTES);
   localparam int unsigned BTB_SET_COUNT = BTB_ENTRY_COUNT / BTB_WAY_COUNT;
   localparam int unsigned BRANCH_HISTORY_INDEX_WIDTH = $clog2(BHT_ENTRY_COUNT);
   localparam int unsigned BRANCH_TARGET_INDEX_WIDTH = $clog2(BTB_SET_COUNT);
-  localparam int unsigned BRANCH_TARGET_TAG_WIDTH = XLEN - BRANCH_TARGET_INDEX_WIDTH - $clog2(
-      INSTRUCTION_BYTES
-  );
+  localparam int unsigned BRANCH_TARGET_TAG_WIDTH = XLEN - BRANCH_TARGET_INDEX_WIDTH - INSTRUCTION_OFFSET_WIDTH;
   localparam int unsigned BRANCH_TARGET_WAY_INDEX_WIDTH = (BTB_WAY_COUNT > 1) ? $clog2(
       BTB_WAY_COUNT
   ) : 1;
@@ -75,18 +73,16 @@ module riscv_fetch_control_flow_predictor
   // execute_packet经过EXU和预测表项选择逻辑直达大数组D端的跨核长组合路径。
   // 寄存器每拍都可接收一个解析事件，因此不会降低连续控制流指令的训练吞吐。
   typedef struct packed {
-    logic             present;
-    program_counter_t pc;
-    program_counter_t target_pc;
-    xlen_data_t       immediate;
-    control_flow_op_e op;
-    arch_reg_idx_t    rs1;
-    arch_reg_idx_t    rd;
-    logic             taken;
+    logic                present;
+    program_counter_t    pc;
+    program_counter_t    target_pc;
+    control_flow_op_e    op;
+    branch_target_kind_e target_kind;
+    logic                taken;
   } resolved_control_flow_update_t;
 
   // BTB训练分成“选择set/way”和“写表项”两级。保存即将写入的完整表项，既缩短
-  // 训练关键路径，也允许查询端对尚未落入数组的最近一次更新进行精确旁路。
+  // 训练关键路径，并向后续训练快照前递最新更新；查询仍读取阵列的已保存状态。
   typedef struct packed {
     logic                     present;
     branch_target_index_t     set_index;
@@ -133,62 +129,7 @@ module riscv_fetch_control_flow_predictor
     program_counter_t   pc;
     fetch_epoch_t       epoch;
     branch_prediction_t prediction;
-    program_counter_t   next_pc;
   } lookup_response_t;
-
-  branch_target_entry_t branch_target_entry_array_q[BTB_SET_COUNT][BTB_WAY_COUNT];
-  branch_target_way_index_t branch_target_replacement_way_index_array_q[BTB_SET_COUNT];
-  logic [1:0] branch_history_counter_array_q[BHT_ENTRY_COUNT];
-  program_counter_t return_stack_pc_array_q[RAS_ENTRY_COUNT];
-
-  resolved_control_flow_update_t resolved_control_flow_update_q;
-  branch_target_training_selection_t branch_target_training_selection_q;
-  branch_target_entry_t branch_target_training_way_entry_array_q[BTB_WAY_COUNT];
-  branch_target_update_t branch_target_update_d;
-  branch_target_update_t branch_target_update_q;
-  return_stack_update_t return_stack_update_d;
-  return_stack_update_t return_stack_update_q;
-
-  lookup_query_t lookup_query_q;
-  lookup_response_t lookup_response_q;
-  logic lookup_query_present_q;
-  logic lookup_response_present_q;
-  logic lookup_query_stage_ready;
-  logic lookup_response_stage_ready;
-
-  branch_target_index_t lookup_request_branch_target_index;
-  branch_history_index_t lookup_request_branch_history_index;
-  branch_target_tag_t lookup_query_branch_target_tag;
-  branch_target_entry_t lookup_query_way_entry_array_q[BTB_WAY_COUNT];
-  branch_target_entry_t lookup_branch_target_entry;
-  logic [BTB_WAY_COUNT-1:0] lookup_branch_target_hit_way_vector;
-  logic lookup_branch_target_present;
-  logic conditional_branch_predicted_taken;
-  logic predicted_taken;
-  program_counter_t predicted_target_pc;
-  branch_prediction_t lookup_prediction;
-  program_counter_t lookup_next_pc;
-
-  branch_target_index_t resolved_branch_target_index;
-  branch_target_way_index_t branch_target_training_write_way;
-  logic branch_target_training_hit_present;
-  logic branch_target_training_invalid_way_present;
-  branch_target_tag_t resolved_branch_target_tag;
-  branch_history_index_t resolved_branch_history_index;
-  branch_target_kind_e resolved_branch_target_kind;
-  logic resolved_rd_is_link_register;
-  logic resolved_rs1_is_link_register;
-  logic resolved_return_instruction_present;
-  logic incoming_rd_is_link_register;
-  logic incoming_rs1_is_link_register;
-  logic incoming_return_instruction_present;
-  logic incoming_return_stack_push;
-  logic incoming_return_stack_pop;
-
-  return_stack_index_t return_stack_write_index_q;
-  return_stack_index_t return_stack_top_index;
-  return_stack_count_t return_stack_entry_count_q;
-  program_counter_t return_stack_top_pc_q;
 
   initial begin
     if ((BHT_ENTRY_COUNT < 2) || ((BHT_ENTRY_COUNT & (BHT_ENTRY_COUNT - 1)) != 0)) begin
@@ -232,34 +173,42 @@ module riscv_fetch_control_flow_predictor
     return (current_counter == 2'b00) ? current_counter : current_counter - 2'b01;
   endfunction
 
+  logic lookup_response_present_q;
+  logic lookup_response_stage_ready;
+
   // 两级弹性流水逐级传播ready。响应反压时仍可利用空闲查询级暂存一个请求；
   // 两级都被占用后才停止接收，不把下游ready直接接入BTB/BHT数据路径。
   assign lookup_response_stage_ready = !lookup_response_present_q || lookup_response_ready_i;
+  logic lookup_query_present_q;
+  logic lookup_query_stage_ready;
+
   assign lookup_query_stage_ready = !lookup_query_present_q || lookup_response_stage_ready;
-  assign lookup_request_ready_o = lookup_query_stage_ready && !flush_lookup_i;
-  assign lookup_response_pc_o = lookup_response_q.pc;
+  assign lookup_request_ready_o   = lookup_query_stage_ready && !flush_lookup_i;
+  lookup_response_t lookup_response_q;
+
+  assign lookup_response_pc_o    = lookup_response_q.pc;
   assign lookup_response_epoch_o = lookup_response_q.epoch;
-  assign lookup_prediction_o = lookup_response_q.prediction;
-  assign lookup_next_pc_o = lookup_response_q.next_pc;
+  assign lookup_prediction_o     = lookup_response_q.prediction;
   assign lookup_response_valid_o = lookup_response_present_q;
 
-  assign lookup_request_branch_target_index = lookup_request_pc_i[BRANCH_TARGET_INDEX_WIDTH+$clog2(
-      INSTRUCTION_BYTES
-  )-1:$clog2(
-      INSTRUCTION_BYTES
-  )];
-  assign lookup_request_branch_history_index =
-      lookup_request_pc_i[BRANCH_HISTORY_INDEX_WIDTH+$clog2(
-      INSTRUCTION_BYTES
-  )-1:$clog2(
-      INSTRUCTION_BYTES
-  )];
+  branch_target_index_t lookup_request_branch_target_index;
+
+  assign lookup_request_branch_target_index = lookup_request_pc_i[INSTRUCTION_OFFSET_WIDTH +: BRANCH_TARGET_INDEX_WIDTH];
+  branch_history_index_t lookup_request_branch_history_index;
+
+  assign lookup_request_branch_history_index = lookup_request_pc_i[INSTRUCTION_OFFSET_WIDTH +: BRANCH_HISTORY_INDEX_WIDTH];
+
+  lookup_query_t lookup_query_q;
+  branch_target_tag_t lookup_query_branch_target_tag;
 
   // 第一级已经寄存请求PC和所选BTB ways；第二级只做并行tag比较和目标选择。
   // 两路组织相对同容量direct-map只增加一个tag比较器、目标选择器和每set一位替换状态。
-  assign lookup_query_branch_target_tag = lookup_query_q.pc[XLEN-1:BRANCH_TARGET_INDEX_WIDTH+$clog2(
-      INSTRUCTION_BYTES
-  )];
+  assign lookup_query_branch_target_tag = lookup_query_q.pc[XLEN-1-:BRANCH_TARGET_TAG_WIDTH];
+  branch_target_entry_t lookup_query_way_entry_array_q[BTB_WAY_COUNT];
+  branch_target_entry_t lookup_branch_target_entry;
+  logic [BTB_WAY_COUNT-1:0] lookup_branch_target_hit_way_vector;
+  logic lookup_branch_target_present;
+
   always_comb begin
     lookup_branch_target_entry          = '0;
     lookup_branch_target_hit_way_vector = '0;
@@ -274,9 +223,18 @@ module riscv_fetch_control_flow_predictor
     lookup_branch_target_present = |lookup_branch_target_hit_way_vector;
   end
 
+  logic conditional_branch_predicted_taken;
+
   assign conditional_branch_predicted_taken = lookup_query_q.branch_history_counter[1];
 
+  return_stack_index_t return_stack_write_index_q;
+  return_stack_index_t return_stack_top_index;
+
   assign return_stack_top_index = decrement_return_stack_index(return_stack_write_index_q);
+
+  logic predicted_taken;
+  program_counter_t predicted_target_pc;
+  branch_prediction_t lookup_prediction;
 
   // BTB miss默认顺序取指。return优先采用RAS；RAS为空时退回BTB记录的上一次目标，
   // 错误目标仍会由EX按请求随身携带的prediction精确检查并恢复。
@@ -309,11 +267,12 @@ module riscv_fetch_control_flow_predictor
     lookup_prediction                  = '0;
     lookup_prediction.predicted_taken  = predicted_taken;
     lookup_prediction.predicted_target = predicted_taken ? predicted_target_pc : '0;
-    lookup_next_pc                     = predicted_taken ?
-                                         predicted_target_pc :
-                                         lookup_query_q.pc +
-                                         program_counter_t'(INSTRUCTION_BYTES);
   end
+
+  branch_target_entry_t branch_target_entry_array_q[BTB_SET_COUNT][BTB_WAY_COUNT];
+  logic [1:0] branch_history_counter_array_q[BHT_ENTRY_COUNT];
+  return_stack_count_t return_stack_entry_count_q;
+  program_counter_t return_stack_top_pc_q;
 
   // 第一级在请求握手时读取所选BTB ways、BHT计数器和RAS栈顶快照。第二级在能够
   // 前推时寄存比较结果。非阻塞赋值保证同一时钟沿先用旧查询产生响应，再装入新查询。
@@ -337,7 +296,6 @@ module riscv_fetch_control_flow_predictor
           lookup_response_q.pc         <= lookup_query_q.pc;
           lookup_response_q.epoch      <= lookup_query_q.epoch;
           lookup_response_q.prediction <= lookup_prediction;
-          lookup_response_q.next_pc    <= lookup_next_pc;
         end
       end
 
@@ -346,8 +304,8 @@ module riscv_fetch_control_flow_predictor
         if (lookup_request_valid_i) begin
           lookup_query_q.pc                     <= lookup_request_pc_i;
           lookup_query_q.epoch                  <= lookup_request_epoch_i;
-          lookup_query_q.branch_history_counter <= 
-                                                   branch_history_counter_array_q[lookup_request_branch_history_index];
+          lookup_query_q.branch_history_counter <=
+              branch_history_counter_array_q[lookup_request_branch_history_index];
           lookup_query_q.return_target_present  <= return_stack_entry_count_q != '0;
           lookup_query_q.return_target_pc       <= return_stack_top_pc_q;
           for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
@@ -358,6 +316,15 @@ module riscv_fetch_control_flow_predictor
       end
     end
   end
+
+  branch_target_way_index_t branch_target_replacement_way_index_array_q[BTB_SET_COUNT];
+  resolved_control_flow_update_t resolved_control_flow_update_q;
+  branch_target_training_selection_t branch_target_training_selection_q;
+  branch_target_entry_t branch_target_training_way_entry_array_q[BTB_WAY_COUNT];
+  branch_target_update_t branch_target_update_d;
+  branch_target_update_t branch_target_update_q;
+  branch_target_index_t resolved_branch_target_index;
+  branch_target_tag_t resolved_branch_target_tag;
 
   // 训练快照在解析事件之后增加一级时序边界。数组只在这里按set读取；同拍即将提交
   // 和即将生成的更新都旁路到快照，保证连续训练同一set时仍能看到最新表项与替换位置。
@@ -374,9 +341,9 @@ module riscv_fetch_control_flow_predictor
       branch_target_training_selection_q.set_index       <= resolved_branch_target_index;
       branch_target_training_selection_q.pc_tag          <= resolved_branch_target_tag;
       branch_target_training_selection_q.target_pc       <= resolved_control_flow_update_q.target_pc;
-      branch_target_training_selection_q.kind            <= resolved_branch_target_kind;
-      branch_target_training_selection_q.replacement_way <= 
-                                                            branch_target_replacement_way_index_array_q[resolved_branch_target_index];
+      branch_target_training_selection_q.kind            <= resolved_control_flow_update_q.target_kind;
+      branch_target_training_selection_q.replacement_way <=
+          branch_target_replacement_way_index_array_q[resolved_branch_target_index];
 
       for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
         branch_target_training_way_entry_array_q[way_index] <=
@@ -411,6 +378,10 @@ module riscv_fetch_control_flow_predictor
     end
   end
 
+  branch_target_way_index_t branch_target_training_write_way;
+  logic branch_target_training_hit_present;
+  logic branch_target_training_invalid_way_present;
+
   // 训练优先更新快照中同PC的已有way，其次占用第一个invalid way；set已满时才采用
   // 快照携带的round-robin位置。比较对象已经寄存，不再读取动态索引的BTB数组。
   always_comb begin
@@ -435,22 +406,13 @@ module riscv_fetch_control_flow_predictor
     end
   end
 
-  assign resolved_branch_target_index = resolved_control_flow_update_q.pc[BRANCH_TARGET_INDEX_WIDTH+$clog2(
-      INSTRUCTION_BYTES
-  )-1:$clog2(
-      INSTRUCTION_BYTES
-  )];
-  assign resolved_branch_target_tag =
-      resolved_control_flow_update_q.pc[XLEN-1:
-                                        BRANCH_TARGET_INDEX_WIDTH+$clog2(
-      INSTRUCTION_BYTES
-  )];
-  assign resolved_branch_history_index =
-      resolved_control_flow_update_q.pc[BRANCH_HISTORY_INDEX_WIDTH+$clog2(
-      INSTRUCTION_BYTES
-  )-1:$clog2(
-      INSTRUCTION_BYTES
-  )];
+  assign resolved_branch_target_index = resolved_control_flow_update_q.pc[INSTRUCTION_OFFSET_WIDTH +: BRANCH_TARGET_INDEX_WIDTH];
+  assign resolved_branch_target_tag = resolved_control_flow_update_q.pc[XLEN-1 -: BRANCH_TARGET_TAG_WIDTH];
+  branch_history_index_t resolved_branch_history_index;
+
+  assign resolved_branch_history_index = resolved_control_flow_update_q.pc[INSTRUCTION_OFFSET_WIDTH +: BRANCH_HISTORY_INDEX_WIDTH];
+
+  branch_target_kind_e incoming_branch_target_kind;
 
   // 训练边界只在本模块保存微架构事件，不改变精确控制流恢复的时刻。invalidate
   // 优先丢弃同拍训练，防止fence.i清空预测状态后又被旧指令重新写入。
@@ -460,14 +422,12 @@ module riscv_fetch_control_flow_predictor
     end else if (invalidate_i) begin
       resolved_control_flow_update_q <= '0;
     end else begin
-      resolved_control_flow_update_q.present   <= resolved_control_flow_occurred_i;
-      resolved_control_flow_update_q.pc        <= resolved_control_flow_pc_i;
-      resolved_control_flow_update_q.target_pc <= resolved_control_flow_target_i;
-      resolved_control_flow_update_q.immediate <= resolved_control_flow_imm_i;
-      resolved_control_flow_update_q.op        <= resolved_control_flow_op_i;
-      resolved_control_flow_update_q.rs1       <= resolved_control_flow_rs1_i;
-      resolved_control_flow_update_q.rd        <= resolved_control_flow_rd_i;
-      resolved_control_flow_update_q.taken     <= resolved_control_flow_taken_i;
+      resolved_control_flow_update_q.present     <= resolved_control_flow_occurred_i;
+      resolved_control_flow_update_q.pc          <= resolved_control_flow_pc_i;
+      resolved_control_flow_update_q.target_pc   <= resolved_control_flow_target_i;
+      resolved_control_flow_update_q.op          <= resolved_control_flow_op_i;
+      resolved_control_flow_update_q.target_kind <= incoming_branch_target_kind;
+      resolved_control_flow_update_q.taken       <= resolved_control_flow_taken_i;
     end
   end
 
@@ -482,13 +442,13 @@ module riscv_fetch_control_flow_predictor
     branch_target_update_d.entry.pc_tag                   = branch_target_training_selection_q.pc_tag;
     branch_target_update_d.entry.target_pc                = branch_target_training_selection_q.target_pc;
     branch_target_update_d.entry.kind                     = branch_target_training_selection_q.kind;
-    branch_target_update_d.replacement_way_update_present = 
-                                                            branch_target_training_selection_q.present &&
-                                                            !branch_target_training_hit_present && !branch_target_training_invalid_way_present;
-    branch_target_update_d.next_replacement_way           = 
-                                                            (branch_target_training_write_way ==
-                                                            branch_target_way_index_t'(BTB_WAY_COUNT - 1)) ?
-                                                            '0 : branch_target_training_write_way + branch_target_way_index_t'(1);
+    branch_target_update_d.replacement_way_update_present =
+        branch_target_training_selection_q.present &&
+        !branch_target_training_hit_present && !branch_target_training_invalid_way_present;
+    branch_target_update_d.next_replacement_way           =
+        (branch_target_training_write_way ==
+         branch_target_way_index_t'(BTB_WAY_COUNT - 1)) ?
+        '0 : branch_target_training_write_way + branch_target_way_index_t'(1);
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -501,33 +461,37 @@ module riscv_fetch_control_flow_predictor
     end
   end
 
-  assign resolved_rd_is_link_register = is_link_register(resolved_control_flow_update_q.rd);
-  assign resolved_rs1_is_link_register = is_link_register(resolved_control_flow_update_q.rs1);
-  // RISC-V用x1/x5的rd/rs1组合向硬件提示call、return和协程式pop+push。
-  assign resolved_return_instruction_present =
-      (resolved_control_flow_update_q.op == CF_JALR) && resolved_rs1_is_link_register &&
-      (!resolved_rd_is_link_register ||
-       (resolved_control_flow_update_q.rd != resolved_control_flow_update_q.rs1)) &&
-      (resolved_control_flow_update_q.immediate == '0);
+  logic incoming_rd_is_link_register;
+
   // RAS与完整控制流训练包在同一个EX边界并行采样，避免在预测器内部再串联一级
   // 完整训练寄存器。数组写入级只接收一种明确的栈操作和预先计算的return PC。
   assign incoming_rd_is_link_register = is_link_register(resolved_control_flow_rd_i);
+  logic incoming_rs1_is_link_register;
+
   assign incoming_rs1_is_link_register = is_link_register(resolved_control_flow_rs1_i);
+  logic incoming_return_instruction_present;
+
   assign incoming_return_instruction_present =
       (resolved_control_flow_op_i == CF_JALR) && incoming_rs1_is_link_register &&
       (!incoming_rd_is_link_register ||
        (resolved_control_flow_rd_i != resolved_control_flow_rs1_i)) &&
       (resolved_control_flow_imm_i == '0);
+  logic incoming_return_stack_push;
+
   assign incoming_return_stack_push = resolved_control_flow_occurred_i &&
       resolved_control_flow_taken_i && incoming_rd_is_link_register &&
       ((resolved_control_flow_op_i == CF_JAL) || (resolved_control_flow_op_i == CF_JALR));
+  logic incoming_return_stack_pop;
+
   assign incoming_return_stack_pop = resolved_control_flow_occurred_i &&
       resolved_control_flow_taken_i && incoming_return_instruction_present;
 
+  return_stack_update_t return_stack_update_d;
+
   always_comb begin
     return_stack_update_d           = '0;
-    return_stack_update_d.return_pc = 
-                                      resolved_control_flow_pc_i + program_counter_t'(INSTRUCTION_BYTES);
+    return_stack_update_d.return_pc =
+        resolved_control_flow_pc_i + program_counter_t'(INSTRUCTION_BYTES);
 
     unique case ({
       incoming_return_stack_pop, incoming_return_stack_push
@@ -538,6 +502,8 @@ module riscv_fetch_control_flow_predictor
       default: return_stack_update_d.op = RETURN_STACK_UPDATE_NONE;
     endcase
   end
+
+  return_stack_update_t return_stack_update_q;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -550,14 +516,14 @@ module riscv_fetch_control_flow_predictor
   end
 
   always_comb begin
-    unique case (resolved_control_flow_update_q.op)
-      CF_BRANCH: resolved_branch_target_kind = TARGET_KIND_CONDITIONAL_BRANCH;
-      CF_JAL:    resolved_branch_target_kind = TARGET_KIND_DIRECT_JUMP;
+    unique case (resolved_control_flow_op_i)
+      CF_BRANCH: incoming_branch_target_kind = TARGET_KIND_CONDITIONAL_BRANCH;
+      CF_JAL:    incoming_branch_target_kind = TARGET_KIND_DIRECT_JUMP;
       CF_JALR: begin
-        resolved_branch_target_kind = resolved_return_instruction_present ?
+        incoming_branch_target_kind = incoming_return_instruction_present ?
                                       TARGET_KIND_RETURN : TARGET_KIND_INDIRECT_JUMP;
       end
-      default:   resolved_branch_target_kind = TARGET_KIND_CONDITIONAL_BRANCH;
+      default:   incoming_branch_target_kind = TARGET_KIND_CONDITIONAL_BRANCH;
     endcase
   end
 
@@ -591,7 +557,7 @@ module riscv_fetch_control_flow_predictor
   end
 
   // 00/01预测不跳，10/11预测跳转。只用已解析条件分支训练方向，不让JAL/JALR
-  // 污染方向历史。数组写入比控制流解析晚一拍；查询旁路让同索引请求看到本拍训练值。
+  // 污染方向历史。数组写入比控制流解析晚一拍；同拍查询保存更新前的计数器值。
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       for (int unsigned entry = 0; entry < BHT_ENTRY_COUNT; entry++) begin
@@ -606,6 +572,8 @@ module riscv_fetch_control_flow_predictor
       );
     end
   end
+
+  program_counter_t return_stack_pc_array_q[RAS_ENTRY_COUNT];
 
   // write_index指向下一次push位置，top位于write_index-1。更新使用已解析控制流，
   // 不需要为当前短流水线增加推测RAS checkpoint；未来扩大在途窗口时再引入恢复状态。
@@ -663,8 +631,7 @@ module riscv_fetch_control_flow_predictor
 `ifndef SYNTHESIS
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (lookup_response_valid_o && lookup_prediction_o.predicted_taken) |->
-      (lookup_next_pc_o == lookup_prediction_o.predicted_target &&
-       (lookup_next_pc_o[1:0] == 2'b00)))
+      (lookup_prediction_o.predicted_target[1:0] == 2'b00))
   else $error("fetch predictor emitted an invalid taken prediction");
 
   // 普通反压必须保持响应；显式flush则取消旧epoch事务，下一拍允许撤销valid。
@@ -672,9 +639,7 @@ module riscv_fetch_control_flow_predictor
     (lookup_response_valid_o && !lookup_response_ready_i && !flush_lookup_i)
     |=> (flush_lookup_i ||
          (lookup_response_valid_o && $stable(
-      lookup_prediction_o
-  ) && $stable(
-      lookup_next_pc_o
+      {lookup_response_pc_o, lookup_response_epoch_o, lookup_prediction_o}
   ))))
   else $error("fetch predictor changed its response while backpressured");
 

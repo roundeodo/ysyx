@@ -5,8 +5,8 @@
 
 ## 接下来怎么做
 
-当前处于 M1：完成顺序核。已有流水线、缓存和总线结构，接下来需要收敛功能回归、接通
-机器态中断、明确缓存维护错误处理，并建立可重复的性能与综合记录。
+当前处于 M1：完成顺序核。已修复缓存反压、脏行写回恢复和提交PC采样问题，接下来保持
+功能回归、接通机器态中断、完善平台错误报告，并积累可重复的性能与综合记录。
 
 1. 阅读 [架构与开发路线](architecture/ARCHITECTURE_PLAN.md)，确认当前范围与阶段完成条件。
 2. 修改模块前，阅读下方对应设计记录，写清本次要改变的行为和验证方法。
@@ -19,6 +19,8 @@
 | --- | --- |
 | 项目目标、已有能力、阶段安排 | [架构与开发路线](architecture/ARCHITECTURE_PLAN.md) |
 | 设计目录、全部模块与代码整理清单 | [设计模块总览](architecture/RTL_MODULE_MAP.md) |
+| 本轮修复、清理与实际验证结果 | [RTL 修复与清理](architecture/RTL_CLEANUP_RECORD.md) |
+| 修复前的设计错误、旁路与可维护性检查 | [RTL 设计检查](architecture/RTL_DESIGN_REVIEW.md) |
 | AI 方向哪些已讨论、哪些以后再定 | [AI 应用研究方向](architecture/AI_WORKLOAD_MODEL.md) |
 | 顺序流水线、相关、提交和恢复 | [流水线设计](microarchitecture/PIPELINE_DESIGN_RECORD.md) |
 | 指令缓存查找、回填和失效 | [I-cache 设计](microarchitecture/ICACHE_DESIGN_RECORD.md) |
@@ -52,3 +54,4 @@
 
 旧计划和历史记录用于追溯，不再约束当前阶段。保留原始结果及其配置，不把历史参数或
 阶段编号当成现在的待办。
+其中的旧源码路径按记录时的名称保留；当前路径对应关系见 [设计模块总览](architecture/RTL_MODULE_MAP.md)。

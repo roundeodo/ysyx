@@ -23,54 +23,67 @@ module riscv_core
   localparam int unsigned FENCE_I_REDIRECT_INDEX = 1;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 2;
 
-  icache_lookup_req_t icache_lookup_req;
-  logic icache_lookup_req_valid;
-  logic icache_lookup_req_ready;
-  icache_lookup_resp_t icache_lookup_resp;
-  logic icache_lookup_resp_valid;
-  logic icache_lookup_resp_ready;
-
-  icache_refill_req_t icache_refill_req;
-  logic icache_refill_req_valid;
-  logic icache_refill_req_ready;
-  icache_refill_resp_t icache_refill_resp;
-  logic icache_refill_resp_valid;
-  logic icache_refill_resp_ready;
-
-  data_memory_req_t data_memory_req;
-  logic data_memory_req_valid;
-  logic data_memory_req_ready;
-  data_memory_resp_t data_memory_resp;
-  logic data_memory_resp_valid;
-  logic data_memory_resp_ready;
-
-  icache_event_t icache_event;
-  dcache_event_t dcache_event;
 `ifdef NPC_ENABLE_SIM_MONITOR
   logic [63:0] sim_icache_cacheable_hit_count;
   logic [63:0] sim_icache_cacheable_miss_response_count;
   logic [63:0] sim_icache_hit_latency_cycle_sum;
   logic [63:0] sim_icache_miss_response_latency_cycle_sum;
 `endif
-  logic icache_invalidate_req;
-  logic icache_invalidate_done;
-  logic icache_busy;
-  logic dcache_clean_req;
-  logic dcache_clean_done;
-  logic dcache_clean_access_fault;
-  logic dcache_busy;
-  logic fence_i_maintenance_active;
+
+  logic rs2_writeback_forwarding_selected;
+
+  decoded_uop_t decoded_uop;
+  // decode stage之后先锁存原始寄存器读值，再完成操作数选择和前递并进入ID/EX。
+  // 名称显式标出每个流水边界两侧，避免把组合值误认为已经寄存的状态。
+  xlen_data_t rs1_value;
+  xlen_data_t rs2_value;
+  execute_packet_t decoded_register_read_packet;
+  execute_packet_t register_read_packet;
+  execute_packet_t decoded_execute_packet;
+  execute_result_t exu_result;
+  execute_result_t resolved_execute_result;
+  writeback_result_t writeback_result;
+  xlen_data_t gpr_write_data;
+  arch_reg_idx_t gpr_write_addr;
+  logic gpr_write_enable;
+  xlen_data_t csr_read_data;
+  logic csr_read_illegal;
+  logic rs1_execute_forwarding_selected;
+  logic rs1_execute_result_forwarding_selected;
+  logic rs1_writeback_forwarding_selected;
+  logic rs2_execute_forwarding_selected;
+  logic rs2_execute_result_forwarding_selected;
+
+  riscv_operand_select u_operand_select (
+      .decoded_uop_i(decoded_uop),
+      .rs1_value_i(rs1_value),
+      .rs2_value_i(rs2_value),
+      .gpr_write_enable_i(gpr_write_enable),
+      .gpr_write_addr_i(gpr_write_addr),
+      .gpr_write_data_i(gpr_write_data),
+      .register_read_packet_i(register_read_packet),
+      .csr_read_data_i(csr_read_data),
+      .csr_read_illegal_i(csr_read_illegal),
+      .rs1_writeback_forwarding_selected_i(rs1_writeback_forwarding_selected),
+      .rs2_writeback_forwarding_selected_i(rs2_writeback_forwarding_selected),
+      .rs1_execute_result_forwarding_selected_i(rs1_execute_result_forwarding_selected),
+      .rs2_execute_result_forwarding_selected_i(rs2_execute_result_forwarding_selected),
+      .rs1_execute_forwarding_selected_i(rs1_execute_forwarding_selected),
+      .rs2_execute_forwarding_selected_i(rs2_execute_forwarding_selected),
+      .execute_value_i(exu_result.result),
+      .execute_result_value_i(resolved_execute_result.result),
+      .writeback_value_i(writeback_result.result),
+      .decoded_register_read_packet_o(decoded_register_read_packet),
+      .decoded_execute_packet_o(decoded_execute_packet)
+  );
+
+  icache_lookup_req_t icache_lookup_req;
+  logic icache_lookup_req_valid;
+  logic icache_lookup_req_ready;
+  icache_lookup_resp_t icache_lookup_resp;
+  logic icache_lookup_resp_valid;
+  logic icache_lookup_resp_ready;
   logic frontend_memory_access_allowed;
-
-  typedef enum logic [1:0] {
-    FENCE_I_MAINTENANCE_IDLE,
-    FENCE_I_CLEAN_DCACHE,
-    FENCE_I_INVALIDATE_ICACHE
-  } fence_i_maintenance_state_e;
-
-  fence_i_maintenance_state_e fence_i_maintenance_state_q;
-  fence_i_maintenance_state_e fence_i_maintenance_state_d;
-
   // 预测查询先于I-cache运行；IFU内部的窄请求队列保存PC、epoch、tag和prediction。
   // fetch queue保存已经返回的指令。两级队列分别切断预测/I-cache与I-cache/IDU反压路径。
   fetch_entry_t ifu_fetch_entry;
@@ -86,168 +99,8 @@ module riscv_core
   logic next_pc_predictor_lookup_response_valid;
   logic next_pc_predictor_lookup_response_ready;
   logic next_pc_predictor_flush;
-  program_counter_t resolved_control_flow_target;
-  logic fetch_taken_prediction_occurred;
-  fetch_entry_t idu_fetch_entry;
-  logic idu_fetch_entry_valid;
-  logic idu_fetch_entry_ready;
-
-  decoded_uop_t idu_decoded_uop;
-  logic idu_decoded_uop_valid;
-  logic idu_decoded_uop_ready;
-  decoded_uop_t decoded_uop;
-  logic decoded_uop_valid;
-  logic decoded_uop_ready;
-
-  // decode stage之后先锁存原始寄存器读值，再完成操作数选择和前递并进入ID/EX。
-  // 名称显式标出每个流水边界两侧，避免把组合值误认为已经寄存的状态。
-  xlen_data_t rs1_value;
-  xlen_data_t rs2_value;
-  execute_packet_t decoded_register_read_packet;
-  logic decoded_register_read_packet_ready;
-  execute_packet_t register_read_packet;
-  logic register_read_packet_valid;
-  logic register_read_packet_ready;
-  execute_packet_t decoded_execute_packet;
-  logic decoded_execute_packet_valid;
-  logic decoded_execute_packet_ready;
-  execute_packet_t execute_packet;
-  logic execute_packet_valid;
-  logic execute_packet_ready;
-
-  execute_result_t exu_result;
-  logic exu_result_valid;
-  logic exu_result_ready;
-  execute_result_t resolved_execute_result;
-  logic resolved_execute_result_valid;
-  logic resolved_execute_result_ready;
-
-  lsu_req_t lsu_req;
-  logic lsu_req_valid;
-  logic lsu_req_ready;
-
-  writeback_result_t lsu_writeback;
-  logic lsu_writeback_valid;
-  logic lsu_writeback_ready;
-
-  writeback_result_t completion_result;
-  logic completion_result_valid;
-  logic completion_result_ready;
-
-  writeback_result_t writeback_result;
-  logic writeback_result_valid;
-  logic writeback_result_ready;
-
-  commit_t commit;
-  logic commit_valid;
-  logic committed_fence_i_occurred;
-  redirect_req_t fence_i_redirect_req;
-  redirect_req_t commit_redirect_req_at_resolution;
-  logic commit_redirect_resolution_occurred;
-
-  xlen_data_t gpr_write_data;
-  arch_reg_idx_t gpr_write_addr;
-  logic gpr_write_enable;
-
-  xlen_data_t csr_read_data;
-  logic csr_read_illegal;
-  program_counter_t csr_mtvec;
-  program_counter_t csr_mepc;
-  logic retired_instruction_occurred;
-
-  logic trap_valid;
-  program_counter_t trap_pc;
-  xlen_data_t trap_cause;
-  xlen_data_t trap_tval;
-  logic mret_valid;
-
-  redirect_req_t redirect_req_at_resolution_array[REDIRECT_SOURCE_COUNT];
-  logic [REDIRECT_SOURCE_COUNT-1:0] redirect_req_at_resolution_valid_vector;
   redirect_req_t selected_redirect_req;
   logic selected_redirect_req_valid;
-
-  logic decode_accept_allowed;
-  logic execute_progress_allowed;
-  logic execute_issue_allowed;
-  logic decode_execute_flush;
-  logic writeback_flush;
-  logic raw_hazard_present;
-  logic serializing_hazard_present;
-  logic structural_hazard_present;
-  logic lsu_transaction_active;
-  logic lsu_pending_writes_rd;
-  arch_reg_idx_t lsu_pending_rd;
-  redirect_req_t execute_redirect_req_at_resolution;
-  logic execute_redirect_resolution_occurred;
-  logic commit_redirect_occurred;
-  logic frontend_recovery_occurred;
-  logic execute_forwardable_producer_present;
-  logic execute_blocking_producer_present;
-  logic execute_serializing_instruction_present;
-  logic execute_result_forwarding_available;
-  logic writeback_forwarding_available;
-  logic rs1_execute_forwarding_selected;
-  logic rs1_execute_result_forwarding_selected;
-  logic rs1_writeback_forwarding_selected;
-  logic rs2_execute_forwarding_selected;
-  logic rs2_execute_result_forwarding_selected;
-  logic rs2_writeback_forwarding_selected;
-
-  always_comb begin
-    decoded_register_read_packet                = '0;
-    decoded_register_read_packet.uop            = decoded_uop;
-    decoded_register_read_packet.source_a_value = 
-                                                  (gpr_write_enable && (gpr_write_addr == decoded_uop.rs1) && (decoded_uop.rs1 != '0)) ?
-                                                  gpr_write_data : rs1_value;
-    decoded_register_read_packet.source_b_value = 
-                                                  (gpr_write_enable && (gpr_write_addr == decoded_uop.rs2) && (decoded_uop.rs2 != '0)) ?
-                                                  gpr_write_data : rs2_value;
-    decoded_register_read_packet.csr_rdata      = '0;
-    decoded_register_read_packet.csr_illegal    = 1'b0;
-
-    decoded_execute_packet             = register_read_packet;
-    decoded_execute_packet.csr_rdata   = csr_read_data;
-    decoded_execute_packet.csr_illegal = csr_read_illegal;
-
-    // 整数操作数选择在ID/EX寄存边界之前完成。其他执行类型仍需要真实rs1/rs2：
-    // branch用它们比较，LSU用它们形成地址/写数据，CSR用source_a形成寄存器操作数。
-    if (register_read_packet.uop.fu_type == FU_INT) begin
-      unique case (register_read_packet.uop.int_ctrl.operand_a_sel)
-        OPA_RS1: decoded_execute_packet.source_a_value = register_read_packet.source_a_value;
-        OPA_PC:  decoded_execute_packet.source_a_value = xlen_data_t'(register_read_packet.uop.pc);
-        default: decoded_execute_packet.source_a_value = '0;
-      endcase
-
-      unique case (register_read_packet.uop.int_ctrl.operand_b_sel)
-        OPB_RS2: decoded_execute_packet.source_b_value = register_read_packet.source_b_value;
-        OPB_IMM: decoded_execute_packet.source_b_value = register_read_packet.uop.imm;
-        default: decoded_execute_packet.source_b_value = '0;
-      endcase
-    end
-
-    // 所有旁路都在消费者写入ID/EX时完成。当前EX生产者的组合结果在该时钟沿前已经
-    // 稳定，可以和EX/MEM、WB结果一样直接写入payload。LSU结果必须先跨过WB寄存边界，
-    // 避免把存储系统response与ID/EX操作数选择串成关键路径。这样普通相关指令仍可连续
-    // 发射，同时不把“旁路mux + 当前指令ALU”串在同一条EX关键路径上。
-    if (rs1_writeback_forwarding_selected) begin
-      decoded_execute_packet.source_a_value = writeback_result.result;
-    end
-    if (rs2_writeback_forwarding_selected) begin
-      decoded_execute_packet.source_b_value = writeback_result.result;
-    end
-    if (rs1_execute_result_forwarding_selected) begin
-      decoded_execute_packet.source_a_value = resolved_execute_result.result;
-    end
-    if (rs2_execute_result_forwarding_selected) begin
-      decoded_execute_packet.source_b_value = resolved_execute_result.result;
-    end
-    if (rs1_execute_forwarding_selected) begin
-      decoded_execute_packet.source_a_value = exu_result.result;
-    end
-    if (rs2_execute_forwarding_selected) begin
-      decoded_execute_packet.source_b_value = exu_result.result;
-    end
-  end
 
   riscv_ifu #(
       .PC_START(RESET_PC)
@@ -277,6 +130,17 @@ module riscv_core
       .fetch_entry_ready_i(ifu_fetch_entry_ready)
   );
 
+  icache_refill_req_t icache_refill_req;
+  logic icache_refill_req_valid;
+  logic icache_refill_req_ready;
+  icache_refill_resp_t icache_refill_resp;
+  logic icache_refill_resp_valid;
+  logic icache_refill_resp_ready;
+  icache_event_t icache_event;
+  logic icache_invalidate_req;
+  logic icache_invalidate_done;
+  logic icache_busy;
+
   riscv_icache u_icache (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
@@ -298,6 +162,11 @@ module riscv_core
       .event_o(icache_event)
   );
 
+  fetch_entry_t idu_fetch_entry;
+  logic idu_fetch_entry_valid;
+  logic idu_fetch_entry_ready;
+  logic frontend_recovery_occurred;
+
   riscv_fetch_buffer u_fetch_buffer (
       .clk_i                  (clk_i),
       .rst_ni                 (rst_ni),
@@ -310,6 +179,8 @@ module riscv_core
       .flush_i                (frontend_recovery_occurred)
   );
 
+  program_counter_t resolved_control_flow_target;
+
   // 预测器在I-cache之前运行。预测响应与下一次预测请求可以同拍握手；IFU用frontend
   // tag保存预测元数据，I-cache响应不再组合反馈到下一次预测和取指请求。
   assign resolved_control_flow_target =
@@ -317,6 +188,9 @@ module riscv_core
       resolved_execute_result.next_pc :
       resolved_execute_result.uop.pc +
       program_counter_t'(resolved_execute_result.uop.imm);
+
+  logic resolved_execute_result_valid;
+  logic resolved_execute_result_ready;
 
   riscv_fetch_control_flow_predictor u_fetch_control_flow_predictor (
       .clk_i(clk_i),
@@ -328,7 +202,6 @@ module riscv_core
       .lookup_response_pc_o(next_pc_predictor_lookup_response_pc),
       .lookup_response_epoch_o(next_pc_predictor_lookup_response_epoch),
       .lookup_prediction_o(next_pc_predictor_prediction),
-      .lookup_next_pc_o(),
       .lookup_response_valid_o(next_pc_predictor_lookup_response_valid),
       .lookup_response_ready_i(next_pc_predictor_lookup_response_ready),
       .resolved_control_flow_pc_i(resolved_execute_result.uop.pc),
@@ -351,6 +224,8 @@ module riscv_core
       .invalidate_i(icache_invalidate_req)
   );
 
+  logic fetch_taken_prediction_occurred;
+
   // 统计真正随fetch entry进入队列的taken预测，不统计尚未完成I-cache响应配对的请求。
   assign fetch_taken_prediction_occurred =
       ifu_fetch_entry_valid && ifu_fetch_entry_ready &&
@@ -369,50 +244,36 @@ module riscv_core
       .axi_manager_i      (instruction_axi4_manager_i)
   );
 
-  // write-back D-cache加入后，fence.i必须先把脏数据写回内存，再失效I-cache。
-  // 顺序相反会让I-cache从内存重新取回旧指令。维护期间停止接收新lookup，但允许已经
-  // 发出的响应继续排空；未来乱序核应由ROB提交端发起同一维护事务并等待完成。
-  assign committed_fence_i_occurred = commit_valid && !commit.trap_taken && (commit.system_op == SYS_FENCE_I);
-  assign fence_i_maintenance_active = fence_i_maintenance_state_q != FENCE_I_MAINTENANCE_IDLE;
-  // The committed fence event changes the registered maintenance state at the next edge.
-  // Requests accepted in the discovery cycle belong to the old epoch and are discarded by
-  // the registered frontend redirect. Keeping the raw commit event out of this ready/valid
-  // path avoids a commit -> IFU -> I-cache array combinational timing path.
+  logic commit_valid;
+
+  logic committed_fence_i_occurred;
+  commit_t commit;
+
+  assign committed_fence_i_occurred = commit_valid && !commit.trap_taken &&
+                                      commit.system_op == SYS_FENCE_I;
+  logic fence_i_maintenance_active;
+
   assign frontend_memory_access_allowed = !fence_i_maintenance_active;
-  assign dcache_clean_req = fence_i_maintenance_state_q == FENCE_I_CLEAN_DCACHE;
-  assign icache_invalidate_req = fence_i_maintenance_state_q == FENCE_I_INVALIDATE_ICACHE;
 
-  always_comb begin
-    fence_i_maintenance_state_d = fence_i_maintenance_state_q;
-    unique case (fence_i_maintenance_state_q)
-      FENCE_I_MAINTENANCE_IDLE: begin
-        if (committed_fence_i_occurred) begin
-          // 无D-cache配置直接进入I-cache失效；有D-cache时必须先写回dirty line。
-          fence_i_maintenance_state_d = DCACHE_ENABLED ? FENCE_I_CLEAN_DCACHE :
-                                                        FENCE_I_INVALIDATE_ICACHE;
-        end
-      end
-      FENCE_I_CLEAN_DCACHE: begin
-        if (dcache_clean_done) begin
-          fence_i_maintenance_state_d = FENCE_I_INVALIDATE_ICACHE;
-        end
-      end
-      FENCE_I_INVALIDATE_ICACHE: begin
-        if (icache_invalidate_done) begin
-          fence_i_maintenance_state_d = FENCE_I_MAINTENANCE_IDLE;
-        end
-      end
-      default: fence_i_maintenance_state_d = FENCE_I_MAINTENANCE_IDLE;
-    endcase
-  end
+  logic dcache_clean_req;
+  logic dcache_clean_done;
+  logic dcache_clean_access_fault;
 
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      fence_i_maintenance_state_q <= FENCE_I_MAINTENANCE_IDLE;
-    end else begin
-      fence_i_maintenance_state_q <= fence_i_maintenance_state_d;
-    end
-  end
+  riscv_cache_maintenance_controller u_cache_maintenance_controller (
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .fence_i_committed_i(committed_fence_i_occurred),
+      .dcache_clean_done_i(dcache_clean_done),
+      .dcache_clean_access_fault_i(dcache_clean_access_fault),
+      .icache_invalidate_done_i(icache_invalidate_done),
+      .dcache_clean_req_o(dcache_clean_req),
+      .icache_invalidate_req_o(icache_invalidate_req),
+      .maintenance_active_o(fence_i_maintenance_active)
+  );
+
+  decoded_uop_t idu_decoded_uop;
+  logic idu_decoded_uop_valid;
+  logic idu_decoded_uop_ready;
 
   riscv_idu u_idu (
       // IDU反压先由fetch queue吸收；队列填满后才会向IFU和I-cache传播。
@@ -423,6 +284,10 @@ module riscv_core
       .decoded_uop_valid_o(idu_decoded_uop_valid),
       .decoded_uop_ready_i(idu_decoded_uop_ready)
   );
+
+  logic decoded_uop_valid;
+  logic decoded_uop_ready;
+  logic decode_execute_flush;
 
   // 完整译码在这里结束。后续寄存器堆/CSR读取、冒险比较和前递选择从已寄存uop开始，
   // 避免fetch queue读选择与这些逻辑串成一条长路径。该级和ID/EX级都支持滚动握手，
@@ -450,6 +315,16 @@ module riscv_core
       .rs2_data_o        (rs2_value)
   );
 
+  logic register_read_packet_valid;
+  program_counter_t csr_mtvec;
+  program_counter_t csr_mepc;
+  logic retired_instruction_occurred;
+  logic trap_valid;
+  program_counter_t trap_pc;
+  xlen_data_t trap_cause;
+  xlen_data_t trap_tval;
+  logic mret_valid;
+
   riscv_csr_file u_csr_file (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
@@ -473,6 +348,9 @@ module riscv_core
       .mepc_o(csr_mepc)
   );
 
+  logic decoded_register_read_packet_ready;
+  logic register_read_packet_ready;
+
   // GPR/CSR异步读结果在这里跨越独立寄存边界。同一个上升沿发生WB写入与读取时，
   // decoded_register_read_packet中的显式写优先旁路保证捕获新值，而不是阵列旧值。
   riscv_register_read_stage u_register_read_stage (
@@ -492,12 +370,36 @@ module riscv_core
 
   assign decoded_uop_ready = decoded_register_read_packet_ready;
 
+  logic execute_result_forwarding_available;
+
   assign execute_result_forwarding_available = resolved_execute_result_valid &&
                                                 resolved_execute_result.uop.writes_rd &&
                                                 !resolved_execute_result.uop.exception_valid;
+
+  logic writeback_result_valid;
+
+  logic writeback_forwarding_available;
+
   assign writeback_forwarding_available = writeback_result_valid &&
                                           writeback_result.uop.writes_rd &&
                                           !writeback_result.uop.exception_valid;
+  execute_packet_t execute_packet;
+  logic execute_packet_valid;
+  logic decode_accept_allowed;
+  logic execute_progress_allowed;
+  logic execute_issue_allowed;
+  logic writeback_flush;
+  logic raw_hazard_present;
+  logic serializing_hazard_present;
+  logic structural_hazard_present;
+  logic lsu_transaction_active;
+  logic lsu_pending_writes_rd;
+  arch_reg_idx_t lsu_pending_rd;
+  logic commit_redirect_occurred;
+  logic execute_forwardable_producer_present;
+  logic execute_blocking_producer_present;
+  logic execute_serializing_instruction_present;
+
   riscv_pipeline_hazard_controller u_pipeline_hazard_controller (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
@@ -546,10 +448,16 @@ module riscv_core
       .rs2_writeback_forwarding_selected_o(rs2_writeback_forwarding_selected)
   );
 
+  logic decoded_execute_packet_valid;
+
   // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由IFU/I-cache持有，
   // 不会出现“stage没有保存，但上游认为已经交付”的消息丢失。
   assign decoded_execute_packet_valid = register_read_packet_valid && decode_accept_allowed;
-  assign register_read_packet_ready   = decoded_execute_packet_ready && decode_accept_allowed;
+  logic decoded_execute_packet_ready;
+
+  assign register_read_packet_ready = decoded_execute_packet_ready && decode_accept_allowed;
+
+  logic execute_packet_ready;
 
   riscv_decode_execute_stage u_decode_execute_stage (
       .clk_i                                    (clk_i),
@@ -566,6 +474,12 @@ module riscv_core
       .flush_i                                  (decode_execute_flush)
   );
 
+  logic exu_result_valid;
+  logic exu_result_ready;
+  lsu_req_t lsu_req;
+  logic lsu_req_valid;
+  logic lsu_req_ready;
+
   riscv_exu u_exu (
       .execute_packet_i              (execute_packet),
       .execute_packet_valid_i        (execute_packet_valid),
@@ -578,6 +492,8 @@ module riscv_core
       .lsu_req_valid_o               (lsu_req_valid),
       .lsu_req_ready_i               (lsu_req_ready)
   );
+
+  logic execute_redirect_resolution_occurred;
 
   // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过；
   // 本级寄存结果同时旁路到下一条消费者的EXU输入，不反馈到ID/EX输入。
@@ -594,6 +510,16 @@ module riscv_core
       // mret和fence.i等更晚发现的恢复事件。两者都只清寄存级valid。
       .flush_i                (execute_redirect_resolution_occurred || commit_redirect_occurred)
   );
+
+  data_memory_req_t data_memory_req;
+  logic data_memory_req_valid;
+  logic data_memory_req_ready;
+  data_memory_resp_t data_memory_resp;
+  logic data_memory_resp_valid;
+  logic data_memory_resp_ready;
+  writeback_result_t lsu_writeback;
+  logic lsu_writeback_valid;
+  logic lsu_writeback_ready;
 
   riscv_lsu u_lsu (
       .clk_i                   (clk_i),
@@ -615,6 +541,9 @@ module riscv_core
       .data_memory_resp_ready_o(data_memory_resp_ready)
   );
 
+  dcache_event_t dcache_event;
+  logic dcache_busy;
+
   riscv_data_memory_subsystem u_data_memory_subsystem (
       .clk_i                      (clk_i),
       .rst_ni                     (rst_ni),
@@ -633,6 +562,10 @@ module riscv_core
       .axi_manager_i              (data_axi4_manager_i)
   );
 
+  writeback_result_t completion_result;
+  logic completion_result_valid;
+  logic completion_result_ready;
+
   riscv_completion_mux u_completion_mux (
       .exu_result_i            (resolved_execute_result),
       .exu_result_valid_i      (resolved_execute_result_valid),
@@ -644,6 +577,8 @@ module riscv_core
       .writeback_result_valid_o(completion_result_valid),
       .writeback_result_ready_i(completion_result_ready)
   );
+
+  logic writeback_result_ready;
 
   // EXU/LSU completion先进入WB弹性寄存器，再由commit产生唯一架构事件。
   // 这既切断执行到寄存器堆的长组合路径，也让Difftest只观察稳定的退休级payload。
@@ -670,12 +605,13 @@ module riscv_core
       .gpr_write_enable_o      (gpr_write_enable)
   );
 
+  redirect_req_t fence_i_redirect_req;
+
   always_comb begin
-    fence_i_redirect_req                 = '0;
-    fence_i_redirect_req.target_pc       = commit.next_pc;
-    fence_i_redirect_req.source_pc       = commit.pc;
-    fence_i_redirect_req.reason          = REDIRECT_FENCE_I;
-    fence_i_redirect_req.flush_inclusive = 1'b0;
+    fence_i_redirect_req           = '0;
+    fence_i_redirect_req.target_pc = commit.next_pc;
+    fence_i_redirect_req.source_pc = commit.pc;
+    fence_i_redirect_req.reason    = REDIRECT_FENCE_I;
   end
 
   // A synchronous exception reaches the commit boundary but does not retire the
@@ -767,6 +703,9 @@ module riscv_core
   );
 `endif
 
+  redirect_req_t commit_redirect_req_at_resolution;
+  logic commit_redirect_resolution_occurred;
+
   riscv_trap_controller u_trap_controller (
       .commit_i            (commit),
       .commit_valid_i      (commit_valid),
@@ -781,15 +720,21 @@ module riscv_core
       .redirect_req_valid_o(commit_redirect_resolution_occurred)
   );
 
+  redirect_req_t execute_redirect_req_at_resolution;
+
   assign execute_redirect_req_at_resolution = resolved_execute_result.redirect_req;
   assign execute_redirect_resolution_occurred =
       resolved_execute_result_valid && resolved_execute_result_ready &&
       resolved_execute_result.redirect_valid;
 
+  redirect_req_t redirect_req_at_resolution_array[REDIRECT_SOURCE_COUNT];
+
   // 各来源的请求数据直接进入自己的采样寄存器；优先级逻辑只选择来源索引。
   // commit位于最高下标，因此同拍发生多个请求时，精确异常或mret优先于fence.i和
   // 推测执行恢复。交给IFU和流水线flush的valid直接来自统一恢复边界的触发器。
   assign redirect_req_at_resolution_array[EXU_REDIRECT_INDEX] = execute_redirect_req_at_resolution;
+  logic [REDIRECT_SOURCE_COUNT-1:0] redirect_req_at_resolution_valid_vector;
+
   assign redirect_req_at_resolution_valid_vector[EXU_REDIRECT_INDEX] =
       execute_redirect_resolution_occurred;
   assign redirect_req_at_resolution_array[FENCE_I_REDIRECT_INDEX] = fence_i_redirect_req;
@@ -846,10 +791,6 @@ module riscv_core
   a_dcache_clean_request_means_busy :
   assert property (@(posedge clk_i) disable iff (!rst_ni) dcache_clean_req |-> dcache_busy)
   else $error("D-cache dropped busy while a clean transaction was pending");
-
-  a_dcache_clean_fault_is_reported :
-  assert property (@(posedge clk_i) disable iff (!rst_ni) !dcache_clean_access_fault)
-  else $error("D-cache writeback failed during fence.i maintenance");
 
   // FENCE.I依靠serializing语义排空后端，而不是在提交拍用组合flush补救。该性质成立时，
   // committed_fence_i_occurred可以只启动已寄存的重定向和cache维护事务。

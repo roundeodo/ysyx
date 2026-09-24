@@ -84,17 +84,17 @@ module riscv_pipeline_hazard_controller
 
   always_comb begin
     execute_forwardable_writes_rs1 = decoded_uop_valid_i &&
-                                     execute_forwardable_producer_present_i && decoded_uses_rs1_i &&
-                                     (execute_rd_i == decoded_rs1_i);
+        execute_forwardable_producer_present_i && decoded_uses_rs1_i &&
+        (execute_rd_i == decoded_rs1_i);
     execute_forwardable_writes_rs2 = decoded_uop_valid_i &&
-                                     execute_forwardable_producer_present_i && decoded_uses_rs2_i &&
-                                     (execute_rd_i == decoded_rs2_i);
+        execute_forwardable_producer_present_i && decoded_uses_rs2_i &&
+        (execute_rd_i == decoded_rs2_i);
     execute_blocking_writes_rs1    = decoded_uop_valid_i &&
-                                     execute_blocking_producer_present_i && decoded_uses_rs1_i &&
-                                     (execute_rd_i == decoded_rs1_i);
+        execute_blocking_producer_present_i && decoded_uses_rs1_i &&
+        (execute_rd_i == decoded_rs1_i);
     execute_blocking_writes_rs2    = decoded_uop_valid_i &&
-                                     execute_blocking_producer_present_i && decoded_uses_rs2_i &&
-                                     (execute_rd_i == decoded_rs2_i);
+        execute_blocking_producer_present_i && decoded_uses_rs2_i &&
+        (execute_rd_i == decoded_rs2_i);
     execute_writes_rs1             = execute_forwardable_writes_rs1 || execute_blocking_writes_rs1;
     execute_writes_rs2             = execute_forwardable_writes_rs2 || execute_blocking_writes_rs2;
 
@@ -127,39 +127,39 @@ module riscv_pipeline_hazard_controller
     // 必须优先；如果它的结果尚不可用，不能错误前递WB中的更旧值。
     rs1_execute_forwarding_selected_o        = execute_forwardable_writes_rs1;
     rs1_execute_result_forwarding_selected_o = !execute_writes_rs1 &&
-                                               execute_result_writes_rs1 && execute_result_forwarding_available_i;
+        execute_result_writes_rs1 && execute_result_forwarding_available_i;
     rs1_writeback_forwarding_selected_o      = !execute_writes_rs1 &&
-                                               !execute_result_writes_rs1 &&
-                                               !lsu_writes_rs1 &&
-                                               writeback_writes_rs1 &&
-                                               writeback_forwarding_available_i;
+                                          !execute_result_writes_rs1 &&
+                                          !lsu_writes_rs1 &&
+                                          writeback_writes_rs1 &&
+                                          writeback_forwarding_available_i;
     rs2_execute_forwarding_selected_o        = execute_forwardable_writes_rs2;
     rs2_execute_result_forwarding_selected_o = !execute_writes_rs2 &&
-                                               execute_result_writes_rs2 && execute_result_forwarding_available_i;
+        execute_result_writes_rs2 && execute_result_forwarding_available_i;
     rs2_writeback_forwarding_selected_o      = !execute_writes_rs2 &&
-                                               !execute_result_writes_rs2 &&
-                                               !lsu_writes_rs2 &&
-                                               writeback_writes_rs2 &&
-                                               writeback_forwarding_available_i;
+                                          !execute_result_writes_rs2 &&
+                                          !lsu_writes_rs2 &&
+                                          writeback_writes_rs2 &&
+                                          writeback_forwarding_available_i;
 
     rs1_value_unavailable = execute_blocking_writes_rs1 ||
                             (!execute_writes_rs1 && execute_result_writes_rs1 &&
-                            !execute_result_forwarding_available_i) ||
+                             !execute_result_forwarding_available_i) ||
                             (!execute_writes_rs1 && !execute_result_writes_rs1 &&
-                            lsu_writes_rs1) ||
+                             lsu_writes_rs1) ||
                             (!execute_writes_rs1 && !execute_result_writes_rs1 &&
-                            !lsu_writes_rs1 &&
-                            writeback_writes_rs1 &&
-                            !writeback_forwarding_available_i);
+                             !lsu_writes_rs1 &&
+                             writeback_writes_rs1 &&
+                             !writeback_forwarding_available_i);
     rs2_value_unavailable = execute_blocking_writes_rs2 ||
                             (!execute_writes_rs2 && execute_result_writes_rs2 &&
-                            !execute_result_forwarding_available_i) ||
+                             !execute_result_forwarding_available_i) ||
                             (!execute_writes_rs2 && !execute_result_writes_rs2 &&
-                            lsu_writes_rs2) ||
+                             lsu_writes_rs2) ||
                             (!execute_writes_rs2 && !execute_result_writes_rs2 &&
-                            !lsu_writes_rs2 &&
-                            writeback_writes_rs2 &&
-                            !writeback_forwarding_available_i);
+                             !lsu_writes_rs2 &&
+                             writeback_writes_rs2 &&
+                             !writeback_forwarding_available_i);
   end
 
   assign raw_hazard_present_o = decoded_uop_valid_i &&

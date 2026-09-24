@@ -38,9 +38,6 @@ module riscv_lsu
     LSU_WAIT_MEMORY_RESPONSE
   } lsu_state_e;
 
-  lsu_state_e state_q;
-  lsu_state_e state_d;
-
   // 外部lsu_req_t包含完整译码结果，便于EXU/LSU边界表达一条指令；但访存发出后，
   // LSU只保存完成和提交真正需要的字段。分支预测、ALU操作、CSR控制和源寄存器索引
   // 不参与访存返回，若把整个decoded_uop_t锁存会为每个无关字段生成触发器。
@@ -58,34 +55,9 @@ module riscv_lsu
     xlen_data_t       store_data;
   } pending_lsu_context_t;
 
-  pending_lsu_context_t pending_lsu_context_q;
-  lsu_req_t active_lsu_req;
-
-  writeback_result_t local_writeback;
-  writeback_result_t memory_writeback;
-
-  logic lsu_req_handshake;
-  logic data_memory_req_handshake;
-  logic data_memory_resp_handshake;
-
   localparam int unsigned CORE_BYTE_OFFSET_WIDTH = (CORE_DATA_BYTE_COUNT > 1) ? $clog2(
       CORE_DATA_BYTE_COUNT
   ) : 1;
-
-  // store路径属于core存储端口，load格式化结果属于GPR数据域。二者当前同宽只是
-  // 当前配置的选择；使用不同语义类型后可以独立调整 XLEN 和存储 beat 宽度。
-  logic                     is_load;
-  logic                     is_store;
-  logic                     has_memory_access;
-  logic                     address_misaligned;
-  logic                     complete_locally;
-  core_data_t               store_write_data;
-  // strobe描述core数据口每个字节通道是否写入，它取决于CORE_DATA_WIDTH，而不是XLEN。
-  core_byte_strobe_t        store_byte_strobe;
-  logic              [ 7:0] selected_byte;
-  logic              [15:0] selected_halfword;
-  logic              [31:0] selected_word;
-  xlen_data_t               formatted_load_data;
 
   function automatic logic request_address_misaligned(input lsu_req_t request);
     unique case (request.uop.mem_ctrl.size)
@@ -94,11 +66,6 @@ module riscv_lsu
       MEM_SIZE_DOUBLE: return request.effective_addr[2:0] != 3'b000;
       default:         return 1'b0;
     endcase
-  endfunction
-
-  function automatic logic request_has_memory_access(input lsu_req_t request);
-    return (request.uop.mem_ctrl.cmd == MEM_CMD_LOAD) ||
-           (request.uop.mem_ctrl.cmd == MEM_CMD_STORE);
   endfunction
 
   function automatic core_byte_strobe_t request_store_byte_strobe(input lsu_req_t request);
@@ -125,17 +92,39 @@ module riscv_lsu
     endcase
   endfunction
 
-  assign lsu_req_handshake          = lsu_req_valid_i && lsu_req_ready_o;
+  logic lsu_req_handshake;
+
+  assign lsu_req_handshake = lsu_req_valid_i && lsu_req_ready_o;
+  lsu_state_e state_q;
+
   // 该状态只描述已经被LSU接收但尚未完成的存储事务，不从ready反推，因而不会
   // 把当前输入valid重新反馈到流水线允许信号中形成组合环。
-  assign lsu_transaction_active_o   = state_q != LSU_IDLE;
+  assign lsu_transaction_active_o = state_q != LSU_IDLE;
+  pending_lsu_context_t pending_lsu_context_q;
+
   // 这两个信号描述尚未完成的老访存生产者。hazard controller用它们阻止load-use读取
   // 旧寄存器值；结果必须先跨过WB寄存边界，再由writeback路径前递，避免把存储系统
   // response、load格式化和ID/EX操作数选择串成单周期关键路径。
-  assign lsu_pending_writes_rd_o    = (state_q != LSU_IDLE) && pending_lsu_context_q.writes_rd;
-  assign lsu_pending_rd_o           = pending_lsu_context_q.rd;
-  assign data_memory_req_handshake  = data_memory_req_valid_o && data_memory_req_ready_i;
+  assign lsu_pending_writes_rd_o = (state_q != LSU_IDLE) && pending_lsu_context_q.writes_rd;
+  assign lsu_pending_rd_o        = pending_lsu_context_q.rd;
+  logic data_memory_req_handshake;
+
+  assign data_memory_req_handshake = data_memory_req_valid_o && data_memory_req_ready_i;
+  logic data_memory_resp_handshake;
+
   assign data_memory_resp_handshake = data_memory_resp_valid_i && data_memory_resp_ready_o;
+
+  lsu_req_t          active_lsu_req;
+  // store路径属于core存储端口，load格式化结果属于GPR数据域。二者当前同宽只是
+  // 当前配置的选择；使用不同语义类型后可以独立调整 XLEN 和存储 beat 宽度。
+  logic              is_load;
+  logic              is_store;
+  logic              has_memory_access;
+  logic              address_misaligned;
+  logic              complete_locally;
+  core_data_t        store_write_data;
+  // strobe描述core数据口每个字节通道是否写入，它取决于CORE_DATA_WIDTH，而不是XLEN。
+  core_byte_strobe_t store_byte_strobe;
 
   // 所有分类和请求生成只能读取入口寄存器。即使state_q为IDLE，也禁止把lsu_req_i
   // 送入active_lsu_req；否则地址、size或异常字段仍会经过PMA和memory-ready链形成
@@ -187,6 +176,11 @@ module riscv_lsu
 
   end
 
+  logic       [ 7:0] selected_byte;
+  logic       [15:0] selected_halfword;
+  logic       [31:0] selected_word;
+  xlen_data_t        formatted_load_data;
+
   // 存储层返回完整数据字。LSU根据原始地址低位选择byte/halfword并完成符号扩展。
   // RV64下LW将bit 31符号扩展，LWU零扩展；不能把总线返回宽度直接当作load结果宽度。
   always_comb begin
@@ -222,6 +216,8 @@ module riscv_lsu
     endcase
   end
 
+  writeback_result_t local_writeback;
+
   // 已有异常、未对齐访问和非访存操作不进入存储层。
   always_comb begin
     local_writeback              = '0;
@@ -246,6 +242,8 @@ module riscv_lsu
       local_writeback.memory_wmask  = '0;
     end
   end
+
+  writeback_result_t memory_writeback;
 
   // access_fault来自D-cache、uncached adapter或系统互联，LSU在这里转换成架构异常。
   always_comb begin
@@ -307,6 +305,8 @@ module riscv_lsu
       default: ;
     endcase
   end
+
+  lsu_state_e state_d;
 
   // 第二段：状态转移逻辑。每个本地request只产生一个本地response；
   // AXI4的AR/R或AW/W/B细分事务不能泄漏到本状态机中。

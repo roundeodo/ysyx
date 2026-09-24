@@ -212,14 +212,14 @@ module riscv_ifu
       lookup_queue_write_index_q <= lookup_queue_write_index_d;
       lookup_queue_entry_count_q <= lookup_queue_entry_count_d;
       if (lookup_queue_enqueue_occurred) begin
-        lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_addr   <= 
-                                                                                 phys_addr_t'(next_pc_predictor_lookup_response_pc_i);
-        lookup_queue_request_array_q[lookup_queue_write_index_q].frontend_tag <= 
-                                                                                 next_frontend_tag_q;
-        lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_epoch  <= 
-                                                                                 next_pc_predictor_lookup_response_epoch_i;
-        lookup_queue_prediction_array_q[lookup_queue_write_index_q]           <= 
-                                                                                 next_pc_predictor_prediction_i;
+        lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_addr   <=
+            phys_addr_t'(next_pc_predictor_lookup_response_pc_i);
+        lookup_queue_request_array_q[lookup_queue_write_index_q].frontend_tag <=
+            next_frontend_tag_q;
+        lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_epoch  <=
+            next_pc_predictor_lookup_response_epoch_i;
+        lookup_queue_prediction_array_q[lookup_queue_write_index_q]           <=
+            next_pc_predictor_prediction_i;
       end
     end
   end
@@ -240,18 +240,18 @@ module riscv_ifu
     fetch_entry_o.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
     fetch_entry_o.instruction     = icache_lookup_resp_i.fetch_data;
     fetch_entry_o.frontend_tag    = icache_lookup_resp_i.frontend_tag;
-    fetch_entry_o.prediction      = 
-                                    prediction_by_frontend_tag_array_q[icache_lookup_resp_i.frontend_tag];
+    fetch_entry_o.prediction      =
+        prediction_by_frontend_tag_array_q[icache_lookup_resp_i.frontend_tag];
     fetch_entry_o.exception_valid = icache_lookup_resp_i.access_fault;
     fetch_entry_o.exception_cause = EXC_INSTR_ACCESS_FAULT;
     fetch_entry_o.exception_tval  = xlen_data_t'(icache_lookup_resp_i.fetch_addr);
 
     fetch_entry_valid_o        = icache_lookup_resp_valid_i &&
-                                 icache_lookup_response_is_current &&
-                                 !redirect_req_valid_i;
-    icache_lookup_resp_ready_o = 
-                                 (!icache_lookup_response_is_current || redirect_req_valid_i) ?
-                                 1'b1 : fetch_entry_ready_i;
+                          icache_lookup_response_is_current &&
+                          !redirect_req_valid_i;
+    icache_lookup_resp_ready_o =
+        (!icache_lookup_response_is_current || redirect_req_valid_i) ?
+        1'b1 : fetch_entry_ready_i;
   end
 
   // prediction表项在请求真正进入I-cache时建立，在对应响应离开时释放。redirect不要求
@@ -266,10 +266,10 @@ module riscv_ifu
         prediction_present_vector_q[icache_lookup_resp_i.frontend_tag] <= 1'b0;
       end
       if (icache_lookup_request_handshake) begin
-        prediction_by_frontend_tag_array_q[lookup_queue_front_request.frontend_tag]       <= 
-                                                                                             lookup_queue_front_prediction;
-        prediction_epoch_by_frontend_tag_array_q[lookup_queue_front_request.frontend_tag] <= 
-                                                                                             lookup_queue_front_request.fetch_epoch;
+        prediction_by_frontend_tag_array_q[lookup_queue_front_request.frontend_tag]       <=
+            lookup_queue_front_prediction;
+        prediction_epoch_by_frontend_tag_array_q[lookup_queue_front_request.frontend_tag] <=
+            lookup_queue_front_request.fetch_epoch;
         prediction_present_vector_q[lookup_queue_front_request.frontend_tag]              <= 1'b1;
       end
     end

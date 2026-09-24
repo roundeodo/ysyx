@@ -1,8 +1,7 @@
 // 参数化、2-way可配置、write-back/write-allocate的阻塞式L1 D-cache。
 //
-// 当前检查点每次只处理一个lookup或miss，以固定事务顺序并保证精确异常路径清晰；同步
-// tag/data array、独立miss unit和line AXI adapter是长期边界。面向AI负载扩展时，应在这些边界上
-// 增加bank、多MSHR、writeback queue和store buffer，而不是把AXI塞回LSU。
+// 命中可逐拍接收请求；缺失期间阻塞新查找。查找、阵列、缺失处理与AXI适配分别负责
+// 各自状态，响应反压时保持请求身份、阵列输出与写读旁路。
 module riscv_dcache
   import riscv_pkg::*;
   import riscv_addr_map_pkg::*;
@@ -42,24 +41,6 @@ module riscv_dcache
   function automatic dcache_tag_t get_tag(input phys_addr_t addr);
     return dcache_tag_t'(addr >> (DCACHE_LINE_OFFSET_W + DCACHE_SET_INDEX_BITS));
   endfunction
-
-  function automatic core_data_t merge_store_bytes(input core_data_t original_word,
-                                                   input core_data_t store_word,
-                                                   input core_byte_strobe_t byte_strobe);
-    core_data_t merged_word;
-    merged_word = original_word;
-    for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
-      if (byte_strobe[byte_index]) begin
-        merged_word[byte_index*8+:8] = store_word[byte_index*8+:8];
-      end
-    end
-    return merged_word;
-  endfunction
-
-  // S0握手同时启动同步array read；S1保存请求身份并在下一拍完成tag compare。
-  data_memory_req_t lookup_s1_q;
-  logic lookup_s1_present_q, lookup_s1_present_d;
-  logic lookup_req_handshake;
 
   logic tag_read_enable;
   dcache_set_index_t tag_read_set_index;
@@ -116,36 +97,38 @@ module riscv_dcache
       .write_byte_strobe_i   (data_write_byte_strobe)
   );
 
-  logic [DCACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
-  logic [DCACHE_WAY_COUNT-1:0] lookup_line_dirty_vector;
-  logic lookup_hit;
-  dcache_way_index_t lookup_hit_way_index;
-  core_data_t lookup_hit_word_data;
-  dcache_way_index_t replacement_way_index;
-  logic replacement_invalid_way_found;
-
+  // S0握手同时启动同步array read；S1保存请求身份并在下一拍完成tag compare。
+  data_memory_req_t lookup_s1_q;
   // store hit写array的同拍允许下一请求启动同步读。宏的read-during-write语义可能是
   // old-data，因此显式保存刚提交的store，并只在紧随其后的S1访问中覆盖对应byte。
   // 同set不同tag的下一请求若miss，也必须看到该way已经变dirty，避免替换时漏写回。
   logic store_write_bypass_present_q;
   dcache_set_index_t store_write_bypass_set_index_q;
-  dcache_way_index_t store_write_bypass_way_index_q;
-  dcache_word_index_t store_write_bypass_word_index_q;
-  core_data_t store_write_bypass_data_q;
-  core_byte_strobe_t store_write_bypass_byte_strobe_q;
   logic store_write_bypass_matches_lookup_line;
-  logic store_write_bypass_matches_lookup_word;
 
   assign store_write_bypass_matches_lookup_line =
       store_write_bypass_present_q &&
       (store_write_bypass_set_index_q == get_set_index(
       lookup_s1_q.addr
   ));
+  dcache_word_index_t store_write_bypass_word_index_q;
+  logic store_write_bypass_matches_lookup_word;
+
   assign store_write_bypass_matches_lookup_word =
       store_write_bypass_matches_lookup_line &&
       (store_write_bypass_word_index_q == get_word_index(
       lookup_s1_q.addr
   ));
+
+  logic lookup_s1_present_q, lookup_s1_present_d;
+  logic [DCACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
+  logic [DCACHE_WAY_COUNT-1:0] lookup_line_dirty_vector;
+  logic lookup_hit;
+  dcache_way_index_t lookup_hit_way_index;
+  core_data_t lookup_hit_word_data;
+  dcache_way_index_t store_write_bypass_way_index_q;
+  core_data_t store_write_bypass_data_q;
+  core_byte_strobe_t store_write_bypass_byte_strobe_q;
 
   always_comb begin
     lookup_way_hit_vector    = '0;
@@ -177,11 +160,10 @@ module riscv_dcache
     end
   end
 
+  dcache_way_index_t replacement_way_index;
+  logic replacement_invalid_way_found;
   // round-robin指针只在成功安装新line后推进；miss选择时永远优先使用invalid way。
   dcache_way_index_t replacement_way_index_array_q[DCACHE_SET_COUNT];
-  logic line_install_occurred;
-  dcache_set_index_t installed_set_index;
-  dcache_way_index_t installed_way_index;
 
   always_comb begin
     replacement_way_index         = replacement_way_index_array_q[get_set_index(lookup_s1_q.addr)];
@@ -193,6 +175,10 @@ module riscv_dcache
       end
     end
   end
+
+  logic line_install_occurred;
+  dcache_set_index_t installed_set_index;
+  dcache_way_index_t installed_way_index;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -236,6 +222,7 @@ module riscv_dcache
   dcache_refill_resp_t refill_resp;
   logic refill_resp_valid;
   logic refill_resp_ready;
+  dcache_line_data_t writeback_line_data;
   dcache_writeback_req_t writeback_req;
   logic writeback_req_valid;
   logic writeback_req_ready;
@@ -253,26 +240,30 @@ module riscv_dcache
   } clean_state_e;
 
   clean_state_e clean_state_q, clean_state_d;
-  dcache_set_index_t clean_set_index_q, clean_set_index_d;
-  dcache_way_index_t clean_way_index_q, clean_way_index_d;
-  logic clean_engine_req_valid;
-  logic clean_engine_req_ready;
-  logic clean_engine_done;
-  logic clean_engine_access_fault;
-  logic clean_access_fault_q, clean_access_fault_d;
   logic clean_blocks_lookup;
-  logic clean_current_line_dirty;
 
   assign clean_blocks_lookup = clean_req_i || (clean_state_q != CLEAN_IDLE);
+  dcache_way_index_t clean_way_index_q, clean_way_index_d;
+  logic clean_current_line_dirty;
+
   assign clean_current_line_dirty =
       array_read_line_present_vector[clean_way_index_q] &&
       array_read_line_dirty_vector[clean_way_index_q];
+  logic clean_engine_req_valid;
+
   assign clean_engine_req_valid = (clean_state_q == CLEAN_CHECK_WAY) && clean_current_line_dirty;
+
+  logic clean_access_fault_q, clean_access_fault_d;
 
   always_comb begin
     clean_done_o         = clean_state_q == CLEAN_COMPLETE;
     clean_access_fault_o = clean_access_fault_q;
   end
+
+  dcache_set_index_t clean_set_index_q, clean_set_index_d;
+  logic clean_engine_req_ready;
+  logic clean_engine_done;
+  logic clean_engine_access_fault;
 
   always_comb begin
     clean_state_d        = clean_state_q;
@@ -392,6 +383,7 @@ module riscv_dcache
       .refill_resp_i                (refill_resp),
       .refill_resp_valid_i          (refill_resp_valid),
       .refill_resp_ready_o          (refill_resp_ready),
+      .writeback_line_data_o        (writeback_line_data),
       .writeback_req_o              (writeback_req),
       .writeback_req_valid_o        (writeback_req_valid),
       .writeback_req_ready_i        (writeback_req_ready),
@@ -409,6 +401,7 @@ module riscv_dcache
       .refill_resp_o         (refill_resp),
       .refill_resp_valid_o   (refill_resp_valid),
       .refill_resp_ready_i   (refill_resp_ready),
+      .writeback_line_data_i (writeback_line_data),
       .writeback_req_i       (writeback_req),
       .writeback_req_valid_i (writeback_req_valid),
       .writeback_req_ready_o (writeback_req_ready),
@@ -419,13 +412,9 @@ module riscv_dcache
       .axi_manager_i         (axi_manager_i)
   );
 
-  // 本地hit响应和miss响应不会同时出现。store hit只在响应握手时写array，避免上游
-  // 反压期间重复产生副作用；store后的下一请求停一拍，规避同地址SRAM读写歧义。
+  // 命中与缺失响应互斥。store只在响应握手时更新阵列；相邻查询通过写读旁路取得新值。
   logic local_resp_valid;
   data_memory_resp_t local_resp;
-  logic local_resp_handshake;
-  logic miss_req_handshake;
-  logic store_hit_write_occurred;
 
   always_comb begin
     local_resp                = '0;
@@ -443,7 +432,11 @@ module riscv_dcache
     end
   end
 
+  logic local_resp_handshake;
+
   assign local_resp_handshake = local_resp_valid && data_memory_resp_ready_i && !miss_resp_valid;
+  logic store_hit_write_occurred;
+
   assign store_hit_write_occurred = local_resp_handshake && lookup_s1_q.cmd == MEM_CMD_STORE;
 
   always_comb begin
@@ -458,6 +451,8 @@ module riscv_dcache
     miss_req.victim_dirty          = lookup_line_dirty_vector[replacement_way_index];
     miss_req_valid                 = lookup_s1_present_q && !lookup_hit && !clean_blocks_lookup;
   end
+  logic miss_req_handshake;
+
   assign miss_req_handshake = miss_req_valid && miss_req_ready;
 
   // 所有hit响应都允许同拍启动下一lookup。store后的显式bypass定义了SRAM
@@ -465,6 +460,8 @@ module riscv_dcache
   assign data_memory_req_ready_o =
       (!lookup_s1_present_q || local_resp_handshake) &&
       !miss_transaction_present && !clean_blocks_lookup;
+  logic lookup_req_handshake;
+
   assign lookup_req_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
 
   always_comb begin
@@ -488,7 +485,7 @@ module riscv_dcache
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       store_write_bypass_present_q <= 1'b0;
-    end else begin
+    end else if (lookup_req_handshake) begin
       store_write_bypass_present_q <= store_hit_write_occurred && lookup_req_handshake;
       if (store_hit_write_occurred && lookup_req_handshake) begin
         store_write_bypass_set_index_q   <= get_set_index(lookup_s1_q.addr);
@@ -497,26 +494,28 @@ module riscv_dcache
         store_write_bypass_data_q        <= lookup_s1_q.write_data;
         store_write_bypass_byte_strobe_q <= lookup_s1_q.byte_strobe;
       end
+    end else if (local_resp_handshake || miss_req_handshake) begin
+      store_write_bypass_present_q <= 1'b0;
     end
   end
 
-  // array端口仲裁只依赖寄存状态，不依赖当前lookup是否命中或响应是否被消费。
-  // 空闲时每拍预读输入地址；只有lookup握手才会同时保存请求身份并解释下一拍输出。
-  // 这会切断“S1命中 -> response ready -> 下一次array读口”的跨级组合反馈。
-  // clean在检查一个set的全部way期间必须保持tag输出；victim采集则优先占用data读口。
+  // 查找握手同时更新S1身份与同步阵列输出。未接收的新地址不能改变被阻塞的响应。
+  // S1停顿时阵列和上方写读旁路一起保持；clean和脏行采集分别占用tag/data读口。
   always_comb begin
-    tag_read_enable    = 1'b1;
+    tag_read_enable    = lookup_req_handshake;
     tag_read_set_index = get_set_index(data_memory_req_i.addr);
     if (clean_state_q == CLEAN_READ_SET) begin
+      tag_read_enable    = 1'b1;
       tag_read_set_index = clean_set_index_q;
     end else if (clean_state_q != CLEAN_IDLE) begin
       tag_read_enable = 1'b0;
     end
 
-    data_read_enable     = 1'b1;
+    data_read_enable     = lookup_req_handshake;
     data_read_set_index  = get_set_index(data_memory_req_i.addr);
     data_read_word_index = get_word_index(data_memory_req_i.addr);
     if (miss_victim_read_enable) begin
+      data_read_enable     = 1'b1;
       data_read_set_index  = miss_victim_read_set_index;
       data_read_word_index = miss_victim_read_word_index;
     end
@@ -571,13 +570,13 @@ module riscv_dcache
     event_o.store_hit_and_next_lookup_occurred    = store_hit_write_occurred && lookup_req_handshake;
     event_o.miss_occurred                         = miss_req_handshake;
     event_o.dirty_victim_miss_occurred            = miss_req_handshake &&
-                                                    miss_req.victim_present &&
-                                                    miss_req.victim_dirty;
+                                                      miss_req.victim_present &&
+                                                      miss_req.victim_dirty;
     event_o.refill_request_occurred               = refill_req_valid && refill_req_ready;
     event_o.refill_word_occurred                  = refill_resp_valid && refill_resp_ready;
     event_o.refill_transaction_completed_occurred = refill_resp_valid &&
-                                                    refill_resp_ready &&
-                                                    refill_resp.last_word;
+                                                      refill_resp_ready &&
+                                                      refill_resp.last_word;
     event_o.line_install_occurred                 = line_install_occurred;
     event_o.writeback_request_occurred            = writeback_req_valid && writeback_req_ready;
     event_o.writeback_response_occurred           = writeback_resp_valid && writeback_resp_ready;
