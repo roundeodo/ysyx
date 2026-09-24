@@ -5,6 +5,9 @@
 范围：`npc/vsrc/riscv` 下全部 56 个 HDL 文件，包括 6 个 package、47 个非实验模块和
 3 个实验模块，另检查两份 filelist。这里同时包含处理器 RTL、平台连接、仿真环境和实验。
 
+2026-09-24 新增 `riscv_icache_replacement`，当前为 57 个 HDL 文件、48 个非实验模块；
+其余分类不变。新增模块说明见[I-cache 替换逻辑](../microarchitecture/ICACHE_REPLACEMENT_DESIGN.md)。
+
 本表覆盖当前文件与职责。此前逐文件检查及后续修复见 [实现记录](RTL_CLEANUP_RECORD.md)，
 不代表已经逐项证明全部功能。
 命名与格式修改的验证结果见 [验证记录](../verification/EXPERIMENT_LOG.md)。
@@ -67,6 +70,7 @@ flowchart TD
 | [riscv_fetch_buffer](../../vsrc/riscv/core/frontend/riscv_fetch_buffer.sv) | 保存已返回指令并吸收译码反压 | 保持入队、出队、flush 与有效状态的关系清楚 |
 | [riscv_fetch_control_flow_predictor](../../vsrc/riscv/core/frontend/riscv_fetch_control_flow_predictor.sv) | BHT、BTB、RAS 查询与训练 | 训练入口复用类型判断；查询、训练和返回栈的声明与计算分别组织 |
 | [riscv_pma](../../vsrc/riscv/core/frontend/riscv_pma.sv) | 判断地址的执行、读写和缓存属性 | 复用地址表；区分 PMA 与未来虚拟内存权限 |
+| [riscv_icache_replacement](../../vsrc/riscv/core/frontend/riscv_icache_replacement.sv) | 保存分段访问 RRIP 状态及候选路快照 | 同拍命中前递；反压保持；不重复保存 tag 或有效位 |
 | [riscv_icache](../../vsrc/riscv/core/frontend/riscv_icache.sv) | 指令缓存查找、命中、替换和失效协调 | 已删除不能启用的回填字选择与逐字可见状态；保留原缺失请求提前返回 |
 | [riscv_icache_tag_array](../../vsrc/riscv/core/frontend/riscv_icache_tag_array.sv) | 保存地址标记和行有效状态，提供同步读口 | 状态与数据的复位行为不同，注释应明确写入和失效条件 |
 | [riscv_icache_data_array](../../vsrc/riscv/core/frontend/riscv_icache_data_array.sv) | 指令数据阵列与同步读出 | 当前使用暂存寄存器和低电平锁存写阵列，不能笼统称为普通触发器 RAM |

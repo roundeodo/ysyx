@@ -27,6 +27,7 @@
 | 数据缓存、写回和 uncached 路径 | [D-cache 设计](microarchitecture/DCACHE_DESIGN_RECORD.md) |
 | 方向、目标和返回地址预测 | [分支预测设计](microarchitecture/BRANCH_PREDICTION_DESIGN_RECORD.md) |
 | AXI 连接、仲裁、宽度转换和错误响应 | [AXI4 互连](interconnect/AXI4_ARCHITECTURE.md) |
+| 从 RV32 实验同步的前端配置及验证 | [前端配置同步](verification/FRONTEND_CONFIGURATION_SYNC_2026-09-24.md) |
 | 如何比较缓存配置 | [缓存配置比较方法](verification/CACHE_DESIGN_SPACE_EXPLORATION.md) |
 | 测试命令、已有证据和待验证事项 | [验证记录](verification/EXPERIMENT_LOG.md) |
 | 如何开展一次修改、如何写清文档 | [开发流程](development/DEVELOPMENT_PROCESS.md) |

@@ -4,24 +4,23 @@ module riscv_icache_replacement
   import riscv_pkg::*;
   import riscv_addr_map_pkg::*;
 (
-    input  logic                          clk_i,
-    input  logic                          rst_ni,
-    input  logic                          invalidate_i,
-    input  logic                          read_enable_i,
-    input  icache_set_index_t              read_set_index_i,
-    output icache_way_index_t              read_victim_way_index_o,
-    input  logic                          hit_i,
-    input  logic [ICACHE_WAY_COUNT-1:0]     hit_way_vector_i,
-    input  logic                          allocate_i,
-    input  icache_way_index_t              allocate_way_index_i,
-    input  logic                          victim_present_i,
-    input  phys_addr_t                    access_addr_i
+    input  logic                                     clk_i,
+    input  logic                                     rst_ni,
+    input  logic                                     invalidate_i,
+    input  logic                                     read_enable_i,
+    input  icache_set_index_t                        read_set_index_i,
+    output icache_way_index_t                        read_victim_way_index_o,
+    input  logic                                     hit_i,
+    input  logic              [ICACHE_WAY_COUNT-1:0] hit_way_vector_i,
+    input  logic                                     allocate_i,
+    input  icache_way_index_t                        allocate_way_index_i,
+    input  logic                                     victim_present_i,
+    input  phys_addr_t                               access_addr_i
 );
   localparam int unsigned LINE_ADDRESS_WIDTH = PADDR_WIDTH - ICACHE_LINE_OFFSET_W;
 
   initial begin
-    if (ICACHE_WAY_COUNT < 2)
-      $fatal(1, "segmented RRIP requires multiple ways");
+    if (ICACHE_WAY_COUNT < 2) $fatal(1, "segmented RRIP requires multiple ways");
   end
 
   logic access_occurred;
@@ -49,8 +48,8 @@ module riscv_icache_replacement
   end
 
   // RRPV越大越优先替换。仅替换有效行时老化整组，新行插入值为2。
-  logic [1:0] rrpv_array_q[ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
-  logic [1:0] rrpv_array_d[ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
+  logic [1:0] rrpv_array_q [ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
+  logic [1:0] rrpv_array_d [ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
   logic [1:0] maximum_rrpv;
   logic [1:0] age_amount;
 
@@ -81,10 +80,8 @@ module riscv_icache_replacement
   always_ff @(posedge clk_i) begin
     for (int unsigned set_index = 0; set_index < ICACHE_SET_COUNT; set_index++) begin
       for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-        if (!rst_ni || invalidate_i)
-          rrpv_array_q[set_index][way_index] <= 2'd3;
-        else
-          rrpv_array_q[set_index][way_index] <= rrpv_array_d[set_index][way_index];
+        if (!rst_ni || invalidate_i) rrpv_array_q[set_index][way_index] <= 2'd3;
+        else rrpv_array_q[set_index][way_index] <= rrpv_array_d[set_index][way_index];
       end
     end
   end
