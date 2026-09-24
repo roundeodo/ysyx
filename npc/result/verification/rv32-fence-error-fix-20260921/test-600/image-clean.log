@@ -1,3 +1,0 @@
-make: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/benchmarks/microbench'
-rm -rf Makefile.html /home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/benchmarks/microbench/build/
-make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/benchmarks/microbench'

@@ -1,7 +1,10 @@
 # RV32 I-cache：原理与电路结构
 
-当前实现，2026-09-21。`rv32-baseline` 为 256 B、一路、16 B/行、每次取 4 B；
-参数由 [Makefile](../../Makefile) 进入 `riscv_config_pkg`。RTL 同时保留组相联配置能力。
+当前实现，2026-09-22。`rv32-baseline` 为 256 B、一路、16 B/行、每次取 4 B；
+参数由 [Makefile](../../Makefile) 进入 `riscv_config_pkg`。
+均衡预设`rv32-balanced`为1 KiB、4路、32 B/行、策略13，仿真720 MHz；
+这是本轮AI代理与存储模型下的选型，原基线仍可直接复现。
+结果、简单对照与退化场景见[选型记录](../verification/ICACHE_SELECTION_2026-09-21.md)。
 
 ## 查询路径
 
@@ -21,7 +24,8 @@
 | --- | --- |
 | [PMA](../../vsrc/riscv32/core/frontend/riscv32_pma.sv) | 组合地址分类，无寄存器；区域常量来自 `riscv32_addr_map_pkg` |
 | [I-cache 主体](../../vsrc/riscv32/core/frontend/riscv32_icache.sv) | 对齐请求与属性；并行 tag 比较、数据选择、替换和失效控制 |
-| [tag 阵列](../../vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv) | 每路/组保存 tag 与有效位，同步读出；复位清有效位 |
+| [tag 阵列](../../vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv) | 每路/组保存 tag 与有效位，同步读出；策略1～3另含RRPV |
+| [替换状态](../../vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv) | 仅策略4～16实例化，保存策略元数据和与tag读口对齐的victim快照 |
 | [data 阵列](../../vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv) | 按路和行内字分 bank，同步读出；回填写入先暂存，再于低电平写入锁存阵列 |
 | [miss 单元](../../vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv) | 一个事务上下文：原请求、替换路、可缓存位；错误累计、响应缓冲和响应已生成记录 |
 | [AXI 适配器](../../vsrc/riscv32/core/frontend/riscv32_icache_axi.sv) | 单个读事务；保存地址、字数、返回字索引与事务编号 |
@@ -29,8 +33,8 @@
 请求身份与同步阵列输出必须对齐，不能随意删除其中一组寄存器。数据写入暂存保证锁存窗口
 内输入稳定。miss 响应“仍待接收”和“已经生成过”分别记录：前者承受反压，后者避免重复响应。
 
-一路配置不保存替换状态；多路优先选择无效路，否则使用每组轮转指针。
-替换指针在可缓存 miss 被接收时推进，不在 hit 时更新；set、tag、关键字索引从原地址派生。
+一路配置不保存替换状态；多路优先选择无效路，否则由所选策略提供victim。策略0使用每组
+轮转指针，在可缓存miss被接收时推进，不在hit时更新。set、tag、关键字索引从原地址派生。
 
 ## miss 怎样完成
 
@@ -64,3 +68,32 @@ AR 接收后只推进用于选择总线数据字节位置的地址低位。
 验证覆盖命中、替换、单字/多字行、非缓存、回填错误、反压与失效，见
 [等待周期复查](../verification/RV32_WAIT_AUDIT_2026-09-19.md)。
 [旧设计与阶段性测量](archive/ICACHE_DESIGN_RECORD_BEFORE_2026-09-16.md)仅供追溯，不再更新。
+
+## 替换策略与历史对照
+
+`ICACHE_REPLACEMENT_POLICY=0` 保持原 FIFO；1 为 SRRIP（插入2，hit提升0），
+2 为低优先级插入（插入3，hit提升0），3 为退休反馈（插入3，退休提升0；
+只有RRPV<3的hit才能提升）。非零策略要求至少两路。`rv32-baseline`仍为0，`rv32-balanced`选择13。
+
+策略1～3的RRPV由 tag_array 唯一拥有，每行2 bit；同步查询时与tag一起读取每路2 bit，
+不增加流水级。S1用该快照选最大RRPV，低way打破平局，invalid优先。
+缓存miss握手时按快照的 `3-max` 饱和老化对应set；分配时覆盖victim的插入值。
+查询反压期间快照保持，所以后台退休不会改变已展示miss的替换身份。
+
+退休反馈利用现有tag阵列按退休PC组合匹配，只改变RRPV，不读取/复制数据或生成访存。
+提示只作用于当前present且tag匹配的行；已经淘汰、尚未完成安装的行直接忽略。
+这一选择避免新增提示队列和在途身份状态，但可能损失early-restart后的首次退休提示，
+需要计数评估。它是借鉴Bumper的L1I原型，不是其L2实现。
+
+更新优先级：复位/全失效 > 新行分配/安装 > 当前退休提示 > hit提升 > 老化。
+安装与同地址退休同拍允许直接提升；同way安装其他tag时旧提示不得提升新行。
+无预取、无新增并发、无AXI请求变化；原FENCE.I排空及失效协议覆盖全部新增状态。
+
+验证与取舍见[前端探索记录](../verification/FRONTEND_EXPLORATION_2026-09-21.md)。
+退休反馈未优于强简单对照，默认保持关闭；它不改变正式配置的命中延迟或请求并发度。
+
+扩展选型新增策略4～16，状态和同拍前递边界见[替换实验电路](ICACHE_REPLACEMENT_DESIGN.md)。
+它们由独立替换状态模块拥有，tag/data仍各自唯一持有；0～3不实例化该模块。
+均衡预设使用策略13：每行2 bit RRPV，增加前一次行地址和存在位；只有离开后再次hit才
+提升该行优先级。查询只前递同组hit，不经过与查询互斥的miss分配网络。它与tag读口对齐，
+没有新加流水级、预取或并发事务；其他策略保持显式选择。

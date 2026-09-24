@@ -1,9 +1,0 @@
-{
-  "retained": "cleanup + H1",
-  "microbench_test_and_observer_audit": 0,
-  "sta600_all_four_checks": 0,
-  "capture_integration": 0,
-  "final_style_lint": 0,
-  "diff_check": 0,
-  "documentation_links": 0
-}

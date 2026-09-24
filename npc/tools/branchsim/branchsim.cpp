@@ -637,11 +637,13 @@ void PrintStatistics(const BranchsimStatistics &statistics,
             << '\n';
   std::cout << "  storage estimate           : " << storage_bit_count
             << " bits\n";
-  std::cout << "  ideal IPC 5-stage 1-wide   : "
+  std::cout << "  IPC below is a fixed-penalty illustration, not measured CPU IPC;\n"
+            << "  it excludes caches, wrong-path traffic and recovery overlap.\n";
+  std::cout << "  toy IPC 1-wide, penalty=2  : "
             << EstimateIdealizedIpc(statistics, 1, 2) << '\n';
-  std::cout << "  ideal IPC 15-stage 1-wide  : "
+  std::cout << "  toy IPC 1-wide, penalty=12 : "
             << EstimateIdealizedIpc(statistics, 1, 12) << '\n';
-  std::cout << "  ideal IPC 15-stage 4-wide  : "
+  std::cout << "  toy IPC 4-wide, penalty=12 : "
             << EstimateIdealizedIpc(statistics, 4, 12) << '\n';
 
   // Stable key=value lines are consumed by explore.py and regression tests.

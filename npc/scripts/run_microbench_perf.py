@@ -177,10 +177,31 @@ def main():
     parser.add_argument('--scale', choices=['test', 'train'], default='train')
     parser.add_argument('--cpu-mhz', type=int, default=820)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--icache-bytes', type=int, default=256)
+    parser.add_argument('--icache-ways', type=int, default=1)
+    parser.add_argument('--icache-policy', type=int, choices=range(17), default=0)
+    parser.add_argument('--icache-line', type=int, choices=[4, 8, 16, 32, 64], default=16)
+    parser.add_argument('--bht-entries', type=int, default=16)
+    parser.add_argument('--btb-entries', type=int, default=16)
+    parser.add_argument('--btb-ways', type=int, default=2)
+    parser.add_argument('--btb-target-bits', type=int, nargs='+',
+                        help='Target bits per way, low address bits retained; omitted selects original BTB')
+    parser.add_argument('--btb-policy', type=int, choices=range(4), default=0)
+    parser.add_argument('--ras-entries', type=int, default=4)
+    parser.add_argument('--direction-policy', type=int, choices=range(5), default=0)
+    parser.add_argument('--history-bits', type=int, default=4)
+    parser.add_argument('--host-opt', type=int, choices=[1, 2, 3], default=3,
+                        help='Host simulator optimization only; does not change guest flags or timing parameters')
     parser.add_argument('--prepare-only', action='store_true', help='Build and archive; do not simulate')
     parser.add_argument('--verify-observer', action='store_true', help='Run identical image on/off and compare audit')
     parser.add_argument('--resume', type=Path, help='Run an existing prepare-only directory, checking hashes')
     args = parser.parse_args()
+    target_way_bits = 0
+    if args.btb_target_bits:
+        require(args.btb_ways in [2, 4] and len(args.btb_target_bits) == args.btb_ways,
+                'Compact BTB needs one width for each of two or four ways')
+        require(all(1 <= width <= 32 for width in args.btb_target_bits), 'Target bits must be 1..32')
+        target_way_bits = sum(width << (8 * way) for way, width in enumerate(args.btb_target_bits))
     require(100 <= args.cpu_mhz <= 4000, 'CPU MHz must be 100..4000')
     env = dict(os.environ, NPC_HOME=str(NPC), AM_HOME=str(WORKSPACE / 'abstract-machine'))
     if args.resume:
@@ -196,17 +217,31 @@ def main():
         output.mkdir(parents=True, exist_ok=False)
         print(f'Artifacts: {output}', flush=True)
         print('Building RV32 simulator and uninstrumented MicroBench...', flush=True)
-        build = NPC / 'build/passive-perf' / f'cpu-{args.cpu_mhz}mhz'
+        build_tag = (f'cpu-{args.cpu_mhz}mhz-ic-{args.icache_bytes}-{args.icache_ways}'
+                     f'-p{args.icache_policy}-l{args.icache_line}-bht-{args.bht_entries}'
+                     f'-btb-{args.btb_entries}x{args.btb_ways}-p{args.btb_policy}-ras-{args.ras_entries}'
+                     f'-dir-{args.direction_policy}-hist-{args.history_bits}')
+        if args.btb_target_bits:
+            build_tag += '-targetbits-' + '-'.join(map(str, args.btb_target_bits))
+        if args.host_opt != 3:
+            build_tag += f'-host-o{args.host_opt}'
+        build = NPC / 'build/passive-perf' / build_tag
         flags = ('-MMD --build -cc -Wall -Wno-fatal -O3 --x-assign fast --x-initial fast '
                  f'-I{NPC}/vsrc/riscv32/sim --trace --autoflush --timescale 1ns/1ns --no-timing -j 1 '
-                 '-MAKEFLAGS "OPT_FAST=-O3 OPT_GLOBAL=-O3 OPT_SLOW=-O1"')
+                 f'-MAKEFLAGS "OPT_FAST=-O{args.host_opt} OPT_GLOBAL=-O{args.host_opt} OPT_SLOW=-O1"')
         command = ['make', '-C', str(NPC), 'git_commit=', 'NPC_CONFIG=rv32-baseline',
                    f'NPC_SIM_CPU_FREQ_MHZ={args.cpu_mhz}', f'BUILD_DIR={build}',
-                   'NPC_ICACHE_CAPACITY_BYTES=256', 'NPC_ICACHE_WAY_COUNT=1', 'NPC_ICACHE_LINE_BYTES=16',
+                   f'NPC_ICACHE_CAPACITY_BYTES={args.icache_bytes}', f'NPC_ICACHE_WAY_COUNT={args.icache_ways}',
+                   f'NPC_ICACHE_REPLACEMENT_POLICY={args.icache_policy}', f'NPC_ICACHE_LINE_BYTES={args.icache_line}',
                    'NPC_DCACHE_ENABLE=1', 'NPC_DCACHE_CAPACITY_BYTES=256', 'NPC_DCACHE_WAY_COUNT=2',
-                   'NPC_DCACHE_LINE_BYTES=16', 'NPC_BRANCH_HISTORY_ENTRY_COUNT=16',
-                   'NPC_BRANCH_TARGET_ENTRY_COUNT=16', 'NPC_BRANCH_TARGET_WAY_COUNT=2',
-                   'NPC_RETURN_STACK_ENTRY_COUNT=4', 'NPC_SDRAM_NATIVE_READ_BURST=1',
+                   'NPC_DCACHE_LINE_BYTES=16', f'NPC_BRANCH_HISTORY_ENTRY_COUNT={args.bht_entries}',
+                   f'NPC_BRANCH_TARGET_ENTRY_COUNT={args.btb_entries}',
+                   f'NPC_BRANCH_TARGET_WAY_COUNT={args.btb_ways}',
+                   f'NPC_BRANCH_TARGET_POLICY={args.btb_policy}',
+                   f'NPC_BRANCH_TARGET_WAY_BITS={target_way_bits}',
+                   f'NPC_BRANCH_DIRECTION_POLICY={args.direction_policy}',
+                   f'NPC_BRANCH_GLOBAL_HISTORY_BITS={args.history_bits}',
+                   f'NPC_RETURN_STACK_ENTRY_COUNT={args.ras_entries}', 'NPC_SDRAM_NATIVE_READ_BURST=1',
                    f'VERILATOR_FLAGS={flags}', 'build-soc']
         # Use the worktree's capstone if present; a sibling tool installation is
         # acceptable because it is host-only and its library is recorded.
@@ -242,6 +277,14 @@ def main():
             for source in sources:
                 archive.add(source, arcname=str(source.relative_to(WORKSPACE)))
         manifest = {'schema': 1, 'scale': args.scale, 'cpu_mhz': args.cpu_mhz,
+                    'host_opt': args.host_opt,
+                    'icache': {'bytes': args.icache_bytes, 'ways': args.icache_ways,
+                               'policy': args.icache_policy, 'line_bytes': args.icache_line},
+                    'predictor': {'bht_entries': args.bht_entries, 'btb_entries': args.btb_entries,
+                                  'btb_ways': args.btb_ways, 'btb_policy': args.btb_policy,
+                                  'ras_entries': args.ras_entries,
+                                  'direction_policy': args.direction_policy, 'history_bits': args.history_bits,
+                                  'target_bits': args.btb_target_bits, 'target_way_bits': target_way_bits},
                     'device_mhz': 100, 'delay_ratio_scaled': args.cpu_mhz * 1024 // 100,
                     'delay_scale': 1024, 'layout': layout, 'build_command': command,
                     'image_build_command': image_command, 'reset_cycles': 10,

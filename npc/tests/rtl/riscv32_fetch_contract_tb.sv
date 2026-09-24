@@ -36,6 +36,7 @@ module riscv32_fetch_contract_tb;
       .fetch_entry_o(fetched), .fetch_entry_valid_o(fetched_valid), .fetch_entry_ready_i(1'b1)
   );
   riscv32_branch_predictor predictor (
+      .resolved_control_flow_prediction_i('0),
       .clk_i(clk), .rst_ni(predictor_reset_n), .lookup_request_pc_i(query_pc),
       .lookup_request_epoch_i(query_epoch), .lookup_request_valid_i(query_valid && ifu_reset_n),
       .lookup_request_ready_o(query_ready), .lookup_response_pc_o(response_pc),

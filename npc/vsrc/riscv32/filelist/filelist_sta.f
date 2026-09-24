@@ -13,6 +13,7 @@ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv
 // 数据存储：D-cache、uncached 和路由。
 ${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
@@ -28,7 +29,9 @@ ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_regfile.sv
 ${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_pmu.sv
 ${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_csr_file.sv
 ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_idu.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_tage.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_bht.sv
+${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_btb.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_ras.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv

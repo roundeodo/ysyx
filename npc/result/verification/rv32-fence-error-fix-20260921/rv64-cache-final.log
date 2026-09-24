@@ -1,4 +1,0 @@
-make: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
-python3 scripts/test_cache_recovery.py --test cache --output "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/rv64" +define+YSYX_RV64_SEQUENTIAL  +define+YSYX_ICACHE_CAPACITY_BYTES=64 +define+YSYX_ICACHE_WAY_COUNT=2 +define+YSYX_ICACHE_LINE_BYTES=16 +define+YSYX_DCACHE_ENABLE=1 +define+YSYX_DCACHE_CAPACITY_BYTES=1024 +define+YSYX_DCACHE_WAY_COUNT=2 +define+YSYX_DCACHE_LINE_BYTES=32 +define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16 +define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16 +define+YSYX_BRANCH_TARGET_WAY_COUNT=2 +define+YSYX_RETURN_STACK_ENTRY_COUNT=4 +define+YSYX_SDRAM_NATIVE_READ_BURST=1
-PASS cache: 75 cases
-make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'

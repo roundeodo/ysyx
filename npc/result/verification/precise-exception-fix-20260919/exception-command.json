@@ -1,9 +1,0 @@
-[
-  "make",
-  "-C",
-  "npc",
-  "git_commit=",
-  "NPC_CONFIG=rv32-baseline",
-  "test-precise-exception",
-  "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/precise-exception-fix-20260919/directed"
-]

@@ -1,8 +1,8 @@
 # MicroBench 的计时与比较规则
 
-建立于 2026-09-06；当前入口更新于 2026-09-21。对象为 `ysyx-workbench-rv32-interview` 的 RV32 配置。
+建立于 2026-09-06；当前入口说明更新于 2026-09-24。对象为 `ysyx-workbench-rv32-interview` 的 RV32 配置。
 
-## 2026-09-11 发布核对
+## 历史发布核对（2026-09-11）
 
 低侵入 train 已完成：Total 1.911282 秒、IPC 0.170242182；Scored 1.278899 秒、
 IPC 0.178135953。十项 PASS、GOOD TRAP。文中“尚未运行”的表述属于此前准备阶段记录，
@@ -14,16 +14,27 @@ IPC 0.178135953。十项 PASS、GOOD TRAP。文中“尚未运行”的表述属
 默认性能入口为 `npc/scripts/run_microbench_perf.py`。它保留 MicroBench 原生定时器读取，
 默认不编入额外 CSR 快照，在仿真端同步统计时间窗口内的周期与真实退休指令。
 
+下面是与2026-09-24短测相同配置、由用户手动启动train的示例；本轮没有重跑train：
+
 ```sh
 cd /home/yong/ysyx/ysyx-workbench-rv32-interview
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 580
+python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 700 \
+  --icache-bytes 1024 --icache-ways 4 --icache-line 32 --icache-policy 13 \
+  --bht-entries 16 --btb-entries 16 --btb-ways 2 --btb-policy 0 \
+  --ras-entries 4 --direction-policy 0 --history-bits 4
 ```
 
-脚本先构建并归档，再启动仿真。`--prepare-only` 只准备文件；之后使用 `--resume 目录`
-运行归档的模拟器和镜像，并核对哈希。默认采用 RV32 baseline、I-cache 256 B/1-way、
-D-cache 256 B/2-way、BHT 16、BTB 16 项/2-way、RAS 4、SDRAM burst。当前通过完整 STA 检查
-的测量点为 CPU 580 MHz：设备等效 100 MHz，CLINT 每 580 拍增加 1 微秒。
-脚本仍有历史默认值 820，当前须显式传入 `--cpu-mhz 580`。输出目录不可覆盖，重测创建新目录。
+脚本先构建并归档，再启动仿真。`--prepare-only`只准备文件；之后使用`--resume 目录`
+运行归档的模拟器和镜像，并核对哈希。D-cache为256 B、2-way、16 B line，启用SDRAM burst。
+700 MHz时CLINT每700拍增加1微秒，设备等效100 MHz。输出目录不可覆盖，重测创建新目录。
+
+频率资格必须和源码、结构及STA流程绑定。2026-09-24这组1 KiB I-cache配置中，
+BHT16基线通过720 MHz，TAGE16通过700 MHz；上例采用二者共同通过的700 MHz。
+原文的580 MHz属于之前的256 B配置记录，不能代表所有新配置。完整结果见
+[分支历史探索](BRANCH_HISTORY_EXPLORATION_2026-09-24.md)。这些是整核综合网表的布局前估计。
+
+命令行仍保留历史默认值：CPU820 MHz、I-cache256 B/1-way/16 B line/policy0。
+这些默认值没有自动关联最新STA；测量时必须像上例一样显式指定频率与结构参数。
 
 用户所说的“完成 train 的定时器时间”优先报告 **原生 Total time**，并同时给出该窗口
 IPC；**Scored time** 与它的 IPC 单独列出，用于比较十个计分区间。JSON 中分别为
@@ -37,7 +48,14 @@ IPC；**Scored time** 与它的 IPC 单独列出，用于比较十个计分区�
 这种退化认定硬件旁路更差，也不能把模型中的秒数当作硅上实测。
 复现与本轮取舍见[缓存交接实测](RV32_REFINEMENT_2026-09-21.md#设备延迟模型的限制)。
 
-## 历史计时审计：本次发现
+2026-09-24的分支选型另用独立RTL存储模型：从AR握手开始计算固定物理服务时间，
+主矩阵首响应100 ns、后续beat10 ns。它经过1158项存储探针和受控误预测测试，仍只是
+明确边界下的模型，不是完整SDRAM或SoC。原生MicroBench与该矩阵分别报告，
+不能将两者的绝对时间直接拼接，也不能把定时器同窗校验当作所有设备模型物理正确的证明。
+
+## 历史计时审计（2026-09-06）
+
+以下保留当时的修正过程；其中“当前”“本轮”指当时的配置，不是2026-09-24的默认结构。
 
 当前旧配置同时存在三个不同频率：CLINT 按 100 MHz CPU 换算微秒，AXI/APB
 延迟模块按 `3037/1024` 倍拉长设备响应（对应 296.58203125 MHz CPU / 100 MHz

@@ -1,6 +1,0 @@
-{
-  "top": "riscv32_core_reset_boundary",
-  "rtlil_byte_identical": true,
-  "sha256": "1984d879e061bef6e829ebfb390b1cba02108747cee0ca14013912bee00935cc",
-  "note": "Yosys/Slang RTL elaboration; no mapping or STA rerun"
-}

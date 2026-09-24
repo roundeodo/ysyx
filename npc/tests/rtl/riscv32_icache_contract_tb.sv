@@ -19,6 +19,7 @@ module riscv32_icache_contract_tb;
   icache_lookup_resp_t last_response;
 
   riscv32_icache cache (
+      .retired_valid_i(1'b0), .retired_pc_i('0),
       .clk_i(clk), .rst_ni(rst_n), .lookup_req_i(request), .lookup_req_valid_i(request_valid),
       .lookup_req_ready_o(request_ready), .lookup_resp_o(response),
       .lookup_resp_valid_o(response_valid), .lookup_resp_ready_i(response_ready),

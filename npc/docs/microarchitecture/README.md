@@ -2,6 +2,10 @@
 
 当前 RV32 前端从[数据流与源码顺序](FRONTEND_REWRITE_DESIGN_RECORD.md)开始阅读。
 模块说明用于快速理解当前电路；实验过程与测量结果在 `verification/` 中维护。
+预测器从[查询与训练结构](FETCH_PREDICTOR_DESIGN_RECORD.md)进入；可选的
+[BTB 准入与替换策略](BTB_POLICY_DESIGN.md)不改变查询寄存级，默认保持原策略。
+方向预测的可选[小型TAGE](TAGE_DESIGN.md)沿用同一查询响应级，默认关闭；
+准确率模型、恢复代价与硬件测量见[分支历史实验](../verification/BRANCH_HISTORY_EXPLORATION_2026-09-24.md)。
 
 ## 源码目录
 
@@ -55,6 +59,8 @@
 ## 当前前端
 
 - [取指预测器](FETCH_PREDICTOR_DESIGN_RECORD.md)：BHT、BTB、RAS、单级查询与训练时序。
+- [历史方向预测原型](DIRECTION_PREDICTOR_DESIGN.md)：默认关闭的 gshare/Bi-mode、查询快照与恢复。
+- [BTB实验策略](BTB_POLICY_DESIGN.md)：准入、RRIP/LRU、状态更新与默认关闭边界。
 - [I-cache](ICACHE_DESIGN_RECORD.md)：同步查询、阻塞回填、AXI、错误与失效。
 - IFU 与 fetch buffer 的状态和取舍见[前端总览](FRONTEND_REWRITE_DESIGN_RECORD.md)。
 

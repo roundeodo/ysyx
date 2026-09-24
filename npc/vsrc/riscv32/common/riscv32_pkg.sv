@@ -537,10 +537,20 @@ package riscv32_pkg;
   // Frontend payloads
   // prediction记录IFU发出该指令请求时真正采用的后继选择。EX必须同时比较方向和目标；
   // 即使B/J目标可重新计算，也不能用重算结果替代predicted_target，否则BTB旧目标或别名
-  // 无法触发恢复。未来引入TAGE checkpoint时，再增加有明确消费者的metadata。
+  // 无法触发恢复。历史方向预测的快照只供对应指令解析后训练使用。
   typedef struct packed {
-    logic             predicted_taken;
-    program_counter_t predicted_target;
+    logic [riscv_config_pkg::BRANCH_GLOBAL_HISTORY_BITS-1:0] history;
+    logic                                                  choice;
+    logic                                                  taken;
+    logic [1:0]                                            provider;
+    logic [1:0]                                            alternate_provider;
+    logic                                                  alternate_taken;
+  } direction_context_t;
+
+  typedef struct packed {
+    logic               predicted_taken;
+    program_counter_t   predicted_target;
+    direction_context_t direction;
   } branch_prediction_t;
 
   // 请求侧预测时还不知道返回指令的opcode，因此把BHT方向和RAS栈顶作为请求上下文

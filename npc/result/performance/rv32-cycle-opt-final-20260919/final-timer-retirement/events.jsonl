@@ -1,5 +1,0 @@
-{"type":"configuration","schema":1,"cpu_hz":700000000,"timer_hz":1000000,"boundary":"pre_rising_edge"}
-{"type":"timer_sample","cycle":99,"retired":4,"ticks":0,"load_pc":805306384,"return_pc":0,"interrupts":0,"load_commit_cycle":101,"successful_load":true}
-{"type":"timer_sample","cycle":280,"retired":13,"ticks":0,"load_pc":805306408,"return_pc":0,"interrupts":0,"load_commit_cycle":282,"successful_load":true}
-{"type":"timer_sample","cycle":284,"retired":14,"ticks":0,"load_pc":805306420,"return_pc":0,"interrupts":0,"load_commit_cycle":286,"successful_load":true}
-{"type":"finish","valid":true,"good_exit":true,"cycles":294,"retired":19,"interrupts":0,"clint_writes":0}

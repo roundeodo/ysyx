@@ -1,8 +1,0 @@
-{
-  "status": "ready_not_run",
-  "same_simulator_as_verified_test": true,
-  "test_report": "npc/result/performance/passive-test-final-20260906/report.json",
-  "test_report_sha256": "7a4d0f42900bd90103cd4b3fd5a24b9b875f0ba50d04caeffd98068af0b89213",
-  "boundary_report": "npc/result/performance/passive-boundary-final-20260906/report.json",
-  "train_started": false
-}

@@ -1,0 +1,1244 @@
+{
+  "decision": {
+    "development_choice": "U16",
+    "recommendation": "B0",
+    "held_accepted": true,
+    "default_enabled": false,
+    "note": "No retuning or selection of another winner after held evaluation; general-default fallback only",
+    "profile_recommendation": "U16",
+    "boundary_probe": {
+      "time_ratio": 2.1076923076923078,
+      "excluded_from_profile_weighting": true
+    },
+    "reason": "Selected prototype passes held/layout profiles, but repeated cross-64KiB calls exceed the regression guard; retain as an opt-in area experiment"
+  },
+  "comparison": [
+    {
+      "name": "B0",
+      "area_um2": 101617.852,
+      "legal_mhz": 720,
+      "common_mhz": 680,
+      "common_time_ratio": 1.0,
+      "development_own_time_ratio": 1.0,
+      "development_adp_ratio": 1.0,
+      "held_own_time_ratio": 1.0,
+      "held_adp_ratio": 1.0,
+      "held_worst_input_ratio": 1.0
+    },
+    {
+      "name": "B0off",
+      "area_um2": 101617.852,
+      "legal_mhz": 720,
+      "common_mhz": 680,
+      "common_time_ratio": 1.0,
+      "development_own_time_ratio": 1.0,
+      "development_adp_ratio": 1.0,
+      "held_own_time_ratio": 1.0,
+      "held_adp_ratio": 1.0,
+      "held_worst_input_ratio": 1.0
+    },
+    {
+      "name": "F16",
+      "area_um2": 101396.008,
+      "legal_mhz": 720,
+      "common_mhz": 680,
+      "common_time_ratio": 1.0,
+      "development_own_time_ratio": 1.0,
+      "development_adp_ratio": 0.9978168796561455,
+      "held_own_time_ratio": 1.0,
+      "held_adp_ratio": 0.9978168796561455,
+      "held_worst_input_ratio": 1.0
+    },
+    {
+      "name": "F32",
+      "area_um2": 108621.898,
+      "legal_mhz": 680,
+      "common_mhz": 680,
+      "common_time_ratio": 0.9934895562398964,
+      "development_own_time_ratio": 1.0066826171638223,
+      "development_adp_ratio": 1.0760685687387073,
+      "held_own_time_ratio": 1.006778295817791,
+      "held_adp_ratio": 1.076170842077374,
+      "held_worst_input_ratio": 1.0165116549875728
+    },
+    {
+      "name": "F32W4",
+      "area_um2": 108477.726,
+      "legal_mhz": 700,
+      "common_mhz": 680,
+      "common_time_ratio": 1.0040674875807023,
+      "development_own_time_ratio": 1.0070030506615526,
+      "development_adp_ratio": 1.0749823860755099,
+      "held_own_time_ratio": 0.9990525252524345,
+      "held_adp_ratio": 1.066495147859863,
+      "held_worst_input_ratio": 1.0198570336771977
+    },
+    {
+      "name": "U16",
+      "area_um2": 100406.754,
+      "legal_mhz": 700,
+      "common_mhz": 680,
+      "common_time_ratio": 1.0,
+      "development_own_time_ratio": 1.0028012332460716,
+      "development_adp_ratio": 0.9908496859137992,
+      "held_own_time_ratio": 1.0034733945748182,
+      "held_adp_ratio": 0.9915138363150867,
+      "held_worst_input_ratio": 1.0078098770037633
+    },
+    {
+      "name": "U32W4",
+      "area_um2": 106423.94,
+      "legal_mhz": 720,
+      "common_mhz": 680,
+      "common_time_ratio": 1.0040674875807023,
+      "development_own_time_ratio": 1.0043383668733665,
+      "development_adp_ratio": 1.0518392584782166,
+      "held_own_time_ratio": 0.9956776563238261,
+      "held_adp_ratio": 1.0427689335132522,
+      "held_worst_input_ratio": 1.0211117208121927
+    },
+    {
+      "name": "H32",
+      "area_um2": 106168.58,
+      "legal_mhz": 700,
+      "common_mhz": 680,
+      "common_time_ratio": 1.0028165325264067,
+      "development_own_time_ratio": 1.0057370462524553,
+      "development_adp_ratio": 1.0507767282270197,
+      "held_own_time_ratio": 0.9978733773477196,
+      "held_adp_ratio": 1.0425609025155498,
+      "held_worst_input_ratio": 1.008686613287389
+    }
+  ],
+  "traffic_at_common_clock": {
+    "B0": {
+      "resolved_error_ratio": 1.0,
+      "btb_missing_ratio": 1.0,
+      "i_beats_ratio": 1.0
+    },
+    "B0off": {
+      "resolved_error_ratio": 1.0,
+      "btb_missing_ratio": 1.0,
+      "i_beats_ratio": 1.0
+    },
+    "F16": {
+      "resolved_error_ratio": 1.0,
+      "btb_missing_ratio": 1.0,
+      "i_beats_ratio": 1.0
+    },
+    "F32": {
+      "resolved_error_ratio": 0.9120249243982198,
+      "btb_missing_ratio": 0.7524702248696749,
+      "i_beats_ratio": 1.009040056832885
+    },
+    "F32W4": {
+      "resolved_error_ratio": 0.8968050261873618,
+      "btb_missing_ratio": 0.661456679893498,
+      "i_beats_ratio": 1.055305515015779
+    },
+    "U16": {
+      "resolved_error_ratio": 1.0,
+      "btb_missing_ratio": 1.0,
+      "i_beats_ratio": 1.0
+    },
+    "U32W4": {
+      "resolved_error_ratio": 0.8968050261873618,
+      "btb_missing_ratio": 0.661456679893498,
+      "i_beats_ratio": 1.055305515015779
+    },
+    "H32": {
+      "resolved_error_ratio": 0.9020871229308383,
+      "btb_missing_ratio": 0.6431611103113318,
+      "i_beats_ratio": 1.0356441160102985
+    }
+  },
+  "sensitivity": {
+    "layout-3f00": {
+      "B0": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "U16": {
+        "time_ratio_gm": 1.0030433491617916,
+        "adp_ratio": 0.9910889162528658,
+        "families": {
+          "json_bpe": 1.0035134756656854,
+          "quant_loader": 1.0041736560887062,
+          "runtime_graph": 1.000196628750787,
+          "regex_tokenizer": 0.9991294262586068,
+          "ini_config": 1.0082293694894138
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.003354854240711,
+          "json_bpe-dev-257": 1.003672122167288,
+          "quant_loader-dev-131": 1.004226307133799,
+          "quant_loader-dev-257": 1.0041210078040794,
+          "runtime_graph-dev-131": 1.000223234275951,
+          "runtime_graph-dev-257": 1.0001700239333193,
+          "regex_tokenizer-dev-131": 0.9990469437796297,
+          "regex_tokenizer-dev-257": 0.9992119155474334,
+          "ini_config-dev-131": 1.0082734517833152,
+          "ini_config-dev-257": 1.0081852891228156
+        },
+        "max_input_time_ratio": 1.0082734517833152,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "H32": {
+        "time_ratio_gm": 1.007983290332826,
+        "adp_ratio": 1.0531235653196436,
+        "families": {
+          "json_bpe": 0.99698623829375,
+          "quant_loader": 1.0131158181780737,
+          "runtime_graph": 1.0003741856397936,
+          "regex_tokenizer": 1.0288734976651517,
+          "ini_config": 1.000907507690302
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 0.9962011307670959,
+          "json_bpe-dev-257": 0.9977719645647615,
+          "quant_loader-dev-131": 1.0098596579559704,
+          "quant_loader-dev-257": 1.0163824774624064,
+          "runtime_graph-dev-131": 0.9987445881040583,
+          "runtime_graph-dev-257": 1.0020064421017052,
+          "regex_tokenizer-dev-131": 1.0259359603910565,
+          "regex_tokenizer-dev-257": 1.03181944591768,
+          "ini_config-dev-131": 0.9991899071726548,
+          "ini_config-dev-257": 1.0026280607513218
+        },
+        "max_input_time_ratio": 1.03181944591768,
+        "i_beats_ratio_gm": 1.0385733105736805,
+        "i_beats_families": {
+          "json_bpe": 0.9917401973163068,
+          "quant_loader": 1.1588433179202988,
+          "runtime_graph": 1.0057496174339648,
+          "regex_tokenizer": 1.0453633932125812,
+          "ini_config": 1.000013787878764
+        }
+      }
+    },
+    "layout-ff00": {
+      "B0": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "U16": {
+        "time_ratio_gm": 1.0029634342522773,
+        "adp_ratio": 0.9910099537821718,
+        "families": {
+          "json_bpe": 1.003064309531115,
+          "quant_loader": 1.0041749064733003,
+          "runtime_graph": 1.000196628750787,
+          "regex_tokenizer": 0.9991774560403558,
+          "ini_config": 1.0082293694894138
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0028733922009836,
+          "json_bpe-dev-257": 1.00325526320624,
+          "quant_loader-dev-131": 1.004226307133799,
+          "quant_loader-dev-257": 1.0041235084437108,
+          "runtime_graph-dev-131": 1.000223234275951,
+          "runtime_graph-dev-257": 1.0001700239333193,
+          "regex_tokenizer-dev-131": 0.9990938920352583,
+          "regex_tokenizer-dev-257": 0.9992610270347292,
+          "ini_config-dev-131": 1.0082734517833152,
+          "ini_config-dev-257": 1.0081852891228156
+        },
+        "max_input_time_ratio": 1.0082734517833152,
+        "i_beats_ratio_gm": 1.0000138945216424,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0000694745388155,
+          "ini_config": 1.0
+        }
+      },
+      "H32": {
+        "time_ratio_gm": 1.0077759995647328,
+        "adp_ratio": 1.0529069914985834,
+        "families": {
+          "json_bpe": 0.9970945143482971,
+          "quant_loader": 1.0131225405444524,
+          "runtime_graph": 1.0002939384141902,
+          "regex_tokenizer": 1.0278991355805744,
+          "ini_config": 1.000791513136477
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 0.9963094597260347,
+          "json_bpe-dev-257": 0.9978801875642643,
+          "quant_loader-dev-131": 1.0098664339004264,
+          "quant_loader-dev-257": 1.0163891458347563,
+          "runtime_graph-dev-131": 0.9992508201629079,
+          "runtime_graph-dev-257": 1.0013381455769492,
+          "regex_tokenizer-dev-131": 1.0253200629358608,
+          "regex_tokenizer-dev-257": 1.0304846955807465,
+          "ini_config-dev-131": 0.9990735447116695,
+          "ini_config-dev-257": 1.0025124357136834
+        },
+        "max_input_time_ratio": 1.0304846955807465,
+        "i_beats_ratio_gm": 1.0383349531470154,
+        "i_beats_families": {
+          "json_bpe": 0.9917401973163068,
+          "quant_loader": 1.1588433179202988,
+          "runtime_graph": 1.0055790779179163,
+          "regex_tokenizer": 1.0443414481161808,
+          "ini_config": 1.000013787878764
+        }
+      }
+    },
+    "fast": {
+      "B0": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "U16": {
+        "time_ratio_gm": 1.0101008151329733,
+        "adp_ratio": 0.9980622702028372,
+        "families": {
+          "json_bpe": 1.0107479210474866,
+          "quant_loader": 1.0147502736169756,
+          "runtime_graph": 1.0069470839149524,
+          "regex_tokenizer": 1.003740413136291,
+          "ini_config": 1.0143632703656218
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0106341280998317,
+          "json_bpe-dev-257": 1.0108617268077256,
+          "quant_loader-dev-131": 1.0147501278833337,
+          "quant_loader-dev-257": 1.0147504193506383,
+          "runtime_graph-dev-131": 1.006998992723835,
+          "runtime_graph-dev-257": 1.0068951777818664,
+          "regex_tokenizer-dev-131": 1.0036118641257534,
+          "regex_tokenizer-dev-257": 1.0038689786122061,
+          "ini_config-dev-131": 1.014359802671908,
+          "ini_config-dev-257": 1.01436673807119
+        },
+        "max_input_time_ratio": 1.0147504193506383,
+        "i_beats_ratio_gm": 0.9999001570302213,
+        "i_beats_families": {
+          "json_bpe": 0.9998772396233271,
+          "quant_loader": 0.9998633401891395,
+          "runtime_graph": 0.9999777307645231,
+          "regex_tokenizer": 0.9999917849711911,
+          "ini_config": 0.9997907037414198
+        }
+      },
+      "H32": {
+        "time_ratio_gm": 1.0097325545480484,
+        "adp_ratio": 1.054951166416496,
+        "families": {
+          "json_bpe": 1.0076920726214535,
+          "quant_loader": 1.0172901943226103,
+          "runtime_graph": 1.0037961255916135,
+          "regex_tokenizer": 1.012916568274507,
+          "ini_config": 1.0070241875942538
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0071937563624025,
+          "json_bpe-dev-257": 1.0081906354260102,
+          "quant_loader-dev-131": 1.0161599797586809,
+          "quant_loader-dev-257": 1.018421665957263,
+          "runtime_graph-dev-131": 1.004436754788479,
+          "runtime_graph-dev-257": 1.0031559049876893,
+          "regex_tokenizer-dev-131": 1.0123268791146873,
+          "regex_tokenizer-dev-257": 1.0135066009333606,
+          "ini_config-dev-131": 1.0069837686663117,
+          "ini_config-dev-257": 1.0070646081445553
+        },
+        "max_input_time_ratio": 1.018421665957263,
+        "i_beats_ratio_gm": 1.0355407142261221,
+        "i_beats_families": {
+          "json_bpe": 0.999874345820204,
+          "quant_loader": 1.1545727113969393,
+          "runtime_graph": 1.0039028067033449,
+          "regex_tokenizer": 1.0191707438009596,
+          "ini_config": 1.008162553490686
+        }
+      }
+    },
+    "slow": {
+      "B0": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "U16": {
+        "time_ratio_gm": 1.0017556535390062,
+        "adp_ratio": 0.9898165675948378,
+        "families": {
+          "json_bpe": 1.001961760226331,
+          "quant_loader": 1.0008954139223594,
+          "runtime_graph": 1.0004079603522542,
+          "regex_tokenizer": 1.0002886326321137,
+          "ini_config": 1.0052328950103653
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0019129283991666,
+          "json_bpe-dev-257": 1.0020105944334903,
+          "quant_loader-dev-131": 1.0009068658047346,
+          "quant_loader-dev-257": 1.000883962171011,
+          "runtime_graph-dev-131": 1.0004237328607013,
+          "runtime_graph-dev-257": 1.000392188092474,
+          "regex_tokenizer-dev-131": 1.0002731242252574,
+          "regex_tokenizer-dev-257": 1.0003041412794151,
+          "ini_config-dev-131": 1.0052643896190276,
+          "ini_config-dev-257": 1.005201401388419
+        },
+        "max_input_time_ratio": 1.0052643896190276,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "H32": {
+        "time_ratio_gm": 1.007088537305289,
+        "adp_ratio": 1.0521887427809393,
+        "families": {
+          "json_bpe": 1.0008828661419495,
+          "quant_loader": 1.0137383611519946,
+          "runtime_graph": 1.0011475311303684,
+          "regex_tokenizer": 1.0138656348337904,
+          "ini_config": 1.005890357324258
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.000316087082538,
+          "json_bpe-dev-257": 1.001449966338356,
+          "quant_loader-dev-131": 1.0121591999903354,
+          "quant_loader-dev-257": 1.015319986105886,
+          "runtime_graph-dev-131": 1.0019767669393347,
+          "runtime_graph-dev-257": 1.0003189815968223,
+          "regex_tokenizer-dev-131": 1.0130016384262812,
+          "regex_tokenizer-dev-257": 1.0147303681500706,
+          "ini_config-dev-131": 1.005910516989877,
+          "ini_config-dev-257": 1.005870198062663
+        },
+        "max_input_time_ratio": 1.015319986105886,
+        "i_beats_ratio_gm": 1.0356441160102985,
+        "i_beats_families": {
+          "json_bpe": 0.999997105841589,
+          "quant_loader": 1.1547305166509398,
+          "runtime_graph": 1.0039251633492088,
+          "regex_tokenizer": 1.0191791163867623,
+          "ini_config": 1.008373602312901
+        }
+      }
+    },
+    "random": {
+      "B0": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "U16": {
+        "time_ratio_gm": 1.0029434860061532,
+        "adp_ratio": 0.9909902432824723,
+        "families": {
+          "json_bpe": 1.0035216536841713,
+          "quant_loader": 1.0041373690109239,
+          "runtime_graph": 1.0004574010084533,
+          "regex_tokenizer": 0.9991613391786246,
+          "ini_config": 1.0074609226271398
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0034156703851485,
+          "json_bpe-dev-257": 1.0036276481774182,
+          "quant_loader-dev-131": 1.0041922712688858,
+          "quant_loader-dev-257": 1.004082469754636,
+          "runtime_graph-dev-131": 1.0003898743016995,
+          "runtime_graph-dev-257": 1.0005249322732863,
+          "regex_tokenizer-dev-131": 0.999161698468463,
+          "regex_tokenizer-dev-257": 0.9991609798889154,
+          "ini_config-dev-131": 1.0075557664926436,
+          "ini_config-dev-257": 1.0073660876895378
+        },
+        "max_input_time_ratio": 1.0075557664926436,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "H32": {
+        "time_ratio_gm": 1.0059331451618085,
+        "adp_ratio": 1.0509816089870025,
+        "families": {
+          "json_bpe": 1.0014604222205654,
+          "quant_loader": 1.0127251748148913,
+          "runtime_graph": 0.999696733998504,
+          "regex_tokenizer": 1.0110600737683875,
+          "ini_config": 1.0047892051801706
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0007618508657252,
+          "json_bpe-dev-257": 1.0021594812058419,
+          "quant_loader-dev-131": 1.0114442418050136,
+          "quant_loader-dev-257": 1.0140077300490182,
+          "runtime_graph-dev-131": 1.0004173236054257,
+          "runtime_graph-dev-257": 0.9989766634243592,
+          "regex_tokenizer-dev-131": 1.0102593479379713,
+          "regex_tokenizer-dev-257": 1.0118614342495562,
+          "ini_config-dev-131": 1.0046033222591362,
+          "ini_config-dev-257": 1.004975122495338
+        },
+        "max_input_time_ratio": 1.0140077300490182,
+        "i_beats_ratio_gm": 1.0356441160102985,
+        "i_beats_families": {
+          "json_bpe": 0.999997105841589,
+          "quant_loader": 1.1547305166509398,
+          "runtime_graph": 1.0039251633492088,
+          "regex_tokenizer": 1.0191791163867623,
+          "ini_config": 1.008373602312901
+        }
+      }
+    }
+  },
+  "far_calls": {
+    "common_mhz": 680,
+    "scope": "performance limitation only, not workload aggregate; area excluded",
+    "results": {
+      "B0": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "far_calls": 1.0
+        },
+        "input_time_ratios": {
+          "far_calls-dev": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "far_calls": 1.0
+        }
+      },
+      "U16": {
+        "time_ratio_gm": 2.1076923076923078,
+        "adp_ratio": 2.1076923076923078,
+        "families": {
+          "far_calls": 2.1076923076923078
+        },
+        "input_time_ratios": {
+          "far_calls-dev": 2.1076923076923078
+        },
+        "max_input_time_ratio": 2.1076923076923078,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "far_calls": 1.0
+        }
+      },
+      "H32": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "far_calls": 1.0
+        },
+        "input_time_ratios": {
+          "far_calls-dev": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "far_calls": 1.0
+        }
+      }
+    }
+  },
+  "microbench": {
+    "B0off": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 680,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2371459,
+        "retired_instructions": 773685,
+        "ipc": 0.32624852464242476,
+        "timer_ticks": 3487,
+        "timer_seconds": 0.003487,
+        "cycle_seconds": 0.0034874397058823527,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1056148,
+        "retired_instructions": 430313,
+        "ipc": 0.40743626840177705,
+        "timer_ticks": 1554,
+        "timer_seconds": 0.001554,
+        "cycle_seconds": 0.0015531588235294118,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 23559,
+          "retired_instructions": 9707,
+          "ipc": 0.4120293730633728,
+          "timer_ticks": 35,
+          "timer_seconds": 3.5e-05,
+          "cycle_seconds": 3.464558823529412e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112309,
+          "retired_instructions": 83537,
+          "ipc": 0.7438139418924574,
+          "timer_ticks": 165,
+          "timer_seconds": 0.000165,
+          "cycle_seconds": 0.00016516029411764706,
+          "interrupts": 0
+        },
+        {
+          "cycles": 229339,
+          "retired_instructions": 141943,
+          "ipc": 0.6189222068640746,
+          "timer_ticks": 338,
+          "timer_seconds": 0.000338,
+          "cycle_seconds": 0.00033726323529411766,
+          "interrupts": 0
+        },
+        {
+          "cycles": 120716,
+          "retired_instructions": 85308,
+          "ipc": 0.7066834553828821,
+          "timer_ticks": 178,
+          "timer_seconds": 0.000178,
+          "cycle_seconds": 0.0001775235294117647,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7469,
+          "retired_instructions": 4742,
+          "ipc": 0.6348908823135627,
+          "timer_ticks": 11,
+          "timer_seconds": 1.1e-05,
+          "cycle_seconds": 1.0983823529411765e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 104801,
+          "retired_instructions": 29136,
+          "ipc": 0.27801261438345054,
+          "timer_ticks": 154,
+          "timer_seconds": 0.000154,
+          "cycle_seconds": 0.00015411911764705882,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168919,
+          "retired_instructions": 17979,
+          "ipc": 0.10643562891089813,
+          "timer_ticks": 248,
+          "timer_seconds": 0.000248,
+          "cycle_seconds": 0.0002484102941176471,
+          "interrupts": 0
+        },
+        {
+          "cycles": 78836,
+          "retired_instructions": 14661,
+          "ipc": 0.18596833933735857,
+          "timer_ticks": 116,
+          "timer_seconds": 0.000116,
+          "cycle_seconds": 0.00011593529411764706,
+          "interrupts": 0
+        },
+        {
+          "cycles": 195686,
+          "retired_instructions": 38348,
+          "ipc": 0.19596700837055284,
+          "timer_ticks": 288,
+          "timer_seconds": 0.000288,
+          "cycle_seconds": 0.0002877735294117647,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14514,
+          "retired_instructions": 4952,
+          "ipc": 0.3411878186578476,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.1344117647058824e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2808067,
+        "retired_instructions": 822631,
+        "ipc": 0.29295276786486935,
+        "cycle_seconds": 0.004129510294117647,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 7.573738420003792,
+      "observer_on_off_verified": true,
+      "manifest_sha256": "8e80041ac368b06e25bcc1c3944b3a3a907f35a87b71672f4b75a9b3a140b443"
+    },
+    "F16": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 680,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2371459,
+        "retired_instructions": 773685,
+        "ipc": 0.32624852464242476,
+        "timer_ticks": 3487,
+        "timer_seconds": 0.003487,
+        "cycle_seconds": 0.0034874397058823527,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1056148,
+        "retired_instructions": 430313,
+        "ipc": 0.40743626840177705,
+        "timer_ticks": 1554,
+        "timer_seconds": 0.001554,
+        "cycle_seconds": 0.0015531588235294118,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 23559,
+          "retired_instructions": 9707,
+          "ipc": 0.4120293730633728,
+          "timer_ticks": 35,
+          "timer_seconds": 3.5e-05,
+          "cycle_seconds": 3.464558823529412e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112309,
+          "retired_instructions": 83537,
+          "ipc": 0.7438139418924574,
+          "timer_ticks": 165,
+          "timer_seconds": 0.000165,
+          "cycle_seconds": 0.00016516029411764706,
+          "interrupts": 0
+        },
+        {
+          "cycles": 229339,
+          "retired_instructions": 141943,
+          "ipc": 0.6189222068640746,
+          "timer_ticks": 338,
+          "timer_seconds": 0.000338,
+          "cycle_seconds": 0.00033726323529411766,
+          "interrupts": 0
+        },
+        {
+          "cycles": 120716,
+          "retired_instructions": 85308,
+          "ipc": 0.7066834553828821,
+          "timer_ticks": 178,
+          "timer_seconds": 0.000178,
+          "cycle_seconds": 0.0001775235294117647,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7469,
+          "retired_instructions": 4742,
+          "ipc": 0.6348908823135627,
+          "timer_ticks": 11,
+          "timer_seconds": 1.1e-05,
+          "cycle_seconds": 1.0983823529411765e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 104801,
+          "retired_instructions": 29136,
+          "ipc": 0.27801261438345054,
+          "timer_ticks": 154,
+          "timer_seconds": 0.000154,
+          "cycle_seconds": 0.00015411911764705882,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168919,
+          "retired_instructions": 17979,
+          "ipc": 0.10643562891089813,
+          "timer_ticks": 248,
+          "timer_seconds": 0.000248,
+          "cycle_seconds": 0.0002484102941176471,
+          "interrupts": 0
+        },
+        {
+          "cycles": 78836,
+          "retired_instructions": 14661,
+          "ipc": 0.18596833933735857,
+          "timer_ticks": 116,
+          "timer_seconds": 0.000116,
+          "cycle_seconds": 0.00011593529411764706,
+          "interrupts": 0
+        },
+        {
+          "cycles": 195686,
+          "retired_instructions": 38348,
+          "ipc": 0.19596700837055284,
+          "timer_ticks": 288,
+          "timer_seconds": 0.000288,
+          "cycle_seconds": 0.0002877735294117647,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14514,
+          "retired_instructions": 4952,
+          "ipc": 0.3411878186578476,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.1344117647058824e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2808067,
+        "retired_instructions": 822631,
+        "ipc": 0.29295276786486935,
+        "cycle_seconds": 0.004129510294117647,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 7.500474354004837,
+      "observer_on_off_verified": true,
+      "manifest_sha256": "642004d4c0fe8d7637c20b6be0d94d956349b35706875c47badbfe28b55102af"
+    },
+    "U16": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 680,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2371459,
+        "retired_instructions": 773685,
+        "ipc": 0.32624852464242476,
+        "timer_ticks": 3487,
+        "timer_seconds": 0.003487,
+        "cycle_seconds": 0.0034874397058823527,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1056148,
+        "retired_instructions": 430313,
+        "ipc": 0.40743626840177705,
+        "timer_ticks": 1554,
+        "timer_seconds": 0.001554,
+        "cycle_seconds": 0.0015531588235294118,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 23559,
+          "retired_instructions": 9707,
+          "ipc": 0.4120293730633728,
+          "timer_ticks": 35,
+          "timer_seconds": 3.5e-05,
+          "cycle_seconds": 3.464558823529412e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112309,
+          "retired_instructions": 83537,
+          "ipc": 0.7438139418924574,
+          "timer_ticks": 165,
+          "timer_seconds": 0.000165,
+          "cycle_seconds": 0.00016516029411764706,
+          "interrupts": 0
+        },
+        {
+          "cycles": 229339,
+          "retired_instructions": 141943,
+          "ipc": 0.6189222068640746,
+          "timer_ticks": 338,
+          "timer_seconds": 0.000338,
+          "cycle_seconds": 0.00033726323529411766,
+          "interrupts": 0
+        },
+        {
+          "cycles": 120716,
+          "retired_instructions": 85308,
+          "ipc": 0.7066834553828821,
+          "timer_ticks": 178,
+          "timer_seconds": 0.000178,
+          "cycle_seconds": 0.0001775235294117647,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7469,
+          "retired_instructions": 4742,
+          "ipc": 0.6348908823135627,
+          "timer_ticks": 11,
+          "timer_seconds": 1.1e-05,
+          "cycle_seconds": 1.0983823529411765e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 104801,
+          "retired_instructions": 29136,
+          "ipc": 0.27801261438345054,
+          "timer_ticks": 154,
+          "timer_seconds": 0.000154,
+          "cycle_seconds": 0.00015411911764705882,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168919,
+          "retired_instructions": 17979,
+          "ipc": 0.10643562891089813,
+          "timer_ticks": 248,
+          "timer_seconds": 0.000248,
+          "cycle_seconds": 0.0002484102941176471,
+          "interrupts": 0
+        },
+        {
+          "cycles": 78836,
+          "retired_instructions": 14661,
+          "ipc": 0.18596833933735857,
+          "timer_ticks": 116,
+          "timer_seconds": 0.000116,
+          "cycle_seconds": 0.00011593529411764706,
+          "interrupts": 0
+        },
+        {
+          "cycles": 195686,
+          "retired_instructions": 38348,
+          "ipc": 0.19596700837055284,
+          "timer_ticks": 288,
+          "timer_seconds": 0.000288,
+          "cycle_seconds": 0.0002877735294117647,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14514,
+          "retired_instructions": 4952,
+          "ipc": 0.3411878186578476,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.1344117647058824e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2808067,
+        "retired_instructions": 822631,
+        "ipc": 0.29295276786486935,
+        "cycle_seconds": 0.004129510294117647,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 7.469635314999323,
+      "observer_on_off_verified": true,
+      "manifest_sha256": "6ad5eee9f88eb80f07959d32291af55816f0592c6e21ce6ebf5d8ed3a0fbb746"
+    },
+    "H32": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 680,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2335251,
+        "retired_instructions": 773673,
+        "ipc": 0.3313018600570131,
+        "timer_ticks": 3434,
+        "timer_seconds": 0.003434,
+        "cycle_seconds": 0.0034341926470588236,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1026812,
+        "retired_instructions": 430313,
+        "ipc": 0.41907671511435396,
+        "timer_ticks": 1510,
+        "timer_seconds": 0.00151,
+        "cycle_seconds": 0.0015100176470588236,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 23179,
+          "retired_instructions": 9707,
+          "ipc": 0.41878424435911815,
+          "timer_ticks": 34,
+          "timer_seconds": 3.4e-05,
+          "cycle_seconds": 3.4086764705882356e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112309,
+          "retired_instructions": 83537,
+          "ipc": 0.7438139418924574,
+          "timer_ticks": 165,
+          "timer_seconds": 0.000165,
+          "cycle_seconds": 0.00016516029411764706,
+          "interrupts": 0
+        },
+        {
+          "cycles": 206825,
+          "retired_instructions": 141943,
+          "ipc": 0.6862951770820742,
+          "timer_ticks": 304,
+          "timer_seconds": 0.000304,
+          "cycle_seconds": 0.0003041544117647059,
+          "interrupts": 0
+        },
+        {
+          "cycles": 119702,
+          "retired_instructions": 85308,
+          "ipc": 0.7126697966617099,
+          "timer_ticks": 176,
+          "timer_seconds": 0.000176,
+          "cycle_seconds": 0.00017603235294117646,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7361,
+          "retired_instructions": 4742,
+          "ipc": 0.6442059502784948,
+          "timer_ticks": 10,
+          "timer_seconds": 1e-05,
+          "cycle_seconds": 1.0825e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 104185,
+          "retired_instructions": 29136,
+          "ipc": 0.27965638047703606,
+          "timer_ticks": 154,
+          "timer_seconds": 0.000154,
+          "cycle_seconds": 0.00015321323529411766,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168221,
+          "retired_instructions": 17979,
+          "ipc": 0.10687726264853972,
+          "timer_ticks": 248,
+          "timer_seconds": 0.000248,
+          "cycle_seconds": 0.00024738382352941176,
+          "interrupts": 0
+        },
+        {
+          "cycles": 78069,
+          "retired_instructions": 14661,
+          "ipc": 0.18779541175114323,
+          "timer_ticks": 115,
+          "timer_seconds": 0.000115,
+          "cycle_seconds": 0.00011480735294117647,
+          "interrupts": 0
+        },
+        {
+          "cycles": 192665,
+          "retired_instructions": 38348,
+          "ipc": 0.19903978408117717,
+          "timer_ticks": 283,
+          "timer_seconds": 0.000283,
+          "cycle_seconds": 0.0002833308823529412,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14296,
+          "retired_instructions": 4952,
+          "ipc": 0.3463905987688864,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.1023529411764707e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2771809,
+        "retired_instructions": 822574,
+        "ipc": 0.2967643152901228,
+        "cycle_seconds": 0.004076189705882353,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 7.220689059002325,
+      "observer_on_off_verified": true,
+      "manifest_sha256": "d4c65816f1359d2956eddab1132aa6288da583f9421745b4d197ee89b9dce508"
+    }
+  },
+  "limits": [
+    "RV32I edge-software proxies, not full model inference",
+    "pre-layout mapped area and STA; no measured power",
+    "Short-target bank boundaries can severely degrade unrepresented branch working sets",
+    "MicroBench test only; no new train result",
+    "720MHz initial matrix is functional diagnostic, not qualified for all candidates",
+    "Counter partitions describe observations, not isolated causal stall attribution"
+  ]
+}

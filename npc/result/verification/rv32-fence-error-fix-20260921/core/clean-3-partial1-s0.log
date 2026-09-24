@@ -1,8 +1,0 @@
-FENCE commit cycle=90
-B cycle=105 addr=80000080 resp=3
-RESULT fences=1 site=0 wrong_target_stores=0 correct_path_stores=0
-PASS fence recovery: injection=0 clean_error=3 memory_error=0 schedule=0
-- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/riscv32_fence_i_tb.sv:220: Verilog $finish
-- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
-- Verilator: $finish at 15ns; walltime 0.003 s; speed 5.822 us/s
-- Verilator: cpu 0.003 s on 1 threads; alloced 6 MB

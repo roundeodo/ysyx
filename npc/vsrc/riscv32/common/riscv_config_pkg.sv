@@ -89,6 +89,26 @@ package riscv_config_pkg;
   localparam int unsigned BRANCH_HISTORY_ENTRY_COUNT = `YSYX_BRANCH_HISTORY_ENTRY_COUNT;
   localparam int unsigned BRANCH_TARGET_ENTRY_COUNT  = `YSYX_BRANCH_TARGET_ENTRY_COUNT;
   localparam int unsigned BRANCH_TARGET_WAY_COUNT    = `YSYX_BRANCH_TARGET_WAY_COUNT;
+`ifdef YSYX_BRANCH_TARGET_WAY_BITS
+  localparam logic [31:0] BRANCH_TARGET_WAY_BITS = `YSYX_BRANCH_TARGET_WAY_BITS;
+`else
+  localparam logic [31:0] BRANCH_TARGET_WAY_BITS = 0;
+`endif
+`ifdef YSYX_BRANCH_TARGET_POLICY
+  localparam int unsigned BRANCH_TARGET_POLICY = `YSYX_BRANCH_TARGET_POLICY;
+`else
+  localparam int unsigned BRANCH_TARGET_POLICY = 0;
+`endif
+`ifdef YSYX_BRANCH_DIRECTION_POLICY
+  localparam int unsigned BRANCH_DIRECTION_POLICY = `YSYX_BRANCH_DIRECTION_POLICY;
+`else
+  localparam int unsigned BRANCH_DIRECTION_POLICY = 0;
+`endif
+`ifdef YSYX_BRANCH_GLOBAL_HISTORY_BITS
+  localparam int unsigned BRANCH_GLOBAL_HISTORY_BITS = `YSYX_BRANCH_GLOBAL_HISTORY_BITS;
+`else
+  localparam int unsigned BRANCH_GLOBAL_HISTORY_BITS = 4;
+`endif
   localparam int unsigned RETURN_STACK_ENTRY_COUNT   = `YSYX_RETURN_STACK_ENTRY_COUNT;
   //
   // I-cache容量、路数与line大小由Makefile唯一选择；set数量、tag/offset宽度、
@@ -96,6 +116,12 @@ package riscv_config_pkg;
   localparam int unsigned ICACHE_CAPACITY_BYTES = `YSYX_ICACHE_CAPACITY_BYTES;
   localparam int unsigned ICACHE_WAY_COUNT = `YSYX_ICACHE_WAY_COUNT;
   localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
+`ifdef YSYX_ICACHE_REPLACEMENT_POLICY
+  localparam int unsigned ICACHE_REPLACEMENT_POLICY = `YSYX_ICACHE_REPLACEMENT_POLICY;
+`else
+  localparam int unsigned ICACHE_REPLACEMENT_POLICY = 0;
+`endif
+
   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
   localparam int unsigned ICACHE_MSHR_COUNT = 1;
   // 课程面积配置在elaboration时完全移除D-cache实例；这不是运行时旁路，也不会为

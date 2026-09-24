@@ -1,4 +1,0 @@
-{
-  "change": "Use 1 << FREQUENCY_RATIO_SCALE_SHIFT instead of fixed 1024 in explicit frequency mode. Default shift 10 evaluates to the same measured parameter 8396; behavior unchanged for all current runs.",
-  "verification": "Both modules linted with CPU 820 MHz and shifts 10/12; measured default shift remains 10. Original compiled source recovered and hash-verified."
-}

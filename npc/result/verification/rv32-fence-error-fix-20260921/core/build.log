@@ -1,6 +1,0 @@
-make[1]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/core/obj'
-make[1]: Nothing to be done for 'default'.
-make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/verification/rv32-fence-error-fix-20260921/core/obj'
-- V e r i l a t i o n   R e p o r t: Verilator 5.043 devel rev v5.042-244-g4080284e5
-- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
-- Verilator: Walltime 0.022 s (elab=0.000, cvt=0.000, bld=0.019); cpu 0.003 s on 2 threads; alloced 18.969 MB

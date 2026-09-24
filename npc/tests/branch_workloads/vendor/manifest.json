@@ -1,0 +1,24 @@
+{
+  "tiny-regex-c": {
+    "url": "https://github.com/kokke/tiny-regex-c",
+    "commit": "f2632c6d9ed25272987471cdb8b70395c2460bdb",
+    "files": {
+      "re.c": "846f87cd2527d7e1cdacddbcfed973cf953e50ba5d3ef50b69f592ed8622a34e",
+      "re.h": "8ba52081ac279e7e8cf9a60165e5ca9ff84f417f49c921dda7dd8635c2f720bd",
+      "LICENSE": "88d9b4eb60579c191ec391ca04c16130572d7eedc4a86daa58bf28c6e14c9bcd",
+      "README.md": "e95a438f19cf607cd33be624fa892e3a84b0c5f87a175440cd4aeb5ae7204e5c"
+    },
+    "changes": "none"
+  },
+  "inih": {
+    "url": "https://github.com/benhoyt/inih",
+    "commit": "577ae2dee1f0d9c2d11c7f10375c1715f3d6940c",
+    "files": {
+      "ini.c": "01e2cb06816e9549212285fc7c33e89464964be3da1bcd5f835fe8d228291398",
+      "ini.h": "154b56f8437ec3e08d19f9c455a409ddccd4462cff33babe5f2713269d6dd64e",
+      "LICENSE.txt": "9ae3b39e83e9158e44b67733baa3bb2d84e80efdcfb14a5820210a42c7abdf7f",
+      "README.md": "480746651ef04e2757f21a78d501a47df70d34a91d4448d90d259588695e926c"
+    },
+    "changes": "none"
+  }
+}

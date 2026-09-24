@@ -8,7 +8,7 @@ import subprocess
 NPC = Path(__file__).resolve().parents[2]
 TEST = Path(__file__).resolve().parent
 AM = NPC.parent / 'abstract-machine'
-BUILD = NPC / 'build/tests/interrupt'
+BUILD = Path(os.environ.get('NPC_INTERRUPT_TEST_OUTPUT', NPC / 'build/tests/interrupt')).resolve()
 BUILD.mkdir(parents=True, exist_ok=True)
 if not sys.argv[1:]:
     raise SystemExit('Run make NPC_CONFIG=rv32-baseline test-timer-interrupt to supply configuration')

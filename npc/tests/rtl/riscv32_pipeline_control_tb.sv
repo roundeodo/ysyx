@@ -179,6 +179,7 @@ module riscv32_pipeline_control_tb;
   );
 
   riscv32_branch_predictor u_branch_predictor (
+      .resolved_control_flow_prediction_i('0),
       .clk_i                           (clk),
       .rst_ni                          (rst_ni),
       .lookup_request_pc_i             (predictor_lookup_pc),

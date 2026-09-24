@@ -1,5 +1,9 @@
 # NPC 文档中心
 
+本分支用于 RV32 面试：先读[固定配置与构建](interview/RV32_REMOTE_SNAPSHOT.md)，
+研究过程从[前端研究索引](learning/FRONTEND_RESEARCH_INDEX.md)进入。当前配置为
+`rv32-balanced`；RV64、乱序和 AI 扩展路线文档不代表此分支已经实现的硬件。
+
 当前设计从[模块说明目录](microarchitecture/README.md)进入；前端、后端、访存和总线分别维护电路与源码顺序。
 
 每次开始 RTL 设计、修改或评审，先读[开发流程](development/DEVELOPMENT_PROCESS.md)和
@@ -36,6 +40,11 @@
 - [取消独立 RR（2026-09-15）](interview/RV32_RR_REMOVAL_2026-09-15.md)：译码、GPR 读取与前递直连 ID/EX，功能回归及新面积、频率和 MicroBench 测量。
 - [取指预测器模块设计](microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md)：BHT、BTB、RAS 的独立状态、单级查询和训练时序。
 - [I-cache 模块说明](microarchitecture/ICACHE_DESIGN_RECORD.md)：当前同步查询、阻塞回填与失效结构。
+- [I-cache 结构与替换选型](verification/ICACHE_SELECTION_2026-09-21.md)：当前均衡预设、简单对照、PPA、退化与复现入口。
+- [前端研究学习记录](learning/FRONTEND_RESEARCH_NOTES.md)：论文与项目、实际借鉴、模型到 RTL 的设计依据、负结果及与后续分支研究的边界。
+- [分支预测研究学习记录](learning/BRANCH_RESEARCH_NOTES.md)：经典与近期论文、作者实现、边缘 AI 软件代理及小核改造边界。
+- [分支预测探索与测量](verification/BRANCH_EXPLORATION_2026-09-22.md)：冻结基线、模型筛选、RTL 对照、PPA 与保留集验证。
+- [分支目标存储探索](verification/BRANCH_TARGET_EXPLORATION_2026-09-23.md)：BTB-X启发的目标编码、完整目标对照、面积/时序及跨地址区间退化。
 - [RV32 定时中断](microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)：CLINT、流水线精确受理及验证范围。
 
 - [完整 AXI4 互连架构](interconnect/AXI4_ARCHITECTURE.md)：当前数据路径、事务归属和系统边界。

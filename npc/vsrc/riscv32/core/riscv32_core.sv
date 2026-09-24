@@ -92,7 +92,13 @@ module riscv32_core
   logic                icache_invalidate_done;
   logic                icache_busy;
 
+  // 提交反馈只供实验替换策略使用，不产生额外访存或恢复。
+  commit_t commit;
+  logic commit_valid;
+
   riscv32_icache u_icache (
+      .retired_valid_i     (commit_valid && !commit.trap_taken),
+      .retired_pc_i        (commit.pc),
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
       .lookup_req_i        (icache_lookup_req),
@@ -159,6 +165,7 @@ module riscv32_core
       .lookup_response_ready_i        (next_pc_predictor_lookup_response_ready),
       .resolved_control_flow_pc_i     (resolved_execute_result.uop.pc),
       .resolved_control_flow_target_i (resolved_control_flow_target),
+      .resolved_control_flow_prediction_i(resolved_execute_result.uop.prediction),
       .resolved_control_flow_imm_i    (resolved_execute_result.uop.imm),
       .resolved_control_flow_op_i     (resolved_execute_result.uop.branch_ctrl.op),
       .resolved_control_flow_rs1_i    (resolved_execute_result.uop.rs1),
@@ -228,8 +235,6 @@ module riscv32_core
       .rs2_data_o         (rs2_value)
   );
 
-  commit_t          commit;
-  logic             commit_valid;
   xlen_data_t       csr_read_data;
   logic             csr_read_illegal;
   program_counter_t csr_mtvec;

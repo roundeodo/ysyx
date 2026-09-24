@@ -1,91 +1,77 @@
-# RV32 远程版本：2026-09-11
+# RV32 面试版本
 
-分支：`rv32-interview-20260911`，仓库：`https://github.com/roundeodo/ysyx`。
-此版本保存 RV32 顺序核、定时中断、时序和流水线优化、低侵入性能统计及相关文档。
+更新日期：2026-09-24。仓库 `roundeodo/ysyx`，分支 `rv32-interview-20260911`。
+后续面试以本分支的 `NPC_CONFIG=rv32-balanced` 为准；旧 `rv32-baseline` 保留作实验对照。
 
-## 获取和恢复依赖
+## 固定的设计
+
+这是 RV32I 单发射顺序核，支持 Zicsr、Zifencei、基础 M-mode 异常、定时中断和 mret。
+没有独立 RR 流水级。当前没有乱序、多发射、MMU、硬件乘除法或 AI 加速器。
+
+| 项目 | 面试配置 |
+| --- | --- |
+| I-cache | 1 KiB，4 路，32 B/行，8 组；策略 13：分段访问 RRIP，查询只前递同组命中更新 |
+| D-cache | 256 B，2 路，16 B/行，8 组；阻塞式 Write-Back / Write-Allocate |
+| 预测器 | BHT 16 项二位计数器；BTB 共 16 项、2 路、完整目标；RAS 4 项 |
+| 实验开关 | gshare、小型 TAGE、压缩目标和 BTB 新策略保留源码，稳定预设关闭 |
+| 当前 PPA | 含复位边界的整核 mapped cell area 101,418.618 μm²；综合后完整 STA 通过 720 MHz |
+
+PPA 对应最新研究中的 B0I：新代码关闭预测实验，与冻结 B0 的周期、功能和计数一致。
+使用 NanGate45、Yosys/Slang AREA3、820 MHz 映射目标和 iEDA STA；720 MHz 是
+20 MHz 网格上通过 data/clock-gating setup、hold 检查的运行点，不是布线后硅上保证。
+本次发布只固定已有设计和验证记录，没有重新综合或运行长时间 train。
+发布核对通过：67 个 CPU RTL 文件与已测研究源码逐字一致；固定配置展开、整核 lint、
+预测器 10 配置共 120000 周期协议测试、38 项模型/统计测试及 335 项 STA 搜索边界检查。
+第三方源码与许可证按原始字节保留，发布没有改写 vendor 文件。
+本次又以固定配置通过定时中断 8 项回归：3 种延迟的汇编系统测试、2 项 AM 系统测试、
+CLINT／中断控制／IFU 恢复 3 项模块测试。命令为
+`make -C npc NPC_CONFIG=rv32-balanced git_commit= test-timer-interrupt`。
+旧 interrupt 工作树已移除，独有原型仅存本地分支提交 `05608a1`，面试核不依赖该目录。
+
+保留已有精确异常、非分支错误 taken 纠正、FENCE.I 维护、clean 失败停止和 dirty-victim
+恢复。结构及选择理由见[架构说明](RV32_ARCHITECTURE_ATLAS.md)、[设计取舍](RV32_DESIGN_CHOICES.md)。
+
+## 获取和构建
 
 ```sh
 git clone --branch rv32-interview-20260911 https://github.com/roundeodo/ysyx.git
 cd ysyx
+export NPC_HOME="$PWD/npc"
 python3 npc/scripts/restore_rv32_dependencies.py
+python3 npc/scripts/restore_rv32_dependencies.py --check
+make -C npc NPC_CONFIG=rv32-balanced git_commit= test-config lint-npc
 ```
 
-父仓库固定四个外部仓库的基线提交。MicroBench 和 ysyxSoC 的本地改动完整保存在
-`npc/dependencies/rv32/`，恢复脚本初始化依赖后应用补丁，并安装本版本的生成 SoC。
-不向上游仓库写入提交。执行后这两个依赖显示为 modified 是预期状态；不要直接 reset。
-可运行 `python3 npc/scripts/restore_rv32_dependencies.py --check` 核对依赖。
+依赖的固定提交、补丁和必要的 SoC 集成 Verilog 保存在 `npc/dependencies/rv32/`。
+恢复脚本初始化子模块、应用补丁并安装集成源文件；不写入上游提交。恢复后两个依赖
+显示 modified 属正常现象。仍需安装 RISC-V GNU 工具链、Verilator、C++ 编译器及 Capstone；
+`git_commit=` 关闭课程 Makefile 的自动提交行为。
 
-系统仍需要原项目的 RISC-V GNU 工具链、Verilator、C++ 编译器及 Capstone。
-构建或运行 make 时传 `git_commit=`，关闭课程旧脚本的自动提交行为。
-
-## 2026-09-15 更新
-
-移除独立 RR 流水级，并将取指预测器拆分为 BHT、BTB、RAS 与查询控制模块。
-回归测试及同频 MicroBench test 对照通过；拆分前后周期数与 IPC 一致。
-该阶段综合单元面积 76,480.320 μm²，730 MHz 下 setup slack 为 +0.023 ns。
-此版本尚未重跑 train，下方 train 数据属于 9 月 11 日发布的旧版硬件。
-详细条件见 `../verification/RV32_PREDICTOR_SPLIT_2026-09-15.md`。
-预测器对照测试引用远程历史提交 `f7a8f2568ea98c9a3492f60bedd7340f936baca4`，
-其原始预测器源码 SHA-256 与开发分支冻结版本相同。
-
-## 2026-09-19 更新
-
-前端采用单级预测查询；其余 RTL 按电路结构整理，目录按流水线功能分层，模块名缩短。
-旧 decode/RR 寄存级、组合重定向仲裁和未接入的 AXI 错误目标移入 `experiments/`，
-不再进入当前编译清单。源码、编码规范、当前模块说明与测试入口同步更新。
-
-该阶段综合后测量：面积 73,037.748 μm²，估算 Fmax 712.892 MHz；700 MHz 的
-setup、hold 与门控检查通过。MicroBench **test** 的 Total 定时器时间为 0.006426 s，
-同窗口 IPC 为 0.169737606；本版尚未重跑 train。测量口径及源码快照见
-[复测记录](../verification/RV32_READABILITY_PPA_2026-09-19.md)。之后的命名与历史模块迁移
-通过内容核对及编译/流水控制检查，迁移前后展开的 CPU RTLIL 完全相同。
-
-## 2026-09-20 更新
-
-补入精确异常年龄约束修复及两轮直通优化。最终核及复位电路的综合面积为
-69,536.922 μm²，600 MHz 的 data setup 余量 +0.034 ns，setup/hold 与门控检查通过。
-MicroBench **test** 的 Total 定时器时间为 0.005923 s，同窗口 IPC 为 0.215102228；
-精确异常 40/40、DiffTest 35/35、定时中断 8/8 通过。当前版 train 尚待复测。
-逐模块取舍和测量口径见[等待周期复查](../verification/RV32_WAIT_AUDIT_2026-09-19.md)。
-
-## 2026-09-21 更新
-
-整理 RTL 电路连接顺序和重复逻辑，保留 D-cache 最后一个脏行读出字直接进入写回的直通路径。
-面积 69,575.758 μm²；600 MHz 的 setup、hold 与门控检查通过。
-MicroBench **test** 的 Total 定时器时间为 0.005908 s，同窗口 IPC 为 0.215609884。
-本轮未重跑 train。取舍、验证范围及访存延迟模型限制见
-[优化记录](../verification/RV32_REFINEMENT_2026-09-21.md)。
-
-## 2026-09-21 异常恢复修复
-
-修复 FENCE.I 维护期间的旧预测残留，并在普通执行与 LSU 分流前统一纠正非分支 taken 预测。
-clean 写回错误进入只能复位退出的硬件停止状态；普通脏替换失败先恢复旧行，再报告当前访存异常。
-新增 RV32 定向测试 169/169、精确异常 40/40、DiffTest 35/35 通过。
-面积 69,469.358 μm²；600 MHz 未通过时序，580 MHz 的 setup/hold 与门控检查通过。
-580 MHz 下 MicroBench **test** Total 原生时间 0.005987 s，IPC 0.220133883；train 未重跑。
-具体策略、限制与证据见[修复记录](../verification/RV32_CACHE_RECOVERY_2026-09-21.md)。
-
-## 历史版本已验证的性能
-
-RV32 baseline，CPU 820 MHz，设备 100 MHz，MicroBench train 十项 PASS、GOOD TRAP：
-
-| 窗口 | 原生定时器时间 | 同窗口 IPC |
-| --- | ---: | ---: |
-| Total：含准备、验证和循环内输出 | 1.911282 秒 | 0.170242182 |
-| Scored：十项计分窗口之和 | 1.278899 秒 | 0.178135953 |
-
-原始日志、采样和报告保存在 `npc/result/performance/passive-train-ready-20260906/`。
-该目录名称沿用准备阶段名称，train 现已完成。test 做过观察器开关对照，train 仅运行一次。
-历史插桩成绩、当前低侵入成绩和官方参考不能直接混作同一个比较口径。
-
-复测使用源码构建，生成新的结果目录：
+性能脚本为保留历史调用，仍有旧配置默认值；测试本面试版本必须显式指定：
 
 ```sh
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 580
+python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 720 \
+  --icache-bytes 1024 --icache-ways 4 --icache-line 32 --icache-policy 13 \
+  --bht-entries 16 --btb-entries 16 --btb-ways 2 --btb-target-bits 0 \
+  --btb-policy 0 --direction-policy 0 --history-bits 4 --ras-entries 4
 ```
 
-远程保存 RTL、脚本、测试、文档、依赖补丁和精选测量证据；宿主仿真器、编译缓存及
-大体积中间网表仍留在原工作机。因宿主仿真器未上传，不对远程克隆的历史归档使用
-`--resume`，应使用上面的源码构建入口。归档 manifest 中的绝对路径与哈希保留测量时原值。
-面积和时序来自各更新条目对应的综合记录；本次发布未重新运行长时间 train。
+先做短测时将 `--scale train` 换成 `--scale test --verify-observer`。
+IPC 用相同计时窗口的退休指令数除以 CPU 周期数。最新分支研究仅重跑了 test，
+不能把旧 train 成绩当成本次固定版的新测量。
+MicroBench 原生 SoC delayer 仍有提前 ARVALID 影响等待换算的已知局限；定时器秒数
+属于该模型。主选型使用 AR 接受后计时的独立 100 ns/10 ns 存储模型，详见
+[计时规则](../verification/MICROBENCH_TIMING_RULES.md)。
+
+## 研究记录和保留范围
+
+从[前端研究索引](../learning/FRONTEND_RESEARCH_INDEX.md)开始阅读：问题、论文/作者项目、
+模型、RTL、验证、简单对照、面积时序、退化与不采用原因均保留。最终选择不以新算法的
+复杂程度为目标，而按预先约定的整核面积×执行时间及单项退化限制判断。
+
+远程保留源码、配置、测试、第三方许可证、研究笔记、精简比较表及依赖恢复文件。
+`npc/result/`、编译缓存、波形、原始日志、软件镜像、网表和历史快照压缩包不在本次树中。
+历史文档中的结果路径用于说明测量来源，不代表远程保存该文件；历史审计脚本需要
+完整历史归档；2026-09-24 已按要求清理本机 result 中的原始产物，仅保留综合工具入口。
+源码可用于新实验，不能将缺少历史产物说成已完成第二次独立复现。
+已存在于旧提交的文件不改写历史删除，避免破坏已有分支引用。

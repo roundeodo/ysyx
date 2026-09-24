@@ -3,6 +3,15 @@ module riscv32_timer_system_tb;
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 
+  // 延迟和超时以物理微秒定义，与DUT使用相同的CPU频率；100 MHz时保留原值。
+`ifdef YSYX_SIM_CPU_FREQ_MHZ
+  localparam int unsigned CPU_FREQ_MHZ = `YSYX_SIM_CPU_FREQ_MHZ;
+`else
+  localparam int unsigned CPU_FREQ_MHZ = 100;
+`endif
+  localparam int unsigned FAULT_RESPONSE_DELAY_CYCLES = 60 * CPU_FREQ_MHZ;
+  localparam int unsigned TEST_TIMEOUT_CYCLES = 5_000 * CPU_FREQ_MHZ;
+
   logic clk = 0;
   logic rst_n = 0;
   logic system_rst_n;
@@ -10,7 +19,8 @@ module riscv32_timer_system_tb;
   axi4_manager_to_target_t request;
   axi4_target_to_manager_t response;
   riscv32_npc_system #(
-      .RESET_PC(32'h8000_0000)
+      .RESET_PC(32'h8000_0000),
+      .CLINT_CLOCK_FREQ_HZ(CPU_FREQ_MHZ * 1_000_000)
   ) dut (
       .clk_i                  (clk),
       .rst_ni                 (rst_n),
@@ -76,7 +86,7 @@ module riscv32_timer_system_tb;
         read_present    <= 1;
         read_address    <= request.ar;
         read_beat_index <= 0;
-        read_delay      <= (request.ar.addr == 32'h8001_e000) ? 6000 : delay_cycles;
+        read_delay      <= (request.ar.addr == 32'h8001_e000) ? int'(FAULT_RESPONSE_DELAY_CYCLES) : delay_cycles;
       end else if (read_delay > 0) begin
         read_delay <= read_delay - 1;
       end
@@ -190,7 +200,7 @@ module riscv32_timer_system_tb;
         expected_pc <= dut.u_core.commit_redirect_req_at_resolution.target_pc;
       assert ({dut.u_core.u_csr_file.u_pmu.minstret_high_q, dut.u_core.u_csr_file.u_pmu.minstret_low_q} == 64'(retired_count))
       else $fatal(1, "interrupt or exception incorrectly counted as retired instruction");
-      if (cycle_count > 500000) $fatal(1, "timeout pc=%h irq=%0d", expected_pc, interrupt_count);
+      if (cycle_count > TEST_TIMEOUT_CYCLES) $fatal(1, "timeout pc=%h irq=%0d", expected_pc, interrupt_count);
     end
   end
 
