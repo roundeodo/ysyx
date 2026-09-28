@@ -1,0 +1,32 @@
+{
+  "memory_mode": "physical",
+  "frozen_selection": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/selection-freeze.json",
+  "common_mhz": 340,
+  "held_configs": [
+    "B0",
+    "c1bypass32",
+    "c1legacy32"
+  ],
+  "sensitivity": [
+    [
+      20,
+      10,
+      false
+    ],
+    [
+      200,
+      20,
+      false
+    ],
+    [
+      100,
+      10,
+      true
+    ]
+  ],
+  "held_inputs": [
+    809,
+    1543
+  ],
+  "retune_allowed": false
+}

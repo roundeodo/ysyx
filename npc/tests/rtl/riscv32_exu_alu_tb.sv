@@ -10,8 +10,12 @@ module riscv32_exu_alu_tb;
   logic            lsu_req_valid;
 
   riscv32_exu u_exu (
+      .muldiv_result_available_o(),
+      .clk_i(1'b0), .rst_ni(1'b1), .flush_i(1'b0),
       .sequential_redirect_o(), .sequential_redirect_valid_o(),
       .execute_packet_i(execute_packet),
+      .multiply_operand_a_i(execute_packet.source_a_value[31:0]),
+      .multiply_operand_b_i(execute_packet.source_b_value[31:0]),
       .execute_packet_valid_i(execute_packet_valid),
       .execute_packet_issue_allowed_i(1'b1),
       .execute_packet_ready_o(execute_packet_ready),
@@ -113,6 +117,37 @@ module riscv32_exu_alu_tb;
       $fatal(1, "Faulting control-flow instruction redirected or wrote its destination register");
   endtask
 
+  // 地址电路的输出连接也要验证：LSU 保留全部地址位，JALR 清 bit 0 后检查 bit 1。
+  task automatic expect_base_offset(input xlen_data_t base, input logic [11:0] offset);
+    xlen_data_t expected_address;
+    expected_address = base + xlen_data_t'($signed(offset));
+    execute_packet = '0;
+    execute_packet.uop.fu_type = FU_LSU;
+    execute_packet.uop.imm = xlen_data_t'($signed(offset));
+    execute_packet.source_a_value = base;
+    execute_packet_valid = 1'b1;
+    #1;
+    assert (lsu_req_valid && !exu_result_valid && execute_packet_ready &&
+            lsu_req.effective_addr == expected_address)
+      else $fatal(1, "LSU base+offset mismatch: base=%h offset=%h actual=%h expected=%h",
+                  base, offset, lsu_req.effective_addr, expected_address);
+
+    execute_packet.uop.fu_type = FU_BRANCH;
+    execute_packet.uop.branch_ctrl.op = CF_JALR;
+    execute_packet.uop.writes_rd = 1'b1;
+    expected_address[0] = 1'b0;
+    #1;
+    assert (!lsu_req_valid && exu_result_valid && execute_packet_ready &&
+            exu_result.next_pc == expected_address &&
+            exu_result.uop.exception_valid == expected_address[1])
+      else $fatal(1, "JALR base+offset or alignment mismatch");
+    if (expected_address[1]) begin
+      assert (exu_result.uop.exception_cause == EXC_INSTR_ADDR_MISALIGNED &&
+              exu_result.uop.exception_tval == expected_address && !exu_result.uop.writes_rd)
+        else $fatal(1, "JALR misalignment lost exception context");
+    end
+  endtask
+
   initial begin
     execute_packet       = '0;
     execute_packet_valid = 1'b0;
@@ -149,6 +184,14 @@ module riscv32_exu_alu_tb;
     expect_register_operation(ALU_SRL, 64'h8000_0000_0000_0000, 64'd63, 64'd1);
 `endif
 
+    // 穷举位移，覆盖低位进位、符号变化、高位进/借位、XLEN 溢出和 JALR 对齐。
+    for (int displacement = 0; displacement < 4096; displacement++) begin
+      expect_base_offset(xlen_data_t'(0), 12'(displacement));
+      expect_base_offset(xlen_data_t'(32'h7fff_f800), 12'(displacement));
+      expect_base_offset(xlen_data_t'('1), 12'(displacement));
+      expect_base_offset(xlen_data_t'(64'hffff_1234_ffff_f80f), 12'(displacement));
+    end
+    $display("PASS EXU LSU/JALR: 32768 address cases for XLEN=%0d", XLEN);
     $display("EXU directed ALU test passed for XLEN=%0d", XLEN);
     $finish;
   end

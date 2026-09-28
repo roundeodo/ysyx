@@ -7,6 +7,9 @@ module riscv32_operand_mux
     input  xlen_data_t      rs2_value_i,
     input  xlen_data_t      csr_read_data_i,
     input  logic            csr_read_illegal_i,
+    input  execute_producer_t pipeline_producer_i [EXECUTE_PIPE_DEPTH],
+    input  logic [EXECUTE_PIPE_DEPTH-1:0] rs1_pipeline_forwarding_selected_i,
+    input  logic [EXECUTE_PIPE_DEPTH-1:0] rs2_pipeline_forwarding_selected_i,
     input  xlen_data_t      execute_forwarding_value_i,
     input  xlen_data_t      execute_result_forwarding_value_i,
     input  xlen_data_t      lsu_forwarding_value_i,
@@ -62,6 +65,13 @@ module riscv32_operand_mux
     end
     if (rs2_execute_result_forwarding_selected_i) begin
       decoded_execute_packet_o.source_b_value = execute_result_forwarding_value_i;
+    end
+    // 流水中的生产者比 EX 结果级年轻，比当前 ID/EX 更老。
+    for (int i = 0; i < EXECUTE_PIPE_DEPTH; i++) begin
+      if (rs1_pipeline_forwarding_selected_i[i])
+        decoded_execute_packet_o.source_a_value = pipeline_producer_i[i].value;
+      if (rs2_pipeline_forwarding_selected_i[i])
+        decoded_execute_packet_o.source_b_value = pipeline_producer_i[i].value;
     end
     if (rs1_execute_forwarding_selected_i) begin
       decoded_execute_packet_o.source_a_value = execute_forwarding_value_i;

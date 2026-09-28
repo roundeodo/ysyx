@@ -1,0 +1,97 @@
+{
+  "status": "passed",
+  "safety": [
+    {
+      "name": "c1bypass32",
+      "manifest": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/query-safety-resume/manifest.json"
+    },
+    {
+      "name": "c1legacy32",
+      "manifest": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/final-safety-c1legacy32/manifest.json"
+    }
+  ],
+  "microbench_test": [
+    {
+      "name": "B0",
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/microbench/B0-800/report.json",
+      "total": {
+        "cycles": 4349495,
+        "retired_instructions": 763521,
+        "ipc": 0.17554244803132318,
+        "timer_ticks": 5437,
+        "timer_seconds": 0.005437,
+        "cycle_seconds": 0.00543686875,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1878591,
+        "retired_instructions": 430311,
+        "ipc": 0.2290605033240338,
+        "timer_ticks": 2347,
+        "timer_seconds": 0.002347,
+        "cycle_seconds": 0.00234823875,
+        "interrupts": 0
+      }
+    },
+    {
+      "name": "c1bypass32",
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/microbench/c1bypass32-720/report.json",
+      "total": {
+        "cycles": 2451974,
+        "retired_instructions": 773643,
+        "ipc": 0.3155184353504564,
+        "timer_ticks": 3406,
+        "timer_seconds": 0.003406,
+        "cycle_seconds": 0.0034055194444444444,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1084292,
+        "retired_instructions": 430313,
+        "ipc": 0.3968608087120444,
+        "timer_ticks": 1506,
+        "timer_seconds": 0.001506,
+        "cycle_seconds": 0.001505961111111111,
+        "interrupts": 0
+      }
+    },
+    {
+      "name": "c1legacy32",
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/microbench/c1legacy32-780/report.json",
+      "total": {
+        "cycles": 2557719,
+        "retired_instructions": 772701,
+        "ipc": 0.3021055088537873,
+        "timer_ticks": 3279,
+        "timer_seconds": 0.003279,
+        "cycle_seconds": 0.003279126923076923,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1124558,
+        "retired_instructions": 430313,
+        "ipc": 0.3826507836856792,
+        "timer_ticks": 1440,
+        "timer_seconds": 0.00144,
+        "cycle_seconds": 0.0014417410256410256,
+        "interrupts": 0
+      }
+    }
+  ],
+  "interrupts": [
+    {
+      "name": "B0",
+      "record": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/interrupts/B0/validation.json"
+    },
+    {
+      "name": "c1bypass32",
+      "record": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/interrupts/c1bypass32/validation.json"
+    },
+    {
+      "name": "c1legacy32",
+      "record": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/interrupts/c1legacy32/validation.json"
+    }
+  ],
+  "microbench_images_equal": true,
+  "microbench_train_rerun": false
+}

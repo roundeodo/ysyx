@@ -11,6 +11,8 @@ module riscv32_id_ex_reg
     output logic            decoded_execute_packet_ready_o,
 
     output execute_packet_t execute_packet_o,
+    output logic [31:0] multiply_operand_a_o,
+    output logic [31:0] multiply_operand_b_o,
     output logic            execute_packet_valid_o,
     input  logic            execute_packet_ready_i,
 
@@ -51,6 +53,35 @@ module riscv32_id_ex_reg
   always_ff @(posedge clk_i) begin
     if (decoded_execute_packet_ready_o)
       execute_packet_q <= decoded_execute_packet_i;
+  end
+
+  // 与 ID/EX 同沿采样，隔离并行部分积对通用操作数/地址路径的扇出。
+  // 仅乘法写入，因此不会与每条指令更新的通用操作数寄存器被合并；不增加周期。
+  if (MUL_PIPELINE_ENABLE) begin : gen_multiply_operands
+    logic [31:0] operand_a_q, operand_b_q;
+    always_ff @(posedge clk_i) begin
+      if (decoded_execute_packet_ready_o && decoded_execute_packet_valid_i &&
+          decoded_execute_packet_i.uop.fu_type == FU_MULDIV &&
+          decoded_execute_packet_i.uop.muldiv_op <= MD_MULHU &&
+          !decoded_execute_packet_i.uop.exception_valid) begin
+        operand_a_q <= decoded_execute_packet_i.source_a_value[31:0];
+        operand_b_q <= decoded_execute_packet_i.source_b_value[31:0];
+      end
+    end
+    assign multiply_operand_a_o = operand_a_q;
+    assign multiply_operand_b_o = operand_b_q;
+`ifndef SYNTHESIS
+    // 同一有效指令的两份操作数必须逐位相等，包含停顿与恢复后的第一次乘法。
+    assert property (@(posedge clk_i) disable iff (!rst_ni)
+      (execute_packet_valid_q && execute_packet_q.uop.fu_type == FU_MULDIV &&
+       execute_packet_q.uop.muldiv_op <= MD_MULHU && !execute_packet_q.uop.exception_valid)
+      |-> ({operand_a_q, operand_b_q} ==
+           {execute_packet_q.source_a_value[31:0], execute_packet_q.source_b_value[31:0]}))
+    else $error("Multiply operands diverged from the ID/EX instruction");
+`endif
+  end else begin : gen_no_multiply_operands
+    assign multiply_operand_a_o = '0;
+    assign multiply_operand_b_o = '0;
   end
 
   // 窄分类与 payload 同沿更新，供 hazard 直接使用。

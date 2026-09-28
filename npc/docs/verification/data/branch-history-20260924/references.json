@@ -1,0 +1,35 @@
+[
+  {
+    "project": "BOOM",
+    "commit": "58ef2720eae13be26b3008c02b5a74ce29c61c44",
+    "use": "read architecture and update bypass; no code copied into RTL"
+  },
+  {
+    "file": "tage-sc-l-2016.pdf",
+    "url": "https://jilp.org/cbp2016/paper/AndreSeznecLimited.pdf",
+    "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1007)>"
+  },
+  {
+    "file": "ros-cbp2025.pdf",
+    "url": "https://webs.um.es/aros/papers/pdfs/aros-cbp25.pdf",
+    "sha256": "78087d3d4ef4daf9c7610ea841ed40d4999f306ab95d5f710d0f369ddd6f3c50",
+    "bytes": 487743
+  },
+  {
+    "file": "perceptron-hpca2001.pdf",
+    "url": "https://www.cs.utexas.edu/~lin/papers/hpca01.pdf",
+    "error": "Remote end closed connection without response"
+  },
+  {
+    "file": "boom-tage.scala",
+    "url": "https://raw.githubusercontent.com/riscv-boom/riscv-boom/58ef2720eae13be26b3008c02b5a74ce29c61c44/src/main/scala/v4/ifu/bpd/tage.scala",
+    "sha256": "204f79ba4d2298020f518e3e115b091fdefb5a4f465a6524ed112e667eebc599",
+    "bytes": 14208
+  },
+  {
+    "file": "boom-LICENSE",
+    "url": "https://raw.githubusercontent.com/riscv-boom/riscv-boom/58ef2720eae13be26b3008c02b5a74ce29c61c44/LICENSE",
+    "sha256": "0dff9c3cc0950c7ae66a0d88eec0cee96a978d0bb3525a9cddc309fcd860b004",
+    "bytes": 1566
+  }
+]

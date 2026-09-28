@@ -3,6 +3,15 @@ module riscv32_timer_system_tb;
   import riscv32_pkg::*;
   import riscv32_axi4_pkg::*;
 
+  // 延迟和超时以物理微秒定义，与DUT使用相同的CPU频率；100 MHz时保留原值。
+`ifdef YSYX_SIM_CPU_FREQ_MHZ
+  localparam int unsigned CPU_FREQ_MHZ = `YSYX_SIM_CPU_FREQ_MHZ;
+`else
+  localparam int unsigned CPU_FREQ_MHZ = 100;
+`endif
+  localparam int unsigned FAULT_RESPONSE_DELAY_CYCLES = 60 * CPU_FREQ_MHZ;
+  localparam int unsigned TEST_TIMEOUT_CYCLES = 5_000 * CPU_FREQ_MHZ;
+
   logic clk = 0;
   logic rst_n = 0;
   logic system_rst_n;
@@ -10,7 +19,8 @@ module riscv32_timer_system_tb;
   axi4_manager_to_target_t request;
   axi4_target_to_manager_t response;
   riscv32_npc_system #(
-      .RESET_PC(32'h8000_0000)
+      .RESET_PC(32'h8000_0000),
+      .CLINT_CLOCK_FREQ_HZ(CPU_FREQ_MHZ * 1_000_000)
   ) dut (
       .clk_i                  (clk),
       .rst_ni                 (rst_n),
@@ -30,6 +40,46 @@ module riscv32_timer_system_tb;
   string image_path;
   integer delay_cycles = 0;
   integer am_test = 0;
+  integer muldiv_test = 0;
+  integer muldiv_cycles = 0;
+  integer pending_during_muldiv_count = 0;
+  logic injected_muldiv_irq = 0;
+  logic pipeline_irq_injected = 0;
+
+  // 在负沿重新施加电平，避免 Verilator 把 procedural force 的 RHS 固定在首次执行值。
+  always @(negedge clk) begin
+    if (muldiv_test != 0) force dut.timer_interrupt = injected_muldiv_irq;
+  end
+
+  // 定向恢复测试只在除法已进入迭代后拉高 IRQ，CLINT 本身由原用例验证。
+  always @(posedge clk) begin
+    if (system_rst_n && muldiv_test != 0) begin
+      if (muldiv_test == 1 && dut.u_core.execute_packet_valid &&
+          dut.u_core.execute_packet.uop.fu_type == FU_MULDIV &&
+          !dut.u_core.exu_result_valid) begin
+        muldiv_cycles <= muldiv_cycles + 1;
+        if (muldiv_cycles == 7) injected_muldiv_irq <= 1;
+        if (dut.timer_interrupt) begin
+          pending_during_muldiv_count <= pending_during_muldiv_count + 1;
+          assert (!dut.u_core.interrupt_valid)
+            else $fatal(1, "interrupt cancelled unfinished division");
+        end
+      end
+      if (muldiv_test == 2 && dut.u_core.execute_pipeline_busy) begin
+        muldiv_cycles <= muldiv_cycles + 1;
+        if (!pipeline_irq_injected) begin
+          injected_muldiv_irq <= 1;
+          pipeline_irq_injected <= 1;
+        end
+        if (dut.timer_interrupt) begin
+          pending_during_muldiv_count <= pending_during_muldiv_count + 1;
+          assert (!dut.u_core.interrupt_valid)
+            else $fatal(1, "interrupt cancelled an in-flight multiply");
+        end
+      end
+      if (dut.u_core.interrupt_valid) injected_muldiv_irq <= 0;
+    end
+  end
   integer cycle_count = 0;
   logic read_present = 0;
   axi4_read_address_t read_address;
@@ -76,7 +126,7 @@ module riscv32_timer_system_tb;
         read_present    <= 1;
         read_address    <= request.ar;
         read_beat_index <= 0;
-        read_delay      <= (request.ar.addr == 32'h8001_e000) ? 6000 : delay_cycles;
+        read_delay      <= (request.ar.addr == 32'h8001_e000) ? int'(FAULT_RESPONSE_DELAY_CYCLES) : delay_cycles;
       end else if (read_delay > 0) begin
         read_delay <= read_delay - 1;
       end
@@ -130,7 +180,8 @@ module riscv32_timer_system_tb;
       if (dut.u_core.interrupt_valid) begin
         assert (dut.u_core.trap_pc == expected_pc)
         else $fatal(1, "interrupt PC expected=%h actual=%h", expected_pc, dut.u_core.trap_pc);
-        assert (!dut.u_core.commit_valid && !write_present)
+        assert (!dut.u_core.commit_valid && !write_present && !dut.u_core.execute_packet_valid &&
+                !dut.u_core.execute_pipeline_busy)
         else $fatal(1, "interrupt interrupted an unfinished instruction/store");
         interrupt_count <= interrupt_count + 1;
         if (!dut.u_core.idu_fetch_entry_valid)
@@ -152,6 +203,10 @@ module riscv32_timer_system_tb;
           committed_store_count <= committed_store_count + 1;
         expected_pc <= dut.u_core.commit.next_pc;
         if (dut.u_core.commit.system_op == SYS_EBREAK) begin
+          if (muldiv_test != 0)
+            $display("MD irq coverage: cycles=%0d pending=%0d accepted=%0d s0=%h s1=%h",
+                     muldiv_cycles, pending_during_muldiv_count, interrupt_count,
+                     dut.u_core.u_regfile.gpr_array_q[8], dut.u_core.u_regfile.gpr_array_q[9]);
           assert (dut.u_core.u_regfile.gpr_array_q[10] == 0)
           else
             $fatal(
@@ -160,10 +215,12 @@ module riscv32_timer_system_tb;
                 dut.u_core.u_regfile.gpr_array_q[10],
                 dut.u_core.commit.pc
             );
-          assert ((am_test != 0) ? (interrupt_count == 5) :
-                  (interrupt_count >= 11 && pending_during_fault_count > 0))
+          assert ((muldiv_test != 0) ?
+                  (interrupt_count == 1 && pending_during_muldiv_count > 0) :
+                  ((am_test != 0) ? (interrupt_count == 5) :
+                   (interrupt_count >= 11 && pending_during_fault_count > 0)))
           else $fatal(1, "required interrupt coverage missing");
-          if (am_test == 0) begin
+          if (am_test == 0 && muldiv_test == 0) begin
             assert (physical_store_count > 0 && fence_count > 0)
             else $fatal(1, "dirty writeback/FENCE.I coverage missing");
             if (delay_cycles == 83)
@@ -183,6 +240,10 @@ module riscv32_timer_system_tb;
               am_test, delay_cycles, cycle_count, interrupt_count, retired_count, physical_store_count,
               pending_during_load_count, pending_during_store_count, pending_during_fault_count,
               empty_frontend_interrupt_count);
+          if (muldiv_test == 2)
+            $display("PASS interrupt during multiply pipeline: pending cycles=%0d", pending_during_muldiv_count);
+          if (muldiv_test == 1)
+            $display("PASS interrupt during division: pending EX cycles=%0d", pending_during_muldiv_count);
           $finish;
         end
       end
@@ -190,7 +251,7 @@ module riscv32_timer_system_tb;
         expected_pc <= dut.u_core.commit_redirect_req_at_resolution.target_pc;
       assert ({dut.u_core.u_csr_file.u_pmu.minstret_high_q, dut.u_core.u_csr_file.u_pmu.minstret_low_q} == 64'(retired_count))
       else $fatal(1, "interrupt or exception incorrectly counted as retired instruction");
-      if (cycle_count > 500000) $fatal(1, "timeout pc=%h irq=%0d", expected_pc, interrupt_count);
+      if (cycle_count > TEST_TIMEOUT_CYCLES) $fatal(1, "timeout pc=%h irq=%0d", expected_pc, interrupt_count);
     end
   end
 
@@ -198,6 +259,10 @@ module riscv32_timer_system_tb;
     if (!$value$plusargs("image=%s", image_path)) $fatal(1, "missing +image");
     void'($value$plusargs("delay=%d", delay_cycles));
     void'($value$plusargs("am=%d", am_test));
+    void'($value$plusargs("muldiv=%d", muldiv_test));
+    if (muldiv_test != 0) begin
+      assert (MULDIV_ENABLE) else $fatal(1, "M test on RV32I hardware");
+    end
     foreach (memory_array[index]) memory_array[index] = 0;
     $readmemh(image_path, memory_array);
     repeat (5) @(negedge clk);

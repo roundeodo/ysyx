@@ -1,0 +1,53 @@
+{
+  "status": "passed",
+  "records": {
+    "json_bpe-dev-41": {
+      "binary_sha256": "d5b56a1c804d7a1b22a1e5fe88b70b711fda07325c12eaeae158e531bfe8b0fe",
+      "hex_sha256": "df43bf574ca6e86c7e44f9ce1fcb026f46abbf99d403242a77e3f3a9c4cfe4e5"
+    },
+    "json_bpe-dev-73": {
+      "binary_sha256": "5aa9a97f926320d01dc77ef1ff450ee35d0b1fa80f4bb20647f1f8fc5d0efdb1",
+      "hex_sha256": "ffb2cc001d8dad1053c1a30f8f504bc321a967189669240527e1b46bd907c229"
+    },
+    "quant_loader-dev-41": {
+      "binary_sha256": "e29183dc5626d94699119d3859a8c79bdb0927da084bb7c64b339bdfc7c03a77",
+      "hex_sha256": "06fe6a57fae916d19dfe75199ec6be301a820b4628e8ea0fc428ca8c668e4165"
+    },
+    "quant_loader-dev-73": {
+      "binary_sha256": "89d13971236b1edaa937cdde2597c7d6e4a62de925aa102ee485c712a4d7f90b",
+      "hex_sha256": "4d92b5b4e7511e08c0c2b6ff66b4b487cd2963af695bdc05eed80484d9e4739c"
+    },
+    "runtime_graph-dev-41": {
+      "binary_sha256": "4682b5af1a2ef7a0d1e2267abb5f6a894ca5155944daf71ea07bb30558a6b3dd",
+      "hex_sha256": "e3ba680ef87e1fd25ea4fa4b52e4c1e866726b747c354771d08f40c5331d2199"
+    },
+    "runtime_graph-dev-73": {
+      "binary_sha256": "3ad55355d4d5d98e161b138190845fbf57c92c86b5b577f504da295ffe7d516a",
+      "hex_sha256": "d9e508ed6afe5bd5d14544b4947a905241fdb522a6df9c41f71bba4a57d33b3a"
+    },
+    "json_bpe-held-809": {
+      "binary_sha256": "31ca0eb54ee6abd1e5caea6e34e81cca65127b237e03db60659ce3f6abec7e16",
+      "hex_sha256": "25f587e206f9a771b9e2a0da545f2d7b76cb63c96115bec3f1d1a01fb3c8595b"
+    },
+    "json_bpe-held-1543": {
+      "binary_sha256": "fd52d3068f8e0045e207988be785a28dcc01feaa06f4b493ea6b9e151313e985",
+      "hex_sha256": "f320b539e6a1bdfe0721860660ec34e16eeb6fdb089944feb906e39c0ca7d397"
+    },
+    "quant_loader-held-809": {
+      "binary_sha256": "dbc948978e75ec0ca0e389c31b5b91c0960d7fb608a3fe81268f44c8ce891683",
+      "hex_sha256": "5ec4ca4b2205ee1c052028a2dbbc5c36b3e1492610de954b1dd3a6ccf9dd9808"
+    },
+    "quant_loader-held-1543": {
+      "binary_sha256": "8cc4309c47b6e6a507162dfe53848a61eaaab952e33363847fc950d87e143591",
+      "hex_sha256": "09c6de0faf5cc4e0d97c9e292e4979439feab1a0257d00c15346617fb2e178f8"
+    },
+    "runtime_graph-held-809": {
+      "binary_sha256": "26cc6d87379d8a596cb85a09bdb1f26d7526d386a5a42890da3065a1f1c29bdc",
+      "hex_sha256": "8007ed7558195b216b6f0d3615bfc2af560f21c562c82fe3c936abd1585d5209"
+    },
+    "runtime_graph-held-1543": {
+      "binary_sha256": "9f97cf13a6ad5a8310abe8d7cc696f1076add8c6819929e5f3f836a6217501f9",
+      "hex_sha256": "39d3cfc502c651df7f6624b27b307f6c33ec4861b5864e1424f7771f467db449"
+    }
+  }
+}

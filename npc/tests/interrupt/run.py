@@ -8,7 +8,7 @@ import subprocess
 NPC = Path(__file__).resolve().parents[2]
 TEST = Path(__file__).resolve().parent
 AM = NPC.parent / 'abstract-machine'
-BUILD = NPC / 'build/tests/interrupt'
+BUILD = Path(os.environ.get('NPC_INTERRUPT_TEST_OUTPUT', NPC / 'build/tests/interrupt')).resolve()
 BUILD.mkdir(parents=True, exist_ok=True)
 if not sys.argv[1:]:
     raise SystemExit('Run make NPC_CONFIG=rv32-baseline test-timer-interrupt to supply configuration')
@@ -76,6 +76,18 @@ am_image = build_image('am_timer', [TEST / 'am_start.S', TEST / 'am_timer.c',
                        ['-DARCH_H="arch/riscv.h"', f'-I{AM / "am/include"}',
                         f'-I{AM / "am/src"}', f'-I{AM / "klib/include"}'])
 system_binary = build_testbench('riscv32_timer_system_tb', 'system_obj')
+if '+define+YSYX_MULDIV_ENABLE=1' in sys.argv[1:]:
+    muldiv_image = build_image('muldiv_interrupt', [NPC / 'tests/muldiv/interrupt.S'],
+                               ['-march=rv32im_zicsr_zifencei'])
+    for delay in (0, 83):
+        run([system_binary, f'+image={muldiv_image}', f'+delay={delay}', '+muldiv=1'],
+            BUILD / f'muldiv_delay_{delay}.log')
+if '+define+YSYX_MUL_PIPELINE_ENABLE=1' in sys.argv[1:]:
+    pipeline_image = build_image('pipeline_interrupt', [NPC / 'tests/muldiv/pipeline_interrupt.S'],
+                                ['-march=rv32im_zicsr_zifencei'])
+    for delay in (0, 83):
+        run([system_binary, f'+image={pipeline_image}', f'+delay={delay}', '+muldiv=2'],
+            BUILD / f'pipeline_delay_{delay}.log')
 for delay in (0, 17, 83):
     run([system_binary, f'+image={assembly_image}', f'+delay={delay}'],
         BUILD / f'system_delay_{delay}.log')

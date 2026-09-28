@@ -5,7 +5,8 @@ YSYXSOC_LINKER_SCRIPT := $(AM_HOME)/scripts/ysyxsoc-sdram.ld
 
 include $(AM_HOME)/scripts/platform/ysyxsoc.mk
 
-COMMON_CFLAGS += -march=rv32i_zicsr_zifencei -mabi=ilp32
+RISCV_MARCH  ?= rv32i_zicsr_zifencei
+COMMON_CFLAGS += -march=$(RISCV_MARCH) -mabi=ilp32
 CFLAGS        += -DMAINARGS=\"$(mainargs)\" -Os
 LDFLAGS       += -melf32lriscv
 

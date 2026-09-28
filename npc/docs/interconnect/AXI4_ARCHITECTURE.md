@@ -38,6 +38,10 @@ RV32 同宽转换不增加缓冲或流水级。
 [访存说明](../microarchitecture/DCACHE_DESIGN_RECORD.md)解释缓存内的命中、缺失与维护；
 [中断说明](../microarchitecture/TIMER_INTERRUPT_DESIGN_RECORD.md)解释 CLINT 与核的边界。
 
+完整 SoC 的设备延迟校准见[计时规则](../verification/MICROBENCH_TIMING_RULES.md)。
+当前按 100 MHz 节拍推进完整设备域，每个 AXI 数据 beat 在设备沿握手；
+响应空缓冲直通，历史缩放模型只供显式复现。该仿真模型不属于综合用 CPU。
+
 ## 验证入口
 
 `test-axi-handoff`、`test-core-merge`、`test-soc-width-converter`、`test-uncached` 与 `test-timer-interrupt`。

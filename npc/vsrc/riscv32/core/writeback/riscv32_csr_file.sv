@@ -52,10 +52,11 @@ module riscv32_csr_file
   logic       csr_addr_read_only;
   xlen_data_t csr_selected_read_data;
 
-  // 当前只实现M-mode。misa报告基础I扩展和当前MXL；不声明尚未实现的M/A/C/S/U能力。
+  // 当前只实现 M-mode。misa 报告 I、配置启用的 M 扩展和当前 MXL。
   always_comb begin
     misa_value    = '0;
     misa_value[8] = 1'b1;
+    misa_value[12] = MULDIV_ENABLE;
     if (XLEN == 32) begin
       misa_value[XLEN-1 -: 2] = 2'b01;
     end else begin

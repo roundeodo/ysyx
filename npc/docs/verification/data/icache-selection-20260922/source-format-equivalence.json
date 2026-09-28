@@ -1,0 +1,29 @@
+{
+  "applied_at": "2026-09-22T05:52:28.322842+00:00",
+  "passed": true,
+  "files": [
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv",
+      "before_sha256": "dbec7f4e91be2c93dca3a4993a3d52fa3e1491466936c998a6ced902e4941505",
+      "after_sha256": "d50bc7f6ed893e26e652be35c7014b04da4f295661200eb8105f4d68721d0134",
+      "tokens": 2399,
+      "lexically_equal": true
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv",
+      "before_sha256": "17c815b24222ce48fbb6fb62c388a6abc730e75a9b5b7a821ca342e9d8b40076",
+      "after_sha256": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+      "tokens": 2289,
+      "lexically_equal": true
+    },
+    {
+      "path": "npc/tests/frontend_exploration/axi_memory.sv",
+      "before_sha256": "537733551a7234fd9cfe86eee52976352d64a7d7effff7dc7bfdde218195b479",
+      "after_sha256": "a3da2ba77bb704216a75740512c12dc2e609fd7dba2cf57acff59a1e175cc855",
+      "tokens": 1024,
+      "lexically_equal": true
+    }
+  ],
+  "proof": "Verible filtered token tags and UTF-8 byte slices are identical; comments and whitespace only",
+  "backup": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/delivery-before"
+}

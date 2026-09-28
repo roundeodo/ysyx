@@ -75,6 +75,11 @@ def main():
     if args.test == 'core':
         patches = {'nop': 0x13, 'addi': 0x00700313, 'load': 0x0009a303,
                    'store': 0x0089a023, 'jal': 0x0040006f, 'csr': 0x34002373, 'illegal': 0xffffffff}
+        if '+define+YSYX_MULDIV_ENABLE=1' in args.defines:
+            # Replace the trained JAL by an actual multi-cycle instruction.
+            # s1/s2 are nonzero and division does not take a shortcut.
+            for name, funct3 in [('mul', 0), ('div', 4)]:
+                patches[name] = (1 << 25) | (18 << 20) | (9 << 15) | (funct3 << 12) | (6 << 7) | 0x33
         for name, opcode in patches.items():
             hex_file = build_image(output, name, NPC / 'tests/exception/fence_i_patch.S',
                                    {'PATCH_WORD': hex(opcode)})

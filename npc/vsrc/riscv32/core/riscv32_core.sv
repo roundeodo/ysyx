@@ -92,7 +92,13 @@ module riscv32_core
   logic                icache_invalidate_done;
   logic                icache_busy;
 
+  // 提交反馈只供实验替换策略使用，不产生额外访存或恢复。
+  commit_t commit;
+  logic commit_valid;
+
   riscv32_icache u_icache (
+      .retired_valid_i     (commit_valid && !commit.trap_taken),
+      .retired_pc_i        (commit.pc),
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
       .lookup_req_i        (icache_lookup_req),
@@ -159,6 +165,7 @@ module riscv32_core
       .lookup_response_ready_i        (next_pc_predictor_lookup_response_ready),
       .resolved_control_flow_pc_i     (resolved_execute_result.uop.pc),
       .resolved_control_flow_target_i (resolved_control_flow_target),
+      .resolved_control_flow_prediction_i(resolved_execute_result.uop.prediction),
       .resolved_control_flow_imm_i    (resolved_execute_result.uop.imm),
       .resolved_control_flow_op_i     (resolved_execute_result.uop.branch_ctrl.op),
       .resolved_control_flow_rs1_i    (resolved_execute_result.uop.rs1),
@@ -228,8 +235,6 @@ module riscv32_core
       .rs2_data_o         (rs2_value)
   );
 
-  commit_t          commit;
-  logic             commit_valid;
   xlen_data_t       csr_read_data;
   logic             csr_read_illegal;
   program_counter_t csr_mtvec;
@@ -290,6 +295,14 @@ module riscv32_core
   logic              lsu_pending_writes_rd;
   arch_reg_idx_t     lsu_pending_rd;
   logic              commit_redirect_event;
+  logic              exu_result_valid;
+  logic              execute_muldiv_forwarding_available;
+  logic              execute_pipeline_busy;
+  xlen_data_t        execute_forwarding_value;
+  logic [31:0]       multiply_operand_a, multiply_operand_b;
+  execute_producer_t execute_pipeline_producer [EXECUTE_PIPE_DEPTH];
+  logic [EXECUTE_PIPE_DEPTH-1:0] rs1_pipeline_forwarding_selected;
+  logic [EXECUTE_PIPE_DEPTH-1:0] rs2_pipeline_forwarding_selected;
   logic              execute_forwardable_producer_present;
   logic              execute_blocking_producer_present;
   logic              execute_serializing_instruction_present;
@@ -319,9 +332,15 @@ module riscv32_core
       .decoded_rs2_i                             (decoded_uop.rs2),
       .decoded_serializing_i                     (decoded_uop.serializing),
       .execute_instruction_present_i             (execute_packet_valid),
-      .execute_forwardable_producer_present_i    (execute_forwardable_producer_present),
-      .execute_blocking_producer_present_i       (execute_blocking_producer_present),
+      .execute_forwardable_producer_present_i    (execute_forwardable_producer_present ||
+                                                  (execute_blocking_producer_present &&
+                                                   execute_muldiv_forwarding_available)),
+      .execute_blocking_producer_present_i       (execute_blocking_producer_present &&
+                                                  !execute_muldiv_forwarding_available),
       .execute_rd_i                              (execute_packet.uop.rd),
+      .pipeline_producer_i                       (execute_pipeline_producer),
+      .rs1_pipeline_forwarding_selected_o        (rs1_pipeline_forwarding_selected),
+      .rs2_pipeline_forwarding_selected_o        (rs2_pipeline_forwarding_selected),
       .execute_serializing_instruction_present_i (execute_serializing_instruction_present),
       .execute_result_valid_i                    (resolved_execute_result_valid),
       .execute_result_ready_i                    (resolved_execute_result_ready),
@@ -375,7 +394,10 @@ module riscv32_core
       .rs2_value_i                              (rs2_value),
       .csr_read_data_i                          (csr_read_data),
       .csr_read_illegal_i                       (csr_read_illegal),
-      .execute_forwarding_value_i               (exu_result.result),
+      .execute_forwarding_value_i               (execute_forwarding_value),
+      .pipeline_producer_i                      (execute_pipeline_producer),
+      .rs1_pipeline_forwarding_selected_i       (rs1_pipeline_forwarding_selected),
+      .rs2_pipeline_forwarding_selected_i       (rs2_pipeline_forwarding_selected),
       .execute_result_forwarding_value_i        (resolved_execute_result.result),
       .lsu_forwarding_value_i                   (lsu_writeback.result),
       .writeback_forwarding_value_i             (writeback_result.result),
@@ -411,6 +433,8 @@ module riscv32_core
       .decoded_execute_packet_valid_i            (decoded_execute_packet_valid),
       .decoded_execute_packet_ready_o            (decoded_execute_packet_ready),
       .execute_packet_o                          (execute_packet),
+      .multiply_operand_a_o                     (multiply_operand_a),
+      .multiply_operand_b_o                     (multiply_operand_b),
       .execute_packet_valid_o                    (execute_packet_valid),
       .execute_packet_ready_i                    (execute_packet_ready && execute_progress_allowed),
       .execute_forwardable_producer_present_o    (execute_forwardable_producer_present),
@@ -419,19 +443,27 @@ module riscv32_core
       .flush_i                                   (decode_execute_flush || sequential_redirect_valid)
   );
 
-  logic     exu_result_valid;
   logic     exu_result_ready;
   lsu_req_t lsu_req;
   logic     lsu_req_valid;
   logic     lsu_req_ready;
 
   riscv32_exu u_exu (
+      .clk_i                          (clk_i),
+      .rst_ni                         (rst_ni),
+      .flush_i                        (decode_execute_flush),
       .execute_packet_i               (execute_packet),
+      .multiply_operand_a_i           (multiply_operand_a),
+      .multiply_operand_b_i           (multiply_operand_b),
       .execute_packet_valid_i         (execute_packet_valid),
       .execute_packet_issue_allowed_i (execute_issue_allowed),
       .execute_packet_ready_o         (execute_packet_ready),
       .exu_result_o                   (exu_result),
       .exu_result_valid_o             (exu_result_valid),
+      .muldiv_result_available_o      (execute_muldiv_forwarding_available),
+      .execute_forwarding_value_o     (execute_forwarding_value),
+      .pipeline_busy_o                (execute_pipeline_busy),
+      .pipeline_producer_o            (execute_pipeline_producer),
       .exu_result_ready_i             (exu_result_ready),
       .lsu_req_o                      (lsu_req),
       .lsu_req_valid_o                (lsu_req_valid),
@@ -595,7 +627,7 @@ module riscv32_core
       .rst_ni                                    (rst_ni),
       .timer_interrupt_enabled_i (timer_interrupt_enabled),
       .backend_busy_i            (
-          execute_packet_valid || resolved_execute_result_valid ||
+          execute_packet_valid || execute_pipeline_busy || resolved_execute_result_valid ||
           lsu_transaction_active || writeback_result_valid
       ),
       .maintenance_busy_i (fence_i_maintenance_active || dcache_busy),
@@ -784,7 +816,7 @@ module riscv32_core
   /* verilator lint_off SYNCASYNCNET */
   a_interrupt_has_no_instruction_side_effects :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    interrupt_valid |-> (!commit_valid && !execute_packet_valid &&
+    interrupt_valid |-> (!commit_valid && !execute_packet_valid && !execute_pipeline_busy &&
                          !resolved_execute_result_valid && !lsu_transaction_active &&
                          !lsu_req_valid && !gpr_write_enable && !decoded_execute_packet_valid))
   else
@@ -835,7 +867,7 @@ module riscv32_core
   a_committed_fence_i_has_no_younger_backend_work :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     committed_fence_i_event |->
-    (!execute_packet_valid && !resolved_execute_result_valid && !lsu_transaction_active))
+    (!execute_packet_valid && !execute_pipeline_busy && !resolved_execute_result_valid && !lsu_transaction_active))
   else
     $error("FENCE.I committed while younger backend work was still present");
 

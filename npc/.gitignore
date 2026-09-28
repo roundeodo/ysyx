@@ -17,3 +17,21 @@
 !.gitignore
 !README.md
 build/
+
+# 发布仅保留源码与研究摘要；结果在本机重新生成。
+/result/
+__pycache__/
+*.pyc
+!tests/frontend_exploration/*.ld
+!tests/frontend_selection/vendor/manifest.json
+!tests/frontend_selection/vendor/*/LICENSE
+!tests/branch_workloads/vendor/manifest.json
+!tests/branch_workloads/vendor/*/LICENSE
+!tests/branch_workloads/vendor/*/LICENSE.txt
+!docs/verification/data/*/comparison.json
+!docs/verification/data/*/summary.json
+!docs/verification/data/*/decision.json
+!docs/verification/data/*/configurations.json
+!docs/verification/data/*/references.json
+!docs/verification/data/*/tool-manifest.json
+!docs/verification/data/*/tool-bindings.json

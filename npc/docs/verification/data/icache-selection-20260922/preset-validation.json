@@ -1,0 +1,44 @@
+{
+  "status": "passed",
+  "installed": {
+    "adopted": "c1bypass32",
+    "config": [
+      1024,
+      4,
+      13,
+      32
+    ],
+    "mhz": 720,
+    "preset_sha256": "31a763c828e215992a7b309756aa7a58a1d3048e19d2a723fa4a18e283e11eda",
+    "makefile_sha256": "6b2f67e45fd6d50c425552b12100f21e6f4355312cef179af02ce5075f5c985c",
+    "validation_pending": false
+  },
+  "records": [
+    {
+      "config": "rv32-baseline",
+      "goal": "test-config",
+      "log": "npc/result/frontend-selection-physical-20260922/final-test-config-rv32-baseline.log",
+      "passed": true
+    },
+    {
+      "config": "rv32-balanced",
+      "goal": "test-config",
+      "log": "npc/result/frontend-selection-physical-20260922/final-test-config-rv32-balanced.log",
+      "passed": true
+    },
+    {
+      "config": "rv64-sequential",
+      "goal": "test-config",
+      "log": "npc/result/frontend-selection-physical-20260922/final-test-config-rv64-sequential.log",
+      "passed": true
+    },
+    {
+      "config": "rv32-balanced",
+      "goal": "test-timer-interrupt",
+      "log": "npc/result/frontend-selection-physical-20260922/final-test-timer-interrupt-rv32-balanced.log",
+      "passed": true
+    }
+  ],
+  "initial_failure": "interrupt-unscaled-720.log",
+  "test_timing_fix": "interrupt-timing-fix.json"
+}

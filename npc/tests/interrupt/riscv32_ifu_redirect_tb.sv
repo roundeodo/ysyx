@@ -19,6 +19,7 @@ module riscv32_ifu_redirect_tb;
   logic predictor_response_valid, predictor_response_ready, predictor_flush;
   branch_prediction_t prediction;
   riscv32_branch_predictor predictor (
+      .resolved_control_flow_prediction_i('0),
       .clk_i(clk), .rst_ni(rst_n),
       .lookup_request_pc_i(predictor_request_pc),
       .lookup_request_epoch_i(predictor_request_epoch),

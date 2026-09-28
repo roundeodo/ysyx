@@ -6,7 +6,8 @@ module riscv32_branch_predictor
     parameter int unsigned BHT_ENTRY_COUNT = riscv_config_pkg::BRANCH_HISTORY_ENTRY_COUNT,
     parameter int unsigned BTB_ENTRY_COUNT = riscv_config_pkg::BRANCH_TARGET_ENTRY_COUNT,
     parameter int unsigned BTB_WAY_COUNT   = riscv_config_pkg::BRANCH_TARGET_WAY_COUNT,
-    parameter int unsigned RAS_ENTRY_COUNT = riscv_config_pkg::RETURN_STACK_ENTRY_COUNT
+    parameter int unsigned RAS_ENTRY_COUNT = riscv_config_pkg::RETURN_STACK_ENTRY_COUNT,
+    parameter int unsigned BTB_POLICY      = riscv_config_pkg::BRANCH_TARGET_POLICY
 ) (
     input logic clk_i,
     input logic rst_ni,
@@ -30,6 +31,7 @@ module riscv32_branch_predictor
     input arch_reg_idx_t    resolved_control_flow_rd_i,
     input logic             resolved_control_flow_event_i,
     input logic             resolved_control_flow_taken_i,
+    input branch_prediction_t resolved_control_flow_prediction_i,
 
     // redirect只清除当前查询流水，不清除训练状态；fence.i才清除可能过期的BTB内容。
     input logic flush_lookup_i,
@@ -79,6 +81,7 @@ module riscv32_branch_predictor
 
   // 2. 并行查表：三个单元都读取当前请求，没有各自的查询流水或握手状态。
   logic [1:0]          history_counter;
+  direction_context_t  direction_context;
   logic                target_present;
   program_counter_t    target_pc;
   branch_target_kind_e target_kind;
@@ -92,14 +95,18 @@ module riscv32_branch_predictor
       .rst_ni           (rst_ni),
       .lookup_pc_i      (lookup_request_pc_i),
       .lookup_counter_o (history_counter),
+      .lookup_context_o (direction_context),
       .training_pc_i    (training.pc),
       .training_valid_i (training_valid && (training.kind == TARGET_KIND_CONDITIONAL_BRANCH)),
-      .training_taken_i (training.taken)
+      .training_taken_i (training.taken),
+      .training_context_i(resolved_control_flow_prediction_i.direction),
+      .invalidate_i      (invalidate_i)
   );
 
   riscv32_btb #(
       .BTB_ENTRY_COUNT (BTB_ENTRY_COUNT),
-      .BTB_WAY_COUNT   (BTB_WAY_COUNT)
+      .BTB_WAY_COUNT   (BTB_WAY_COUNT),
+      .BTB_POLICY      (BTB_POLICY)
   ) u_btb (
       .clk_i                   (clk_i),
       .rst_ni                  (rst_ni),
@@ -111,6 +118,7 @@ module riscv32_branch_predictor
       .training_target_pc_i    (training.target_pc),
       .training_kind_i         (training.kind),
       .training_valid_i        (training_valid),
+      .training_taken_i        (training.taken),
       .invalidate_i            (invalidate_i)
   );
 
@@ -157,6 +165,7 @@ module riscv32_branch_predictor
     if (selected_target_pc[1:0] != 2'b00)
       selected_taken = 1'b0;
     selected_prediction                  = '0;
+    selected_prediction.direction        = direction_context;
     selected_prediction.predicted_taken  = selected_taken;
     selected_prediction.predicted_target = selected_taken ? selected_target_pc : '0;
   end

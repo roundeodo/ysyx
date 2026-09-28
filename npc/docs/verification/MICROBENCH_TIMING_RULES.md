@@ -1,8 +1,19 @@
 # MicroBench 的计时与比较规则
 
-建立于 2026-09-06；当前入口更新于 2026-09-21。对象为 `ysyx-workbench-rv32-interview` 的 RV32 配置。
+建立于 2026-09-06；当前入口说明更新于 2026-09-28。对象为 `ysyx-workbench-rv32-interview` 的 RV32 配置。
 
-## 2026-09-11 发布核对
+## 当前设备模型（2026-09-28）
+
+默认 `device-clock-v1`：APB 外设与完整 SDRAM 域实际按 100 MHz 设备节拍推进，
+CPU 保持配置频率，取消外层回复乘比例。旧模型通过 `--timing-model legacy` 保留。
+原理、缓冲、旁路及理想跨频率桥的边界见[设备延迟模型](../interconnect/DEVICE_TIMING_MODEL.md)，
+测试和新旧短测见[验收记录](DEVICE_TIMING_2026-09-28.md)。
+
+2026-09-27 的逐拍 W 校准修复了写传输未校准，但在共享 SDRAM 中产生了
+[并发重复缩放](TIMING_AUDIT_2026-09-28.md)。其成绩仅作历史复现，不能视为当前模型结果。
+新模型变化是测量环境修正，不是 CPU 加速；架构比较须统一模型版本和软件镜像。
+
+## 历史发布核对（2026-09-11）
 
 低侵入 train 已完成：Total 1.911282 秒、IPC 0.170242182；Scored 1.278899 秒、
 IPC 0.178135953。十项 PASS、GOOD TRAP。文中“尚未运行”的表述属于此前准备阶段记录，
@@ -14,16 +25,29 @@ IPC 0.178135953。十项 PASS、GOOD TRAP。文中“尚未运行”的表述属
 默认性能入口为 `npc/scripts/run_microbench_perf.py`。它保留 MicroBench 原生定时器读取，
 默认不编入额外 CSR 快照，在仿真端同步统计时间窗口内的周期与真实退休指令。
 
+下面以 RV32I、720 MHz、当前设备模型为例，train 由用户手动启动：
+
 ```sh
 cd /home/yong/ysyx/ysyx-workbench-rv32-interview
-python3 npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 580
+python3 npc/scripts/run_microbench_perf.py --isa rv32i --scale train --cpu-mhz 720 --timing-model device-clock \
+  --icache-bytes 1024 --icache-ways 4 --icache-line 32 --icache-policy 13 \
+  --bht-entries 16 --btb-entries 16 --btb-ways 2 --btb-policy 0 \
+  --ras-entries 4 --direction-policy 0 --history-bits 4
 ```
 
-脚本先构建并归档，再启动仿真。`--prepare-only` 只准备文件；之后使用 `--resume 目录`
-运行归档的模拟器和镜像，并核对哈希。默认采用 RV32 baseline、I-cache 256 B/1-way、
-D-cache 256 B/2-way、BHT 16、BTB 16 项/2-way、RAS 4、SDRAM burst。当前通过完整 STA 检查
-的测量点为 CPU 580 MHz：设备等效 100 MHz，CLINT 每 580 拍增加 1 微秒。
-脚本仍有历史默认值 820，当前须显式传入 `--cpu-mhz 580`。输出目录不可覆盖，重测创建新目录。
+脚本先构建并归档，再启动仿真。`--prepare-only`只准备文件；之后使用`--resume 目录`
+运行归档的模拟器和镜像，并核对哈希。D-cache为256 B、2-way、16 B line，启用SDRAM burst。
+720 MHz 时 CLINT 每 720 拍增加 1 微秒，设备域按 100 MHz 推进。输出目录不可覆盖，重测创建新目录。
+
+频率资格必须和源码、结构及STA流程绑定。2026-09-24这组1 KiB I-cache配置中，
+BHT16基线通过720 MHz，TAGE16通过700 MHz；上例使用 BHT16 基线的 720 MHz。
+启用当前乘除法器时，应改用 `--isa rv32im --cpu-mhz 700`；当前 RV32IM 的面积和
+四组 STA 见[前端时序记录](RV32IM_FRONTEND_TIMING_2026-09-28.md)。
+原文的580 MHz属于之前的256 B配置记录，不能代表所有新配置。完整结果见
+[分支历史探索](BRANCH_HISTORY_EXPLORATION_2026-09-24.md)。这些是整核综合网表的布局前估计。
+
+命令行仍保留历史默认值：CPU820 MHz、I-cache256 B/1-way/16 B line/policy0。
+这些默认值没有自动关联最新STA；测量时必须像上例一样显式指定频率与结构参数。
 
 用户所说的“完成 train 的定时器时间”优先报告 **原生 Total time**，并同时给出该窗口
 IPC；**Scored time** 与它的 IPC 单独列出，用于比较十个计分区间。JSON 中分别为
@@ -32,12 +56,19 @@ IPC；**Scored time** 与它的 IPC 单独列出，用于比较十个计分区�
 这些数字不混用。
 
 原生计时和退休数准确对应仿真窗口，不等于设备模型已经准确复现真实系统时序。
-2026-09-21 的独立实验发现：下游接收和返回时刻不变，提前呈现 VALID 会在当前 AXI
-延迟换算中使上游更晚收到响应。因此当前模型对并发请求的性能排序有局限，不能仅凭
+2026-09-21 的独立实验发现：下游接收和返回时刻不变，提前呈现 VALID 会在旧 AXI
+延迟换算中使上游更晚收到响应。因此旧模型对并发请求的性能排序有局限，不能仅凭
 这种退化认定硬件旁路更差，也不能把模型中的秒数当作硅上实测。
 复现与本轮取舍见[缓存交接实测](RV32_REFINEMENT_2026-09-21.md#设备延迟模型的限制)。
 
-## 历史计时审计：本次发现
+2026-09-24的分支选型另用独立RTL存储模型：从AR握手开始计算固定物理服务时间，
+主矩阵首响应100 ns、后续beat10 ns。它经过1158项存储探针和受控误预测测试，仍只是
+明确边界下的模型，不是完整SDRAM或SoC。原生MicroBench与该矩阵分别报告，
+不能将两者的绝对时间直接拼接，也不能把定时器同窗校验当作所有设备模型物理正确的证明。
+
+## 历史计时审计（2026-09-06）
+
+以下保留当时的修正过程；其中“当前”“本轮”指当时的配置，不是2026-09-24的默认结构。
 
 当前旧配置同时存在三个不同频率：CLINT 按 100 MHz CPU 换算微秒，AXI/APB
 延迟模块按 `3037/1024` 倍拉长设备响应（对应 296.58203125 MHz CPU / 100 MHz
@@ -325,3 +356,18 @@ tail -f npc/result/performance/passive-train-ready-20260906/driver.log
 完成后查看同目录的 `report.json`。只有通过十项测试、原生时间核对和窗口检查才会
 生成 `status: passed`；没有该文件时先检查 `driver.log`，不可用部分日志宣布完成。
 需要再次测量时运行文首 `--scale train` 命令建立新目录，不覆盖已完成的归档。
+
+## 写通道时间归属修复（2026-09-27）
+
+写事务计时区分三个来源：AW/W 已提供而等待设备，或 AW 与末 W 都接收后等待 B，
+按设备频率比累加；没有上述设备工作、且上游没有提供地址/数据时，按一个 CPU 周期累加；
+等待本延迟器已安排的 W 确认期间不再次累加，但独立的 AW/B 工作仍继续计时。
+现有事务状态足以判断，不增加流水级或改动 CPU。每笔事务完成及复位按原规则清状态。
+通过含初始空档、拍间空档、设备反压、B 反压与地址/数据独立到达的测试验证。
+
+两边延迟器和定向测试源码已同步。32 组写定时测试覆盖频率比 1、2、2.5、7。
+RV32 在 700 MHz、1 KiB 四路 I-cache 配置下重新构建并运行完整 SoC MicroBench test，
+十项测试及统计观察器开关一致性检查通过：Scored 430313 条指令、1577073 周期、IPC 0.272855，
+与此次修复前同配置短测试相同。归档：`result/verification/write-gap-fix-20260927/rv32-test/`。
+该结果不能替代历史 train；本次未运行 train。上文历史 `--resume` 命令会使用旧模拟器，
+需要测新模型时应重新构建并建立新归档，不要恢复历史归档。

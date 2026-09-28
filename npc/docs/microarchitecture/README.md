@@ -1,7 +1,13 @@
 # 微架构说明
 
 当前 RV32 前端从[数据流与源码顺序](FRONTEND_REWRITE_DESIGN_RECORD.md)开始阅读。
+RV32IM 扩展见[乘除法电路](MULDIV_DESIGN.md)，可选候选见[乘法流水](MUL_PIPELINE_DESIGN.md)。
+原 RV32I 预设保持关闭。
 模块说明用于快速理解当前电路；实验过程与测量结果在 `verification/` 中维护。
+预测器从[查询与训练结构](FETCH_PREDICTOR_DESIGN_RECORD.md)进入；可选的
+[BTB 准入与替换策略](BTB_POLICY_DESIGN.md)不改变查询寄存级，默认保持原策略。
+方向预测的可选[小型TAGE](TAGE_DESIGN.md)沿用同一查询响应级，默认关闭；
+准确率模型、恢复代价与硬件测量见[分支历史实验](../verification/BRANCH_HISTORY_EXPLORATION_2026-09-24.md)。
 
 ## 源码目录
 
@@ -11,7 +17,7 @@
 | --- | --- |
 | `frontend/` | IFU、预测器、I-cache、fetch buffer |
 | `decode/` | IDU、GPR、操作数准备与前递选择 |
-| `execute/` | ID/EX 接收寄存器、EXU、执行结果寄存器 |
+| `execute/` | ID/EX、EXU、可选乘除法单元、执行结果寄存器 |
 | `memory/` | LSU、D-cache、uncached 与数据存储路由 |
 | `writeback/` | 完成选择、WB 寄存器、提交、CSR 与 PMU |
 | `control/` | 冒险、重定向、中断、异常与 FENCE.I 维护 |
@@ -55,6 +61,8 @@
 ## 当前前端
 
 - [取指预测器](FETCH_PREDICTOR_DESIGN_RECORD.md)：BHT、BTB、RAS、单级查询与训练时序。
+- [历史方向预测原型](DIRECTION_PREDICTOR_DESIGN.md)：默认关闭的 gshare/Bi-mode、查询快照与恢复。
+- [BTB实验策略](BTB_POLICY_DESIGN.md)：准入、RRIP/LRU、状态更新与默认关闭边界。
 - [I-cache](ICACHE_DESIGN_RECORD.md)：同步查询、阻塞回填、AXI、错误与失效。
 - IFU 与 fetch buffer 的状态和取舍见[前端总览](FRONTEND_REWRITE_DESIGN_RECORD.md)。
 
@@ -62,6 +70,7 @@
 
 - [D-cache](DCACHE_DESIGN_RECORD.md)：写回/写分配、PMA 路由与共享访存。
 - [流水线](PIPELINE_DESIGN_RECORD.md)：译码/操作数准备、执行、提交、冒险与 FENCE.I。
+- [Scoreboard 与 ROB 后续方案](../development/BACKEND_SCOREBOARD_PLAN.md)：待实现的多 FU 乱序完成与顺序提交，含参考源码与验证边界。
 - [定时中断](TIMER_INTERRUPT_DESIGN_RECORD.md)：CLINT、CSR 与精确受理。
 - [总线连接](../interconnect/AXI4_ARCHITECTURE.md)：仲裁、地址路由、错误目标与 SoC 适配。
 

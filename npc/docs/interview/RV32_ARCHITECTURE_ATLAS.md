@@ -1,11 +1,10 @@
 # RV32 架构与模块说明
 
-更新日期：2026-09-19。独立 RR 已取消；前端查询为一级，训练直接来自 EX 结果。
-本轮加入队列和访存直通、load-use 前递及同拍事务交接，删除 ID/EX skid 和恢复寄存级。
-当前面积、时序与 IPC 统一见[周期优化验证](../verification/RV32_CYCLE_OPT_2026-09-19.md)。
-本文依据面试工作树 `ysyx-workbench-rv32-interview` 的实际连接，配置为
-`PROJECT=riscv32 NPC_CONFIG=rv32-baseline`；历史数据不代表本轮成绩。
-远程面试快照及依赖恢复方式见 [远程版本说明](RV32_REMOTE_SNAPSHOT.md)。
+更新日期：2026-09-24。独立 RR 已取消；前端预测查询为一级。
+本文按 `PROJECT=riscv32 NPC_CONFIG=rv32-balanced` 说明当前面试配置，
+包含 load-use 前递、同拍事务交接及异常/缓存错误恢复。
+参数、面积时序、依赖恢复和研究入口统一见[固定版本](RV32_REMOTE_SNAPSHOT.md)。
+历次取消寄存级的数值在下文按日期保留，不是本版最新 PPA。
 
 这是一颗 **RV32I 单发射、顺序执行、顺序提交的处理器**，带分离的 L1 指令/数据缓存、
 小型分支预测器、基础 M-mode 异常和定时中断，通过 AXI4 接入 ysyxSoC。
@@ -26,7 +25,7 @@ ALU、AGU、命中选择器等可能只是一个 RTL 模块内部的逻辑，不
 | ISA / GPR | RV32I、Zicsr、Zifencei；32 个 32 位架构寄存器 | x0 恒零，实际数据阵列只存 x1–x31；不是 RV32E |
 | 发射 / 提交 | 每拍最多 1 条 / 1 条 | 弹性接口不保证每拍都有可发射指令 |
 | 地址 / 指令 / AXI 数据 | 均为 32 位，AXI ID 为 4 位 | 当前数值相同，但语义不同；4 位 ID 不表示 16 个在途请求 |
-| I-cache | 256 B，1 路，16 B/行，16 组 | 当前是直接映射；RTL 支持多路配置 |
+| I-cache | 1 KiB，4 路，32 B/行，8 组 | 分段访问 RRIP，策略 13；查询同组命中前递 |
 | D-cache | 256 B，2 路，16 B/行，8 组 | 启用，阻塞式 Write-Back / Write-Allocate |
 | I/D 缺失跟踪 | 各 1 个活动缺失 | 不是多 MSHR 非阻塞缓存 |
 | BHT | 16 项，每项 2 位饱和计数器 | PC 索引，不是全局历史或 gshare |
@@ -214,8 +213,8 @@ LB/LH/LW/LBU/LHU 和 SB/SH/SW 使用字节选择、扩展及 WSTRB；不对未�
 
 ## 6. I-cache：同步查询、单缺失与 Early Restart
 
-地址划分为 **tag[31:8]、set[7:4]、word[3:2]、byte[1:0]**。
-16 组 × 1 路 × 4 个 32 位字 = 256 B 数据，tag 为每行 24 位，另有有效状态。
+地址划分为 **tag[31:8]、set[7:5]、word[4:2]、byte[1:0]**。
+8 组 × 4 路 × 8 个 32 位字 = 1024 B 数据，tag 为每行 24 位，另有有效状态和替换元数据。
 
 命中路径：S0 接受请求，同步读取 tag/data，同时保存请求身份；S1 用数组的寄存输出做
 tag 比较和数据选择，返回一个 32 位指令字。不要在数组输出后又凭空添加一个 S2 数据寄存级。
@@ -226,14 +225,15 @@ tag 比较和数据选择，返回一个 32 位指令字。不要在数组输出
 | RTL 模块 | 内部结构和职责 |
 | --- | --- |
 | [riscv32_icache](../../vsrc/riscv32/core/frontend/riscv32_icache.sv) | S1 请求寄存、PMA 属性、命中比较/响应选择、替换选择、阵列端口仲裁，以及失效状态机；连接 tag/data/miss/PMA 子模块 |
+| [riscv32_icache_replacement](../../vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv) | 替换状态与 victim 查询快照；当前策略 13 在 S0 选 victim，与 tag 同一寄存边界，同组命中前递；不保存重复 tag 或请求 |
 | [riscv32_icache_tag_array](../../vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv) | 按 way/set 保存 tag 与有效位；同步读取所选 set 的各 way；按 set/way 写元数据；复位清有效位，tag payload 不依赖清零 |
 | [riscv32_icache_data_array](../../vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv) | 按 way/word/set 保存指令数据；上升沿寄存读结果；refill 写口先 staging，再用 always_latch 在低电平写数据存储体，每次写一个字 |
 | [riscv32_icache_miss_unit](../../vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv) | 单请求上下文、refill 进度、所需字与响应是否已生成的状态；状态为 IDLE → SEND_REFILL_REQUEST → RECEIVE_REFILL → COMPLETE |
 | [riscv32_icache_axi](../../vsrc/riscv32/core/frontend/riscv32_icache_axi.sv) | 单读事务控制，空闲时直接发 AR，反压才进入 SEND_AR，地址接收后进入 RECEIVE_R；将 refill 请求变成 AXI AR，把每个 R beat 转成 refill word/错误信息。实例在 core 中，是 I-cache 的同层模块 |
 | [riscv32_pma](../../vsrc/riscv32/core/frontend/riscv32_pma.sv) | 组合地址区间译码，给出 readable/writable/executable/cacheable/idempotent 等属性；I-cache 与数据子系统分别实例化它，不是共享单端口寄存表 |
 
-cacheable miss 使用行对齐地址，发 `ARLEN=3`、`ARSIZE=2`、INCR burst，按自然地址顺序
-读 4 个 32 位 beat。请求的那个字成功到达后可先返回指令，这就是 Early Restart。
+cacheable miss 使用行对齐地址，发 `ARLEN=7`、`ARSIZE=2`、INCR burst，按自然地址顺序
+读 8 个 32 位 beat。请求的那个字成功到达后可先返回指令，这就是 Early Restart。
 后台仍需接收其余 beat；整行成功后才置 tag 有效。缺失期间不接收另一项普通 lookup，
 因此没有 hit-under-miss，也没有 critical-word-first。
 
@@ -241,7 +241,10 @@ PMA 允许执行但不缓存的区域走单次读取，`ARLEN=0`，不安装缓�
 返回取指异常。若提前返回后后续 beat 报错，整行不能有效，但不能撤回已经交付的指令字。
 异常归属应按具体请求字及总线返回语义解释，不能笼统说提前返回等于整行已验证完成。
 
-失效请求先等待旧查询和 miss 排空，在完成握手沿一次清除全部有效位，不再逐组扫描。当前单路无替换选择自由度；配置多路时，优先无效 way，否则用轮询指针，非 LRU。
+失效请求先等待旧查询和 miss 排空，在完成握手沿一次清除全部有效位及替换状态，不再逐组扫描。
+当前优先无效 way，否则由策略 13 选择 victim。分段访问 RRIP 只在离开该行后再次命中时
+提升其优先级；查询看到同组命中前递，不经过不能同拍发生的 miss 分配更新。详见
+[替换电路](../microarchitecture/ICACHE_REPLACEMENT_DESIGN.md)，没有新增 cache 流水级。
 
 ## 7. 数据子系统与 D-cache
 
@@ -377,7 +380,7 @@ clean 失败进入只能由系统复位退出的 FAILED 状态，停止后续取
 | 为什么删除 ID/EX skid？ | 它是备用容量，不是正常路径必需的一级；单项接收减少面积，代价是反压路径变长，已重新综合验证 |
 | load 何时可以直接前递？ | 最近生产者成功交付时允许，错误和反压时禁止；收益是减少 RAW 等待，代价是组合路径变长 |
 | 为什么结果级后才判断预测错误？ | 把真实目标生成与预测比较拆开；代价是恢复延迟和分支训练可见性变晚 |
-| I/D 为何分别一/两路？ | I-cache 一路简化比较/选择；小 D-cache 两路减轻地址冲突。历史 A/B 支持选择，但不能声称对所有负载最优 |
+| I/D 为何分别四/两路？ | I-cache 经容量/路数/策略比较选择 1 KiB 四路；D-cache 固定 256 B 两路以隔离前端收益，尚未在本轮做数据缓存选型 |
 | 为什么用 WB/WA？ | 保留数据复用，合并重复写；代价是 dirty/victim 状态、写回和 FENCE.I 维护；没有做完整当前 WB 对 WT 扫描就不能给虚构收益 |
 | 预测器为何这么小？ | 控制表容量、读选择及训练路径；小表会有别名/容量冲突，训练延迟也会增加短循环或相邻控制流的等待 |
 | AXI 支持 burst，为何 IPC 仍低？ | burst 只改善行传输；单读在途、阻塞 D-cache、LSU 顺序限制、前端队列和恢复等待仍然存在 |

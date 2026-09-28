@@ -81,8 +81,9 @@ module axi4_delayer_tb #(
   integer downstream_write_response_cycle;
   integer upstream_write_response_cycle;
 
+  wire device_clock_o;
   axi4_delayer #(
-      .PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED(TEST_RATIO_SCALED),
+      .DEVICE_TIMING_MODE(0),      .PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED(TEST_RATIO_SCALED),
       .FREQUENCY_RATIO_SCALE_SHIFT(10),
       .READ_RESPONSE_BUFFER_DEPTH(16),
       .READ_RESPONSE_BUFFER_ADDR_WIDTH(4)
@@ -317,11 +318,11 @@ module axi4_delayer_tb #(
            "axi4_delayer_tb timeout: downstream_r=%0d upstream_r=%0d fifo_count=%0d read_active=%0b downstream_b=%0d upstream_b=%0d write_active=%0b",
            downstream_read_response_count,
            upstream_read_response_count,
-           u_axi4_delayer.read_response_count_q,
-           u_axi4_delayer.read_transaction_active_q,
+           u_axi4_delayer.g_legacy.u_legacy.read_response_count_q,
+           u_axi4_delayer.g_legacy.u_legacy.read_transaction_active_q,
            downstream_write_response_cycle,
            upstream_write_response_cycle,
-           u_axi4_delayer.write_transaction_active_q);
+           u_axi4_delayer.g_legacy.u_legacy.write_transaction_active_q);
   end
 
 endmodule

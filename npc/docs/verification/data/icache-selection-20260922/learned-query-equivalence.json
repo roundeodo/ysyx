@@ -1,0 +1,16 @@
+[
+  {
+    "original": "c1h32",
+    "query_bypass": "c1hq32",
+    "cases": 6,
+    "results_and_counters_equal": true,
+    "clock": "logical 580 MHz; no STA claim"
+  },
+  {
+    "original": "c2pc64",
+    "query_bypass": "c2pcq64",
+    "cases": 6,
+    "results_and_counters_equal": true,
+    "clock": "logical 580 MHz; no STA claim"
+  }
+]

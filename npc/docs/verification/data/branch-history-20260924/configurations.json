@@ -1,0 +1,57 @@
+{
+  "B0": {
+    "bht": 16,
+    "direction_policy": 0,
+    "history_bits": 4
+  },
+  "B512": {
+    "bht": 512,
+    "direction_policy": 0,
+    "history_bits": 4
+  },
+  "T16": {
+    "bht": 16,
+    "direction_policy": 3,
+    "history_bits": 16
+  },
+  "T32": {
+    "bht": 32,
+    "direction_policy": 3,
+    "history_bits": 16
+  },
+  "T16A": {
+    "bht": 16,
+    "direction_policy": 4,
+    "history_bits": 16
+  },
+  "G256": {
+    "bht": 256,
+    "direction_policy": 1,
+    "history_bits": 8
+  },
+  "G512": {
+    "bht": 512,
+    "direction_policy": 1,
+    "history_bits": 9
+  },
+  "B0I": {
+    "bht": 16,
+    "direction_policy": 0,
+    "history_bits": 4
+  },
+  "G256F": {
+    "bht": 256,
+    "direction_policy": 1,
+    "history_bits": 8
+  },
+  "G512F": {
+    "bht": 512,
+    "direction_policy": 1,
+    "history_bits": 9
+  },
+  "B512F": {
+    "bht": 512,
+    "direction_policy": 0,
+    "history_bits": 4
+  }
+}

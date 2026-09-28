@@ -1,0 +1,31 @@
+{
+  "memory_mode": "physical",
+  "mhz": 580,
+  "comparisons": [
+    {
+      "control": "c1b32",
+      "candidate": "c1bypass32",
+      "cases": 6,
+      "result_and_all_counters_equal": true
+    },
+    {
+      "control": "c1s32",
+      "candidate": "c1sbypass32",
+      "cases": 6,
+      "result_and_all_counters_equal": true
+    },
+    {
+      "control": "c1h32",
+      "candidate": "c1hq32",
+      "cases": 6,
+      "result_and_all_counters_equal": true
+    },
+    {
+      "control": "c2pc64",
+      "candidate": "c2pcq64",
+      "cases": 6,
+      "result_and_all_counters_equal": true
+    }
+  ],
+  "note": "Logical screening; not a claim that all configurations pass STA at 580 MHz"
+}

@@ -1,0 +1,9 @@
+{
+  "source": "npc/tests/interrupt/riscv32_timer_system_tb.sv",
+  "before_sha256": "2f92c226e6846ff662cf9b54c2fd53167f8a5ff6636ec5c3c433deefe765605b",
+  "after_sha256": "319c997cdbe45b6d39b1a583df8aa65e924622990be3e1c2badbd490ed962640",
+  "reason": "6000 cycles at 720 MHz is only 8.333 us, shorter than the 20 us software timer; preserve the original 60 us error-response delay and 5 ms timeout at all configured frequencies",
+  "rtl_changed": false,
+  "assertions_preserved": true,
+  "validation": "passed: B0 at 800 MHz, selected at 720 MHz, simple control at 780 MHz, and named rv32-balanced preset"
+}

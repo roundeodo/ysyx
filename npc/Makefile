@@ -5,6 +5,26 @@
 # ============================================================
 
 PROJECT ?= riscv32
+
+# 经保留集验证的均衡预设；保留原基线供对照。
+ifeq ($(NPC_CONFIG),rv32im-pipelined)
+include configs/rv32im-pipelined.mk
+else ifeq ($(NPC_CONFIG),rv32im-balanced)
+include configs/rv32im-balanced.mk
+else ifeq ($(NPC_CONFIG),rv32-balanced)
+include configs/rv32-balanced.mk
+endif
+NPC_MULDIV_ENABLE ?= 0
+NPC_MUL_PIPELINE_ENABLE ?= 0
+ifneq ($(filter $(NPC_MUL_PIPELINE_ENABLE),0 1),$(NPC_MUL_PIPELINE_ENABLE))
+$(error NPC_MUL_PIPELINE_ENABLE must be 0 or 1)
+endif
+ifneq ($(filter $(NPC_MULDIV_ENABLE),0 1),$(NPC_MULDIV_ENABLE))
+$(error NPC_MULDIV_ENABLE must be 0 or 1)
+endif
+ifeq ($(NPC_CONFIG):$(NPC_MULDIV_ENABLE),rv64-sequential:1)
+$(error MULDIV currently supports RV32 only)
+endif
 # rv32-baseline用于RV32I性能开发，rv32-course-area保留课程面积对照。两者共享
 # ISA语义和模块协议，只改变被实例化的微架构资源。默认值来自同一workload、同一
 # NanGate45流程的A/B实验；命令行仍可覆盖参数继续探索设计空间。
@@ -25,8 +45,8 @@ NPC_DCACHE_WAY_COUNT      ?= 2
 NPC_DCACHE_CAPACITY_BYTES ?= 1024
 NPC_DCACHE_LINE_BYTES     ?= 32
 else
-# RV32I平衡点：I-cache扩大到256 B后前端miss显著下降；256 B/2-way D-cache相对
-# 同容量direct-map只增加约1.35%面积，却把MicroBench测量IPC再提高约10.4%。
+# 保留原RV32基线资源。rv32-balanced已在上方载入经过验证的I-cache预设；
+# 这里的缺省赋值不会覆盖预设或命令行指定的参数。
 NPC_ICACHE_WAY_COUNT      ?= 1
 NPC_ICACHE_CAPACITY_BYTES ?= 256
 NPC_ICACHE_LINE_BYTES     ?= 16
@@ -35,15 +55,24 @@ NPC_DCACHE_WAY_COUNT      ?= 2
 NPC_DCACHE_CAPACITY_BYTES ?= 256
 NPC_DCACHE_LINE_BYTES     ?= 16
 endif
+NPC_ICACHE_REPLACEMENT_POLICY ?= 0
 NPC_SDRAM_NATIVE_READ_BURST ?= 1
 NPC_BRANCH_HISTORY_ENTRY_COUNT ?= 16
 # MicroBench A/B中，16项2路BTB与32项2路性能等价，但预测状态接近减半。
 NPC_BRANCH_TARGET_ENTRY_COUNT  ?= 16
 NPC_BRANCH_TARGET_WAY_COUNT    ?= 2
+NPC_BRANCH_TARGET_WAY_BITS     ?= 0
+NPC_BRANCH_TARGET_POLICY       ?= 0
+NPC_BRANCH_DIRECTION_POLICY    ?= 0
+NPC_BRANCH_GLOBAL_HISTORY_BITS ?= 4
 NPC_RETURN_STACK_ENTRY_COUNT   ?= 4
 
 # 显式频率同时控制 CLINT 微秒和设备延迟。空值仅用于复现历史计时环境。
 NPC_SIM_CPU_FREQ_MHZ ?=
+NPC_DEVICE_TIMING_MODE ?= 1
+ifeq ($(filter $(NPC_DEVICE_TIMING_MODE),0 1),)
+$(error NPC_DEVICE_TIMING_MODE must be 0 or 1)
+endif
 ifneq ($(strip $(NPC_SIM_CPU_FREQ_MHZ)),)
 NPC_SIM_TIMING_DEFINE := +define+YSYX_SIM_CPU_FREQ_MHZ=$(NPC_SIM_CPU_FREQ_MHZ)
 endif
@@ -55,8 +84,8 @@ ifeq ($(filter $(NPC_SDRAM_NATIVE_READ_BURST),0 1),)
 $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
-SUPPORTED_NPC_CONFIGS := rv32-course-area rv32-baseline rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-core-merge-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore branchsim-build branchsim-test branchsim-trace branchsim-run branchsim-explore icache-calibrate-penalty cachesim-explore-calibrated
+SUPPORTED_NPC_CONFIGS := rv32-course-area rv32-baseline rv32-balanced rv32im-balanced rv32im-pipelined rv64-sequential
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-core-merge-configs test-sdram-axi test-axi-delayer test-soc-timing test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore branchsim-build branchsim-test branchsim-trace branchsim-run branchsim-explore icache-calibrate-penalty cachesim-explore-calibrated
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -68,7 +97,7 @@ $(error unsupported NPC_CONFIG=$(NPC_CONFIG); expected one of: $(SUPPORTED_NPC_C
 endif
 endif
 
-ifeq ($(NPC_CONFIG),rv32-baseline)
+ifneq ($(filter $(NPC_CONFIG),rv32-baseline rv32-balanced rv32im-balanced rv32im-pipelined),)
 NPC_ARCH_DEFINE := +define+YSYX_RV32_BASELINE
 NPC_CONFIG_CXXFLAG := -DNPC_XLEN=32
 NPC_SLANG_ARCH_DEFINE := -DYSYX_RV32_BASELINE
@@ -83,8 +112,11 @@ NPC_SLANG_ARCH_DEFINE := -DYSYX_RV64_SEQUENTIAL
 endif
 
 NPC_CONFIG_DEFINE := $(NPC_ARCH_DEFINE) $(NPC_SIM_TIMING_DEFINE) \
+	+define+YSYX_MULDIV_ENABLE=$(NPC_MULDIV_ENABLE) \
+	+define+YSYX_MUL_PIPELINE_ENABLE=$(NPC_MUL_PIPELINE_ENABLE) \
 	+define+YSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
 	+define+YSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
+	+define+YSYX_ICACHE_REPLACEMENT_POLICY=$(NPC_ICACHE_REPLACEMENT_POLICY) \
 	+define+YSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) \
 	+define+YSYX_DCACHE_ENABLE=$(NPC_DCACHE_ENABLE) \
 	+define+YSYX_DCACHE_CAPACITY_BYTES=$(NPC_DCACHE_CAPACITY_BYTES) \
@@ -93,12 +125,19 @@ NPC_CONFIG_DEFINE := $(NPC_ARCH_DEFINE) $(NPC_SIM_TIMING_DEFINE) \
 	+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=$(NPC_BRANCH_HISTORY_ENTRY_COUNT) \
 	+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=$(NPC_BRANCH_TARGET_ENTRY_COUNT) \
 	+define+YSYX_BRANCH_TARGET_WAY_COUNT=$(NPC_BRANCH_TARGET_WAY_COUNT) \
+	+define+YSYX_BRANCH_TARGET_WAY_BITS=$(NPC_BRANCH_TARGET_WAY_BITS) \
+	+define+YSYX_BRANCH_TARGET_POLICY=$(NPC_BRANCH_TARGET_POLICY) \
+	+define+YSYX_BRANCH_DIRECTION_POLICY=$(NPC_BRANCH_DIRECTION_POLICY) \
+	+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=$(NPC_BRANCH_GLOBAL_HISTORY_BITS) \
 	+define+YSYX_RETURN_STACK_ENTRY_COUNT=$(NPC_RETURN_STACK_ENTRY_COUNT) \
 	+define+YSYX_SDRAM_NATIVE_READ_BURST=$(NPC_SDRAM_NATIVE_READ_BURST)
 
 NPC_SLANG_DEFINE := $(NPC_SLANG_ARCH_DEFINE) \
+	-DYSYX_MULDIV_ENABLE=$(NPC_MULDIV_ENABLE) \
+	-DYSYX_MUL_PIPELINE_ENABLE=$(NPC_MUL_PIPELINE_ENABLE) \
 	-DYSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
 	-DYSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
+	-DYSYX_ICACHE_REPLACEMENT_POLICY=$(NPC_ICACHE_REPLACEMENT_POLICY) \
 	-DYSYX_ICACHE_LINE_BYTES=$(NPC_ICACHE_LINE_BYTES) \
 	-DYSYX_DCACHE_ENABLE=$(NPC_DCACHE_ENABLE) \
 	-DYSYX_DCACHE_CAPACITY_BYTES=$(NPC_DCACHE_CAPACITY_BYTES) \
@@ -107,6 +146,10 @@ NPC_SLANG_DEFINE := $(NPC_SLANG_ARCH_DEFINE) \
 	-DYSYX_BRANCH_HISTORY_ENTRY_COUNT=$(NPC_BRANCH_HISTORY_ENTRY_COUNT) \
 	-DYSYX_BRANCH_TARGET_ENTRY_COUNT=$(NPC_BRANCH_TARGET_ENTRY_COUNT) \
 	-DYSYX_BRANCH_TARGET_WAY_COUNT=$(NPC_BRANCH_TARGET_WAY_COUNT) \
+	-DYSYX_BRANCH_TARGET_WAY_BITS=$(NPC_BRANCH_TARGET_WAY_BITS) \
+	-DYSYX_BRANCH_TARGET_POLICY=$(NPC_BRANCH_TARGET_POLICY) \
+	-DYSYX_BRANCH_DIRECTION_POLICY=$(NPC_BRANCH_DIRECTION_POLICY) \
+	-DYSYX_BRANCH_GLOBAL_HISTORY_BITS=$(NPC_BRANCH_GLOBAL_HISTORY_BITS) \
 	-DYSYX_RETURN_STACK_ENTRY_COUNT=$(NPC_RETURN_STACK_ENTRY_COUNT) \
 	-DYSYX_SDRAM_NATIVE_READ_BURST=$(NPC_SDRAM_NATIVE_READ_BURST)
 
@@ -114,13 +157,16 @@ NPC_TOP_MODULE := top
 SOC_TOP_MODULE := ysyxSoCFull
 
 DCACHE_BUILD_TAG := $(if $(filter 1,$(NPC_DCACHE_ENABLE)),dcache-$(NPC_DCACHE_CAPACITY_BYTES)b-way-$(NPC_DCACHE_WAY_COUNT)-line-$(NPC_DCACHE_LINE_BYTES)b,dcache-off)
-PREDICTOR_BUILD_TAG := predictor-bht-$(NPC_BRANCH_HISTORY_ENTRY_COUNT)-btb-$(NPC_BRANCH_TARGET_ENTRY_COUNT)x$(NPC_BRANCH_TARGET_WAY_COUNT)-ras-$(NPC_RETURN_STACK_ENTRY_COUNT)
+PREDICTOR_BUILD_TAG := ic-policy-$(NPC_ICACHE_REPLACEMENT_POLICY)-predictor-bht-$(NPC_BRANCH_HISTORY_ENTRY_COUNT)-btb-$(NPC_BRANCH_TARGET_ENTRY_COUNT)x$(NPC_BRANCH_TARGET_WAY_COUNT)-policy-$(NPC_BRANCH_TARGET_POLICY)-targetbits-$(NPC_BRANCH_TARGET_WAY_BITS)-direction-$(NPC_BRANCH_DIRECTION_POLICY)-ghr-$(NPC_BRANCH_GLOBAL_HISTORY_BITS)-ras-$(NPC_RETURN_STACK_ENTRY_COUNT)
 BUILD_DIR := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))/icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b/$(DCACHE_BUILD_TAG)/$(PREDICTOR_BUILD_TAG)
+ifeq ($(NPC_MULDIV_ENABLE),1)
+BUILD_DIR := $(BUILD_DIR)/rv32im-mulpipe-$(NPC_MUL_PIPELINE_ENABLE)
+endif
 ifeq ($(NPC_SDRAM_NATIVE_READ_BURST),0)
 BUILD_DIR := $(BUILD_DIR)/sdram-read-bl1
 endif
 ifneq ($(strip $(NPC_SIM_CPU_FREQ_MHZ)),)
-BUILD_DIR := $(BUILD_DIR)/sim-cpu-$(NPC_SIM_CPU_FREQ_MHZ)mhz-device-100mhz
+BUILD_DIR := $(BUILD_DIR)/sim-cpu-$(NPC_SIM_CPU_FREQ_MHZ)mhz-device-100mhz-model-$(NPC_DEVICE_TIMING_MODE)
 endif
 NPC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_npc
 SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
@@ -230,7 +276,7 @@ SOC_PERIPHERAL_DIR   := $(SOC_HOME)/perip
 SOC_GENERATED_TOP    := $(SOC_HOME)/build/ysyxSoCFull.v
 SOC_VERILOG_SOURCES  := $(shell find $(SOC_PERIPHERAL_DIR) -type f -name "*.v" | sort)
 SOC_VERILOG_SOURCES  += $(SOC_GENERATED_TOP)
-SOC_RTL_INCLUDE_FLAGS := \
+SOC_RTL_INCLUDE_FLAGS := +define+YSYX_DEVICE_TIMING_MODE=$(NPC_DEVICE_TIMING_MODE) \
 	-I$(SOC_PERIPHERAL_DIR)/uart16550/rtl \
 	-I$(SOC_PERIPHERAL_DIR)/spi/rtl
 
@@ -295,6 +341,9 @@ EXU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv32_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv32_pkg.sv \
+	$(RTL_DIR)/core/execute/riscv32_muldiv.sv \
+	$(RTL_DIR)/core/execute/riscv32_div.sv \
+	$(RTL_DIR)/core/execute/riscv32_mul.sv \
 	$(RTL_DIR)/core/execute/riscv32_exu.sv \
 	$(abspath ./tests/rtl/riscv32_exu_alu_tb.sv)
 
@@ -378,6 +427,7 @@ SDRAM_AXI_TEST_SOURCES := \
 	$(abspath ./tests/rtl/sdram_axi_transaction_classification_tb.sv)
 
 AXI_DELAYER_TEST_SOURCES := \
+	$(SOC_HOME)/perip/amba/device_clock.v \
 	$(SOC_HOME)/perip/amba/axi4_delayer.v \
 	$(abspath ./tests/rtl/axi4_delayer_tb.sv)
 
@@ -569,6 +619,7 @@ test-config: $(CONFIG_TEST_BINARY)
 test-configs:
 	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv32-course-area
 	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv32-balanced
 	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 test-idu: $(IDU_TEST_BINARY)
@@ -609,11 +660,16 @@ test-fence-i-ctrl:
 	$(CACHE_RECOVERY_OUTPUT)/control/obj/Vriscv32_fence_i_ctrl_tb
 
 test-fence-i:
-	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
+	@test -n "$(filter $(NPC_CONFIG),rv32-baseline rv32-balanced rv32im-balanced)" || (echo "Use an RV32 baseline or balanced configuration"; exit 1)
 	python3 scripts/test_cache_recovery.py --test core --output "$(CACHE_RECOVERY_OUTPUT)" $(NPC_CONFIG_DEFINE)
 
 test-dcache-recovery:
 	python3 scripts/test_cache_recovery.py --test cache --output "$(CACHE_RECOVERY_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
+.PHONY: test-icache-replacement
+ICACHE_REPLACEMENT_TEST_OUTPUT ?= $(abspath ./build/tests/icache-replacement)
+test-icache-replacement:
+	python3 scripts/test_icache_replacement.py --output "$(ICACHE_REPLACEMENT_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
 
 .PHONY: test-predictor test-icache test-fetch
 FRONTEND_TEST_OUTPUT ?= $(abspath ./build/tests/frontend)
@@ -629,7 +685,7 @@ test-icache:
 .PHONY: test-predictor-equivalence
 PREDICTOR_TEST_OUTPUT ?= $(abspath ./build/tests/predictor-equivalence)
 test-predictor-equivalence:
-	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
+	@test -n "$(filter $(NPC_CONFIG),rv32-baseline rv32-balanced rv32im-balanced)" || (echo "Use an RV32 baseline or balanced configuration"; exit 1)
 	python3 scripts/test_predictor_equivalence.py --output "$(PREDICTOR_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
 
 test-pipeline-configs:
@@ -1237,6 +1293,7 @@ lint-soc: $(RTL_FILELIST) $(SOC_VERILOG_SOURCES)
 lint-configs:
 	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-course-area
 	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-baseline
+	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv32-balanced
 	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=rv64-sequential
 
 # 课程面积目标统计纯core，并把当前小容量I-cache的tag/data阵列完整映射为标准单元。
@@ -1248,7 +1305,7 @@ STA_SYNTH_STRATEGY ?= DELAY 0
 STA_RUN_POWER_ANALYSIS ?= 0
 STA_SDC_FILE      := $(abspath ./constr/riscv32_npc_axi.sdc)
 STA_PDK           ?= nangate45
-STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(STA_PDK)-$(NPC_CONFIG)-icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-$(DCACHE_BUILD_TAG)-$(PREDICTOR_BUILD_TAG))
+STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(STA_PDK)-$(NPC_CONFIG)-icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-$(DCACHE_BUILD_TAG)-$(PREDICTOR_BUILD_TAG)-m$(NPC_MULDIV_ENABLE)-mp$(NPC_MUL_PIPELINE_ENABLE))
 
 sta: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
 	NPC_STA_NETLIST_FILE="$(STA_OUTPUT_ROOT)/$(STA_DESIGN)-$(STA_FREQUENCY_MHZ)MHz/$(STA_DESIGN).netlist.v" $(MAKE) -C $(STA_TOOL_DIR) sta \
@@ -1303,6 +1360,7 @@ help:
 	@echo "  test-soc-width-converter  Test RV64 AXI to ysyxSoC AXI32 conversion"
 	@echo "  test-sdram-axi  Test AXI transaction classification and native SDRAM BL8 reads"
 	@echo "  test-axi-delayer  Test per-beat AXI read timing and independent write timing"
+	@echo "  test-soc-timing   Test AXI read/write timing and calibrated burst writes"
 	@echo "  test-privileged-configs  Test CSR, trap, commit, and PMU semantics in RV32/RV64"
 	@echo "  nemu-ref-rv32 / nemu-ref-rv64  Build the matching standalone DiffTest reference"
 	@echo "  regression-p3-e  Run RV32/RV64 privileged directed tests"
@@ -1352,13 +1410,13 @@ help:
 
 .PHONY: test-timer-interrupt
 test-timer-interrupt:
-	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
+	@test -n "$(filter $(NPC_CONFIG),rv32-baseline rv32-balanced rv32im-balanced)" || (echo "Use an RV32 baseline or balanced configuration"; exit 1)
 	python3 tests/interrupt/run.py $(NPC_CONFIG_DEFINE)
 
 .PHONY: test-precise-exception
 EXCEPTION_TEST_OUTPUT ?= $(abspath ./build/tests/exception)
 test-precise-exception:
-	@test "$(NPC_CONFIG)" = rv32-baseline || (echo "Use NPC_CONFIG=rv32-baseline"; exit 1)
+	@test -n "$(filter $(NPC_CONFIG),rv32-baseline rv32-balanced rv32im-balanced)" || (echo "Use an RV32 baseline or balanced configuration"; exit 1)
 	python3 tests/exception/run.py --output "$(EXCEPTION_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
 
 
@@ -1390,3 +1448,17 @@ test-timing:
 .PHONY: test-issue-window
 test-issue-window:
 	python3 tests/hardware-optimization/run_monitor.py $(NPC_CONFIG_DEFINE)
+
+.PHONY: test-soc-timing
+test-soc-timing: test-axi-delayer
+	python3 scripts/test_soc_timing.py
+	python3 scripts/test_device_timing.py
+
+.PHONY: test-muldiv test-muldiv-core
+MULDIV_TEST_OUTPUT ?= $(abspath ./build/tests/muldiv)
+test-muldiv:
+	python3 scripts/test_muldiv.py --output "$(MULDIV_TEST_OUTPUT)/unit"
+
+test-muldiv-core: $(NPC_SIM_BINARY)
+	@test "$(NPC_MULDIV_ENABLE)" = 1 || (echo "Use NPC_CONFIG=rv32im-balanced"; exit 1)
+	python3 scripts/test_muldiv_core.py --output "$(MULDIV_TEST_OUTPUT)/core" --simulator "$(NPC_SIM_BINARY)"

@@ -152,6 +152,7 @@ module riscv32_pipeline_control_tb;
   );
 
   riscv32_id_ex_reg u_id_ex_reg (
+      .multiply_operand_a_o(), .multiply_operand_b_o(),
       .clk_i                         (clk),
       .rst_ni                        (rst_ni),
       .decoded_execute_packet_i      (decoded_execute_packet),
@@ -179,6 +180,7 @@ module riscv32_pipeline_control_tb;
   );
 
   riscv32_branch_predictor u_branch_predictor (
+      .resolved_control_flow_prediction_i('0),
       .clk_i                           (clk),
       .rst_ni                          (rst_ni),
       .lookup_request_pc_i             (predictor_lookup_pc),
@@ -242,7 +244,13 @@ module riscv32_pipeline_control_tb;
       .redirect_req_valid_o(staged_trap_redirect_valid)
   );
 
+  execute_producer_t no_pipeline_producer [EXECUTE_PIPE_DEPTH];
+  for (genvar i = 0; i < EXECUTE_PIPE_DEPTH; i++) begin : gen_no_pipeline
+    assign no_pipeline_producer[i] = '0;
+  end
   riscv32_hazard_ctrl u_hazard_ctrl (
+      .pipeline_producer_i(no_pipeline_producer),
+      .rs1_pipeline_forwarding_selected_o(), .rs2_pipeline_forwarding_selected_o(),
       .clk_i                                   (clk),
       .rst_ni                                  (rst_ni),
       .decoded_uop_valid_i                     (hazard_decoded_uop_valid),

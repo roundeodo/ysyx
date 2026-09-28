@@ -18,6 +18,7 @@ module riscv32_hazard_ctrl
     input  logic          execute_blocking_producer_present_i,
     input  arch_reg_idx_t execute_rd_i,
     input  logic          execute_serializing_instruction_present_i,
+    input  execute_producer_t pipeline_producer_i [EXECUTE_PIPE_DEPTH],
 
     // EXU结果经过EX/MEM寄存器后再进入完成端。该级中的普通整数结果可前递；但当
     // 下游反压时，年轻指令不能绕过它发起LSU副作用。串行化属性也必须保持到该级离开。
@@ -56,6 +57,8 @@ module riscv32_hazard_ctrl
     output logic serializing_hazard_present_o,
     output logic structural_hazard_present_o,
 
+    output logic [EXECUTE_PIPE_DEPTH-1:0] rs1_pipeline_forwarding_selected_o,
+    output logic [EXECUTE_PIPE_DEPTH-1:0] rs2_pipeline_forwarding_selected_o,
     output logic rs1_execute_forwarding_selected_o,
     output logic rs1_execute_result_forwarding_selected_o,
     output logic rs1_lsu_forwarding_selected_o,
@@ -78,6 +81,45 @@ module riscv32_hazard_ctrl
   logic writeback_writes_rs2;
   logic lsu_writes_rs1;
   logic lsu_writes_rs2;
+  logic pipeline_writes_rs1, pipeline_writes_rs2;
+  logic pipeline_rs1_available, pipeline_rs2_available;
+  logic pipeline_instruction_present, pipeline_serializing_present;
+  logic [EXECUTE_PIPE_DEPTH-1:0] pipeline_rs1_select, pipeline_rs2_select;
+
+  // 新流水第一级比第二级年轻；倒序覆盖让最新生产者唯一胜出。
+  always_comb begin
+    pipeline_writes_rs1 = 1'b0;
+    pipeline_writes_rs2 = 1'b0;
+    pipeline_rs1_available = 1'b0;
+    pipeline_rs2_available = 1'b0;
+    pipeline_instruction_present = 1'b0;
+    pipeline_serializing_present = 1'b0;
+    pipeline_rs1_select = '0;
+    pipeline_rs2_select = '0;
+    if (MUL_PIPELINE_ENABLE) begin
+      for (int i = EXECUTE_PIPE_DEPTH-1; i >= 0; i--) begin
+        pipeline_instruction_present |= pipeline_producer_i[i].present;
+        pipeline_serializing_present |= pipeline_producer_i[i].present &&
+                                        pipeline_producer_i[i].serializing;
+        if (pipeline_producer_i[i].present && pipeline_producer_i[i].writes_rd &&
+            pipeline_producer_i[i].rd != '0 && decoded_uop_valid_i) begin
+          if (decoded_uses_rs1_i && pipeline_producer_i[i].rd == decoded_rs1_i) begin
+            pipeline_writes_rs1 = 1'b1;
+            pipeline_rs1_available = pipeline_producer_i[i].forwardable;
+            pipeline_rs1_select = '0;
+            pipeline_rs1_select[i] = pipeline_producer_i[i].forwardable;
+          end
+          if (decoded_uses_rs2_i && pipeline_producer_i[i].rd == decoded_rs2_i) begin
+            pipeline_writes_rs2 = 1'b1;
+            pipeline_rs2_available = pipeline_producer_i[i].forwardable;
+            pipeline_rs2_select = '0;
+            pipeline_rs2_select[i] = pipeline_producer_i[i].forwardable;
+          end
+        end
+      end
+    end
+  end
+
   logic rs1_value_unavailable;
   logic rs2_value_unavailable;
 
@@ -125,41 +167,45 @@ module riscv32_hazard_ctrl
     // 同一架构寄存器可能同时被EX和WB中的两条老指令写入。EX中的生产者年龄更近，
     // 必须优先；如果它的结果尚不可用，不能错误前递WB中的更旧值。
     rs1_execute_forwarding_selected_o        = execute_forwardable_writes_rs1;
-    rs1_execute_result_forwarding_selected_o = !execute_writes_rs1 &&
+    rs1_execute_result_forwarding_selected_o = !execute_writes_rs1 && !pipeline_writes_rs1 &&
         execute_result_writes_rs1 && execute_result_forwarding_available_i;
-    rs1_lsu_forwarding_selected_o = !execute_writes_rs1 &&
+    rs1_lsu_forwarding_selected_o = !execute_writes_rs1 && !pipeline_writes_rs1 &&
         !execute_result_writes_rs1 && lsu_writes_rs1 && lsu_completion_succeeded_i;
-    rs1_writeback_forwarding_selected_o = !execute_writes_rs1 &&
+    rs1_writeback_forwarding_selected_o = !execute_writes_rs1 && !pipeline_writes_rs1 &&
         !execute_result_writes_rs1 &&
         !lsu_writes_rs1 &&
         writeback_writes_rs1 &&
         writeback_forwarding_available_i;
     rs2_execute_forwarding_selected_o        = execute_forwardable_writes_rs2;
-    rs2_execute_result_forwarding_selected_o = !execute_writes_rs2 &&
+    rs2_execute_result_forwarding_selected_o = !execute_writes_rs2 && !pipeline_writes_rs2 &&
         execute_result_writes_rs2 && execute_result_forwarding_available_i;
-    rs2_lsu_forwarding_selected_o = !execute_writes_rs2 &&
+    rs2_lsu_forwarding_selected_o = !execute_writes_rs2 && !pipeline_writes_rs2 &&
         !execute_result_writes_rs2 && lsu_writes_rs2 && lsu_completion_succeeded_i;
-    rs2_writeback_forwarding_selected_o = !execute_writes_rs2 &&
+    rs2_writeback_forwarding_selected_o = !execute_writes_rs2 && !pipeline_writes_rs2 &&
         !execute_result_writes_rs2 &&
         !lsu_writes_rs2 &&
         writeback_writes_rs2 &&
         writeback_forwarding_available_i;
 
+    rs1_pipeline_forwarding_selected_o = execute_writes_rs1 ? '0 : pipeline_rs1_select;
     rs1_value_unavailable = execute_blocking_writes_rs1 ||
-        (!execute_writes_rs1 && execute_result_writes_rs1 &&
+        (!execute_writes_rs1 && pipeline_writes_rs1 && !pipeline_rs1_available) ||
+        (!execute_writes_rs1 && !pipeline_writes_rs1 && execute_result_writes_rs1 &&
         !execute_result_forwarding_available_i) ||
-        (!execute_writes_rs1 && !execute_result_writes_rs1 &&
+        (!execute_writes_rs1 && !pipeline_writes_rs1 && !execute_result_writes_rs1 &&
         lsu_writes_rs1 && !lsu_completion_succeeded_i) ||
-        (!execute_writes_rs1 && !execute_result_writes_rs1 &&
+        (!execute_writes_rs1 && !pipeline_writes_rs1 && !execute_result_writes_rs1 &&
         !lsu_writes_rs1 &&
         writeback_writes_rs1 &&
         !writeback_forwarding_available_i);
+    rs2_pipeline_forwarding_selected_o = execute_writes_rs2 ? '0 : pipeline_rs2_select;
     rs2_value_unavailable = execute_blocking_writes_rs2 ||
-        (!execute_writes_rs2 && execute_result_writes_rs2 &&
+        (!execute_writes_rs2 && pipeline_writes_rs2 && !pipeline_rs2_available) ||
+        (!execute_writes_rs2 && !pipeline_writes_rs2 && execute_result_writes_rs2 &&
         !execute_result_forwarding_available_i) ||
-        (!execute_writes_rs2 && !execute_result_writes_rs2 &&
+        (!execute_writes_rs2 && !pipeline_writes_rs2 && !execute_result_writes_rs2 &&
         lsu_writes_rs2 && !lsu_completion_succeeded_i) ||
-        (!execute_writes_rs2 && !execute_result_writes_rs2 &&
+        (!execute_writes_rs2 && !pipeline_writes_rs2 && !execute_result_writes_rs2 &&
         !lsu_writes_rs2 &&
         writeback_writes_rs2 &&
         !writeback_forwarding_available_i);
@@ -174,12 +220,12 @@ module riscv32_hazard_ctrl
   logic execute_result_stalled;
   logic execute_result_exception_present;
 
-  assign older_instruction_present = execute_instruction_present_i ||
+  assign older_instruction_present = execute_instruction_present_i || pipeline_instruction_present ||
       execute_result_valid_i ||
       writeback_result_valid_i || lsu_busy_i;
 
   assign older_serializing_instruction_present =
-      execute_serializing_instruction_present_i ||
+      execute_serializing_instruction_present_i || pipeline_serializing_present ||
       (execute_result_valid_i && execute_result_serializing_i) ||
       (writeback_result_valid_i && writeback_serializing_i);
 
@@ -249,12 +295,14 @@ module riscv32_hazard_ctrl
     $error("pipeline advanced a younger instruction past an older EX result exception");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(
-      {rs1_execute_forwarding_selected_o,
+      {rs1_pipeline_forwarding_selected_o,
+              rs1_execute_forwarding_selected_o,
               rs1_execute_result_forwarding_selected_o,
               rs1_lsu_forwarding_selected_o,
               rs1_writeback_forwarding_selected_o}
   ) && $onehot0(
-      {rs2_execute_forwarding_selected_o,
+      {rs2_pipeline_forwarding_selected_o,
+              rs2_execute_forwarding_selected_o,
               rs2_execute_result_forwarding_selected_o,
               rs2_lsu_forwarding_selected_o,
               rs2_writeback_forwarding_selected_o}
@@ -275,27 +323,27 @@ module riscv32_hazard_ctrl
     $error("pipeline accepted stale rs2 data while the newest EX producer was unavailable");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs1 && !execute_result_writes_rs1 &&
+    (decoded_uop_valid_i && !execute_writes_rs1 && !pipeline_writes_rs1 && !execute_result_writes_rs1 &&
      lsu_writes_rs1 && !lsu_completion_succeeded_i)
     |-> raw_hazard_present_o)
   else
     $error("pipeline accepted stale rs1 data while an LSU producer was pending");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (decoded_uop_valid_i && !execute_writes_rs2 && !execute_result_writes_rs2 &&
+    (decoded_uop_valid_i && !execute_writes_rs2 && !pipeline_writes_rs2 && !execute_result_writes_rs2 &&
      lsu_writes_rs2 && !lsu_completion_succeeded_i)
     |-> raw_hazard_present_o)
   else
     $error("pipeline accepted stale rs2 data while an LSU producer was pending");
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (lsu_completion_succeeded_i && lsu_writes_rs1 &&
-     !execute_writes_rs1 && !execute_result_writes_rs1)
+     !execute_writes_rs1 && !pipeline_writes_rs1 && !execute_result_writes_rs1)
     |-> rs1_lsu_forwarding_selected_o)
   else $error("Successful LSU result did not forward to rs1");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (lsu_completion_succeeded_i && lsu_writes_rs2 &&
-     !execute_writes_rs2 && !execute_result_writes_rs2)
+     !execute_writes_rs2 && !pipeline_writes_rs2 && !execute_result_writes_rs2)
     |-> rs2_lsu_forwarding_selected_o)
   else $error("Successful LSU result did not forward to rs2");
   /* verilator lint_on SYNCASYNCNET */

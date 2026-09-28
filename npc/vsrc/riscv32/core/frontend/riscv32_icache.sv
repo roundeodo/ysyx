@@ -8,6 +8,8 @@ module riscv32_icache
 (
     input logic clk_i,
     input logic rst_ni,
+    input logic retired_valid_i,
+    input program_counter_t retired_pc_i,
 
     input  icache_lookup_req_t  lookup_req_i,
     input  logic                lookup_req_valid_i,
@@ -65,6 +67,13 @@ module riscv32_icache
   icache_way_index_t refill_metadata_write_way_index;
   icache_tag_t       refill_metadata_write_tag;
   logic              refill_metadata_write_line_present;
+
+  localparam int unsigned REPLACEMENT_POLICY = riscv_config_pkg::ICACHE_REPLACEMENT_POLICY;
+  logic [1:0] array_read_rrpv_array [ICACHE_WAY_COUNT];
+  logic [1:0] replacement_age_amount;
+  logic replacement_age_valid;
+  logic replacement_hit_valid;
+  logic [ICACHE_WAY_COUNT-1:0] replacement_hit_vector;
 
   // Lookup流水线：S0是输入握手与同步阵列读请求；S1保存请求身份和PMA属性，
   // tag/data array内部的同步读寄存器在同一时钟沿保存对应阵列数据。下一拍直接使用
@@ -156,6 +165,15 @@ module riscv32_icache
   riscv32_icache_tag_array u_riscv32_icache_tag_array (
       .clk_i                         (clk_i),
       .rst_ni                        (rst_ni),
+      .read_rrpv_array_o             (array_read_rrpv_array),
+      .age_valid_i                   (replacement_age_valid),
+      .age_set_index_i               (get_icache_set_index(lookup_s1_q.fetch_addr)),
+      .age_amount_i                  (replacement_age_amount),
+      .hit_valid_i                   (replacement_hit_valid),
+      .hit_set_index_i               (get_icache_set_index(lookup_s1_q.fetch_addr)),
+      .hit_way_vector_i              (replacement_hit_vector),
+      .retired_valid_i               (retired_valid_i),
+      .retired_pc_i                  (retired_pc_i),
       .read_enable_i                 (array_read_enable),
       .read_set_index_i              (array_read_set_index),
       .read_tag_array_o              (array_read_tag_array),
@@ -229,15 +247,65 @@ module riscv32_icache
 
   end
 
-  // 直接映射配置的victim恒为way 0，不应实例化任何替换状态。组相联配置才为每个set
-  // 保存下一次全有效miss的victim way：优先使用invalid way，全部way有效时使用轮转指针。
-  // generate在展开期只保留当前配置需要的硬件，不改变I-cache外部协议。
+  // 直接映射使用way 0；组相联优先使用invalid way，全部有效时按所选策略决定victim。
+  // generate只保留当前配置需要的替换硬件，不改变I-cache外部协议。
   generate
     if (ICACHE_WAY_COUNT == 1) begin : g_direct_mapped_replacement
       always_comb begin
         replacement_way_index = '0;
+        replacement_age_amount = 2'd0;
+      end
+    end else if (REPLACEMENT_POLICY >= 4) begin : g_replacement_experiment
+      icache_way_index_t read_victim;
+      logic invalid_found;
+      riscv32_icache_replacement u_replacement (
+          .clk_i            (clk_i),
+          .rst_ni           (rst_ni),
+          .invalidate_i     (invalidate_done_o),
+          .read_enable_i    (array_read_enable),
+          .read_set_i       (array_read_set_index),
+          .read_victim_o    (read_victim),
+          .hit_i            (replacement_hit_valid),
+          .hit_way_vector_i (lookup_way_hit_vector),
+          .allocate_i       (miss_req_handshake && miss_req.cacheable),
+          .allocate_way_i   (replacement_way_index),
+          .victim_present_i (array_read_line_present_vector[replacement_way_index]),
+          .access_addr_i    (lookup_s1_q.fetch_addr)
+      );
+      always_comb begin
+        replacement_way_index = read_victim;
+        invalid_found = 1'b0;
+        for (int way = 0; way < ICACHE_WAY_COUNT; way++) begin
+          if (!invalid_found && !array_read_line_present_vector[way]) begin
+            replacement_way_index = icache_way_index_t'(way);
+            invalid_found = 1'b1;
+          end
+        end
+        replacement_age_amount = 2'd0;
+      end
+    end else if (REPLACEMENT_POLICY != 0) begin : g_rrip_replacement
+      logic [1:0] maximum_rrpv;
+      logic invalid_way_found;
+      always_comb begin
+        maximum_rrpv = array_read_rrpv_array[0];
+        replacement_way_index = '0;
+        for (int way = 1; way < ICACHE_WAY_COUNT; way++) begin
+          if (array_read_rrpv_array[way] > maximum_rrpv) begin
+            maximum_rrpv = array_read_rrpv_array[way];
+            replacement_way_index = icache_way_index_t'(way);
+          end
+        end
+        invalid_way_found = 1'b0;
+        for (int way = 0; way < ICACHE_WAY_COUNT; way++) begin
+          if (!invalid_way_found && !array_read_line_present_vector[way]) begin
+            replacement_way_index = icache_way_index_t'(way);
+            invalid_way_found = 1'b1;
+          end
+        end
+        replacement_age_amount = invalid_way_found ? 2'd0 : 2'd3 - maximum_rrpv;
       end
     end else begin : g_set_associative_replacement
+      assign replacement_age_amount = 2'd0;
       icache_way_index_t replacement_way_index_array_q[ICACHE_SET_COUNT];
       logic              replacement_invalid_way_found;
 
@@ -296,6 +364,9 @@ module riscv32_icache
   assign local_lookup_resp_handshake =
       local_lookup_resp_valid && lookup_resp_ready_i && !miss_lookup_resp_valid;
   assign miss_req_handshake = miss_req_valid && miss_req_ready;
+  assign replacement_age_valid = miss_req_handshake && miss_req.cacheable;
+  assign replacement_hit_valid = local_lookup_resp_handshake && lookup_hit;
+  assign replacement_hit_vector = lookup_way_hit_vector;
 
   // 缺失单元独占回填写端口；这些输出反馈到上方阵列。
   riscv32_icache_miss_unit u_riscv32_icache_miss_unit (

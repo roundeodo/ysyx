@@ -1,0 +1,26 @@
+{
+  "cJSON": {
+    "url": "https://github.com/DaveGamble/cJSON",
+    "commit": "6d9f2443ab071f86e5d9b43025a40929ec41c46c",
+    "original_sha256": {
+      "cJSON.c": "607e756460fa0de37d20a7a9181f2de29c97bfb7ce5a0e6c2f548243836cd852",
+      "cJSON.h": "25b0145150d500498e4d209cec69c18c42cf818bffcc54690be3b895a2a16dee",
+      "LICENSE": "a36dda207c36db5818729c54e7ad4e8b0c6fba847491ba64f372c1a2037b6d5c"
+    },
+    "port": "replace parse_number with checked signed32 parser; valueint only, fractional JSON rejected",
+    "ported_sha256": "b7e6733bfaa93ad2a9776548f191de4674954c4222143d6d48cd69187cfaeee1"
+  },
+  "miniz": {
+    "url": "https://github.com/richgel999/miniz",
+    "commit": "77d0dce8627735138c51770d1799a1ef48f2117d",
+    "original_sha256": {
+      "miniz_tinfl.c": "2296ebd21ef9af5ebbefd5b454d4bb67d8fb4af2d24945e7fb32114374f75a76",
+      "miniz_tinfl.h": "da4850920fdf09f8877d9affabe1ebba1852ce4b1ebbd121f2ba7a7ea8e57e5d",
+      "miniz.h": "f0b67217bdd8e45b74eb9b7c2c7ae20ed6760a1d76f3276b93617039ebd082df",
+      "miniz_common.h": "f1ba29821c8caef83585b328196aa346c5da7c82890a70a3d10d77c6cec0ed39",
+      "miniz_tdef.h": "d62da02953c3834dfcbde4db026c6d9345013ef9b0e53185131016a3a4e48c33",
+      "miniz_zip.h": "b062a5def545445c73fd1d664e35a89165dfb0d996ab848f507244e819cfcf04",
+      "LICENSE": "0115478d567121238cf6cc1c0c361926cf07a49d9e4c9e66da97fac6a01646b3"
+    }
+  }
+}

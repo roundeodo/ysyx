@@ -1,7 +1,7 @@
 // 独立行为模型：用顺序软件表和逻辑栈描述状态，不访问 DUT 内部寄存器。
 module predictor_contract_case
   import riscv32_pkg::*;
-#(parameter int ID=0, BHT=16, BTB=16, WAYS=2, RAS=4)
+#(parameter int ID=0, BHT=16, BTB=16, WAYS=2, RAS=4, POLICY=0)
 (output logic done_o);
   localparam int SETS = BTB / WAYS;
   logic clk=0, rst_n=0;
@@ -16,8 +16,10 @@ module predictor_contract_case
   xlen_data_t train_imm;
 
   riscv32_branch_predictor #(
-      .BHT_ENTRY_COUNT(BHT), .BTB_ENTRY_COUNT(BTB), .BTB_WAY_COUNT(WAYS), .RAS_ENTRY_COUNT(RAS)
+      .BHT_ENTRY_COUNT(BHT), .BTB_ENTRY_COUNT(BTB), .BTB_WAY_COUNT(WAYS), .RAS_ENTRY_COUNT(RAS),
+      .BTB_POLICY(POLICY)
   ) dut (
+      .resolved_control_flow_prediction_i('0),
       .clk_i(clk), .rst_ni(rst_n), .lookup_request_pc_i(pc), .lookup_request_epoch_i(epoch),
       .lookup_request_valid_i(request_valid), .lookup_request_ready_o(request_ready),
       .lookup_response_pc_o(response_pc), .lookup_response_epoch_o(response_epoch),
@@ -34,6 +36,8 @@ module predictor_contract_case
   bit table_valid[BTB];
   program_counter_t table_pc[BTB], table_target[BTB];
   int table_kind[BTB], victim[SETS];
+  int reuse_distance[BTB];
+  int suppressed_allocations=0, taken_allocations=0, reuse_replacements=0;
   program_counter_t stack[RAS];
   int stack_size;
   typedef struct packed {
@@ -89,12 +93,13 @@ module predictor_contract_case
     foreach (counters[i]) counters[i]=1;
     foreach (table_valid[i]) table_valid[i]=0;
     foreach (victim[i]) victim[i]=0;
+    foreach (reuse_distance[i]) reuse_distance[i]=3;
     stack_size=0; current_event='0; expected_valid=0;
   endtask
 
   task automatic apply_training;
-    int row, chosen, history_index;
-    bit hit, empty, push, pop;
+    int row, chosen, history_index, maximum_distance, age;
+    bit hit, empty, push, pop, write_entry;
     current_event='{valid:(train_valid && !invalidate), taken:train_taken, pc:train_pc,
               target:train_target, imm:train_imm, op:train_op, rs1:train_rs1, rd:train_rd};
     // 查询在沿前观察旧表；当前解析事件在本沿更新，invalidate 当拍不训练 BHT。
@@ -125,11 +130,38 @@ module predictor_contract_case
         for (int i=WAYS-1; i>=0; i--) if (!table_valid[row*WAYS+i]) chosen=i;
         empty=chosen>=0;
       end
-      if (chosen<0) begin chosen=victim[row]; victim[row]=(victim[row]+1)%WAYS; end
-      table_valid[row*WAYS+chosen]=1;
-      table_pc[row*WAYS+chosen]=current_event.pc;
-      table_target[row*WAYS+chosen]=current_event.target;
-      table_kind[row*WAYS+chosen]=classify(current_event);
+      maximum_distance=0;
+      if (chosen<0) begin
+        chosen=victim[row];
+        if (POLICY==2) begin
+          maximum_distance=reuse_distance[row*WAYS];
+          for (int i=1; i<WAYS; i++)
+            if (reuse_distance[row*WAYS+i]>maximum_distance)
+              maximum_distance=reuse_distance[row*WAYS+i];
+          // 独立模型先求最大值，再从高编号向低编号选择，保留最低编号平局规则。
+          for (int i=WAYS-1; i>=0; i--)
+            if (reuse_distance[row*WAYS+i]==maximum_distance) chosen=i;
+        end
+      end
+      write_entry=POLICY==0 || hit || current_event.taken || current_event.op!=CF_BRANCH;
+      if (!write_entry) suppressed_allocations++;
+      else begin
+        if (!hit && current_event.taken) taken_allocations++;
+        if (POLICY<2 && !hit && !empty) victim[row]=(chosen+1)%WAYS;
+        if (POLICY==3 && (!hit || current_event.taken)) victim[row]=(chosen+1)%WAYS;
+        if (POLICY==2) begin
+          if (!hit) begin
+            age=empty ? 0 : 3-maximum_distance;
+            for (int i=0; i<WAYS; i++) reuse_distance[row*WAYS+i]+=age;
+            reuse_distance[row*WAYS+chosen]=2;
+            if (!empty) reuse_replacements++;
+          end else if (current_event.taken) reuse_distance[row*WAYS+chosen]=0;
+        end
+        table_valid[row*WAYS+chosen]=1;
+        table_pc[row*WAYS+chosen]=current_event.pc;
+        table_target[row*WAYS+chosen]=current_event.target;
+        table_kind[row*WAYS+chosen]=classify(current_event);
+      end
       push=current_event.taken && is_link(current_event.rd) && (current_event.op==CF_JAL || current_event.op==CF_JALR);
       pop=current_event.taken && is_return(current_event);
       if (pop && push) swaps++;
@@ -201,6 +233,14 @@ module predictor_contract_case
           endcase
         end
       endcase
+      // 同组 WAYS+1 个分支强制替换；原16个连续PC不足以覆盖32项BTB的满组路径。
+      if (cycle>=2000 && cycle<2400) begin
+        flush=0; invalidate=0;
+        train_op=CF_BRANCH; train_taken=1; train_rd=0; train_rs1=0;
+        train_pc=program_counter_t'(32'h80002000 + (cycle%(WAYS+1))*SETS*4);
+        train_target=train_pc+program_counter_t'(16);
+        if (request_ready || !request_valid) begin pc=train_pc; request_valid=1; end
+      end
       #1;
       check_response();
       if (expected_valid && response_ready) responses++;
@@ -225,19 +265,27 @@ module predictor_contract_case
             flushes>20 && pushes>100 && pops>100 && swaps>100 && saturation>100)
       else $fatal(1,"case %0d insufficient stimulus coverage",ID);
     foreach(kind_hits[i]) assert(kind_hits[i]>5) else $fatal(1,"missing predictor kind %0d",i);
-    $display("PASS predictor contract case=%0d BHT=%0d BTB=%0dx%0d RAS=%0d queries=%0d stalls=%0d hits=%p",
-             ID,BHT,BTB,WAYS,RAS,queries,stalls,kind_hits);
+    if (POLICY!=0) assert(suppressed_allocations>10 && taken_allocations>100)
+      else $fatal(1,"insufficient admission coverage");
+    if (POLICY==2) assert(reuse_replacements>100) else $fatal(1,"insufficient RRIP replacement coverage");
+    $display("PASS predictor contract case=%0d policy=%0d BHT=%0d BTB=%0dx%0d RAS=%0d queries=%0d stalls=%0d hits=%p",
+             ID,POLICY,BHT,BTB,WAYS,RAS,queries,stalls,kind_hits);
     done_o=1;
   end
 endmodule
 
 module riscv32_predictor_contract_tb;
-  wire [4:0] done;
+  wire [9:0] done;
   predictor_contract_case #(.ID(0)) c0(done[0]);
   predictor_contract_case #(.ID(1),.WAYS(1)) c1(done[1]);
   predictor_contract_case #(.ID(2),.WAYS(4)) c2(done[2]);
   predictor_contract_case #(.ID(3),.BHT(2),.BTB(4),.RAS(2)) c3(done[3]);
   predictor_contract_case #(.ID(4),.BHT(64),.BTB(32),.RAS(8)) c4(done[4]);
-  initial begin wait(&done); $display("PASS predictor contract: 5 configurations, 60000 cycles"); $finish; end
+  predictor_contract_case #(.ID(5),.BHT(64),.BTB(32),.POLICY(1)) c5(done[5]);
+  predictor_contract_case #(.ID(6),.BHT(64),.BTB(32),.POLICY(2)) c6(done[6]);
+  predictor_contract_case #(.ID(7),.BHT(64),.BTB(32),.POLICY(3)) c7(done[7]);
+  predictor_contract_case #(.ID(8),.WAYS(4),.POLICY(2)) c8(done[8]);
+  predictor_contract_case #(.ID(9),.WAYS(1),.POLICY(1)) c9(done[9]);
+  initial begin wait(&done); $display("PASS predictor contract: 10 configurations, 120000 cycles"); $finish; end
   initial begin #200000; $fatal(1,"predictor contract timeout"); end
 endmodule

@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "probe_cases": 1158,
+  "legacy_all_results_and_counters_equal": true,
+  "physical_software_and_architectural_results_equal": true,
+  "cycles_expected_to_change_with_memory_mode": true,
+  "inputs": {
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-20260921/rtl/dev-580/B0/results.json": "13d95051158a0ea36773c88e6dc1e8f36c95b801245c17b1f53e88b9ce959f8c",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/rtl/legacy-B0/B0/results.json": "bb1dc8b2f24d32e4d60880109a0e75f294525e35cbb61b5a2b817daff3690047",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/frontend-selection-physical-20260922/rtl/dev-580/B0/results.json": "ae0242ab616a4760c06f68d33fbe6940ff0b3acee9d3fd1952f9bc04b01793f0"
+  }
+}

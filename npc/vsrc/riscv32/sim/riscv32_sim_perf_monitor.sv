@@ -731,6 +731,14 @@ module riscv32_sim_perf_monitor
     return real'(active_cycle_count_q) / projected_cycle_count;
   endfunction
 
+  // 旧延迟观察器只有一个上下文，不能把重叠完成配回各条指令。
+  // 周期、退休数、缓存和独立访存计数仍有效；流水配置不展示失去适用前提的估算。
+  function automatic string format_execution_cycles(input logic [63:0] cycles,
+                                                     input logic [63:0] count);
+    if (MUL_PIPELINE_ENABLE) return "n/a";
+    return $sformatf("%.3f", calculate_average_cycles(cycles, count));
+  endfunction
+
   final begin
     $display("");
     $display("================ NPC performance counters ================");
@@ -741,30 +749,32 @@ module riscv32_sim_perf_monitor
              retired_instruction_count_q, active_cycle_count_q));
     $display("");
     $display("instruction class        count       ratio       average execution cycles");
-    $display("integer              %10d  %8.3f%%  %12.3f", integer_instruction_count_q,
+    $display("integer              %10d  %8.3f%%  %12s", integer_instruction_count_q,
              calculate_percentage(integer_instruction_count_q, decoded_instruction_count_q),
-             calculate_average_cycles(integer_execution_cycle_sum_q, integer_instruction_count_q));
-    $display("branch/jump          %10d  %8.3f%%  %12.3f", branch_instruction_count_q,
+             format_execution_cycles(integer_execution_cycle_sum_q, integer_instruction_count_q));
+    $display("branch/jump          %10d  %8.3f%%  %12s", branch_instruction_count_q,
              calculate_percentage(branch_instruction_count_q, decoded_instruction_count_q),
-             calculate_average_cycles(branch_execution_cycle_sum_q, branch_instruction_count_q));
-    $display("load/store           %10d  %8.3f%%  %12.3f", memory_instruction_count_q,
+             format_execution_cycles(branch_execution_cycle_sum_q, branch_instruction_count_q));
+    $display("load/store           %10d  %8.3f%%  %12s", memory_instruction_count_q,
              calculate_percentage(memory_instruction_count_q, decoded_instruction_count_q),
-             calculate_average_cycles(memory_execution_cycle_sum_q, memory_instruction_count_q));
+             format_execution_cycles(memory_execution_cycle_sum_q, memory_instruction_count_q));
     $display("  load               %10d  %8.3f%%", load_instruction_count_q, calculate_percentage(
              load_instruction_count_q, decoded_instruction_count_q));
     $display("  store              %10d  %8.3f%%", store_instruction_count_q, calculate_percentage(
              store_instruction_count_q, decoded_instruction_count_q));
-    $display("CSR                   %10d  %8.3f%%  %12.3f", csr_instruction_count_q,
+    $display("CSR                   %10d  %8.3f%%  %12s", csr_instruction_count_q,
              calculate_percentage(csr_instruction_count_q, decoded_instruction_count_q),
-             calculate_average_cycles(csr_execution_cycle_sum_q, csr_instruction_count_q));
-    $display("system                %10d  %8.3f%%  %12.3f", system_instruction_count_q,
+             format_execution_cycles(csr_execution_cycle_sum_q, csr_instruction_count_q));
+    $display("system                %10d  %8.3f%%  %12s", system_instruction_count_q,
              calculate_percentage(system_instruction_count_q, decoded_instruction_count_q),
-             calculate_average_cycles(system_execution_cycle_sum_q, system_instruction_count_q));
-    $display("unclassified          %10d  %8.3f%%  %12.3f", unclassified_instruction_count_q,
+             format_execution_cycles(system_execution_cycle_sum_q, system_instruction_count_q));
+    $display("unclassified          %10d  %8.3f%%  %12s", unclassified_instruction_count_q,
              calculate_percentage(unclassified_instruction_count_q, decoded_instruction_count_q),
-             calculate_average_cycles(unclassified_execution_cycle_sum_q,
+             format_execution_cycles(unclassified_execution_cycle_sum_q,
                                       unclassified_instruction_count_q));
     $display("");
+    if (MUL_PIPELINE_ENABLE)
+      $display("Per-class execution latency: unavailable with the single-context observer.");
     $display("IFU requests / responses / deliveries : %0d / %0d / %0d",
              ifu_instruction_request_count_q, ifu_instruction_response_count_q,
              ifu_instruction_delivery_count_q);
@@ -876,6 +886,7 @@ module riscv32_sim_perf_monitor
              bht_64_prediction_error_count_q + indirect_jump_count_q,
              bht_64_prediction_error_count_q, indirect_jump_count_q);
     $display("");
+    if (!MUL_PIPELINE_ENABLE) begin
     $display("idealized upper-bound estimates");
     $display("memory execution excess cycles        : %.3f",
              calculate_memory_execution_excess_cycles());
@@ -890,6 +901,9 @@ module riscv32_sim_perf_monitor
     $display("ideal pipeline + oracle data memory    : %.3f / %.3fx",
              calculate_ideal_pipeline_and_oracle_data_memory_cycle_count(), calculate_speedup(
              calculate_ideal_pipeline_and_oracle_data_memory_cycle_count()));
+    end else begin
+      $display("Latency-based oracle estimates: unavailable for pipelined execution.");
+    end
     $display("==========================================================");
 
     if (decoded_instruction_count_q != ifu_instruction_delivery_count_q) begin

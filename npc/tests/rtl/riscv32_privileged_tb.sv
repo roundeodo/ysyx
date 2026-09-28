@@ -143,7 +143,7 @@ module riscv32_privileged_tb;
     csr_read_addr = CSR_MISA;
     csr_read_enable = 1'b1;
     #1;
-    assert (!csr_read_illegal && csr_read_data[8] &&
+    assert (!csr_read_illegal && csr_read_data[8] && (csr_read_data[12] == MULDIV_ENABLE) &&
             (csr_read_data[XLEN-1 -: 2] == ((XLEN == 32) ? 2'b01 : 2'b10)))
       else $fatal(1, "misa does not report the selected RV32/RV64 I configuration");
     csr_read_enable = 1'b0;

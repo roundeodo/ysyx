@@ -1,0 +1,288 @@
+{
+  "same_frequency_mhz": 580,
+  "same_soc_sources": {
+    "ysyxSoC/build/ysyxSoCFull.v": "41edc24c2f8fd5daa916b34719760f1267cd0a396fbc69e6570d0175aaee4e37",
+    "ysyxSoC/perip/amba/apb_delayer.v": "96882eb7ebeb6d3f214602e7ac048de2f1ac74c2a544a776968c3c3e819913f4",
+    "ysyxSoC/perip/amba/axi4_delayer.v": "25d62d3739938c2aa1af84cb2040f1b466daa7566fd01355b3c24241bb5f8293",
+    "ysyxSoC/perip/bitrev/bitrev.v": "70ae64d5b3da5cfcbcf71e08e0bc0dfbdeeb667272a65c9cef43cb4809733251",
+    "ysyxSoC/perip/flash/flash.v": "02a2262b290fe95357551e5a6858295cee763da5040071b851169e4501ab39d3",
+    "ysyxSoC/perip/gpio/gpio_top_apb.v": "70ca7630076ba8f14fe96661e41fbbc40928a0d559cff45d1f91e87414f32669",
+    "ysyxSoC/perip/ps2/ps2_top_apb.v": "ee87ff45854596e542ea3b56729259f00ea09758c0dc825d53de2f1b91edabb8",
+    "ysyxSoC/perip/psram/efabless/EF_PSRAM_CTRL.v": "7db545652a96f0bf77274c4a811e91652ad30f4d3950dce9531732c933f5e2de",
+    "ysyxSoC/perip/psram/efabless/EF_PSRAM_CTRL_wb.v": "a1637ca8680062dfd1e7210224813e02531d34d809bb5be6d3063e8ee27f074f",
+    "ysyxSoC/perip/psram/psram.v": "9a255b353978371ea326e497d0ddc1192b58f84e4c9028d9c4ed48e48d5e7a28",
+    "ysyxSoC/perip/psram/psram_top_apb.v": "e2b727a9057849b49116efc31dde58b52fc9e2eaa94c976ca60c53a3f940c625",
+    "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi.v": "da768ece243519f44d79c19632d160698b911095750634f1f6cd39bec3237d3e",
+    "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_core.v": "c712b6170aee9718a87b9176a930a7b31d5bce6eaf6dc720d43141c666f1ee0f",
+    "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v": "009fd1458ec6f69aaa06f8724bc583be169f229de463bdab5d36a976439a8212",
+    "ysyxSoC/perip/sdram/sdram.v": "4e7ff180203dbb2d65a293a477b5ee40248974225f584f809f42291a2084310d",
+    "ysyxSoC/perip/sdram/sdram_top_apb.v": "581c73e66e72d7eb6357c2195d1b1ea01ecba75844cf8a5db2f1d02165d750f2",
+    "ysyxSoC/perip/sdram/sdram_top_axi.v": "39234f4f44612468db6b57e1d6d43c8a14381a5467e5739ae4d9ddd9a3812e62",
+    "ysyxSoC/perip/spi/rtl/spi_clgen.v": "1102570f0fd72585bc346db4d45eee50126c340e56a7460fc563dedef4dcac21",
+    "ysyxSoC/perip/spi/rtl/spi_defines.v": "cc8927463596a0465d9ee60261d041d4317d0362f44aafa7fed792f899bc1bea",
+    "ysyxSoC/perip/spi/rtl/spi_shift.v": "72d3d23573c40eff781a4e24d01a595756b4a32293e51f818fe3fe60304fc4b6",
+    "ysyxSoC/perip/spi/rtl/spi_top.v": "b5f64ecbc87e87f56d10507e3472217c1b6076b8fa456d66c3f752bc4c200d42",
+    "ysyxSoC/perip/spi/rtl/spi_top_apb.v": "a4182f7bccfbdfa43ddb57ea368372ac29bb437f2a34de1075616c4d19190260",
+    "ysyxSoC/perip/uart16550/rtl/raminfr.v": "81720eb4e55256f815e8f7430d3b20076e4fdf900b855313d4e8da9ad8bcbc61",
+    "ysyxSoC/perip/uart16550/rtl/uart_defines.v": "0cdb9f10a4b932b172fa5f653b4bf28ffd196fcf257b280a393514637b05f91f",
+    "ysyxSoC/perip/uart16550/rtl/uart_receiver.v": "c3120ca172f75120cee11869ffd7925b69729d3a64493c83c03d7e559c84fed3",
+    "ysyxSoC/perip/uart16550/rtl/uart_regs.v": "f986457a1c64543705e5e2c344c093be0813f9b0af9d0a18083b809cbb73bb2a",
+    "ysyxSoC/perip/uart16550/rtl/uart_rfifo.v": "a6fbf97b1d0cccc3b1590a7d80f3f1447d2788eff1d250dbaaef210e1324b9f4",
+    "ysyxSoC/perip/uart16550/rtl/uart_sync_flops.v": "73b64f79472dabe34cad11adf4313fecfaa51e8708626a931cf756aea58836aa",
+    "ysyxSoC/perip/uart16550/rtl/uart_tfifo.v": "62b499b3dc928eb93424b893f5da107c96897f6476b31918576c8bdd9b62b69d",
+    "ysyxSoC/perip/uart16550/rtl/uart_top_apb.v": "ce870f438196a9e7251cbc38628fd57d8f6d8b075f90d6e7832d8ada91c2f91f",
+    "ysyxSoC/perip/uart16550/rtl/uart_transmitter.v": "1a89e65ba290f8e605297d8f8a7784d3799a6a0bc9d1617af39b304f0d06f712",
+    "ysyxSoC/perip/vga/vga_top_apb.v": "405edca1c30a3500caf719a2143fd5a757a104fe9fa50843b1c0eae1b8607477"
+  },
+  "ppa": {
+    "rv32i": {
+      "mhz": 720,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 101418.618,
+      "wall_seconds": 228.64825105667114,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:720"
+    },
+    "rv32im": {
+      "mhz": 580,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 106355.578,
+      "wall_seconds": 243.1337697505951,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:580"
+    },
+    "rv32i-current": {
+      "mhz": 720,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 101584.336,
+      "wall_seconds": 229.50788688659668,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:720"
+    }
+  },
+  "same_image_control_identical": true,
+  "native_timer_hz": 1000000,
+  "train_measured": false,
+  "total_time_reduction": 0.14852150537634412,
+  "scored_time_reduction": 0.12253141831238767,
+  "area_increase_over_frozen_i": 0.04867903051094613,
+  "area_time_ratio_same_frequency": 0.8915441144498727,
+  "frequency_model_limit": "Identical images are faster in timer seconds at 580 than 720 MHz; cross-frequency totals are model outputs, not reliable physical speedup claims. RV32I dirty miss: 488.508 cycles/720MHz versus 310.502 cycles/580MHz; clean misses scale approximately linearly.",
+  "subtests": {
+    "qsort": {
+      "i580": {
+        "cycles": 31670,
+        "retired_instructions": 9707,
+        "ipc": 0.30650457846542467,
+        "timer_ticks": 55,
+        "timer_seconds": 5.5e-05,
+        "cycle_seconds": 5.460344827586207e-05,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 32361,
+        "retired_instructions": 9709,
+        "ipc": 0.300021630975557,
+        "timer_ticks": 56,
+        "timer_seconds": 5.6e-05,
+        "cycle_seconds": 5.5794827586206895e-05,
+        "interrupts": 0
+      }
+    },
+    "queen": {
+      "i580": {
+        "cycles": 112120,
+        "retired_instructions": 83537,
+        "ipc": 0.7450677845165894,
+        "timer_ticks": 193,
+        "timer_seconds": 0.000193,
+        "cycle_seconds": 0.0001933103448275862,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 112178,
+        "retired_instructions": 83537,
+        "ipc": 0.7446825580773414,
+        "timer_ticks": 193,
+        "timer_seconds": 0.000193,
+        "cycle_seconds": 0.0001934103448275862,
+        "interrupts": 0
+      }
+    },
+    "bf": {
+      "i580": {
+        "cycles": 242931,
+        "retired_instructions": 141943,
+        "ipc": 0.584293482511495,
+        "timer_ticks": 419,
+        "timer_seconds": 0.000419,
+        "cycle_seconds": 0.00041884655172413795,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 243315,
+        "retired_instructions": 141943,
+        "ipc": 0.5833713498962251,
+        "timer_ticks": 420,
+        "timer_seconds": 0.00042,
+        "cycle_seconds": 0.0004195086206896552,
+        "interrupts": 0
+      }
+    },
+    "fib": {
+      "i580": {
+        "cycles": 120277,
+        "retired_instructions": 85308,
+        "ipc": 0.7092627850711275,
+        "timer_ticks": 208,
+        "timer_seconds": 0.000208,
+        "cycle_seconds": 0.00020737413793103448,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 17375,
+        "retired_instructions": 11293,
+        "ipc": 0.6499568345323741,
+        "timer_ticks": 30,
+        "timer_seconds": 3e-05,
+        "cycle_seconds": 2.9956896551724136e-05,
+        "interrupts": 0
+      }
+    },
+    "sieve": {
+      "i580": {
+        "cycles": 7505,
+        "retired_instructions": 4742,
+        "ipc": 0.6318454363757495,
+        "timer_ticks": 12,
+        "timer_seconds": 1.2e-05,
+        "cycle_seconds": 1.2939655172413793e-05,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 8453,
+        "retired_instructions": 4513,
+        "ipc": 0.5338932923222525,
+        "timer_ticks": 15,
+        "timer_seconds": 1.5e-05,
+        "cycle_seconds": 1.4574137931034483e-05,
+        "interrupts": 0
+      }
+    },
+    "15pz": {
+      "i580": {
+        "cycles": 105699,
+        "retired_instructions": 29136,
+        "ipc": 0.27565066840745894,
+        "timer_ticks": 182,
+        "timer_seconds": 0.000182,
+        "cycle_seconds": 0.0001822396551724138,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 76900,
+        "retired_instructions": 12061,
+        "ipc": 0.1568400520156047,
+        "timer_ticks": 133,
+        "timer_seconds": 0.000133,
+        "cycle_seconds": 0.00013258620689655172,
+        "interrupts": 0
+      }
+    },
+    "dinic": {
+      "i580": {
+        "cycles": 232362,
+        "retired_instructions": 17979,
+        "ipc": 0.07737495803961061,
+        "timer_ticks": 400,
+        "timer_seconds": 0.0004,
+        "cycle_seconds": 0.00040062413793103446,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 227689,
+        "retired_instructions": 17979,
+        "ipc": 0.0789629714215443,
+        "timer_ticks": 393,
+        "timer_seconds": 0.000393,
+        "cycle_seconds": 0.00039256724137931034,
+        "interrupts": 0
+      }
+    },
+    "lzip": {
+      "i580": {
+        "cycles": 144392,
+        "retired_instructions": 14661,
+        "ipc": 0.101536096182614,
+        "timer_ticks": 249,
+        "timer_seconds": 0.000249,
+        "cycle_seconds": 0.000248951724137931,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 147248,
+        "retired_instructions": 14661,
+        "ipc": 0.0995667173747691,
+        "timer_ticks": 254,
+        "timer_seconds": 0.000254,
+        "cycle_seconds": 0.0002538758620689655,
+        "interrupts": 0
+      }
+    },
+    "ssort": {
+      "i580": {
+        "cycles": 281012,
+        "retired_instructions": 38348,
+        "ipc": 0.13646392324882922,
+        "timer_ticks": 484,
+        "timer_seconds": 0.000484,
+        "cycle_seconds": 0.0004845034482758621,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 251050,
+        "retired_instructions": 17172,
+        "ipc": 0.06840071698864768,
+        "timer_ticks": 433,
+        "timer_seconds": 0.000433,
+        "cycle_seconds": 0.0004328448275862069,
+        "interrupts": 0
+      }
+    },
+    "md5": {
+      "i580": {
+        "cycles": 15416,
+        "retired_instructions": 4952,
+        "ipc": 0.3212247016087182,
+        "timer_ticks": 26,
+        "timer_seconds": 2.6e-05,
+        "cycle_seconds": 2.6579310344827586e-05,
+        "interrupts": 0
+      },
+      "im580": {
+        "cycles": 16000,
+        "retired_instructions": 4857,
+        "ipc": 0.3035625,
+        "timer_ticks": 28,
+        "timer_seconds": 2.8e-05,
+        "cycle_seconds": 2.7586206896551723e-05,
+        "interrupts": 0
+      }
+    }
+  },
+  "validation_logs": [
+    "unit-final-driver.log",
+    "core-tests-driver.log",
+    "regression-resume-driver.log",
+    "interrupt-580-driver.log",
+    "fence-muldiv-driver.log",
+    "rv64-regression.log"
+  ],
+  "raw_root": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-20260927"
+}

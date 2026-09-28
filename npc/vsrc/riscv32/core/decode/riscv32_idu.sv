@@ -85,57 +85,72 @@ module riscv32_idu
         decoded_uop_o.int_ctrl.operand_a_select = OPA_RS1;
         decoded_uop_o.int_ctrl.operand_b_select = OPB_RS2;
 
-        unique case (funct3)
-          FUNCT3_ADD_SUB: begin
-            if (funct7 == FUNCT7_BASE) begin
-              decoded_uop_o.int_ctrl.op = ALU_ADD;
-            end else if (funct7 == FUNCT7_ALT) begin
-              decoded_uop_o.int_ctrl.op = ALU_SUB;
-            end else begin
-              decoded_uop_o.exception_valid = 1'b1;
+        if (MULDIV_ENABLE && (funct7 == 7'b0000001)) begin
+          decoded_uop_o.fu_type = FU_MULDIV;
+          unique case (funct3)
+            3'b000: decoded_uop_o.muldiv_op = MD_MUL;
+            3'b001: decoded_uop_o.muldiv_op = MD_MULH;
+            3'b010: decoded_uop_o.muldiv_op = MD_MULHSU;
+            3'b011: decoded_uop_o.muldiv_op = MD_MULHU;
+            3'b100: decoded_uop_o.muldiv_op = MD_DIV;
+            3'b101: decoded_uop_o.muldiv_op = MD_DIVU;
+            3'b110: decoded_uop_o.muldiv_op = MD_REM;
+            3'b111: decoded_uop_o.muldiv_op = MD_REMU;
+            default: decoded_uop_o.exception_valid = 1'b1;
+          endcase
+        end else begin
+          unique case (funct3)
+            FUNCT3_ADD_SUB: begin
+              if (funct7 == FUNCT7_BASE) begin
+                decoded_uop_o.int_ctrl.op = ALU_ADD;
+              end else if (funct7 == FUNCT7_ALT) begin
+                decoded_uop_o.int_ctrl.op = ALU_SUB;
+              end else begin
+                decoded_uop_o.exception_valid = 1'b1;
+              end
             end
-          end
-          FUNCT3_SLL: begin
-            decoded_uop_o.int_ctrl.op = ALU_SLL;
-            if (funct7 != FUNCT7_BASE)
-              decoded_uop_o.exception_valid = 1'b1;
-          end
-          FUNCT3_SLT: begin
-            decoded_uop_o.int_ctrl.op = ALU_SLT;
-            if (funct7 != FUNCT7_BASE)
-              decoded_uop_o.exception_valid = 1'b1;
-          end
-          FUNCT3_SLTU: begin
-            decoded_uop_o.int_ctrl.op = ALU_SLTU;
-            if (funct7 != FUNCT7_BASE)
-              decoded_uop_o.exception_valid = 1'b1;
-          end
-          FUNCT3_XOR: begin
-            decoded_uop_o.int_ctrl.op = ALU_XOR;
-            if (funct7 != FUNCT7_BASE)
-              decoded_uop_o.exception_valid = 1'b1;
-          end
-          FUNCT3_SRL_SRA: begin
-            if (funct7 == FUNCT7_BASE) begin
-              decoded_uop_o.int_ctrl.op = ALU_SRL;
-            end else if (funct7 == FUNCT7_ALT) begin
-              decoded_uop_o.int_ctrl.op = ALU_SRA;
-            end else begin
-              decoded_uop_o.exception_valid = 1'b1;
+            FUNCT3_SLL: begin
+              decoded_uop_o.int_ctrl.op = ALU_SLL;
+              if (funct7 != FUNCT7_BASE)
+                decoded_uop_o.exception_valid = 1'b1;
             end
-          end
-          FUNCT3_OR: begin
-            decoded_uop_o.int_ctrl.op = ALU_OR;
-            if (funct7 != FUNCT7_BASE)
-              decoded_uop_o.exception_valid = 1'b1;
-          end
-          FUNCT3_AND: begin
-            decoded_uop_o.int_ctrl.op = ALU_AND;
-            if (funct7 != FUNCT7_BASE)
-              decoded_uop_o.exception_valid = 1'b1;
-          end
-          default: decoded_uop_o.exception_valid = 1'b1;
-        endcase
+            FUNCT3_SLT: begin
+              decoded_uop_o.int_ctrl.op = ALU_SLT;
+              if (funct7 != FUNCT7_BASE)
+                decoded_uop_o.exception_valid = 1'b1;
+            end
+            FUNCT3_SLTU: begin
+              decoded_uop_o.int_ctrl.op = ALU_SLTU;
+              if (funct7 != FUNCT7_BASE)
+                decoded_uop_o.exception_valid = 1'b1;
+            end
+            FUNCT3_XOR: begin
+              decoded_uop_o.int_ctrl.op = ALU_XOR;
+              if (funct7 != FUNCT7_BASE)
+                decoded_uop_o.exception_valid = 1'b1;
+            end
+            FUNCT3_SRL_SRA: begin
+              if (funct7 == FUNCT7_BASE) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRL;
+              end else if (funct7 == FUNCT7_ALT) begin
+                decoded_uop_o.int_ctrl.op = ALU_SRA;
+              end else begin
+                decoded_uop_o.exception_valid = 1'b1;
+              end
+            end
+            FUNCT3_OR: begin
+              decoded_uop_o.int_ctrl.op = ALU_OR;
+              if (funct7 != FUNCT7_BASE)
+                decoded_uop_o.exception_valid = 1'b1;
+            end
+            FUNCT3_AND: begin
+              decoded_uop_o.int_ctrl.op = ALU_AND;
+              if (funct7 != FUNCT7_BASE)
+                decoded_uop_o.exception_valid = 1'b1;
+            end
+            default: decoded_uop_o.exception_valid = 1'b1;
+          endcase
+        end
       end
 
       OPCODE_OP_IMM: begin

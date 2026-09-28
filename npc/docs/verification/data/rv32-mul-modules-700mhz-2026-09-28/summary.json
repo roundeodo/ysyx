@@ -1,0 +1,1098 @@
+{
+  "git_head": "47c852e12b9ce086b872095f59cf54fbe5a6fda6",
+  "baseline": "pre-existing dirty worktree, frozen in result/mul-module-700-20260928/baseline",
+  "source_sha256": {
+    "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "07e7493fec58fc7a18bc2cffff5327838e9ed82d30475a73b46dddf56fd836e9",
+    "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+    "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+    "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+    "npc/vsrc/riscv32/common/riscv32_pkg.sv": "17fb9e37cc8db465edffcd5dda7c36099875c6a00ee8e64126178114979ea4d1",
+    "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "c4377c1b91635386025b3b482632f7862a6b1df2b583b1761ae743cb84a698e8",
+    "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+    "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+    "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+    "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+    "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+    "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "515978f383fcef7645fe3a24c14e7bfb05218d17aba93593ed86805843668949",
+    "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "cd37ecc720e7a38e88ac0cbd5c34322253a3d46361fa50d48a7a35c523299396",
+    "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+    "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "b33600019932f5b177264cbe1042986709137060726eec0cdffba35cd7a27de3",
+    "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+    "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "56946155fd168fd289b4545468a2d514120ea77e4f46205fc3a242797f4a75b4",
+    "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+    "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "3f249f216ec005711c105cc87620cdabaf30ee2d9e4890533e892876cae7f377",
+    "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "1fb0dda3fc38451ed705fbf6cb1cb595faa841af2c1ae203d5be2201a79af513",
+    "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+    "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "4148ddd1f333dfe95795a61e18891622b93d3ba85818cd33df9755eaca88d2b1",
+    "npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv": "f0903ccc04b88c7cec53cd975a05c3e4a456155c8d6df4802c11f422a8063751",
+    "npc/vsrc/riscv32/core/execute/riscv32_div.sv": "d03616f7a2cee213b9b0a7adf2601f86d2a2c9fa07298d0ff54ab671181a0b53",
+    "npc/vsrc/riscv32/core/execute/riscv32_mul.sv": "1ca071d206d09e605bc9326ecf4bbbf3b425620ccc2a820bf0e9e8d9838619dc",
+    "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "e612361319af197a3f2e81b9d8701ec9e276c947488b871683d8ab7025d13488",
+    "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "a06a44eadfd8952fb906ebf4dad52d385f9b6656a4e4792958ed63d5dfc12e00",
+    "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+    "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+    "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+    "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+    "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+    "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+    "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "66cc0311da9d3505f45b58f1ae69b025ad1f595182f1ac5469431cda0121a362",
+    "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "bf8952e0b06f4ee6072c80eea53d5f79e7be23ef4dceadded1df06a66951d18e",
+    "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+    "npc/vsrc/riscv32/core/riscv32_core.sv": "cfde17f0447ed8d5f449c6fc29e23a343d79069625a7c15eb43ddf15cebb8732",
+    "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+    "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+    "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+    "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+    "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+    "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+    "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+    "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+  },
+  "ppa": {
+    "split-only": {
+      "qualified": {
+        "mhz": 640,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 116899.818,
+        "wall_seconds": 295.966757774353,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:640"
+      },
+      "timing": {
+        "680": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_52_",
+              "slack_ns": -0.038,
+              "fmax_mhz": 663.014
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.003,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_exu.gen_div.u_div.state_q_2__reg_p_QN_AOI211_X1_C2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 2,
+          "passed": false
+        },
+        "660": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_52_",
+              "slack_ns": -0.002,
+              "fmax_mhz": 659.119
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.039,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_exu.gen_div.u_div.state_q_2__reg_p_QN_AOI211_X1_C2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 1,
+          "passed": false
+        },
+        "640": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_52_",
+              "slack_ns": 0.035,
+              "fmax_mhz": 655.03
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.077,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_exu.gen_div.u_div.state_q_2__reg_p_QN_AOI211_X1_C2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "cells": {
+        "area_um2": 116899.818,
+        "dff": 9262,
+        "data_latches": 8192,
+        "clock_gates": 551,
+        "cells": {
+          "AND2_X1": 430,
+          "AND2_X2": 3,
+          "AND2_X4": 1,
+          "AND3_X1": 187,
+          "AND3_X2": 11,
+          "AND4_X1": 32,
+          "AOI211_X1": 125,
+          "AOI21_X1": 2058,
+          "AOI21_X2": 11,
+          "AOI21_X4": 2,
+          "AOI22_X1": 768,
+          "BUF_X1": 1355,
+          "BUF_X16": 8,
+          "BUF_X2": 113,
+          "BUF_X4": 114,
+          "BUF_X8": 32,
+          "CLKBUF_X1": 69,
+          "CLKBUF_X2": 3,
+          "CLKBUF_X3": 5,
+          "CLKGATE_X1": 551,
+          "DFFR_X1": 436,
+          "DFFS_X1": 25,
+          "DFF_X1": 8801,
+          "DLH_X1": 8192,
+          "INV_X1": 4222,
+          "INV_X16": 1,
+          "INV_X2": 87,
+          "INV_X4": 37,
+          "INV_X8": 9,
+          "LOGIC0_X1": 1,
+          "LOGIC1_X1": 1,
+          "MUX2_X1": 899,
+          "NAND2_X1": 8988,
+          "NAND2_X2": 91,
+          "NAND2_X4": 17,
+          "NAND3_X1": 3753,
+          "NAND3_X2": 18,
+          "NAND3_X4": 5,
+          "NAND4_X1": 337,
+          "NAND4_X2": 5,
+          "NOR2_X1": 6918,
+          "NOR2_X2": 64,
+          "NOR2_X4": 24,
+          "NOR3_X1": 331,
+          "NOR3_X2": 4,
+          "NOR3_X4": 5,
+          "NOR4_X1": 117,
+          "NOR4_X2": 5,
+          "NOR4_X4": 1,
+          "OAI211_X1": 2853,
+          "OAI211_X2": 2,
+          "OAI21_X1": 7766,
+          "OAI21_X2": 4,
+          "OAI21_X4": 1,
+          "OAI221_X1": 1060,
+          "OAI22_X1": 1549,
+          "OAI22_X4": 1,
+          "OR2_X1": 2676,
+          "OR2_X2": 9,
+          "OR3_X1": 168,
+          "OR4_X1": 19,
+          "OR4_X2": 2,
+          "XNOR2_X1": 2181,
+          "XNOR2_X2": 3,
+          "XOR2_X1": 358
+        }
+      }
+    },
+    "capacity-ready": {
+      "qualified": {
+        "mhz": 700,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 117461.078,
+        "wall_seconds": 277.57967472076416,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:700"
+      },
+      "timing": {
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p:D",
+              "slack_ns": 0.006,
+              "fmax_mhz": 703.007
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.005,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        },
+        "720": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p:D",
+              "slack_ns": -0.027,
+              "fmax_mhz": 706.952
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.027,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        }
+      },
+      "cells": {
+        "area_um2": 117461.078,
+        "dff": 9262,
+        "data_latches": 8192,
+        "clock_gates": 551,
+        "cells": {
+          "AND2_X1": 459,
+          "AND2_X2": 4,
+          "AND2_X4": 1,
+          "AND3_X1": 203,
+          "AND3_X2": 1,
+          "AND4_X1": 29,
+          "AND4_X2": 1,
+          "AOI211_X1": 103,
+          "AOI21_X1": 2128,
+          "AOI21_X2": 49,
+          "AOI21_X4": 1,
+          "AOI22_X1": 759,
+          "AOI22_X2": 2,
+          "AOI22_X4": 2,
+          "BUF_X1": 1286,
+          "BUF_X16": 17,
+          "BUF_X2": 140,
+          "BUF_X4": 126,
+          "BUF_X8": 65,
+          "CLKBUF_X1": 64,
+          "CLKBUF_X3": 2,
+          "CLKGATE_X1": 551,
+          "DFFR_X1": 436,
+          "DFFS_X1": 25,
+          "DFF_X1": 8801,
+          "DLH_X1": 8192,
+          "INV_X1": 4108,
+          "INV_X16": 3,
+          "INV_X2": 130,
+          "INV_X4": 82,
+          "INV_X8": 12,
+          "LOGIC0_X1": 1,
+          "LOGIC1_X1": 1,
+          "MUX2_X1": 869,
+          "MUX2_X2": 2,
+          "NAND2_X1": 8847,
+          "NAND2_X2": 188,
+          "NAND2_X4": 59,
+          "NAND3_X1": 3798,
+          "NAND3_X2": 34,
+          "NAND3_X4": 14,
+          "NAND4_X1": 390,
+          "NAND4_X2": 2,
+          "NAND4_X4": 1,
+          "NOR2_X1": 6729,
+          "NOR2_X2": 100,
+          "NOR2_X4": 47,
+          "NOR3_X1": 290,
+          "NOR3_X2": 11,
+          "NOR3_X4": 7,
+          "NOR4_X1": 120,
+          "NOR4_X2": 4,
+          "NOR4_X4": 2,
+          "OAI211_X1": 2974,
+          "OAI211_X2": 2,
+          "OAI21_X1": 7504,
+          "OAI21_X2": 23,
+          "OAI21_X4": 7,
+          "OAI221_X1": 993,
+          "OAI22_X1": 1544,
+          "OAI22_X2": 2,
+          "OR2_X1": 2695,
+          "OR2_X2": 24,
+          "OR2_X4": 1,
+          "OR3_X1": 174,
+          "OR4_X1": 15,
+          "OR4_X2": 2,
+          "XNOR2_X1": 2243,
+          "XNOR2_X2": 15,
+          "XOR2_X1": 374
+        }
+      }
+    }
+  },
+  "unit": {
+    "split-unit": {
+      "passed": true,
+      "vectors": 15104,
+      "build_command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "+define+YSYX_RV32_BASELINE",
+        "+define+YSYX_SIM_CPU_FREQ_MHZ=680",
+        "+define+YSYX_MULDIV_ENABLE=1",
+        "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+        "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+        "+define+YSYX_ICACHE_WAY_COUNT=4",
+        "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+        "+define+YSYX_ICACHE_LINE_BYTES=32",
+        "+define+YSYX_DCACHE_ENABLE=1",
+        "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+        "+define+YSYX_DCACHE_WAY_COUNT=2",
+        "+define+YSYX_DCACHE_LINE_BYTES=16",
+        "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+        "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+        "+define+YSYX_BRANCH_TARGET_POLICY=0",
+        "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+        "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+        "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+        "--top-module",
+        "riscv32_mul_pipeline_tb",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/split-unit/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/decode/riscv32_idu.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_div.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_mul.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/riscv32_mul_pipeline_tb.sv"
+      ],
+      "result": "PASS pipeline accepted=14647 delivered=13988 canceled=1116 corrections=564 burst=160/156 cycles=114784\n- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/riscv32_mul_pipeline_tb.sv:119: Verilog $finish\n- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel\n- Verilator: $finish at 1us; walltime 0.150 s; speed 7.659 us/s\n- Verilator: cpu 0.150 s on 1 threads; alloced 6 MB\n",
+      "sources": {
+        "vsrc/riscv32/common/riscv_config_pkg.sv": "07e7493fec58fc7a18bc2cffff5327838e9ed82d30475a73b46dddf56fd836e9",
+        "vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+        "vsrc/riscv32/common/riscv32_pkg.sv": "17fb9e37cc8db465edffcd5dda7c36099875c6a00ee8e64126178114979ea4d1",
+        "vsrc/riscv32/core/decode/riscv32_idu.sv": "cd37ecc720e7a38e88ac0cbd5c34322253a3d46361fa50d48a7a35c523299396",
+        "vsrc/riscv32/core/execute/riscv32_div.sv": "d03616f7a2cee213b9b0a7adf2601f86d2a2c9fa07298d0ff54ab671181a0b53",
+        "vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "a06a44eadfd8952fb906ebf4dad52d385f9b6656a4e4792958ed63d5dfc12e00",
+        "vsrc/riscv32/core/execute/riscv32_exu.sv": "16770be7f35bc40a673b96351318fb8ecf3fb0d9471a479c181c3e66597a3191",
+        "vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "1fb0dda3fc38451ed705fbf6cb1cb595faa841af2c1ae203d5be2201a79af513",
+        "vsrc/riscv32/core/execute/riscv32_mul.sv": "1ca071d206d09e605bc9326ecf4bbbf3b425620ccc2a820bf0e9e8d9838619dc",
+        "vsrc/riscv32/core/execute/riscv32_muldiv.sv": "f0903ccc04b88c7cec53cd975a05c3e4a456155c8d6df4802c11f422a8063751",
+        "tests/muldiv/riscv32_mul_pipeline_tb.sv": "8d31e608251f2100cf9e3e9d27f7a0c0ee3cd1ae910db0c56d1212fc0aa6a396"
+      }
+    },
+    "capacity-unit": {
+      "passed": true,
+      "vectors": 15104,
+      "build_command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "+define+YSYX_RV32_BASELINE",
+        "+define+YSYX_SIM_CPU_FREQ_MHZ=680",
+        "+define+YSYX_MULDIV_ENABLE=1",
+        "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+        "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+        "+define+YSYX_ICACHE_WAY_COUNT=4",
+        "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+        "+define+YSYX_ICACHE_LINE_BYTES=32",
+        "+define+YSYX_DCACHE_ENABLE=1",
+        "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+        "+define+YSYX_DCACHE_WAY_COUNT=2",
+        "+define+YSYX_DCACHE_LINE_BYTES=16",
+        "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+        "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+        "+define+YSYX_BRANCH_TARGET_POLICY=0",
+        "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+        "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+        "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+        "--top-module",
+        "riscv32_mul_pipeline_tb",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/capacity-unit/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/decode/riscv32_idu.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_div.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_mul.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/riscv32_mul_pipeline_tb.sv"
+      ],
+      "result": "PASS pipeline accepted=14647 delivered=13988 canceled=1116 corrections=564 burst=160/156 cycles=114784\n- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/riscv32_mul_pipeline_tb.sv:119: Verilog $finish\n- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel\n- Verilator: $finish at 1us; walltime 0.166 s; speed 6.928 us/s\n- Verilator: cpu 0.166 s on 1 threads; alloced 6 MB\n",
+      "sources": {
+        "vsrc/riscv32/common/riscv_config_pkg.sv": "07e7493fec58fc7a18bc2cffff5327838e9ed82d30475a73b46dddf56fd836e9",
+        "vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+        "vsrc/riscv32/common/riscv32_pkg.sv": "17fb9e37cc8db465edffcd5dda7c36099875c6a00ee8e64126178114979ea4d1",
+        "vsrc/riscv32/core/decode/riscv32_idu.sv": "cd37ecc720e7a38e88ac0cbd5c34322253a3d46361fa50d48a7a35c523299396",
+        "vsrc/riscv32/core/execute/riscv32_div.sv": "d03616f7a2cee213b9b0a7adf2601f86d2a2c9fa07298d0ff54ab671181a0b53",
+        "vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "a06a44eadfd8952fb906ebf4dad52d385f9b6656a4e4792958ed63d5dfc12e00",
+        "vsrc/riscv32/core/execute/riscv32_exu.sv": "e612361319af197a3f2e81b9d8701ec9e276c947488b871683d8ab7025d13488",
+        "vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "1fb0dda3fc38451ed705fbf6cb1cb595faa841af2c1ae203d5be2201a79af513",
+        "vsrc/riscv32/core/execute/riscv32_mul.sv": "1ca071d206d09e605bc9326ecf4bbbf3b425620ccc2a820bf0e9e8d9838619dc",
+        "vsrc/riscv32/core/execute/riscv32_muldiv.sv": "f0903ccc04b88c7cec53cd975a05c3e4a456155c8d6df4802c11f422a8063751",
+        "tests/muldiv/riscv32_mul_pipeline_tb.sv": "8d31e608251f2100cf9e3e9d27f7a0c0ee3cd1ae910db0c56d1212fc0aa6a396"
+      }
+    }
+  },
+  "system_regression": {
+    "simulator": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-pipeline-20260928/isolated-sim/top_sim",
+    "simulator_sha256": "8eb897ae10920966b6cf0170874c1c562bc686d2eaa0dc3dd270996830306d34",
+    "rtl_test_cpu_mhz": 700,
+    "note": "Selected exception/fence/interrupt tests compile current RTL independently with --assert; the supplied standalone simulator was not run.",
+    "tests": [
+      {
+        "name": "exception",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/run.py",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/system-check/exception",
+          "+define+YSYX_RV32_BASELINE",
+          "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+          "+define+YSYX_MULDIV_ENABLE=1",
+          "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+          "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+          "+define+YSYX_ICACHE_WAY_COUNT=4",
+          "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+          "+define+YSYX_ICACHE_LINE_BYTES=32",
+          "+define+YSYX_DCACHE_ENABLE=1",
+          "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+          "+define+YSYX_DCACHE_WAY_COUNT=2",
+          "+define+YSYX_DCACHE_LINE_BYTES=16",
+          "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+          "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+          "+define+YSYX_BRANCH_TARGET_POLICY=0",
+          "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+          "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+          "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+          "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/system-check/exception-driver.log"
+      },
+      {
+        "name": "fence",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_cache_recovery.py",
+          "--test",
+          "core",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/system-check/fence",
+          "+define+YSYX_RV32_BASELINE",
+          "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+          "+define+YSYX_MULDIV_ENABLE=1",
+          "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+          "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+          "+define+YSYX_ICACHE_WAY_COUNT=4",
+          "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+          "+define+YSYX_ICACHE_LINE_BYTES=32",
+          "+define+YSYX_DCACHE_ENABLE=1",
+          "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+          "+define+YSYX_DCACHE_WAY_COUNT=2",
+          "+define+YSYX_DCACHE_LINE_BYTES=16",
+          "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+          "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+          "+define+YSYX_BRANCH_TARGET_POLICY=0",
+          "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+          "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+          "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+          "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/system-check/fence-driver.log"
+      },
+      {
+        "name": "interrupt",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/interrupt/run.py",
+          "+define+YSYX_RV32_BASELINE",
+          "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+          "+define+YSYX_MULDIV_ENABLE=1",
+          "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+          "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+          "+define+YSYX_ICACHE_WAY_COUNT=4",
+          "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+          "+define+YSYX_ICACHE_LINE_BYTES=32",
+          "+define+YSYX_DCACHE_ENABLE=1",
+          "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+          "+define+YSYX_DCACHE_WAY_COUNT=2",
+          "+define+YSYX_DCACHE_LINE_BYTES=16",
+          "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+          "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+          "+define+YSYX_BRANCH_TARGET_POLICY=0",
+          "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+          "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+          "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+          "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/system-check/interrupt-driver.log"
+      }
+    ],
+    "supplied_standalone_simulator_used": false
+  },
+  "source_matches_synthesis": true,
+  "decision": "Keep named multiplier/divider and capacity-ready change; pipeline preset 700 MHz; stable iterative preset retained.",
+  "core_regression": {
+    "simulator": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim",
+    "simulator_sha256": "9f00d05c167bdb09880a06797e16656bde5863558ae805089354c08ccffeee8a",
+    "rtl_test_cpu_mhz": 700,
+    "note": "The supplied standalone simulator retains its build frequency; core and kernel comparisons use cycles, not a native SoC timer.",
+    "tests": [
+      {
+        "name": "core",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_mul_pipeline_core.py",
+          "--simulator",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/core"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/core-driver.log"
+      },
+      {
+        "name": "arithmetic",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_muldiv_core.py",
+          "--simulator",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/arithmetic"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/arithmetic-driver.log"
+      },
+      {
+        "name": "kernel",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py",
+          "--simulator",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/kernel"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/kernel-driver.log"
+      }
+    ]
+  },
+  "core": [
+    {
+      "name": "overlap",
+      "cycles": 2528,
+      "retired": 2370,
+      "difftest": true,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/core/overlap.bin"
+      ]
+    },
+    {
+      "name": "precise",
+      "cycles": 119,
+      "retired": 31,
+      "difftest": false,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim",
+        "--batch",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/core/precise.bin"
+      ]
+    }
+  ],
+  "arithmetic": {
+    "arithmetic_cases": 2803,
+    "difftest": true,
+    "misa_and_precise_trap": true,
+    "commands": [
+      [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/arithmetic/arithmetic.bin"
+      ],
+      [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim",
+        "--batch",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/arithmetic/traps.bin"
+      ]
+    ],
+    "sha256": {
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim": "9f00d05c167bdb09880a06797e16656bde5863558ae805089354c08ccffeee8a",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/arithmetic/arithmetic.bin": "98c6a80455bd2ab4f6d2ace331bb42fb375c98903c7e9b002a10d33887dbc9cc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/arithmetic/traps.bin": "037fb7b47ce4358091648722b6624f546c7b6464e4497e6e8343ca704d3b9639",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_muldiv_core.py": "cc0539c3e29c506ea51ae64b23a3517d39e772b79a7ae5312c761595b805cb79"
+    }
+  },
+  "kernel": {
+    "workload": "scalar-int8-dot-normalize",
+    "checksum": "0x0",
+    "timing_scope": "whole standalone NPC program, flat memory; not SoC timer",
+    "cpu": "same RV32IM balanced simulator for both software images",
+    "records": [
+      {
+        "isa": "rv32i",
+        "cycles": 2385341,
+        "retired": 2065811,
+        "ipc": 0.866044309807277,
+        "build_command": [
+          "riscv64-linux-gnu-gcc",
+          "-march=rv32i_zicsr_zifencei",
+          "-mabi=ilp32",
+          "-nostdlib",
+          "-static",
+          "-fno-pic",
+          "-fno-pie",
+          "-mcmodel=medany",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-msmall-data-limit=0",
+          "-O2",
+          "-ffunction-sections",
+          "-fdata-sections",
+          "-Wl,--no-relax,--build-id=none,--gc-sections",
+          "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/kernel/test.ld",
+          "-DEXPECTED_CHECKSUM=0u",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/kernel/start.S",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+          "-o",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/kernel/rv32i.elf"
+        ],
+        "image_sha256": "b14ef89582bc07af888c3f96385a90424aa92ae4760aec1879877c693f0b220d"
+      },
+      {
+        "isa": "rv32im",
+        "cycles": 192451,
+        "retired": 151125,
+        "ipc": 0.7852648206556474,
+        "build_command": [
+          "riscv64-linux-gnu-gcc",
+          "-march=rv32im_zicsr_zifencei",
+          "-mabi=ilp32",
+          "-nostdlib",
+          "-static",
+          "-fno-pic",
+          "-fno-pie",
+          "-mcmodel=medany",
+          "-ffreestanding",
+          "-fno-builtin",
+          "-msmall-data-limit=0",
+          "-O2",
+          "-ffunction-sections",
+          "-fdata-sections",
+          "-Wl,--no-relax,--build-id=none,--gc-sections",
+          "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/kernel/test.ld",
+          "-DEXPECTED_CHECKSUM=0u",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/kernel/start.S",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+          "-o",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/core-check/kernel/rv32im.elf"
+        ],
+        "image_sha256": "d9e4031247fbe03822de424551501841efc579581c9724b04861c89c18c59688"
+      }
+    ],
+    "sha256": {
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c": "4c6f6b70275966a2d65aa7c501f5a7d5f5310ece88c940b52aec7be774f9d108",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/sim/top_sim": "9f00d05c167bdb09880a06797e16656bde5863558ae805089354c08ccffeee8a",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py": "ebdf94682a7c5463ce3a0bd73b2ed1a54cfd34c477f3d1867d0ce225ed1e110d"
+    },
+    "speedup_same_frequency": 12.39453679118321
+  },
+  "microbench": {
+    "status": "passed",
+    "measurement": "native timer windows, passive retirement counting",
+    "cpu_mhz": 700,
+    "device_mhz": 100,
+    "timer_hz": 1000000,
+    "total": {
+      "cycles": 2220172,
+      "retired_instructions": 483455,
+      "ipc": 0.21775565136394837,
+      "timer_ticks": 3172,
+      "timer_seconds": 0.003172,
+      "cycle_seconds": 0.0031716742857142858,
+      "interrupts": 0
+    },
+    "scored": {
+      "cycles": 915785,
+      "retired_instructions": 317725,
+      "ipc": 0.3469427867894757,
+      "timer_ticks": 1309,
+      "timer_seconds": 0.001309,
+      "cycle_seconds": 0.0013082642857142857,
+      "interrupts": 0
+    },
+    "subtests": [
+      {
+        "cycles": 25093,
+        "retired_instructions": 9709,
+        "ipc": 0.3869206551627944,
+        "timer_ticks": 36,
+        "timer_seconds": 3.6e-05,
+        "cycle_seconds": 3.5847142857142854e-05,
+        "interrupts": 0
+      },
+      {
+        "cycles": 112434,
+        "retired_instructions": 83537,
+        "ipc": 0.7429869968159097,
+        "timer_ticks": 160,
+        "timer_seconds": 0.00016,
+        "cycle_seconds": 0.00016062,
+        "interrupts": 0
+      },
+      {
+        "cycles": 231931,
+        "retired_instructions": 141943,
+        "ipc": 0.6120052946781586,
+        "timer_ticks": 331,
+        "timer_seconds": 0.000331,
+        "cycle_seconds": 0.00033133,
+        "interrupts": 0
+      },
+      {
+        "cycles": 17710,
+        "retired_instructions": 11293,
+        "ipc": 0.6376623376623377,
+        "timer_ticks": 26,
+        "timer_seconds": 2.6e-05,
+        "cycle_seconds": 2.53e-05,
+        "interrupts": 0
+      },
+      {
+        "cycles": 8184,
+        "retired_instructions": 4513,
+        "ipc": 0.5514418377321603,
+        "timer_ticks": 12,
+        "timer_seconds": 1.2e-05,
+        "cycle_seconds": 1.1691428571428572e-05,
+        "interrupts": 0
+      },
+      {
+        "cycles": 79611,
+        "retired_instructions": 12061,
+        "ipc": 0.15149916468829686,
+        "timer_ticks": 114,
+        "timer_seconds": 0.000114,
+        "cycle_seconds": 0.00011373,
+        "interrupts": 0
+      },
+      {
+        "cycles": 168557,
+        "retired_instructions": 17979,
+        "ipc": 0.10666421447937494,
+        "timer_ticks": 241,
+        "timer_seconds": 0.000241,
+        "cycle_seconds": 0.0002407957142857143,
+        "interrupts": 0
+      },
+      {
+        "cycles": 85295,
+        "retired_instructions": 14661,
+        "ipc": 0.17188580807784748,
+        "timer_ticks": 122,
+        "timer_seconds": 0.000122,
+        "cycle_seconds": 0.00012185,
+        "interrupts": 0
+      },
+      {
+        "cycles": 172508,
+        "retired_instructions": 17172,
+        "ipc": 0.09954320959027987,
+        "timer_ticks": 246,
+        "timer_seconds": 0.000246,
+        "cycle_seconds": 0.00024644,
+        "interrupts": 0
+      },
+      {
+        "cycles": 14462,
+        "retired_instructions": 4857,
+        "ipc": 0.33584566450006914,
+        "timer_ticks": 21,
+        "timer_seconds": 2.1e-05,
+        "cycle_seconds": 2.066e-05,
+        "interrupts": 0
+      }
+    ],
+    "whole_program": {
+      "cycles": 2807635,
+      "retired_instructions": 559139,
+      "ipc": 0.19914946209176052,
+      "cycle_seconds": 0.004010907142857143,
+      "interrupts": 0
+    },
+    "timer_contexts": {
+      "total_begin": 2684362128,
+      "score_begin": 2684362728,
+      "score_end": 2684362760,
+      "total_end": 2684362352
+    },
+    "isa": "rv32im",
+    "mul_pipeline": 1,
+    "timing_model": "device-clock-v1",
+    "scale": "test",
+    "host_wall_seconds": 108.58561443399958,
+    "observer_on_off_verified": true,
+    "manifest_sha256": "f989855992af90423d0c5895f8e013c1256f4e4062849e698b66f1ef34b1cf21"
+  },
+  "microbench_manifest": {
+    "artifacts": {
+      "simulator": "1707996c7255d5d9902a98c227d5f3d161a99b813b33155ca46f3bfbc0c1045a",
+      "microbench.bin": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "microbench.elf": "c724f7f74dc531c7a04d3c54adf295cfe3839b42e117b0e0a67dccbee851f74c",
+      "microbench.txt": "f7186be5f0447c5cb3e9a205c07ae0d53c4a842979ede741cc3a439a55eb46e4",
+      "source-snapshot.tar.gz": "830dc127c484818001edb4ca9e9b6d0b9aa2a8dc2c73637a90d39031156363e1"
+    },
+    "tools": {
+      "verilator": "Verilator 5.043 devel rev v5.042-244-g4080284e5",
+      "riscv64-linux-gnu-gcc": "riscv64-linux-gnu-gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0",
+      "riscv64-linux-gnu-ld": "GNU ld (GNU Binutils for Ubuntu) 2.38"
+    },
+    "build_command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-baseline",
+      "NPC_MULDIV_ENABLE=1",
+      "NPC_MUL_PIPELINE_ENABLE=1",
+      "NPC_SIM_CPU_FREQ_MHZ=700",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/build/passive-perf/cpu-700mhz-ic-1024-4-p13-l32-bht-16-btb-16x2-p0-ras-4-dir-0-hist-4-rv32im-mulpipe-timing-device-clock",
+      "NPC_DEVICE_TIMING_MODE=1",
+      "NPC_ICACHE_CAPACITY_BYTES=1024",
+      "NPC_ICACHE_WAY_COUNT=4",
+      "NPC_ICACHE_REPLACEMENT_POLICY=13",
+      "NPC_ICACHE_LINE_BYTES=32",
+      "NPC_DCACHE_ENABLE=1",
+      "NPC_DCACHE_CAPACITY_BYTES=256",
+      "NPC_DCACHE_WAY_COUNT=2",
+      "NPC_DCACHE_LINE_BYTES=16",
+      "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+      "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+      "NPC_BRANCH_TARGET_WAY_COUNT=2",
+      "NPC_BRANCH_TARGET_POLICY=0",
+      "NPC_BRANCH_TARGET_WAY_BITS=0",
+      "NPC_BRANCH_DIRECTION_POLICY=0",
+      "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+      "NPC_RETURN_STACK_ENTRY_COUNT=4",
+      "NPC_SDRAM_NATIVE_READ_BURST=1",
+      "VERILATOR_FLAGS=-MMD --build -cc -Wall -Wno-fatal -O3 --x-assign fast --x-initial fast -I/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim --trace --autoflush --timescale 1ns/1ns --no-timing -j 1 -MAKEFLAGS \"OPT_FAST=-O3 OPT_GLOBAL=-O3 OPT_SLOW=-O1\"",
+      "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+      "build-soc"
+    ],
+    "image_build_command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/benchmarks/microbench",
+      "ARCH=riscv32-ysyxsoc-sdram-im",
+      "mainargs=test",
+      "git_commit=",
+      "MICROBENCH_CSR_DIAGNOSTICS=0",
+      "image"
+    ],
+    "timing_model": "device-clock-v1",
+    "device_clock_ratio": {
+      "numerator": 100,
+      "denominator": 700
+    }
+  },
+  "same_700_mhz_cycles_and_retirements": true,
+  "same_software_image": true,
+  "constraint_text_matches_previous_700mhz": true,
+  "constraint_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857",
+  "legacy_unit": {
+    "vectors": 11359,
+    "records": [
+      {
+        "m_enabled": 0,
+        "build_command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "--assert",
+          "-Wno-fatal",
+          "-j",
+          "2",
+          "+define+YSYX_RV32_BASELINE",
+          "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+          "+define+YSYX_MULDIV_ENABLE=0",
+          "+define+YSYX_MUL_PIPELINE_ENABLE=0",
+          "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+          "+define+YSYX_ICACHE_WAY_COUNT=4",
+          "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+          "+define+YSYX_ICACHE_LINE_BYTES=32",
+          "+define+YSYX_DCACHE_ENABLE=1",
+          "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+          "+define+YSYX_DCACHE_WAY_COUNT=2",
+          "+define+YSYX_DCACHE_LINE_BYTES=16",
+          "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+          "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+          "+define+YSYX_BRANCH_TARGET_POLICY=0",
+          "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+          "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+          "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+          "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+          "--top-module",
+          "riscv32_muldiv_tb",
+          "--Mdir",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/legacy-check/obj-0",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/decode/riscv32_idu.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_div.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_mul.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/riscv32_muldiv_tb.sv"
+        ],
+        "passed": true
+      },
+      {
+        "m_enabled": 1,
+        "build_command": [
+          "verilator",
+          "--binary",
+          "--timing",
+          "--assert",
+          "-Wno-fatal",
+          "-j",
+          "2",
+          "+define+YSYX_RV32_BASELINE",
+          "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+          "+define+YSYX_MULDIV_ENABLE=1",
+          "+define+YSYX_MUL_PIPELINE_ENABLE=0",
+          "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+          "+define+YSYX_ICACHE_WAY_COUNT=4",
+          "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+          "+define+YSYX_ICACHE_LINE_BYTES=32",
+          "+define+YSYX_DCACHE_ENABLE=1",
+          "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+          "+define+YSYX_DCACHE_WAY_COUNT=2",
+          "+define+YSYX_DCACHE_LINE_BYTES=16",
+          "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+          "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+          "+define+YSYX_BRANCH_TARGET_POLICY=0",
+          "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+          "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+          "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+          "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+          "--top-module",
+          "riscv32_muldiv_tb",
+          "--Mdir",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/mul-module-700-20260928/legacy-check/obj-1",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/decode/riscv32_idu.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_div.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_mul.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/riscv32_muldiv_tb.sv"
+        ],
+        "passed": true
+      }
+    ],
+    "sources": {
+      "vsrc/riscv32/common/riscv_config_pkg.sv": "07e7493fec58fc7a18bc2cffff5327838e9ed82d30475a73b46dddf56fd836e9",
+      "vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+      "vsrc/riscv32/common/riscv32_pkg.sv": "17fb9e37cc8db465edffcd5dda7c36099875c6a00ee8e64126178114979ea4d1",
+      "vsrc/riscv32/core/decode/riscv32_idu.sv": "cd37ecc720e7a38e88ac0cbd5c34322253a3d46361fa50d48a7a35c523299396",
+      "vsrc/riscv32/core/execute/riscv32_muldiv.sv": "f0903ccc04b88c7cec53cd975a05c3e4a456155c8d6df4802c11f422a8063751",
+      "vsrc/riscv32/core/execute/riscv32_div.sv": "d03616f7a2cee213b9b0a7adf2601f86d2a2c9fa07298d0ff54ab671181a0b53",
+      "vsrc/riscv32/core/execute/riscv32_mul.sv": "1ca071d206d09e605bc9326ecf4bbbf3b425620ccc2a820bf0e9e8d9838619dc",
+      "vsrc/riscv32/core/execute/riscv32_exu.sv": "e612361319af197a3f2e81b9d8701ec9e276c947488b871683d8ab7025d13488",
+      "tests/muldiv/riscv32_muldiv_tb.sv": "5572744c3d35468fa17b871278cb365e2c8c3e10d4eaf9e0ae2ef278ce707628"
+    }
+  }
+}

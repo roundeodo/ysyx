@@ -178,7 +178,13 @@ module riscv32_pipeline_control_formal;
   logic          lsu_matches_rs1;
   logic          lsu_matches_rs2;
 
+  execute_producer_t no_pipeline_producer [EXECUTE_PIPE_DEPTH];
+  for (genvar i = 0; i < EXECUTE_PIPE_DEPTH; i++) begin : gen_no_pipeline
+    assign no_pipeline_producer[i] = '0;
+  end
   riscv32_hazard_ctrl u_hazard_ctrl (
+      .pipeline_producer_i(no_pipeline_producer),
+      .rs1_pipeline_forwarding_selected_o(), .rs2_pipeline_forwarding_selected_o(),
       .clk_i                                   (clk_i),
       .rst_ni                                  (rst_ni),
       .decoded_uop_valid_i                     (decoded_uop_valid),

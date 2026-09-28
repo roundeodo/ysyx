@@ -4,6 +4,8 @@ package riscv32_pkg;
 
   // 本package消费唯一配置源，并向只导入riscv32_pkg的core模块继续导出全局配置。
   import riscv_config_pkg::*;
+  import riscv_config_pkg::MULDIV_ENABLE;
+  import riscv_config_pkg::MUL_PIPELINE_ENABLE;
   export riscv_config_pkg::*;
   import riscv32_addr_map_pkg::*;
 
@@ -126,6 +128,17 @@ package riscv32_pkg;
     FU_SYSTEM = 3'd5,
     FU_MULDIV = 3'd6
   } fu_type_e;
+
+  typedef enum logic [2:0] {
+    MD_MUL    = 3'd0,
+    MD_MULH   = 3'd1,
+    MD_MULHSU = 3'd2,
+    MD_MULHU  = 3'd3,
+    MD_DIV    = 3'd4,
+    MD_DIVU   = 3'd5,
+    MD_REM    = 3'd6,
+    MD_REMU   = 3'd7
+  } muldiv_op_e;
 
   typedef enum logic [1:0] {
     OPA_ZERO = 2'd0,
@@ -537,10 +550,20 @@ package riscv32_pkg;
   // Frontend payloads
   // prediction记录IFU发出该指令请求时真正采用的后继选择。EX必须同时比较方向和目标；
   // 即使B/J目标可重新计算，也不能用重算结果替代predicted_target，否则BTB旧目标或别名
-  // 无法触发恢复。未来引入TAGE checkpoint时，再增加有明确消费者的metadata。
+  // 无法触发恢复。历史方向预测的快照只供对应指令解析后训练使用。
   typedef struct packed {
-    logic             predicted_taken;
-    program_counter_t predicted_target;
+    logic [riscv_config_pkg::BRANCH_GLOBAL_HISTORY_BITS-1:0] history;
+    logic                                                  choice;
+    logic                                                  taken;
+    logic [1:0]                                            provider;
+    logic [1:0]                                            alternate_provider;
+    logic                                                  alternate_taken;
+  } direction_context_t;
+
+  typedef struct packed {
+    logic               predicted_taken;
+    program_counter_t   predicted_target;
+    direction_context_t direction;
   } branch_prediction_t;
 
   // 请求侧预测时还不知道返回指令的opcode，因此把BHT方向和RAS栈顶作为请求上下文
@@ -580,6 +603,7 @@ package riscv32_pkg;
     fu_type_e         fu_type;
     xlen_data_t       imm;
     int_uop_ctrl_t    int_ctrl;
+    muldiv_op_e       muldiv_op;
     branch_uop_ctrl_t branch_ctrl;
     mem_uop_ctrl_t    mem_ctrl;
     csr_uop_ctrl_t    csr_ctrl;
@@ -739,6 +763,17 @@ package riscv32_pkg;
     logic          redirect_valid;
     redirect_req_t redirect_req;
   } execute_result_t;
+
+  // 三级乘法在 EX 输入与既有结果级之间增加两个弹性寄存边界。
+  localparam int unsigned EXECUTE_PIPE_DEPTH = 2;
+  typedef struct packed {
+    logic          present;
+    logic          writes_rd;
+    arch_reg_idx_t rd;
+    logic          forwardable;
+    logic          serializing;
+    xlen_data_t    value;
+  } execute_producer_t;
 
   // 当前顺序核的 EXU → LSU 请求：携带译码结果、有效地址和 store 数据，尚未发起访存。
   typedef struct packed {
