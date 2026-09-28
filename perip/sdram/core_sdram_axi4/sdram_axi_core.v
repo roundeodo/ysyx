@@ -32,6 +32,10 @@
 //                          Generated File
 //-----------------------------------------------------------------
 
+`ifndef YSYX_SDRAM_NATIVE_READ_BURST
+`define YSYX_SDRAM_NATIVE_READ_BURST 1
+`endif
+
 module sdram_axi_core
 (
     // Inputs
@@ -42,7 +46,7 @@ module sdram_axi_core
     ,input  [  7:0]  inport_len_i
     ,input  [ 31:0]  inport_addr_i
     ,input  [ 31:0]  inport_write_data_i
-    ,input  [ 15:0]  sdram_data_input_i
+    ,input  [ 31:0]  sdram_data_input_i
 
     // Outputs
     ,output          inport_accept_o
@@ -55,10 +59,10 @@ module sdram_axi_core
     ,output          sdram_ras_o
     ,output          sdram_cas_o
     ,output          sdram_we_o
-    ,output [  1:0]  sdram_dqm_o
+    ,output [  3:0]  sdram_dqm_o
     ,output [ 12:0]  sdram_addr_o
     ,output [  1:0]  sdram_ba_o
-    ,output [ 15:0]  sdram_data_output_o
+    ,output [ 31:0]  sdram_data_output_o
     ,output          sdram_data_out_en_o
 );
 
@@ -76,7 +80,7 @@ parameter SDRAM_READ_LATENCY     = 2;
 // Defines / Local params
 //-----------------------------------------------------------------
 localparam SDRAM_BANK_W          = 2;
-localparam SDRAM_DQM_W           = 2;
+localparam SDRAM_DQM_W           = 4;
 localparam SDRAM_BANKS           = 2 ** SDRAM_BANK_W;
 localparam SDRAM_ROW_W           = SDRAM_ADDR_W - SDRAM_COL_W - SDRAM_BANK_W;
 localparam SDRAM_REFRESH_CNT     = 2 ** SDRAM_ROW_W;
@@ -93,8 +97,15 @@ localparam CMD_PRECHARGE     = 4'b0010;
 localparam CMD_REFRESH       = 4'b0001;
 localparam CMD_LOAD_MODE     = 4'b0000;
 
-// Mode: Burst Length = 4 bytes, CAS=2
-localparam MODE_REG          = {3'b000,1'b0,2'b00,3'b010,1'b0,3'b001};
+// Mode: read Burst Length = 8, sequential burst, CAS = 2.
+// A9=1 keeps WRITE commands single-beat until the AXI boundary provides a
+// complete write-burst buffer; read BL8 and write single-beat are independent.
+// The build-time switch keeps the functional configuration and the BL1
+// reference in one RTL source. Both branches are constants after elaboration,
+// so this comparison does not add a runtime mux to the SDRAM controller.
+localparam MODE_REG          = (`YSYX_SDRAM_NATIVE_READ_BURST != 0) ?
+                               {3'b000,1'b1,2'b00,3'b010,1'b0,3'b011} :
+                               {3'b000,1'b1,2'b00,3'b010,1'b0,3'b000};
 
 // SM states
 localparam STATE_W           = 4;
@@ -105,14 +116,14 @@ localparam STATE_ACTIVATE    = 4'd3;
 localparam STATE_READ        = 4'd4;
 localparam STATE_READ_WAIT   = 4'd5;
 localparam STATE_WRITE0      = 4'd6;
-localparam STATE_WRITE1      = 4'd7;
+localparam STATE_READ_BURST  = 4'd7;
 localparam STATE_PRECHARGE   = 4'd8;
 localparam STATE_REFRESH     = 4'd9;
 
 localparam AUTO_PRECHARGE    = 10;
 localparam ALL_BANKS         = 10;
 
-localparam SDRAM_DATA_W      = 16;
+localparam SDRAM_DATA_W      = 32;
 
 localparam CYCLE_TIME_NS     = 1000 / SDRAM_MHZ;
 
@@ -159,10 +170,6 @@ reg [SDRAM_DQM_W-1:0]  dqm_q;
 reg                    cke_q;
 reg [SDRAM_BANK_W-1:0] bank_q;
 
-// Buffer half word during read and write commands
-reg [SDRAM_DATA_W-1:0] data_buffer_q;
-reg [SDRAM_DQM_W-1:0]  dqm_buffer_q;
-
 wire [SDRAM_DATA_W-1:0] sdram_data_in_w;
 
 reg                    refresh_q;
@@ -176,10 +183,18 @@ reg  [STATE_W-1:0]     target_state_r;
 reg  [STATE_W-1:0]     target_state_q;
 reg  [STATE_W-1:0]     delay_state_q;
 
+// 一个core读请求映射为一次物理SDRAM连续读，len=0..7分别表示1..8 beat。
+// Mode Register固定为BL8；不足8 beat的请求在最后一个所需beat后发送TERMINATE。
+reg  [3:0]             read_requested_beat_count_q;
+reg  [3:0]             read_response_beats_remaining_q;
+reg                    read_response_sequence_started_q;
+
 // Address bits
-wire [SDRAM_ROW_W-1:0]  addr_col_w  = {{(SDRAM_ROW_W-SDRAM_COL_W){1'b0}}, ram_addr_w[SDRAM_COL_W:2], 1'b0};
-wire [SDRAM_ROW_W-1:0]  addr_row_w  = ram_addr_w[SDRAM_ADDR_W:SDRAM_COL_W+2+1];
-wire [SDRAM_BANK_W-1:0] addr_bank_w = ram_addr_w[SDRAM_COL_W+2:SDRAM_COL_W+2-1];
+// A 32-bit SDRAM beat consumes address bits [1:0] as its byte offset.
+// The mapped 32 MiB range uses half of the rows available in two x16 chips.
+wire [SDRAM_ROW_W-1:0]  addr_col_w  = {{(SDRAM_ROW_W-SDRAM_COL_W){1'b0}}, ram_addr_w[10:2]};
+wire [SDRAM_ROW_W-1:0]  addr_row_w  = {1'b0, ram_addr_w[24:13]};
+wire [SDRAM_BANK_W-1:0] addr_bank_w = ram_addr_w[12:11];
 
 //-----------------------------------------------------------------
 // SDRAM State Machine
@@ -269,37 +284,28 @@ begin
     //-----------------------------------------
     STATE_READ_WAIT :
     begin
-        next_state_r = STATE_IDLE;
-
-        // Another pending read request (with no refresh pending)
-        if (!refresh_q && ram_req_w && ram_rd_w)
-        begin
-            // Open row hit
-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
-                next_state_r = STATE_READ;
-        end
+        next_state_r = STATE_READ_BURST;
+    end
+    //-----------------------------------------
+    // STATE_READ_BURST
+    //-----------------------------------------
+    STATE_READ_BURST :
+    begin
+        // SDRAM数据一旦开始返回便不能被上层反压暂停。保持该状态直到本次物理
+        // burst的最后一个有效beat已经被采样，再允许刷新或下一次访问进入控制器。
+        if (read_response_beats_remaining_q == 4'd0)
+            next_state_r = STATE_IDLE;
     end
     //-----------------------------------------
     // STATE_WRITE0
     //-----------------------------------------
     STATE_WRITE0 :
     begin
-        next_state_r = STATE_WRITE1;
-    end
-    //-----------------------------------------
-    // STATE_WRITE1
-    //-----------------------------------------
-    STATE_WRITE1 :
-    begin
+        // WRITE0中的请求已通过ram_accept_w在本周期被消费。上游请求寄存器也在
+        // 同一个时钟沿更新，因此这里不能根据沿前仍为高的ram_req_w继续停留在
+        // WRITE0，否则一个AXI W beat会被重复发送两次SDRAM WRITE命令。
+        // 多beat AXI写仍由sdram_axi_pmem保存req_wr_q，并在回到IDLE后发起下一beat。
         next_state_r = STATE_IDLE;
-
-        // Another pending write request (with no refresh pending)
-        if (!refresh_q && ram_req_w && (ram_wr_w != 4'b0))
-        begin
-            // Open row hit
-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
-                next_state_r = STATE_WRITE0;
-        end
     end
     //-----------------------------------------
     // STATE_PRECHARGE
@@ -359,14 +365,6 @@ begin
     STATE_READ_WAIT :
     begin
         delay_r = SDRAM_READ_LATENCY;
-
-        // Another pending read request (with no refresh pending)
-        if (!refresh_q && ram_req_w && ram_rd_w)
-        begin
-            // Open row hit
-            if (row_open_q[addr_bank_w] && addr_row_w == active_row_q[addr_bank_w])
-                delay_r = 4'd0;
-        end
     end
     //-----------------------------------------
     // STATE_PRECHARGE
@@ -475,6 +473,50 @@ else
     sample_data_q <= sample_data0_q;
 
 //-----------------------------------------------------------------
+// Read response tracking
+//-----------------------------------------------------------------
+reg [SDRAM_READ_LATENCY+1:0] rd_q;
+
+always @ (posedge clk_i or posedge rst_i)
+if (rst_i)
+    rd_q <= {(SDRAM_READ_LATENCY+2){1'b0}};
+else
+    rd_q <= {rd_q[SDRAM_READ_LATENCY:0], (state_q == STATE_READ)};
+
+wire read_first_data_output_occurred_w = rd_q[SDRAM_READ_LATENCY];
+wire read_data_output_occurred_w =
+    read_first_data_output_occurred_w || read_response_sequence_started_q;
+wire read_last_data_output_occurred_w =
+    read_data_output_occurred_w &&
+    (read_response_beats_remaining_q == 4'd1);
+
+always @ (posedge clk_i or posedge rst_i)
+if (rst_i)
+begin
+    read_requested_beat_count_q          <= 4'd1;
+    read_response_beats_remaining_q      <= 4'd0;
+    read_response_sequence_started_q     <= 1'b0;
+end
+else
+begin
+    if (state_q == STATE_READ)
+    begin
+        read_requested_beat_count_q      <= {1'b0, inport_len_i[2:0]} + 4'd1;
+        read_response_beats_remaining_q  <= {1'b0, inport_len_i[2:0]} + 4'd1;
+        read_response_sequence_started_q <= 1'b0;
+    end
+    else if (read_data_output_occurred_w)
+    begin
+        read_response_beats_remaining_q <= read_response_beats_remaining_q - 4'd1;
+
+        if (read_response_beats_remaining_q == 4'd1)
+            read_response_sequence_started_q <= 1'b0;
+        else
+            read_response_sequence_started_q <= 1'b1;
+    end
+end
+
+//-----------------------------------------------------------------
 // Command Output
 //-----------------------------------------------------------------
 integer idx;
@@ -483,14 +525,12 @@ always @ (posedge clk_i or posedge rst_i)
 if (rst_i)
 begin
     command_q       <= CMD_NOP;
-    data_q          <= 16'b0;
+    data_q          <= {SDRAM_DATA_W{1'b0}};
     addr_q          <= {SDRAM_ROW_W{1'b0}};
     bank_q          <= {SDRAM_BANK_W{1'b0}};
     cke_q           <= 1'b0;
     dqm_q           <= {SDRAM_DQM_W{1'b0}};
     data_rd_en_q    <= 1'b1;
-    dqm_buffer_q    <= {SDRAM_DQM_W{1'b0}};
-
     for (idx=0;idx<SDRAM_BANKS;idx=idx+1)
         active_row_q[idx] <= {SDRAM_ROW_W{1'b0}};
 
@@ -498,7 +538,16 @@ begin
 end
 else
 begin
-    case (state_q)
+    // 固定BL8模式下，短连续读在最后一个所需数据被采样后终止剩余SDRAM beat；
+    // 完整8-beat事务自然运行到结束，不发送TERMINATE。
+    if (read_last_data_output_occurred_w && read_requested_beat_count_q != 4'd8)
+    begin
+        command_q    <= CMD_TERMINATE;
+        addr_q       <= {SDRAM_ROW_W{1'b0}};
+        bank_q       <= {SDRAM_BANK_W{1'b0}};
+        data_rd_en_q <= 1'b1;
+    end
+    else case (state_q)
     //-----------------------------------------
     // STATE_IDLE / Default (delays)
     //-----------------------------------------
@@ -616,63 +665,21 @@ begin
         command_q       <= CMD_WRITE;
         addr_q          <= addr_col_w;
         bank_q          <= addr_bank_w;
-        data_q          <= ram_write_data_w[15:0];
+        data_q          <= ram_write_data_w;
 
         // Disable auto precharge (auto close of row)
         addr_q[AUTO_PRECHARGE]  <= 1'b0;
 
         // Write mask
-        dqm_q           <= ~ram_wr_w[1:0];
-        dqm_buffer_q    <= ~ram_wr_w[3:2];
+        dqm_q           <= ~ram_wr_w;
 
         data_rd_en_q    <= 1'b0;
-    end
-    //-----------------------------------------
-    // STATE_WRITE1
-    //-----------------------------------------
-    STATE_WRITE1 :
-    begin
-        // Burst continuation
-        command_q   <= CMD_NOP;
-
-        data_q      <= data_buffer_q;
-
-        // Disable auto precharge (auto close of row)
-        addr_q[AUTO_PRECHARGE]  <= 1'b0;
-
-        // Write mask
-        dqm_q       <= dqm_buffer_q;
     end
     endcase
 end
 
-//-----------------------------------------------------------------
-// Record read events
-//-----------------------------------------------------------------
-reg [SDRAM_READ_LATENCY+1:0]  rd_q;
-
-always @ (posedge clk_i or posedge rst_i)
-if (rst_i)
-    rd_q    <= {(SDRAM_READ_LATENCY+2){1'b0}};
-else
-    rd_q    <= {rd_q[SDRAM_READ_LATENCY:0], (state_q == STATE_READ)};
-
-//-----------------------------------------------------------------
-// Data Buffer
-//-----------------------------------------------------------------
-
-// Buffer upper 16-bits of write data so write command can be accepted
-// in WRITE0. Also buffer lower 16-bits of read data.
-always @ (posedge clk_i or posedge rst_i)
-if (rst_i)
-    data_buffer_q <= 16'b0;
-else if (state_q == STATE_WRITE0)
-    data_buffer_q <= ram_write_data_w[31:16];
-else if (rd_q[SDRAM_READ_LATENCY+1])
-    data_buffer_q <= sample_data_q;
-
 // Read data output
-assign ram_read_data_w = {sample_data_q, data_buffer_q};
+assign ram_read_data_w = sample_data_q;
 
 //-----------------------------------------------------------------
 // ACK
@@ -684,9 +691,9 @@ if (rst_i)
     ack_q   <= 1'b0;
 else
 begin
-    if (state_q == STATE_WRITE1)
+    if (state_q == STATE_WRITE0)
         ack_q <= 1'b1;
-    else if (rd_q[SDRAM_READ_LATENCY+1])
+    else if (read_data_output_occurred_w)
         ack_q <= 1'b1;
     else
         ack_q <= 1'b0;
@@ -729,8 +736,8 @@ begin
     STATE_ACTIVATE    : dbg_state = "ACTIVATE";
     STATE_READ        : dbg_state = "READ";
     STATE_READ_WAIT   : dbg_state = "READ_WAIT";
+    STATE_READ_BURST  : dbg_state = "READ_BURST";
     STATE_WRITE0      : dbg_state = "WRITE0";
-    STATE_WRITE1      : dbg_state = "WRITE1";
     STATE_PRECHARGE   : dbg_state = "PRECHARGE";
     STATE_REFRESH     : dbg_state = "REFRESH";
     default           : dbg_state = "UNKNOWN";

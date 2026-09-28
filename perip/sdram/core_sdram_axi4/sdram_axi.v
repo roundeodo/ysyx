@@ -41,6 +41,7 @@ module sdram_axi
     ,input  [ 31:0]  inport_awaddr_i
     ,input  [  3:0]  inport_awid_i
     ,input  [  7:0]  inport_awlen_i
+    ,input  [  2:0]  inport_awsize_i
     ,input  [  1:0]  inport_awburst_i
     ,input           inport_wvalid_i
     ,input  [ 31:0]  inport_wdata_i
@@ -51,9 +52,10 @@ module sdram_axi
     ,input  [ 31:0]  inport_araddr_i
     ,input  [  3:0]  inport_arid_i
     ,input  [  7:0]  inport_arlen_i
+    ,input  [  2:0]  inport_arsize_i
     ,input  [  1:0]  inport_arburst_i
     ,input           inport_rready_i
-    ,input  [ 15:0]  sdram_data_input_i
+    ,input  [ 31:0]  sdram_data_input_i
 
     // Outputs
     ,output          inport_awready_o
@@ -73,10 +75,10 @@ module sdram_axi
     ,output          sdram_ras_o
     ,output          sdram_cas_o
     ,output          sdram_we_o
-    ,output [  1:0]  sdram_dqm_o
+    ,output [  3:0]  sdram_dqm_o
     ,output [ 12:0]  sdram_addr_o
     ,output [  1:0]  sdram_ba_o
-    ,output [ 15:0]  sdram_data_output_o
+    ,output [ 31:0]  sdram_data_output_o
     ,output          sdram_data_out_en_o
 );
 
@@ -114,6 +116,7 @@ u_axi
     .axi_awaddr_i(inport_awaddr_i),
     .axi_awid_i(inport_awid_i),
     .axi_awlen_i(inport_awlen_i),
+    .axi_awsize_i(inport_awsize_i),
     .axi_awburst_i(inport_awburst_i),
     .axi_wvalid_i(inport_wvalid_i),
     .axi_wdata_i(inport_wdata_i),
@@ -124,6 +127,7 @@ u_axi
     .axi_araddr_i(inport_araddr_i),
     .axi_arid_i(inport_arid_i),
     .axi_arlen_i(inport_arlen_i),
+    .axi_arsize_i(inport_arsize_i),
     .axi_arburst_i(inport_arburst_i),
     .axi_rready_i(inport_rready_i),
     .axi_awready_o(inport_awready_o),

@@ -27,6 +27,8 @@ class ysyxSoCASIC(implicit p: Parameters) extends LazyModule {
   val xbar = AXI4Xbar()
   val xbar2 = AXI4Xbar()
   val apbxbar = LazyModule(new APBFanout).node
+  val apbClockBridge = LazyModule(new APBDelayerWrapper)
+  val axiClockBridge = if (Config.sdramUseAXI) Some(LazyModule(new AXI4DelayerWrapper)) else None
   val cpu = LazyModule(new CPU(idBits = ChipLinkParam.idBits))
   val chipMaster = if (Config.hasChipLink) Some(LazyModule(new ChipLinkMaster)) else None
   val chiplinkNode = if (Config.hasChipLink) Some(AXI4SlaveNodeGenerator(p(ExtBus), ChipLinkParam.allSpace)) else None
@@ -48,15 +50,24 @@ class ysyxSoCASIC(implicit p: Parameters) extends LazyModule {
   val lsdram_axi = if ( Config.sdramUseAXI) Some(LazyModule(new AXI4SDRAM(sdramAddressSet))) else None
 
   List(lspi.node, luart.node, lpsram.node, lgpio.node, lkeyboard.node, lvga.node).map(_ := apbxbar)
-  List(apbxbar := APBDelayer() := AXI4ToAPB() := AXI4Buffer(), lmrom.node, sramNode).map(_ := xbar2)
+  List(apbxbar := apbClockBridge.node := AXI4ToAPB() := AXI4Buffer(), lmrom.node, sramNode).map(_ := xbar2)
   xbar2 := AXI4UserYanker(Some(1)) := AXI4Fragmenter() := xbar
-  if (Config.sdramUseAXI) lsdram_axi.get.node := ysyx.AXI4Delayer() := xbar
+  if (Config.sdramUseAXI) lsdram_axi.get.node := axiClockBridge.get.node := xbar
   else                    lsdram_apb.get.node := apbxbar
   if (Config.hasChipLink) chiplinkNode.get := xbar
   xbar := cpu.masterNode
 
   override lazy val module = new Impl
   class Impl extends LazyModuleImp(this) with DontTouch {
+    // Only the device domain advances at the modeled peripheral frequency.
+    List(luart, lgpio, lkeyboard, lvga, lspi, lpsram).foreach { peripheral =>
+      peripheral.module.clock := apbClockBridge.module.device_clock
+    }
+    if (Config.sdramUseAXI)
+      lsdram_axi.get.module.clock := axiClockBridge.get.module.device_clock
+    else
+      lsdram_apb.get.module.clock := apbClockBridge.module.device_clock
+
     // generate delayed reset for cpu, since chiplink should finish reset
     // to initialize some async modules before accept any requests from cpu
     cpu.module.reset := SynchronizerShiftReg(reset.asBool, 10) || reset.asBool

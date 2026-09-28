@@ -60,6 +60,12 @@ module EF_PSRAM_CTRL_wb (
     wire        mw_wr;
     wire        mw_done;
 
+    wire        qpi_initialization_complete;
+    wire        initialization_sck;
+    wire        initialization_ce_n;
+    wire [3:0]  initialization_dout;
+    wire [3:0]  initialization_douten;
+
     //wire        doe;
 
     // WB Control Signals
@@ -79,7 +85,7 @@ module EF_PSRAM_CTRL_wb (
     always @* begin
         case(state)
             ST_IDLE :
-                if(wb_valid)
+                if(qpi_initialization_complete && wb_valid)
                     nstate = ST_WAIT;
                 else
                     nstate = ST_IDLE;
@@ -127,8 +133,18 @@ module EF_PSRAM_CTRL_wb (
                         2'b00;
                       */
 
-    assign mr_rd    = ( (state==ST_IDLE ) & wb_re );
-    assign mw_wr    = ( (state==ST_IDLE ) & wb_we );
+    assign mr_rd    = qpi_initialization_complete & (state == ST_IDLE) & wb_re;
+    assign mw_wr    = qpi_initialization_complete & (state == ST_IDLE) & wb_we;
+
+    PSRAM_QPI_INITIALIZER QPI_INITIALIZER (
+        .clk(clk_i),
+        .rst_n(~rst_i),
+        .initialization_complete(qpi_initialization_complete),
+        .sck(initialization_sck),
+        .ce_n(initialization_ce_n),
+        .dout(initialization_dout),
+        .douten(initialization_douten)
+    );
 
     PSRAM_READER MR (
         .clk(clk_i),
@@ -161,12 +177,20 @@ module EF_PSRAM_CTRL_wb (
         .douten(mw_doe)
     );
 
-    assign sck  = wb_we ? mw_sck  : mr_sck;
-    assign ce_n = wb_we ? mw_ce_n : mr_ce_n;
-    assign dout = wb_we ? mw_dout : mr_dout;
-    assign douten  = wb_we ? {4{mw_doe}}  : {4{mr_doe}};
+    assign sck = qpi_initialization_complete
+               ? (wb_we ? mw_sck : mr_sck)
+               : initialization_sck;
+    assign ce_n = qpi_initialization_complete
+                ? (wb_we ? mw_ce_n : mr_ce_n)
+                : initialization_ce_n;
+    assign dout = qpi_initialization_complete
+                ? (wb_we ? mw_dout : mr_dout)
+                : initialization_dout;
+    assign douten = qpi_initialization_complete
+                  ? (wb_we ? {4{mw_doe}} : {4{mr_doe}})
+                  : initialization_douten;
 
     assign mw_din = din;
     assign mr_din = din;
-    assign ack_o = wb_we ? mw_done :mr_done ;
+    assign ack_o = qpi_initialization_complete & (wb_we ? mw_done : mr_done);
 endmodule

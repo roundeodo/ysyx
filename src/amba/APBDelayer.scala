@@ -12,6 +12,7 @@ import freechips.rocketchip.util._
 class APBDelayerIO extends Bundle {
   val clock = Input(Clock())
   val reset = Input(Reset())
+  val device_clock_o = Output(Clock())
   val in = Flipped(new APBBundle(APBBundleParameters(addrBits = 32, dataBits = 32)))
   val out = new APBBundle(APBBundleParameters(addrBits = 32, dataBits = 32))
 }
@@ -23,6 +24,7 @@ class apb_delayer extends BlackBox {
 class APBDelayerChisel extends Module {
   val io = IO(new APBDelayerIO)
   io.out <> io.in
+  io.device_clock_o := io.clock
 }
 
 class APBDelayerWrapper(implicit p: Parameters) extends LazyModule {
@@ -30,10 +32,12 @@ class APBDelayerWrapper(implicit p: Parameters) extends LazyModule {
 
   lazy val module = new Impl
   class Impl extends LazyModuleImp(this) {
+    val device_clock = IO(Output(Clock()))
     (node.in zip node.out) foreach { case ((in, edgeIn), (out, edgeOut)) =>
       val delayer = Module(new apb_delayer)
       delayer.io.clock := clock
       delayer.io.reset := reset
+      device_clock := delayer.io.device_clock_o
       delayer.io.in <> in
       out <> delayer.io.out
     }

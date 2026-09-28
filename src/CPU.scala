@@ -14,6 +14,9 @@ object CPUAXI4BundleParameters {
 }
 
 class ysyx_00000000 extends BlackBox {
+  // Scala类名保留ysyxSoC模板约定；生成的Verilog直接实例化本工程的CPU边界模块。
+  override def desiredName: String = "riscv32_npc_axi"
+
   val io = IO(new Bundle {
     val clock = Input(Clock())
     val reset = Input(Reset())

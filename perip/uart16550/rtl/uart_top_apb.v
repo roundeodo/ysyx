@@ -11,8 +11,8 @@ module uart_top_apb (
      , output  wire [31:0] in_prdata
      , input   wire [31:0] in_pwdata
      , input   wire [3:0]  in_pstrb
-     , input   wire        uart_rx       // serial output
-     , output  wire        uart_tx       // serial input
+     , input   wire        uart_rx       // serial input from the external receiver
+     , output  wire        uart_tx       // serial output to the external receiver
 );
    //--------------------------------------------------
    wire   rtsn;

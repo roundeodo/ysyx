@@ -53,8 +53,10 @@ module spi_top_apb #(
   localparam [4:0] SPI_DIVIDER_ADDR = 5'h14;
   localparam [4:0] SPI_SS_ADDR      = 5'h18;
 
-  localparam [31:0] SPI_CONTROL_CONFIG = 32'h0000_2440;
-  localparam [31:0] SPI_CONTROL_START  = 32'h0000_2540;
+  // ASS=1, IE=1, TX_NEGEDGE=1, CHAR_LEN=64. GO is added only when the
+  // transfer is started.
+  localparam [31:0] SPI_CONTROL_CONFIG = 32'h0000_3440;
+  localparam [31:0] SPI_CONTROL_START  = 32'h0000_3540;
 
   localparam [3:0] XIP_WAIT_REQUEST       = 4'd0;
   localparam [3:0] XIP_WRITE_TXRX0        = 4'd1;
@@ -63,7 +65,7 @@ module spi_top_apb #(
   localparam [3:0] XIP_WRITE_SLAVE_SELECT = 4'd4;
   localparam [3:0] XIP_WRITE_CONTROL      = 4'd5;
   localparam [3:0] XIP_START_TRANSFER     = 4'd6;
-  localparam [3:0] XIP_READ_CONTROL       = 4'd7;
+  localparam [3:0] XIP_WAIT_TRANSFER_IRQ  = 4'd7;
   localparam [3:0] XIP_READ_DATA          = 4'd8;
   localparam [3:0] XIP_RETURN_RESPONSE    = 4'd9;
 
@@ -186,10 +188,10 @@ module spi_top_apb #(
 
       XIP_START_TRANSFER:
         if (spi_wb_ack)
-          xip_state_d = XIP_READ_CONTROL;
+          xip_state_d = XIP_WAIT_TRANSFER_IRQ;
 
-      XIP_READ_CONTROL: begin
-        if (spi_wb_ack && !spi_wb_read_data[8])
+      XIP_WAIT_TRANSFER_IRQ: begin
+        if (spi_irq_out)
           xip_state_d = XIP_READ_DATA;
       end
 
@@ -295,10 +297,10 @@ module spi_top_apb #(
         spi_wb_cycle        = 1'b1;
       end
 
-      XIP_READ_CONTROL: begin
-        spi_wb_addr   = SPI_CTRL_ADDR;
-        spi_wb_strobe = 1'b1;
-        spi_wb_cycle  = 1'b1;
+      // No Wishbone request is issued while the SPI shifter is active. The
+      // completion interrupt remains asserted until the RX-register read in
+      // XIP_READ_DATA receives its Wishbone acknowledgement.
+      XIP_WAIT_TRANSFER_IRQ: begin
       end
 
       XIP_READ_DATA: begin
