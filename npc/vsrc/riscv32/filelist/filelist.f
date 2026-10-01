@@ -34,6 +34,7 @@ ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_regfile.sv
 ${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_pmu.sv
 ${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_csr_file.sv
 ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_idu.sv
+${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_issue_reg.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_tage.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_bht.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv
@@ -57,6 +58,9 @@ ${NPC_HOME}/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv
 ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_ifu.sv
 ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_operand_mux.sv
 ${NPC_HOME}/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv
+${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_scoreboard.sv
+${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_rob.sv
+${NPC_HOME}/vsrc/riscv32/core/execute/riscv32_backend.sv
 ${NPC_HOME}/vsrc/riscv32/core/riscv32_core.sv
 
 // 完整AXI4系统集成。

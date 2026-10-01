@@ -1,0 +1,479 @@
+{
+  "date": "2026-10-01",
+  "status": "source_review_only",
+  "external_simulation": false,
+  "local_functional_rtl_changes": false,
+  "scope": "Selected LSU/cache mechanisms at immutable revisions; not a full audit or correctness certification of external projects",
+  "projects": [
+    {
+      "name": "cva6",
+      "repository": "openhwgroup/cva6",
+      "requested_ref": "v5.3.0",
+      "commit": "2ef1c1b1fca419354920c5487293bc605294904e",
+      "commit_date": "2025-02-03T12:40:02Z"
+    },
+    {
+      "name": "hpdcache",
+      "repository": "openhwgroup/cv-hpdcache",
+      "requested_ref": "master",
+      "commit": "a23eac20778cb9d1a7269abbbb72f180db5ed32f",
+      "commit_date": "2026-09-12T12:22:02Z"
+    },
+    {
+      "name": "rocket",
+      "repository": "chipsalliance/rocket-chip",
+      "requested_ref": "master",
+      "commit": "ece7b9ad544b07df39cd13b6fd7236562a26355d",
+      "commit_date": "2026-09-13T01:04:13Z"
+    },
+    {
+      "name": "boom",
+      "repository": "riscv-boom/riscv-boom",
+      "requested_ref": "master",
+      "commit": "58ef2720eae13be26b3008c02b5a74ce29c61c44",
+      "commit_date": "2026-08-26T07:47:18Z"
+    },
+    {
+      "name": "cv32e40p",
+      "repository": "openhwgroup/cv32e40p",
+      "requested_ref": "master",
+      "commit": "6033d2b1be3295ec774d17ac4cf226faacfdeb08",
+      "commit_date": "2026-04-17T13:34:04Z"
+    },
+    {
+      "name": "ibex",
+      "repository": "lowRISC/ibex",
+      "requested_ref": "master",
+      "commit": "4dd3932a36b5af5ac002bddbe16a1b4ead1a6fd8",
+      "commit_date": "2026-09-29T13:55:52Z"
+    }
+  ],
+  "sources": [
+    {
+      "project": "hpdcache",
+      "path": "README.md",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv-hpdcache/a23eac20778cb9d1a7269abbbb72f180db5ed32f/README.md",
+      "sha256": "360907e421be2bc86f89b38c7458914d2dc5f1432a4cb676ee4d389b9dfb0adf",
+      "bytes": 6714,
+      "lines": 132,
+      "inspection": "retrieved for context; not fully reviewed",
+      "reading_ranges": []
+    },
+    {
+      "project": "hpdcache",
+      "path": "docs/source/architecture.rst",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv-hpdcache/a23eac20778cb9d1a7269abbbb72f180db5ed32f/docs/source/architecture.rst",
+      "sha256": "6457b51da86ecaf3681397e001cde2760ee180a93481d728b886d8d8e644d2f9",
+      "bytes": 52111,
+      "lines": 1393,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          38,
+          215
+        ],
+        [
+          330,
+          410
+        ]
+      ]
+    },
+    {
+      "project": "hpdcache",
+      "path": "docs/source/interface.rst",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv-hpdcache/a23eac20778cb9d1a7269abbbb72f180db5ed32f/docs/source/interface.rst",
+      "sha256": "a5eb573d4f446f5c71ca71361e4d7d7f08c5fbc95a4064aedfa28920d6ca33f3",
+      "bytes": 49034,
+      "lines": 1318,
+      "inspection": "retrieved for context; not fully reviewed",
+      "reading_ranges": []
+    },
+    {
+      "project": "hpdcache",
+      "path": "rtl/src/hpdcache_mshr.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv-hpdcache/a23eac20778cb9d1a7269abbbb72f180db5ed32f/rtl/src/hpdcache_mshr.sv",
+      "sha256": "fb01c23a96bc2d913e6e12a2b662265796363d6c8bd95b3e64f7f6171f936f68",
+      "bytes": 16491,
+      "lines": 434,
+      "inspection": "retrieved for context; not fully reviewed",
+      "reading_ranges": []
+    },
+    {
+      "project": "hpdcache",
+      "path": "rtl/src/hpdcache_rtab.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv-hpdcache/a23eac20778cb9d1a7269abbbb72f180db5ed32f/rtl/src/hpdcache_rtab.sv",
+      "sha256": "5a61d9aade361532b4df8463172d536aeee887d7f0c349ed0ddafa3e25c2169c",
+      "bytes": 27231,
+      "lines": 732,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          55,
+          138
+        ],
+        [
+          240,
+          285
+        ]
+      ]
+    },
+    {
+      "project": "hpdcache",
+      "path": "rtl/src/hpdcache_wbuf.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv-hpdcache/a23eac20778cb9d1a7269abbbb72f180db5ed32f/rtl/src/hpdcache_wbuf.sv",
+      "sha256": "134fefdfd7f7846896ed814a4710859b0b9bc884cf498079a4a93c3ea939e21c",
+      "bytes": 28405,
+      "lines": 742,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          250,
+          290
+        ],
+        [
+          530,
+          575
+        ]
+      ]
+    },
+    {
+      "project": "hpdcache",
+      "path": "rtl/src/hpdcache_ctrl.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv-hpdcache/a23eac20778cb9d1a7269abbbb72f180db5ed32f/rtl/src/hpdcache_ctrl.sv",
+      "sha256": "985187cc68a1a13454658e657b44f7b69b4d0c0353026846881e4442d234a2d8",
+      "bytes": 79396,
+      "lines": 1791,
+      "inspection": "retrieved for context; not fully reviewed",
+      "reading_ranges": []
+    },
+    {
+      "project": "rocket",
+      "path": "src/main/scala/rocket/HellaCache.scala",
+      "url": "https://raw.githubusercontent.com/chipsalliance/rocket-chip/ece7b9ad544b07df39cd13b6fd7236562a26355d/src/main/scala/rocket/HellaCache.scala",
+      "sha256": "74d2d44341413b5950855af44dd1fefc2429bb25dbbcbcc171756f6501df9353",
+      "bytes": 13151,
+      "lines": 348,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          245,
+          275
+        ]
+      ]
+    },
+    {
+      "project": "rocket",
+      "path": "src/main/scala/rocket/NBDcache.scala",
+      "url": "https://raw.githubusercontent.com/chipsalliance/rocket-chip/ece7b9ad544b07df39cd13b6fd7236562a26355d/src/main/scala/rocket/NBDcache.scala",
+      "sha256": "76e9c532a6a45970a331290cdb391e44912f1ae3d1df81f03a56895089ec6b8d",
+      "bytes": 42070,
+      "lines": 1075,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          150,
+          280
+        ],
+        [
+          365,
+          445
+        ],
+        [
+          925,
+          1060
+        ]
+      ]
+    },
+    {
+      "project": "rocket",
+      "path": "src/main/scala/rocket/DCache.scala",
+      "url": "https://raw.githubusercontent.com/chipsalliance/rocket-chip/ece7b9ad544b07df39cd13b6fd7236562a26355d/src/main/scala/rocket/DCache.scala",
+      "sha256": "05c07b22f5a0795d9c54dc6b035b4bdcbba63af8518943a26490a1f3dbd5dc78",
+      "bytes": 62358,
+      "lines": 1211,
+      "inspection": "retrieved for context; not fully reviewed",
+      "reading_ranges": []
+    },
+    {
+      "project": "rocket",
+      "path": "src/main/scala/rocket/RocketCore.scala",
+      "url": "https://raw.githubusercontent.com/chipsalliance/rocket-chip/ece7b9ad544b07df39cd13b6fd7236562a26355d/src/main/scala/rocket/RocketCore.scala",
+      "sha256": "2f88a01afa8da2a4dd9706e19a1707aeac4f1edbfc0d3659e8252de76b5ce243",
+      "bytes": 62895,
+      "lines": 1388,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          601,
+          609
+        ],
+        [
+          762,
+          777
+        ],
+        [
+          1052,
+          1068
+        ]
+      ]
+    },
+    {
+      "project": "boom",
+      "path": "src/main/scala/v4/lsu/mshrs.scala",
+      "url": "https://raw.githubusercontent.com/riscv-boom/riscv-boom/58ef2720eae13be26b3008c02b5a74ce29c61c44/src/main/scala/v4/lsu/mshrs.scala",
+      "sha256": "7e70d1a095f9543ecb20c2983e925205ef473376fe7e6112173d7e8079069fcf",
+      "bytes": 28033,
+      "lines": 748,
+      "inspection": "retrieved for context; not fully reviewed",
+      "reading_ranges": []
+    },
+    {
+      "project": "cv32e40p",
+      "path": "docs/source/load_store_unit.rst",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv32e40p/6033d2b1be3295ec774d17ac4cf226faacfdeb08/docs/source/load_store_unit.rst",
+      "sha256": "bb9b1c14cd90e6297c8a9473481b00e5955e4151a78fdec9291f859f6c443012",
+      "bytes": 9646,
+      "lines": 161,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          1,
+          110
+        ]
+      ]
+    },
+    {
+      "project": "cv32e40p",
+      "path": "rtl/cv32e40p_load_store_unit.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv32e40p/6033d2b1be3295ec774d17ac4cf226faacfdeb08/rtl/cv32e40p_load_store_unit.sv",
+      "sha256": "857962513fc5bd3eb3d6b28c55fdfb15ef53f8ce8a59173a7d583efb8caee66f",
+      "bytes": 22214,
+      "lines": 549,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          321,
+          322
+        ],
+        [
+          351,
+          403
+        ],
+        [
+          407,
+          432
+        ],
+        [
+          494,
+          525
+        ]
+      ]
+    },
+    {
+      "project": "cv32e40p",
+      "path": "rtl/cv32e40p_obi_interface.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cv32e40p/6033d2b1be3295ec774d17ac4cf226faacfdeb08/rtl/cv32e40p_obi_interface.sv",
+      "sha256": "2b0a58e5c2f758dbe5f6e8f786c547da5508ce466007517434e2f7d817b758ed",
+      "bytes": 8225,
+      "lines": 206,
+      "inspection": "retrieved for context; not fully reviewed",
+      "reading_ranges": []
+    },
+    {
+      "project": "ibex",
+      "path": "rtl/ibex_load_store_unit.sv",
+      "url": "https://raw.githubusercontent.com/lowRISC/ibex/4dd3932a36b5af5ac002bddbe16a1b4ead1a6fd8/rtl/ibex_load_store_unit.sv",
+      "sha256": "86e156efaf7ac46a351a405d9d2046b7d2e6a60bd206411ef9ae474666338b35",
+      "bytes": 31058,
+      "lines": 836,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          629,
+          700
+        ],
+        [
+          746,
+          760
+        ]
+      ]
+    },
+    {
+      "project": "boom",
+      "path": "src/main/scala/v4/lsu/lsu.scala",
+      "url": "https://raw.githubusercontent.com/riscv-boom/riscv-boom/58ef2720eae13be26b3008c02b5a74ce29c61c44/src/main/scala/v4/lsu/lsu.scala",
+      "sha256": "405dffe86cca0d5632ee75f481b6a64202691e2e169e6a5961363d20ca33a40e",
+      "bytes": 93851,
+      "lines": 2184,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          1,
+          42
+        ],
+        [
+          219,
+          287
+        ],
+        [
+          1326,
+          1428
+        ],
+        [
+          1740,
+          1800
+        ]
+      ]
+    },
+    {
+      "project": "boom",
+      "path": "src/main/scala/v4/lsu/dcache.scala",
+      "url": "https://raw.githubusercontent.com/riscv-boom/riscv-boom/58ef2720eae13be26b3008c02b5a74ce29c61c44/src/main/scala/v4/lsu/dcache.scala",
+      "sha256": "82d5562b6d6220be5714716c6b935a001ed6fc54747b4fc925603cabbde9aac4",
+      "bytes": 39907,
+      "lines": 942,
+      "inspection": "retrieved for context; not fully reviewed",
+      "reading_ranges": []
+    },
+    {
+      "project": "ibex",
+      "path": "doc/03_reference/load_store_unit.rst",
+      "url": "https://raw.githubusercontent.com/lowRISC/ibex/4dd3932a36b5af5ac002bddbe16a1b4ead1a6fd8/doc/03_reference/load_store_unit.rst",
+      "sha256": "4c4ec52a5dfbf7a290304a9de50cede9b97dc68008624311dddee6d71f1f91e1",
+      "bytes": 11936,
+      "lines": 185,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          1,
+          125
+        ]
+      ]
+    },
+    {
+      "project": "cva6",
+      "path": "core/load_unit.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cva6/2ef1c1b1fca419354920c5487293bc605294904e/core/load_unit.sv",
+      "sha256": "5b058ba5559c426983f61b355d010a77713043942a577eb2e86bb68c72e1748d",
+      "bytes": 23471,
+      "lines": 567,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          109,
+          179
+        ],
+        [
+          240,
+          280
+        ],
+        [
+          409,
+          442
+        ]
+      ]
+    },
+    {
+      "project": "cva6",
+      "path": "core/store_buffer.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cva6/2ef1c1b1fca419354920c5487293bc605294904e/core/store_buffer.sv",
+      "sha256": "9d5cdfaa0bd1546587f2a37707eee09535fc8a471e4b31da3d9e8b577833fb03",
+      "bytes": 13560,
+      "lines": 293,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          64,
+          127
+        ],
+        [
+          166,
+          230
+        ]
+      ]
+    },
+    {
+      "project": "cva6",
+      "path": "core/include/cv32a6_imac_sv32_config_pkg.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cva6/2ef1c1b1fca419354920c5487293bc605294904e/core/include/cv32a6_imac_sv32_config_pkg.sv",
+      "sha256": "c391d08962c7f828afc759f2ab37e19ee830db21e146f955300d759ee27406e4",
+      "bytes": 5830,
+      "lines": 159,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          48,
+          68
+        ]
+      ]
+    },
+    {
+      "project": "cva6",
+      "path": "core/cache_subsystem/cva6_hpdcache_subsystem.sv",
+      "url": "https://raw.githubusercontent.com/openhwgroup/cva6/2ef1c1b1fca419354920c5487293bc605294904e/core/cache_subsystem/cva6_hpdcache_subsystem.sv",
+      "sha256": "e247da0845f2ebdf2f820f757cd9c0750154a60fd3841048800feb5547675092",
+      "bytes": 18228,
+      "lines": 469,
+      "inspection": "targeted control/data paths",
+      "reading_ranges": [
+        [
+          192,
+          236
+        ]
+      ]
+    }
+  ],
+  "local_head": "5493a6aec976f4f9bdc075834d3f1202b0ae16ef",
+  "local_worktree": "pre-existing uncommitted changes; HEAD alone does not reproduce local RTL",
+  "local_sources_sha256": {
+    "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+    "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+    "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+    "npc/vsrc/riscv32/core/execute/riscv32_backend.sv": "7afa45648aaae4f9095eed874673b00d7f8274a75be25455ad6cc75d59cf6d92",
+    "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+    "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd"
+  },
+  "previous_measurement": "npc/docs/verification/data/rv32-lsu-stalls-2026-10-01/summary.json",
+  "previous_measurement_sha256": "dc5ca829d655fe6d663773884fcc1dbd0b8e62830e39f63c6af6337d5fcf16dd",
+  "workloads": {
+    "builder": "npc/scripts/build_selection_workloads.py",
+    "builder_sha256": "e6e587bcebe0c413108947dde8a010b06dea2528da87233afa9a300b3c86a465",
+    "kinds": [
+      "json_bpe",
+      "quant_loader",
+      "runtime_graph"
+    ],
+    "existing_dev_seeds": [
+      41,
+      73
+    ],
+    "existing_held_seeds": [
+      809,
+      1543
+    ],
+    "new_runs_this_turn": false,
+    "held_scope": "Previously used holdout; not a new unseen test set"
+  },
+  "decisions": {
+    "candidate_not_selected": [
+      "load contexts 2/4",
+      "single-MSHR hit-under-miss",
+      "same-line reuse and event-driven retries",
+      "two MSHRs with interconnect concurrency",
+      "store staging and separate forwarding experiment"
+    ],
+    "do_not_assume": [
+      "FIFO depth equals miss concurrency",
+      "all CVA6 configurations use the same cache",
+      "bus grant means error-free completion",
+      "third-party wait cycles are necessary in this core",
+      "ROB retirement repairs speculative memory dependency violations"
+    ]
+  },
+  "reproduce_sources": "Fetch each sources[].url and compare SHA-256; URLs contain immutable commit IDs. No third-party build outputs retained."
+}

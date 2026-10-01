@@ -218,6 +218,28 @@ module riscv32_core
       .decoded_uop_ready_i(decoded_uop_ready)
   );
 
+  // Decode/Issue 边界只在 ROB 后端存在；原后端沿用组合译码到操作数准备。
+  decoded_uop_t issue_uop;
+  logic         issue_uop_valid;
+  logic         issue_uop_ready;
+  if (BACKEND_ROB_ENABLE) begin : gen_issue
+    riscv32_issue_reg u_issue_reg (
+        .clk_i,
+        .rst_ni,
+        .decoded_uop_i      (decoded_uop),
+        .decoded_uop_valid_i(decoded_uop_valid),
+        .decoded_uop_ready_o(decoded_uop_ready),
+        .issue_uop_o        (issue_uop),
+        .issue_uop_valid_o  (issue_uop_valid),
+        .issue_uop_ready_i  (issue_uop_ready),
+        .flush_i            (frontend_recovery_event)
+    );
+  end else begin : gen_no_issue_reg
+    assign issue_uop         = decoded_uop;
+    assign issue_uop_valid   = decoded_uop_valid;
+    assign decoded_uop_ready = issue_uop_ready;
+  end
+
   xlen_data_t    rs1_value;
   xlen_data_t    rs2_value;
   xlen_data_t    gpr_write_data;
@@ -229,9 +251,9 @@ module riscv32_core
       .gpr_write_data_i   (gpr_write_data),
       .gpr_write_addr_i   (gpr_write_addr),
       .gpr_write_enable_i (gpr_write_enable),
-      .rs1_addr_i         (decoded_uop.rs1),
+      .rs1_addr_i         (issue_uop.rs1),
       .rs1_data_o         (rs1_value),
-      .rs2_addr_i         (decoded_uop.rs2),
+      .rs2_addr_i         (issue_uop.rs2),
       .rs2_data_o         (rs2_value)
   );
 
@@ -250,10 +272,11 @@ module riscv32_core
   riscv32_csr_file u_csr_file (
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
-      .csr_read_enable_i (decoded_uop_valid && decoded_uop.csr_ctrl.read_enable),
-      // CSR地址是固定指令字段，可与opcode译码并行选择；使能仍由合法译码产生。
-      .csr_read_addr_i             (idu_fetch_entry.instruction[31:20]),
-      .csr_access_write_enable_i   (decoded_uop_valid && decoded_uop.csr_ctrl.write_enable),
+      .csr_read_enable_i (issue_uop_valid && issue_uop.csr_ctrl.read_enable),
+      // ROB 路径的地址和读写意图都来自 Issue；原后端保持固定字段并行读取。
+      .csr_read_addr_i             (BACKEND_ROB_ENABLE ? issue_uop.csr_ctrl.addr :
+                                   idu_fetch_entry.instruction[31:20]),
+      .csr_access_write_enable_i   (issue_uop_valid && issue_uop.csr_ctrl.write_enable),
       .csr_read_data_o             (csr_read_data),
       .csr_read_illegal_o          (csr_read_illegal),
       .csr_write_valid_i           (commit_valid && commit.csr_write),
@@ -295,6 +318,7 @@ module riscv32_core
   logic              lsu_pending_writes_rd;
   arch_reg_idx_t     lsu_pending_rd;
   logic              commit_redirect_event;
+  logic              fence_i_maintenance_active;
   logic              exu_result_valid;
   logic              execute_muldiv_forwarding_available;
   logic              execute_pipeline_busy;
@@ -322,6 +346,7 @@ module riscv32_core
       writeback_result.uop.writes_rd &&
       !writeback_result.uop.exception_valid;
 
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_hazard_ctrl
   riscv32_hazard_ctrl u_hazard_ctrl (
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
@@ -384,10 +409,12 @@ module riscv32_core
       .rs2_lsu_forwarding_selected_o            (rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o      (rs2_writeback_forwarding_selected)
   );
+  end
 
   execute_packet_t decoded_execute_packet;
   execute_result_t exu_result;
 
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_operand_mux
   riscv32_operand_mux u_operand_mux (
       .decoded_uop_i                            (decoded_uop),
       .rs1_value_i                              (rs1_value),
@@ -411,6 +438,7 @@ module riscv32_core
       .rs2_writeback_forwarding_selected_i      (rs2_writeback_forwarding_selected),
       .decoded_execute_packet_o                 (decoded_execute_packet)
   );
+  end
 
   // valid和ready同时受冒险策略约束，保证被停顿的fetch entry仍由fetch buffer持有，
   // 不会出现“stage没有保存，但上游认为已经交付”的消息丢失。
@@ -420,12 +448,15 @@ module riscv32_core
   logic decoded_execute_packet_ready;
   logic execute_packet_ready;
 
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_decode
   assign decoded_execute_packet_valid = decoded_uop_valid && decode_accept_allowed &&
       !interrupt_issue_hold;
 
-  assign decoded_uop_ready = decoded_execute_packet_ready && decode_accept_allowed &&
+  assign issue_uop_ready = decoded_execute_packet_ready && decode_accept_allowed &&
       !interrupt_issue_hold;
+  end
 
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_id_ex_reg
   riscv32_id_ex_reg u_id_ex_reg (
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
@@ -442,12 +473,15 @@ module riscv32_core
       .execute_serializing_instruction_present_o (execute_serializing_instruction_present),
       .flush_i                                   (decode_execute_flush || sequential_redirect_valid)
   );
+  end
 
   logic     exu_result_ready;
   lsu_req_t lsu_req;
+  mem_txn_id_t lsu_req_id, lsu_writeback_id;
   logic     lsu_req_valid;
   logic     lsu_req_ready;
 
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_exu
   riscv32_exu u_exu (
       .clk_i                          (clk_i),
       .rst_ni                         (rst_ni),
@@ -471,11 +505,13 @@ module riscv32_core
       .sequential_redirect_o         (sequential_redirect),
       .sequential_redirect_valid_o   (sequential_redirect_valid)
   );
+  end
 
   // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过；
   // 本级寄存结果送回操作数准备模块，在下一条消费者进入 ID/EX 时完成前递。
   logic execute_redirect_resolution_event;
 
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_ex_result_reg
   riscv32_ex_result_reg u_ex_result_reg (
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
@@ -489,6 +525,7 @@ module riscv32_core
       // mret；FENCE.I 依靠串行化排空后端。flush 只清本级 valid。
       .flush_i                (execute_redirect_resolution_event || commit_redirect_event)
   );
+  end
 
   data_memory_req_t  data_memory_req;
   logic              data_memory_req_valid;
@@ -500,6 +537,8 @@ module riscv32_core
   riscv32_lsu u_lsu (
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
+      .lsu_req_id_o             (lsu_req_id),
+      .lsu_writeback_id_o       (lsu_writeback_id),
       .lsu_req_i                (lsu_req),
       .lsu_req_valid_i          (lsu_req_valid),
       .lsu_req_ready_o          (lsu_req_ready),
@@ -545,6 +584,7 @@ module riscv32_core
   logic              completion_result_valid;
   logic              completion_result_ready;
 
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_completion_mux
   riscv32_completion_mux u_completion_mux (
       .exu_result_i             (resolved_execute_result),
       .exu_result_valid_i       (resolved_execute_result_valid),
@@ -556,11 +596,13 @@ module riscv32_core
       .writeback_result_valid_o (completion_result_valid),
       .writeback_result_ready_i (completion_result_ready)
   );
+  end
 
   // EXU/LSU completion先进入WB弹性寄存器，再由commit产生唯一架构事件。
   // 这既切断执行到寄存器堆的长组合路径，也让Difftest只观察稳定的退休级payload。
   logic writeback_result_ready;
 
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_wb_reg
   riscv32_wb_reg u_wb_reg (
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
@@ -572,6 +614,64 @@ module riscv32_core
       .writeback_result_ready_i  (writeback_result_ready),
       .flush_i                   (writeback_flush)
   );
+  end
+
+  // 可选后端共享前端、RF/CSR、LSU、commit 和系统恢复，不重复实例化这些状态。
+  if (BACKEND_ROB_ENABLE) begin : gen_rob_backend
+    riscv32_backend u_backend (
+        .clk_i, .rst_ni, .issue_uop_i(issue_uop), .issue_valid_i(issue_uop_valid),
+        .issue_ready_o(issue_uop_ready), .rs1_i(rs1_value), .rs2_i(rs2_value),
+        .csr_data_i(csr_read_data), .csr_illegal_i(csr_read_illegal),
+        .issue_hold_i(interrupt_issue_hold), .maintenance_i(fence_i_maintenance_active),
+        .flush_i(commit_redirect_event), .lsu_req_o(lsu_req), .lsu_valid_o(lsu_req_valid),
+        .lsu_ready_i(lsu_req_ready), .lsu_result_i(lsu_writeback),
+        .lsu_req_id_i(lsu_req_id), .lsu_result_id_i(lsu_writeback_id),
+        .lsu_result_valid_i(lsu_writeback_valid), .lsu_result_ready_o(lsu_writeback_ready),
+        .head_o(writeback_result), .head_valid_o(writeback_result_valid),
+        .head_ready_i(writeback_result_ready), .resolved_o(resolved_execute_result),
+        .resolved_valid_o(resolved_execute_result_valid), .sequential_redirect_o(sequential_redirect),
+        .sequential_redirect_valid_o(sequential_redirect_valid), .execute_packet_o(execute_packet),
+        .execute_valid_o(execute_packet_valid), .issue_allowed_o(execute_issue_allowed),
+        .execute_ready_o(execute_packet_ready), .busy_o(execute_pipeline_busy),
+        .raw_o(raw_hazard_present), .serializing_o(serializing_hazard_present),
+        .structural_o(structural_hazard_present)
+    );
+    assign resolved_execute_result_ready = 1'b1;
+    assign decode_accept_allowed = issue_uop_ready;
+    assign decoded_execute_packet_valid = issue_uop_valid && issue_uop_ready;
+    assign decoded_execute_packet_ready = issue_uop_ready;
+    assign execute_progress_allowed = execute_issue_allowed;
+    assign decode_execute_flush = frontend_recovery_event;
+    assign writeback_flush = commit_redirect_event;
+    // 旧后端独有观察信号不代表 ROB 内的完成事件。
+    assign exu_result = '0;
+    assign exu_result_valid = 1'b0;
+    assign exu_result_ready = 1'b1;
+    assign decoded_execute_packet = '0;
+    assign completion_result = '0;
+    assign completion_result_valid = 1'b0;
+    assign completion_result_ready = 1'b1;
+    assign execute_muldiv_forwarding_available = 1'b0;
+    assign execute_forwarding_value = '0;
+    assign multiply_operand_a = '0;
+    assign multiply_operand_b = '0;
+    assign execute_forwardable_producer_present = 1'b0;
+    assign execute_blocking_producer_present = 1'b0;
+    assign execute_serializing_instruction_present = 1'b0;
+    assign rs1_pipeline_forwarding_selected = '0;
+    assign rs2_pipeline_forwarding_selected = '0;
+    assign rs1_execute_forwarding_selected = 1'b0;
+    assign rs1_execute_result_forwarding_selected = 1'b0;
+    assign rs1_lsu_forwarding_selected = 1'b0;
+    assign rs1_writeback_forwarding_selected = 1'b0;
+    assign rs2_execute_forwarding_selected = 1'b0;
+    assign rs2_execute_result_forwarding_selected = 1'b0;
+    assign rs2_lsu_forwarding_selected = 1'b0;
+    assign rs2_writeback_forwarding_selected = 1'b0;
+    for (genvar i = 0; i < EXECUTE_PIPE_DEPTH; i++) begin : gen_observer_unused
+      assign execute_pipeline_producer[i] = '0;
+    end
+  end
 
   riscv32_commit u_commit (
       .writeback_result_i       (writeback_result),
@@ -588,7 +688,6 @@ module riscv32_core
   assign retired_instruction_event = commit_valid && !commit.trap_taken;
 
   // 提交后的缓存维护与前端恢复。
-  logic          fence_i_maintenance_active;
   logic          fence_i_failed;
   logic          committed_fence_i_event;
   redirect_req_t fence_i_redirect_req;
@@ -718,7 +817,7 @@ module riscv32_core
       .redirect_event_i             (execute_redirect_resolution_event || commit_redirect_event),
       .lsu_busy_i                                (lsu_transaction_active),
       .execute_result_blocked_i     (resolved_execute_result_valid && !resolved_execute_result_ready),
-      .register_read_valid_i        (decoded_uop_valid),
+      .register_read_valid_i        (issue_uop_valid),
       .raw_hazard_present_i         (raw_hazard_present),
       .serializing_hazard_present_i (serializing_hazard_present),
       .icache_event_i               (icache_event),
@@ -752,7 +851,7 @@ module riscv32_core
       .instruction_retirement_event_i (retired_instruction_event),
       .pipeline_raw_hazard_waiting_i  (raw_hazard_present),
       .pipeline_serializing_waiting_i (serializing_hazard_present),
-      .pipeline_structural_waiting_i  (structural_hazard_present && decoded_uop_valid),
+      .pipeline_structural_waiting_i  (structural_hazard_present && issue_uop_valid),
       .frontend_supply_waiting_i      (
           !decoded_uop_valid && !structural_hazard_present &&
           !commit_redirect_event
@@ -864,6 +963,8 @@ module riscv32_core
 
   // FENCE.I依靠serializing语义排空后端，而不是在提交拍用组合flush补救。该性质成立时，
   // committed_fence_i_event 同拍发起重定向，并启动 cache 维护事务。
+  // 旧后端依靠全局停顿保证顺序；ROB 的等价年龄/副作用断言位于 backend/rob。
+  if (!BACKEND_ROB_ENABLE) begin : gen_legacy_order_checks
   a_committed_fence_i_has_no_younger_backend_work :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     committed_fence_i_event |->
@@ -896,6 +997,8 @@ module riscv32_core
      !resolved_execute_result_valid))
   else
     $error("younger execution crossed an unfinished or faulting LSU transaction");
+
+  end
 
   a_resolved_execute_redirect_blocks_younger_execute :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

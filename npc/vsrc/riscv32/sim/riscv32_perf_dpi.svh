@@ -33,12 +33,13 @@
   endfunction
 
   function longint unsigned npc_get_perf_load_pc_dpi();
-    // 空闲直通可在保存 LSU 上下文之前完成 CLINT AR 握手。
-    // 此时身份来自本拍入口；延迟发出的事务仍使用已经保存的上下文。
-    if (u_npc_system.u_core.u_lsu.lsu_req_handshake &&
-        u_npc_system.u_core.u_lsu.data_memory_req_handshake)
-      return 64'($unsigned(u_npc_system.u_core.u_lsu.lsu_req_i.uop.pc));
-    return 64'($unsigned(u_npc_system.u_core.u_lsu.pending_lsu_context_q.pc));
+    // AR 当拍接收的新访存可能来自入口，也可能来自 LSU 内部排队项。
+    // 若 uncached adapter 先前已经接收请求，则按它保存的事务 ID 找回 PC。
+    // 不能再把“本拍 LSU 接收的新指令”或固定槽 0 当作计时读取的身份。
+    if (u_npc_system.u_core.u_lsu.data_memory_req_handshake)
+      return 64'($unsigned(u_npc_system.u_core.u_lsu.active_lsu_req.uop.pc));
+    return 64'($unsigned(u_npc_system.u_core.u_lsu.context_array_q[
+        u_npc_system.u_core.u_data_mem.u_uncached_axi.request_context_q.transaction_id].pc));
   endfunction
 
   function longint unsigned npc_get_perf_cpu_hz_dpi();

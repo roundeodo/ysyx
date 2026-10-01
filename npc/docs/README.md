@@ -51,6 +51,7 @@
 - [I-cache设计空间探索](verification/CACHE_DESIGN_SPACE_EXPLORATION.md)：NEMU itrace、3C模型、AMAT/TMT和cachesim命令。
 - [顺序流水线说明](microarchitecture/PIPELINE_DESIGN_RECORD.md)：操作数准备、执行、前递、提交和 FENCE.I 控制。
 - [D-cache 说明](microarchitecture/DCACHE_DESIGN_RECORD.md)：同步查询、store 旁路、写回/回填和 clean。
+- [双请求 LSU 与 D-cache 并发](microarchitecture/LSU_CONCURRENCY_DESIGN.md)：可选 hit-under-miss、返回身份、恢复边界和实测取舍。
 - [完整目录整理验证](verification/RV32_FULL_DIRECTORY_REVIEW_2026-09-19.md)：全部 67 个文件的检查范围、补充修改与回归。
 - [整理后的面积、时序与性能复测](verification/RV32_READABILITY_PPA_2026-09-19.md)：同条件比较、综合编译修复和 microbench test 结果。
 - [逻辑与可读性复查及优化取舍（2026-09-21）](verification/RV32_LOGIC_STYLE_AUDIT_2026-09-21.md)：剩余等待、代码冗余、触发频率与处理优先级。

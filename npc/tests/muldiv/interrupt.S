@@ -12,10 +12,12 @@ _start:
   li t2,128
   csrw mie,t2
   csrsi mstatus,8
+  /* RAW keeps resume_site unissued until division completes, including ROB mode.
+     The IRQ is already pending then, so the exact expected mepc stays resume_site. */
+  li s2,0x06f5e4d3
   divu s1,t0,t1
 resume_site:
-  li t2,0x06f5e4d3
-  bne s1,t2,fail_1
+  bne s1,s2,fail_1
   li t2,1
   bne s0,t2,fail_2
   mul t3,s1,t1

@@ -2,7 +2,7 @@
 
 当前 RV32 前端从[数据流与源码顺序](FRONTEND_REWRITE_DESIGN_RECORD.md)开始阅读。
 RV32IM 扩展见[乘除法电路](MULDIV_DESIGN.md)，可选候选见[乘法流水](MUL_PIPELINE_DESIGN.md)。
-原 RV32I 预设保持关闭。
+原 RV32I 预设保持关闭。多 FU 乱序完成的可选实现见[后端说明](BACKEND_DESIGN.md)与[Issue 边界](ISSUE_DESIGN.md)，默认不开启。
 模块说明用于快速理解当前电路；实验过程与测量结果在 `verification/` 中维护。
 预测器从[查询与训练结构](FETCH_PREDICTOR_DESIGN_RECORD.md)进入；可选的
 [BTB 准入与替换策略](BTB_POLICY_DESIGN.md)不改变查询寄存级，默认保持原策略。
@@ -16,10 +16,10 @@ RV32IM 扩展见[乘除法电路](MULDIV_DESIGN.md)，可选候选见[乘法流�
 | 子目录 | 主要内容 |
 | --- | --- |
 | `frontend/` | IFU、预测器、I-cache、fetch buffer |
-| `decode/` | IDU、GPR、操作数准备与前递选择 |
+| `decode/` | IDU、GPR、操作数准备与前递选择、可选 Issue 寄存器与 scoreboard |
 | `execute/` | ID/EX、EXU、可选乘除法单元、执行结果寄存器 |
 | `memory/` | LSU、D-cache、uncached 与数据存储路由 |
-| `writeback/` | 完成选择、WB 寄存器、提交、CSR 与 PMU |
+| `writeback/` | 完成选择、WB 寄存器或可选 ROB、提交、CSR 与 PMU |
 | `control/` | 冒险、重定向、中断、异常与 FENCE.I 维护 |
 
 目录表示功能归属，不等于一目录一拍；实际寄存边界见[流水线说明](PIPELINE_DESIGN_RECORD.md)。
@@ -37,7 +37,7 @@ RV32IM 扩展见[乘除法电路](MULDIV_DESIGN.md)，可选候选见[乘法流�
 | `redirect_arbiter.sv` | `experiments/pipeline/`：旧组合重定向仲裁 |
 | `axi4_error_target.sv` | `experiments/interconnect/`：未接入的独立 AXI 错误响应目标 |
 
-当前 `id_ex_reg`、`ex_result_reg`、`wb_reg` 保存指令/结果；`redirect_mux` 组合选择恢复来源，
+稳定配置的 `id_ex_reg`、`ex_result_reg`、`wb_reg` 保存指令/结果；`redirect_mux` 组合选择恢复来源，
 没有恢复寄存级。不能把这些模块与旧 decode/RR 寄存级混淆。
 仿真监视器仍由仿真宏启用，复位测量封装仍是综合顶层，均有明确用途。
 未实例化源码原本就不生成硬件，迁移这些文件不会改变面积、流水级数或 IPC。
@@ -70,7 +70,7 @@ RV32IM 扩展见[乘除法电路](MULDIV_DESIGN.md)，可选候选见[乘法流�
 
 - [D-cache](DCACHE_DESIGN_RECORD.md)：写回/写分配、PMA 路由与共享访存。
 - [流水线](PIPELINE_DESIGN_RECORD.md)：译码/操作数准备、执行、提交、冒险与 FENCE.I。
-- [Scoreboard 与 ROB 后续方案](../development/BACKEND_SCOREBOARD_PLAN.md)：待实现的多 FU 乱序完成与顺序提交，含参考源码与验证边界。
+- [可选多 FU 后端](BACKEND_DESIGN.md)：scoreboard、ROB、完成前递、顺序退休和 LSU 恢复；[实施与测量](../verification/RV32_BACKEND_2026-09-28.md)记录适用边界，[Issue 实施记录](../verification/RV32_ISSUE_2026-09-29.md)记录当前频率和寄存边界。
 - [定时中断](TIMER_INTERRUPT_DESIGN_RECORD.md)：CLINT、CSR 与精确受理。
 - [总线连接](../interconnect/AXI4_ARCHITECTURE.md)：仲裁、地址路由、错误目标与 SoC 适配。
 

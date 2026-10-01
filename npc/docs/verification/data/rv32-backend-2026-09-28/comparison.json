@@ -1,0 +1,744 @@
+{
+  "scale": "test",
+  "common_mhz": 380,
+  "rows": [
+    {
+      "name": "retained-legacy",
+      "mhz": 380,
+      "common_clock": true,
+      "own_legal_clock": false,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 116993.982,
+      "total": {
+        "cycles": 1478986,
+        "retired_instructions": 459833,
+        "ipc": 0.31091098901544706,
+        "timer_ticks": 3893,
+        "timer_seconds": 0.003893,
+        "cycle_seconds": 0.0038920684210526314,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 706562,
+        "retired_instructions": 317725,
+        "ipc": 0.44967745222641464,
+        "timer_ticks": 1860,
+        "timer_seconds": 0.00186,
+        "cycle_seconds": 0.0018593736842105262,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "0",
+        "--backend-entries",
+        "4",
+        "--load-overlap",
+        "0",
+        "--cpu-mhz",
+        "380",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained-legacy-380"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained-legacy-380/report.json",
+      "area_times_total_seconds": 455.3485827954,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          1984,
+          1984
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": null
+    },
+    {
+      "name": "retained-legacy",
+      "mhz": 680,
+      "common_clock": false,
+      "own_legal_clock": true,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 116993.982,
+      "total": {
+        "cycles": 2171419,
+        "retired_instructions": 483449,
+        "ipc": 0.2226419682244652,
+        "timer_ticks": 3193,
+        "timer_seconds": 0.003193,
+        "cycle_seconds": 0.0031932632352941175,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 901995,
+        "retired_instructions": 317725,
+        "ipc": 0.35224696367496494,
+        "timer_ticks": 1329,
+        "timer_seconds": 0.001329,
+        "cycle_seconds": 0.0013264632352941177,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "0",
+        "--backend-entries",
+        "4",
+        "--load-overlap",
+        "0",
+        "--cpu-mhz",
+        "680",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained-legacy-680"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained-legacy-680/report.json",
+      "area_times_total_seconds": 373.5925814712618,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          1984,
+          1984
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": null
+    },
+    {
+      "name": "retained2",
+      "mhz": 380,
+      "common_clock": true,
+      "own_legal_clock": false,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 116264.078,
+      "total": {
+        "cycles": 1519292,
+        "retired_instructions": 459725,
+        "ipc": 0.3025916018777167,
+        "timer_ticks": 3998,
+        "timer_seconds": 0.003998,
+        "cycle_seconds": 0.003998136842105263,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 725576,
+        "retired_instructions": 317724,
+        "ipc": 0.4378921022746067,
+        "timer_ticks": 1911,
+        "timer_seconds": 0.001911,
+        "cycle_seconds": 0.0019094105263157894,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "1",
+        "--backend-entries",
+        "2",
+        "--load-overlap",
+        "1",
+        "--cpu-mhz",
+        "380",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained2-380"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained2-380/report.json",
+      "area_times_total_seconds": 464.8396936652,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          2008,
+          2008
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": {
+        "entries": 2,
+        "load_overlap": 1,
+        "cycles": 1874027,
+        "dispatched": 523257,
+        "div_overlap": 405,
+        "speculative_load": 2858,
+        "multi_complete": 2225,
+        "discarded_load": 0,
+        "head_wait": 1199732,
+        "occupancy_sum": 3050785
+      }
+    },
+    {
+      "name": "retained2",
+      "mhz": 620,
+      "common_clock": false,
+      "own_legal_clock": true,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 116264.078,
+      "total": {
+        "cycles": 2077658,
+        "retired_instructions": 482777,
+        "ipc": 0.2323659620592032,
+        "timer_ticks": 3351,
+        "timer_seconds": 0.003351,
+        "cycle_seconds": 0.0033510612903225804,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 882714,
+        "retired_instructions": 317724,
+        "ipc": 0.3599399125877691,
+        "timer_ticks": 1425,
+        "timer_seconds": 0.001425,
+        "cycle_seconds": 0.0014237322580645162,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "1",
+        "--backend-entries",
+        "2",
+        "--load-overlap",
+        "1",
+        "--cpu-mhz",
+        "620",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained2-620"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained2-620/report.json",
+      "area_times_total_seconds": 389.6080512408451,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          2008,
+          2008
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": {
+        "entries": 2,
+        "load_overlap": 1,
+        "cycles": 2614129,
+        "dispatched": 558147,
+        "div_overlap": 403,
+        "speculative_load": 2856,
+        "multi_complete": 2225,
+        "discarded_load": 0,
+        "head_wait": 1844045,
+        "occupancy_sum": 4194208
+      }
+    },
+    {
+      "name": "retained4",
+      "mhz": 380,
+      "common_clock": true,
+      "own_legal_clock": false,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 120647.758,
+      "total": {
+        "cycles": 1499868,
+        "retired_instructions": 459791,
+        "ipc": 0.30655431011262324,
+        "timer_ticks": 3947,
+        "timer_seconds": 0.003947,
+        "cycle_seconds": 0.003947021052631579,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 712215,
+        "retired_instructions": 317724,
+        "ipc": 0.44610686379815084,
+        "timer_ticks": 1874,
+        "timer_seconds": 0.001874,
+        "cycle_seconds": 0.00187425,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "1",
+        "--backend-entries",
+        "4",
+        "--load-overlap",
+        "1",
+        "--cpu-mhz",
+        "380",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained4-380"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained4-380/report.json",
+      "area_times_total_seconds": 476.1992407788,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          1987,
+          1987
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": {
+        "entries": 4,
+        "load_overlap": 1,
+        "cycles": 1844885,
+        "dispatched": 523371,
+        "div_overlap": 1094,
+        "speculative_load": 19036,
+        "multi_complete": 2513,
+        "discarded_load": 0,
+        "head_wait": 1177154,
+        "occupancy_sum": 3695785
+      }
+    },
+    {
+      "name": "retained4",
+      "mhz": 600,
+      "common_clock": false,
+      "own_legal_clock": true,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 120647.758,
+      "total": {
+        "cycles": 2006450,
+        "retired_instructions": 482819,
+        "ipc": 0.24063345710084977,
+        "timer_ticks": 3344,
+        "timer_seconds": 0.003344,
+        "cycle_seconds": 0.0033440833333333335,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 854842,
+        "retired_instructions": 317724,
+        "ipc": 0.37167570147465845,
+        "timer_ticks": 1425,
+        "timer_seconds": 0.001425,
+        "cycle_seconds": 0.0014247366666666668,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "1",
+        "--backend-entries",
+        "4",
+        "--load-overlap",
+        "1",
+        "--cpu-mhz",
+        "600",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained4-600"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained4-600/report.json",
+      "area_times_total_seconds": 403.45615673183335,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          1987,
+          1987
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": {
+        "entries": 4,
+        "load_overlap": 1,
+        "cycles": 2529574,
+        "dispatched": 558246,
+        "div_overlap": 1089,
+        "speculative_load": 19036,
+        "multi_complete": 2499,
+        "discarded_load": 0,
+        "head_wait": 1773411,
+        "occupancy_sum": 5028283
+      }
+    },
+    {
+      "name": "retained8",
+      "mhz": 380,
+      "common_clock": true,
+      "own_legal_clock": true,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 128822.204,
+      "total": {
+        "cycles": 1497857,
+        "retired_instructions": 459791,
+        "ipc": 0.3069658852614101,
+        "timer_ticks": 3941,
+        "timer_seconds": 0.003941,
+        "cycle_seconds": 0.003941728947368421,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 710023,
+        "retired_instructions": 317724,
+        "ipc": 0.44748409558563595,
+        "timer_ticks": 1867,
+        "timer_seconds": 0.001867,
+        "cycle_seconds": 0.0018684815789473685,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "1",
+        "--backend-entries",
+        "8",
+        "--load-overlap",
+        "1",
+        "--cpu-mhz",
+        "380",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained8-380"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained8-380/report.json",
+      "area_times_total_seconds": 507.7822105706,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          1987,
+          1987
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": {
+        "entries": 8,
+        "load_overlap": 1,
+        "cycles": 1842840,
+        "dispatched": 523368,
+        "div_overlap": 1399,
+        "speculative_load": 19071,
+        "multi_complete": 2684,
+        "discarded_load": 0,
+        "head_wait": 1175498,
+        "occupancy_sum": 4001953
+      }
+    },
+    {
+      "name": "retained4-noload",
+      "mhz": 380,
+      "common_clock": true,
+      "own_legal_clock": false,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 120200.878,
+      "total": {
+        "cycles": 1514642,
+        "retired_instructions": 459791,
+        "ipc": 0.30356414254985664,
+        "timer_ticks": 3985,
+        "timer_seconds": 0.003985,
+        "cycle_seconds": 0.0039859,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 724150,
+        "retired_instructions": 317724,
+        "ipc": 0.4387544017123524,
+        "timer_ticks": 1904,
+        "timer_seconds": 0.001904,
+        "cycle_seconds": 0.0019056578947368422,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "1",
+        "--backend-entries",
+        "4",
+        "--load-overlap",
+        "0",
+        "--cpu-mhz",
+        "380",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained4-noload-380"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained4-noload-380/report.json",
+      "area_times_total_seconds": 479.10867962019995,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          1979,
+          1979
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": {
+        "entries": 4,
+        "load_overlap": 0,
+        "cycles": 1868901,
+        "dispatched": 523371,
+        "div_overlap": 221,
+        "speculative_load": 0,
+        "multi_complete": 1778,
+        "discarded_load": 0,
+        "head_wait": 1201676,
+        "occupancy_sum": 3703783
+      }
+    },
+    {
+      "name": "retained4-noload",
+      "mhz": 580,
+      "common_clock": false,
+      "own_legal_clock": true,
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "area_um2": 120200.878,
+      "total": {
+        "cycles": 1973724,
+        "retired_instructions": 482852,
+        "ipc": 0.24464008138929252,
+        "timer_ticks": 3403,
+        "timer_seconds": 0.003403,
+        "cycle_seconds": 0.0034029724137931033,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 855792,
+        "retired_instructions": 317724,
+        "ipc": 0.371263110662404,
+        "timer_ticks": 1475,
+        "timer_seconds": 0.001475,
+        "cycle_seconds": 0.0014755034482758621,
+        "interrupts": 0
+      },
+      "command": [
+        "python3",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+        "--scale",
+        "test",
+        "--isa",
+        "rv32im",
+        "--mul-pipeline",
+        "1",
+        "--backend-rob",
+        "1",
+        "--backend-entries",
+        "4",
+        "--load-overlap",
+        "0",
+        "--cpu-mhz",
+        "580",
+        "--icache-bytes",
+        "1024",
+        "--icache-ways",
+        "4",
+        "--icache-line",
+        "32",
+        "--icache-policy",
+        "13",
+        "--output",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained4-noload-580"
+      ],
+      "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/legal-comparison/retained4-noload-580/report.json",
+      "area_times_total_seconds": 409.0402719477103,
+      "whole_program_traffic": {
+        "icache_installs_refill_finishes": [
+          1979,
+          1979
+        ],
+        "dcache_refill_requests_words_completions": [
+          11934,
+          47736,
+          11934
+        ],
+        "dcache_installs_writeback_requests_responses": [
+          11934,
+          8010,
+          8010
+        ]
+      },
+      "whole_program_backend_counters": {
+        "entries": 4,
+        "load_overlap": 0,
+        "cycles": 2488303,
+        "dispatched": 558270,
+        "div_overlap": 216,
+        "speculative_load": 0,
+        "multi_complete": 1774,
+        "discarded_load": 0,
+        "head_wait": 1736683,
+        "occupancy_sum": 4908135
+      }
+    }
+  ],
+  "note": "Native timer plus passive IPC; each frequency rebuilds the device-clock delay model.",
+  "identical_images": true,
+  "traffic_scope": "whole simulator program, not Total or Scored timer windows; cache traffic proxies, not power measurements",
+  "historical_nominal_700_comparison": "npc/result/backend-rob/legal-comparison/pre-legacy-qualification.json; current legacy RTL at 700 does not pass STA and must not be used as a legal current-worktree comparison"
+}

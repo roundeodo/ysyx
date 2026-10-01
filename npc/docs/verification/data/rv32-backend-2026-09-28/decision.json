@@ -1,0 +1,24 @@
+{
+  "default": "Keep ROB disabled. ROB4+load overlap is an explicit development prototype, not a MicroBench speed upgrade.",
+  "retained": [
+    "No additional issue register. ROB replaces legacy WB storage on the experimental path.",
+    "Independent ALU/MUL/DIV/LSU completions, completed-result forwarding, ID/EX ALU bypass, full ROB pop/push.",
+    "Youngest older ROB result version removes WAW retirement waits without a physical register file.",
+    "Cached idempotent loads may overlap older arithmetic; store and MMIO wait for head authorization.",
+    "LSU response and immediate divider shortcut use existing ROB storage before retirement to break combinational feedback; data forwarding remains immediate.",
+    "MUL/DIV completion does not rewrite unused exception metadata."
+  ],
+  "rejected": [
+    "Initial WAW-until-retirement policy: excessive same-frequency MicroBench stalls.",
+    "Moving PC+4 off allocation: slight area reduction but lower legal clock.",
+    "Masked-OR per-entry completion mux: worse measured timing than the retained selector; independent completion ports are preserved.",
+    "ROB8 as default: almost no test cycle gain relative to ROB4, much worse area and legal frequency.",
+    "800 MHz / 67922.568 um2 intermediate netlist: invalid undriven shared fence signal caused pruning; repaired and requalified."
+  ],
+  "known_limits": [
+    "Current disabled-path mapping is 680 MHz, frozen committed predecessor is 700 MHz. Do not conflate these netlists.",
+    "No out-of-order issue, PRF/rename map, LSQ, store buffer, or multiple data-memory requests.",
+    "No new full train measurement. Native test and standalone arithmetic kernels have different timing scopes.",
+    "Whole-program cache traffic is only a traffic proxy and must not be presented as measured energy or power."
+  ]
+}

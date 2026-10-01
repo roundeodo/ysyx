@@ -1,0 +1,1845 @@
+{
+  "native_test": {
+    "historical_pre_rob_700": {
+      "report": "npc/result/backend-rob/native-test-baseline/report.json",
+      "cpu_mhz": 700,
+      "total": {
+        "cycles": 2220172,
+        "retired_instructions": 483455,
+        "ipc": 0.21775565136394837,
+        "timer_ticks": 3172,
+        "timer_seconds": 0.003172,
+        "cycle_seconds": 0.0031716742857142858,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 915785,
+        "retired_instructions": 317725,
+        "ipc": 0.3469427867894757,
+        "timer_ticks": 1309,
+        "timer_seconds": 0.001309,
+        "cycle_seconds": 0.0013082642857142857,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 25093,
+          "retired_instructions": 9709,
+          "ipc": 0.3869206551627944,
+          "timer_ticks": 36,
+          "timer_seconds": 3.6e-05,
+          "cycle_seconds": 3.5847142857142854e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112434,
+          "retired_instructions": 83537,
+          "ipc": 0.7429869968159097,
+          "timer_ticks": 160,
+          "timer_seconds": 0.00016,
+          "cycle_seconds": 0.00016062,
+          "interrupts": 0
+        },
+        {
+          "cycles": 231931,
+          "retired_instructions": 141943,
+          "ipc": 0.6120052946781586,
+          "timer_ticks": 331,
+          "timer_seconds": 0.000331,
+          "cycle_seconds": 0.00033133,
+          "interrupts": 0
+        },
+        {
+          "cycles": 17710,
+          "retired_instructions": 11293,
+          "ipc": 0.6376623376623377,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.53e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8184,
+          "retired_instructions": 4513,
+          "ipc": 0.5514418377321603,
+          "timer_ticks": 12,
+          "timer_seconds": 1.2e-05,
+          "cycle_seconds": 1.1691428571428572e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 79611,
+          "retired_instructions": 12061,
+          "ipc": 0.15149916468829686,
+          "timer_ticks": 114,
+          "timer_seconds": 0.000114,
+          "cycle_seconds": 0.00011373,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168557,
+          "retired_instructions": 17979,
+          "ipc": 0.10666421447937494,
+          "timer_ticks": 241,
+          "timer_seconds": 0.000241,
+          "cycle_seconds": 0.0002407957142857143,
+          "interrupts": 0
+        },
+        {
+          "cycles": 85295,
+          "retired_instructions": 14661,
+          "ipc": 0.17188580807784748,
+          "timer_ticks": 122,
+          "timer_seconds": 0.000122,
+          "cycle_seconds": 0.00012185,
+          "interrupts": 0
+        },
+        {
+          "cycles": 172508,
+          "retired_instructions": 17172,
+          "ipc": 0.09954320959027987,
+          "timer_ticks": 246,
+          "timer_seconds": 0.000246,
+          "cycle_seconds": 0.00024644,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14462,
+          "retired_instructions": 4857,
+          "ipc": 0.33584566450006914,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.066e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program_traffic": [
+        "successful line installs / refill finishes  : 1984 / 1984",
+        "refill requests / words / completions      : 11934 / 47736 / 11934",
+        "line installs / writeback requests/responses: 11934 / 8010 / 8010"
+      ],
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "timing_model": "device-clock-v1"
+    },
+    "previous_rob_700": {
+      "report": "npc/result/backend-timing-20260929/perf-700/report.json",
+      "cpu_mhz": 700,
+      "total": {
+        "cycles": 2251654,
+        "retired_instructions": 483355,
+        "ipc": 0.21466664061174587,
+        "timer_ticks": 3217,
+        "timer_seconds": 0.003217,
+        "cycle_seconds": 0.0032166485714285715,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 942308,
+        "retired_instructions": 317724,
+        "ipc": 0.3371763796975087,
+        "timer_ticks": 1347,
+        "timer_seconds": 0.001347,
+        "cycle_seconds": 0.0013461542857142858,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 26110,
+          "retired_instructions": 9707,
+          "ipc": 0.37177326694752966,
+          "timer_ticks": 37,
+          "timer_seconds": 3.7e-05,
+          "cycle_seconds": 3.73e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 118706,
+          "retired_instructions": 83537,
+          "ipc": 0.7037302242515121,
+          "timer_ticks": 170,
+          "timer_seconds": 0.00017,
+          "cycle_seconds": 0.00016958,
+          "interrupts": 0
+        },
+        {
+          "cycles": 243600,
+          "retired_instructions": 141943,
+          "ipc": 0.5826888341543514,
+          "timer_ticks": 348,
+          "timer_seconds": 0.000348,
+          "cycle_seconds": 0.000348,
+          "interrupts": 0
+        },
+        {
+          "cycles": 18214,
+          "retired_instructions": 11293,
+          "ipc": 0.6200175689030416,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.602e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8731,
+          "retired_instructions": 4513,
+          "ipc": 0.5168938265948918,
+          "timer_ticks": 12,
+          "timer_seconds": 1.2e-05,
+          "cycle_seconds": 1.2472857142857143e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 81914,
+          "retired_instructions": 12061,
+          "ipc": 0.14723978807041532,
+          "timer_ticks": 117,
+          "timer_seconds": 0.000117,
+          "cycle_seconds": 0.00011702,
+          "interrupts": 0
+        },
+        {
+          "cycles": 169793,
+          "retired_instructions": 17980,
+          "ipc": 0.10589364697013422,
+          "timer_ticks": 243,
+          "timer_seconds": 0.000243,
+          "cycle_seconds": 0.00024256142857142856,
+          "interrupts": 0
+        },
+        {
+          "cycles": 88697,
+          "retired_instructions": 14661,
+          "ipc": 0.16529307642874055,
+          "timer_ticks": 127,
+          "timer_seconds": 0.000127,
+          "cycle_seconds": 0.00012671,
+          "interrupts": 0
+        },
+        {
+          "cycles": 171689,
+          "retired_instructions": 17172,
+          "ipc": 0.10001805590340675,
+          "timer_ticks": 245,
+          "timer_seconds": 0.000245,
+          "cycle_seconds": 0.00024527,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14854,
+          "retired_instructions": 4857,
+          "ipc": 0.32698263094116065,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.122e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program_traffic": [
+        "successful line installs / refill finishes  : 2062 / 2062",
+        "refill requests / words / completions      : 11934 / 47736 / 11934",
+        "line installs / writeback requests/responses: 11934 / 8010 / 8010"
+      ],
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "timing_model": "device-clock-v1"
+    },
+    "issue_only_680": {
+      "report": "npc/result/issue-stage-20260929/perf-issue-680/report.json",
+      "cpu_mhz": 680,
+      "total": {
+        "cycles": 2204695,
+        "retired_instructions": 482560,
+        "ipc": 0.21887834825225258,
+        "timer_ticks": 3242,
+        "timer_seconds": 0.003242,
+        "cycle_seconds": 0.003242198529411765,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 928906,
+        "retired_instructions": 317724,
+        "ipc": 0.342041067664543,
+        "timer_ticks": 1368,
+        "timer_seconds": 0.001368,
+        "cycle_seconds": 0.0013660382352941177,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 25473,
+          "retired_instructions": 9707,
+          "ipc": 0.3810701527107133,
+          "timer_ticks": 38,
+          "timer_seconds": 3.8e-05,
+          "cycle_seconds": 3.746029411764706e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 118768,
+          "retired_instructions": 83537,
+          "ipc": 0.7033628586824734,
+          "timer_ticks": 175,
+          "timer_seconds": 0.000175,
+          "cycle_seconds": 0.00017465882352941177,
+          "interrupts": 0
+        },
+        {
+          "cycles": 242923,
+          "retired_instructions": 141943,
+          "ipc": 0.5843127246082092,
+          "timer_ticks": 357,
+          "timer_seconds": 0.000357,
+          "cycle_seconds": 0.0003572397058823529,
+          "interrupts": 0
+        },
+        {
+          "cycles": 17981,
+          "retired_instructions": 11293,
+          "ipc": 0.6280518324898504,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.644264705882353e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8935,
+          "retired_instructions": 4513,
+          "ipc": 0.5050923335198657,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.3139705882352941e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 80736,
+          "retired_instructions": 12061,
+          "ipc": 0.14938812921125644,
+          "timer_ticks": 119,
+          "timer_seconds": 0.000119,
+          "cycle_seconds": 0.00011872941176470588,
+          "interrupts": 0
+        },
+        {
+          "cycles": 165593,
+          "retired_instructions": 17980,
+          "ipc": 0.10857946893890442,
+          "timer_ticks": 244,
+          "timer_seconds": 0.000244,
+          "cycle_seconds": 0.00024351911764705883,
+          "interrupts": 0
+        },
+        {
+          "cycles": 86428,
+          "retired_instructions": 14661,
+          "ipc": 0.16963252649604296,
+          "timer_ticks": 128,
+          "timer_seconds": 0.000128,
+          "cycle_seconds": 0.0001271,
+          "interrupts": 0
+        },
+        {
+          "cycles": 167266,
+          "retired_instructions": 17172,
+          "ipc": 0.10266282448315857,
+          "timer_ticks": 246,
+          "timer_seconds": 0.000246,
+          "cycle_seconds": 0.0002459794117647059,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14803,
+          "retired_instructions": 4857,
+          "ipc": 0.32810916706073096,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.1769117647058824e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program_traffic": [
+        "successful line installs / refill finishes  : 2153 / 2153",
+        "refill requests / words / completions      : 11934 / 47736 / 11934",
+        "line installs / writeback requests/responses: 11934 / 8010 / 8010"
+      ],
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "timing_model": "device-clock-v1"
+    },
+    "uniform_680": {
+      "report": "npc/result/issue-stage-20260929/perf-uniform-680/report.json",
+      "cpu_mhz": 680,
+      "total": {
+        "cycles": 2212020,
+        "retired_instructions": 482828,
+        "ipc": 0.21827469914376904,
+        "timer_ticks": 3253,
+        "timer_seconds": 0.003253,
+        "cycle_seconds": 0.0032529705882352942,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 933303,
+        "retired_instructions": 317720,
+        "ipc": 0.3404253495381457,
+        "timer_ticks": 1373,
+        "timer_seconds": 0.001373,
+        "cycle_seconds": 0.001372504411764706,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 25554,
+          "retired_instructions": 9707,
+          "ipc": 0.3798622524849339,
+          "timer_ticks": 37,
+          "timer_seconds": 3.7e-05,
+          "cycle_seconds": 3.757941176470588e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 119878,
+          "retired_instructions": 83536,
+          "ipc": 0.6968417891523049,
+          "timer_ticks": 177,
+          "timer_seconds": 0.000177,
+          "cycle_seconds": 0.00017629117647058825,
+          "interrupts": 0
+        },
+        {
+          "cycles": 244243,
+          "retired_instructions": 141943,
+          "ipc": 0.5811548335059756,
+          "timer_ticks": 360,
+          "timer_seconds": 0.00036,
+          "cycle_seconds": 0.00035918088235294116,
+          "interrupts": 0
+        },
+        {
+          "cycles": 18681,
+          "retired_instructions": 11292,
+          "ipc": 0.6044644290990846,
+          "timer_ticks": 27,
+          "timer_seconds": 2.7e-05,
+          "cycle_seconds": 2.7472058823529412e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8936,
+          "retired_instructions": 4512,
+          "ipc": 0.5049239033124441,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.3141176470588236e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 81192,
+          "retired_instructions": 12061,
+          "ipc": 0.1485491181397182,
+          "timer_ticks": 120,
+          "timer_seconds": 0.00012,
+          "cycle_seconds": 0.0001194,
+          "interrupts": 0
+        },
+        {
+          "cycles": 165621,
+          "retired_instructions": 17979,
+          "ipc": 0.1085550745376492,
+          "timer_ticks": 243,
+          "timer_seconds": 0.000243,
+          "cycle_seconds": 0.00024356029411764705,
+          "interrupts": 0
+        },
+        {
+          "cycles": 86564,
+          "retired_instructions": 14661,
+          "ipc": 0.16936601820618272,
+          "timer_ticks": 127,
+          "timer_seconds": 0.000127,
+          "cycle_seconds": 0.0001273,
+          "interrupts": 0
+        },
+        {
+          "cycles": 167906,
+          "retired_instructions": 17172,
+          "ipc": 0.10227150905863995,
+          "timer_ticks": 247,
+          "timer_seconds": 0.000247,
+          "cycle_seconds": 0.0002469205882352941,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14728,
+          "retired_instructions": 4857,
+          "ipc": 0.32978001086366104,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.1658823529411763e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program_traffic": [
+        "successful line installs / refill finishes  : 2154 / 2154",
+        "refill requests / words / completions      : 11934 / 47736 / 11934",
+        "line installs / writeback requests/responses: 11934 / 8010 / 8010"
+      ],
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "timing_model": "device-clock-v1"
+    },
+    "final_680": {
+      "report": "npc/result/issue-stage-20260929/perf-final-680/report.json",
+      "cpu_mhz": 680,
+      "total": {
+        "cycles": 2212020,
+        "retired_instructions": 482828,
+        "ipc": 0.21827469914376904,
+        "timer_ticks": 3253,
+        "timer_seconds": 0.003253,
+        "cycle_seconds": 0.0032529705882352942,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 933303,
+        "retired_instructions": 317720,
+        "ipc": 0.3404253495381457,
+        "timer_ticks": 1373,
+        "timer_seconds": 0.001373,
+        "cycle_seconds": 0.001372504411764706,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 25554,
+          "retired_instructions": 9707,
+          "ipc": 0.3798622524849339,
+          "timer_ticks": 37,
+          "timer_seconds": 3.7e-05,
+          "cycle_seconds": 3.757941176470588e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 119878,
+          "retired_instructions": 83536,
+          "ipc": 0.6968417891523049,
+          "timer_ticks": 177,
+          "timer_seconds": 0.000177,
+          "cycle_seconds": 0.00017629117647058825,
+          "interrupts": 0
+        },
+        {
+          "cycles": 244243,
+          "retired_instructions": 141943,
+          "ipc": 0.5811548335059756,
+          "timer_ticks": 360,
+          "timer_seconds": 0.00036,
+          "cycle_seconds": 0.00035918088235294116,
+          "interrupts": 0
+        },
+        {
+          "cycles": 18681,
+          "retired_instructions": 11292,
+          "ipc": 0.6044644290990846,
+          "timer_ticks": 27,
+          "timer_seconds": 2.7e-05,
+          "cycle_seconds": 2.7472058823529412e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8936,
+          "retired_instructions": 4512,
+          "ipc": 0.5049239033124441,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.3141176470588236e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 81192,
+          "retired_instructions": 12061,
+          "ipc": 0.1485491181397182,
+          "timer_ticks": 120,
+          "timer_seconds": 0.00012,
+          "cycle_seconds": 0.0001194,
+          "interrupts": 0
+        },
+        {
+          "cycles": 165621,
+          "retired_instructions": 17979,
+          "ipc": 0.1085550745376492,
+          "timer_ticks": 243,
+          "timer_seconds": 0.000243,
+          "cycle_seconds": 0.00024356029411764705,
+          "interrupts": 0
+        },
+        {
+          "cycles": 86564,
+          "retired_instructions": 14661,
+          "ipc": 0.16936601820618272,
+          "timer_ticks": 127,
+          "timer_seconds": 0.000127,
+          "cycle_seconds": 0.0001273,
+          "interrupts": 0
+        },
+        {
+          "cycles": 167906,
+          "retired_instructions": 17172,
+          "ipc": 0.10227150905863995,
+          "timer_ticks": 247,
+          "timer_seconds": 0.000247,
+          "cycle_seconds": 0.0002469205882352941,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14728,
+          "retired_instructions": 4857,
+          "ipc": 0.32978001086366104,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.1658823529411763e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program_traffic": [
+        "successful line installs / refill finishes  : 2154 / 2154",
+        "refill requests / words / completions      : 11934 / 47736 / 11934",
+        "line installs / writeback requests/responses: 11934 / 8010 / 8010"
+      ],
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "timing_model": "device-clock-v1"
+    },
+    "final_700": {
+      "report": "npc/result/issue-stage-20260929/perf-final-700/report.json",
+      "cpu_mhz": 700,
+      "total": {
+        "cycles": 2262764,
+        "retired_instructions": 483047,
+        "ipc": 0.21347652693785124,
+        "timer_ticks": 3232,
+        "timer_seconds": 0.003232,
+        "cycle_seconds": 0.00323252,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 947521,
+        "retired_instructions": 317720,
+        "ipc": 0.335317106428248,
+        "timer_ticks": 1351,
+        "timer_seconds": 0.001351,
+        "cycle_seconds": 0.0013536014285714286,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 26026,
+          "retired_instructions": 9707,
+          "ipc": 0.37297318066548835,
+          "timer_ticks": 37,
+          "timer_seconds": 3.7e-05,
+          "cycle_seconds": 3.718e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 119924,
+          "retired_instructions": 83536,
+          "ipc": 0.6965744971815483,
+          "timer_ticks": 171,
+          "timer_seconds": 0.000171,
+          "cycle_seconds": 0.00017132,
+          "interrupts": 0
+        },
+        {
+          "cycles": 245042,
+          "retired_instructions": 141943,
+          "ipc": 0.5792598819794158,
+          "timer_ticks": 350,
+          "timer_seconds": 0.00035,
+          "cycle_seconds": 0.00035006,
+          "interrupts": 0
+        },
+        {
+          "cycles": 18831,
+          "retired_instructions": 11292,
+          "ipc": 0.599649514099092,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.690142857142857e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8953,
+          "retired_instructions": 4512,
+          "ipc": 0.5039651513459176,
+          "timer_ticks": 12,
+          "timer_seconds": 1.2e-05,
+          "cycle_seconds": 1.279e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 82768,
+          "retired_instructions": 12061,
+          "ipc": 0.14572056833558863,
+          "timer_ticks": 119,
+          "timer_seconds": 0.000119,
+          "cycle_seconds": 0.00011824,
+          "interrupts": 0
+        },
+        {
+          "cycles": 169953,
+          "retired_instructions": 17979,
+          "ipc": 0.10578807081957953,
+          "timer_ticks": 242,
+          "timer_seconds": 0.000242,
+          "cycle_seconds": 0.00024279,
+          "interrupts": 0
+        },
+        {
+          "cycles": 88977,
+          "retired_instructions": 14661,
+          "ipc": 0.1647729188441957,
+          "timer_ticks": 127,
+          "timer_seconds": 0.000127,
+          "cycle_seconds": 0.00012711,
+          "interrupts": 0
+        },
+        {
+          "cycles": 172060,
+          "retired_instructions": 17172,
+          "ipc": 0.09980239451354178,
+          "timer_ticks": 246,
+          "timer_seconds": 0.000246,
+          "cycle_seconds": 0.0002458,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14987,
+          "retired_instructions": 4857,
+          "ipc": 0.3240808700874091,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.141e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program_traffic": [
+        "successful line installs / refill finishes  : 2154 / 2154",
+        "refill requests / words / completions      : 11934 / 47736 / 11934",
+        "line installs / writeback requests/responses: 11934 / 8010 / 8010"
+      ],
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "timing_model": "device-clock-v1"
+    },
+    "final_720": {
+      "report": "npc/result/issue-stage-20260929/perf-final-720/report.json",
+      "cpu_mhz": 720,
+      "total": {
+        "cycles": 2310365,
+        "retired_instructions": 482939,
+        "ipc": 0.20903147338191153,
+        "timer_ticks": 3209,
+        "timer_seconds": 0.003209,
+        "cycle_seconds": 0.003208840277777778,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 959961,
+        "retired_instructions": 317720,
+        "ipc": 0.3309717790618577,
+        "timer_ticks": 1331,
+        "timer_seconds": 0.001331,
+        "cycle_seconds": 0.0013332791666666667,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 26251,
+          "retired_instructions": 9707,
+          "ipc": 0.3697763894708773,
+          "timer_ticks": 36,
+          "timer_seconds": 3.6e-05,
+          "cycle_seconds": 3.6459722222222224e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 119887,
+          "retired_instructions": 83536,
+          "ipc": 0.6967894767572798,
+          "timer_ticks": 167,
+          "timer_seconds": 0.000167,
+          "cycle_seconds": 0.00016650972222222223,
+          "interrupts": 0
+        },
+        {
+          "cycles": 245808,
+          "retired_instructions": 141943,
+          "ipc": 0.577454761439823,
+          "timer_ticks": 341,
+          "timer_seconds": 0.000341,
+          "cycle_seconds": 0.0003414,
+          "interrupts": 0
+        },
+        {
+          "cycles": 18893,
+          "retired_instructions": 11292,
+          "ipc": 0.59768168104589,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.624027777777778e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8999,
+          "retired_instructions": 4512,
+          "ipc": 0.5013890432270253,
+          "timer_ticks": 12,
+          "timer_seconds": 1.2e-05,
+          "cycle_seconds": 1.2498611111111111e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 84715,
+          "retired_instructions": 12061,
+          "ipc": 0.14237148084754767,
+          "timer_ticks": 117,
+          "timer_seconds": 0.000117,
+          "cycle_seconds": 0.00011765972222222222,
+          "interrupts": 0
+        },
+        {
+          "cycles": 174038,
+          "retired_instructions": 17979,
+          "ipc": 0.10330502533929371,
+          "timer_ticks": 242,
+          "timer_seconds": 0.000242,
+          "cycle_seconds": 0.00024171944444444446,
+          "interrupts": 0
+        },
+        {
+          "cycles": 90713,
+          "retired_instructions": 14661,
+          "ipc": 0.16161961350633317,
+          "timer_ticks": 125,
+          "timer_seconds": 0.000125,
+          "cycle_seconds": 0.00012599027777777778,
+          "interrupts": 0
+        },
+        {
+          "cycles": 175457,
+          "retired_instructions": 17172,
+          "ipc": 0.09787013342300392,
+          "timer_ticks": 244,
+          "timer_seconds": 0.000244,
+          "cycle_seconds": 0.00024369027777777777,
+          "interrupts": 0
+        },
+        {
+          "cycles": 15200,
+          "retired_instructions": 4857,
+          "ipc": 0.31953947368421054,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.111111111111111e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program_traffic": [
+        "successful line installs / refill finishes  : 2155 / 2155",
+        "refill requests / words / completions      : 11934 / 47736 / 11934",
+        "line installs / writeback requests/responses: 11934 / 8010 / 8010"
+      ],
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "timing_model": "device-clock-v1"
+    },
+    "current_legacy_680": {
+      "report": "npc/result/issue-stage-20260929/perf-legacy-final-680/report.json",
+      "cpu_mhz": 680,
+      "total": {
+        "cycles": 2171419,
+        "retired_instructions": 483449,
+        "ipc": 0.2226419682244652,
+        "timer_ticks": 3193,
+        "timer_seconds": 0.003193,
+        "cycle_seconds": 0.0031932632352941175,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 901995,
+        "retired_instructions": 317725,
+        "ipc": 0.35224696367496494,
+        "timer_ticks": 1329,
+        "timer_seconds": 0.001329,
+        "cycle_seconds": 0.0013264632352941177,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 24586,
+          "retired_instructions": 9709,
+          "ipc": 0.3948995363214838,
+          "timer_ticks": 37,
+          "timer_seconds": 3.7e-05,
+          "cycle_seconds": 3.6155882352941175e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112398,
+          "retired_instructions": 83537,
+          "ipc": 0.7432249684158081,
+          "timer_ticks": 166,
+          "timer_seconds": 0.000166,
+          "cycle_seconds": 0.00016529117647058822,
+          "interrupts": 0
+        },
+        {
+          "cycles": 231281,
+          "retired_instructions": 141943,
+          "ipc": 0.61372529520367,
+          "timer_ticks": 341,
+          "timer_seconds": 0.000341,
+          "cycle_seconds": 0.0003401191176470588,
+          "interrupts": 0
+        },
+        {
+          "cycles": 17523,
+          "retired_instructions": 11293,
+          "ipc": 0.6444672715859157,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.5769117647058823e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8229,
+          "retired_instructions": 4513,
+          "ipc": 0.5484262972414631,
+          "timer_ticks": 12,
+          "timer_seconds": 1.2e-05,
+          "cycle_seconds": 1.2101470588235294e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 77690,
+          "retired_instructions": 12061,
+          "ipc": 0.15524520530312783,
+          "timer_ticks": 114,
+          "timer_seconds": 0.000114,
+          "cycle_seconds": 0.00011425,
+          "interrupts": 0
+        },
+        {
+          "cycles": 164394,
+          "retired_instructions": 17979,
+          "ipc": 0.10936530530311325,
+          "timer_ticks": 242,
+          "timer_seconds": 0.000242,
+          "cycle_seconds": 0.00024175588235294116,
+          "interrupts": 0
+        },
+        {
+          "cycles": 83212,
+          "retired_instructions": 14661,
+          "ipc": 0.17618853050040859,
+          "timer_ticks": 122,
+          "timer_seconds": 0.000122,
+          "cycle_seconds": 0.00012237058823529412,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168429,
+          "retired_instructions": 17172,
+          "ipc": 0.10195393904850115,
+          "timer_ticks": 248,
+          "timer_seconds": 0.000248,
+          "cycle_seconds": 0.00024768970588235294,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14253,
+          "retired_instructions": 4857,
+          "ipc": 0.3407703641338666,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.096029411764706e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program_traffic": [
+        "successful line installs / refill finishes  : 1984 / 1984",
+        "refill requests / words / completions      : 11934 / 47736 / 11934",
+        "line installs / writeback requests/responses: 11934 / 8010 / 8010"
+      ],
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "timing_model": "device-clock-v1"
+    }
+  },
+  "ppa": {
+    "issue-only": {
+      "mhz": 680,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 121607.752,
+      "wall_seconds": 278.24728655815125,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:680",
+      "timing": {
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_90_",
+              "slack_ns": -0.02,
+              "fmax_mhz": 690.427
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.046,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 3,
+          "passed": false
+        },
+        "680": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_90_",
+              "slack_ns": 0.013,
+              "fmax_mhz": 686.445
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.08,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      }
+    },
+    "issue-uniform": {
+      "mhz": 700,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 121340.688,
+      "wall_seconds": 285.6124668121338,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:700",
+      "timing": {
+        "720": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": -0.004,
+              "fmax_mhz": 718.61
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.037,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 2,
+          "passed": false
+        },
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": 0.028,
+              "fmax_mhz": 714.534
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.077,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      }
+    },
+    "selected": {
+      "mhz": 700,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 121340.688,
+      "wall_seconds": 300.8304696083069,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:700",
+      "timing": {
+        "720": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": -0.004,
+              "fmax_mhz": 718.61
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.037,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 2,
+          "passed": false
+        },
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": 0.028,
+              "fmax_mhz": 714.534
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.077,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      }
+    },
+    "parallel-pma": {
+      "mhz": 720,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 121906.47,
+      "wall_seconds": 286.9329297542572,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:720",
+      "timing": {
+        "720": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[0]_101__reg_p:D",
+              "slack_ns": 0.007,
+              "fmax_mhz": 724.056
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.008,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        },
+        "740": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[0]_101__reg_p:D",
+              "slack_ns": -0.023,
+              "fmax_mhz": 728.013
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.022,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        }
+      }
+    },
+    "legacy-parallel-pma": {
+      "mhz": 680,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 117158.636,
+      "wall_seconds": 273.36612486839294,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:680",
+      "timing": {
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_52_",
+              "slack_ns": -0.004,
+              "fmax_mhz": 698.476
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.005,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_legacy_completion_mux.u_completion_mux.exu_result_valid_i_reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 6,
+          "passed": false
+        },
+        "680": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_52_",
+              "slack_ns": 0.03,
+              "fmax_mhz": 694.401
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.029,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_legacy_completion_mux.u_completion_mux.exu_result_valid_i_reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      }
+    }
+  },
+  "fu_programs": {
+    "legacy": {
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-baseline/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-legacy/mixed.bin"
+      ],
+      "difftest": true,
+      "software_oracle": true,
+      "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+      "cycles": 6649,
+      "retired": 1961,
+      "backend_counters": [],
+      "cases": {
+        "mixed": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-baseline/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-legacy/mixed.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+          "cycles": 6649,
+          "retired": 1961,
+          "backend_counters": []
+        },
+        "issue-context": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-baseline/top_sim",
+            "--batch",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-legacy/issue-context.bin"
+          ],
+          "difftest": false,
+          "software_oracle": true,
+          "image_sha256": "4460d92c39f272900974537a340cae58d0a0eb49987c00a421b232d8593918bb",
+          "cycles": 113,
+          "retired": 25,
+          "backend_counters": []
+        },
+        "multiply-burst": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-baseline/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-legacy/multiply-burst.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "4cfc39fc8926185107377f54116ca7d040ddf018fb58d64fa0fc02e3184fc51e",
+          "cycles": 1076,
+          "retired": 1028,
+          "backend_counters": []
+        },
+        "load-overlap": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-baseline/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-legacy/load-overlap.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "605de16e439d524a3316771bd4dd645257baa8e38cfa038f98cb0382f7b450c0",
+          "cycles": 623,
+          "retired": 390,
+          "backend_counters": []
+        },
+        "dependent": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-baseline/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-legacy/dependent.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "26bbb76ed9988562594f2713a99216c5f13a3130dc00fc11982b1f854ae2fceb",
+          "cycles": 2536,
+          "retired": 262,
+          "backend_counters": []
+        }
+      },
+      "fu_counters": {},
+      "overlap_required": false,
+      "simulator_sha256": "b8d575fb7d9064d845841e5e9a2f6185cd9dbb683873d99450489fb3bd921530"
+    },
+    "issue": {
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-issue/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-issue/mixed.bin"
+      ],
+      "difftest": true,
+      "software_oracle": true,
+      "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+      "cycles": 6110,
+      "retired": 1961,
+      "backend_counters": [
+        "NPC ROB: entries=4 load_overlap=1 cycles=6108 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=4112 occupancy_sum=24039",
+        "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=1813"
+      ],
+      "cases": {
+        "mixed": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-issue/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-issue/mixed.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+          "cycles": 6110,
+          "retired": 1961,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=6108 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=4112 occupancy_sum=24039",
+            "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=1813"
+          ]
+        },
+        "issue-context": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-issue/top_sim",
+            "--batch",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-issue/issue-context.bin"
+          ],
+          "difftest": false,
+          "software_oracle": true,
+          "image_sha256": "4460d92c39f272900974537a340cae58d0a0eb49987c00a421b232d8593918bb",
+          "cycles": 102,
+          "retired": 25,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=100 dispatched=26 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=46 occupancy_sum=85",
+            "NPC FU: mul=0 div=1 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=0"
+          ]
+        },
+        "multiply-burst": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-issue/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-issue/multiply-burst.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "4cfc39fc8926185107377f54116ca7d040ddf018fb58d64fa0fc02e3184fc51e",
+          "cycles": 1074,
+          "retired": 1028,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=1072 dispatched=1029 div_overlap=0 speculative_load=0 multi_complete=63 discarded_load=0 head_wait=11 occupancy_sum=3074",
+            "NPC FU: mul=384 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=319 out_of_order_completions=630"
+          ]
+        },
+        "load-overlap": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-issue/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-issue/load-overlap.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "605de16e439d524a3316771bd4dd645257baa8e38cfa038f98cb0382f7b450c0",
+          "cycles": 530,
+          "retired": 390,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=528 dispatched=391 div_overlap=0 speculative_load=30 multi_complete=32 discarded_load=0 head_wait=108 occupancy_sum=1788",
+            "NPC FU: mul=32 div=0 memory=32 mul_during_div=0 load_during_div=0 mul_during_load=32 consecutive_mul=0 out_of_order_completions=343"
+          ]
+        },
+        "dependent": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-issue/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-issue/dependent.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "26bbb76ed9988562594f2713a99216c5f13a3130dc00fc11982b1f854ae2fceb",
+          "cycles": 2394,
+          "retired": 262,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=2392 dispatched=263 div_overlap=129 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=2117 occupancy_sum=7022",
+            "NPC FU: mul=64 div=64 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=194"
+          ]
+        }
+      },
+      "fu_counters": {
+        "mul": 609,
+        "div": 199,
+        "memory": 163,
+        "mul_during_div": 129,
+        "load_during_div": 129,
+        "mul_during_load": 33,
+        "consecutive_mul": 319,
+        "out_of_order_completions": 2980
+      },
+      "overlap_required": true,
+      "simulator_sha256": "f35d0c782f18aef51285d044a5787ddddd9a2c253cdbfd1b00a807ccb0b79d87"
+    },
+    "uniform": {
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-uniform/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-uniform/mixed.bin"
+      ],
+      "difftest": true,
+      "software_oracle": true,
+      "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+      "cycles": 6111,
+      "retired": 1961,
+      "backend_counters": [
+        "NPC ROB: entries=4 load_overlap=1 cycles=6109 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=4115 occupancy_sum=24053",
+        "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=1823"
+      ],
+      "cases": {
+        "mixed": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-uniform/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-uniform/mixed.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+          "cycles": 6111,
+          "retired": 1961,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=6109 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=4115 occupancy_sum=24053",
+            "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=1823"
+          ]
+        },
+        "issue-context": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-uniform/top_sim",
+            "--batch",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-uniform/issue-context.bin"
+          ],
+          "difftest": false,
+          "software_oracle": true,
+          "image_sha256": "4460d92c39f272900974537a340cae58d0a0eb49987c00a421b232d8593918bb",
+          "cycles": 108,
+          "retired": 25,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=106 dispatched=26 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=57 occupancy_sum=110",
+            "NPC FU: mul=0 div=1 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=12"
+          ]
+        },
+        "multiply-burst": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-uniform/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-uniform/multiply-burst.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "4cfc39fc8926185107377f54116ca7d040ddf018fb58d64fa0fc02e3184fc51e",
+          "cycles": 1076,
+          "retired": 1028,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=1074 dispatched=1029 div_overlap=0 speculative_load=0 multi_complete=63 discarded_load=0 head_wait=18 occupancy_sum=4103",
+            "NPC FU: mul=384 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=319 out_of_order_completions=1019"
+          ]
+        },
+        "load-overlap": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-uniform/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-uniform/load-overlap.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "605de16e439d524a3316771bd4dd645257baa8e38cfa038f98cb0382f7b450c0",
+          "cycles": 532,
+          "retired": 390,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=530 dispatched=391 div_overlap=0 speculative_load=31 multi_complete=32 discarded_load=0 head_wait=113 occupancy_sum=1804",
+            "NPC FU: mul=32 div=0 memory=32 mul_during_div=0 load_during_div=0 mul_during_load=32 consecutive_mul=0 out_of_order_completions=352"
+          ]
+        },
+        "dependent": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-uniform/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-uniform/dependent.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "26bbb76ed9988562594f2713a99216c5f13a3130dc00fc11982b1f854ae2fceb",
+          "cycles": 2395,
+          "retired": 262,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=2393 dispatched=263 div_overlap=129 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=2119 occupancy_sum=7027",
+            "NPC FU: mul=64 div=64 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=195"
+          ]
+        }
+      },
+      "fu_counters": {
+        "mul": 609,
+        "div": 199,
+        "memory": 163,
+        "mul_during_div": 129,
+        "load_during_div": 129,
+        "mul_during_load": 33,
+        "consecutive_mul": 319,
+        "out_of_order_completions": 3401
+      },
+      "overlap_required": true,
+      "simulator_sha256": "c0714837e08f7b554fd7b2bdbda62b8f3f32f7eb90b223c76c1c1705bbe702cd"
+    },
+    "final": {
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-final/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-final/mixed.bin"
+      ],
+      "difftest": true,
+      "software_oracle": true,
+      "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+      "cycles": 6111,
+      "retired": 1961,
+      "backend_counters": [
+        "NPC ROB: entries=4 load_overlap=1 cycles=6109 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=4115 occupancy_sum=24053",
+        "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=1823"
+      ],
+      "cases": {
+        "mixed": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-final/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-final/mixed.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+          "cycles": 6111,
+          "retired": 1961,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=6109 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=4115 occupancy_sum=24053",
+            "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=1823"
+          ]
+        },
+        "issue-context": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-final/top_sim",
+            "--batch",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-final/issue-context.bin"
+          ],
+          "difftest": false,
+          "software_oracle": true,
+          "image_sha256": "4460d92c39f272900974537a340cae58d0a0eb49987c00a421b232d8593918bb",
+          "cycles": 108,
+          "retired": 25,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=106 dispatched=26 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=57 occupancy_sum=110",
+            "NPC FU: mul=0 div=1 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=12"
+          ]
+        },
+        "multiply-burst": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-final/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-final/multiply-burst.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "4cfc39fc8926185107377f54116ca7d040ddf018fb58d64fa0fc02e3184fc51e",
+          "cycles": 1076,
+          "retired": 1028,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=1074 dispatched=1029 div_overlap=0 speculative_load=0 multi_complete=63 discarded_load=0 head_wait=18 occupancy_sum=4103",
+            "NPC FU: mul=384 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=319 out_of_order_completions=1019"
+          ]
+        },
+        "load-overlap": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-final/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-final/load-overlap.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "605de16e439d524a3316771bd4dd645257baa8e38cfa038f98cb0382f7b450c0",
+          "cycles": 532,
+          "retired": 390,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=530 dispatched=391 div_overlap=0 speculative_load=31 multi_complete=32 discarded_load=0 head_wait=113 occupancy_sum=1804",
+            "NPC FU: mul=32 div=0 memory=32 mul_during_div=0 load_during_div=0 mul_during_load=32 consecutive_mul=0 out_of_order_completions=352"
+          ]
+        },
+        "dependent": {
+          "command": [
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/build-final/top_sim",
+            "--batch",
+            "--diff",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/issue-stage-20260929/fu-final/dependent.bin"
+          ],
+          "difftest": true,
+          "software_oracle": true,
+          "image_sha256": "26bbb76ed9988562594f2713a99216c5f13a3130dc00fc11982b1f854ae2fceb",
+          "cycles": 2395,
+          "retired": 262,
+          "backend_counters": [
+            "NPC ROB: entries=4 load_overlap=1 cycles=2393 dispatched=263 div_overlap=129 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=2119 occupancy_sum=7027",
+            "NPC FU: mul=64 div=64 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=195"
+          ]
+        }
+      },
+      "fu_counters": {
+        "mul": 609,
+        "div": 199,
+        "memory": 163,
+        "mul_during_div": 129,
+        "load_during_div": 129,
+        "mul_during_load": 33,
+        "consecutive_mul": 319,
+        "out_of_order_completions": 3401
+      },
+      "overlap_required": true,
+      "simulator_sha256": "d2f7127dd4666da4b088d43c8118c1c43c351a6a593e0e52fa5436c4d0a3e41c"
+    }
+  },
+  "train_prefix": {
+    "old_run": "npc/result/performance/passive-train-20260928T123834Z",
+    "new_run": "npc/result/performance/passive-train-20260929T032154Z",
+    "complete_train": false,
+    "rows": [
+      {
+        "name": "qsort",
+        "old": {
+          "cycles": 26585305,
+          "retired_instructions": 6426142,
+          "ipc": 0.24171782117978335,
+          "timer_ticks": 37979,
+          "timer_seconds": 0.037979,
+          "cycle_seconds": 0.037979007142857145,
+          "interrupts": 0
+        },
+        "new": {
+          "cycles": 27386191,
+          "retired_instructions": 6426140,
+          "ipc": 0.23464891484909312,
+          "timer_ticks": 39124,
+          "timer_seconds": 0.039124,
+          "cycle_seconds": 0.03912313,
+          "interrupts": 0
+        }
+      },
+      {
+        "name": "queen",
+        "old": {
+          "cycles": 9037301,
+          "retired_instructions": 6819874,
+          "ipc": 0.7546361463450205,
+          "timer_ticks": 12911,
+          "timer_seconds": 0.012911,
+          "cycle_seconds": 0.01291043,
+          "interrupts": 0
+        },
+        "new": {
+          "cycles": 9538383,
+          "retired_instructions": 6819875,
+          "ipc": 0.7149927823196028,
+          "timer_ticks": 13626,
+          "timer_seconds": 0.013626,
+          "cycle_seconds": 0.013626261428571429,
+          "interrupts": 0
+        }
+      },
+      {
+        "name": "bf",
+        "old": {
+          "cycles": 20035470,
+          "retired_instructions": 10489385,
+          "ipc": 0.5235407504790255,
+          "timer_ticks": 28622,
+          "timer_seconds": 0.028622,
+          "cycle_seconds": 0.0286221,
+          "interrupts": 0
+        },
+        "new": {
+          "cycles": 20803923,
+          "retired_instructions": 10489385,
+          "ipc": 0.5042022603140763,
+          "timer_ticks": 29720,
+          "timer_seconds": 0.02972,
+          "cycle_seconds": 0.02971989,
+          "interrupts": 0
+        }
+      },
+      {
+        "name": "fib",
+        "old": {
+          "cycles": 80753232,
+          "retired_instructions": 7644079,
+          "ipc": 0.09465972829421862,
+          "timer_ticks": 115362,
+          "timer_seconds": 0.115362,
+          "cycle_seconds": 0.11536176,
+          "interrupts": 0
+        },
+        "new": {
+          "cycles": 80776801,
+          "retired_instructions": 7644079,
+          "ipc": 0.0946321085431447,
+          "timer_ticks": 115395,
+          "timer_seconds": 0.115395,
+          "cycle_seconds": 0.11539543,
+          "interrupts": 0
+        }
+      }
+    ]
+  },
+  "notes": [
+    "Scored native time sums integer-microsecond windows; cycle time retains finer resolution.",
+    "Whole-program cache/FU counters do not describe the Total or Scored windows.",
+    "Current legacy uses the same PMA and source tree; historical pre-ROB uses its separate frozen revision."
+  ]
+}

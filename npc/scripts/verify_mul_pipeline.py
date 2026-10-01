@@ -15,6 +15,9 @@ TESTS = ('unit', 'core', 'arithmetic', 'exception', 'fence', 'interrupt', 'kerne
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--backend-rob', choices=[0, 1], type=int, default=0)
+    parser.add_argument('--backend-entries', choices=[2, 4, 8], type=int, default=4)
+    parser.add_argument('--load-overlap', choices=[0, 1], type=int, default=0)
     parser.add_argument('--output', required=True, type=Path)
     parser.add_argument('--simulator', required=True, type=Path)
     parser.add_argument('--cpu-mhz', type=int, default=700)
@@ -34,6 +37,8 @@ def main():
     flags = subprocess.check_output([
         'make', '-s', '-C', str(NPC), 'NPC_CONFIG=rv32im-pipelined',
         f'NPC_SIM_CPU_FREQ_MHZ={args.cpu_mhz}',
+        f'NPC_BACKEND_ROB_ENABLE={args.backend_rob}', f'NPC_BACKEND_ENTRIES={args.backend_entries}',
+        f'NPC_BACKEND_LOAD_OVERLAP={args.load_overlap}',
         '--eval=flags:;@echo $(NPC_CONFIG_DEFINE)', 'flags',
     ], env=env, text=True).split()
     tasks = {

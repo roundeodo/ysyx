@@ -4,6 +4,7 @@ import argparse
 from concurrent.futures import ThreadPoolExecutor
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -71,6 +72,14 @@ def qualify(name, root, resume=False, *, cache_config=None, extra_make=None, sou
             (out / 'sta').rename(out / ('interrupted-sta-' + stamp))
         print('SYNTH', name, flush=True)
         execute(command, ROOT, env, out / (f'synthesis-resume-{stamp}.log' if existing else 'synthesis.log'))
+    # A timing pass is meaningless if synthesis removed logic fed by undriven nets.
+    synthesis_logs = sorted(out.glob('synthesis*.log'))
+    for log in synthesis_logs[-1:]:
+        problems = re.findall(r'^Warning:.*(?:has no driver|multiple conflicting drivers|logic loop).*$',
+                              log.read_text(), re.MULTILINE)
+        if problems:
+            (out / 'integrity-errors.json').write_text(json.dumps(problems, indent=2) + '\n')
+            raise RuntimeError('Invalid synthesized circuit: ' + '; '.join(problems[:5]))
     qualify_mapped(name, out, env, started=started)
 
 

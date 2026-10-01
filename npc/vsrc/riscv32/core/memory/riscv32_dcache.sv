@@ -1,4 +1,4 @@
-// 参数化、2-way可配置、write-back/write-allocate的阻塞式L1 D-cache。
+// 参数化 write-back/write-allocate L1 D-cache；可选单 miss 下的 load hit-through。
 //
 // 请求与读端口选择 → 同步阵列 → 命中/缺失 → clean → 写端口反馈 → miss/AXI。
 // 每次只处理一个缺失；命中响应完成时可接收下一请求，store 同址读由显式旁路处理。
@@ -133,30 +133,51 @@ module riscv32_dcache
   logic             lookup_s1_present_q, lookup_s1_present_d;
   logic             lookup_req_handshake;
 
-  // 本地hit响应和miss响应不会同时出现。store hit只在响应握手时写array，避免上游
+  // 本地 hit 与 miss 返回共享响应口；受阻后保持原选择。store hit 在握手时写 array，避免上游
   // 反压期间重复产生副作用；同拍接收的下一请求由 store bypass 处理读写冲突。
   logic              local_resp_valid;
   data_memory_resp_t local_resp;
   logic              local_resp_handshake;
   logic              miss_req_handshake;
   logic              store_hit_write_event;
+  logic              lookup_hit;
+  logic              lookup_wait_refill_q, lookup_reread;
+  logic              miss_response_held_q, select_miss_response;
+  logic              miss_allows_lookup, metadata_read_conflict;
+  dcache_set_index_t  reserved_set_index;
+  dcache_way_index_t  reserved_way_index;
+
+  // miss unit 的写地址始终输出本事务的 set/way，valid 只控制实际写入。
+  assign reserved_set_index = miss_data_write_set_index;
+  assign reserved_way_index = miss_data_write_way_index;
+  assign miss_allows_lookup = !miss_transaction_present ||
+      (DCACHE_HIT_UNDER_MISS && data_memory_req_i.cmd == MEM_CMD_LOAD &&
+       !miss_victim_read_enable);
+  assign metadata_read_conflict = DCACHE_HIT_UNDER_MISS && miss_metadata_write_valid &&
+      miss_metadata_write_set_index == get_set_index(data_memory_req_i.addr);
+  assign lookup_reread = DCACHE_HIT_UNDER_MISS && lookup_wait_refill_q &&
+      !miss_transaction_present && !clean_blocks_lookup;
+  // 命中由已寄存 S1 决定，优先返回，避免晚到 RVALID 先控制 ID/数据选择。
+  // miss 等待交付时不接下一 lookup，保证至多让当前 hit 先行一次；受阻来源保持。
+  assign select_miss_response = !local_resp_valid || miss_response_held_q;
+
 
   // 请求入口。完成和维护条件由下方电路反馈，读地址在握手前确定。
   assign clean_blocks_lookup = clean_req_i || (clean_state_q != CLEAN_IDLE);
   // 所有hit响应都允许同拍启动下一lookup。store后的显式bypass定义了SRAM
   // read-during-write行为，因此连续load/store不再为了宏语义固定空转一拍。
+  // miss 已交付时也可接下一 load；同组 metadata 安装冲突仍由上面的读写检查阻止。
   assign data_memory_req_ready_o =
       (!lookup_s1_present_q || local_resp_handshake) &&
-      !miss_transaction_present && !clean_blocks_lookup;
+      miss_allows_lookup && !metadata_read_conflict && !lookup_wait_refill_q &&
+      !(DCACHE_HIT_UNDER_MISS && miss_resp_valid && !miss_resp_ready) &&
+      !clean_blocks_lookup;
   assign lookup_req_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
 
   always_comb begin
     lookup_s1_present_d = lookup_s1_present_q;
-    if (miss_req_handshake) begin
-      lookup_s1_present_d = 1'b0;
-    end else if (data_memory_req_ready_o) begin
-      lookup_s1_present_d = lookup_req_handshake;
-    end
+    if (miss_req_handshake || local_resp_handshake) lookup_s1_present_d = 1'b0;
+    if (lookup_req_handshake) lookup_s1_present_d = 1'b1;
   end
 
   always_ff @(posedge clk_i) begin
@@ -171,11 +192,30 @@ module riscv32_dcache
       lookup_s1_present_q <= lookup_s1_present_d;
   end
 
+  // 被旧 miss 挡住的请求在其结束后重读一次，不能使用回填前的 tag/data。
+  // 等待期间既不发出第二个 miss，也不重复完成同一请求。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      lookup_wait_refill_q <= 1'b0;
+      miss_response_held_q <= 1'b0;
+    end else begin
+      if (DCACHE_HIT_UNDER_MISS && lookup_s1_present_q && !lookup_hit &&
+          miss_transaction_present) lookup_wait_refill_q <= 1'b1;
+      if (lookup_reread) lookup_wait_refill_q <= 1'b0;
+      miss_response_held_q <= miss_resp_valid && select_miss_response &&
+          !data_memory_resp_ready_i;
+    end
+  end
+
   // S1 请求与同步读输出一起保持，只有接收新请求才能覆盖 lookup 数据。
   // clean 扫描优先使用 tag 口，victim 采集优先使用 data 口。
   always_comb begin
     tag_read_enable    = lookup_req_handshake;
     tag_read_set_index = get_set_index(data_memory_req_i.addr);
+    if (lookup_reread) begin
+      tag_read_enable = 1'b1;
+      tag_read_set_index = get_set_index(lookup_s1_q.addr);
+    end
     if (clean_blocks_lookup) begin
       tag_read_enable    = ((clean_state_q == CLEAN_IDLE) && clean_req_i) || clean_advance_set;
       tag_read_set_index = (clean_state_q == CLEAN_IDLE) ? '0 :
@@ -185,6 +225,11 @@ module riscv32_dcache
     data_read_enable     = lookup_req_handshake;
     data_read_set_index  = get_set_index(data_memory_req_i.addr);
     data_read_word_index = get_word_index(data_memory_req_i.addr);
+    if (lookup_reread) begin
+      data_read_enable = 1'b1;
+      data_read_set_index = get_set_index(lookup_s1_q.addr);
+      data_read_word_index = get_word_index(lookup_s1_q.addr);
+    end
     if (miss_victim_read_enable) begin
       data_read_enable     = 1'b1;
       data_read_set_index  = miss_victim_read_set_index;
@@ -224,7 +269,7 @@ module riscv32_dcache
 
   logic [DCACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
   logic [DCACHE_WAY_COUNT-1:0] lookup_line_dirty_vector;
-  logic                        lookup_hit;
+
   dcache_way_index_t           lookup_hit_way_index;
   core_data_t                  lookup_hit_word_data;
   dcache_way_index_t           replacement_way_index;
@@ -264,6 +309,9 @@ module riscv32_dcache
     lookup_hit_word_data = '0;
     for (int unsigned way_index=0; way_index<DCACHE_WAY_COUNT; way_index++) begin
       lookup_way_hit_vector[way_index] = lookup_s1_present_q &&
+          !(DCACHE_HIT_UNDER_MISS && miss_transaction_present &&
+            get_set_index(lookup_s1_q.addr) == reserved_set_index &&
+            dcache_way_index_t'(way_index) == reserved_way_index) &&
           array_read_line_present_vector[way_index] &&
           (array_read_tag_array[way_index] ==
           get_tag(lookup_s1_q.addr));
@@ -316,19 +364,19 @@ module riscv32_dcache
     local_resp                = '0;
     local_resp.read_data      = lookup_hit_word_data;
     local_resp.transaction_id = lookup_s1_q.transaction_id;
-    local_resp_valid          = lookup_s1_present_q && lookup_hit;
+    local_resp_valid          = lookup_s1_present_q && lookup_hit && !lookup_wait_refill_q;
 
     data_memory_resp_o       = local_resp;
     data_memory_resp_valid_o = local_resp_valid;
     miss_resp_ready          = 1'b0;
-    if (miss_resp_valid) begin
+    if (select_miss_response) begin
       data_memory_resp_o       = miss_resp;
-      data_memory_resp_valid_o = 1'b1;
+      data_memory_resp_valid_o = miss_resp_valid;
       miss_resp_ready          = data_memory_resp_ready_i;
     end
   end
 
-  assign local_resp_handshake  = local_resp_valid && data_memory_resp_ready_i && !miss_resp_valid;
+  assign local_resp_handshake  = local_resp_valid && data_memory_resp_ready_i && !select_miss_response;
   assign store_hit_write_event = local_resp_handshake && lookup_s1_q.cmd == MEM_CMD_STORE;
 
   always_comb begin
@@ -341,7 +389,8 @@ module riscv32_dcache
     miss_req.victim_tag            = array_read_tag_array[replacement_way_index];
     miss_req.victim_present        = array_read_line_present_vector[replacement_way_index];
     miss_req.victim_dirty          = lookup_line_dirty_vector[replacement_way_index];
-    miss_req_valid                 = lookup_s1_present_q && !lookup_hit && !clean_blocks_lookup;
+    miss_req_valid                 = lookup_s1_present_q && !lookup_hit && !clean_blocks_lookup &&
+        !lookup_wait_refill_q && !miss_transaction_present;
   end
   assign miss_req_handshake = miss_req_valid && miss_req_ready;
 
@@ -556,9 +605,12 @@ module riscv32_dcache
   always_comb begin
     event_o                                 = '0;
     event_o.lookup_event                    = lookup_req_handshake;
+    event_o.lookup_transaction_id           = data_memory_req_i.transaction_id;
+    event_o.response_transaction_id         = data_memory_resp_o.transaction_id;
+    event_o.miss_transaction_id             = lookup_s1_q.transaction_id;
     event_o.lookup_is_store                 = data_memory_req_i.cmd == MEM_CMD_STORE;
     event_o.lookup_response_present         = data_memory_resp_valid_o;
-    event_o.lookup_response_is_cache_hit    = local_resp_valid && !miss_resp_valid;
+    event_o.lookup_response_is_cache_hit    = local_resp_valid && !select_miss_response;
     event_o.lookup_request_waiting          = data_memory_req_valid_i && !data_memory_req_ready_o;
     event_o.store_hit_and_next_lookup_event = store_hit_write_event && lookup_req_handshake;
     event_o.miss_event                      = miss_req_handshake;
@@ -576,6 +628,13 @@ module riscv32_dcache
   end
 
 `ifndef SYNTHESIS
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    lookup_req_handshake |-> !miss_victim_read_enable);
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    store_hit_write_event |-> !miss_transaction_present);
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    lookup_wait_refill_q |-> !local_resp_valid && !miss_req_valid);
+
   initial begin
     assert (DCACHE_CAPACITY_BYTES > 0)
     else

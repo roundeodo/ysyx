@@ -8,7 +8,8 @@
 
 这是一颗 **RV32I 单发射、顺序执行、顺序提交的处理器**，带分离的 L1 指令/数据缓存、
 小型分支预测器、基础 M-mode 异常和定时中断，通过 AXI4 接入 ysyxSoC。
-当前没有重命名、ROB、乱序调度、硬件乘除法、MMU、缓存一致性协议或 AI 加速器。
+该 RV32I 配置不启用 ROB 或硬件乘除法，也没有重命名、乱序调度、MMU、缓存一致性协议或 AI 加速器。
+可选 RV32IM 与多 FU 后端分别见[乘除法电路](../microarchitecture/MULDIV_DESIGN.md)和[后端说明](../microarchitecture/BACKEND_DESIGN.md)。
 “面向边缘设备”描述应用方向，不能用来代替这些已经实现的结构。
 
 ## 1. 阅读顺序与当前参数

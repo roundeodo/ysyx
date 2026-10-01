@@ -1,0 +1,29 @@
+{
+  "selected": "ALU-result/MUL head retirement bypass + independent FU return signals + ordinary combinational address adder; existing Issue retained",
+  "qualified_mhz": 700,
+  "default_rob_enabled": false,
+  "why": "User requests bypass at 700 MHz without hidden stages. Issue gives measured frequency/time tradeoff; forwarding and independent completion have directed benefit. MicroBench still favours original backend overall.",
+  "not_selected": [
+    "uniform completion-only retirement",
+    "DIV/LSU unqualified combinational retirement",
+    "Removing Issue in production",
+    "Blindly increasing ROB depth",
+    "Additional pipeline registers or relaxed STA constraints"
+  ],
+  "limits": [
+    "Full train not rerun",
+    "Standalone quantization proxy is not a complete AI inference workload",
+    "CVA6 structural study is not evidence of superiority",
+    "20 ps data setup at700 is synthesis-only margin"
+  ],
+  "metrics": {
+    "bypass_total_cycle_change_at680_pct": -0.33114528801728715,
+    "issue_total_cycle_change_at500_pct": 1.4891398911860865,
+    "issue_time_change_at_qualified_clocks_pct": -2.8842703782289814,
+    "issue_area_change_pct": 0.9525239124340334,
+    "rob_time_vs_legacy_at_qualified_clocks_pct": 0.9042579332422029,
+    "rob_area_vs_legacy_pct": 3.7559526915581287,
+    "rob_area_time_vs_legacy_pct": 4.694174124982586,
+    "bypass700_time_vs_uniform720_pct": 0.4144267866147189
+  }
+}

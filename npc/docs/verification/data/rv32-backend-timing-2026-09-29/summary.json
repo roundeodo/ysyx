@@ -1,0 +1,800 @@
+{
+  "status": "passed",
+  "input_tests": [
+    {
+      "name": "scoreboard-2",
+      "passed": true,
+      "build": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "+define+YSYX_RV32_BASELINE",
+        "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+        "+define+YSYX_BACKEND_ROB_ENABLE=0",
+        "+define+YSYX_BACKEND_ENTRIES=2",
+        "+define+YSYX_BACKEND_LOAD_OVERLAP=0",
+        "+define+YSYX_MULDIV_ENABLE=1",
+        "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+        "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+        "+define+YSYX_ICACHE_WAY_COUNT=4",
+        "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+        "+define+YSYX_ICACHE_LINE_BYTES=32",
+        "+define+YSYX_DCACHE_ENABLE=1",
+        "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+        "+define+YSYX_DCACHE_WAY_COUNT=2",
+        "+define+YSYX_DCACHE_LINE_BYTES=16",
+        "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+        "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+        "+define+YSYX_BRANCH_TARGET_POLICY=0",
+        "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+        "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+        "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+        "--top-module",
+        "riscv32_scoreboard_tb",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/input-tests/obj-scoreboard-2",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/backend/riscv32_scoreboard_tb.sv"
+      ],
+      "result": "PASS scoreboard entries=2 cases=10000"
+    },
+    {
+      "name": "scoreboard-4",
+      "passed": true,
+      "build": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "+define+YSYX_RV32_BASELINE",
+        "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+        "+define+YSYX_BACKEND_ROB_ENABLE=0",
+        "+define+YSYX_BACKEND_ENTRIES=4",
+        "+define+YSYX_BACKEND_LOAD_OVERLAP=0",
+        "+define+YSYX_MULDIV_ENABLE=1",
+        "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+        "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+        "+define+YSYX_ICACHE_WAY_COUNT=4",
+        "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+        "+define+YSYX_ICACHE_LINE_BYTES=32",
+        "+define+YSYX_DCACHE_ENABLE=1",
+        "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+        "+define+YSYX_DCACHE_WAY_COUNT=2",
+        "+define+YSYX_DCACHE_LINE_BYTES=16",
+        "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+        "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+        "+define+YSYX_BRANCH_TARGET_POLICY=0",
+        "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+        "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+        "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+        "--top-module",
+        "riscv32_scoreboard_tb",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/input-tests/obj-scoreboard-4",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/backend/riscv32_scoreboard_tb.sv"
+      ],
+      "result": "PASS scoreboard entries=4 cases=10000"
+    },
+    {
+      "name": "scoreboard-8",
+      "passed": true,
+      "build": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "+define+YSYX_RV32_BASELINE",
+        "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+        "+define+YSYX_BACKEND_ROB_ENABLE=0",
+        "+define+YSYX_BACKEND_ENTRIES=8",
+        "+define+YSYX_BACKEND_LOAD_OVERLAP=0",
+        "+define+YSYX_MULDIV_ENABLE=1",
+        "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+        "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+        "+define+YSYX_ICACHE_WAY_COUNT=4",
+        "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+        "+define+YSYX_ICACHE_LINE_BYTES=32",
+        "+define+YSYX_DCACHE_ENABLE=1",
+        "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+        "+define+YSYX_DCACHE_WAY_COUNT=2",
+        "+define+YSYX_DCACHE_LINE_BYTES=16",
+        "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+        "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+        "+define+YSYX_BRANCH_TARGET_POLICY=0",
+        "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+        "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+        "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+        "--top-module",
+        "riscv32_scoreboard_tb",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/input-tests/obj-scoreboard-8",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/backend/riscv32_scoreboard_tb.sv"
+      ],
+      "result": "PASS scoreboard entries=8 cases=10000"
+    },
+    {
+      "name": "fetch_buffer-0",
+      "passed": true,
+      "build": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "+define+YSYX_RV32_BASELINE",
+        "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+        "+define+YSYX_BACKEND_ROB_ENABLE=0",
+        "+define+YSYX_BACKEND_ENTRIES=4",
+        "+define+YSYX_BACKEND_LOAD_OVERLAP=0",
+        "+define+YSYX_MULDIV_ENABLE=1",
+        "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+        "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+        "+define+YSYX_ICACHE_WAY_COUNT=4",
+        "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+        "+define+YSYX_ICACHE_LINE_BYTES=32",
+        "+define+YSYX_DCACHE_ENABLE=1",
+        "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+        "+define+YSYX_DCACHE_WAY_COUNT=2",
+        "+define+YSYX_DCACHE_LINE_BYTES=16",
+        "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+        "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+        "+define+YSYX_BRANCH_TARGET_POLICY=0",
+        "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+        "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+        "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+        "--top-module",
+        "riscv32_fetch_buffer_tb",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/input-tests/obj-fetch_buffer-0",
+        "-GBYPASS_ENABLE=0",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/backend/riscv32_fetch_buffer_tb.sv"
+      ],
+      "result": "PASS fetch bypass=0 cycles=10000 received=7021 delivered=6736 full_exchange=3233 blocked_flush=83"
+    },
+    {
+      "name": "fetch_buffer-1",
+      "passed": true,
+      "build": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "+define+YSYX_RV32_BASELINE",
+        "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+        "+define+YSYX_BACKEND_ROB_ENABLE=0",
+        "+define+YSYX_BACKEND_ENTRIES=4",
+        "+define+YSYX_BACKEND_LOAD_OVERLAP=0",
+        "+define+YSYX_MULDIV_ENABLE=1",
+        "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+        "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+        "+define+YSYX_ICACHE_WAY_COUNT=4",
+        "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+        "+define+YSYX_ICACHE_LINE_BYTES=32",
+        "+define+YSYX_DCACHE_ENABLE=1",
+        "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+        "+define+YSYX_DCACHE_WAY_COUNT=2",
+        "+define+YSYX_DCACHE_LINE_BYTES=16",
+        "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+        "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+        "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+        "+define+YSYX_BRANCH_TARGET_POLICY=0",
+        "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+        "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+        "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+        "--top-module",
+        "riscv32_fetch_buffer_tb",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/input-tests/obj-fetch_buffer-1",
+        "-GBYPASS_ENABLE=1",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/backend/riscv32_fetch_buffer_tb.sv"
+      ],
+      "result": "PASS fetch bypass=1 cycles=10000 received=7184 delivered=6974 full_exchange=2510 blocked_flush=62"
+    }
+  ],
+  "regressions": {
+    "simulator": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/build-fetch-div/top_sim",
+    "simulator_sha256": "24747b2d1e7bf3c60b600842ae5889e8678e111fa1ad4d7a3b11ff409b3cda3e",
+    "rtl_test_cpu_mhz": 700,
+    "note": "The supplied standalone simulator retains its build frequency; core and kernel comparisons use cycles, not a native SoC timer.",
+    "tests": [
+      {
+        "name": "core",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_mul_pipeline_core.py",
+          "--simulator",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/build-fetch-div/top_sim",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/core"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/core-driver.log"
+      },
+      {
+        "name": "arithmetic",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_muldiv_core.py",
+          "--simulator",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/build-fetch-div/top_sim",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/arithmetic"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/arithmetic-driver.log"
+      },
+      {
+        "name": "exception",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/run.py",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/exception",
+          "+define+YSYX_RV32_BASELINE",
+          "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+          "+define+YSYX_BACKEND_ROB_ENABLE=1",
+          "+define+YSYX_BACKEND_ENTRIES=4",
+          "+define+YSYX_BACKEND_LOAD_OVERLAP=1",
+          "+define+YSYX_MULDIV_ENABLE=1",
+          "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+          "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+          "+define+YSYX_ICACHE_WAY_COUNT=4",
+          "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+          "+define+YSYX_ICACHE_LINE_BYTES=32",
+          "+define+YSYX_DCACHE_ENABLE=1",
+          "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+          "+define+YSYX_DCACHE_WAY_COUNT=2",
+          "+define+YSYX_DCACHE_LINE_BYTES=16",
+          "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+          "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+          "+define+YSYX_BRANCH_TARGET_POLICY=0",
+          "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+          "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+          "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+          "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/exception-driver.log"
+      },
+      {
+        "name": "fence",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_cache_recovery.py",
+          "--test",
+          "core",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/fence",
+          "+define+YSYX_RV32_BASELINE",
+          "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+          "+define+YSYX_BACKEND_ROB_ENABLE=1",
+          "+define+YSYX_BACKEND_ENTRIES=4",
+          "+define+YSYX_BACKEND_LOAD_OVERLAP=1",
+          "+define+YSYX_MULDIV_ENABLE=1",
+          "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+          "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+          "+define+YSYX_ICACHE_WAY_COUNT=4",
+          "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+          "+define+YSYX_ICACHE_LINE_BYTES=32",
+          "+define+YSYX_DCACHE_ENABLE=1",
+          "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+          "+define+YSYX_DCACHE_WAY_COUNT=2",
+          "+define+YSYX_DCACHE_LINE_BYTES=16",
+          "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+          "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+          "+define+YSYX_BRANCH_TARGET_POLICY=0",
+          "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+          "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+          "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+          "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/fence-driver.log"
+      },
+      {
+        "name": "interrupt",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/interrupt/run.py",
+          "+define+YSYX_RV32_BASELINE",
+          "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+          "+define+YSYX_BACKEND_ROB_ENABLE=1",
+          "+define+YSYX_BACKEND_ENTRIES=4",
+          "+define+YSYX_BACKEND_LOAD_OVERLAP=1",
+          "+define+YSYX_MULDIV_ENABLE=1",
+          "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+          "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+          "+define+YSYX_ICACHE_WAY_COUNT=4",
+          "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+          "+define+YSYX_ICACHE_LINE_BYTES=32",
+          "+define+YSYX_DCACHE_ENABLE=1",
+          "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+          "+define+YSYX_DCACHE_WAY_COUNT=2",
+          "+define+YSYX_DCACHE_LINE_BYTES=16",
+          "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+          "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+          "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+          "+define+YSYX_BRANCH_TARGET_POLICY=0",
+          "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+          "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+          "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+          "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/interrupt-driver.log"
+      },
+      {
+        "name": "kernel",
+        "command": [
+          "python3",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py",
+          "--simulator",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/build-fetch-div/top_sim",
+          "--output",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/kernel"
+        ],
+        "exit_code": 0,
+        "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-timing-20260929/checks/kernel-driver.log"
+      }
+    ]
+  },
+  "recovery_cases": 36,
+  "mixed_cycles": 6118,
+  "mixed_retired": 1961,
+  "raw_log_index": [
+    {
+      "path": "npc/result/backend-timing-20260929/baseline.json",
+      "bytes": 1590,
+      "sha256": "b8f1daf04b4e3286021a612e272bd9456bb1b850c8514fb6a751e27e4c1ca5a7"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/cleanup.json",
+      "bytes": 315,
+      "sha256": "30db3a108e6792e12aab5c9d4334122ad72ebb5d38e01dd37834dad1eee440c4"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/input-tests/report.json",
+      "bytes": 10291,
+      "sha256": "d7095267ae134f5d5257630bc58c8232d971c5fc1fc8d7999d0c757535a9dfcb"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/input-tests/run-scoreboard-2.log",
+      "bytes": 325,
+      "sha256": "b20d284c1028d9fc6f268de9c34304b9691feb2f0e7a728169b1fc704da425fd"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/input-tests/run-fetch_buffer-1.log",
+      "bytes": 387,
+      "sha256": "b77e41d9223cb4a5d2ccc1bd858350990a5ec16de85b76546478c85f873e6c5b"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/input-tests/run-scoreboard-4.log",
+      "bytes": 325,
+      "sha256": "6dd78da344973c8d6c2de420f09d4de92324be126c12d5cfe1ac65073e917271"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/input-tests/run-scoreboard-8.log",
+      "bytes": 325,
+      "sha256": "f1af4cd09ade1fa02fd45fafcebd34d8b31200a6db67396aeb6a3a94a31df712"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/input-tests/run-fetch_buffer-0.log",
+      "bytes": 387,
+      "sha256": "fe1672146a125a36dfe1046c3457bbd29e43c63655c5dca29391f56821f2ec0f"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/regressions.json",
+      "bytes": 6783,
+      "sha256": "fc542bd28c60bd2357c63681f9ad37e6cabe71e553694c6e4f0ec3729040e558"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/fence-driver.log",
+      "bytes": 21,
+      "sha256": "15fc5dd0270b701dbfa16b0e83a9e58674581a2be401a785fcf3e6870ac51f4c"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/exception-driver.log",
+      "bytes": 32,
+      "sha256": "8ef1067b99aef1071efbe22079a8e1a3c9ba6c18fea6ef3e44c34b71a01833cb"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/arithmetic-driver.log",
+      "bytes": 68,
+      "sha256": "ae4221f9917a356e91e095c221d66c7e20d61ad3440bd3a37707382b6ffc0d64"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/interrupt-driver.log",
+      "bytes": 14099,
+      "sha256": "19ce8918db5325a299273dfa1c63d9120155ca244bd823f599501ff1219ac58a"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/kernel-driver.log",
+      "bytes": 43,
+      "sha256": "337dacbfaf37be8fdbb51a5e44b82ec9d14721903a13e91c6a62fa0772093fc1"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/core-driver.log",
+      "bytes": 43,
+      "sha256": "31f76400eb6e7396e9a54344954a64a189a845a91d719512c9cc0631eab783ae"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/arithmetic/report.json",
+      "bytes": 1625,
+      "sha256": "fe09f94ef132c23fa0ba7f55e0988346a9bddcd168655b894359c08c58314cfb"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/core/report.json",
+      "bytes": 835,
+      "sha256": "af6495ec423cc63b86f1f1258b5bdc9849b1e6ee01704d737cc6d3f60bb06cc2"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/kernel/report.json",
+      "bytes": 3659,
+      "sha256": "39d98e456343809b925ee6161523151a5e3d125e304356b137e1f023fefc606c"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/exception/manifest.json",
+      "bytes": 31502,
+      "sha256": "9d363327170b137b98b98608a57a3678162fd375281dd54ec698b2eea3483a51"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks/fence/core/manifest.json",
+      "bytes": 59354,
+      "sha256": "6c4ac284d1fc96aa7433d49d1c069e7b932ff32becb5df978f77421d1d7420e5"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/mixed/report.json",
+      "bytes": 687,
+      "sha256": "1f0371754f859d5f16539c4d94b1af088e344cc13bb551ae4852db3a74d42858"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/mixed/mixed.log",
+      "bytes": 5715,
+      "sha256": "934002021b28be120d78e22e51f29f77d114f799d298e49a926bf3776ebc8dd3"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/mixed/mixed-build-0.log",
+      "bytes": 272,
+      "sha256": "0b3d72351276a4cc6be28bd4484366ffae27a7b9a812eeac0b9b360c3b4223e0"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/mixed/mixed-build-1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/mixed/mixed-build-2.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/recovery/report.json",
+      "bytes": 16119,
+      "sha256": "9469c31cdcc382c577db75df20662b34de9b8ab1a44195eedb9f8fae80d56759"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/checks-driver.log",
+      "bytes": 862,
+      "sha256": "34e606e816d3c632a5ff875f8bf4e96e3ae675eeb32959c217b084daec911bce"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/perf-600/report.json",
+      "bytes": 3500,
+      "sha256": "2390ffda1c9c6e35bf134cf3261c71df15e631261bcca37e33ecffda2f95b312"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/perf-700/report.json",
+      "bytes": 3524,
+      "sha256": "6b752430363236c0699ec92d2f45b82a6e8724787cb759c22fdc40c450141ea6"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/perf-600/manifest.json",
+      "bytes": 43860,
+      "sha256": "81b0fc1d937a79127ea084cb70c000bd69149553248d296c518abb416fa44bbd"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/perf-700/manifest.json",
+      "bytes": 43860,
+      "sha256": "b1d46f6c2ef7863e9a998e308aed31bfecf22ca931f0a8405af5bef054ce75c7"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/perf-700-driver.log",
+      "bytes": 6662,
+      "sha256": "59d5220eec87e13b9a958856e2c13732ddd7ee5f021c2e20a41252e21bbca6fd"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/perf-600-driver.log",
+      "bytes": 6662,
+      "sha256": "bc503e235373a18ec79254bc166142fb25c20014df5455b6a5377fe31e1df15b"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/parallel/qualified.json",
+      "bytes": 283,
+      "sha256": "30ab48546b327c2f63d98278d4c5b9086a7bbcd96c9b177c9a6e1ff8790e51f8"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/div-retire-only/qualified.json",
+      "bytes": 284,
+      "sha256": "bd22bad8a65ed65cebe56f195e1490c5a70dd2eac216a67169ad2be45a4b97a8"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/qualified.json",
+      "bytes": 284,
+      "sha256": "00dad2d69001300abd3cb3362dd19016a1203d15a7920196b094f6e73703cd71"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-only/qualified.json",
+      "bytes": 284,
+      "sha256": "aff4db64be4fdfdc31edea1ba633ac6a7146d556130ef2abf46e9ca82c6230e6"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/qualified.json",
+      "bytes": 283,
+      "sha256": "879c389ff4e81577494f9fe90bd1fc4d82569b23134e534366cb60b3c590f724"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/registered-fetch/qualified.json",
+      "bytes": 283,
+      "sha256": "68926cbea211d39f638a19e444f8a445d53d20a6e988b1636c5a85513eb209cc"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/parallel/timing.json",
+      "bytes": 1614,
+      "sha256": "5c340e2c6d43373b74a7a5374e30d1f832dd0d4594633bbf176d39ee44410e45"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/div-retire-only/timing.json",
+      "bytes": 1675,
+      "sha256": "e043429fba8676a6b5a7e31a3de66272d92fac43a30435bcb5056b9f8b0e0750"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/timing.json",
+      "bytes": 1579,
+      "sha256": "4ea7549ac6184e52c8f2e2b9c22b142c1a6b2b80f697248c7cadb9cd2f3abb76"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-only/timing.json",
+      "bytes": 1589,
+      "sha256": "07f816d213e752f0453913dae08c6f7f2e94a123716d837aebc65fe8f7da481b"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/timing.json",
+      "bytes": 1542,
+      "sha256": "175181036af2f32e266eb16de5cfad1dcc7a5f3b3cde4382a8224e55c60b41de"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/registered-fetch/timing.json",
+      "bytes": 2232,
+      "sha256": "8396643ef86cf90fee4f917b55e52efc74f116ef47c8b9831c4625025a31b00a"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/parallel/cells.json",
+      "bytes": 1309,
+      "sha256": "cbdacf8c5a146255090b7bb884a17b2e706afdf4f5e8d0c558b11084298e35e8"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/div-retire-only/cells.json",
+      "bytes": 1447,
+      "sha256": "99e5ab121b32f990b21f492134f6c903a99c7b94c5aabeeab9a7b1203479b34f"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/cells.json",
+      "bytes": 1427,
+      "sha256": "7b37f75a2c2e6b140b411848a539d145417af20a3902857c261e66a962036ada"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-only/cells.json",
+      "bytes": 1365,
+      "sha256": "6fe24d9f3a71bfdaa9fc48b91c5dd39e29bcfdf0f3607bbdd81d6f894131c062"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/cells.json",
+      "bytes": 1479,
+      "sha256": "7301533408cc5af72ee0c8bfcd8cea7e4e513af5b0ec6eb08b0fd0f52a49f2c6"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/registered-fetch/cells.json",
+      "bytes": 1272,
+      "sha256": "aeed67166289b84898aea880a32cd49b3871b9647b0470b98d4ef3d72f335295"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/parallel/command.json",
+      "bytes": 9911,
+      "sha256": "93486c08b347a51ab2704e0c956ce197fece93820c945892d36a7c059e368377"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/div-retire-only/command.json",
+      "bytes": 10331,
+      "sha256": "1385e803b585ffa31d1985ad21403717d3c7e3ccb6e0f8318e4be71d940af55a"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/command.json",
+      "bytes": 10391,
+      "sha256": "e043aed4fbd1d55596038344acf80d201c26a778487536a515084340ab2a3a34"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-only/command.json",
+      "bytes": 10031,
+      "sha256": "5c621c3a066f1f2479d1cd3652969488de7e906bde454a6004822a2b45542c7a"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/command.json",
+      "bytes": 10151,
+      "sha256": "1a4b83961cd2e682c103945422ca7ee3d75e76ecd57f84e3adbaafb116eac9c1"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/registered-fetch/command.json",
+      "bytes": 10391,
+      "sha256": "8a5497deb0aaf5845af7393da518de663665839ba34fc67ebf84033409724f3b"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/parallel/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "5697102a726841f4279860f40ae731cea978e3cdb255bed84f676e5706927206"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/div-retire-only/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "3aec807635fa6e90c8d2723c8bd80853f561149a0b9665bedd2725609bc44880"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "f81400fd4f0d204e37cc9cc4c35e2bbf1c6e3a9b2fb4a207e8fa5bba2608d670"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-only/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "f56b1b26a731c2d56936e2e8b2006fdf5309e56ebc594fbe8c2e8e814fa300a6"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "f81400fd4f0d204e37cc9cc4c35e2bbf1c6e3a9b2fb4a207e8fa5bba2608d670"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/registered-fetch/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "444c45e9786569115d238878a54a6a4a49769075a02d5e1ead687c2f6d140104"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/parallel/raw-reports.tar.gz",
+      "bytes": 10551053,
+      "sha256": "5d9c204f8fadd3614e0b740042dce2d080d7b816f5636de8e10e80b8e473aa60"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/div-retire-only/raw-reports.tar.gz",
+      "bytes": 405798,
+      "sha256": "27be1e758713180701face7d8ee96cf31d225cc49d7623918e77c90d514db975"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-only/raw-reports.tar.gz",
+      "bytes": 398617,
+      "sha256": "222e211b9b4eccfa08b8cb694a9b44fc915b7a45d7c41f640c7d7f296cbce3fc"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/registered-fetch/raw-reports.tar.gz",
+      "bytes": 10548606,
+      "sha256": "189900cf83ba2f87e0c9b3bae4914113b60c95f9cf24c1f9ff374da090c536c5"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 451122,
+      "sha256": "62e6754e67a9ca5260cd0d6bb35533c8bcdd3be41c14ad0a6ea86cbb262bf351"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 511920,
+      "sha256": "bf5bb8bb90df387c7c95919cf2688c2d42f1b812fdc2fbfabb035ded1221a8b3"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/sta/riscv32_core_reset_boundary-720MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 451152,
+      "sha256": "3c66b1c6652a649dbe3bf7bef729c1b579dd4543dcbf40e820c567ad4d24f0a1"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 481513,
+      "sha256": "59ee1f903afbf643a091f17e9e9cd6ae5480968df1f911b03f81ec83ea095a43"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 576903,
+      "sha256": "8099269b30b7a3be1cfe808a9d367bb9e1b653c921842e5c8187a81aef4fe730"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/sta/riscv32_core_reset_boundary-680MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 481483,
+      "sha256": "e235f69330c67b9d8f612714893afccbb86ced377707fa281c2a980861d1d78d"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/sta/riscv32_core_reset_boundary-700MHz-buffered/constraints.sdc",
+      "bytes": 1322,
+      "sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc",
+      "bytes": 1322,
+      "sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/fetch-div-retire/sta/riscv32_core_reset_boundary-720MHz-buffered/constraints.sdc",
+      "bytes": 1322,
+      "sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/sta/riscv32_core_reset_boundary-700MHz-buffered/constraints.sdc",
+      "bytes": 1322,
+      "sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc",
+      "bytes": 1322,
+      "sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+    },
+    {
+      "path": "npc/result/backend-timing-20260929/ppa/legacy-check/sta/riscv32_core_reset_boundary-680MHz-buffered/constraints.sdc",
+      "bytes": 1322,
+      "sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+    }
+  ],
+  "not_run": [
+    "full MicroBench train",
+    "formal verification",
+    "place and route",
+    "power analysis"
+  ]
+}

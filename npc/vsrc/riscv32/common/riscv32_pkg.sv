@@ -6,6 +6,11 @@ package riscv32_pkg;
   import riscv_config_pkg::*;
   import riscv_config_pkg::MULDIV_ENABLE;
   import riscv_config_pkg::MUL_PIPELINE_ENABLE;
+  import riscv_config_pkg::BACKEND_ROB_ENABLE;
+  import riscv_config_pkg::BACKEND_ENTRIES;
+  import riscv_config_pkg::BACKEND_LOAD_OVERLAP;
+  import riscv_config_pkg::LSU_ENTRIES;
+  import riscv_config_pkg::DCACHE_HIT_UNDER_MISS;
   export riscv_config_pkg::*;
   import riscv32_addr_map_pkg::*;
 
@@ -527,6 +532,9 @@ package riscv32_pkg;
   // occurred字段均表示本周期确实完成了对应握手或状态动作，而不是valid曾经出现。
   // lookup只统计进入D-cache的cacheable请求；uncached和访问错误由数据存储子系统另行处理。
   typedef struct packed {
+    mem_txn_id_t lookup_transaction_id;
+    mem_txn_id_t response_transaction_id;
+    mem_txn_id_t miss_transaction_id;
     logic lookup_event;
     logic lookup_is_store;
     // 响应首次present是D-cache访问延迟的终点；不等待LSU最终握手，避免把下游反压
@@ -793,5 +801,24 @@ package riscv32_pkg;
     core_data_t        memory_wdata;
     core_byte_strobe_t memory_wmask;
   } writeback_result_t;
+
+  // 可选顺序发射后端：身份只在有效条目的生命周期内使用。
+  localparam int unsigned BACKEND_TAG_W = $clog2(BACKEND_ENTRIES);
+  localparam int unsigned BACKEND_PORTS = 4;  // ALU、MUL、DIV、LSU 各自完成
+  typedef logic [BACKEND_TAG_W-1:0] backend_tag_t;
+  typedef struct packed {
+    logic valid;
+    backend_tag_t tag;
+    xlen_data_t value;
+    program_counter_t next_pc;
+    xlen_data_t csr_wdata;
+    effective_addr_t memory_addr;
+    core_data_t memory_rdata;
+    core_data_t memory_wdata;
+    core_byte_strobe_t memory_wmask;
+    logic exception_valid;
+    exception_cause_e exception_cause;
+    xlen_data_t exception_tval;
+  } backend_completion_t;
 
 endpackage

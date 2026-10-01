@@ -1,5 +1,9 @@
 # RV32 数据访存：原理与电路结构
 
+> 默认仍为单 miss 阻塞配置。2026-10-01 增加可选 load hit-under-miss；
+> 预留行、等待重读及响应仲裁见[并发访存设计](LSU_CONCURRENCY_DESIGN.md)，不改变本页默认配置。
+
+
 当前工作树，2026-09-21。`rv32-baseline` 的 D-cache 为 256 B、两路、16 B/行，
 采用阻塞式写回、写分配。参数从 [Makefile](../../Makefile) 统一进入 RTL。
 

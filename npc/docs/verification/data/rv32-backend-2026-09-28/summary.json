@@ -1,0 +1,1756 @@
+{
+  "ppa": {
+    "baseline-frozen": {
+      "qualification": {
+        "mhz": 700,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 117461.078,
+        "wall_seconds": 285.9915044307709,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:700"
+      },
+      "timing": {
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p:D",
+              "slack_ns": 0.006,
+              "fmax_mhz": 703.007
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.005,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        },
+        "720": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p:D",
+              "slack_ns": -0.027,
+              "fmax_mhz": 706.952
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.027,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+              "slack_ns": 0.06,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        }
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/execute/riscv32_div.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/execute/riscv32_mul.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/baseline-frozen/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_BACKEND_ROB_ENABLE=0",
+        "NPC_BACKEND_ENTRIES=4",
+        "NPC_BACKEND_LOAD_OVERLAP=0",
+        "NPC_MULDIV_ENABLE=1",
+        "NPC_MUL_PIPELINE_ENABLE=1",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_WAY_BITS=0",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_BRANCH_DIRECTION_POLICY=0",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4"
+      ]
+    },
+    "retained-legacy": {
+      "qualification": {
+        "mhz": 680,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 116993.982,
+        "wall_seconds": 267.06014609336853,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:680"
+      },
+      "timing": {
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_52_",
+              "slack_ns": -0.018,
+              "fmax_mhz": 691.364
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[2]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.01,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_legacy_exu.u_exu.gen_div.u_div.state_q_2__reg_p_QN_AOI211_X1_C2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        },
+        "680": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_52_",
+              "slack_ns": 0.015,
+              "fmax_mhz": 687.371
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[2]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.023,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_legacy_exu.u_exu.gen_div.u_div.state_q_2__reg_p_QN_AOI211_X1_C2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/execute/riscv32_div.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/execute/riscv32_mul.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/writeback/riscv32_rob.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/execute/riscv32_backend.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained-legacy/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_BACKEND_ROB_ENABLE=0",
+        "NPC_BACKEND_ENTRIES=4",
+        "NPC_BACKEND_LOAD_OVERLAP=0",
+        "NPC_MULDIV_ENABLE=1",
+        "NPC_MUL_PIPELINE_ENABLE=1",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_WAY_BITS=0",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_BRANCH_DIRECTION_POLICY=0",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4"
+      ]
+    },
+    "retained2": {
+      "qualification": {
+        "mhz": 620,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 116264.078,
+        "wall_seconds": 305.05877351760864,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:620"
+      },
+      "timing": {
+        "660": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[0]_163__reg_p:D",
+              "slack_ns": -0.038,
+              "fmax_mhz": 643.802
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_csr_file.u_pmu.minstret_low_q_31__INV_X1_A_ZN_NOR3_X1_A3_ZN_NAND3_X1_A2_ZN_NAND2_X1_A1_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.044,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 5,
+          "passed": false
+        },
+        "640": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[0]_163__reg_p:D",
+              "slack_ns": -0.001,
+              "fmax_mhz": 639.9
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_csr_file.u_pmu.minstret_low_q_31__INV_X1_A_ZN_NOR3_X1_A3_ZN_NAND3_X1_A2_ZN_NAND2_X1_A1_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.091,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 2,
+          "passed": false
+        },
+        "620": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[0]_163__reg_p:D",
+              "slack_ns": 0.039,
+              "fmax_mhz": 635.799
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.14,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/execute/riscv32_div.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/execute/riscv32_mul.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/writeback/riscv32_rob.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/execute/riscv32_backend.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained2/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_BACKEND_ROB_ENABLE=1",
+        "NPC_BACKEND_ENTRIES=2",
+        "NPC_BACKEND_LOAD_OVERLAP=1",
+        "NPC_MULDIV_ENABLE=1",
+        "NPC_MUL_PIPELINE_ENABLE=1",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_WAY_BITS=0",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_BRANCH_DIRECTION_POLICY=0",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4"
+      ]
+    },
+    "retained4": {
+      "qualification": {
+        "mhz": 600,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 120647.758,
+        "wall_seconds": 317.24880504608154,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:600"
+      },
+      "timing": {
+        "640": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[1]_133__reg_p:D",
+              "slack_ns": -0.053,
+              "fmax_mhz": 619.207
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.062,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI21_X1_B2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        },
+        "600": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[1]_133__reg_p:D",
+              "slack_ns": 0.03,
+              "fmax_mhz": 611.321
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.021,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI21_X1_B2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        },
+        "620": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[1]_133__reg_p:D",
+              "slack_ns": -0.013,
+              "fmax_mhz": 615.366
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.022,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI21_X1_B2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        }
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/execute/riscv32_div.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/execute/riscv32_mul.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/writeback/riscv32_rob.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/execute/riscv32_backend.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_BACKEND_ROB_ENABLE=1",
+        "NPC_BACKEND_ENTRIES=4",
+        "NPC_BACKEND_LOAD_OVERLAP=1",
+        "NPC_MULDIV_ENABLE=1",
+        "NPC_MUL_PIPELINE_ENABLE=1",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_WAY_BITS=0",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_BRANCH_DIRECTION_POLICY=0",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4"
+      ],
+      "audit_700mhz_2026_09_29": {
+        "source": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4/sta/riscv32_core_reset_boundary-820MHz-buffered",
+        "mhz": 700,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[1]_133__reg_p:D",
+            "slack_ns": -0.16,
+            "fmax_mhz": 629.651
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[6]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": -0.169,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI21_X1_B2_ZN_CLKGATE_X1_E:E",
+            "slack_ns": 0.094,
+            "fmax_mhz": null
+          }
+        }
+      }
+    },
+    "retained8": {
+      "qualification": {
+        "mhz": 380,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 128822.204,
+        "wall_seconds": 352.67737555503845,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:380"
+      },
+      "timing": {
+        "420": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[2]_103__reg_p:D",
+              "slack_ns": -0.172,
+              "fmax_mhz": 391.785
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.173,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI211_X1_C2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        },
+        "380": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[2]_103__reg_p:D",
+              "slack_ns": 0.028,
+              "fmax_mhz": 384.239
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.028,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI211_X1_C2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        },
+        "400": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[2]_103__reg_p:D",
+              "slack_ns": -0.076,
+              "fmax_mhz": 388.164
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_6__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.077,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI211_X1_C2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        }
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/execute/riscv32_div.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/execute/riscv32_mul.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/writeback/riscv32_rob.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/execute/riscv32_backend.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained8/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_BACKEND_ROB_ENABLE=1",
+        "NPC_BACKEND_ENTRIES=8",
+        "NPC_BACKEND_LOAD_OVERLAP=1",
+        "NPC_MULDIV_ENABLE=1",
+        "NPC_MUL_PIPELINE_ENABLE=1",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_WAY_BITS=0",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_BRANCH_DIRECTION_POLICY=0",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4"
+      ]
+    },
+    "retained4-noload": {
+      "qualification": {
+        "mhz": 580,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 120200.878,
+        "wall_seconds": 302.17971205711365,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:580"
+      },
+      "timing": {
+        "620": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[3]_163__reg_p:D",
+              "slack_ns": -0.055,
+              "fmax_mhz": 600.012
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[4]_2__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.025,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI21_X1_B2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        },
+        "600": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[3]_163__reg_p:D",
+              "slack_ns": -0.011,
+              "fmax_mhz": 596.166
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[4]_2__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.018,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI21_X1_B2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 5,
+          "passed": false
+        },
+        "580": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_rob.result_array_q[3]_163__reg_p:D",
+              "slack_ns": 0.035,
+              "fmax_mhz": 592.108
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[4]_2__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.065,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.gen_rob_backend.u_backend.u_div.state_q_2__reg_p_QN_AOI21_X1_B2_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/execute/riscv32_div.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/execute/riscv32_mul.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/writeback/riscv32_rob.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/execute/riscv32_backend.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/ppa/retained4-noload/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_BACKEND_ROB_ENABLE=1",
+        "NPC_BACKEND_ENTRIES=4",
+        "NPC_BACKEND_LOAD_OVERLAP=0",
+        "NPC_MULDIV_ENABLE=1",
+        "NPC_MUL_PIPELINE_ENABLE=1",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_WAY_BITS=0",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_BRANCH_DIRECTION_POLICY=0",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4"
+      ]
+    }
+  },
+  "correctness": {
+    "regressions": {
+      "simulator": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim",
+      "simulator_sha256": "2e5996c6659dc7a2865a0837a9f4b4831368c1b855ed76f2e7bbdc830ff62026",
+      "rtl_test_cpu_mhz": 700,
+      "note": "The supplied standalone simulator retains its build frequency; core and kernel comparisons use cycles, not a native SoC timer.",
+      "tests": [
+        {
+          "name": "core",
+          "command": [
+            "python3",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_mul_pipeline_core.py",
+            "--simulator",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim",
+            "--output",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/core"
+          ],
+          "exit_code": 0,
+          "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/core-driver.log"
+        },
+        {
+          "name": "arithmetic",
+          "command": [
+            "python3",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_muldiv_core.py",
+            "--simulator",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim",
+            "--output",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/arithmetic"
+          ],
+          "exit_code": 0,
+          "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/arithmetic-driver.log"
+        },
+        {
+          "name": "exception",
+          "command": [
+            "python3",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/exception/run.py",
+            "--output",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/exception",
+            "+define+YSYX_RV32_BASELINE",
+            "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+            "+define+YSYX_BACKEND_ROB_ENABLE=1",
+            "+define+YSYX_BACKEND_ENTRIES=4",
+            "+define+YSYX_BACKEND_LOAD_OVERLAP=1",
+            "+define+YSYX_MULDIV_ENABLE=1",
+            "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+            "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+            "+define+YSYX_ICACHE_WAY_COUNT=4",
+            "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+            "+define+YSYX_ICACHE_LINE_BYTES=32",
+            "+define+YSYX_DCACHE_ENABLE=1",
+            "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+            "+define+YSYX_DCACHE_WAY_COUNT=2",
+            "+define+YSYX_DCACHE_LINE_BYTES=16",
+            "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+            "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+            "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+            "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+            "+define+YSYX_BRANCH_TARGET_POLICY=0",
+            "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+            "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+            "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+            "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+          ],
+          "exit_code": 0,
+          "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/exception-driver.log"
+        },
+        {
+          "name": "fence",
+          "command": [
+            "python3",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_cache_recovery.py",
+            "--test",
+            "core",
+            "--output",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/fence",
+            "+define+YSYX_RV32_BASELINE",
+            "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+            "+define+YSYX_BACKEND_ROB_ENABLE=1",
+            "+define+YSYX_BACKEND_ENTRIES=4",
+            "+define+YSYX_BACKEND_LOAD_OVERLAP=1",
+            "+define+YSYX_MULDIV_ENABLE=1",
+            "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+            "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+            "+define+YSYX_ICACHE_WAY_COUNT=4",
+            "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+            "+define+YSYX_ICACHE_LINE_BYTES=32",
+            "+define+YSYX_DCACHE_ENABLE=1",
+            "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+            "+define+YSYX_DCACHE_WAY_COUNT=2",
+            "+define+YSYX_DCACHE_LINE_BYTES=16",
+            "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+            "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+            "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+            "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+            "+define+YSYX_BRANCH_TARGET_POLICY=0",
+            "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+            "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+            "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+            "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+          ],
+          "exit_code": 0,
+          "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/fence-driver.log"
+        },
+        {
+          "name": "interrupt",
+          "command": [
+            "python3",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/interrupt/run.py",
+            "+define+YSYX_RV32_BASELINE",
+            "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+            "+define+YSYX_BACKEND_ROB_ENABLE=1",
+            "+define+YSYX_BACKEND_ENTRIES=4",
+            "+define+YSYX_BACKEND_LOAD_OVERLAP=1",
+            "+define+YSYX_MULDIV_ENABLE=1",
+            "+define+YSYX_MUL_PIPELINE_ENABLE=1",
+            "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+            "+define+YSYX_ICACHE_WAY_COUNT=4",
+            "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+            "+define+YSYX_ICACHE_LINE_BYTES=32",
+            "+define+YSYX_DCACHE_ENABLE=1",
+            "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+            "+define+YSYX_DCACHE_WAY_COUNT=2",
+            "+define+YSYX_DCACHE_LINE_BYTES=16",
+            "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+            "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+            "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+            "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+            "+define+YSYX_BRANCH_TARGET_POLICY=0",
+            "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+            "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+            "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+            "+define+YSYX_SDRAM_NATIVE_READ_BURST=1"
+          ],
+          "exit_code": 0,
+          "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/interrupt-driver.log"
+        },
+        {
+          "name": "kernel",
+          "command": [
+            "python3",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py",
+            "--simulator",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim",
+            "--output",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/kernel"
+          ],
+          "exit_code": 0,
+          "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/kernel-driver.log"
+        }
+      ]
+    },
+    "arithmetic": {
+      "arithmetic_cases": 2803,
+      "difftest": true,
+      "misa_and_precise_trap": true,
+      "commands": [
+        [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim",
+          "--batch",
+          "--diff",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/arithmetic/arithmetic.bin"
+        ],
+        [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim",
+          "--batch",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/arithmetic/traps.bin"
+        ]
+      ],
+      "sha256": {
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim": "2e5996c6659dc7a2865a0837a9f4b4831368c1b855ed76f2e7bbdc830ff62026",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/arithmetic/arithmetic.bin": "98c6a80455bd2ab4f6d2ace331bb42fb375c98903c7e9b002a10d33887dbc9cc",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/arithmetic/traps.bin": "037fb7b47ce4358091648722b6624f546c7b6464e4497e6e8343ca704d3b9639",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_muldiv_core.py": "cc0539c3e29c506ea51ae64b23a3517d39e772b79a7ae5312c761595b805cb79"
+      }
+    },
+    "precise_exception_cases": 40,
+    "fence_core_cases": 100,
+    "rob_random": [
+      {
+        "entries": 2,
+        "cycles": 10000,
+        "passed": true
+      },
+      {
+        "entries": 4,
+        "cycles": 10000,
+        "passed": true
+      },
+      {
+        "entries": 8,
+        "cycles": 10000,
+        "passed": true
+      }
+    ],
+    "recovery_cases": [
+      {
+        "name": "delay0-fault0",
+        "passed": true,
+        "result": "PASS backend delay=0 fault=0 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay0-fault1",
+        "passed": true,
+        "result": "PASS backend delay=0 fault=1 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay1-fault0",
+        "passed": true,
+        "result": "PASS backend delay=1 fault=0 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay1-fault1",
+        "passed": true,
+        "result": "PASS backend delay=1 fault=1 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay25-fault0",
+        "passed": true,
+        "result": "PASS backend delay=25 fault=0 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay25-fault1",
+        "passed": true,
+        "result": "PASS backend delay=25 fault=1 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay26-fault0",
+        "passed": true,
+        "result": "PASS backend delay=26 fault=0 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay26-fault1",
+        "passed": true,
+        "result": "PASS backend delay=26 fault=1 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay27-fault0",
+        "passed": true,
+        "result": "PASS backend delay=27 fault=0 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay27-fault1",
+        "passed": true,
+        "result": "PASS backend delay=27 fault=1 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay28-fault0",
+        "passed": true,
+        "result": "PASS backend delay=28 fault=0 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay28-fault1",
+        "passed": true,
+        "result": "PASS backend delay=28 fault=1 requests=2 discarded=0 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay29-fault0",
+        "passed": true,
+        "result": "PASS backend delay=29 fault=0 requests=2 discarded=0 simultaneous_flush_response=1 retired=11"
+      },
+      {
+        "name": "delay29-fault1",
+        "passed": true,
+        "result": "PASS backend delay=29 fault=1 requests=2 discarded=0 simultaneous_flush_response=1 retired=11"
+      },
+      {
+        "name": "delay30-fault0",
+        "passed": true,
+        "result": "PASS backend delay=30 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay30-fault1",
+        "passed": true,
+        "result": "PASS backend delay=30 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay31-fault0",
+        "passed": true,
+        "result": "PASS backend delay=31 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay31-fault1",
+        "passed": true,
+        "result": "PASS backend delay=31 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay32-fault0",
+        "passed": true,
+        "result": "PASS backend delay=32 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay32-fault1",
+        "passed": true,
+        "result": "PASS backend delay=32 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay33-fault0",
+        "passed": true,
+        "result": "PASS backend delay=33 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay33-fault1",
+        "passed": true,
+        "result": "PASS backend delay=33 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay34-fault0",
+        "passed": true,
+        "result": "PASS backend delay=34 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay34-fault1",
+        "passed": true,
+        "result": "PASS backend delay=34 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay35-fault0",
+        "passed": true,
+        "result": "PASS backend delay=35 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay35-fault1",
+        "passed": true,
+        "result": "PASS backend delay=35 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay36-fault0",
+        "passed": true,
+        "result": "PASS backend delay=36 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay36-fault1",
+        "passed": true,
+        "result": "PASS backend delay=36 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay37-fault0",
+        "passed": true,
+        "result": "PASS backend delay=37 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay37-fault1",
+        "passed": true,
+        "result": "PASS backend delay=37 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay38-fault0",
+        "passed": true,
+        "result": "PASS backend delay=38 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay38-fault1",
+        "passed": true,
+        "result": "PASS backend delay=38 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay39-fault0",
+        "passed": true,
+        "result": "PASS backend delay=39 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay39-fault1",
+        "passed": true,
+        "result": "PASS backend delay=39 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay100-fault0",
+        "passed": true,
+        "result": "PASS backend delay=100 fault=0 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      },
+      {
+        "name": "delay100-fault1",
+        "passed": true,
+        "result": "PASS backend delay=100 fault=1 requests=2 discarded=1 simultaneous_flush_response=0 retired=11"
+      }
+    ],
+    "mixed_baseline": {
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-baseline/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/mixed-baseline-new/mixed.bin"
+      ],
+      "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+      "cycles": 6649,
+      "retired": 1961,
+      "backend_counters": []
+    },
+    "mixed_rob4": {
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-mixed/mixed.bin"
+      ],
+      "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+      "cycles": 5988,
+      "retired": 1961,
+      "backend_counters": [
+        "NPC ROB: entries=4 load_overlap=1 cycles=5986 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=128 discarded_load=0 head_wait=3987 occupancy_sum=23495"
+      ]
+    },
+    "quantized_baseline": {
+      "workload": "scalar-int8-dot-normalize",
+      "checksum": "0x0",
+      "timing_scope": "whole standalone NPC program, flat memory; not SoC timer",
+      "cpu": "same RV32IM balanced simulator for both software images",
+      "records": [
+        {
+          "isa": "rv32i",
+          "cycles": 2385341,
+          "retired": 2065811,
+          "ipc": 0.866044309807277,
+          "build_command": [
+            "riscv64-linux-gnu-gcc",
+            "-march=rv32i_zicsr_zifencei",
+            "-mabi=ilp32",
+            "-nostdlib",
+            "-static",
+            "-fno-pic",
+            "-fno-pie",
+            "-mcmodel=medany",
+            "-ffreestanding",
+            "-fno-builtin",
+            "-msmall-data-limit=0",
+            "-O2",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--no-relax,--build-id=none,--gc-sections",
+            "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/kernel-baseline/test.ld",
+            "-DEXPECTED_CHECKSUM=0u",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/kernel-baseline/start.S",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+            "-o",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/kernel-baseline/rv32i.elf"
+          ],
+          "image_sha256": "b14ef89582bc07af888c3f96385a90424aa92ae4760aec1879877c693f0b220d"
+        },
+        {
+          "isa": "rv32im",
+          "cycles": 192451,
+          "retired": 151125,
+          "ipc": 0.7852648206556474,
+          "build_command": [
+            "riscv64-linux-gnu-gcc",
+            "-march=rv32im_zicsr_zifencei",
+            "-mabi=ilp32",
+            "-nostdlib",
+            "-static",
+            "-fno-pic",
+            "-fno-pie",
+            "-mcmodel=medany",
+            "-ffreestanding",
+            "-fno-builtin",
+            "-msmall-data-limit=0",
+            "-O2",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--no-relax,--build-id=none,--gc-sections",
+            "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/kernel-baseline/test.ld",
+            "-DEXPECTED_CHECKSUM=0u",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/kernel-baseline/start.S",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+            "-o",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/kernel-baseline/rv32im.elf"
+          ],
+          "image_sha256": "d9e4031247fbe03822de424551501841efc579581c9724b04861c89c18c59688"
+        }
+      ],
+      "sha256": {
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c": "4c6f6b70275966a2d65aa7c501f5a7d5f5310ece88c940b52aec7be774f9d108",
+        "npc/result/backend-rob/build-baseline/top_sim": "b8d575fb7d9064d845841e5e9a2f6185cd9dbb683873d99450489fb3bd921530",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py": "ebdf94682a7c5463ce3a0bd73b2ed1a54cfd34c477f3d1867d0ce225ed1e110d"
+      },
+      "speedup_same_frequency": 12.39453679118321
+    },
+    "quantized_rob4": {
+      "workload": "scalar-int8-dot-normalize",
+      "checksum": "0x0",
+      "timing_scope": "whole standalone NPC program, flat memory; not SoC timer",
+      "cpu": "same RV32IM balanced simulator for both software images",
+      "records": [
+        {
+          "isa": "rv32i",
+          "cycles": 2385463,
+          "retired": 2065811,
+          "ipc": 0.8660000176066449,
+          "build_command": [
+            "riscv64-linux-gnu-gcc",
+            "-march=rv32i_zicsr_zifencei",
+            "-mabi=ilp32",
+            "-nostdlib",
+            "-static",
+            "-fno-pic",
+            "-fno-pie",
+            "-mcmodel=medany",
+            "-ffreestanding",
+            "-fno-builtin",
+            "-msmall-data-limit=0",
+            "-O2",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--no-relax,--build-id=none,--gc-sections",
+            "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/kernel/test.ld",
+            "-DEXPECTED_CHECKSUM=0u",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/kernel/start.S",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+            "-o",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/kernel/rv32i.elf"
+          ],
+          "image_sha256": "b14ef89582bc07af888c3f96385a90424aa92ae4760aec1879877c693f0b220d"
+        },
+        {
+          "isa": "rv32im",
+          "cycles": 191851,
+          "retired": 151125,
+          "ipc": 0.7877206790686523,
+          "build_command": [
+            "riscv64-linux-gnu-gcc",
+            "-march=rv32im_zicsr_zifencei",
+            "-mabi=ilp32",
+            "-nostdlib",
+            "-static",
+            "-fno-pic",
+            "-fno-pie",
+            "-mcmodel=medany",
+            "-ffreestanding",
+            "-fno-builtin",
+            "-msmall-data-limit=0",
+            "-O2",
+            "-ffunction-sections",
+            "-fdata-sections",
+            "-Wl,--no-relax,--build-id=none,--gc-sections",
+            "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/kernel/test.ld",
+            "-DEXPECTED_CHECKSUM=0u",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/kernel/start.S",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+            "-o",
+            "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/retained-checks/kernel/rv32im.elf"
+          ],
+          "image_sha256": "d9e4031247fbe03822de424551501841efc579581c9724b04861c89c18c59688"
+        }
+      ],
+      "sha256": {
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c": "4c6f6b70275966a2d65aa7c501f5a7d5f5310ece88c940b52aec7be774f9d108",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/backend-rob/build-retained/top_sim": "2e5996c6659dc7a2865a0837a9f4b4831368c1b855ed76f2e7bbdc830ff62026",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py": "ebdf94682a7c5463ce3a0bd73b2ed1a54cfd34c477f3d1867d0ce225ed1e110d"
+      },
+      "speedup_same_frequency": 12.433935710525356
+    },
+    "scope": "Full directed core/exception/fence/interrupt coverage on ROB4 load_overlap=1; random ROB queue and native MicroBench test cover 2/4/8. No full train, formal proof, or exhaustive parameter coverage."
+  },
+  "cleanup": {
+    "freed_bytes": 9758556081,
+    "records": [
+      {
+        "experiment": "rob4-load",
+        "raw_reports": "npc/result/backend-rob/ppa/rob4-load/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/rob4-load/sta",
+        "archive_sha256": "79fe04e0b941ceb6902304e115f27ac43f6e364cb8936f443bf2627cdbed011c"
+      },
+      {
+        "experiment": "rob4-load-v2",
+        "raw_reports": "npc/result/backend-rob/ppa/rob4-load-v2/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/rob4-load-v2/sta",
+        "archive_sha256": "f655ccf9f49104a2d94d236e9bc9453cccac5ecef636961b11588d77b5db38ae"
+      },
+      {
+        "experiment": "rob4-load-v3",
+        "raw_reports": "npc/result/backend-rob/ppa/rob4-load-v3/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/rob4-load-v3/sta",
+        "archive_sha256": "c4cdc9ea55ef853f6a29e91ef715c07ec6449bc7235d74a8d4a92d8329fb16e9"
+      },
+      {
+        "experiment": "rob4-versions",
+        "raw_reports": "npc/result/backend-rob/ppa/rob4-versions/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/rob4-versions/sta",
+        "archive_sha256": "6dbd3f29494819ba36913d07829b6934443baa0897b6d14e09168e8262e424db"
+      },
+      {
+        "experiment": "rob4-no-allocate-adder",
+        "raw_reports": "npc/result/backend-rob/ppa/rob4-no-allocate-adder/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/rob4-no-allocate-adder/sta",
+        "archive_sha256": "5a719ff86093859950905d819ef4c1be81e0d0bf18ada51d97a6cd5dca2f2540"
+      },
+      {
+        "experiment": "final2",
+        "raw_reports": "npc/result/backend-rob/ppa/final2/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/final2/sta",
+        "archive_sha256": "eff1be031855bd607ab8d5a2ab4456bf46c481b020d6dfd0566f65d983d00834"
+      },
+      {
+        "experiment": "final4",
+        "raw_reports": "npc/result/backend-rob/ppa/final4/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/final4/sta",
+        "archive_sha256": "8417def557cb8d6b9e9f64e8648460fd90c07b392caaac0ea917230bcbb0610b"
+      },
+      {
+        "experiment": "final8",
+        "raw_reports": "npc/result/backend-rob/ppa/final8/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/final8/sta",
+        "archive_sha256": "84f282c383fb99c9c030d7ab7c804ebcf09c37ae42df3d2094a969f4db3a0767"
+      },
+      {
+        "experiment": "selected2",
+        "raw_reports": "npc/result/backend-rob/ppa/selected2/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/selected2/sta",
+        "archive_sha256": "f34802f3b87681d25b0fe1a3b3349afbac24c7f0e5dcb5805a1a812ef23e1dd4"
+      },
+      {
+        "experiment": "selected4",
+        "raw_reports": "npc/result/backend-rob/ppa/selected4/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/selected4/sta",
+        "archive_sha256": "3594761badd2e1b17c69bc48c84eb7f21eb79eeec8698dfbef68b0c1d327af73"
+      },
+      {
+        "experiment": "selected8",
+        "raw_reports": "npc/result/backend-rob/ppa/selected8/raw-reports.tar.gz",
+        "removed_generated_directory": "npc/result/backend-rob/ppa/selected8/sta",
+        "archive_sha256": "0d01f9755bece910c3de530253408f8236aeafc069c8e534d0ca9b0a26b60312"
+      }
+    ]
+  },
+  "raw_evidence_index": [
+    {
+      "path": "npc/result/backend-rob/ppa/baseline-frozen/qualified.json",
+      "bytes": 283,
+      "sha256": "9567323efd7b5d8686d7267ce4a758cd5f7164dd064d0782bb276f3da17f4aa6"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/baseline-frozen/timing.json",
+      "bytes": 1713,
+      "sha256": "39b0302879cc7e4778785b998fd6a35eb3b307a6b7bbc48f4fe2d6f4c6592d12"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/baseline-frozen/source-hashes.json",
+      "bytes": 6925,
+      "sha256": "c568cbd032bcfa327dad95e555a5151c6ff2f75c8dc9fbba59c60057dc90c4ae"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/baseline-frozen/command.json",
+      "bytes": 9176,
+      "sha256": "4a7067519328509f58c874c5ef087a3a851c64aa900ea2f9945d6d99651c4cc4"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/baseline-frozen/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 493045,
+      "sha256": "6268616bed9bf644fe258b6d16a81dc60e8ca1e669406827faf0c508f48da5ae"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained-legacy/qualified.json",
+      "bytes": 284,
+      "sha256": "7c2afddeb23d52a367bf3692bcfd2a213eb080541d0df2f5a18b94f7e332f1b7"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained-legacy/timing.json",
+      "bytes": 1542,
+      "sha256": "175181036af2f32e266eb16de5cfad1dcc7a5f3b3cde4382a8224e55c60b41de"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained-legacy/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "6427b31ebd5815ef50f9028e83c21128bd893666713d9f154d43be921589aa67"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained-legacy/command.json",
+      "bytes": 9611,
+      "sha256": "42bd6a757898c6d5266285d6a8d1af258ea607e700c451019fcca1de3adc3134"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained-legacy/sta/riscv32_core_reset_boundary-680MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 481483,
+      "sha256": "7c823b9455f665da1c75b50248306048d5f9b7047dd85e98fe66e70105ce6451"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained2/qualified.json",
+      "bytes": 284,
+      "sha256": "5e5e7df0fa04f78698b21a396ecb723fa66bf85cedc1fbf00a622310e62ee769"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained2/timing.json",
+      "bytes": 2481,
+      "sha256": "f257b71ea50dcd87bde1e91eac9a72c756229168aaba8d196955443307644ff3"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained2/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "6427b31ebd5815ef50f9028e83c21128bd893666713d9f154d43be921589aa67"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained2/command.json",
+      "bytes": 9251,
+      "sha256": "d5cc7f7528b6b2a0529f83046a5156ce0d39ffd8f103ed54c886091fc6261af9"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained2/sta/riscv32_core_reset_boundary-620MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 423502,
+      "sha256": "2f2c90c2148881931aef40b03c73609d6c2215cf64510ea725875dd84e3fd070"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4/qualified.json",
+      "bytes": 284,
+      "sha256": "bc69c235d64a17dd6bf09fcf889eb223ce5187968eb9be8501d37e327c1491d9"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4/timing.json",
+      "bytes": 2440,
+      "sha256": "b719878ba410215bef5b367bf62954ae6f809d69960c58b73d030f6202dbe224"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "6427b31ebd5815ef50f9028e83c21128bd893666713d9f154d43be921589aa67"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4/command.json",
+      "bytes": 9251,
+      "sha256": "99ba0703627064d76a81245bf18c98f6a6d9296d82f35100b54ada4b76152394"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4/sta/riscv32_core_reset_boundary-600MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 619222,
+      "sha256": "e6e820955edd7a98ecae9e047845b566796a86d51feed54bd975f7fa6ef9dddd"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained8/qualified.json",
+      "bytes": 284,
+      "sha256": "627c182e0016646b8124a2d2f6e21402b76c210e308321ef66be8babd99a9ee2"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained8/timing.json",
+      "bytes": 2444,
+      "sha256": "8090a58a07412b7ac157bec815ed0397151cc106e8e2b02bf2cd4ddc88d95022"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained8/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "6427b31ebd5815ef50f9028e83c21128bd893666713d9f154d43be921589aa67"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained8/command.json",
+      "bytes": 9251,
+      "sha256": "42f34d32cdf2cf9dcc9768424b67d213e576394f3911c37d5d5f1cb62bf34d1b"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained8/sta/riscv32_core_reset_boundary-380MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 1239044,
+      "sha256": "613b1f77e79fa526c1468f2b3f5b90ccdb3be632cd081b258dfb4a762598b13a"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4-noload/qualified.json",
+      "bytes": 284,
+      "sha256": "f946eef38b8bcf309c7c34d117e851c232507b6791cd8e632d704b01ea4ce780"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4-noload/timing.json",
+      "bytes": 2439,
+      "sha256": "9431875c89a9cfc6d0f220bd190d4f540a7f506d4b5cb81813985e5c65f7a877"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4-noload/source-hashes.json",
+      "bytes": 7291,
+      "sha256": "6427b31ebd5815ef50f9028e83c21128bd893666713d9f154d43be921589aa67"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4-noload/command.json",
+      "bytes": 9671,
+      "sha256": "00c2426140d6aac09d92c59c262378847193f7552f9e9cb73bb66c87674c2da3"
+    },
+    {
+      "path": "npc/result/backend-rob/ppa/retained4-noload/sta/riscv32_core_reset_boundary-580MHz-buffered/riscv32_core_reset_boundary.rpt",
+      "bytes": 581907,
+      "sha256": "35e7b962394b9ee351810caa92c2b0405147c59b627151c61ff5ebbc49feff7f"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-checks/regressions.json",
+      "bytes": 6698,
+      "sha256": "57267f605bc7c9963cb65c94f9707fd9a245e0a3009f8fd0f492ac05dd77695e"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-checks/arithmetic/report.json",
+      "bytes": 1574,
+      "sha256": "c21338ebef66b552a89feb9687df545503c1048ba16bfd278de5e751200c267e"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-checks/exception/manifest.json",
+      "bytes": 31379,
+      "sha256": "0c51b0b5ce6de70a9208de052c7b0d1d34702c5282ac4d3bf05ed0871750bd15"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-checks/fence-driver.log",
+      "bytes": 21,
+      "sha256": "15fc5dd0270b701dbfa16b0e83a9e58674581a2be401a785fcf3e6870ac51f4c"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-checks/interrupt-driver.log",
+      "bytes": 13976,
+      "sha256": "3a7a73b11a75f57d5b28a4fc3f2f08e402c163c42e232e5bee33596f69f3f768"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-mixed/report.json",
+      "bytes": 671,
+      "sha256": "493b24e1052c9c41ed60e4bc1de0444378da7f7af7053b377314d3cae26cb526"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-mixed/mixed.log",
+      "bytes": 5708,
+      "sha256": "1c2115a86515948a9876cc2946849d4c1fe938eedfc16984ff4711b39043bcdd"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-recovery/report.json",
+      "bytes": 16008,
+      "sha256": "796f9b03cfeb23556cea95f93c034077d63ce84767bc69bd229743c3839b0378"
+    },
+    {
+      "path": "npc/result/backend-rob/queue-metadata/report.json",
+      "bytes": 5811,
+      "sha256": "18f72a8d5095ba3b543d54a8a8fc03a7a33819501087acce44a30da2feb44742"
+    },
+    {
+      "path": "npc/result/backend-rob/retained-checks/kernel/report.json",
+      "bytes": 3628,
+      "sha256": "9fe00fa3789a72b54263ca5413552569898683fd800c0569e6ade08d5759eb46"
+    },
+    {
+      "path": "npc/result/backend-rob/mixed-baseline-new/report.json",
+      "bytes": 496,
+      "sha256": "165613859d850113de77642d25cf009fad69ff66027c56b8a5bb169485f49e7f"
+    },
+    {
+      "path": "npc/result/backend-rob/kernel-baseline/report.json",
+      "bytes": 3538,
+      "sha256": "42f4ff57c9f38a4cfa7c878d5788c3e6bdaa226fb432b728417ea8cc4f9ab72f"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained-legacy-380/report.json",
+      "bytes": 3606,
+      "sha256": "5bde884e5e6907a8fefae563b180cbeb98ecdc9fd7c14895bf7f4830b5e1d635"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained-legacy-380/manifest.json",
+      "bytes": 43840,
+      "sha256": "f9b27ff32a085448b6aa48b30be8049bc18604a3ba8f628b6d391e63c882f3df"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained-legacy-380/simulation.log",
+      "bytes": 6015,
+      "sha256": "358ef766acc2af32ff4a519e1b223ee93031783965b2691327dba748dd51dea8"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained-legacy-380/timer-events.jsonl",
+      "bytes": 4321,
+      "sha256": "eb9358d5f92f9a0b25aa58a8af30029323ff0792af786d5a74622f6335861212"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained-legacy-680/report.json",
+      "bytes": 3610,
+      "sha256": "42426a11e33d4beb17d1ea2adbea63612a234a9e4673e22faa9a98d6071dbf9a"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained-legacy-680/manifest.json",
+      "bytes": 43840,
+      "sha256": "df3bffcf688c8b9fb27e9bcdc994f5e67340776b56bdf3828a258dcda379de1d"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained-legacy-680/simulation.log",
+      "bytes": 6024,
+      "sha256": "f3b446cb02f33878a2089197586b1a1ba07c1c64ca5b1aa52b531792b7b27255"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained-legacy-680/timer-events.jsonl",
+      "bytes": 4332,
+      "sha256": "45b2141f61fed168b217297a59ee185d3ad229930ce6bf9096ea69e34592d2a5"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained2-380/report.json",
+      "bytes": 3605,
+      "sha256": "05ce9b753a4d655b7598cf4ff1de0193aa4255006d6e50275ad3fb35946e22af"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained2-380/manifest.json",
+      "bytes": 43860,
+      "sha256": "7a83a0b61d69d33b5cc54f3c89e613a8dd65d35a8c0ecea1b77466c760aa2621"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained2-380/simulation.log",
+      "bytes": 6197,
+      "sha256": "697c386c06623eed53a9e00051a69a94c2cc7f6604cfb0f02cd4c3a1ce5f77ac"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained2-380/timer-events.jsonl",
+      "bytes": 4323,
+      "sha256": "4d608e7ce5eab342f28d28fb1bc2df5071baec7aa62177882d78774e1ca7862c"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained2-620/report.json",
+      "bytes": 3574,
+      "sha256": "6e5454c47ac0b4effb01a6fbd2a7cb9570fa51afb366644e3bbbceb18d3756a3"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained2-620/manifest.json",
+      "bytes": 43860,
+      "sha256": "31792e1bde509d364a8dce387e37005c4e7730ac6fad07596df75c87ef0dc9ef"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained2-620/simulation.log",
+      "bytes": 6204,
+      "sha256": "7a8b5f94964bda40376160fc600834cd3e867d5d506efe61a927164223e28c94"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained2-620/timer-events.jsonl",
+      "bytes": 4333,
+      "sha256": "b7c9449ae42db61ee279299bd5138014b1a9d79eb079e1543f19abc796f78b6e"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-380/report.json",
+      "bytes": 3565,
+      "sha256": "29d197073499d85e52eac620f0b217133befe15652821c741dfbbb6130490dbc"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-380/manifest.json",
+      "bytes": 43860,
+      "sha256": "93f760f38fa34beddc2591269faed77bf8a7b3b242abc7f17ac7e8af10936630"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-380/simulation.log",
+      "bytes": 6199,
+      "sha256": "aa304f870eb066b56786b4740c50dc821084b5d2ab4204bd8e258a5e77c3c7d6"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-380/timer-events.jsonl",
+      "bytes": 4321,
+      "sha256": "4f6d7042a0c9ed7d99482eb48a4f6ebf7fe5b5b0b8a20b176f9d71a1a8911fba"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-600/report.json",
+      "bytes": 3512,
+      "sha256": "44f98650c1221d31095814fb1902a6e4336b96552effd1ecfa2d7d8dac3a06f7"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-600/manifest.json",
+      "bytes": 43860,
+      "sha256": "7472382aebaa0c40cfdf34add6d4c79aeb9807ceb97a2de8c414f9141350bc0f"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-600/simulation.log",
+      "bytes": 6207,
+      "sha256": "231f28be4cb3404218c6cb524fc9f9db4bb588a647a9546907c732d44a54f753"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-600/timer-events.jsonl",
+      "bytes": 4333,
+      "sha256": "fced2ce538ce697655609475edb84cb58e6046194304cda08c3d8d94ccc9004d"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained8-380/report.json",
+      "bytes": 3577,
+      "sha256": "bd7b88affa1d6cbc5acf017ff6605d741778d232e831d4a7c9cf7057d9b5826d"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained8-380/manifest.json",
+      "bytes": 43860,
+      "sha256": "ad9022fa3724ae0a70fef62be0ce029f30939448ca8eb54cee283e1d5e485a4d"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained8-380/simulation.log",
+      "bytes": 6200,
+      "sha256": "38e20214d13d34be47af590deb6a2f30c69984c18164b1b579fa66d573f1fd89"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained8-380/timer-events.jsonl",
+      "bytes": 4321,
+      "sha256": "4a209ae82697852f96416c45c2149621f796e142e19fc1be75b6e9ad77b703fa"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-noload-380/report.json",
+      "bytes": 3567,
+      "sha256": "2d8f10ff72edeecadf9f3d4f540f43a1e90f14e1fe70fb3028a994800aab698e"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-noload-380/manifest.json",
+      "bytes": 43860,
+      "sha256": "3adab8369c7d03cf191affad49de0500fc5f0a0adf66995a6d97e28427605c95"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-noload-380/simulation.log",
+      "bytes": 6186,
+      "sha256": "1b6b4a8a9239ad1669367bf08f0fe3e0c75c2465130696d182569d9709ae30cf"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-noload-380/timer-events.jsonl",
+      "bytes": 4323,
+      "sha256": "e156e0385bab5a438c0872694c0e8fc78b39304f540f9b251fafb90fd4ec4314"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-noload-580/report.json",
+      "bytes": 3582,
+      "sha256": "6b5350f263031634b7bdd8fb146cf4d71ab14d22e8de2a38be6c7d5982330e6f"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-noload-580/manifest.json",
+      "bytes": 43860,
+      "sha256": "215c69348698448916a155361957dc131f5435a18efb58a2ed7ca57532eb3c51"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-noload-580/simulation.log",
+      "bytes": 6193,
+      "sha256": "a1fe851d07fae4c3dad9ca323852a688a217e2c98c77a0e8adc2eb1bcaea17aa"
+    },
+    {
+      "path": "npc/result/backend-rob/legal-comparison/retained4-noload-580/timer-events.jsonl",
+      "bytes": 4333,
+      "sha256": "90bd69375c4765fd1e2d456d709e97b79840fde5a0097a0d10e7c19596f5fd7b"
+    },
+    {
+      "path": "npc/result/backend-rob/sta700-audit-20260929/timing.json",
+      "bytes": 874,
+      "sha256": "0d049baf471712a0997d5ce4e99ca9b1f7a04b03214e9ee961243ac0c79dfc65"
+    },
+    {
+      "path": "npc/result/backend-rob/sta700-audit-20260929/command.json",
+      "bytes": 533,
+      "sha256": "95306a26e4b6adaf76c158c72a28f5d37d574d664d56575772a8174ab124ebfd"
+    },
+    {
+      "path": "npc/result/backend-rob/sta700-audit-20260929/riscv32_core_reset_boundary.rpt",
+      "bytes": 619264,
+      "sha256": "ddcd1806493f6e6bf83a457083e91c54341c4d3ada1f95378c7f523326075068"
+    }
+  ]
+}

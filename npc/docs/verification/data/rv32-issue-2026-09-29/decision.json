@@ -1,0 +1,22 @@
+{
+  "selected": "explicit Issue + uniform ROB completion/Commit + parallel PMA attributes",
+  "default_rob_enabled": false,
+  "final_mhz": 720,
+  "next_grid_mhz_failed": 740,
+  "area_um2": 121906.47,
+  "same_680_total_cycle_change": 0.018697911365793463,
+  "own_legal_frequency_total_time_change_vs_current_legacy": 0.004878095332540244,
+  "area_time_change_vs_current_legacy": 0.045600610972574396,
+  "total_time_change_vs_previous_rob": -0.0024274624589548655,
+  "reasons": [
+    "Explicit stage ownership replaces forced fetch FIFO latency.",
+    "Uniform ROB completion keeps Issue forwarding and removes FU-specific retirement muxes.",
+    "Parallel PMA changes timing, not measured 700 MHz cycles.",
+    "Mixed independent FUs improve, but MicroBench does not justify default ROB enablement."
+  ],
+  "rejected": [
+    "Issue only: 680 MHz and larger area than uniform completion.",
+    "Claim that ROB speeds up all MicroBench workloads.",
+    "Extra arbitrary operand cache, extra LSU register, weakened constraints or changed delay model."
+  ]
+}

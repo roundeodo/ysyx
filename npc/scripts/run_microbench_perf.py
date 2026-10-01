@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build and run uninstrumented RV32 MicroBench with passive timer/retire sampling."""
 import argparse
+from result_workspace import ResultWorkspace
 import fcntl
 from decimal import Decimal
 import hashlib
@@ -175,6 +176,11 @@ def run_logged(command, path, env, echo=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--backend-rob', choices=[0, 1], type=int, default=0)
+    parser.add_argument('--backend-entries', choices=[2, 4, 8], type=int, default=4)
+    parser.add_argument('--load-overlap', choices=[0, 1], type=int, default=0)
+    parser.add_argument('--lsu-entries', choices=[1, 2], type=int, default=1)
+    parser.add_argument('--dcache-hit-under-miss', choices=[0, 1], type=int, default=0)
     parser.add_argument('--mul-pipeline', choices=[0, 1], type=int, default=0,
                         help='RV32IM multiply: 0 iterative baseline, 1 pipelined candidate')
     parser.add_argument('--isa', choices=['rv32i', 'rv32im'], default='rv32i',
@@ -183,6 +189,7 @@ def main():
     parser.add_argument('--timing-model', choices=['device-clock', 'legacy'], default='device-clock')
     parser.add_argument('--cpu-mhz', type=int, default=820)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--keep-artifacts', action='store_true', help='Keep generated binaries and build files for debugging')
     parser.add_argument('--icache-bytes', type=int, default=256)
     parser.add_argument('--icache-ways', type=int, default=1)
     parser.add_argument('--icache-policy', type=int, choices=range(17), default=0)
@@ -203,6 +210,11 @@ def main():
     parser.add_argument('--resume', type=Path, help='Run an existing prepare-only directory, checking hashes')
     args = parser.parse_args()
     require(not args.mul_pipeline or args.isa == 'rv32im', 'Pipelined multiply requires --isa rv32im')
+    require(not args.backend_rob or (args.isa == 'rv32im' and args.mul_pipeline),
+            'ROB backend requires RV32IM with pipelined multiply')
+    require(not args.load_overlap or args.backend_rob, 'Load overlap requires ROB backend')
+    require(args.lsu_entries == 1 or (args.backend_rob and args.load_overlap),
+            'Two LSU entries require ROB and load overlap')
     arch = ARCH + ('-im' if args.isa == 'rv32im' else '')
     target_way_bits = 0
     if args.btb_target_bits:
@@ -211,170 +223,174 @@ def main():
         require(all(1 <= width <= 32 for width in args.btb_target_bits), 'Target bits must be 1..32')
         target_way_bits = sum(width << (8 * way) for way, width in enumerate(args.btb_target_bits))
     require(100 <= args.cpu_mhz <= 4000, 'CPU MHz must be 100..4000')
-    env = dict(os.environ, NPC_HOME=str(NPC), AM_HOME=str(WORKSPACE / 'abstract-machine'))
-    if args.resume:
-        output = args.resume.resolve()
-        manifest = json.loads((output / 'manifest.json').read_text())
-        args.cpu_mhz, args.scale = manifest['cpu_mhz'], manifest['scale']
-        for name, digest in manifest['artifacts'].items():
-            require(sha256(output / name) == digest, f'Archived artifact changed: {name}')
-        layout = manifest['layout']
-    else:
-        output = (args.output or NPC / 'result/performance' /
-                  ('passive-' + args.scale + '-' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))).resolve()
-        output.mkdir(parents=True, exist_ok=False)
-        print(f'Artifacts: {output}', flush=True)
-        print('Building RV32 simulator and uninstrumented MicroBench...', flush=True)
-        build_tag = (f'cpu-{args.cpu_mhz}mhz-ic-{args.icache_bytes}-{args.icache_ways}'
-                     f'-p{args.icache_policy}-l{args.icache_line}-bht-{args.bht_entries}'
-                     f'-btb-{args.btb_entries}x{args.btb_ways}-p{args.btb_policy}-ras-{args.ras_entries}'
-                     f'-dir-{args.direction_policy}-hist-{args.history_bits}')
-        if args.isa == 'rv32im':
-            build_tag += '-rv32im'
-            if args.mul_pipeline:
-                build_tag += '-mulpipe'
-        if args.btb_target_bits:
-            build_tag += '-targetbits-' + '-'.join(map(str, args.btb_target_bits))
-        if args.host_opt != 3:
-            build_tag += f'-host-o{args.host_opt}'
-        build_tag += '-timing-' + args.timing_model
-        build = NPC / 'build/passive-perf' / build_tag
-        flags = ('-MMD --build -cc -Wall -Wno-fatal -O3 --x-assign fast --x-initial fast '
-                 f'-I{NPC}/vsrc/riscv32/sim --trace --autoflush --timescale 1ns/1ns --no-timing -j 1 '
-                 f'-MAKEFLAGS "OPT_FAST=-O{args.host_opt} OPT_GLOBAL=-O{args.host_opt} OPT_SLOW=-O1"')
-        command = ['make', '-C', str(NPC), 'git_commit=', 'NPC_CONFIG=rv32-baseline',
-                   f'NPC_MULDIV_ENABLE={int(args.isa == "rv32im")}',
-                   f'NPC_MUL_PIPELINE_ENABLE={args.mul_pipeline}',
-                   f'NPC_SIM_CPU_FREQ_MHZ={args.cpu_mhz}', f'BUILD_DIR={build}',
-                   f'NPC_DEVICE_TIMING_MODE={int(args.timing_model == "device-clock")}',
-                   f'NPC_ICACHE_CAPACITY_BYTES={args.icache_bytes}', f'NPC_ICACHE_WAY_COUNT={args.icache_ways}',
-                   f'NPC_ICACHE_REPLACEMENT_POLICY={args.icache_policy}', f'NPC_ICACHE_LINE_BYTES={args.icache_line}',
-                   'NPC_DCACHE_ENABLE=1', 'NPC_DCACHE_CAPACITY_BYTES=256', 'NPC_DCACHE_WAY_COUNT=2',
-                   'NPC_DCACHE_LINE_BYTES=16', f'NPC_BRANCH_HISTORY_ENTRY_COUNT={args.bht_entries}',
-                   f'NPC_BRANCH_TARGET_ENTRY_COUNT={args.btb_entries}',
-                   f'NPC_BRANCH_TARGET_WAY_COUNT={args.btb_ways}',
-                   f'NPC_BRANCH_TARGET_POLICY={args.btb_policy}',
-                   f'NPC_BRANCH_TARGET_WAY_BITS={target_way_bits}',
-                   f'NPC_BRANCH_DIRECTION_POLICY={args.direction_policy}',
-                   f'NPC_BRANCH_GLOBAL_HISTORY_BITS={args.history_bits}',
-                   f'NPC_RETURN_STACK_ENTRY_COUNT={args.ras_entries}', 'NPC_SDRAM_NATIVE_READ_BURST=1',
-                   f'VERILATOR_FLAGS={flags}', 'build-soc']
-        # Use the worktree's capstone if present; a sibling tool installation is
-        # acceptable because it is host-only and its library is recorded.
-        capstone = WORKSPACE / 'nemu/tools/capstone/repo'
-        if not (capstone / 'libcapstone.a').exists():
-            capstone = WORKSPACE.parent / 'ysyx-workbench/nemu/tools/capstone/repo'
-        require((capstone / 'libcapstone.a').exists(), 'Build host capstone first')
-        command.insert(-1, f'CAPSTONE_HOME={capstone}')
-        run_logged(command, output / 'simulator-build.log', env)
-        bench = WORKSPACE / 'am-kernels/benchmarks/microbench'
-        # Serialize same-ARCH image builds through archive creation. AM's generic
-        # clean removes every ARCH, so remove only this target's generated files.
-        locks = NPC / 'build/locks'
-        locks.mkdir(parents=True, exist_ok=True)
-        with (locks / f'microbench-{arch}.lock').open('a') as lock:
-            fcntl.flock(lock, fcntl.LOCK_EX)
-            objects = bench / 'build' / arch
-            if objects.exists():
-                shutil.rmtree(objects)
-            removed = [str(objects)]
-            for suffix in ['elf', 'bin', 'txt']:
-                previous = bench / 'build' / f'microbench-{arch}.{suffix}'
-                previous.unlink(missing_ok=True)
-                removed.append(str(previous))
-            (output / 'image-clean.log').write_text('Target-only clean:\n' + '\n'.join(removed) + '\n')
-            image_command = ['make', '-C', str(bench), f'ARCH={arch}', f'mainargs={args.scale}',
-                             'git_commit=', 'MICROBENCH_CSR_DIAGNOSTICS=0', 'image']
-            run_logged(image_command, output / 'image-build.log', env)
-            for suffix in ['bin', 'elf', 'txt']:
-                shutil.copy2(bench / 'build' / f'microbench-{arch}.{suffix}', output / f'microbench.{suffix}')
-        shutil.copy2(build / 'ysyxSoCFull_sim', output / 'simulator')
-        layout = image_layout((output / 'microbench.txt').read_text())
-        sources = list((NPC / 'vsrc/riscv32').rglob('*.sv')) + list((NPC / 'vsrc/riscv32').rglob('*.svh'))
-        sources += list((NPC / 'csrc').glob('*.cpp')) + list((NPC / 'include').glob('*.h'))
-        sources += list((WORKSPACE / 'ysyxSoC/perip').rglob('*.v'))
-        sources += list((WORKSPACE / 'ysyxSoC/src').rglob('*.scala'))
-        sources += [NPC / 'Makefile', Path(__file__).resolve(), bench / 'src/bench.c',
-                    WORKSPACE / 'abstract-machine/am/src/riscv/ysyxsoc/timer.c',
-                    WORKSPACE / 'ysyxSoC/build/ysyxSoCFull.v',
-                    WORKSPACE / f'abstract-machine/scripts/{arch}.mk',
-                    WORKSPACE / f'abstract-machine/scripts/{ARCH}.mk']
-        for tree in [bench, WORKSPACE / 'abstract-machine']:
-            sources += [p for p in tree.rglob('*') if p.is_file() and
-                        'build' not in p.relative_to(tree).parts and
-                        (p.suffix in ('.c', '.h', '.S', '.s', '.mk', '.ld') or p.name == 'Makefile')]
-        sources = sorted(set(sources))
-        with tarfile.open(output / 'source-snapshot.tar.gz', 'w:gz') as archive:
-            for source in sources:
-                archive.add(source, arcname=str(source.relative_to(WORKSPACE)))
-        manifest = {'schema': 1, 'scale': args.scale, 'cpu_mhz': args.cpu_mhz,
-                    'host_opt': args.host_opt, 'isa': args.isa, 'am_arch': arch,
-                    'mul_pipeline': args.mul_pipeline,
-                    'icache': {'bytes': args.icache_bytes, 'ways': args.icache_ways,
-                               'policy': args.icache_policy, 'line_bytes': args.icache_line},
-                    'predictor': {'bht_entries': args.bht_entries, 'btb_entries': args.btb_entries,
-                                  'btb_ways': args.btb_ways, 'btb_policy': args.btb_policy,
-                                  'ras_entries': args.ras_entries,
-                                  'direction_policy': args.direction_policy, 'history_bits': args.history_bits,
-                                  'target_bits': args.btb_target_bits, 'target_way_bits': target_way_bits},
-                    'timing_model': args.timing_model + '-v1',
-                    'device_clock_ratio': ({'numerator': 100, 'denominator': args.cpu_mhz}
-                                           if args.timing_model == 'device-clock' else None),
-                    'bridge': {'request_queue': 0, 'read_response_depth': 16, 'write_response_depth': 1,
-                               'cdc': ('ideal synchronous event bridge; no metastability model'
-                                       if args.timing_model == 'device-clock' else
-                                       'single CPU clock; legacy response scaling')},
-                    'device_mhz': 100, 'delay_ratio_scaled': (args.cpu_mhz * 1024 // 100
-                                                            if args.timing_model == 'legacy' else None),
-                    'delay_scale': 1024, 'layout': layout, 'build_command': command,
-                    'image_build_command': image_command, 'reset_cycles': 10,
-                    'initial_state': 'fresh simulator process; reset invalidates caches and predictor',
-                    'interrupt_policy': 'native benchmark configuration; count handler retirements and cycles',
-                    'capstone_sha256': sha256(capstone / 'libcapstone.a'),
-                    'tools': {tool: subprocess.check_output([tool, '--version'], text=True).splitlines()[0]
-                              for tool in ['verilator', 'riscv64-linux-gnu-gcc', 'riscv64-linux-gnu-ld']},
-                    'git_head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=WORKSPACE, text=True).strip(),
-                    'sources': {str(p.relative_to(WORKSPACE)): sha256(p) for p in sources},
-                    'artifacts': {name: sha256(output / name) for name in
-                                  ['simulator', 'microbench.bin', 'microbench.elf', 'microbench.txt', 'source-snapshot.tar.gz']}}
-        (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-    if args.prepare_only:
-        print(f'Ready. Run: python3 {Path(__file__).resolve()} --resume {output}', flush=True)
-        return
-    # Exclusive log creation also prevents concurrent or accidental repeat runs.
-    command = [str(output / 'simulator'), '--batch', '--flash', str(output / 'microbench.bin')]
-    audit = ['+NPC_PERF_AUDIT'] if args.verify_observer else []
-    started = time.monotonic()
-    print(f'Starting {args.scale}; CPU={args.cpu_mhz} MHz, device=100 MHz.', flush=True)
-    run_logged(command + audit + [f'+NPC_PERF_OUTPUT={output}/timer-events.jsonl'],
-               output / 'simulation.log', env, echo=True)
-    wall_seconds = time.monotonic() - started
-    events = [json.loads(line) for line in (output / 'timer-events.jsonl').read_text().splitlines()]
-    log = (output / 'simulation.log').read_text()
-    require(f'input *{args.scale}*' in log, 'Compiled MAINARGS does not match requested scale')
-    report = analyze(events, log, layout, args.cpu_mhz)
-    report.update(isa=manifest.get('isa', 'rv32i'), mul_pipeline=manifest.get('mul_pipeline', 0),
-                  timing_model=manifest.get('timing_model', 'legacy-unversioned'),
-                  scale=args.scale, host_wall_seconds=wall_seconds,
-                  observer_on_off_verified=False, manifest_sha256=sha256(output / 'manifest.json'))
-    if args.verify_observer:
-        print('Verifying observer off with the same simulator and image...', flush=True)
-        run_logged(command + audit, output / 'observer-off.log', env)
-        off_log = (output / 'observer-off.log').read_text()
-        require(len(re.findall(r'NPC architectural audit = [0-9a-f]{16}', log)) == 1,
-                'Missing architectural/side-effect audit')
-        require(log == off_log, 'Observer on/off differs in output, counters, or architectural audit')
-        report['observer_on_off_verified'] = True
-    (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
-    print(f"\nPASS: {args.scale} native Total time = {report['total']['timer_seconds']:.6f} s; "
-          f"same-window IPC = {report['total']['ipc']:.9f}")
-    print(f"      native Scored time = {report['scored']['timer_seconds']:.6f} s; "
-          f"same-window IPC = {report['scored']['ipc']:.9f}")
-    print(f'Report: {output}/report.json')
+    root = args.resume or args.output or NPC / 'result/performance/current'
+    with ResultWorkspace(NPC, root, 'performance', resume=bool(args.resume),
+                         keep=args.keep_artifacts or args.prepare_only) as session:
+        env = dict(os.environ, NPC_HOME=str(NPC), AM_HOME=str(WORKSPACE / 'abstract-machine'))
+        if args.resume:
+            output = args.resume.resolve()
+            manifest = json.loads((output / 'manifest.json').read_text())
+            args.cpu_mhz, args.scale = manifest['cpu_mhz'], manifest['scale']
+            for name, digest in manifest['artifacts'].items():
+                require(sha256(output / name) == digest, f'Archived artifact changed: {name}')
+            layout = manifest['layout']
+        else:
+            output = session.root
+            output.mkdir(parents=True, exist_ok=True)
+            print(f'Artifacts: {output}', flush=True)
+            print('Building RV32 simulator and uninstrumented MicroBench...', flush=True)
+            build = output / 'build'
+            flags = ('-MMD --build -cc -Wall -Wno-fatal -O3 --x-assign fast --x-initial fast '
+                     f'-I{NPC}/vsrc/riscv32/sim --trace --autoflush --timescale 1ns/1ns --no-timing -j 1 '
+                     f'-MAKEFLAGS "OPT_FAST=-O{args.host_opt} OPT_GLOBAL=-O{args.host_opt} OPT_SLOW=-O1"')
+            if args.backend_rob:
+                flags += ' --assert'
+            command = ['make', '-C', str(NPC), 'git_commit=', 'NPC_CONFIG=rv32-baseline',
+                       f'NPC_MULDIV_ENABLE={int(args.isa == "rv32im")}',
+                       f'NPC_MUL_PIPELINE_ENABLE={args.mul_pipeline}',
+                       f'NPC_BACKEND_ROB_ENABLE={args.backend_rob}',
+                       f'NPC_BACKEND_ENTRIES={args.backend_entries}',
+                       f'NPC_BACKEND_LOAD_OVERLAP={args.load_overlap}',
+                       f'NPC_LSU_ENTRIES={args.lsu_entries}',
+                       f'NPC_DCACHE_HIT_UNDER_MISS={args.dcache_hit_under_miss}',
+                       f'NPC_SIM_CPU_FREQ_MHZ={args.cpu_mhz}', f'BUILD_DIR={build}',
+                       f'NPC_DEVICE_TIMING_MODE={int(args.timing_model == "device-clock")}',
+                       f'NPC_ICACHE_CAPACITY_BYTES={args.icache_bytes}', f'NPC_ICACHE_WAY_COUNT={args.icache_ways}',
+                       f'NPC_ICACHE_REPLACEMENT_POLICY={args.icache_policy}', f'NPC_ICACHE_LINE_BYTES={args.icache_line}',
+                       'NPC_DCACHE_ENABLE=1', 'NPC_DCACHE_CAPACITY_BYTES=256', 'NPC_DCACHE_WAY_COUNT=2',
+                       'NPC_DCACHE_LINE_BYTES=16', f'NPC_BRANCH_HISTORY_ENTRY_COUNT={args.bht_entries}',
+                       f'NPC_BRANCH_TARGET_ENTRY_COUNT={args.btb_entries}',
+                       f'NPC_BRANCH_TARGET_WAY_COUNT={args.btb_ways}',
+                       f'NPC_BRANCH_TARGET_POLICY={args.btb_policy}',
+                       f'NPC_BRANCH_TARGET_WAY_BITS={target_way_bits}',
+                       f'NPC_BRANCH_DIRECTION_POLICY={args.direction_policy}',
+                       f'NPC_BRANCH_GLOBAL_HISTORY_BITS={args.history_bits}',
+                       f'NPC_RETURN_STACK_ENTRY_COUNT={args.ras_entries}', 'NPC_SDRAM_NATIVE_READ_BURST=1',
+                       f'VERILATOR_FLAGS={flags}', 'build-soc']
+            # Use the worktree's capstone if present; a sibling tool installation is
+            # acceptable because it is host-only and its library is recorded.
+            capstone = WORKSPACE / 'nemu/tools/capstone/repo'
+            if not (capstone / 'libcapstone.a').exists():
+                capstone = WORKSPACE.parent / 'ysyx-workbench/nemu/tools/capstone/repo'
+            require((capstone / 'libcapstone.a').exists(), 'Build host capstone first')
+            command.insert(-1, f'CAPSTONE_HOME={capstone}')
+            run_logged(command, output / 'simulator-build.log', env)
+            bench = WORKSPACE / 'am-kernels/benchmarks/microbench'
+            # Serialize same-ARCH image builds through archive creation. AM's generic
+            # clean removes every ARCH, so remove only this target's generated files.
+            locks = NPC / 'build/locks'
+            locks.mkdir(parents=True, exist_ok=True)
+            with (locks / f'microbench-{arch}.lock').open('a') as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+                objects = bench / 'build' / arch
+                if objects.exists():
+                    shutil.rmtree(objects)
+                removed = [str(objects)]
+                for suffix in ['elf', 'bin', 'txt']:
+                    previous = bench / 'build' / f'microbench-{arch}.{suffix}'
+                    previous.unlink(missing_ok=True)
+                    removed.append(str(previous))
+                (output / 'image-clean.log').write_text('Target-only clean:\n' + '\n'.join(removed) + '\n')
+                image_command = ['make', '-C', str(bench), f'ARCH={arch}', f'mainargs={args.scale}',
+                                 'git_commit=', 'MICROBENCH_CSR_DIAGNOSTICS=0', 'image']
+                run_logged(image_command, output / 'image-build.log', env)
+                for suffix in ['bin', 'elf', 'txt']:
+                    shutil.copy2(bench / 'build' / f'microbench-{arch}.{suffix}', output / f'microbench.{suffix}')
+            shutil.copy2(build / 'ysyxSoCFull_sim', output / 'simulator')
+            layout = image_layout((output / 'microbench.txt').read_text())
+            sources = list((NPC / 'vsrc/riscv32').rglob('*.sv')) + list((NPC / 'vsrc/riscv32').rglob('*.svh'))
+            sources += list((NPC / 'csrc').glob('*.cpp')) + list((NPC / 'include').glob('*.h'))
+            sources += list((WORKSPACE / 'ysyxSoC/perip').rglob('*.v'))
+            sources += list((WORKSPACE / 'ysyxSoC/src').rglob('*.scala'))
+            sources += [NPC / 'Makefile', Path(__file__).resolve(), NPC / 'scripts/result_workspace.py', bench / 'src/bench.c',
+                        WORKSPACE / 'abstract-machine/am/src/riscv/ysyxsoc/timer.c',
+                        WORKSPACE / 'ysyxSoC/build/ysyxSoCFull.v',
+                        WORKSPACE / f'abstract-machine/scripts/{arch}.mk',
+                        WORKSPACE / f'abstract-machine/scripts/{ARCH}.mk']
+            for tree in [bench, WORKSPACE / 'abstract-machine']:
+                sources += [p for p in tree.rglob('*') if p.is_file() and
+                            'build' not in p.relative_to(tree).parts and
+                            (p.suffix in ('.c', '.h', '.S', '.s', '.mk', '.ld') or p.name == 'Makefile')]
+            sources = sorted(set(sources))
+            with tarfile.open(output / 'source-snapshot.tar.gz', 'w:gz') as archive:
+                for source in sources:
+                    archive.add(source, arcname=str(source.relative_to(WORKSPACE)))
+            manifest = {'schema': 1, 'scale': args.scale, 'cpu_mhz': args.cpu_mhz,
+                        'host_opt': args.host_opt, 'isa': args.isa, 'am_arch': arch,
+                        'mul_pipeline': args.mul_pipeline,
+                        'backend_rob': args.backend_rob, 'backend_entries': args.backend_entries,
+                        'load_overlap': args.load_overlap,
+                        'lsu_entries': args.lsu_entries, 'dcache_hit_under_miss': args.dcache_hit_under_miss,
+                        'icache': {'bytes': args.icache_bytes, 'ways': args.icache_ways,
+                                   'policy': args.icache_policy, 'line_bytes': args.icache_line},
+                        'predictor': {'bht_entries': args.bht_entries, 'btb_entries': args.btb_entries,
+                                      'btb_ways': args.btb_ways, 'btb_policy': args.btb_policy,
+                                      'ras_entries': args.ras_entries,
+                                      'direction_policy': args.direction_policy, 'history_bits': args.history_bits,
+                                      'target_bits': args.btb_target_bits, 'target_way_bits': target_way_bits},
+                        'timing_model': args.timing_model + '-v1',
+                        'device_clock_ratio': ({'numerator': 100, 'denominator': args.cpu_mhz}
+                                               if args.timing_model == 'device-clock' else None),
+                        'bridge': {'request_queue': 0, 'read_response_depth': 16, 'write_response_depth': 1,
+                                   'cdc': ('ideal synchronous event bridge; no metastability model'
+                                           if args.timing_model == 'device-clock' else
+                                           'single CPU clock; legacy response scaling')},
+                        'device_mhz': 100, 'delay_ratio_scaled': (args.cpu_mhz * 1024 // 100
+                                                                if args.timing_model == 'legacy' else None),
+                        'delay_scale': 1024, 'layout': layout, 'build_command': command,
+                        'image_build_command': image_command, 'reset_cycles': 10,
+                        'initial_state': 'fresh simulator process; reset invalidates caches and predictor',
+                        'interrupt_policy': 'native benchmark configuration; count handler retirements and cycles',
+                        'capstone_sha256': sha256(capstone / 'libcapstone.a'),
+                        'tools': {tool: subprocess.check_output([tool, '--version'], text=True).splitlines()[0]
+                                  for tool in ['verilator', 'riscv64-linux-gnu-gcc', 'riscv64-linux-gnu-ld']},
+                        'git_head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=WORKSPACE, text=True).strip(),
+                        'sources': {str(p.relative_to(WORKSPACE)): sha256(p) for p in sources},
+                        'artifacts': {name: sha256(output / name) for name in
+                                      ['simulator', 'microbench.bin', 'microbench.elf', 'microbench.txt', 'source-snapshot.tar.gz']}}
+            (output / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+        if args.prepare_only:
+            print(f'Ready. Run: python3 {Path(__file__).resolve()} --resume {output}', flush=True)
+            return
+        # Exclusive log creation also prevents concurrent or accidental repeat runs.
+        command = [str(output / 'simulator'), '--batch', '--flash', str(output / 'microbench.bin')]
+        audit = ['+NPC_PERF_AUDIT'] if args.verify_observer else []
+        started = time.monotonic()
+        print(f'Starting {args.scale}; CPU={args.cpu_mhz} MHz, device=100 MHz.', flush=True)
+        run_logged(command + audit + [f'+NPC_PERF_OUTPUT={output}/timer-events.jsonl'],
+                   output / 'simulation.log', env, echo=True)
+        wall_seconds = time.monotonic() - started
+        events = [json.loads(line) for line in (output / 'timer-events.jsonl').read_text().splitlines()]
+        log = (output / 'simulation.log').read_text()
+        require(f'input *{args.scale}*' in log, 'Compiled MAINARGS does not match requested scale')
+        report = analyze(events, log, layout, args.cpu_mhz)
+        report.update(lsu_entries=manifest.get('lsu_entries', 1),
+                      dcache_hit_under_miss=manifest.get('dcache_hit_under_miss', 0),
+                      backend_rob=manifest.get('backend_rob', 0),
+                      backend_entries=manifest.get('backend_entries', 4),
+                      load_overlap=manifest.get('load_overlap', 0),
+                      isa=manifest.get('isa', 'rv32i'), mul_pipeline=manifest.get('mul_pipeline', 0),
+                      timing_model=manifest.get('timing_model', 'legacy-unversioned'),
+                      scale=args.scale, host_wall_seconds=wall_seconds,
+                      observer_on_off_verified=False, manifest_sha256=sha256(output / 'manifest.json'))
+        if args.verify_observer:
+            print('Verifying observer off with the same simulator and image...', flush=True)
+            run_logged(command + audit, output / 'observer-off.log', env)
+            off_log = (output / 'observer-off.log').read_text()
+            require(len(re.findall(r'NPC architectural audit = [0-9a-f]{16}', log)) == 1,
+                    'Missing architectural/side-effect audit')
+            require(log == off_log, 'Observer on/off differs in output, counters, or architectural audit')
+            report['observer_on_off_verified'] = True
+        (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
+        print(f"\nPASS: {args.scale} native Total time = {report['total']['timer_seconds']:.6f} s; "
+              f"same-window IPC = {report['total']['ipc']:.9f}")
+        print(f"      native Scored time = {report['scored']['timer_seconds']:.6f} s; "
+              f"same-window IPC = {report['scored']['ipc']:.9f}")
+        print(f'Report: {output}/report.json')
 
 
 if __name__ == '__main__':
     try:
         main()
-    except (ValueError, OSError, subprocess.CalledProcessError, KeyError) as error:
+    except (ValueError, RuntimeError, OSError, subprocess.CalledProcessError, KeyError) as error:
         raise SystemExit(f'Performance measurement rejected: {error}')

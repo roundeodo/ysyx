@@ -110,21 +110,12 @@ module riscv32_uncached_axi
     axi_manager_o.w.last   = 1'b1;
 
     unique case (state_q)
-      UNCACHED_SEND_READ_ADDRESS: begin
-        axi_manager_o.ar_valid = 1'b1;
-      end
-
       UNCACHED_RECEIVE_READ_DATA: begin
         data_memory_resp_o.read_data      = core_data_t'(axi_manager_i.r.data);
         data_memory_resp_o.access_fault   = read_response_has_access_fault;
         data_memory_resp_o.transaction_id = request_context_q.transaction_id;
         data_memory_resp_valid_o          = axi_manager_i.r_valid;
         axi_manager_o.r_ready             = data_memory_resp_ready_i;
-      end
-
-      UNCACHED_SEND_WRITE_ADDRESS_DATA: begin
-        axi_manager_o.aw_valid = write_address_pending_q;
-        axi_manager_o.w_valid = write_data_pending_q;
       end
 
       UNCACHED_RECEIVE_WRITE_RESPONSE: begin
@@ -138,12 +129,17 @@ module riscv32_uncached_axi
       default: ;
     endcase
 
+    // 已持有通道与新请求窗口互斥，直接并行组合，不再用窗口优先覆盖整个 valid。
     // 旧响应仍使用 request_context_q；新请求独立驱动地址/数据通道。
-    if (new_request_window_open) begin
-      axi_manager_o.ar_valid = data_memory_req_valid_i && data_memory_req_i.cmd == MEM_CMD_LOAD;
-      axi_manager_o.aw_valid = data_memory_req_valid_i && data_memory_req_i.cmd != MEM_CMD_LOAD;
-      axi_manager_o.w_valid  = axi_manager_o.aw_valid;
-    end
+    axi_manager_o.ar_valid = hold_read_address ||
+        (new_request_window_open && data_memory_req_valid_i &&
+         data_memory_req_i.cmd == MEM_CMD_LOAD);
+    axi_manager_o.aw_valid = (hold_write_payload && write_address_pending_q) ||
+        (new_request_window_open && data_memory_req_valid_i &&
+         data_memory_req_i.cmd != MEM_CMD_LOAD);
+    axi_manager_o.w_valid = (hold_write_payload && write_data_pending_q) ||
+        (new_request_window_open && data_memory_req_valid_i &&
+         data_memory_req_i.cmd != MEM_CMD_LOAD);
   end
 
   // 第二段：状态转换与下一值。一个本地请求严格对应一个AXI事务和一个本地响应。

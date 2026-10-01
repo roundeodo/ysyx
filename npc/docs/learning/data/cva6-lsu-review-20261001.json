@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-01",
+  "scope": "source review only; no CVA6 simulation or new LSU RTL",
+  "reference_tag": "v5.3.0",
+  "reference_base_url": "https://raw.githubusercontent.com/openhwgroup/cva6/v5.3.0/",
+  "reference_sha256": {
+    "core/cache_subsystem/cva6_hpdcache_subsystem.sv": "e247da0845f2ebdf2f820f757cd9c0750154a60fd3841048800feb5547675092",
+    "core/cache_subsystem/std_cache_subsystem.sv": "122531a5c3d31ea951e0cc2dbb66e8da318c27587092f3aa64525e8d48614342",
+    "core/cache_subsystem/wt_dcache.sv": "bda33bd058720fdca0e9261238f42ca83fc46b49aca30ae7e76f64b5ccf3a41c",
+    "core/cache_subsystem/wt_dcache_ctrl.sv": "809b413b7899629a5c716d5ca4199f03f07ae17e263175cafacfdd74df39da5c",
+    "core/cache_subsystem/wt_dcache_missunit.sv": "d1b409ba117503a9c132ee0484ebeba7c7373db87efc7a27e01bcdf67ebb886e",
+    "core/include/cv32a6_imac_sv32_config_pkg.sv": "c391d08962c7f828afc759f2ab37e19ee830db21e146f955300d759ee27406e4",
+    "core/include/cv64a6_imafdc_sv39_config_pkg.sv": "9ef386e4e79ce95fd9c611170d755f290493159d8814f192bc486f2a42eb6e30",
+    "core/include/cv64a6_imafdc_sv39_hpdcache_config_pkg.sv": "1ef27923da5c518c58f2465b41764416082c83dc8c7aa6e4b576851d86b53374",
+    "core/load_store_unit.sv": "539a68e0bc6f6594050590581ac37bd44972ca9fff4320a024bd2b85d28b2ba2",
+    "core/load_unit.sv": "5b058ba5559c426983f61b355d010a77713043942a577eb2e86bb68c72e1748d",
+    "core/store_buffer.sv": "9d5cdfaa0bd1546587f2a37707eee09535fc8a471e4b31da3d9e8b577833fb03",
+    "core/store_unit.sv": "4dfb8051044bf37a74754ae7b1a5b104cd4b86f3e9d3648996ad474027e91a0e"
+  },
+  "local_head": "5493a6aec976f4f9bdc075834d3f1202b0ae16ef",
+  "local_tree": "includes pre-existing uncommitted changes",
+  "local_sha256": {
+    "vsrc/riscv32/core/execute/riscv32_backend.sv": "7afa45648aaae4f9095eed874673b00d7f8274a75be25455ad6cc75d59cf6d92",
+    "vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+    "vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+    "vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df"
+  }
+}

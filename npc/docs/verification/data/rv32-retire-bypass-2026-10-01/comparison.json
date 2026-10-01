@@ -1,0 +1,2061 @@
+{
+  "native": {
+    "uniform680": {
+      "report": "npc/result/issue-stage-20260929/perf-final-680/report.json",
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 680,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2212020,
+        "retired_instructions": 482828,
+        "ipc": 0.21827469914376904,
+        "timer_ticks": 3253,
+        "timer_seconds": 0.003253,
+        "cycle_seconds": 0.0032529705882352942,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 933303,
+        "retired_instructions": 317720,
+        "ipc": 0.3404253495381457,
+        "timer_ticks": 1373,
+        "timer_seconds": 0.001373,
+        "cycle_seconds": 0.001372504411764706,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 25554,
+          "retired_instructions": 9707,
+          "ipc": 0.3798622524849339,
+          "timer_ticks": 37,
+          "timer_seconds": 3.7e-05,
+          "cycle_seconds": 3.757941176470588e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 119878,
+          "retired_instructions": 83536,
+          "ipc": 0.6968417891523049,
+          "timer_ticks": 177,
+          "timer_seconds": 0.000177,
+          "cycle_seconds": 0.00017629117647058825,
+          "interrupts": 0
+        },
+        {
+          "cycles": 244243,
+          "retired_instructions": 141943,
+          "ipc": 0.5811548335059756,
+          "timer_ticks": 360,
+          "timer_seconds": 0.00036,
+          "cycle_seconds": 0.00035918088235294116,
+          "interrupts": 0
+        },
+        {
+          "cycles": 18681,
+          "retired_instructions": 11292,
+          "ipc": 0.6044644290990846,
+          "timer_ticks": 27,
+          "timer_seconds": 2.7e-05,
+          "cycle_seconds": 2.7472058823529412e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8936,
+          "retired_instructions": 4512,
+          "ipc": 0.5049239033124441,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.3141176470588236e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 81192,
+          "retired_instructions": 12061,
+          "ipc": 0.1485491181397182,
+          "timer_ticks": 120,
+          "timer_seconds": 0.00012,
+          "cycle_seconds": 0.0001194,
+          "interrupts": 0
+        },
+        {
+          "cycles": 165621,
+          "retired_instructions": 17979,
+          "ipc": 0.1085550745376492,
+          "timer_ticks": 243,
+          "timer_seconds": 0.000243,
+          "cycle_seconds": 0.00024356029411764705,
+          "interrupts": 0
+        },
+        {
+          "cycles": 86564,
+          "retired_instructions": 14661,
+          "ipc": 0.16936601820618272,
+          "timer_ticks": 127,
+          "timer_seconds": 0.000127,
+          "cycle_seconds": 0.0001273,
+          "interrupts": 0
+        },
+        {
+          "cycles": 167906,
+          "retired_instructions": 17172,
+          "ipc": 0.10227150905863995,
+          "timer_ticks": 247,
+          "timer_seconds": 0.000247,
+          "cycle_seconds": 0.0002469205882352941,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14728,
+          "retired_instructions": 4857,
+          "ipc": 0.32978001086366104,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.1658823529411763e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2789162,
+        "retired_instructions": 558095,
+        "ipc": 0.20009415014258763,
+        "cycle_seconds": 0.004101708823529412,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362128,
+        "score_begin": 2684362728,
+        "score_end": 2684362760,
+        "total_end": 2684362352
+      },
+      "backend_rob": 1,
+      "backend_entries": 4,
+      "load_overlap": 1,
+      "isa": "rv32im",
+      "mul_pipeline": 1,
+      "timing_model": "device-clock-v1",
+      "scale": "test",
+      "host_wall_seconds": 8.65865648399631,
+      "observer_on_off_verified": false,
+      "manifest_sha256": "dabf47945d27e89583c8d0569f6d6c59742efd77ec4fee40313e09aca1ac960f"
+    },
+    "uniform720": {
+      "report": "npc/result/issue-stage-20260929/perf-final-720/report.json",
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 720,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2310365,
+        "retired_instructions": 482939,
+        "ipc": 0.20903147338191153,
+        "timer_ticks": 3209,
+        "timer_seconds": 0.003209,
+        "cycle_seconds": 0.003208840277777778,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 959961,
+        "retired_instructions": 317720,
+        "ipc": 0.3309717790618577,
+        "timer_ticks": 1331,
+        "timer_seconds": 0.001331,
+        "cycle_seconds": 0.0013332791666666667,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 26251,
+          "retired_instructions": 9707,
+          "ipc": 0.3697763894708773,
+          "timer_ticks": 36,
+          "timer_seconds": 3.6e-05,
+          "cycle_seconds": 3.6459722222222224e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 119887,
+          "retired_instructions": 83536,
+          "ipc": 0.6967894767572798,
+          "timer_ticks": 167,
+          "timer_seconds": 0.000167,
+          "cycle_seconds": 0.00016650972222222223,
+          "interrupts": 0
+        },
+        {
+          "cycles": 245808,
+          "retired_instructions": 141943,
+          "ipc": 0.577454761439823,
+          "timer_ticks": 341,
+          "timer_seconds": 0.000341,
+          "cycle_seconds": 0.0003414,
+          "interrupts": 0
+        },
+        {
+          "cycles": 18893,
+          "retired_instructions": 11292,
+          "ipc": 0.59768168104589,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.624027777777778e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8999,
+          "retired_instructions": 4512,
+          "ipc": 0.5013890432270253,
+          "timer_ticks": 12,
+          "timer_seconds": 1.2e-05,
+          "cycle_seconds": 1.2498611111111111e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 84715,
+          "retired_instructions": 12061,
+          "ipc": 0.14237148084754767,
+          "timer_ticks": 117,
+          "timer_seconds": 0.000117,
+          "cycle_seconds": 0.00011765972222222222,
+          "interrupts": 0
+        },
+        {
+          "cycles": 174038,
+          "retired_instructions": 17979,
+          "ipc": 0.10330502533929371,
+          "timer_ticks": 242,
+          "timer_seconds": 0.000242,
+          "cycle_seconds": 0.00024171944444444446,
+          "interrupts": 0
+        },
+        {
+          "cycles": 90713,
+          "retired_instructions": 14661,
+          "ipc": 0.16161961350633317,
+          "timer_ticks": 125,
+          "timer_seconds": 0.000125,
+          "cycle_seconds": 0.00012599027777777778,
+          "interrupts": 0
+        },
+        {
+          "cycles": 175457,
+          "retired_instructions": 17172,
+          "ipc": 0.09787013342300392,
+          "timer_ticks": 244,
+          "timer_seconds": 0.000244,
+          "cycle_seconds": 0.00024369027777777777,
+          "interrupts": 0
+        },
+        {
+          "cycles": 15200,
+          "retired_instructions": 4857,
+          "ipc": 0.31953947368421054,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.111111111111111e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2917475,
+        "retired_instructions": 558353,
+        "ipc": 0.19138227405547606,
+        "cycle_seconds": 0.004052048611111111,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362128,
+        "score_begin": 2684362728,
+        "score_end": 2684362760,
+        "total_end": 2684362352
+      },
+      "backend_rob": 1,
+      "backend_entries": 4,
+      "load_overlap": 1,
+      "isa": "rv32im",
+      "mul_pipeline": 1,
+      "timing_model": "device-clock-v1",
+      "scale": "test",
+      "host_wall_seconds": 8.807676377997268,
+      "observer_on_off_verified": false,
+      "manifest_sha256": "d8e83428462a6a7e5f2f2d5484f82dc90ad8f9d6ae08e19b2b1efc1bd0be4d20"
+    },
+    "bypass680": {
+      "report": "npc/result/retire-bypass-20261001/perf-final-680/report.json",
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 680,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2204695,
+        "retired_instructions": 482560,
+        "ipc": 0.21887834825225258,
+        "timer_ticks": 3242,
+        "timer_seconds": 0.003242,
+        "cycle_seconds": 0.003242198529411765,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 928906,
+        "retired_instructions": 317724,
+        "ipc": 0.342041067664543,
+        "timer_ticks": 1368,
+        "timer_seconds": 0.001368,
+        "cycle_seconds": 0.0013660382352941177,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 25473,
+          "retired_instructions": 9707,
+          "ipc": 0.3810701527107133,
+          "timer_ticks": 38,
+          "timer_seconds": 3.8e-05,
+          "cycle_seconds": 3.746029411764706e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 118768,
+          "retired_instructions": 83537,
+          "ipc": 0.7033628586824734,
+          "timer_ticks": 175,
+          "timer_seconds": 0.000175,
+          "cycle_seconds": 0.00017465882352941177,
+          "interrupts": 0
+        },
+        {
+          "cycles": 242923,
+          "retired_instructions": 141943,
+          "ipc": 0.5843127246082092,
+          "timer_ticks": 357,
+          "timer_seconds": 0.000357,
+          "cycle_seconds": 0.0003572397058823529,
+          "interrupts": 0
+        },
+        {
+          "cycles": 17981,
+          "retired_instructions": 11293,
+          "ipc": 0.6280518324898504,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.644264705882353e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8935,
+          "retired_instructions": 4513,
+          "ipc": 0.5050923335198657,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.3139705882352941e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 80736,
+          "retired_instructions": 12061,
+          "ipc": 0.14938812921125644,
+          "timer_ticks": 119,
+          "timer_seconds": 0.000119,
+          "cycle_seconds": 0.00011872941176470588,
+          "interrupts": 0
+        },
+        {
+          "cycles": 165593,
+          "retired_instructions": 17980,
+          "ipc": 0.10857946893890442,
+          "timer_ticks": 244,
+          "timer_seconds": 0.000244,
+          "cycle_seconds": 0.00024351911764705883,
+          "interrupts": 0
+        },
+        {
+          "cycles": 86428,
+          "retired_instructions": 14661,
+          "ipc": 0.16963252649604296,
+          "timer_ticks": 128,
+          "timer_seconds": 0.000128,
+          "cycle_seconds": 0.0001271,
+          "interrupts": 0
+        },
+        {
+          "cycles": 167266,
+          "retired_instructions": 17172,
+          "ipc": 0.10266282448315857,
+          "timer_ticks": 246,
+          "timer_seconds": 0.000246,
+          "cycle_seconds": 0.0002459794117647059,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14803,
+          "retired_instructions": 4857,
+          "ipc": 0.32810916706073096,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.1769117647058824e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2781362,
+        "retired_instructions": 557906,
+        "ipc": 0.20058733814584365,
+        "cycle_seconds": 0.004090238235294118,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362128,
+        "score_begin": 2684362728,
+        "score_end": 2684362760,
+        "total_end": 2684362352
+      },
+      "backend_rob": 1,
+      "backend_entries": 4,
+      "load_overlap": 1,
+      "isa": "rv32im",
+      "mul_pipeline": 1,
+      "timing_model": "device-clock-v1",
+      "scale": "test",
+      "host_wall_seconds": 28.70491783300031,
+      "observer_on_off_verified": false,
+      "manifest_sha256": "8c532ff7bb9517e6a7ba7612e8bd8e81ca2c1655fa77ec1f1ae95d4b91885dd1"
+    },
+    "bypass700": {
+      "report": "npc/result/retire-bypass-20261001/perf-final-700/report.json",
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 700,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2255497,
+        "retired_instructions": 482743,
+        "ipc": 0.21402954648132982,
+        "timer_ticks": 3223,
+        "timer_seconds": 0.003223,
+        "cycle_seconds": 0.0032221385714285714,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 942949,
+        "retired_instructions": 317724,
+        "ipc": 0.33694717317691625,
+        "timer_ticks": 1347,
+        "timer_seconds": 0.001347,
+        "cycle_seconds": 0.00134707,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 25935,
+          "retired_instructions": 9707,
+          "ipc": 0.3742818584923848,
+          "timer_ticks": 37,
+          "timer_seconds": 3.7e-05,
+          "cycle_seconds": 3.705e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 118810,
+          "retired_instructions": 83537,
+          "ipc": 0.7031142159750863,
+          "timer_ticks": 170,
+          "timer_seconds": 0.00017,
+          "cycle_seconds": 0.00016972857142857144,
+          "interrupts": 0
+        },
+        {
+          "cycles": 243593,
+          "retired_instructions": 141943,
+          "ipc": 0.5827055785675286,
+          "timer_ticks": 348,
+          "timer_seconds": 0.000348,
+          "cycle_seconds": 0.00034799,
+          "interrupts": 0
+        },
+        {
+          "cycles": 17984,
+          "retired_instructions": 11293,
+          "ipc": 0.6279470640569395,
+          "timer_ticks": 25,
+          "timer_seconds": 2.5e-05,
+          "cycle_seconds": 2.569142857142857e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8981,
+          "retired_instructions": 4513,
+          "ipc": 0.5025052889433248,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.283e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 82502,
+          "retired_instructions": 12061,
+          "ipc": 0.14619039538435433,
+          "timer_ticks": 118,
+          "timer_seconds": 0.000118,
+          "cycle_seconds": 0.00011786,
+          "interrupts": 0
+        },
+        {
+          "cycles": 169827,
+          "retired_instructions": 17980,
+          "ipc": 0.10587244666631336,
+          "timer_ticks": 242,
+          "timer_seconds": 0.000242,
+          "cycle_seconds": 0.00024261,
+          "interrupts": 0
+        },
+        {
+          "cycles": 88907,
+          "retired_instructions": 14661,
+          "ipc": 0.16490265108484145,
+          "timer_ticks": 127,
+          "timer_seconds": 0.000127,
+          "cycle_seconds": 0.00012701,
+          "interrupts": 0
+        },
+        {
+          "cycles": 171570,
+          "retired_instructions": 17172,
+          "ipc": 0.1000874278720056,
+          "timer_ticks": 245,
+          "timer_seconds": 0.000245,
+          "cycle_seconds": 0.0002451,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14840,
+          "retired_instructions": 4857,
+          "ipc": 0.3272911051212938,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.12e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2845386,
+        "retired_instructions": 558116,
+        "ipc": 0.1961477282871287,
+        "cycle_seconds": 0.004064837142857143,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362128,
+        "score_begin": 2684362728,
+        "score_end": 2684362760,
+        "total_end": 2684362352
+      },
+      "backend_rob": 1,
+      "backend_entries": 4,
+      "load_overlap": 1,
+      "isa": "rv32im",
+      "mul_pipeline": 1,
+      "timing_model": "device-clock-v1",
+      "scale": "test",
+      "host_wall_seconds": 12.593807832000039,
+      "observer_on_off_verified": false,
+      "manifest_sha256": "12bb77f48357541b4ae4e53dd7031570678a4379598d9a308b4062a63d122ad4"
+    },
+    "legacy680": {
+      "report": "npc/result/retire-bypass-20261001/perf-legacy-final-680/report.json",
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 680,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2171419,
+        "retired_instructions": 483449,
+        "ipc": 0.2226419682244652,
+        "timer_ticks": 3193,
+        "timer_seconds": 0.003193,
+        "cycle_seconds": 0.0031932632352941175,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 901995,
+        "retired_instructions": 317725,
+        "ipc": 0.35224696367496494,
+        "timer_ticks": 1329,
+        "timer_seconds": 0.001329,
+        "cycle_seconds": 0.0013264632352941177,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 24586,
+          "retired_instructions": 9709,
+          "ipc": 0.3948995363214838,
+          "timer_ticks": 37,
+          "timer_seconds": 3.7e-05,
+          "cycle_seconds": 3.6155882352941175e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112398,
+          "retired_instructions": 83537,
+          "ipc": 0.7432249684158081,
+          "timer_ticks": 166,
+          "timer_seconds": 0.000166,
+          "cycle_seconds": 0.00016529117647058822,
+          "interrupts": 0
+        },
+        {
+          "cycles": 231281,
+          "retired_instructions": 141943,
+          "ipc": 0.61372529520367,
+          "timer_ticks": 341,
+          "timer_seconds": 0.000341,
+          "cycle_seconds": 0.0003401191176470588,
+          "interrupts": 0
+        },
+        {
+          "cycles": 17523,
+          "retired_instructions": 11293,
+          "ipc": 0.6444672715859157,
+          "timer_ticks": 26,
+          "timer_seconds": 2.6e-05,
+          "cycle_seconds": 2.5769117647058823e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8229,
+          "retired_instructions": 4513,
+          "ipc": 0.5484262972414631,
+          "timer_ticks": 12,
+          "timer_seconds": 1.2e-05,
+          "cycle_seconds": 1.2101470588235294e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 77690,
+          "retired_instructions": 12061,
+          "ipc": 0.15524520530312783,
+          "timer_ticks": 114,
+          "timer_seconds": 0.000114,
+          "cycle_seconds": 0.00011425,
+          "interrupts": 0
+        },
+        {
+          "cycles": 164394,
+          "retired_instructions": 17979,
+          "ipc": 0.10936530530311325,
+          "timer_ticks": 242,
+          "timer_seconds": 0.000242,
+          "cycle_seconds": 0.00024175588235294116,
+          "interrupts": 0
+        },
+        {
+          "cycles": 83212,
+          "retired_instructions": 14661,
+          "ipc": 0.17618853050040859,
+          "timer_ticks": 122,
+          "timer_seconds": 0.000122,
+          "cycle_seconds": 0.00012237058823529412,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168429,
+          "retired_instructions": 17172,
+          "ipc": 0.10195393904850115,
+          "timer_ticks": 248,
+          "timer_seconds": 0.000248,
+          "cycle_seconds": 0.00024768970588235294,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14253,
+          "retired_instructions": 4857,
+          "ipc": 0.3407703641338666,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.096029411764706e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2745567,
+        "retired_instructions": 559124,
+        "ipc": 0.20364609568806735,
+        "cycle_seconds": 0.004037598529411764,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362128,
+        "score_begin": 2684362728,
+        "score_end": 2684362760,
+        "total_end": 2684362352
+      },
+      "backend_rob": 0,
+      "backend_entries": 4,
+      "load_overlap": 0,
+      "isa": "rv32im",
+      "mul_pipeline": 1,
+      "timing_model": "device-clock-v1",
+      "scale": "test",
+      "host_wall_seconds": 6.730508487999941,
+      "observer_on_off_verified": false,
+      "manifest_sha256": "502d128054b89b473211ab44a8e2fc56f2b65ab8bac1df84c19b2ee9a814a5a7"
+    },
+    "issue500": {
+      "report": "npc/result/retire-bypass-20261001/native-issue-500-final/report.json",
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 500,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 1788331,
+        "retired_instructions": 482140,
+        "ipc": 0.2696033340584042,
+        "timer_ticks": 3576,
+        "timer_seconds": 0.003576,
+        "cycle_seconds": 0.003576662,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 810757,
+        "retired_instructions": 317724,
+        "ipc": 0.391885608141527,
+        "timer_ticks": 1621,
+        "timer_seconds": 0.001621,
+        "cycle_seconds": 0.001621514,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 22620,
+          "retired_instructions": 9707,
+          "ipc": 0.42913351016799295,
+          "timer_ticks": 45,
+          "timer_seconds": 4.5e-05,
+          "cycle_seconds": 4.524e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 118429,
+          "retired_instructions": 83537,
+          "ipc": 0.7053762169738831,
+          "timer_ticks": 237,
+          "timer_seconds": 0.000237,
+          "cycle_seconds": 0.000236858,
+          "interrupts": 0
+        },
+        {
+          "cycles": 236345,
+          "retired_instructions": 141943,
+          "ipc": 0.6005754299858258,
+          "timer_ticks": 473,
+          "timer_seconds": 0.000473,
+          "cycle_seconds": 0.00047269,
+          "interrupts": 0
+        },
+        {
+          "cycles": 17388,
+          "retired_instructions": 11293,
+          "ipc": 0.6494708994708994,
+          "timer_ticks": 34,
+          "timer_seconds": 3.4e-05,
+          "cycle_seconds": 3.4776e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8477,
+          "retired_instructions": 4513,
+          "ipc": 0.5323817388226967,
+          "timer_ticks": 17,
+          "timer_seconds": 1.7e-05,
+          "cycle_seconds": 1.6954e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 64905,
+          "retired_instructions": 12061,
+          "ipc": 0.18582543717741315,
+          "timer_ticks": 130,
+          "timer_seconds": 0.00013,
+          "cycle_seconds": 0.00012981,
+          "interrupts": 0
+        },
+        {
+          "cycles": 129528,
+          "retired_instructions": 17980,
+          "ipc": 0.13881168550429251,
+          "timer_ticks": 259,
+          "timer_seconds": 0.000259,
+          "cycle_seconds": 0.000259056,
+          "interrupts": 0
+        },
+        {
+          "cycles": 69990,
+          "retired_instructions": 14661,
+          "ipc": 0.20947278182597515,
+          "timer_ticks": 140,
+          "timer_seconds": 0.00014,
+          "cycle_seconds": 0.00013998,
+          "interrupts": 0
+        },
+        {
+          "cycles": 130980,
+          "retired_instructions": 17172,
+          "ipc": 0.1311039853412735,
+          "timer_ticks": 262,
+          "timer_seconds": 0.000262,
+          "cycle_seconds": 0.00026196,
+          "interrupts": 0
+        },
+        {
+          "cycles": 12095,
+          "retired_instructions": 4857,
+          "ipc": 0.40157089706490284,
+          "timer_ticks": 24,
+          "timer_seconds": 2.4e-05,
+          "cycle_seconds": 2.419e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2234305,
+        "retired_instructions": 557276,
+        "ipc": 0.24941805169840287,
+        "cycle_seconds": 0.00446861,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362128,
+        "score_begin": 2684362728,
+        "score_end": 2684362760,
+        "total_end": 2684362352
+      },
+      "scale": "test",
+      "isa": "rv32im",
+      "timing_model": "device-clock-v1",
+      "simulator_sha256": "7ce0e9c5ae4cc67605ceb0f50ef793a71358f1c2ecabd8233ed39458012048ea",
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "manifest_sha256": "fa1c5c3c12b8165b6f7640df4558310393a5f556ef0f088bf714549f07736817",
+      "run_command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-issue-500-final/build/ysyxSoCFull_sim",
+        "--batch",
+        "--flash",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-issue-500-final/microbench.bin",
+        "+NPC_PERF_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-issue-500-final/timer-events.jsonl"
+      ]
+    },
+    "no_issue500": {
+      "report": "npc/result/retire-bypass-20261001/native-no-issue-500/report.json",
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 500,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 1762091,
+        "retired_instructions": 482813,
+        "ipc": 0.27400003745550033,
+        "timer_ticks": 3525,
+        "timer_seconds": 0.003525,
+        "cycle_seconds": 0.003524182,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 791149,
+        "retired_instructions": 317724,
+        "ipc": 0.40159818188482826,
+        "timer_ticks": 1582,
+        "timer_seconds": 0.001582,
+        "cycle_seconds": 0.001582298,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 22346,
+          "retired_instructions": 9708,
+          "ipc": 0.4344401682627763,
+          "timer_ticks": 45,
+          "timer_seconds": 4.5e-05,
+          "cycle_seconds": 4.4692e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 115965,
+          "retired_instructions": 83537,
+          "ipc": 0.7203639029017376,
+          "timer_ticks": 232,
+          "timer_seconds": 0.000232,
+          "cycle_seconds": 0.00023193,
+          "interrupts": 0
+        },
+        {
+          "cycles": 224565,
+          "retired_instructions": 141943,
+          "ipc": 0.6320797987219736,
+          "timer_ticks": 449,
+          "timer_seconds": 0.000449,
+          "cycle_seconds": 0.00044913,
+          "interrupts": 0
+        },
+        {
+          "cycles": 16800,
+          "retired_instructions": 11293,
+          "ipc": 0.6722023809523809,
+          "timer_ticks": 33,
+          "timer_seconds": 3.3e-05,
+          "cycle_seconds": 3.36e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7809,
+          "retired_instructions": 4513,
+          "ipc": 0.5779229094634396,
+          "timer_ticks": 15,
+          "timer_seconds": 1.5e-05,
+          "cycle_seconds": 1.5618e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 63150,
+          "retired_instructions": 12061,
+          "ipc": 0.19098970704671417,
+          "timer_ticks": 126,
+          "timer_seconds": 0.000126,
+          "cycle_seconds": 0.0001263,
+          "interrupts": 0
+        },
+        {
+          "cycles": 128634,
+          "retired_instructions": 17979,
+          "ipc": 0.13976864592564953,
+          "timer_ticks": 258,
+          "timer_seconds": 0.000258,
+          "cycle_seconds": 0.000257268,
+          "interrupts": 0
+        },
+        {
+          "cycles": 69575,
+          "retired_instructions": 14661,
+          "ipc": 0.21072224218469277,
+          "timer_ticks": 139,
+          "timer_seconds": 0.000139,
+          "cycle_seconds": 0.00013915,
+          "interrupts": 0
+        },
+        {
+          "cycles": 130540,
+          "retired_instructions": 17172,
+          "ipc": 0.13154588631836986,
+          "timer_ticks": 261,
+          "timer_seconds": 0.000261,
+          "cycle_seconds": 0.00026108,
+          "interrupts": 0
+        },
+        {
+          "cycles": 11765,
+          "retired_instructions": 4857,
+          "ipc": 0.4128346791330217,
+          "timer_ticks": 24,
+          "timer_seconds": 2.4e-05,
+          "cycle_seconds": 2.353e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2206374,
+        "retired_instructions": 558209,
+        "ipc": 0.25299835839254814,
+        "cycle_seconds": 0.004412748,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362128,
+        "score_begin": 2684362728,
+        "score_end": 2684362760,
+        "total_end": 2684362352
+      },
+      "scale": "test",
+      "isa": "rv32im",
+      "timing_model": "device-clock-v1",
+      "simulator_sha256": "66ae178395db6c86fdf75260897b54f77cf3c2aaf8d3aabe0258031f0eabbaa1",
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "manifest_sha256": "ec7a18e89bc2acb16288c1d6a8f2b8eb1b98ac188643124a019838dcde944f5b",
+      "run_command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-no-issue-500/build/ysyxSoCFull_sim",
+        "--batch",
+        "--flash",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-no-issue-500/microbench.bin",
+        "+NPC_PERF_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-no-issue-500/timer-events.jsonl"
+      ]
+    },
+    "no_issue620": {
+      "report": "npc/result/retire-bypass-20261001/native-no-issue-620/report.json",
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 620,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2057057,
+        "retired_instructions": 482831,
+        "ipc": 0.23471931016009764,
+        "timer_ticks": 3318,
+        "timer_seconds": 0.003318,
+        "cycle_seconds": 0.003317833870967742,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 868550,
+        "retired_instructions": 317724,
+        "ipc": 0.36580968280467446,
+        "timer_ticks": 1400,
+        "timer_seconds": 0.0014,
+        "cycle_seconds": 0.0014008870967741934,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 24332,
+          "retired_instructions": 9708,
+          "ipc": 0.39898076606937366,
+          "timer_ticks": 40,
+          "timer_seconds": 4e-05,
+          "cycle_seconds": 3.9245161290322584e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 116195,
+          "retired_instructions": 83537,
+          "ipc": 0.7189379921683378,
+          "timer_ticks": 187,
+          "timer_seconds": 0.000187,
+          "cycle_seconds": 0.00018741129032258066,
+          "interrupts": 0
+        },
+        {
+          "cycles": 229022,
+          "retired_instructions": 141943,
+          "ipc": 0.6197788858712263,
+          "timer_ticks": 369,
+          "timer_seconds": 0.000369,
+          "cycle_seconds": 0.0003693903225806452,
+          "interrupts": 0
+        },
+        {
+          "cycles": 17249,
+          "retired_instructions": 11293,
+          "ipc": 0.6547046205577135,
+          "timer_ticks": 28,
+          "timer_seconds": 2.8e-05,
+          "cycle_seconds": 2.7820967741935484e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 8217,
+          "retired_instructions": 4513,
+          "ipc": 0.5492272118778143,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.3253225806451613e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 73197,
+          "retired_instructions": 12061,
+          "ipc": 0.16477451261663728,
+          "timer_ticks": 118,
+          "timer_seconds": 0.000118,
+          "cycle_seconds": 0.00011805967741935484,
+          "interrupts": 0
+        },
+        {
+          "cycles": 152171,
+          "retired_instructions": 17979,
+          "ipc": 0.11814997601382655,
+          "timer_ticks": 246,
+          "timer_seconds": 0.000246,
+          "cycle_seconds": 0.0002454370967741936,
+          "interrupts": 0
+        },
+        {
+          "cycles": 80005,
+          "retired_instructions": 14661,
+          "ipc": 0.1832510468095744,
+          "timer_ticks": 129,
+          "timer_seconds": 0.000129,
+          "cycle_seconds": 0.00012904032258064516,
+          "interrupts": 0
+        },
+        {
+          "cycles": 154764,
+          "retired_instructions": 17172,
+          "ipc": 0.11095603628750872,
+          "timer_ticks": 249,
+          "timer_seconds": 0.000249,
+          "cycle_seconds": 0.00024961935483870965,
+          "interrupts": 0
+        },
+        {
+          "cycles": 13398,
+          "retired_instructions": 4857,
+          "ipc": 0.3625167935512763,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.160967741935484e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2592237,
+        "retired_instructions": 558182,
+        "ipc": 0.21532830524369492,
+        "cycle_seconds": 0.0041810274193548385,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362128,
+        "score_begin": 2684362728,
+        "score_end": 2684362760,
+        "total_end": 2684362352
+      },
+      "scale": "test",
+      "isa": "rv32im",
+      "timing_model": "device-clock-v1",
+      "simulator_sha256": "d87ba318e4138a2a8b84beb2a5acb892a8837490b458cd2e4b5f9786eb9f5cd5",
+      "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+      "manifest_sha256": "5a959ab92cb58801a190b539e5f1c2b4fc5852e5ff680d219d488abd4dbd8113",
+      "run_command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-no-issue-620/build/ysyxSoCFull_sim",
+        "--batch",
+        "--flash",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-no-issue-620/microbench.bin",
+        "+NPC_PERF_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/native-no-issue-620/timer-events.jsonl"
+      ]
+    }
+  },
+  "ppa": {
+    "alu-mul": {
+      "mhz": 680,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 121535.932,
+      "wall_seconds": 181.33219385147095,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:680"
+    },
+    "separate-completion": {
+      "mhz": 680,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 121598.708,
+      "wall_seconds": 302.2598876953125,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:680"
+    },
+    "natural-adder": {
+      "mhz": 700,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 121647.652,
+      "wall_seconds": 290.69805550575256,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:700"
+    },
+    "without-issue": {
+      "mhz": 620,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 120499.862,
+      "wall_seconds": 516.6174235343933,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:620"
+    },
+    "legacy-natural": {
+      "mhz": 680,
+      "grid_mhz": 20,
+      "search_upper_mhz": 800,
+      "all_groups_passed": true,
+      "area_um2": 117244.022,
+      "wall_seconds": 213.49040722846985,
+      "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+      "source": "timing.json:680"
+    }
+  },
+  "standalone_features": {
+    "rob": {
+      "fu": {
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/build/top_sim",
+          "--batch",
+          "--diff",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/fu/mixed.bin"
+        ],
+        "difftest": true,
+        "software_oracle": true,
+        "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+        "cycles": 6110,
+        "retired": 1961,
+        "backend_counters": [
+          "NPC ROB: entries=4 load_overlap=1 cycles=6108 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=4112 occupancy_sum=24039",
+          "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=1813"
+        ],
+        "cases": {
+          "mixed": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/fu/mixed.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+            "cycles": 6110,
+            "retired": 1961,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=6108 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=4112 occupancy_sum=24039",
+              "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=1813"
+            ]
+          },
+          "issue-context": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/build/top_sim",
+              "--batch",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/fu/issue-context.bin"
+            ],
+            "difftest": false,
+            "software_oracle": true,
+            "image_sha256": "4460d92c39f272900974537a340cae58d0a0eb49987c00a421b232d8593918bb",
+            "cycles": 102,
+            "retired": 25,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=100 dispatched=26 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=46 occupancy_sum=85",
+              "NPC FU: mul=0 div=1 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=0"
+            ]
+          },
+          "multiply-burst": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/fu/multiply-burst.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "4cfc39fc8926185107377f54116ca7d040ddf018fb58d64fa0fc02e3184fc51e",
+            "cycles": 1074,
+            "retired": 1028,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=1072 dispatched=1029 div_overlap=0 speculative_load=0 multi_complete=63 discarded_load=0 head_wait=11 occupancy_sum=3074",
+              "NPC FU: mul=384 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=319 out_of_order_completions=630"
+            ]
+          },
+          "load-overlap": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/fu/load-overlap.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "605de16e439d524a3316771bd4dd645257baa8e38cfa038f98cb0382f7b450c0",
+            "cycles": 530,
+            "retired": 390,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=528 dispatched=391 div_overlap=0 speculative_load=30 multi_complete=32 discarded_load=0 head_wait=108 occupancy_sum=1788",
+              "NPC FU: mul=32 div=0 memory=32 mul_during_div=0 load_during_div=0 mul_during_load=32 consecutive_mul=0 out_of_order_completions=343"
+            ]
+          },
+          "dependent": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/fu/dependent.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "26bbb76ed9988562594f2713a99216c5f13a3130dc00fc11982b1f854ae2fceb",
+            "cycles": 2394,
+            "retired": 262,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=2392 dispatched=263 div_overlap=129 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=2117 occupancy_sum=7022",
+              "NPC FU: mul=64 div=64 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=194"
+            ]
+          },
+          "alu-chain": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/fu/alu-chain.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "4f5cf58cbfba50410473e8a2ab5e4032e9d86ee8ed400bca781fbf841087b463",
+            "cycles": 1203,
+            "retired": 1157,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=1201 dispatched=1158 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=9 occupancy_sum=2318",
+              "NPC FU: mul=0 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=0"
+            ]
+          }
+        },
+        "fu_counters": {
+          "mul": 609,
+          "div": 199,
+          "memory": 163,
+          "mul_during_div": 129,
+          "load_during_div": 129,
+          "mul_during_load": 33,
+          "consecutive_mul": 319,
+          "out_of_order_completions": 2980
+        },
+        "overlap_required": false,
+        "simulator_sha256": "19fbb977a2c97da535b1e9d4e582dd5b943531f8ba62a212c2f743decaf2c27d"
+      },
+      "kernel": {
+        "workload": "scalar-int8-dot-normalize",
+        "checksum": "0x0",
+        "timing_scope": "whole standalone NPC program, flat memory; not SoC timer",
+        "cpu": "same RV32IM balanced simulator for both software images",
+        "records": [
+          {
+            "isa": "rv32i",
+            "cycles": 2465304,
+            "retired": 2065811,
+            "ipc": 0.837953858834448,
+            "build_command": [
+              "riscv64-linux-gnu-gcc",
+              "-march=rv32i_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-nostdlib",
+              "-static",
+              "-fno-pic",
+              "-fno-pie",
+              "-mcmodel=medany",
+              "-ffreestanding",
+              "-fno-builtin",
+              "-msmall-data-limit=0",
+              "-O2",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-Wl,--no-relax,--build-id=none,--gc-sections",
+              "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/kernel/test.ld",
+              "-DEXPECTED_CHECKSUM=0u",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/kernel/start.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+              "-o",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/kernel/rv32i.elf"
+            ],
+            "image_sha256": "b14ef89582bc07af888c3f96385a90424aa92ae4760aec1879877c693f0b220d"
+          },
+          {
+            "isa": "rv32im",
+            "cycles": 192352,
+            "retired": 151125,
+            "ipc": 0.785668981866578,
+            "build_command": [
+              "riscv64-linux-gnu-gcc",
+              "-march=rv32im_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-nostdlib",
+              "-static",
+              "-fno-pic",
+              "-fno-pie",
+              "-mcmodel=medany",
+              "-ffreestanding",
+              "-fno-builtin",
+              "-msmall-data-limit=0",
+              "-O2",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-Wl,--no-relax,--build-id=none,--gc-sections",
+              "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/kernel/test.ld",
+              "-DEXPECTED_CHECKSUM=0u",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/kernel/start.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+              "-o",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/kernel/rv32im.elf"
+            ],
+            "image_sha256": "d9e4031247fbe03822de424551501841efc579581c9724b04861c89c18c59688"
+          }
+        ],
+        "sha256": {
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c": "4c6f6b70275966a2d65aa7c501f5a7d5f5310ece88c940b52aec7be774f9d108",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/build/top_sim": "19fbb977a2c97da535b1e9d4e582dd5b943531f8ba62a212c2f743decaf2c27d",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py": "ebdf94682a7c5463ce3a0bd73b2ed1a54cfd34c477f3d1867d0ce225ed1e110d"
+        },
+        "speedup_same_frequency": 12.816627848943604
+      },
+      "manifest": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/rob/manifest.json"
+    },
+    "legacy": {
+      "fu": {
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/build/top_sim",
+          "--batch",
+          "--diff",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/fu/mixed.bin"
+        ],
+        "difftest": true,
+        "software_oracle": true,
+        "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+        "cycles": 6649,
+        "retired": 1961,
+        "backend_counters": [],
+        "cases": {
+          "mixed": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/fu/mixed.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+            "cycles": 6649,
+            "retired": 1961,
+            "backend_counters": []
+          },
+          "issue-context": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/build/top_sim",
+              "--batch",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/fu/issue-context.bin"
+            ],
+            "difftest": false,
+            "software_oracle": true,
+            "image_sha256": "4460d92c39f272900974537a340cae58d0a0eb49987c00a421b232d8593918bb",
+            "cycles": 113,
+            "retired": 25,
+            "backend_counters": []
+          },
+          "multiply-burst": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/fu/multiply-burst.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "4cfc39fc8926185107377f54116ca7d040ddf018fb58d64fa0fc02e3184fc51e",
+            "cycles": 1076,
+            "retired": 1028,
+            "backend_counters": []
+          },
+          "load-overlap": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/fu/load-overlap.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "605de16e439d524a3316771bd4dd645257baa8e38cfa038f98cb0382f7b450c0",
+            "cycles": 623,
+            "retired": 390,
+            "backend_counters": []
+          },
+          "dependent": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/fu/dependent.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "26bbb76ed9988562594f2713a99216c5f13a3130dc00fc11982b1f854ae2fceb",
+            "cycles": 2536,
+            "retired": 262,
+            "backend_counters": []
+          },
+          "alu-chain": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/fu/alu-chain.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "4f5cf58cbfba50410473e8a2ab5e4032e9d86ee8ed400bca781fbf841087b463",
+            "cycles": 1203,
+            "retired": 1157,
+            "backend_counters": []
+          }
+        },
+        "fu_counters": {},
+        "overlap_required": false,
+        "simulator_sha256": "c1fa378a915ddef1bdb79f307b4623b96fd4bb4eb08c54497c4d9f1500fe7251"
+      },
+      "kernel": {
+        "workload": "scalar-int8-dot-normalize",
+        "checksum": "0x0",
+        "timing_scope": "whole standalone NPC program, flat memory; not SoC timer",
+        "cpu": "same RV32IM balanced simulator for both software images",
+        "records": [
+          {
+            "isa": "rv32i",
+            "cycles": 2385341,
+            "retired": 2065811,
+            "ipc": 0.866044309807277,
+            "build_command": [
+              "riscv64-linux-gnu-gcc",
+              "-march=rv32i_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-nostdlib",
+              "-static",
+              "-fno-pic",
+              "-fno-pie",
+              "-mcmodel=medany",
+              "-ffreestanding",
+              "-fno-builtin",
+              "-msmall-data-limit=0",
+              "-O2",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-Wl,--no-relax,--build-id=none,--gc-sections",
+              "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/kernel/test.ld",
+              "-DEXPECTED_CHECKSUM=0u",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/kernel/start.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+              "-o",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/kernel/rv32i.elf"
+            ],
+            "image_sha256": "b14ef89582bc07af888c3f96385a90424aa92ae4760aec1879877c693f0b220d"
+          },
+          {
+            "isa": "rv32im",
+            "cycles": 192451,
+            "retired": 151125,
+            "ipc": 0.7852648206556474,
+            "build_command": [
+              "riscv64-linux-gnu-gcc",
+              "-march=rv32im_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-nostdlib",
+              "-static",
+              "-fno-pic",
+              "-fno-pie",
+              "-mcmodel=medany",
+              "-ffreestanding",
+              "-fno-builtin",
+              "-msmall-data-limit=0",
+              "-O2",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-Wl,--no-relax,--build-id=none,--gc-sections",
+              "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/kernel/test.ld",
+              "-DEXPECTED_CHECKSUM=0u",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/kernel/start.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+              "-o",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/kernel/rv32im.elf"
+            ],
+            "image_sha256": "d9e4031247fbe03822de424551501841efc579581c9724b04861c89c18c59688"
+          }
+        ],
+        "sha256": {
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c": "4c6f6b70275966a2d65aa7c501f5a7d5f5310ece88c940b52aec7be774f9d108",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/build/top_sim": "c1fa378a915ddef1bdb79f307b4623b96fd4bb4eb08c54497c4d9f1500fe7251",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py": "ebdf94682a7c5463ce3a0bd73b2ed1a54cfd34c477f3d1867d0ce225ed1e110d"
+        },
+        "speedup_same_frequency": 12.39453679118321
+      },
+      "manifest": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/legacy/manifest.json"
+    },
+    "without-issue": {
+      "fu": {
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/build/top_sim",
+          "--batch",
+          "--diff",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/fu/mixed.bin"
+        ],
+        "difftest": true,
+        "software_oracle": true,
+        "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+        "cycles": 6118,
+        "retired": 1961,
+        "backend_counters": [
+          "NPC ROB: entries=4 load_overlap=1 cycles=6116 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=128 discarded_load=0 head_wait=4118 occupancy_sum=24025",
+          "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=0 consecutive_mul=0 out_of_order_completions=1812"
+        ],
+        "cases": {
+          "mixed": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/fu/mixed.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+            "cycles": 6118,
+            "retired": 1961,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=6116 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=128 discarded_load=0 head_wait=4118 occupancy_sum=24025",
+              "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=0 consecutive_mul=0 out_of_order_completions=1812"
+            ]
+          },
+          "issue-context": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/build/top_sim",
+              "--batch",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/fu/issue-context.bin"
+            ],
+            "difftest": false,
+            "software_oracle": true,
+            "image_sha256": "4460d92c39f272900974537a340cae58d0a0eb49987c00a421b232d8593918bb",
+            "cycles": 103,
+            "retired": 25,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=101 dispatched=26 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=46 occupancy_sum=85",
+              "NPC FU: mul=0 div=1 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=0"
+            ]
+          },
+          "multiply-burst": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/fu/multiply-burst.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "4cfc39fc8926185107377f54116ca7d040ddf018fb58d64fa0fc02e3184fc51e",
+            "cycles": 1071,
+            "retired": 1028,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=1069 dispatched=1029 div_overlap=0 speculative_load=0 multi_complete=63 discarded_load=0 head_wait=11 occupancy_sum=3074",
+              "NPC FU: mul=384 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=319 out_of_order_completions=630"
+            ]
+          },
+          "load-overlap": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/fu/load-overlap.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "605de16e439d524a3316771bd4dd645257baa8e38cfa038f98cb0382f7b450c0",
+            "cycles": 527,
+            "retired": 390,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=525 dispatched=391 div_overlap=0 speculative_load=30 multi_complete=32 discarded_load=0 head_wait=107 occupancy_sum=1788",
+              "NPC FU: mul=32 div=0 memory=32 mul_during_div=0 load_during_div=0 mul_during_load=32 consecutive_mul=0 out_of_order_completions=343"
+            ]
+          },
+          "dependent": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/fu/dependent.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "26bbb76ed9988562594f2713a99216c5f13a3130dc00fc11982b1f854ae2fceb",
+            "cycles": 2393,
+            "retired": 262,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=2391 dispatched=263 div_overlap=129 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=2117 occupancy_sum=7023",
+              "NPC FU: mul=64 div=64 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=194"
+            ]
+          },
+          "alu-chain": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/fu/alu-chain.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "4f5cf58cbfba50410473e8a2ab5e4032e9d86ee8ed400bca781fbf841087b463",
+            "cycles": 1200,
+            "retired": 1157,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=1198 dispatched=1158 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=9 occupancy_sum=2318",
+              "NPC FU: mul=0 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=0"
+            ]
+          }
+        },
+        "fu_counters": {
+          "mul": 609,
+          "div": 199,
+          "memory": 163,
+          "mul_during_div": 129,
+          "load_during_div": 129,
+          "mul_during_load": 32,
+          "consecutive_mul": 319,
+          "out_of_order_completions": 2979
+        },
+        "overlap_required": false,
+        "simulator_sha256": "ca03d54cd827c8ca0b0ae7ecddf9486d739968720825908d700aa6dc71953627"
+      },
+      "kernel": {
+        "workload": "scalar-int8-dot-normalize",
+        "checksum": "0x0",
+        "timing_scope": "whole standalone NPC program, flat memory; not SoC timer",
+        "cpu": "same RV32IM balanced simulator for both software images",
+        "records": [
+          {
+            "isa": "rv32i",
+            "cycles": 2385463,
+            "retired": 2065811,
+            "ipc": 0.8660000176066449,
+            "build_command": [
+              "riscv64-linux-gnu-gcc",
+              "-march=rv32i_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-nostdlib",
+              "-static",
+              "-fno-pic",
+              "-fno-pie",
+              "-mcmodel=medany",
+              "-ffreestanding",
+              "-fno-builtin",
+              "-msmall-data-limit=0",
+              "-O2",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-Wl,--no-relax,--build-id=none,--gc-sections",
+              "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/kernel/test.ld",
+              "-DEXPECTED_CHECKSUM=0u",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/kernel/start.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+              "-o",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/kernel/rv32i.elf"
+            ],
+            "image_sha256": "b14ef89582bc07af888c3f96385a90424aa92ae4760aec1879877c693f0b220d"
+          },
+          {
+            "isa": "rv32im",
+            "cycles": 192091,
+            "retired": 151125,
+            "ipc": 0.786736494682208,
+            "build_command": [
+              "riscv64-linux-gnu-gcc",
+              "-march=rv32im_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-nostdlib",
+              "-static",
+              "-fno-pic",
+              "-fno-pie",
+              "-mcmodel=medany",
+              "-ffreestanding",
+              "-fno-builtin",
+              "-msmall-data-limit=0",
+              "-O2",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-Wl,--no-relax,--build-id=none,--gc-sections",
+              "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/kernel/test.ld",
+              "-DEXPECTED_CHECKSUM=0u",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/kernel/start.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+              "-o",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/kernel/rv32im.elf"
+            ],
+            "image_sha256": "d9e4031247fbe03822de424551501841efc579581c9724b04861c89c18c59688"
+          }
+        ],
+        "sha256": {
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c": "4c6f6b70275966a2d65aa7c501f5a7d5f5310ece88c940b52aec7be774f9d108",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/build/top_sim": "ca03d54cd827c8ca0b0ae7ecddf9486d739968720825908d700aa6dc71953627",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py": "ebdf94682a7c5463ce3a0bd73b2ed1a54cfd34c477f3d1867d0ce225ed1e110d"
+        },
+        "speedup_same_frequency": 12.418400653856766
+      },
+      "manifest": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-issue/manifest.json"
+    },
+    "without-forwarding": {
+      "fu": {
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/build/top_sim",
+          "--batch",
+          "--diff",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/fu/mixed.bin"
+        ],
+        "difftest": true,
+        "software_oracle": true,
+        "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+        "cycles": 7647,
+        "retired": 1961,
+        "backend_counters": [
+          "NPC ROB: entries=4 load_overlap=1 cycles=7645 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=5011 occupancy_sum=21462",
+          "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=526"
+        ],
+        "cases": {
+          "mixed": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/fu/mixed.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "407263a1f132185fbcd645c82c4364f1d125eabb6a16cdd0b1b596fccefae087",
+            "cycles": 7647,
+            "retired": 1961,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=7645 dispatched=1962 div_overlap=390 speculative_load=129 multi_complete=127 discarded_load=0 head_wait=5011 occupancy_sum=21462",
+              "NPC FU: mul=129 div=134 memory=131 mul_during_div=129 load_during_div=129 mul_during_load=1 consecutive_mul=0 out_of_order_completions=526"
+            ]
+          },
+          "issue-context": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/build/top_sim",
+              "--batch",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/fu/issue-context.bin"
+            ],
+            "difftest": false,
+            "software_oracle": true,
+            "image_sha256": "4460d92c39f272900974537a340cae58d0a0eb49987c00a421b232d8593918bb",
+            "cycles": 105,
+            "retired": 25,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=103 dispatched=26 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=50 occupancy_sum=85",
+              "NPC FU: mul=0 div=1 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=0"
+            ]
+          },
+          "multiply-burst": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/fu/multiply-burst.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "4cfc39fc8926185107377f54116ca7d040ddf018fb58d64fa0fc02e3184fc51e",
+            "cycles": 1464,
+            "retired": 1028,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=1462 dispatched=1029 div_overlap=0 speculative_load=0 multi_complete=63 discarded_load=0 head_wait=264 occupancy_sum=2507",
+              "NPC FU: mul=384 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=320 out_of_order_completions=63"
+            ]
+          },
+          "load-overlap": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/fu/load-overlap.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "605de16e439d524a3316771bd4dd645257baa8e38cfa038f98cb0382f7b450c0",
+            "cycles": 843,
+            "retired": 390,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=841 dispatched=391 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=295 occupancy_sum=1227",
+              "NPC FU: mul=32 div=0 memory=32 mul_during_div=0 load_during_div=0 mul_during_load=32 consecutive_mul=0 out_of_order_completions=95"
+            ]
+          },
+          "dependent": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/fu/dependent.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "26bbb76ed9988562594f2713a99216c5f13a3130dc00fc11982b1f854ae2fceb",
+            "cycles": 2522,
+            "retired": 262,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=2520 dispatched=263 div_overlap=129 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=2181 occupancy_sum=6829",
+              "NPC FU: mul=64 div=64 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=131"
+            ]
+          },
+          "alu-chain": {
+            "command": [
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/build/top_sim",
+              "--batch",
+              "--diff",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/fu/alu-chain.bin"
+            ],
+            "difftest": true,
+            "software_oracle": true,
+            "image_sha256": "4f5cf58cbfba50410473e8a2ab5e4032e9d86ee8ed400bca781fbf841087b463",
+            "cycles": 3243,
+            "retired": 1157,
+            "backend_counters": [
+              "NPC ROB: entries=4 load_overlap=1 cycles=3241 dispatched=1158 div_overlap=0 speculative_load=0 multi_complete=0 discarded_load=0 head_wait=1030 occupancy_sum=2318",
+              "NPC FU: mul=0 div=0 memory=0 mul_during_div=0 load_during_div=0 mul_during_load=0 consecutive_mul=0 out_of_order_completions=0"
+            ]
+          }
+        },
+        "fu_counters": {
+          "mul": 609,
+          "div": 199,
+          "memory": 163,
+          "mul_during_div": 129,
+          "load_during_div": 129,
+          "mul_during_load": 33,
+          "consecutive_mul": 320,
+          "out_of_order_completions": 815
+        },
+        "overlap_required": false,
+        "simulator_sha256": "eaf90eb3901f1484b864deb5b410aa7cc14632b9f8804e72d8eb0cfcb27feb84"
+      },
+      "kernel": {
+        "workload": "scalar-int8-dot-normalize",
+        "checksum": "0x0",
+        "timing_scope": "whole standalone NPC program, flat memory; not SoC timer",
+        "cpu": "same RV32IM balanced simulator for both software images",
+        "records": [
+          {
+            "isa": "rv32i",
+            "cycles": 3520709,
+            "retired": 2065811,
+            "ipc": 0.5867599395462675,
+            "build_command": [
+              "riscv64-linux-gnu-gcc",
+              "-march=rv32i_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-nostdlib",
+              "-static",
+              "-fno-pic",
+              "-fno-pie",
+              "-mcmodel=medany",
+              "-ffreestanding",
+              "-fno-builtin",
+              "-msmall-data-limit=0",
+              "-O2",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-Wl,--no-relax,--build-id=none,--gc-sections",
+              "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/kernel/test.ld",
+              "-DEXPECTED_CHECKSUM=0u",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/kernel/start.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+              "-o",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/kernel/rv32i.elf"
+            ],
+            "image_sha256": "b14ef89582bc07af888c3f96385a90424aa92ae4760aec1879877c693f0b220d"
+          },
+          {
+            "isa": "rv32im",
+            "cycles": 308610,
+            "retired": 151125,
+            "ipc": 0.4896957324778847,
+            "build_command": [
+              "riscv64-linux-gnu-gcc",
+              "-march=rv32im_zicsr_zifencei",
+              "-mabi=ilp32",
+              "-nostdlib",
+              "-static",
+              "-fno-pic",
+              "-fno-pie",
+              "-mcmodel=medany",
+              "-ffreestanding",
+              "-fno-builtin",
+              "-msmall-data-limit=0",
+              "-O2",
+              "-ffunction-sections",
+              "-fdata-sections",
+              "-Wl,--no-relax,--build-id=none,--gc-sections",
+              "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/kernel/test.ld",
+              "-DEXPECTED_CHECKSUM=0u",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/kernel/start.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+              "-o",
+              "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/kernel/rv32im.elf"
+            ],
+            "image_sha256": "d9e4031247fbe03822de424551501841efc579581c9724b04861c89c18c59688"
+          }
+        ],
+        "sha256": {
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c": "4c6f6b70275966a2d65aa7c501f5a7d5f5310ece88c940b52aec7be774f9d108",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/build/top_sim": "eaf90eb3901f1484b864deb5b410aa7cc14632b9f8804e72d8eb0cfcb27feb84",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py": "ebdf94682a7c5463ce3a0bd73b2ed1a54cfd34c477f3d1867d0ce225ed1e110d"
+        },
+        "speedup_same_frequency": 11.408279057710379
+      },
+      "manifest": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/features/without-forwarding/manifest.json"
+    }
+  },
+  "metrics": {
+    "bypass_total_cycle_change_at680_pct": -0.33114528801728715,
+    "issue_total_cycle_change_at500_pct": 1.4891398911860865,
+    "issue_time_change_at_qualified_clocks_pct": -2.8842703782289814,
+    "issue_area_change_pct": 0.9525239124340334,
+    "rob_time_vs_legacy_at_qualified_clocks_pct": 0.9042579332422029,
+    "rob_area_vs_legacy_pct": 3.7559526915581287,
+    "rob_area_time_vs_legacy_pct": 4.694174124982586,
+    "bypass700_time_vs_uniform720_pct": 0.4144267866147189
+  },
+  "notes": [
+    "Standalone feature ablations froze the grouped adder. All six programs and the RV32IM kernel have identical cycles with the final conventional adder. Native Issue and STA ablations both use the final conventional adder.",
+    "without-forwarding disables current ALU and FU-completion forwarding; stored ROB results and dependency selection remain. It is not a correct alternative without a scoreboard.",
+    "All native images match. Native Total includes timer-dependent reporting code; do not assume identical retirement counts.",
+    "No current full-train result; no same-process CVA6 PPA/performance comparison."
+  ]
+}

@@ -53,16 +53,16 @@ module riscv32_pma
   // 未分配地址必须保留默认非法属性，不能因为高位相同就误判成合法设备。
   always_comb begin
     lookup_addr_in_clint = phys_addr_in_range(lookup_addr_i, CLINT_BASE_ADDR, CLINT_LAST_ADDR);
-    lookup_addr_in_sram  = phys_addr_in_range(lookup_addr_i, SRAM_BASE_ADDR, SRAM_LAST_ADDR);
-    lookup_addr_in_uart  = phys_addr_in_range(lookup_addr_i, UART_BASE_ADDR, UART_LAST_ADDR);
+    lookup_addr_in_sram = phys_addr_in_range(lookup_addr_i, SRAM_BASE_ADDR, SRAM_LAST_ADDR);
+    lookup_addr_in_uart = phys_addr_in_range(lookup_addr_i, UART_BASE_ADDR, UART_LAST_ADDR);
 
     lookup_addr_in_spi_registers =
         phys_addr_in_range(lookup_addr_i, SPI_REG_BASE_ADDR, SPI_REG_LAST_ADDR);
 
-    lookup_addr_in_gpio  = phys_addr_in_range(lookup_addr_i, GPIO_BASE_ADDR, GPIO_LAST_ADDR);
-    lookup_addr_in_ps2   = phys_addr_in_range(lookup_addr_i, PS2_BASE_ADDR, PS2_LAST_ADDR);
-    lookup_addr_in_mrom  = phys_addr_in_range(lookup_addr_i, MROM_BASE_ADDR, MROM_LAST_ADDR);
-    lookup_addr_in_vga   = phys_addr_in_range(lookup_addr_i, VGA_BASE_ADDR, VGA_LAST_ADDR);
+    lookup_addr_in_gpio = phys_addr_in_range(lookup_addr_i, GPIO_BASE_ADDR, GPIO_LAST_ADDR);
+    lookup_addr_in_ps2 = phys_addr_in_range(lookup_addr_i, PS2_BASE_ADDR, PS2_LAST_ADDR);
+    lookup_addr_in_mrom = phys_addr_in_range(lookup_addr_i, MROM_BASE_ADDR, MROM_LAST_ADDR);
+    lookup_addr_in_vga = phys_addr_in_range(lookup_addr_i, VGA_BASE_ADDR, VGA_LAST_ADDR);
     lookup_addr_in_flash = phys_addr_in_range(lookup_addr_i, FLASH_BASE_ADDR, FLASH_LAST_ADDR);
 
     lookup_addr_in_chiplink_mmio = CHIPLINK_PRESENT &&
@@ -95,40 +95,18 @@ module riscv32_pma
   // SRAM不缓存是当前系统策略：它本身只有约1周期访问延迟，缓存收益很小。
   // MROM同样保持不缓存。Flash、PSRAM和SDRAM延迟高且读操作无设备副作用，
   // 因而允许取指、允许缓存且幂等。MMIO必须全部不可执行、不可缓存、非幂等。
-  // 显式按区域分类可以清楚表达只读和可写内存的差异。曾尝试将属性改写为
-  // 多个区域命中信号的并行布尔方程，但标准单元映射后扩大了IFU高扇出逻辑锥，
-  // 在周期数不变的前提下同时恶化了面积、Fmax和TNS，因此保留本优先级形式。
+  // 地址区间互不重叠。并行产生属性，避免地址加法后再串联属性优先选择。
   always_comb begin
     memory_attr_o = '0;
-
-    if (lookup_addr_in_sram) begin
-      memory_attr_o.readable                   = 1'b1;
-      memory_attr_o.writable                   = 1'b1;
-      memory_attr_o.executable                 = 1'b1;
-      memory_attr_o.idempotent                 = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_mrom) begin
-      memory_attr_o.readable                   = 1'b1;
-      memory_attr_o.executable                 = 1'b1;
-      memory_attr_o.idempotent                 = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_flash) begin
-      memory_attr_o.readable                   = 1'b1;
-      memory_attr_o.executable                 = 1'b1;
-      memory_attr_o.cacheable                  = 1'b1;
-      memory_attr_o.idempotent                 = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_any_cacheable_memory) begin
-      memory_attr_o.readable                   = 1'b1;
-      memory_attr_o.writable                   = 1'b1;
-      memory_attr_o.executable                 = 1'b1;
-      memory_attr_o.cacheable                  = 1'b1;
-      memory_attr_o.idempotent                 = 1'b1;
-      memory_attr_o.width_conversion_supported = 1'b1;
-    end else if (lookup_addr_in_any_mmio) begin
-      memory_attr_o.readable = 1'b1;
-      memory_attr_o.writable = 1'b1;
-    end
+    memory_attr_o.readable = lookup_addr_in_sram || lookup_addr_in_mrom ||
+                            lookup_addr_in_any_cacheable_memory || lookup_addr_in_any_mmio;
+    memory_attr_o.writable = lookup_addr_in_sram || lookup_addr_in_psram ||
+                            lookup_addr_in_sdram || lookup_addr_in_chiplink_memory ||
+                            lookup_addr_in_any_mmio;
+    memory_attr_o.executable = lookup_addr_in_sram || lookup_addr_in_mrom ||
+                              lookup_addr_in_any_cacheable_memory;
+    memory_attr_o.cacheable = lookup_addr_in_any_cacheable_memory;
+    memory_attr_o.idempotent = memory_attr_o.executable;
+    memory_attr_o.width_conversion_supported = memory_attr_o.executable;
   end
-
 endmodule

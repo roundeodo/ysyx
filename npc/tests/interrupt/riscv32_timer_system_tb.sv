@@ -51,12 +51,21 @@ module riscv32_timer_system_tb;
     if (muldiv_test != 0) force dut.timer_interrupt = injected_muldiv_irq;
   end
 
+  // 两种后端都在真正的算法执行期间注入，不依赖指令是否仍占据 ID/EX。
+  logic divider_active, multiplier_active;
+  if (BACKEND_ROB_ENABLE) begin : gen_rob_activity
+    assign divider_active = dut.u_core.gen_rob_backend.u_backend.divide_pending_q &&
+                            !dut.u_core.gen_rob_backend.u_backend.divide_available;
+    assign multiplier_active = |dut.u_core.gen_rob_backend.u_backend.multiply_present_vector_q;
+  end else begin : gen_legacy_activity
+    assign divider_active = dut.u_core.execute_packet_valid &&
+        dut.u_core.execute_packet.uop.fu_type == FU_MULDIV && !dut.u_core.exu_result_valid;
+    assign multiplier_active = dut.u_core.execute_pipeline_busy;
+  end
   // 定向恢复测试只在除法已进入迭代后拉高 IRQ，CLINT 本身由原用例验证。
   always @(posedge clk) begin
     if (system_rst_n && muldiv_test != 0) begin
-      if (muldiv_test == 1 && dut.u_core.execute_packet_valid &&
-          dut.u_core.execute_packet.uop.fu_type == FU_MULDIV &&
-          !dut.u_core.exu_result_valid) begin
+      if (muldiv_test == 1 && divider_active) begin
         muldiv_cycles <= muldiv_cycles + 1;
         if (muldiv_cycles == 7) injected_muldiv_irq <= 1;
         if (dut.timer_interrupt) begin
@@ -65,7 +74,7 @@ module riscv32_timer_system_tb;
             else $fatal(1, "interrupt cancelled unfinished division");
         end
       end
-      if (muldiv_test == 2 && dut.u_core.execute_pipeline_busy) begin
+      if (muldiv_test == 2 && multiplier_active) begin
         muldiv_cycles <= muldiv_cycles + 1;
         if (!pipeline_irq_injected) begin
           injected_muldiv_irq <= 1;

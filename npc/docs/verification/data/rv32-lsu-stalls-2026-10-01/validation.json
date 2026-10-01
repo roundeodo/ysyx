@@ -1,0 +1,13 @@
+{
+  "functional_files_unchanged": true,
+  "detailed_probe_native_samples_equal_qualified_reference": true,
+  "initial_and_detailed_probe_common_counters_identical": true,
+  "new_probe_has_only_existing_unoptflat_warnings": true,
+  "unoptflat_signals": [
+    "ysyxSoCFull.asic.cpu.cpu.u_npc_system.u_axi4_arbiter.read_last_handshake",
+    "ysyxSoCFull.asic.cpu.cpu.u_npc_system.u_core.u_data_mem.u_uncached_axi.new_request_window_open",
+    "ysyxSoCFull.asic.cpu.cpu.u_npc_system.u_core.u_data_mem.uncached_req_valid",
+    "ysyxSoCFull.asic.cpu.cpu.u_npc_system.u_local_address_router.__VdfgRegularize",
+    "ysyxSoCFull.asic.cpu.cpu.u_npc_system.u_local_address_router.__VdfgRegularize"
+  ]
+}

@@ -59,6 +59,9 @@ module riscv32_data_mem
   axi4_manager_to_target_t uncached_axi_manager;
   axi4_target_to_manager_t uncached_axi_response;
 
+  localparam int unsigned COUNT_W = $clog2(LSU_ENTRIES + 1);
+  logic [COUNT_W-1:0] cache_count_q;
+  logic cache_request_handshake, cache_response_handshake, last_response;
   logic new_request_window_open;
   logic selected_data_request_ready;
   logic selected_request_handshake;
@@ -86,8 +89,28 @@ module riscv32_data_mem
     end
   end
 
-  assign new_request_window_open =
-      (route_state_q == DATA_ROUTE_IDLE) || local_resp_handshake;
+  // 多个 cache 请求共享同一路由；最后一个响应交付后才能切换到 MMIO/故障路径。
+  assign last_response = local_resp_handshake &&
+      (route_state_q != DATA_ROUTE_DCACHE || cache_count_q == 1);
+  assign new_request_window_open = (route_state_q == DATA_ROUTE_IDLE) || last_response ||
+      ((LSU_ENTRIES > 1) && route_state_q == DATA_ROUTE_DCACHE &&
+       selected_request_route == DATA_ROUTE_DCACHE &&
+       (int'(cache_count_q) < LSU_ENTRIES || local_resp_handshake));
+  assign cache_request_handshake = dcache_req_valid && dcache_req_ready;
+  assign cache_response_handshake = dcache_resp_valid && dcache_resp_ready;
+  if (LSU_ENTRIES > 1) begin : gen_cache_count
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (!rst_ni) cache_count_q <= '0;
+      else case ({cache_request_handshake, cache_response_handshake})
+        2'b10: cache_count_q <= cache_count_q + 1'b1;
+        2'b01: cache_count_q <= cache_count_q - 1'b1;
+        default: ;
+      endcase
+    end
+  end else begin : gen_single_route
+    // 单请求配置的路由状态已经记录是否占用，不再保存重复计数器。
+    assign cache_count_q = COUNT_W'(route_state_q == DATA_ROUTE_DCACHE);
+  end
 
   assign dcache_req   = data_memory_req_i;
   assign uncached_req = data_memory_req_i;
@@ -96,8 +119,10 @@ module riscv32_data_mem
   assign dcache_req_valid = !dcache_clean_req_i &&
       new_request_window_open && data_memory_req_valid_i &&
       selected_request_route == DATA_ROUTE_DCACHE;
+  // uncached 不能与 cache 在途请求重叠；无需经过 cache 容量和目标译码的通用窗口。
+  // 空闲或最后响应交付时仍当拍直通，ready 与路由更新继续使用统一握手规则。
   assign uncached_req_valid = !dcache_clean_req_i &&
-      new_request_window_open && data_memory_req_valid_i &&
+      ((route_state_q == DATA_ROUTE_IDLE) || last_response) && data_memory_req_valid_i &&
       selected_request_route == DATA_ROUTE_UNCACHED;
 
   always_comb begin
@@ -188,7 +213,7 @@ module riscv32_data_mem
       if (selected_request_route == DATA_ROUTE_ACCESS_FAULT) begin
         fault_transaction_id_d = data_memory_req_i.transaction_id;
       end
-    end else if (route_state_q != DATA_ROUTE_IDLE && local_resp_handshake) begin
+    end else if (route_state_q != DATA_ROUTE_IDLE && last_response) begin
       route_state_d = DATA_ROUTE_IDLE;
     end
   end
@@ -249,6 +274,10 @@ module riscv32_data_mem
   );
 
 `ifndef SYNTHESIS
+  assert property (@(posedge clk_i) disable iff (!rst_ni) int'(cache_count_q) <= LSU_ENTRIES);
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    cache_response_handshake |-> cache_count_q != 0);
+
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     !((dcache_axi_manager.ar_valid && uncached_axi_manager.ar_valid) ||
       (dcache_axi_manager.aw_valid && uncached_axi_manager.aw_valid) ||

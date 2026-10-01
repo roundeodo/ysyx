@@ -1,0 +1,32 @@
+{
+  "retained": [
+    "reuse fetch-buffer storage as register boundary in ROB mode",
+    "DIV completion writes existing ROB result before retirement; completion forwarding retained"
+  ],
+  "rejected": [
+    {
+      "name": "parallel",
+      "mhz": 580
+    },
+    {
+      "name": "registered-fetch",
+      "mhz": 540
+    }
+  ],
+  "ablations": [
+    "fetch-only",
+    "div-retire-only"
+  ],
+  "default_rob_enable": false,
+  "reason": "700 MHz timing qualification with slightly lower area. Keep optional: test only, not evidence for every workload.",
+  "limitation": "700 MHz setup slack rounds to zero at 1 ps report precision; 720 MHz fails. Not routed signoff.",
+  "metrics": {
+    "area_change_percent": -0.7277930519023923,
+    "same_600_total_cycle_change_percent": 1.3045926885793424,
+    "same_600_scored_cycle_change_percent": 2.400092648700003,
+    "legal_clock_total_time_change_percent": -3.8107531781433446,
+    "legal_clock_scored_time_change_percent": -5.5155723012473175,
+    "area_time_ratio_vs_old_rob4": 0.9548918816680995,
+    "area_time_ratio_vs_legacy": 1.0312223201944803
+  }
+}

@@ -1,0 +1,476 @@
+{
+  "status": "passed",
+  "scope": "native MicroBench test; RV32IM; 680 MHz model; device 100 MHz",
+  "image_sha256": "628d93c7fc6df6804d690769a8f5fe02782099f1292bd7abda23f61702c611ad",
+  "no_functional_rtl_change": true,
+  "native": {
+    "rob256": {
+      "total": {
+        "cycles": 2204695,
+        "retired_instructions": 482560,
+        "ipc": 0.21887834825225258,
+        "timer_ticks": 3242,
+        "timer_seconds": 0.003242,
+        "cycle_seconds": 0.003242198529411765,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 928906,
+        "retired_instructions": 317724,
+        "ipc": 0.342041067664543,
+        "timer_ticks": 1368,
+        "timer_seconds": 0.001368,
+        "cycle_seconds": 0.0013660382352941177,
+        "interrupts": 0
+      }
+    },
+    "rob1024": {
+      "total": {
+        "cycles": 2001157,
+        "retired_instructions": 482591,
+        "ipc": 0.24115599125905662,
+        "timer_ticks": 2943,
+        "timer_seconds": 0.002943,
+        "cycle_seconds": 0.0029428779411764705,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 769354,
+        "retired_instructions": 317725,
+        "ipc": 0.4129763411901413,
+        "timer_ticks": 1131,
+        "timer_seconds": 0.001131,
+        "cycle_seconds": 0.0011314029411764706,
+        "interrupts": 0
+      }
+    },
+    "legacy256": {
+      "total": {
+        "cycles": 2171419,
+        "retired_instructions": 483449,
+        "ipc": 0.2226419682244652,
+        "timer_ticks": 3193,
+        "timer_seconds": 0.003193,
+        "cycle_seconds": 0.0031932632352941175,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 901995,
+        "retired_instructions": 317725,
+        "ipc": 0.35224696367496494,
+        "timer_ticks": 1329,
+        "timer_seconds": 0.001329,
+        "cycle_seconds": 0.0013264632352941177,
+        "interrupts": 0
+      }
+    },
+    "legacy1024": {
+      "total": {
+        "cycles": 1963894,
+        "retired_instructions": 483443,
+        "ipc": 0.24616552624530652,
+        "timer_ticks": 2888,
+        "timer_seconds": 0.002888,
+        "cycle_seconds": 0.002888079411764706,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 740834,
+        "retired_instructions": 317723,
+        "ipc": 0.42887205500827447,
+        "timer_ticks": 1091,
+        "timer_seconds": 0.001091,
+        "cycle_seconds": 0.0010894617647058823,
+        "interrupts": 0
+      }
+    }
+  },
+  "comparisons": {
+    "rob256_to_rob1024": {
+      "total": -0.09232025291480228,
+      "scored": -0.17176334311544983
+    },
+    "legacy256_to_legacy1024": {
+      "total": -0.09557114495175734,
+      "scored": -0.17867172212706284
+    },
+    "legacy256_to_rob256": {
+      "total": 0.015324541233175282,
+      "scored": 0.02983497691228898
+    },
+    "legacy1024_to_rob1024": {
+      "total": 0.018974038313676722,
+      "scored": 0.03849715320841107
+    }
+  },
+  "per_benchmark": [
+    {
+      "name": "qsort",
+      "cycles": 25473,
+      "lsu_capacity_cycles": 576,
+      "lsu_capacity_fraction": 0.022612177599811566,
+      "dc_miss_busy_fraction": 0.3901385781023044,
+      "blocked_ready_arithmetic_cycles": 0,
+      "shadow_same_line_cycles": 63,
+      "shadow_other_hit_cycles": 270,
+      "shadow_other_miss_cycles": 0,
+      "variant_cycles": {
+        "rob256": 25473,
+        "rob1024": 15769,
+        "legacy256": 24586,
+        "legacy1024": 14575
+      }
+    },
+    {
+      "name": "queen",
+      "cycles": 118768,
+      "lsu_capacity_cycles": 113,
+      "lsu_capacity_fraction": 0.000951434729893574,
+      "dc_miss_busy_fraction": 0.0017007948268893977,
+      "blocked_ready_arithmetic_cycles": 0,
+      "shadow_same_line_cycles": 0,
+      "shadow_other_hit_cycles": 0,
+      "shadow_other_miss_cycles": 0,
+      "variant_cycles": {
+        "rob256": 118768,
+        "rob1024": 118715,
+        "legacy256": 112398,
+        "legacy1024": 112357
+      }
+    },
+    {
+      "name": "bf",
+      "cycles": 242923,
+      "lsu_capacity_cycles": 379,
+      "lsu_capacity_fraction": 0.001560165155213792,
+      "dc_miss_busy_fraction": 0.08951807774479979,
+      "blocked_ready_arithmetic_cycles": 132,
+      "shadow_same_line_cycles": 132,
+      "shadow_other_hit_cycles": 132,
+      "shadow_other_miss_cycles": 0,
+      "variant_cycles": {
+        "rob256": 242923,
+        "rob1024": 233403,
+        "legacy256": 231281,
+        "legacy1024": 221864
+      }
+    },
+    {
+      "name": "fib",
+      "cycles": 17981,
+      "lsu_capacity_cycles": 92,
+      "lsu_capacity_fraction": 0.005116511873644402,
+      "dc_miss_busy_fraction": 0.020410433235081474,
+      "blocked_ready_arithmetic_cycles": 0,
+      "shadow_same_line_cycles": 0,
+      "shadow_other_hit_cycles": 0,
+      "shadow_other_miss_cycles": 0,
+      "variant_cycles": {
+        "rob256": 17981,
+        "rob1024": 17777,
+        "legacy256": 17523,
+        "legacy1024": 17462
+      }
+    },
+    {
+      "name": "sieve",
+      "cycles": 8935,
+      "lsu_capacity_cycles": 113,
+      "lsu_capacity_fraction": 0.012646894236149972,
+      "dc_miss_busy_fraction": 0.08707330721880246,
+      "blocked_ready_arithmetic_cycles": 0,
+      "shadow_same_line_cycles": 0,
+      "shadow_other_hit_cycles": 0,
+      "shadow_other_miss_cycles": 0,
+      "variant_cycles": {
+        "rob256": 8935,
+        "rob1024": 8392,
+        "legacy256": 8229,
+        "legacy1024": 7447
+      }
+    },
+    {
+      "name": "15pz",
+      "cycles": 80736,
+      "lsu_capacity_cycles": 1743,
+      "lsu_capacity_fraction": 0.021588882282996432,
+      "dc_miss_busy_fraction": 0.16141498216409036,
+      "blocked_ready_arithmetic_cycles": 183,
+      "shadow_same_line_cycles": 125,
+      "shadow_other_hit_cycles": 954,
+      "shadow_other_miss_cycles": 0,
+      "variant_cycles": {
+        "rob256": 80736,
+        "rob1024": 71040,
+        "legacy256": 77690,
+        "legacy1024": 68013
+      }
+    },
+    {
+      "name": "dinic",
+      "cycles": 165593,
+      "lsu_capacity_cycles": 28590,
+      "lsu_capacity_fraction": 0.17265222563755714,
+      "dc_miss_busy_fraction": 0.8225951580078869,
+      "blocked_ready_arithmetic_cycles": 2658,
+      "shadow_same_line_cycles": 2634,
+      "shadow_other_hit_cycles": 19412,
+      "shadow_other_miss_cycles": 6295,
+      "variant_cycles": {
+        "rob256": 165593,
+        "rob1024": 128295,
+        "legacy256": 164394,
+        "legacy1024": 126906
+      }
+    },
+    {
+      "name": "lzip",
+      "cycles": 86428,
+      "lsu_capacity_cycles": 15528,
+      "lsu_capacity_fraction": 0.1796639977784977,
+      "dc_miss_busy_fraction": 0.7027005137224048,
+      "blocked_ready_arithmetic_cycles": 14292,
+      "shadow_same_line_cycles": 0,
+      "shadow_other_hit_cycles": 1103,
+      "shadow_other_miss_cycles": 14292,
+      "variant_cycles": {
+        "rob256": 86428,
+        "rob1024": 78921,
+        "legacy256": 83212,
+        "legacy1024": 75793
+      }
+    },
+    {
+      "name": "ssort",
+      "cycles": 167266,
+      "lsu_capacity_cycles": 12710,
+      "lsu_capacity_fraction": 0.07598675164109861,
+      "dc_miss_busy_fraction": 0.7894132698815061,
+      "blocked_ready_arithmetic_cycles": 3681,
+      "shadow_same_line_cycles": 5213,
+      "shadow_other_hit_cycles": 4618,
+      "shadow_other_miss_cycles": 2580,
+      "variant_cycles": {
+        "rob256": 167266,
+        "rob1024": 85306,
+        "legacy256": 168429,
+        "legacy1024": 85177
+      }
+    },
+    {
+      "name": "md5",
+      "cycles": 14803,
+      "lsu_capacity_cycles": 394,
+      "lsu_capacity_fraction": 0.02661622644058637,
+      "dc_miss_busy_fraction": 0.4536918192258326,
+      "blocked_ready_arithmetic_cycles": 281,
+      "shadow_same_line_cycles": 277,
+      "shadow_other_hit_cycles": 0,
+      "shadow_other_miss_cycles": 0,
+      "variant_cycles": {
+        "rob256": 14803,
+        "rob1024": 11736,
+        "legacy256": 14253,
+        "legacy1024": 11240
+      }
+    }
+  ],
+  "baseline_stalls": {
+    "total": {
+      "cycles": 2204695,
+      "retired": 482560,
+      "categories": {
+        "dispatch": 482560,
+        "control": 20474,
+        "memory_order": 764031,
+        "discard_drain": 0,
+        "lsu_capacity": 96358,
+        "divider_busy": 3840,
+        "execute_other": 0,
+        "serializing": 0,
+        "raw": 488888,
+        "rob_full": 50929,
+        "issue_transfer": 72031,
+        "frontend_empty": 225584
+      },
+      "events": {
+        "lsu_pending": 1466578,
+        "dc_miss_busy": 1098667,
+        "ic_miss_busy": 191784,
+        "rob_full": 91843,
+        "raw_load": 585032,
+        "head_wait_load": 658337,
+        "head_wait_store": 795927,
+        "head_wait_other": 44398,
+        "lsu_wait_load": 96358,
+        "lsu_wait_store": 0,
+        "load_wait_during_miss": 93872,
+        "wait_same_line": 10446,
+        "wait_other_line_hit": 57826,
+        "wait_other_line_miss": 25600,
+        "ready_younger_alu_mul_div": 23914,
+        "ready_younger_with_rob_space": 22060,
+        "dc_lookup": 66628,
+        "dc_miss": 9070,
+        "dc_dirty_miss": 6576,
+        "load_dispatch": 78330,
+        "store_dispatch": 47281,
+        "control_redirect": 20474,
+        "retire": 482560,
+        "lsu_wait_episodes": 902,
+        "head_ready": 482560,
+        "rob_occupancy_sum": 3974211,
+        "raw_category_load": 479137,
+        "raw_category_other": 9751,
+        "order_lsu_busy": 702104,
+        "order_lsu_ready": 61927,
+        "order_dcache_miss": 695496,
+        "order_pending_uncached": 30850,
+        "head_wait_store_uncached": 21954,
+        "head_wait_load_dcache_miss": 352160
+      }
+    },
+    "scored": {
+      "cycles": 928906,
+      "retired": 317724,
+      "categories": {
+        "dispatch": 317724,
+        "control": 18398,
+        "memory_order": 102905,
+        "discard_drain": 0,
+        "lsu_capacity": 60238,
+        "divider_busy": 3840,
+        "execute_other": 0,
+        "serializing": 0,
+        "raw": 218970,
+        "rob_full": 43041,
+        "issue_transfer": 43367,
+        "frontend_empty": 120423
+      },
+      "events": {
+        "lsu_pending": 466732,
+        "dc_miss_busy": 381770,
+        "ic_miss_busy": 78966,
+        "rob_full": 74967,
+        "raw_load": 272399,
+        "head_wait_load": 350202,
+        "head_wait_store": 106340,
+        "head_wait_other": 31341,
+        "lsu_wait_load": 60238,
+        "lsu_wait_store": 0,
+        "load_wait_during_miss": 58100,
+        "wait_same_line": 8444,
+        "wait_other_line_hit": 26489,
+        "wait_other_line_miss": 23167,
+        "ready_younger_alu_mul_div": 22330,
+        "ready_younger_with_rob_space": 21227,
+        "dc_lookup": 41041,
+        "dc_miss": 3752,
+        "dc_dirty_miss": 1563,
+        "load_dispatch": 49285,
+        "store_dispatch": 24435,
+        "control_redirect": 18398,
+        "retire": 317724,
+        "lsu_wait_episodes": 616,
+        "head_ready": 317724,
+        "rob_occupancy_sum": 1767814,
+        "raw_category_load": 212813,
+        "raw_category_other": 6157,
+        "order_lsu_busy": 68054,
+        "order_lsu_ready": 34851,
+        "order_dcache_miss": 65736,
+        "order_pending_uncached": 25351,
+        "head_wait_store_uncached": 15978,
+        "head_wait_load_dcache_miss": 297506
+      }
+    }
+  },
+  "directed_schedule_comparisons": {
+    "same-line": {
+      "rob": {
+        "loads_first_cycles": 1742,
+        "arithmetic_first_cycles": 1606,
+        "retired_each": 557,
+        "cycle_change_fraction": -0.07807118254879453
+      },
+      "legacy": {
+        "loads_first_cycles": 1893,
+        "arithmetic_first_cycles": 1863,
+        "retired_each": 557,
+        "cycle_change_fraction": -0.015847860538827252
+      }
+    },
+    "other-hit": {
+      "rob": {
+        "loads_first_cycles": 1742,
+        "arithmetic_first_cycles": 1606,
+        "retired_each": 557,
+        "cycle_change_fraction": -0.07807118254879453
+      },
+      "legacy": {
+        "loads_first_cycles": 1893,
+        "arithmetic_first_cycles": 1863,
+        "retired_each": 557,
+        "cycle_change_fraction": -0.015847860538827252
+      }
+    },
+    "other-miss": {
+      "rob": {
+        "loads_first_cycles": 1742,
+        "arithmetic_first_cycles": 1606,
+        "retired_each": 557,
+        "cycle_change_fraction": -0.07807118254879453
+      },
+      "legacy": {
+        "loads_first_cycles": 2021,
+        "arithmetic_first_cycles": 1991,
+        "retired_each": 557,
+        "cycle_change_fraction": -0.014844136566056432
+      }
+    },
+    "both-hit": {
+      "rob": {
+        "loads_first_cycles": 1618,
+        "arithmetic_first_cycles": 1606,
+        "retired_each": 557,
+        "cycle_change_fraction": -0.007416563658838027
+      },
+      "legacy": {
+        "loads_first_cycles": 1738,
+        "arithmetic_first_cycles": 1739,
+        "retired_each": 557,
+        "cycle_change_fraction": 0.0005753739930955959
+      }
+    }
+  },
+  "observer_equivalence": {
+    "native_events_identical": true,
+    "audit": [
+      "NPC architectural audit = bef3f1d1999a356f"
+    ]
+  },
+  "raw_report_index": {
+    "rob256": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/lsu-stalls-20261001/rob-d256-detail-fixed/report.json",
+    "rob1024": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/lsu-stalls-20261001/rob-d1024/report.json",
+    "legacy256": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/retire-bypass-20261001/perf-legacy-final-680/report.json",
+    "legacy1024": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/lsu-stalls-20261001/legacy-d1024/report.json"
+  },
+  "limits": [
+    "No full train run",
+    "No new LSU, nonblocking cache, store buffer or multiple MSHRs implemented",
+    "1 KiB D-cache is cycle-sensitivity only; no new STA/area qualification",
+    "Overlapping events and repeated-ready cycles are not recoverable-cycle estimates",
+    "Software rescheduling demonstrates a mechanism, not the gain of an unimplemented queue",
+    "Directed legacy binary is the prior frozen standalone reference; native comparisons use final RTL"
+  ],
+  "recommended_next_comparison": [
+    "current baseline",
+    "two load contexts, same blocking cache",
+    "same contexts plus one-MSHR hit-under-miss",
+    "cache capacity control"
+  ],
+  "defer": [
+    "multiple misses until AXI arbiter/router and endpoint concurrency are addressed",
+    "posted stores until late-error and retirement semantics are specified"
+  ]
+}

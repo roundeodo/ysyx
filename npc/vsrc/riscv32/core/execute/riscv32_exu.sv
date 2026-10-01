@@ -1,5 +1,6 @@
 module riscv32_exu
   import riscv32_pkg::*;
+#(parameter bit EXTERNAL_MULDIV = 1'b0)
 (
     input  logic            clk_i,
     input  logic            rst_ni,
@@ -94,21 +95,21 @@ module riscv32_exu
   logic [31:0] muldiv_result, iterative_result;
   logic pipeline_request_ready;
   logic arithmetic_flush;
-  assign muldiv_selected = MULDIV_ENABLE &&
+  assign muldiv_selected = (MULDIV_ENABLE && !EXTERNAL_MULDIV) &&
       (execute_packet_i.uop.fu_type == FU_MULDIV) && !execute_packet_i.uop.exception_valid;
   assign multiply_selected = muldiv_selected &&
       (execute_packet_i.uop.muldiv_op <= MD_MULHU);
-  assign pipelined_multiply = MUL_PIPELINE_ENABLE && multiply_selected;
+  assign pipelined_multiply = (MUL_PIPELINE_ENABLE && !EXTERNAL_MULDIV) && multiply_selected;
   assign multiply_shortcut = (multiply_operand_a_i == '0) || (multiply_operand_b_i == '0);
   assign muldiv_result = pipelined_multiply ? 32'b0 : iterative_result;
   assign muldiv_result_available = pipelined_multiply ? multiply_shortcut : iterative_available;
   assign muldiv_result_available_o = execute_packet_valid_i && muldiv_selected &&
       muldiv_result_available;
-  assign iterative_ready = MUL_PIPELINE_ENABLE ? pipeline_request_ready : exu_result_ready_i;
+  assign iterative_ready = (MUL_PIPELINE_ENABLE && !EXTERNAL_MULDIV) ? pipeline_request_ready : exu_result_ready_i;
   // 结果端非分支纠错时，除法可能属于更年轻的 ID/EX，必须一起取消。
-  assign arithmetic_flush = flush_i || (MUL_PIPELINE_ENABLE && sequential_redirect_valid_o);
+  assign arithmetic_flush = flush_i || ((MUL_PIPELINE_ENABLE && !EXTERNAL_MULDIV) && sequential_redirect_valid_o);
 
-  if (MUL_PIPELINE_ENABLE) begin : gen_div
+  if ((MUL_PIPELINE_ENABLE && !EXTERNAL_MULDIV)) begin : gen_div
     riscv32_div u_div (
         .clk_i(clk_i), .rst_ni(rst_ni), .flush_i(arithmetic_flush),
         .operation_valid_i(execute_packet_valid_i && execute_packet_issue_allowed_i &&
@@ -118,7 +119,7 @@ module riscv32_exu
         .result_o(iterative_result), .result_available_o(iterative_available),
         .result_ready_i(iterative_ready)
     );
-  end else if (MULDIV_ENABLE) begin : gen_muldiv
+  end else if ((MULDIV_ENABLE && !EXTERNAL_MULDIV)) begin : gen_muldiv
     riscv32_muldiv u_muldiv (
         .clk_i(clk_i), .rst_ni(rst_ni), .flush_i(flush_i),
         .operation_valid_i(execute_packet_valid_i && execute_packet_issue_allowed_i && muldiv_selected),
@@ -132,48 +133,9 @@ module riscv32_exu
     assign iterative_available = 1'b0;
   end
 
-  // load/store 与 JALR 都使用符号扩展的 12 位位移，共用地址加法。
-  // IM 配置：低 12 位加法和高位传播条件并行，高位按进位保持或加/减一。
-  // 原 I 配置保留已经测量的宽加法映射，避免共享修改使稳定配置时序退化。
+  // load/store 与 JALR 共用基址加符号扩展位移的组合加法，不增加流水级。
   effective_addr_t base_offset_addr;
-  if ((XLEN == 32) && MULDIV_ENABLE) begin : gen_rv32_address
-    logic [12:0] offset_sum;
-    logic [19:0] upper_propagate;
-    logic        upper_adjust;
-
-    // 三个 4 位组并行生成进位；低位不必逐位传播到第 12 位。
-    logic [2:0] group_generate, group_propagate;
-    logic [3:0] group_carry;
-    assign group_carry[0] = 1'b0;
-    assign group_carry[1] = group_generate[0];
-    assign group_carry[2] = group_generate[1] |
-                           (group_propagate[1] && group_generate[0]);
-    assign group_carry[3] = group_generate[2] |
-                           (group_propagate[2] && group_generate[1]) |
-                           (group_propagate[2] && group_propagate[1] && group_generate[0]);
-    for (genvar group_index = 0; group_index < 3; group_index++) begin : gen_offset_group
-      logic [4:0] group_sum;
-      assign group_sum = {1'b0, execute_rs1_value[group_index*4 +: 4]} +
-                         {1'b0, execute_packet_i.uop.imm[group_index*4 +: 4]};
-      assign group_generate[group_index] = group_sum[4];
-      assign group_propagate[group_index] = &(execute_rs1_value[group_index*4 +: 4] |
-                                              execute_packet_i.uop.imm[group_index*4 +: 4]);
-      assign offset_sum[group_index*4 +: 4] = group_sum[3:0] +
-                                            {3'b0, group_carry[group_index]};
-    end
-    assign offset_sum[12] = group_carry[3];
-    assign upper_propagate = execute_rs1_value[31:12] ^
-                             {20{execute_packet_i.uop.imm[11]}};
-    assign upper_adjust = offset_sum[12] ^ execute_packet_i.uop.imm[11];
-    assign base_offset_addr[11:0] = offset_sum[11:0];
-    assign base_offset_addr[12] = execute_rs1_value[12] ^ upper_adjust;
-    for (genvar bit_index = 13; bit_index < 32; bit_index++) begin : gen_upper_bit
-      assign base_offset_addr[bit_index] = execute_rs1_value[bit_index] ^
-          (upper_adjust && (&upper_propagate[bit_index-13:0]));
-    end
-  end else begin : gen_wide_address
-    assign base_offset_addr = effective_addr_t'(execute_rs1_value + execute_packet_i.uop.imm);
-  end
+  assign base_offset_addr = effective_addr_t'(execute_rs1_value + execute_packet_i.uop.imm);
 
   // 控制流：比较 → 目标地址 → 实际后继与对齐检查。
   logic             branch_condition_met;
@@ -299,7 +261,7 @@ module riscv32_exu
       (execute_packet_i.uop.fu_type != FU_LSU) &&
       (!muldiv_selected || muldiv_result_available || pipelined_multiply);
 
-  if (MUL_PIPELINE_ENABLE) begin : gen_mul
+  if ((MUL_PIPELINE_ENABLE && !EXTERNAL_MULDIV)) begin : gen_mul
     // EXU 保存顺序和指令身份；乘法器只保存部分积与压缩结果。
     logic [EXECUTE_PIPE_DEPTH-1:0] present_vector_q, multiply_vector_q;
     execute_result_t result_array_q [EXECUTE_PIPE_DEPTH];

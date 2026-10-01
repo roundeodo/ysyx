@@ -43,6 +43,36 @@ package riscv_config_pkg;
   localparam bit MUL_PIPELINE_ENABLE = 1'b0;
 `endif
 
+  // 可选多 FU 后端；保留旧顺序后端作为默认对照。
+`ifdef YSYX_BACKEND_ROB_ENABLE
+  localparam bit BACKEND_ROB_ENABLE = (`YSYX_BACKEND_ROB_ENABLE != 0);
+`else
+  localparam bit BACKEND_ROB_ENABLE = 1'b0;
+`endif
+`ifdef YSYX_BACKEND_ENTRIES
+  localparam int unsigned BACKEND_ENTRIES = `YSYX_BACKEND_ENTRIES;
+`else
+  localparam int unsigned BACKEND_ENTRIES = 4;
+`endif
+`ifdef YSYX_BACKEND_LOAD_OVERLAP
+  localparam bit BACKEND_LOAD_OVERLAP = (`YSYX_BACKEND_LOAD_OVERLAP != 0);
+`else
+  localparam bit BACKEND_LOAD_OVERLAP = 1'b0;
+`endif
+
+
+  // 多请求访存作为独立实验开关；旧配置保持单上下文和阻塞式 cache。
+`ifdef YSYX_LSU_ENTRIES
+  localparam int unsigned LSU_ENTRIES = `YSYX_LSU_ENTRIES;
+`else
+  localparam int unsigned LSU_ENTRIES = 1;
+`endif
+`ifdef YSYX_DCACHE_HIT_UNDER_MISS
+  localparam bit DCACHE_HIT_UNDER_MISS = (`YSYX_DCACHE_HIT_UNDER_MISS != 0);
+`else
+  localparam bit DCACHE_HIT_UNDER_MISS = 1'b0;
+`endif
+
   localparam int unsigned PADDR_WIDTH = 32;
   localparam int unsigned INSTR_WIDTH = 32;
   localparam int unsigned ARCH_REG_COUNT = 32;

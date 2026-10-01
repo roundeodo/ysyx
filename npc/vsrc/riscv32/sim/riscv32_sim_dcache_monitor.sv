@@ -35,21 +35,24 @@ module riscv32_sim_dcache_monitor
   logic [63:0] clean_miss_response_latency_cycle_sum_q;
   logic [63:0] dirty_miss_response_latency_cycle_sum_q;
 
-  // 当前阻塞式D-cache最多只有一个需求lookup在途。未来引入MSHR后，计时器必须
-  // 按transaction_id分项保存，不能继续使用这个标量状态。
-  logic [63:0] lookup_elapsed_cycle_count_q;
-  logic        lookup_timer_active_q;
-  logic        active_lookup_is_store_q;
-  logic        lookup_classified_as_miss_q;
-  logic        active_miss_has_dirty_victim_q;
-  logic        lookup_response_counted_q;
+  // 每个事务独立计时；命中可以先于较老的 miss 返回。
+  logic [63:0] lookup_elapsed_cycle_count_q[MEM_TXN_COUNT];
+  logic lookup_timer_active_q[MEM_TXN_COUNT];
+  logic active_lookup_is_store_q[MEM_TXN_COUNT];
+  logic lookup_classified_as_miss_q[MEM_TXN_COUNT];
+  logic active_miss_has_dirty_victim_q[MEM_TXN_COUNT];
+  logic lookup_response_counted_q[MEM_TXN_COUNT];
+  mem_txn_id_t lookup_id, response_id, miss_id;
+  assign lookup_id = dcache_event_i.lookup_transaction_id;
+  assign response_id = dcache_event_i.response_transaction_id;
+  assign miss_id = dcache_event_i.miss_transaction_id;
 
   logic lookup_response_available_for_active_request;
 
   assign lookup_response_available_for_active_request =
       dcache_event_i.lookup_response_present &&
-      !lookup_response_counted_q &&
-      (lookup_timer_active_q || dcache_event_i.lookup_event);
+      !lookup_response_counted_q[response_id] &&
+      (lookup_timer_active_q[response_id] || dcache_event_i.lookup_event);
 
   // 请求握手启动计时；响应首次present结束计时。响应若被LSU反压而保持多拍，
   // lookup_response_counted_q保证该事务只被统计一次。
@@ -80,12 +83,14 @@ module riscv32_sim_dcache_monitor
       miss_response_latency_cycle_sum_q       <= '0;
       clean_miss_response_latency_cycle_sum_q <= '0;
       dirty_miss_response_latency_cycle_sum_q <= '0;
-      lookup_elapsed_cycle_count_q            <= '0;
-      lookup_timer_active_q                   <= 1'b0;
-      active_lookup_is_store_q                <= 1'b0;
-      lookup_classified_as_miss_q             <= 1'b0;
-      active_miss_has_dirty_victim_q          <= 1'b0;
-      lookup_response_counted_q               <= 1'b0;
+      for (int slot = 0; slot < MEM_TXN_COUNT; slot++) begin
+      lookup_elapsed_cycle_count_q[slot]            <= '0;
+      lookup_timer_active_q[slot]                   <= 1'b0;
+      active_lookup_is_store_q[slot]                <= 1'b0;
+      lookup_classified_as_miss_q[slot]             <= 1'b0;
+      active_miss_has_dirty_victim_q[slot]          <= 1'b0;
+      lookup_response_counted_q[slot]               <= 1'b0;
+      end
     end else begin
       lookup_request_wait_cycle_count_q <= lookup_request_wait_cycle_count_q +
           64'(dcache_event_i.lookup_request_waiting);
@@ -103,14 +108,15 @@ module riscv32_sim_dcache_monitor
       writeback_response_count_q <= writeback_response_count_q +
           64'(dcache_event_i.writeback_response_event);
 
-      if (lookup_timer_active_q) begin
-        lookup_elapsed_cycle_count_q <= lookup_elapsed_cycle_count_q + 64'd1;
+      for (int slot = 0; slot < MEM_TXN_COUNT; slot++) begin
+        if (lookup_timer_active_q[slot])
+          lookup_elapsed_cycle_count_q[slot] <= lookup_elapsed_cycle_count_q[slot] + 64'd1;
       end
 
       if (dcache_event_i.miss_event) begin
         miss_count_q                <= miss_count_q + 64'd1;
-        lookup_classified_as_miss_q <= 1'b1;
-        if (active_lookup_is_store_q) begin
+        lookup_classified_as_miss_q[miss_id] <= 1'b1;
+        if (active_lookup_is_store_q[miss_id]) begin
           store_miss_count_q <= store_miss_count_q + 64'd1;
         end else begin
           load_miss_count_q <= load_miss_count_q + 64'd1;
@@ -118,52 +124,52 @@ module riscv32_sim_dcache_monitor
       end
 
       if (dcache_event_i.dirty_victim_miss_event) begin
-        active_miss_has_dirty_victim_q <= 1'b1;
+        active_miss_has_dirty_victim_q[miss_id] <= 1'b1;
       end
 
       if (lookup_response_available_for_active_request) begin
         if (dcache_event_i.lookup_response_is_cache_hit) begin
           hit_count_q             <= hit_count_q + 64'd1;
-          hit_latency_cycle_sum_q <= hit_latency_cycle_sum_q + lookup_elapsed_cycle_count_q + 64'd1;
-          if (active_lookup_is_store_q) begin
+          hit_latency_cycle_sum_q <= hit_latency_cycle_sum_q + lookup_elapsed_cycle_count_q[response_id] + 64'd1;
+          if (active_lookup_is_store_q[response_id]) begin
             store_hit_count_q <= store_hit_count_q + 64'd1;
           end else begin
             load_hit_count_q <= load_hit_count_q + 64'd1;
           end
-        end else if (lookup_classified_as_miss_q || dcache_event_i.miss_event) begin
+        end else if (lookup_classified_as_miss_q[response_id] || (dcache_event_i.miss_event && miss_id == response_id)) begin
           miss_response_count_q             <= miss_response_count_q + 64'd1;
           miss_response_latency_cycle_sum_q <= miss_response_latency_cycle_sum_q +
-              lookup_elapsed_cycle_count_q + 64'd1;
-          if (active_miss_has_dirty_victim_q || dcache_event_i.dirty_victim_miss_event) begin
+              lookup_elapsed_cycle_count_q[response_id] + 64'd1;
+          if (active_miss_has_dirty_victim_q[response_id] || (dcache_event_i.dirty_victim_miss_event && miss_id == response_id)) begin
             dirty_miss_response_count_q             <= dirty_miss_response_count_q + 64'd1;
             dirty_miss_response_latency_cycle_sum_q <=
                 dirty_miss_response_latency_cycle_sum_q +
-                lookup_elapsed_cycle_count_q + 64'd1;
+                lookup_elapsed_cycle_count_q[response_id] + 64'd1;
           end else begin
             clean_miss_response_count_q             <= clean_miss_response_count_q + 64'd1;
             clean_miss_response_latency_cycle_sum_q <=
                 clean_miss_response_latency_cycle_sum_q +
-                lookup_elapsed_cycle_count_q + 64'd1;
+                lookup_elapsed_cycle_count_q[response_id] + 64'd1;
           end
         end
 
-        lookup_elapsed_cycle_count_q   <= '0;
-        lookup_timer_active_q          <= 1'b0;
-        lookup_classified_as_miss_q    <= 1'b0;
-        active_miss_has_dirty_victim_q <= 1'b0;
-        lookup_response_counted_q      <= 1'b1;
+        lookup_elapsed_cycle_count_q[response_id]   <= '0;
+        lookup_timer_active_q[response_id]          <= 1'b0;
+        lookup_classified_as_miss_q[response_id]    <= 1'b0;
+        active_miss_has_dirty_victim_q[response_id] <= 1'b0;
+        lookup_response_counted_q[response_id]      <= 1'b1;
       end
 
       // 连续load hit可在旧响应交付的同拍接收新请求，因此新请求更新放在响应处理之后，
       // 让新的活动事务状态覆盖刚结束的旧事务状态。
       if (dcache_event_i.lookup_event) begin
         lookup_count_q                 <= lookup_count_q + 64'd1;
-        lookup_elapsed_cycle_count_q   <= '0;
-        lookup_timer_active_q          <= 1'b1;
-        active_lookup_is_store_q       <= dcache_event_i.lookup_is_store;
-        lookup_classified_as_miss_q    <= 1'b0;
-        active_miss_has_dirty_victim_q <= 1'b0;
-        lookup_response_counted_q      <= 1'b0;
+        lookup_elapsed_cycle_count_q[lookup_id]   <= '0;
+        lookup_timer_active_q[lookup_id]          <= 1'b1;
+        active_lookup_is_store_q[lookup_id]       <= dcache_event_i.lookup_is_store;
+        lookup_classified_as_miss_q[lookup_id]    <= 1'b0;
+        active_miss_has_dirty_victim_q[lookup_id] <= 1'b0;
+        lookup_response_counted_q[lookup_id]      <= 1'b0;
         if (dcache_event_i.lookup_is_store) begin
           store_lookup_count_q <= store_lookup_count_q + 64'd1;
         end else begin
@@ -277,12 +283,12 @@ module riscv32_sim_dcache_monitor
       else
         $error("D-cache installed more lines than completed refill transactions");
 
-      assert (!(dcache_event_i.lookup_event && lookup_timer_active_q &&
-                !dcache_event_i.lookup_response_present))
+      assert (!(dcache_event_i.lookup_event && lookup_timer_active_q[lookup_id] &&
+                !(dcache_event_i.lookup_response_present && response_id == lookup_id)))
       else
-        $error("D-cache monitor observed more than one outstanding lookup");
+        $error("D-cache monitor observed transaction ID reuse before its response");
 
-      assert (!dcache_event_i.miss_event || lookup_timer_active_q || dcache_event_i.lookup_event)
+      assert (!dcache_event_i.miss_event || lookup_timer_active_q[miss_id])
       else
         $error("D-cache monitor observed a miss without an active lookup");
     end

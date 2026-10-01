@@ -1,0 +1,122 @@
+{
+  "baseline_commit": "5493a6aec976f4f9bdc075834d3f1202b0ae16ef",
+  "preexisting_result_deletions": 1202,
+  "stable_config": "rv32im-pipelined; ROB disabled",
+  "tool_versions": {
+    "verilator": "Verilator 5.043 devel rev v5.042-244-g4080284e5",
+    "yosys": "Yosys 0.60+70 (git sha1 8101c87fa, clang++ 18.1.8 -fPIC -O3)",
+    "compiler": "riscv64-linux-gnu-gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0"
+  },
+  "memory_model": "existing device-clock AXI/APB model, device=100 MHz; frequency-specific rebuilds",
+  "isa": "rv32im_zicsr_zifencei",
+  "icache": {
+    "bytes": 1024,
+    "ways": 4,
+    "line_bytes": 32,
+    "policy": 13
+  },
+  "dcache": {
+    "bytes": 256,
+    "ways": 2,
+    "line_bytes": 16,
+    "write_policy": "write-back/write-allocate"
+  },
+  "predictor": {
+    "bht": 16,
+    "btb_entries": 16,
+    "btb_ways": 2,
+    "direction_policy": 0,
+    "ras": 4
+  },
+  "source_sha256": {
+    "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "96bb761e080f2eef6c774da0d59fcf4732a394d7d7bafe52fd809d2bad226d90",
+    "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+    "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+    "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+    "npc/vsrc/riscv32/common/riscv32_pkg.sv": "48a4937da2d7ee01b13c9d7d0badd833c4f3a1a573ce50f42b8be534075c57c0",
+    "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "c4377c1b91635386025b3b482632f7862a6b1df2b583b1761ae743cb84a698e8",
+    "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+    "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+    "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+    "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+    "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+    "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "515978f383fcef7645fe3a24c14e7bfb05218d17aba93593ed86805843668949",
+    "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "cd37ecc720e7a38e88ac0cbd5c34322253a3d46361fa50d48a7a35c523299396",
+    "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+    "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "b33600019932f5b177264cbe1042986709137060726eec0cdffba35cd7a27de3",
+    "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+    "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "56946155fd168fd289b4545468a2d514120ea77e4f46205fc3a242797f4a75b4",
+    "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+    "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "3f249f216ec005711c105cc87620cdabaf30ee2d9e4890533e892876cae7f377",
+    "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "1fb0dda3fc38451ed705fbf6cb1cb595faa841af2c1ae203d5be2201a79af513",
+    "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+    "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "4148ddd1f333dfe95795a61e18891622b93d3ba85818cd33df9755eaca88d2b1",
+    "npc/vsrc/riscv32/core/execute/riscv32_muldiv.sv": "f0903ccc04b88c7cec53cd975a05c3e4a456155c8d6df4802c11f422a8063751",
+    "npc/vsrc/riscv32/core/execute/riscv32_div.sv": "d03616f7a2cee213b9b0a7adf2601f86d2a2c9fa07298d0ff54ab671181a0b53",
+    "npc/vsrc/riscv32/core/execute/riscv32_mul.sv": "1ca071d206d09e605bc9326ecf4bbbf3b425620ccc2a820bf0e9e8d9838619dc",
+    "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "e61c83a9ff918ba3beb01e96ed18d3d231ec9af97eebcff9c2f59b86d5dc71d9",
+    "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "a06a44eadfd8952fb906ebf4dad52d385f9b6656a4e4792958ed63d5dfc12e00",
+    "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+    "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+    "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+    "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+    "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+    "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+    "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "66cc0311da9d3505f45b58f1ae69b025ad1f595182f1ac5469431cda0121a362",
+    "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "bf8952e0b06f4ee6072c80eea53d5f79e7be23ef4dceadded1df06a66951d18e",
+    "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+    "npc/vsrc/riscv32/core/decode/riscv32_scoreboard.sv": "9a7f45917beaf7e50ec2dfae34606dc1576c3696e59ee3612648be9c01c4d7b4",
+    "npc/vsrc/riscv32/core/writeback/riscv32_rob.sv": "fb9db52ef70897b1f76ba8fc6045a7fe7c9f5fc11b624168053b4443822299b1",
+    "npc/vsrc/riscv32/core/execute/riscv32_backend.sv": "0e96099895d6121f7e789005edf9243d6818e911ecc89aa642feffa85af91102",
+    "npc/vsrc/riscv32/core/riscv32_core.sv": "704e5b7b99e31f232686423452a5df015e8cadb4ee090ab409a24de3b68be3c2",
+    "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+    "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+    "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+    "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+    "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+    "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+    "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+    "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+  },
+  "submodules": {
+    "am-kernels": "97f46e9b405b2f2b1c8c72b3d01f1bc1a8f10915",
+    "ysyxSoC": "9b9682ed14bbed95f064f8351eaad6239c555089"
+  },
+  "backend_options": {
+    "enabled_by_default": false,
+    "entries": [
+      2,
+      4,
+      8
+    ],
+    "load_overlap": [
+      0,
+      1
+    ]
+  },
+  "timing_scope": "NanGate45 mapped core plus reset boundary, AREA 3, all data/gating setup/hold groups, 20 MHz grid; not post-route",
+  "baseline_scope": "Frozen commit is a historical PPA reference. retained-legacy is the current worktree with ROB disabled and is the legal performance baseline.",
+  "timer_hz": 1000000,
+  "script_sha256": {
+    "npc/Makefile": "ee6b88cebfba412be05a70cc8c6c8fabad996e21f65e82a9309034dfaf8963b3",
+    "npc/scripts/measure_execute_ppa.py": "94e9ec633ddc42b633c8ef76247ec45be1e12370196d01ddc46dc061b7d959a5",
+    "npc/scripts/run_microbench_perf.py": "1a1a9b93ff61cacfbf6c6a830111a02bfac647729438de7d1a5a9389ec93ea77",
+    "npc/scripts/verify_mul_pipeline.py": "4c85a483a34330ccce0790f4d96296d85264c1e3ae4e441435afa786315760a2",
+    "npc/scripts/compare_backend_perf.py": "d3902b2f5529212c3d780919703f9d588de30f60249991fbeaa87ebc2432b0cc",
+    "npc/scripts/test_backend_core.py": "c0ddde97153e0c70fe9cf90f385ea8fe0c2d7ac8617c7ac6b9bb32b3e47152fd",
+    "npc/scripts/test_backend_rob.py": "4ab319c160e122239d7c58d68e55a9c5d18851ca8dbcd147515280f2cd185eeb",
+    "npc/scripts/test_backend_recovery.py": "1184604a2e58bb31a13ef24a58be578efbc1c7e2616fa236083128b8d727e81b"
+  },
+  "rtl_and_build_diff_sha256": "496cfcd4413f028d18d3c6ffb18a68292e8a3cf01bb2df4d45ffdc7269cc61da"
+}

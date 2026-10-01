@@ -35,3 +35,9 @@ __pycache__/
 !docs/verification/data/*/references.json
 !docs/verification/data/*/tool-manifest.json
 !docs/verification/data/*/tool-bindings.json
+!tests/performance/riscv32_stall_probe.svh
+!docs/verification/data/rv32-lsu-stalls-2026-10-01/validation.json
+!docs/verification/data/rv32-lsu-stalls-2026-10-01/baseline.json
+!docs/verification/data/rv32-lsu-stalls-2026-10-01/index.json
+!docs/learning/data/lsu-dcache-review-20261001.json
+!docs/learning/data/cva6-lsu-review-20261001.json
