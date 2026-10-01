@@ -99,6 +99,74 @@ package riscv_config_pkg;
 `else
   localparam int unsigned BRANCH_TARGET_POLICY = 0;
 `endif
+`ifdef YSYX_BRANCH_TAGE_BASE_ENTRIES
+  localparam int unsigned BRANCH_TAGE_BASE_ENTRIES = `YSYX_BRANCH_TAGE_BASE_ENTRIES;
+`else
+  localparam int unsigned BRANCH_TAGE_BASE_ENTRIES = 32;
+`endif
+`ifdef YSYX_BRANCH_TAGE_TAGGED_ENTRIES
+  localparam int unsigned BRANCH_TAGE_TAGGED_ENTRIES = `YSYX_BRANCH_TAGE_TAGGED_ENTRIES;
+`else
+  localparam int unsigned BRANCH_TAGE_TAGGED_ENTRIES = 16;
+`endif
+`ifdef YSYX_BRANCH_TAGE_TABLE_COUNT
+  localparam int unsigned BRANCH_TAGE_TABLE_COUNT = `YSYX_BRANCH_TAGE_TABLE_COUNT;
+`else
+  localparam int unsigned BRANCH_TAGE_TABLE_COUNT = 3;
+`endif
+`ifdef YSYX_BRANCH_TAGE_TAG_BITS
+  localparam int unsigned BRANCH_TAGE_TAG_BITS = `YSYX_BRANCH_TAGE_TAG_BITS;
+`else
+  localparam int unsigned BRANCH_TAGE_TAG_BITS = 8;
+`endif
+`ifdef YSYX_BRANCH_TAGE_HISTORY_BITS_0
+  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_0 = `YSYX_BRANCH_TAGE_HISTORY_BITS_0;
+`else
+  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_0 = 3;
+`endif
+`ifdef YSYX_BRANCH_TAGE_HISTORY_BITS_1
+  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_1 = `YSYX_BRANCH_TAGE_HISTORY_BITS_1;
+`else
+  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_1 = 7;
+`endif
+`ifdef YSYX_BRANCH_TAGE_HISTORY_BITS_2
+  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_2 = `YSYX_BRANCH_TAGE_HISTORY_BITS_2;
+`else
+  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_2 = 16;
+`endif
+`ifdef YSYX_BRANCH_SPEC_HISTORY
+  localparam bit BRANCH_SPEC_HISTORY = `YSYX_BRANCH_SPEC_HISTORY;
+`else
+  localparam bit BRANCH_SPEC_HISTORY = 0;
+`endif
+`ifdef YSYX_BRANCH_SC_ENABLE
+  localparam bit BRANCH_SC_ENABLE = `YSYX_BRANCH_SC_ENABLE;
+`else
+  localparam bit BRANCH_SC_ENABLE = 0;
+`endif
+`ifdef YSYX_BRANCH_LOOP_ENABLE
+  localparam bit BRANCH_LOOP_ENABLE = `YSYX_BRANCH_LOOP_ENABLE;
+`else
+  localparam bit BRANCH_LOOP_ENABLE = 0;
+`endif
+
+`ifdef YSYX_BRANCH_EARLY_RAS
+  localparam bit BRANCH_EARLY_RAS = `YSYX_BRANCH_EARLY_RAS;
+`else
+  localparam bit BRANCH_EARLY_RAS = 0;
+`endif
+`ifdef YSYX_BRANCH_EARLY_TARGET
+  localparam bit BRANCH_EARLY_TARGET = `YSYX_BRANCH_EARLY_TARGET;
+`else
+  localparam bit BRANCH_EARLY_TARGET = 0;
+`endif
+
+`ifdef YSYX_BRANCH_STATIC_POLICY
+  localparam int unsigned BRANCH_STATIC_POLICY = `YSYX_BRANCH_STATIC_POLICY;
+`else
+  localparam int unsigned BRANCH_STATIC_POLICY = 0;
+`endif
+
 `ifdef YSYX_BRANCH_DIRECTION_POLICY
   localparam int unsigned BRANCH_DIRECTION_POLICY = `YSYX_BRANCH_DIRECTION_POLICY;
 `else

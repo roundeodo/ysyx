@@ -13,6 +13,9 @@ module riscv32_ifu
     // 维护期间只停止新预测；已展示的 I-cache 请求仍按原握手排空。
     input logic          prediction_enable_i,
 
+    input logic early_return_present_i,
+    input program_counter_t early_return_pc_i,
+
     // IFU顺序产生预测请求；预测器用一级寄存响应切断PC自反馈关键路径。非跳转响应被
     // 消费时同拍查询下一 PC：顺序时 PC+4，taken 时直接使用响应目标。
     output program_counter_t   next_pc_predictor_lookup_request_pc_o,
@@ -38,6 +41,12 @@ module riscv32_ifu
     output logic         fetch_entry_valid_o,
     input  logic         fetch_entry_ready_i
 );
+
+  // 内部早期恢复只丢年轻取指；当前fetch_entry与已进入fetch buffer的老指令继续交付。
+  logic early_redirect_event;
+  logic frontend_restart_event;
+  program_counter_t early_next_pc;
+  assign frontend_restart_event = redirect_req_valid_i || early_redirect_event;
 
   // 共享容量反馈：请求队列的占用数决定预测入口是否还能接收结果。
   localparam int unsigned LOOKUP_QUEUE_ENTRY_COUNT = 2;
@@ -78,9 +87,9 @@ module riscv32_ifu
       next_pc_predictor_lookup_response_pc_i + program_counter_t'(INSTRUCTION_BYTES);
 
   // redirect 取消预测流水；taken 响应直接选择本拍的新查询地址。
-  assign next_pc_predictor_flush_o                 = redirect_req_valid_i;
+  assign next_pc_predictor_flush_o                 = frontend_restart_event;
   assign next_pc_predictor_lookup_response_ready_o =
-      !redirect_req_valid_i &&
+      !frontend_restart_event &&
       (!predictor_lookup_response_is_current || lookup_queue_enqueue_ready);
   assign predictor_taken_response_present =
       next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
@@ -94,7 +103,7 @@ module riscv32_ifu
       predictor_lookup_response_is_current &&
       next_pc_predictor_prediction_i.predicted_taken;
   assign next_pc_predictor_lookup_request_valid_o =
-      lookup_queue_enqueue_ready && !redirect_req_valid_i && prediction_enable_i;
+      lookup_queue_enqueue_ready && !frontend_restart_event && prediction_enable_i;
 
   assign predictor_lookup_request_handshake =
       next_pc_predictor_lookup_request_valid_o &&
@@ -108,9 +117,9 @@ module riscv32_ifu
     current_fetch_epoch_d = current_fetch_epoch_q;
     next_frontend_tag_d   = next_frontend_tag_q;
 
-    if (redirect_req_valid_i) begin
+    if (frontend_restart_event) begin
       current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
-      predictor_fetch_pc_d  = redirect_req_i.target_pc;
+      predictor_fetch_pc_d  = redirect_req_valid_i ? redirect_req_i.target_pc : early_next_pc;
     end else if (predictor_lookup_request_handshake) begin
       predictor_fetch_pc_d = predictor_taken_response_present ?
           (predicted_next_pc + program_counter_t'(INSTRUCTION_BYTES)) :
@@ -168,7 +177,7 @@ module riscv32_ifu
   // 旧epoch请求可以继续握手，返回时按epoch丢弃；这比破坏协议稳定性更可控。
   assign icache_lookup_req_valid_o = (lookup_queue_entry_count_q != '0) ||
       (next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
-       !redirect_req_valid_i);
+       !frontend_restart_event);
   assign icache_lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
 
   assign lookup_queue_dequeue_event = icache_lookup_request_handshake;
@@ -178,7 +187,7 @@ module riscv32_ifu
     lookup_queue_write_index_d = lookup_queue_write_index_q;
     lookup_queue_entry_count_d = lookup_queue_entry_count_q;
 
-    if (redirect_req_valid_i) begin
+    if (frontend_restart_event) begin
       // 当前已经呈现在I-cache端口的front不能在反压时撤销；其后的旧epoch请求尚未
       // 对外可见，可以立即删除。若front本拍握手，则旧队列全部清空。
       if (lookup_queue_entry_count_q == '0) begin
@@ -245,12 +254,90 @@ module riscv32_ifu
   assign icache_lookup_response_handshake =
       icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
 
+  logic early_known, early_taken;
+  logic direct_known, direct_taken;
+  program_counter_t direct_target;
+  logic instruction_is_return, return_rs1_link, return_rd_link;
+  instruction_t returned_instruction;
+  assign returned_instruction = icache_lookup_resp_i.fetch_data;
+  assign return_rs1_link = returned_instruction[19:15] inside {5'd1, 5'd5};
+  assign return_rd_link = returned_instruction[11:7] inside {5'd1, 5'd5};
+  assign instruction_is_return = returned_instruction[6:0] == 7'b1100111 &&
+      returned_instruction[14:12] == 3'b000 && returned_instruction[31:20] == 12'b0 &&
+      return_rs1_link && (!return_rd_link || returned_instruction[11:7] != returned_instruction[19:15]);
+  // 解析RAS可在返回响应被反压时变化；首次受阻才保留其当时值。
+  logic return_hold_present_q, return_hold_usable_q;
+  program_counter_t return_hold_pc_q;
+  logic selected_return_present;
+  program_counter_t selected_return_pc;
+  if (riscv_config_pkg::BRANCH_EARLY_RAS) begin : g_return_hold
+    always_ff @(posedge clk_i or negedge rst_ni) begin
+      if (!rst_ni)
+        return_hold_present_q <= 1'b0;
+      else if (redirect_req_valid_i || (fetch_entry_valid_o && fetch_entry_ready_i))
+        return_hold_present_q <= 1'b0;
+      else if (fetch_entry_valid_o && !fetch_entry_ready_i && instruction_is_return)
+        return_hold_present_q <= 1'b1;
+    end
+    always_ff @(posedge clk_i) begin
+      if (fetch_entry_valid_o && !fetch_entry_ready_i && instruction_is_return &&
+          !return_hold_present_q) begin
+        return_hold_usable_q <= early_return_present_i;
+        return_hold_pc_q <= early_return_pc_i;
+      end
+    end
+    assign selected_return_present = return_hold_present_q ?
+        return_hold_usable_q : early_return_present_i;
+    assign selected_return_pc = return_hold_present_q ? return_hold_pc_q : early_return_pc_i;
+  end else begin : g_no_return_hold
+    assign return_hold_present_q = 1'b0;
+    assign return_hold_usable_q = 1'b0;
+    assign return_hold_pc_q = '0;
+    assign selected_return_present = 1'b0;
+    assign selected_return_pc = '0;
+  end
+  program_counter_t early_target, original_next_pc;
+  if (riscv_config_pkg::BRANCH_EARLY_TARGET) begin : g_early_target
+    riscv32_direct_target u_direct_target (
+        .pc_i(program_counter_t'(icache_lookup_resp_i.fetch_addr)),
+        .instruction_i(icache_lookup_resp_i.fetch_data),
+        .direction_counter_i(pending_prediction_q.raw_direction_counter),
+        .known_o(direct_known), .taken_o(direct_taken), .target_o(direct_target));
+  end else begin : g_no_early_target
+    assign direct_known = 1'b0;
+    assign direct_taken = 1'b0;
+    assign direct_target = '0;
+  end
+  always_comb begin
+    early_known = direct_known;
+    early_taken = direct_taken;
+    early_target = direct_target;
+    if (riscv_config_pkg::BRANCH_EARLY_RAS && instruction_is_return && selected_return_present) begin
+      early_known = 1'b1;
+      early_taken = 1'b1;
+      early_target = selected_return_pc;
+    end
+  end
+  assign early_next_pc = early_taken ? early_target :
+      program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
+  assign original_next_pc = pending_prediction_q.predicted_taken ?
+      pending_prediction_q.predicted_target :
+      program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
+  assign early_redirect_event = early_known && !icache_lookup_resp_i.access_fault &&
+      (!early_taken || early_target[1:0] == 2'b00) && early_next_pc != original_next_pc &&
+      fetch_entry_valid_o && fetch_entry_ready_i;
+
   always_comb begin
     fetch_entry_o                 = '0;
     fetch_entry_o.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
     fetch_entry_o.instruction     = icache_lookup_resp_i.fetch_data;
     fetch_entry_o.frontend_tag    = icache_lookup_resp_i.frontend_tag;
     fetch_entry_o.prediction      = pending_prediction_q;
+    if (early_known && !icache_lookup_resp_i.access_fault &&
+        (!early_taken || early_target[1:0] == 2'b00)) begin
+      fetch_entry_o.prediction.predicted_taken = early_taken;
+      fetch_entry_o.prediction.predicted_target = early_taken ? early_target : '0;
+    end
     fetch_entry_o.exception_valid = icache_lookup_resp_i.access_fault;
     fetch_entry_o.exception_cause = EXC_INSTR_ACCESS_FAULT;
     fetch_entry_o.exception_tval  = xlen_data_t'(icache_lookup_resp_i.fetch_addr);
@@ -296,10 +383,16 @@ module riscv32_ifu
 
   a_nontaken_predictor_response_keeps_request_throughput :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (predictor_lookup_response_handshake && predictor_lookup_response_is_current &&
-     !next_pc_predictor_prediction_i.predicted_taken)
+    (prediction_enable_i && predictor_lookup_response_handshake &&
+     predictor_lookup_response_is_current && !next_pc_predictor_prediction_i.predicted_taken)
     |-> predictor_lookup_request_handshake)
   else $error("IFU inserted a bubble after a current non-taken prediction");
+
+  // 维护暂停允许排空旧预测响应，同时禁止产生新的预测请求。
+  a_disabled_prediction_does_not_query :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    !prediction_enable_i |-> !next_pc_predictor_lookup_request_valid_o)
+  else $error("IFU queried while prediction was disabled");
 
   a_taken_response_queries_target :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
@@ -310,10 +403,16 @@ module riscv32_ifu
   a_predictor_request_stable_while_stalled :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (next_pc_predictor_lookup_request_valid_o &&
-     !next_pc_predictor_lookup_request_ready_i && !redirect_req_valid_i)
-    |=> (next_pc_predictor_lookup_request_valid_o &&
-         $stable(next_pc_predictor_lookup_request_pc_o) && $stable(next_pc_predictor_lookup_request_epoch_o)))
+     !next_pc_predictor_lookup_request_ready_i && !frontend_restart_event)
+    |=> (frontend_restart_event || (next_pc_predictor_lookup_request_valid_o &&
+         $stable(next_pc_predictor_lookup_request_pc_o) && $stable(next_pc_predictor_lookup_request_epoch_o))))
   else $error("IFU changed a predictor request while stalled");
+
+  a_fetch_entry_stable_while_stalled :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (fetch_entry_valid_o && !fetch_entry_ready_i && !redirect_req_valid_i)
+    |=> (redirect_req_valid_i || (fetch_entry_valid_o && $stable(fetch_entry_o))))
+  else $error("IFU changed a presented fetch entry while stalled");
 
   a_icache_request_stable_while_stalled :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

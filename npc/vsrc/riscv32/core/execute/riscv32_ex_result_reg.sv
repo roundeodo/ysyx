@@ -25,6 +25,7 @@ module riscv32_ex_result_reg
   logic             stage_can_accept;
   program_counter_t predicted_next_pc_q;
   logic             branch_prediction_mismatch;
+  logic             history_repair_required;
 
   assign stage_can_accept = !execute_result_valid_q || resolved_result_ready_i;
   // flush只清除valid，ready仍只描述本级容量。年轻普通结果可以在恢复拍物理写入
@@ -36,6 +37,12 @@ module riscv32_ex_result_reg
   // 预测顺序后继在寄存器入口计算，避免输出侧再串联 PC+4、选择和地址比较。
   assign branch_prediction_mismatch = execute_result_q.next_pc != predicted_next_pc_q;
 
+  assign history_repair_required = riscv_config_pkg::BRANCH_SPEC_HISTORY &&
+      ((execute_result_q.uop.branch_ctrl.op == CF_BRANCH) ?
+       (!execute_result_q.uop.prediction.direction.history_inserted ||
+        execute_result_q.uop.prediction.direction.history_taken != execute_result_q.branch_taken) :
+       execute_result_q.uop.prediction.direction.history_inserted);
+
   always_comb begin
     resolved_result_o                              = execute_result_q;
     resolved_result_o.redirect_valid               = 1'b0;
@@ -46,7 +53,7 @@ module riscv32_ex_result_reg
     resolved_result_o.redirect_req.flush_inclusive = 1'b0;
 
     if ((execute_result_q.uop.fu_type == FU_BRANCH) &&
-        !execute_result_q.uop.exception_valid && branch_prediction_mismatch) begin
+        !execute_result_q.uop.exception_valid && (branch_prediction_mismatch || history_repair_required)) begin
       resolved_result_o.redirect_valid = 1'b1;
     end
   end
@@ -97,7 +104,7 @@ module riscv32_ex_result_reg
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (resolved_result_valid_o && resolved_result_o.redirect_valid) |->
       ((resolved_result_o.uop.fu_type == FU_BRANCH) &&
-       !resolved_result_o.uop.exception_valid && branch_prediction_mismatch))
+       !resolved_result_o.uop.exception_valid && (branch_prediction_mismatch || history_repair_required)))
   else
     $error("EX/MEM stage generated a redirect without a valid branch misprediction");
   /* verilator lint_on SYNCASYNCNET */

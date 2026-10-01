@@ -15,6 +15,10 @@ module riscv32_bht
     input  logic               training_valid_i,
     input  logic               training_taken_i,
     input  direction_context_t training_context_i,
+    input  logic               lookup_handshake_i,
+    input  logic               lookup_conditional_i,
+    input  logic               lookup_taken_i,
+    input  logic               flush_i,
     input  logic               invalidate_i
 );
   localparam int unsigned INDEX_BITS = $clog2(BHT_ENTRY_COUNT);
@@ -23,7 +27,7 @@ module riscv32_bht
   initial begin
     if (BHT_ENTRY_COUNT < 2 || (BHT_ENTRY_COUNT & (BHT_ENTRY_COUNT - 1)) != 0)
       $fatal(1, "direction counter count must be a power of two and at least two");
-    if (DIRECTION_POLICY > 4 || HISTORY_BITS < 1 ||
+    if (DIRECTION_POLICY > 5 || HISTORY_BITS < 1 ||
         HISTORY_BITS != riscv_config_pkg::BRANCH_GLOBAL_HISTORY_BITS)
       $fatal(1, "invalid direction policy or history metadata width");
     if (DIRECTION_POLICY == 1 && HISTORY_BITS > INDEX_BITS)
@@ -40,7 +44,7 @@ module riscv32_bht
 
   // 1. 已解析历史：查询不写，普通flush不写；invalidate优先于训练。
   logic [HISTORY_BITS-1:0] history;
-  if (DIRECTION_POLICY == 0) begin : g_no_history
+  if (DIRECTION_POLICY inside {0, 5}) begin : g_no_history
     assign history = '0;
   end else begin : g_resolved_history
     logic [HISTORY_BITS-1:0] history_q;
@@ -55,7 +59,44 @@ module riscv32_bht
     end
   end
 
-  if (DIRECTION_POLICY inside {3, 4}) begin : g_tage
+  if (DIRECTION_POLICY == 5) begin : g_tage_scl
+    logic direction_taken;
+    logic [191:0] query_context;
+    riscv32_tage_scl #(
+        .BASE_ENTRIES(riscv_config_pkg::BRANCH_TAGE_BASE_ENTRIES),
+        .TAGGED_ENTRIES(riscv_config_pkg::BRANCH_TAGE_TAGGED_ENTRIES),
+        .TABLE_COUNT(riscv_config_pkg::BRANCH_TAGE_TABLE_COUNT),
+        .TAG_BITS(riscv_config_pkg::BRANCH_TAGE_TAG_BITS),
+        .HISTORY_BITS_0(riscv_config_pkg::BRANCH_TAGE_HISTORY_BITS_0),
+        .HISTORY_BITS_1(riscv_config_pkg::BRANCH_TAGE_HISTORY_BITS_1),
+        .HISTORY_BITS_2(riscv_config_pkg::BRANCH_TAGE_HISTORY_BITS_2),
+        .SPECULATIVE_HISTORY(riscv_config_pkg::BRANCH_SPEC_HISTORY),
+        .SC_ENABLE   (riscv_config_pkg::BRANCH_SC_ENABLE),
+        .LOOP_ENABLE (riscv_config_pkg::BRANCH_LOOP_ENABLE)
+    ) u_tage_scl (
+        .clk_i              (clk_i),
+        .rst_ni             (rst_ni),
+        .lookup_pc_i        (lookup_pc_i),
+        .taken_o            (direction_taken),
+        .context_o          (query_context),
+        .training_valid_i   (training_valid_i),
+        .training_taken_i   (training_taken_i),
+        .training_context_i (training_context_i.tage_scl),
+        .lookup_handshake_i (lookup_handshake_i),
+        .lookup_conditional_i (lookup_conditional_i),
+        .lookup_taken_i (lookup_taken_i),
+        .flush_i (flush_i),
+        .invalidate_i       (invalidate_i)
+    );
+    // H2强弱门控仅针对真实2bit counter；新TAGE不伪造弱置信度。
+    assign lookup_counter_o = direction_taken ? 2'b11 : 2'b00;
+    always_comb begin
+      lookup_context_o = '0;
+      lookup_context_o.tage_scl = query_context;
+      lookup_context_o.history_inserted = riscv_config_pkg::BRANCH_SPEC_HISTORY && lookup_conditional_i;
+      lookup_context_o.history_taken = riscv_config_pkg::BRANCH_SPEC_HISTORY && lookup_taken_i;
+    end
+  end else if (DIRECTION_POLICY inside {3, 4}) begin : g_tage
     riscv32_tage #(
         .TABLE_ENTRIES     (BHT_ENTRY_COUNT),
         .PROTECT_ALTERNATE (DIRECTION_POLICY == 4)

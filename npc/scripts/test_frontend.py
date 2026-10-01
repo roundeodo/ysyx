@@ -21,7 +21,7 @@ def main():
     sources = [rtl / 'common' / name for name in
                ['riscv_config_pkg.sv', 'riscv32_addr_map_pkg.sv', 'riscv32_pkg.sv', 'riscv32_axi4_pkg.sv']]
     if args.test in ('predictor', 'fetch'):
-        modules = ['tage', 'bht', 'compact_btb', 'btb', 'ras', 'branch_predictor']
+        modules = ['tage', 'tage_scl', 'branch_choice', 'direct_target', 'bht', 'compact_btb', 'btb', 'ras', 'branch_predictor']
     else:
         modules = ['pma', 'icache_tag_array', 'icache_data_array', 'icache_miss_unit', 'icache_replacement', 'icache', 'icache_axi']
     sources += [rtl / 'core/frontend' / f'riscv32_{name}.sv' for name in modules]

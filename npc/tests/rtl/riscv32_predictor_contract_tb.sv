@@ -29,6 +29,7 @@ module predictor_contract_case
       .resolved_control_flow_imm_i(train_imm), .resolved_control_flow_op_i(train_op),
       .resolved_control_flow_rs1_i(train_rs1), .resolved_control_flow_rd_i(train_rd),
       .resolved_control_flow_event_i(train_valid), .resolved_control_flow_taken_i(train_taken),
+      .early_return_present_o(),.early_return_pc_o(),
       .flush_lookup_i(flush), .invalidate_i(invalidate)
   );
 

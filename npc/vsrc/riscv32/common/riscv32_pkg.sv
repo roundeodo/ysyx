@@ -539,6 +539,9 @@ package riscv32_pkg;
   // 即使B/J目标可重新计算，也不能用重算结果替代predicted_target，否则BTB旧目标或别名
   // 无法触发恢复。历史方向预测的快照只供对应指令解析后训练使用。
   typedef struct packed {
+    logic history_inserted;
+    logic history_taken;
+    logic [191:0] tage_scl;  // policy5查询快照；其余配置恒零并由综合移除。
     logic [riscv_config_pkg::BRANCH_GLOBAL_HISTORY_BITS-1:0] history;
     logic                                                  choice;
     logic                                                  taken;
@@ -548,6 +551,7 @@ package riscv32_pkg;
   } direction_context_t;
 
   typedef struct packed {
+    logic [1:0] raw_direction_counter;
     logic               predicted_taken;
     program_counter_t   predicted_target;
     direction_context_t direction;
@@ -745,6 +749,7 @@ package riscv32_pkg;
     decoded_uop_t  uop;
     xlen_data_t    result;
     program_counter_t next_pc;
+    logic          branch_taken; // EX比较真值，目标为PC+4时也必须保留
     xlen_data_t  csr_wdata;
     logic          redirect_valid;
     redirect_req_t redirect_req;
@@ -762,6 +767,7 @@ package riscv32_pkg;
     decoded_uop_t  uop;
     xlen_data_t    result;
     program_counter_t next_pc;
+    logic          branch_taken; // EX比较真值，目标为PC+4时也必须保留
     xlen_data_t  csr_wdata;
     effective_addr_t   memory_addr;
     core_data_t        memory_rdata;

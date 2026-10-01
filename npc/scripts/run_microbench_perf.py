@@ -191,14 +191,36 @@ def main():
                         help='Target bits per way, low address bits retained; omitted selects original BTB')
     parser.add_argument('--btb-policy', type=int, choices=range(4), default=0)
     parser.add_argument('--ras-entries', type=int, default=4)
-    parser.add_argument('--direction-policy', type=int, choices=range(5), default=0)
+    parser.add_argument('--direction-policy', type=int, choices=range(6), default=0)
     parser.add_argument('--history-bits', type=int, default=4)
+    parser.add_argument('--branch-static', type=int, choices=range(3), default=0)
+    parser.add_argument('--early-target', type=int, choices=[0, 1], default=0)
+    parser.add_argument('--early-ras', type=int, choices=[0, 1], default=0)
+    parser.add_argument('--branch-sc', type=int, choices=[0, 1], default=0)
+    parser.add_argument('--branch-loop', type=int, choices=[0, 1], default=0)
+    parser.add_argument('--spec-history', type=int, choices=[0, 1], default=0)
+    parser.add_argument('--tage-base', type=int, default=32)
+    parser.add_argument('--tage-entries', type=int, default=16)
+    parser.add_argument('--tage-tags', type=int, default=8)
+    parser.add_argument('--tage-lengths', type=int, nargs='+', default=[3, 7, 16])
     parser.add_argument('--host-opt', type=int, choices=[1, 2, 3], default=3,
                         help='Host simulator optimization only; does not change guest flags or timing parameters')
     parser.add_argument('--prepare-only', action='store_true', help='Build and archive; do not simulate')
     parser.add_argument('--verify-observer', action='store_true', help='Run identical image on/off and compare audit')
     parser.add_argument('--resume', type=Path, help='Run an existing prepare-only directory, checking hashes')
     args = parser.parse_args()
+    require(len(args.tage_lengths) in (2, 3), 'Scaled TAGE needs two or three history lengths')
+    require(not args.spec_history or (args.direction_policy == 5 and
+            not args.early_target and not args.early_ras),
+            'Speculative history currently requires policy5 without local early override')
+    branch_options = {
+        'STATIC_POLICY': args.branch_static, 'EARLY_TARGET': args.early_target,
+        'EARLY_RAS': args.early_ras, 'SC_ENABLE': args.branch_sc,
+        'LOOP_ENABLE': args.branch_loop, 'SPEC_HISTORY': args.spec_history,
+        'TAGE_BASE_ENTRIES': args.tage_base, 'TAGE_TAGGED_ENTRIES': args.tage_entries,
+        'TAGE_TAG_BITS': args.tage_tags, 'TAGE_TABLE_COUNT': len(args.tage_lengths)}
+    branch_options.update({f'TAGE_HISTORY_BITS_{i}': value
+                           for i, value in enumerate(args.tage_lengths)})
     target_way_bits = 0
     if args.btb_target_bits:
         require(args.btb_ways in [2, 4] and len(args.btb_target_bits) == args.btb_ways,
@@ -241,6 +263,7 @@ def main():
                        f'NPC_BRANCH_GLOBAL_HISTORY_BITS={args.history_bits}',
                        f'NPC_RETURN_STACK_ENTRY_COUNT={args.ras_entries}', 'NPC_SDRAM_NATIVE_READ_BURST=1',
                        f'VERILATOR_FLAGS={flags}', 'build-soc']
+            command[-1:-1] = [f'NPC_BRANCH_{key}={value}' for key, value in branch_options.items()]
             # Use the worktree's capstone if present; a sibling tool installation is
             # acceptable because it is host-only and its library is recorded.
             capstone = WORKSPACE / 'nemu/tools/capstone/repo'
@@ -285,6 +308,7 @@ def main():
                                       'ras_entries': args.ras_entries,
                                       'direction_policy': args.direction_policy, 'history_bits': args.history_bits,
                                       'target_bits': args.btb_target_bits, 'target_way_bits': target_way_bits},
+                        'branch_experiments': branch_options,
                         'timing_model': args.timing_model + '-v1',
                         'device_clock_ratio': ({'numerator': 100, 'denominator': args.cpu_mhz}
                                                if args.timing_model == 'device-clock' else None),

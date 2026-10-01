@@ -33,10 +33,19 @@ module riscv32_branch_predictor
     input logic             resolved_control_flow_taken_i,
     input branch_prediction_t resolved_control_flow_prediction_i,
 
+    output logic early_return_present_o,
+    output program_counter_t early_return_pc_o,
+
     // redirect只清除当前查询流水，不清除训练状态；fence.i才清除可能过期的BTB内容。
     input logic flush_lookup_i,
     input logic invalidate_i
 );
+
+  initial begin
+    if (riscv_config_pkg::BRANCH_SPEC_HISTORY &&
+        (riscv_config_pkg::BRANCH_DIRECTION_POLICY != 5 || riscv_config_pkg::BRANCH_EARLY_TARGET || riscv_config_pkg::BRANCH_EARLY_RAS))
+      $fatal(1,"Speculative history requires policy5 without local early override");
+  end
 
   // 1. 训练入口：已寄存的解析结果直接驱动写表，不再增加训练流水级。
   typedef struct packed {
@@ -88,6 +97,11 @@ module riscv32_branch_predictor
   logic                return_present;
   program_counter_t    return_pc;
 
+  assign early_return_present_o = return_present;
+  assign early_return_pc_o = return_pc;
+
+  logic request_handshake, selected_taken;
+
   riscv32_bht #(
       .BHT_ENTRY_COUNT(BHT_ENTRY_COUNT)
   ) u_bht (
@@ -96,6 +110,10 @@ module riscv32_branch_predictor
       .lookup_pc_i      (lookup_request_pc_i),
       .lookup_counter_o (history_counter),
       .lookup_context_o (direction_context),
+      .lookup_handshake_i(request_handshake),
+      .lookup_conditional_i(target_present && target_kind == TARGET_KIND_CONDITIONAL_BRANCH),
+      .lookup_taken_i(selected_taken),
+      .flush_i(flush_lookup_i),
       .training_pc_i    (training.pc),
       .training_valid_i (training_valid && (training.kind == TARGET_KIND_CONDITIONAL_BRANCH)),
       .training_taken_i (training.taken),
@@ -139,10 +157,20 @@ module riscv32_branch_predictor
       .invalidate_i                  (invalidate_i)
   );
 
+  // 条件方向组合选择：静态偏置只使用本拍真实命中的BTB信息。
+  logic conditional_taken;
+  logic [12:0] conditional_displacement;
+  assign conditional_displacement = target_pc[12:0] - lookup_request_pc_i[12:0];
+  riscv32_branch_choice u_branch_choice (
+      .backward_i        (conditional_displacement[12]),
+      .metadata_valid_i  (target_present && target_kind == TARGET_KIND_CONDITIONAL_BRANCH),
+      .dynamic_counter_i (history_counter),
+      .taken_o           (conditional_taken)
+  );
+
   // 3. 预测选择：BTB 决定指令种类，BHT 决定条件分支方向，RAS 提供返回目标。
   branch_prediction_t selected_prediction;
   program_counter_t   selected_target_pc;
-  logic               selected_taken;
 
   always_comb begin
     selected_taken     = 1'b0;
@@ -150,7 +178,7 @@ module riscv32_branch_predictor
     if (target_present) begin
       unique case (target_kind)
         TARGET_KIND_CONDITIONAL_BRANCH:
-          selected_taken = history_counter[1];
+          selected_taken = conditional_taken;
         TARGET_KIND_DIRECT_JUMP, TARGET_KIND_INDIRECT_JUMP:
           selected_taken = 1'b1;
         TARGET_KIND_RETURN: begin
@@ -166,6 +194,7 @@ module riscv32_branch_predictor
       selected_taken = 1'b0;
     selected_prediction                  = '0;
     selected_prediction.direction        = direction_context;
+    selected_prediction.raw_direction_counter = riscv_config_pkg::BRANCH_EARLY_TARGET ? history_counter : 2'b00;
     selected_prediction.predicted_taken  = selected_taken;
     selected_prediction.predicted_target = selected_taken ? selected_target_pc : '0;
   end
@@ -179,7 +208,6 @@ module riscv32_branch_predictor
 
   response_t response_q, response_d;
   logic response_present_q, response_present_d;
-  logic request_handshake;
 
   assign lookup_response_pc_o    = response_q.pc;
   assign lookup_response_epoch_o = response_q.epoch;

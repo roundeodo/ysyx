@@ -52,9 +52,14 @@ module riscv32_core
   redirect_req_t       sequential_redirect;
   logic                sequential_redirect_valid;
 
+  logic early_return_present;
+  program_counter_t early_return_pc;
+
   riscv32_ifu #(
       .PC_START                                 (RESET_PC)
   ) u_ifu (
+      .early_return_present_i(early_return_present),
+      .early_return_pc_i(early_return_pc),
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
       .redirect_req_i                            (selected_redirect_req),
@@ -151,6 +156,8 @@ module riscv32_core
   logic resolved_execute_result_ready;
 
   riscv32_branch_predictor u_branch_predictor (
+      .early_return_present_o(early_return_present),
+      .early_return_pc_o(early_return_pc),
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
       .lookup_request_pc_i            (next_pc_predictor_lookup_request_pc),
@@ -176,9 +183,7 @@ module riscv32_core
           !resolved_execute_result.uop.exception_valid
       ),
       .resolved_control_flow_taken_i(
-          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
-          (resolved_execute_result.next_pc !=
-          (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
+          resolved_execute_result.branch_taken
       ),
       .flush_lookup_i (next_pc_predictor_flush),
       .invalidate_i   (icache_invalidate_req)
@@ -744,9 +749,7 @@ module riscv32_core
       .resolved_control_flow_op_i     (resolved_execute_result.uop.branch_ctrl.op),
       .resolved_control_flow_pc_i     (resolved_execute_result.uop.pc),
       .resolved_control_flow_taken_i(
-          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
-          (resolved_execute_result.next_pc !=
-          (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
+          resolved_execute_result.branch_taken
       ),
       .resolved_control_flow_immediate_i        (resolved_execute_result.uop.imm),
       .lsu_request_event_i                      (lsu_req_valid && lsu_req_ready),

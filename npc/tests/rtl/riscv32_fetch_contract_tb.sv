@@ -1,6 +1,8 @@
 // 连接真实 IFU 与预测器，验证命中 taken 的目标查询间隔。
 module riscv32_fetch_contract_tb;
   import riscv32_pkg::*;
+  logic early_return_present;
+  program_counter_t early_return_pc;
   logic clk=0, predictor_reset_n=0, ifu_reset_n=0;
   always #5 clk=~clk;
   localparam program_counter_t BASE=32'h80000000;
@@ -19,6 +21,7 @@ module riscv32_fetch_contract_tb;
 
   riscv32_ifu #(.PC_START(BASE)) ifu (
       .prediction_enable_i(1'b1),
+      .early_return_present_i(early_return_present),.early_return_pc_i(early_return_pc),
       .clk_i(clk), .rst_ni(ifu_reset_n), .redirect_req_i('0), .redirect_req_valid_i(1'b0),
       .next_pc_predictor_lookup_request_pc_o(query_pc),
       .next_pc_predictor_lookup_request_epoch_o(query_epoch),
@@ -46,6 +49,7 @@ module riscv32_fetch_contract_tb;
       .resolved_control_flow_imm_i('0), .resolved_control_flow_op_i(CF_JAL),
       .resolved_control_flow_rs1_i('0), .resolved_control_flow_rd_i('0),
       .resolved_control_flow_event_i(train_valid), .resolved_control_flow_taken_i(1'b1),
+      .early_return_present_o(early_return_present),.early_return_pc_o(early_return_pc),
       .flush_lookup_i(flush), .invalidate_i(1'b0)
   );
 

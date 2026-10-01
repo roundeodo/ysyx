@@ -1,6 +1,8 @@
 // 重定向到来时，旧 lookup 仍在等待 ready；稍后握手不能覆盖恢复 PC。
 module riscv32_ifu_redirect_tb;
   import riscv32_pkg::*;
+  logic early_return_present;
+  program_counter_t early_return_pc;
   logic clk = 0;
   logic rst_n = 0;
   always #5 clk = ~clk;
@@ -34,6 +36,7 @@ module riscv32_ifu_redirect_tb;
       .resolved_control_flow_imm_i('0), .resolved_control_flow_op_i(CF_NONE),
       .resolved_control_flow_rs1_i('0), .resolved_control_flow_rd_i('0),
       .resolved_control_flow_event_i(1'b0), .resolved_control_flow_taken_i(1'b0),
+      .early_return_present_o(early_return_present),.early_return_pc_o(early_return_pc),
       .flush_lookup_i(predictor_flush), .invalidate_i(1'b0)
   );
   riscv32_ifu #(.PC_START(32'h8000_0000)) dut (
@@ -48,6 +51,7 @@ module riscv32_ifu_redirect_tb;
       .next_pc_predictor_lookup_response_ready_o(predictor_response_ready),
       .next_pc_predictor_flush_o(predictor_flush),
       .prediction_enable_i(1'b1),
+      .early_return_present_i(early_return_present),.early_return_pc_i(early_return_pc),
       .clk_i(clk), .rst_ni(rst_n), .redirect_req_i(redirect),
       .redirect_req_valid_i(redirect_valid), .icache_lookup_req_o(request),
       .icache_lookup_req_valid_o(request_valid), .icache_lookup_req_ready_i(request_ready),

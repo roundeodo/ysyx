@@ -1,6 +1,8 @@
 module riscv32_pipeline_control_tb;
   import riscv32_addr_map_pkg::*;
   import riscv32_pkg::*;
+  logic early_return_present;
+  program_counter_t early_return_pc;
 
   localparam program_counter_t IFU_TEST_START_PC = program_counter_t'('h8000_0000);
 
@@ -126,6 +128,7 @@ module riscv32_pipeline_control_tb;
       .PC_START(IFU_TEST_START_PC)
   ) u_ifu (
       .prediction_enable_i(1'b1),
+      .early_return_present_i(early_return_present),.early_return_pc_i(early_return_pc),
       .clk_i                         (clk),
       .rst_ni                        (rst_ni),
       .redirect_req_i                (ifu_redirect_req),
@@ -200,6 +203,7 @@ module riscv32_pipeline_control_tb;
       .resolved_control_flow_rd_i      (predictor_resolved_control_flow_rd),
       .resolved_control_flow_event_i(predictor_resolved_control_flow_occurred),
       .resolved_control_flow_taken_i   (predictor_resolved_control_flow_taken),
+      .early_return_present_o(early_return_present),.early_return_pc_o(early_return_pc),
       .flush_lookup_i                  (predictor_flush),
       .invalidate_i                    (predictor_invalidate)
   );

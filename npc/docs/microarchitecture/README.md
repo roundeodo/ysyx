@@ -58,6 +58,7 @@
 
 ## 当前前端
 
+- [V3 分支预测实验](BRANCH_V3_DESIGN.md)：同一条件分支静态/动态混合、缩放 TAGE/SC/loop、历史恢复与早期目标；全部由显式开关启用，稳定默认不变。
 - [取指预测器](FETCH_PREDICTOR_DESIGN_RECORD.md)：BHT、BTB、RAS、单级查询与训练时序。
 - [历史方向预测原型](DIRECTION_PREDICTOR_DESIGN.md)：默认关闭的 gshare/Bi-mode、查询快照与恢复。
 - [BTB实验策略](BTB_POLICY_DESIGN.md)：准入、RRIP/LRU、状态更新与默认关闭边界。

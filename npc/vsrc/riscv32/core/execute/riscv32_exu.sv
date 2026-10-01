@@ -153,6 +153,7 @@ module riscv32_exu
     // 长度决定；cache一次返回多少字节属于前端微架构，两者必须解耦。
     exu_result.next_pc   = sequential_next_pc;
     exu_result.csr_wdata = csr_wdata;
+    exu_result.branch_taken = (execute_packet_i.uop.fu_type == FU_BRANCH) && branch_taken;
     // 预测校验位于后继EX/MEM寄存级之后。本级只计算真实next_pc，避免把预测比较继续
     // 串在分支加法器之后。
     exu_result.redirect_valid = 1'b0;
@@ -219,8 +220,10 @@ module riscv32_exu
   assign sequential_redirect_valid_o = execute_packet_valid_i &&
       execute_packet_issue_allowed_i && execute_packet_ready_o &&
       (execute_packet_i.uop.fu_type != FU_BRANCH) && !exu_result.uop.exception_valid &&
-      execute_packet_i.uop.prediction.predicted_taken &&
-      (execute_packet_i.uop.prediction.predicted_target != sequential_next_pc);
+      ((execute_packet_i.uop.prediction.predicted_taken &&
+        execute_packet_i.uop.prediction.predicted_target != sequential_next_pc) ||
+       (riscv_config_pkg::BRANCH_SPEC_HISTORY &&
+        execute_packet_i.uop.prediction.direction.history_inserted));
 
 `ifndef SYNTHESIS
   always_comb begin : check_exception_side_effects
