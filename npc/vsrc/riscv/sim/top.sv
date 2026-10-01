@@ -40,16 +40,19 @@ module top
   axi4_manager_to_target_t sim_target_manager_array[SIM_TARGET_COUNT];
   axi4_target_to_manager_t sim_target_response_array[SIM_TARGET_COUNT];
 
+  logic system_rst_n;
+
   riscv_npc_system #(
       .RESET_PC(RESET_PC)
   ) u_npc_system (
       .clk_i                  (clk),
       .rst_ni                 (rstn),
+      .system_rst_no          (system_rst_n),
       .external_axi4_manager_o(npc_external_axi4_manager),
       .external_axi4_manager_i(npc_external_axi4_response)
   );
 
-  riscv_axi4_address_router #(
+  riscv_axi4_router #(
       .TARGET_COUNT                      (SIM_TARGET_COUNT),
       .TARGET_ADDRESS_BASE_ARRAY         (SIM_TARGET_ADDRESS_BASE_ARRAY),
       .TARGET_ADDRESS_LAST_ARRAY         (SIM_TARGET_ADDRESS_LAST_ARRAY),
@@ -58,7 +61,7 @@ module top
       .DEFAULT_TARGET_INDEX              (MEMORY_TARGET_INDEX)
   ) u_sim_address_router (
       .clk_i                 (clk),
-      .rst_ni                (rstn),
+      .rst_ni                (system_rst_n),
       .upstream_manager_i    (npc_external_axi4_manager),
       .upstream_manager_o    (npc_external_axi4_response),
       .target_manager_array_o(sim_target_manager_array),
@@ -67,7 +70,7 @@ module top
 
   riscv_axi4_uart_sim u_uart_sim (
       .clk_i     (clk),
-      .rst_ni    (rstn),
+      .rst_ni    (system_rst_n),
       .uart_axi_i(sim_target_manager_array[UART_TARGET_INDEX]),
       .uart_axi_o(sim_target_response_array[UART_TARGET_INDEX])
   );
@@ -79,7 +82,7 @@ module top
       .RANDOM_LATENCY_MAX(SIM_RANDOM_LATENCY_MAX)
   ) u_sim_mem (
       .clk_i    (clk),
-      .rst_ni   (rstn),
+      .rst_ni   (system_rst_n),
       .mem_axi_i(sim_target_manager_array[MEMORY_TARGET_INDEX]),
       .mem_axi_o(sim_target_response_array[MEMORY_TARGET_INDEX])
   );

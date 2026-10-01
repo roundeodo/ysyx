@@ -1,4 +1,4 @@
-// NPC RISC-V 处理器的全核配置；当前构建为 RV64 顺序核。
+// NPC RISC-V 处理器的全核配置；当前构建为 RV64 顺序发射核。
 //
 // 本package只描述全核共享的静态配置，不放ISA编码、总线事务结构、cache状态或
 // 模块局部派生宽度。当前活动主线只支持RV64，不保留RV32兼容分支。
@@ -11,6 +11,7 @@ package riscv_config_pkg;
   localparam int unsigned PADDR_WIDTH = 32;
   localparam int unsigned INSTR_WIDTH = 32;
   localparam int unsigned ARCH_REG_COUNT = 32;
+  localparam int unsigned SCOREBOARD_ENTRY_COUNT = 4;
 
   // 正式core/cache memory AXI属于处理器架构边界。RV64配置使用64位数据beat。
   localparam int unsigned MEM_AXI_ADDR_WIDTH = 32;

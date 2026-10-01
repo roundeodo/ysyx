@@ -26,6 +26,10 @@
 #define SRAM_SIZE  ((paddr_t)0x00002000)
 #define SRAM_RIGHT (SRAM_LEFT + SRAM_SIZE - 1)
 
+#define SDRAM_LEFT ((paddr_t)0xa0000000)
+#define SDRAM_SIZE ((paddr_t)0x02000000)
+#define SDRAM_RIGHT (SDRAM_LEFT + SDRAM_SIZE - 1)
+
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
 /* convert the host virtual address in NEMU to guest physical address in the guest program */
@@ -46,8 +50,16 @@ static inline bool in_sram(paddr_t addr){
   #endif
 }
 
+static inline bool in_sdram(paddr_t addr) {
+#ifdef CONFIG_YSYXSOC_MEMORY
+  return addr - SDRAM_LEFT < SDRAM_SIZE;
+#else
+  return false;
+#endif
+}
+
 static inline bool in_memory(paddr_t addr){
-  return in_pmem(addr) || in_sram(addr);
+  return in_pmem(addr) || in_sram(addr) || in_sdram(addr);
 }
 
 #endif

@@ -25,13 +25,13 @@ module riscv_dcache_tag_array
     input logic              metadata_write_line_dirty_i
 );
 
-  dcache_tag_t tag_array_q[WAY_COUNT][SET_COUNT];
-  logic line_present_array_q[WAY_COUNT][SET_COUNT];
-  logic line_dirty_array_q[WAY_COUNT][SET_COUNT];
+  dcache_tag_t                 tag_array_q                [WAY_COUNT] [SET_COUNT];
+  logic                        line_present_array_q       [WAY_COUNT] [SET_COUNT];
+  logic                        line_dirty_array_q         [WAY_COUNT] [SET_COUNT];
 
-  dcache_tag_t read_tag_array_q[WAY_COUNT];
-  logic [WAY_COUNT-1:0] read_line_present_vector_q;
-  logic [WAY_COUNT-1:0] read_line_dirty_vector_q;
+  dcache_tag_t                 read_tag_array_q           [WAY_COUNT];
+  logic        [WAY_COUNT-1:0] read_line_present_vector_q;
+  logic        [WAY_COUNT-1:0] read_line_dirty_vector_q;
 
   always_ff @(posedge clk_i) begin
     if (read_enable_i) begin
@@ -71,9 +71,11 @@ module riscv_dcache_tag_array
 `ifndef SYNTHESIS
   initial begin
     assert (SET_COUNT > 0)
-    else $fatal(1, "D-cache set count must be positive");
+    else
+      $fatal(1, "D-cache set count must be positive");
     assert (WAY_COUNT > 0)
-    else $fatal(1, "D-cache way count must be positive");
+    else
+      $fatal(1, "D-cache way count must be positive");
   end
 `endif
 

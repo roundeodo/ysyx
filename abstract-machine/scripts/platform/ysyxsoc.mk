@@ -18,6 +18,7 @@ AM_SRCS := $(YSYXSOC_START_SOURCE) \
 INC_PATH += $(AM_HOME)/am/src/riscv/ysyxsoc/include
 
 NPC_CONFIG ?= rv32-baseline
+NPC_RUN_TARGET ?= sim-image
 
 # MAINARGS is compiled into trm.o. Rebuild this object for every AM archive
 # invocation so changing `mainargs` cannot reuse an object with an old value.
@@ -35,4 +36,4 @@ image: image-dep
 	@$(OBJCOPY) -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: image
-	@$(MAKE) -C $(NPC_HOME) sim-image NPC_CONFIG=$(NPC_CONFIG) FLASH_IMG=$(IMAGE).bin
+	@$(MAKE) -C $(NPC_HOME) $(NPC_RUN_TARGET) NPC_CONFIG=$(NPC_CONFIG) FLASH_IMG=$(IMAGE).bin

@@ -2,13 +2,14 @@
 #define __MEM_H__
 
 #include <cstdint>
+#include <cstddef>
 
 #define LEGACY_PMEM_BASE 0x80000000u
 #define MROM_BASE 0x20000000u
 #define MROM_SIZE 0x00001000u
 #define SRAM_BASE 0x0f000000u
 #define SRAM_SIZE 0x00002000u
-#define YSYXSOC_RESET_VECTOR MROM_BASE
+#define YSYXSOC_RESET_VECTOR 0x30000000u
 
 #define MEM_SIZE 0x08000000u
 
@@ -18,6 +19,9 @@ void load_bin(const char *path);
 void load_flash_bin(const char *path);
 
 long get_img_size();
+long get_flash_img_size();
+uint8_t *get_flash_img_data();
+size_t get_flash_storage_size();
 
 uint32_t paddr_read(uint32_t addr, int len);
 void paddr_write(uint32_t addr, int len, uint32_t data);

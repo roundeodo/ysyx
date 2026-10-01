@@ -97,10 +97,10 @@
 | 取指缓冲、ID/EX 空队列直通 | 缓冲保留寄存器边界，ready 不直接跟随下游 ready | 有意控制组合路径；不能仅凭多一级就判设计错误 |
 
 相关源码：[core](../../vsrc/riscv/core/riscv_core.sv)、
-[冒险控制](../../vsrc/riscv/core/riscv_pipeline_hazard_controller.sv)、
-[读寄存器级](../../vsrc/riscv/core/riscv_register_read_stage.sv)、
-[LSU](../../vsrc/riscv/core/riscv_lsu.sv)、
-[预测器](../../vsrc/riscv/core/frontend/riscv_fetch_control_flow_predictor.sv)。
+[冒险控制](../../vsrc/riscv/core/control/riscv_hazard_ctrl.sv)、
+[读寄存器级](../../vsrc/riscv/experiments/pipeline/riscv_register_read_stage.sv)、
+[LSU](../../vsrc/riscv/core/memory/riscv_lsu.sv)、
+[预测器](../../vsrc/riscv/core/frontend/riscv_branch_predictor.sv)。
 
 ### C1：I-cache 留有不能启用的回填字选择路径
 

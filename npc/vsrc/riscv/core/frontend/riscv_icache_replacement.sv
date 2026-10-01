@@ -20,17 +20,18 @@ module riscv_icache_replacement
   localparam int unsigned LINE_ADDRESS_WIDTH = PADDR_WIDTH - ICACHE_LINE_OFFSET_W;
 
   initial begin
-    if (ICACHE_WAY_COUNT < 2) $fatal(1, "segmented RRIP requires multiple ways");
+    if (ICACHE_WAY_COUNT < 2)
+      $fatal(1, "segmented RRIP requires multiple ways");
   end
 
-  logic access_occurred;
+  logic access_event;
   icache_set_index_t access_set_index;
   logic [LINE_ADDRESS_WIDTH-1:0] access_line_address;
   logic [LINE_ADDRESS_WIDTH-1:0] previous_line_address_q;
   logic previous_line_present_q;
   logic access_starts_segment;
 
-  assign access_occurred = hit_i || allocate_i;
+  assign access_event = hit_i || allocate_i;
   assign access_set_index = (ICACHE_SET_COUNT == 1) ? '0 :
                            icache_set_index_t'(access_addr_i >> ICACHE_LINE_OFFSET_W);
   assign access_line_address = access_addr_i[PADDR_WIDTH-1:ICACHE_LINE_OFFSET_W];
@@ -41,7 +42,7 @@ module riscv_icache_replacement
     if (!rst_ni || invalidate_i) begin
       previous_line_address_q <= '0;
       previous_line_present_q <= 1'b0;
-    end else if (access_occurred) begin
+    end else if (access_event) begin
       previous_line_address_q <= access_line_address;
       previous_line_present_q <= 1'b1;
     end
@@ -80,8 +81,10 @@ module riscv_icache_replacement
   always_ff @(posedge clk_i) begin
     for (int unsigned set_index = 0; set_index < ICACHE_SET_COUNT; set_index++) begin
       for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-        if (!rst_ni || invalidate_i) rrpv_array_q[set_index][way_index] <= 2'd3;
-        else rrpv_array_q[set_index][way_index] <= rrpv_array_d[set_index][way_index];
+        if (!rst_ni || invalidate_i)
+          rrpv_array_q[set_index][way_index] <= 2'd3;
+        else
+          rrpv_array_q[set_index][way_index] <= rrpv_array_d[set_index][way_index];
       end
     end
   end
@@ -106,7 +109,8 @@ module riscv_icache_replacement
 
   // 与tag读结果对齐；无新查询时保持。首次有效查询之前不消费这个快照。
   always_ff @(posedge clk_i) begin
-    if (read_enable_i) read_victim_way_index_o <= read_victim_way_index;
+    if (read_enable_i)
+      read_victim_way_index_o <= read_victim_way_index;
   end
 
 `ifndef SYNTHESIS

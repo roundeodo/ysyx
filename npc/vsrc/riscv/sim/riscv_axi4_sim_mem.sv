@@ -124,7 +124,8 @@ module riscv_axi4_sim_mem
     unique case (burst_type)
       AXI4_BURST_FIXED: return current_addr;
       AXI4_BURST_WRAP: begin
-        if (incremented_addr >= wrap_base_addr + burst_bytes) return wrap_base_addr;
+        if (incremented_addr >= wrap_base_addr + burst_bytes)
+          return wrap_base_addr;
         return incremented_addr;
       end
       default:          return incremented_addr;

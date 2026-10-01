@@ -46,7 +46,7 @@ module riscv_icache_data_array
   logic               staged_refill_write_enable_q;
 
   // read_enable_i为1的上升沿，读取所有way中由set和word共同索引的word。读地址必须
-  // 与tag array使用同一个set，并由cache pipeline的S0寄存器共同驱动。
+  // 与tag array使用同一个set，二者在lookup请求握手的同一时钟沿采样。
   always_ff @(posedge clk_i) begin
     if (read_enable_i) begin
       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
@@ -67,8 +67,8 @@ module riscv_icache_data_array
   // present位决定。这里使用显式staging加低电平透明锁存阵列，降低小容量数据阵列由
   // 标准单元实现时的面积；未来换成SRAM宏时，只需在本模块内部替换存储体和端口时序。
   //
-  // 当前顶层在 refill 期间阻止新的 lookup；原请求由 miss unit 提前返回所需字。
-  // 允许读取回填中已到达的其他字仍是后续候选，不能据此声明当前支持 hit-under-miss。
+  // 顶层在整个 refill 期间禁止新 lookup；关键 word 由 miss unit 直接返回。
+  // 保留写入暂存和低电平锁存阵列，保证写入期间地址、数据与使能稳定。
   //
   // 这里不是循环写完整条line。每次refill response握手只携带一个word及其word index，
   // miss unit连续驱动本写口，逐word填满cache line。

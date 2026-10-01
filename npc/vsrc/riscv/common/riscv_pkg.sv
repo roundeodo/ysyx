@@ -165,6 +165,22 @@ package riscv_pkg;
     ALU_SRAW = 4'd14
   } alu_op_e;
 
+  typedef enum logic [2:0] {
+    MULDIV_MUL    = 3'd0,
+    MULDIV_MULH   = 3'd1,
+    MULDIV_MULHSU = 3'd2,
+    MULDIV_MULHU  = 3'd3,
+    MULDIV_DIV    = 3'd4,
+    MULDIV_DIVU   = 3'd5,
+    MULDIV_REM    = 3'd6,
+    MULDIV_REMU   = 3'd7
+  } muldiv_op_e;
+
+  typedef struct packed {
+    muldiv_op_e op;
+    logic       word_operation;
+  } muldiv_ctrl_t;
+
   typedef enum logic [1:0] {
     CF_NONE   = 2'd0,
     CF_BRANCH = 2'd1,
@@ -241,7 +257,8 @@ package riscv_pkg;
     REDIRECT_MRET              = 3'd3,
     REDIRECT_MEMORY_REPLAY     = 3'd4,
     REDIRECT_DEBUG             = 3'd5,
-    REDIRECT_FENCE_I           = 3'd6
+    REDIRECT_FENCE_I           = 3'd6,
+    REDIRECT_NONBRANCH         = 3'd7
   } redirect_reason_e;
 
   typedef enum logic [1:0] {
@@ -252,10 +269,17 @@ package riscv_pkg;
 
   // 译码控制分组。decoded_uop_t用于常规lane连线；进入时序敏感的后端路径前，使用
   // 专用issue payload去掉与目标执行单元无关的字段。
+  typedef enum logic [1:0] {
+    TARGET_KIND_CONDITIONAL_BRANCH,
+    TARGET_KIND_DIRECT_JUMP,
+    TARGET_KIND_INDIRECT_JUMP,
+    TARGET_KIND_RETURN
+  } branch_target_kind_e;
+
   typedef struct packed {
     alu_op_e        op;
-    operand_a_sel_e operand_a_sel;
-    operand_b_sel_e operand_b_sel;
+    operand_a_sel_e operand_a_select;
+    operand_b_sel_e operand_b_select;
   } int_uop_ctrl_t;
 
   typedef struct packed {
@@ -396,21 +420,21 @@ package riscv_pkg;
   // PMU观察接口不得反向控制cache。occurred字段是单周期事件脉冲；present/is字段
   // 描述当前响应口状态，由PMU自身的活动请求状态保证每个响应只统计一次。
   typedef struct packed {
-    logic lookup_occurred;
+    logic lookup_event;
     // AMAT的终点是cache首次给出结果，不是下游最终完成握手。否则fetch buffer反压
     // 会被错误计入cache访问时间。
     logic lookup_response_present;
     logic lookup_response_is_cache_hit;
     // waiting表示请求已有效但cache本周期不能接收，用于累计前端阻塞周期。
     logic lookup_request_waiting;
-    logic miss_occurred;
-    logic uncached_access_occurred;
-    logic refill_word_occurred;
+    logic miss_event;
+    logic uncached_access_event;
+    logic refill_word_event;
     // transaction completion表示末一个refill word已握手，不要与“新line成功安装”混淆。
     // 访存错误会结束transaction，但不会产生refill_line_completed_occurred。
-    logic refill_transaction_completed_occurred;
-    logic refill_line_completed_occurred;
-    logic stale_response_discarded_occurred;
+    logic refill_transaction_completed_event;
+    logic refill_line_completed_event;
+    logic stale_response_discarded_event;
   } icache_event_t;
 
   // LSU与数据存储层之间传递语义请求，不在LSU内暴露AXI4通道。
@@ -500,7 +524,7 @@ package riscv_pkg;
   // occurred字段均表示本周期确实完成了对应握手或状态动作，而不是valid曾经出现。
   // lookup只统计进入D-cache的cacheable请求；uncached和访问错误由数据存储子系统另行处理。
   typedef struct packed {
-    logic lookup_occurred;
+    logic lookup_event;
     logic lookup_is_store;
     // 响应首次present是D-cache访问延迟的终点；不等待LSU最终握手，避免把下游反压
     // 误计为cache访问时间。监视器负责保证一个响应只统计一次。
@@ -509,15 +533,15 @@ package riscv_pkg;
     logic lookup_request_waiting;
     // store hit交付旧响应的同拍又接收了下一请求。该事件用于量化显式
     // read-during-write bypass实际消除的气泡数。
-    logic store_hit_and_next_lookup_occurred;
-    logic miss_occurred;
-    logic dirty_victim_miss_occurred;
-    logic refill_request_occurred;
-    logic refill_word_occurred;
-    logic refill_transaction_completed_occurred;
-    logic line_install_occurred;
-    logic writeback_request_occurred;
-    logic writeback_response_occurred;
+    logic store_hit_and_next_lookup_event;
+    logic miss_event;
+    logic dirty_victim_miss_event;
+    logic refill_request_event;
+    logic refill_word_event;
+    logic refill_transaction_completed_event;
+    logic line_install_event;
+    logic writeback_request_event;
+    logic writeback_response_event;
   } dcache_event_t;
 
   // Frontend payloads
@@ -568,6 +592,7 @@ package riscv_pkg;
     fu_type_e         fu_type;
     xlen_data_t       imm;
     int_uop_ctrl_t    int_ctrl;
+    muldiv_ctrl_t     muldiv_ctrl;
     branch_uop_ctrl_t branch_ctrl;
     mem_uop_ctrl_t    mem_ctrl;
     csr_uop_ctrl_t    csr_ctrl;
@@ -634,25 +659,47 @@ package riscv_pkg;
     logic         csr_illegal;
   } execute_packet_t;
 
+  localparam int unsigned SCOREBOARD_INDEX_WIDTH = $clog2(riscv_config_pkg::SCOREBOARD_ENTRY_COUNT);
+  typedef logic [SCOREBOARD_INDEX_WIDTH-1:0] scoreboard_index_t;
+  // 等待源在进入 ID/EX 时选定数据端口；返回状态只决定是否就绪。
+  typedef enum logic [1:0] {
+    COMPLETION_LSU      = 2'd0,
+    COMPLETION_MULTIPLY = 2'd1,
+    COMPLETION_DIVIDE   = 2'd2
+  } completion_source_e;
+  function automatic completion_source_e completion_source(input decoded_uop_t uop);
+    if (uop.fu_type != FU_MULDIV) return COMPLETION_LSU;
+    if (uop.muldiv_ctrl.op inside {MULDIV_DIV, MULDIV_DIVU, MULDIV_REM, MULDIV_REMU})
+      return COMPLETION_DIVIDE;
+    return COMPLETION_MULTIPLY;
+  endfunction
+
   typedef struct packed {
-    decoded_uop_t     uop;
-    xlen_data_t       result;
-    program_counter_t next_pc;
-    xlen_data_t       csr_wdata;
-    logic             redirect_valid;
-    redirect_req_t    redirect_req;
+    scoreboard_index_t scoreboard_index;
+    xlen_data_t        result;
+  } arithmetic_result_t;
+
+  typedef struct packed {
+    scoreboard_index_t scoreboard_index;
+    decoded_uop_t      uop;
+    xlen_data_t        result;
+    program_counter_t  next_pc;
+    xlen_data_t        csr_wdata;
+    logic              redirect_valid;
+    redirect_req_t     redirect_req;
   } execute_result_t;
 
-  // 当前顺序核从 EXU 发给 LSU 的请求。接收时访存尚未完成；M2 需增加真实的
-  // ROB/LSQ 指令身份，并定义相应恢复与完成规则。
+  // EXU 发给 LSU 的请求；scoreboard 索引标识指令，与存储子系统事务编号分开。
   typedef struct packed {
-    decoded_uop_t     uop;
-    program_counter_t next_pc;
-    effective_addr_t  effective_addr;
-    xlen_data_t       store_data;
+    scoreboard_index_t scoreboard_index;
+    decoded_uop_t      uop;
+    program_counter_t  next_pc;
+    effective_addr_t   effective_addr;
+    xlen_data_t        store_data;
   } lsu_req_t;
 
   typedef struct packed {
+    scoreboard_index_t scoreboard_index;
     decoded_uop_t      uop;
     xlen_data_t        result;
     program_counter_t  next_pc;

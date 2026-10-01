@@ -26,6 +26,7 @@ static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 
 #ifdef CONFIG_YSYXSOC_MEMORY
 static uint8_t sram[SRAM_SIZE] PG_ALIGN = {};
+static uint8_t sdram[SDRAM_SIZE] PG_ALIGN = {};
 #endif
 
 static bool access_inside_region(paddr_t addr, int len,
@@ -40,6 +41,7 @@ static bool access_inside_memory(paddr_t addr, int len) {
   }
 
 #ifdef CONFIG_YSYXSOC_MEMORY
+  if (access_inside_region(addr, len, SDRAM_LEFT, SDRAM_RIGHT)) return true;
   if (access_inside_region(addr, len, SRAM_LEFT, SRAM_RIGHT)) {
     return true;
   }
@@ -54,6 +56,7 @@ uint8_t *guest_to_host(paddr_t paddr) {
   }
 
 #ifdef CONFIG_YSYXSOC_MEMORY
+  if (in_sdram(paddr)) return sdram + (paddr - SDRAM_LEFT);
   if (in_sram(paddr)) {
     return sram + (paddr - SRAM_LEFT);
   }
@@ -71,6 +74,8 @@ paddr_t host_to_guest(uint8_t *haddr) {
   }
 
 #ifdef CONFIG_YSYXSOC_MEMORY
+  uintptr_t sdram_addr = (uintptr_t)sdram;
+  if (host_addr - sdram_addr < SDRAM_SIZE) return SDRAM_LEFT + (host_addr - sdram_addr);
   uintptr_t sram_addr = (uintptr_t)sram;
 
   if (host_addr - sram_addr < SRAM_SIZE) {
@@ -92,7 +97,7 @@ static void memory_write(paddr_t addr, int len, word_t data) {
 #ifndef CONFIG_DEVICE
 static void out_of_bound(paddr_t addr) {
 #ifdef CONFIG_YSYXSOC_MEMORY
-  panic("address = " FMT_PADDR " is outside MROM [" FMT_PADDR
+  panic("address = " FMT_PADDR " is outside main memory [" FMT_PADDR
       ", " FMT_PADDR "] and SRAM [" FMT_PADDR ", " FMT_PADDR
       "] at pc = " FMT_WORD,
       addr, PMEM_LEFT, PMEM_RIGHT, SRAM_LEFT, SRAM_RIGHT, cpu.pc);
@@ -119,7 +124,7 @@ void init_mem(void) {
   memset(sram, rand(), SRAM_SIZE);
 #endif
 
-  Log("MROM area [" FMT_PADDR ", " FMT_PADDR "]",
+  Log("Main memory area [" FMT_PADDR ", " FMT_PADDR "]",
       PMEM_LEFT, PMEM_RIGHT);
   Log("SRAM area [" FMT_PADDR ", " FMT_PADDR "]",
       SRAM_LEFT, SRAM_RIGHT);

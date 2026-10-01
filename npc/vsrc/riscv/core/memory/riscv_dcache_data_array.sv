@@ -1,7 +1,7 @@
 // D-cache数据阵列，按way、line内word和set组织。
 //
 // 同步读口并行读出所有way的目标word；字节写口同时服务store hit和line refill。
-// byte strobe是实现sb/sh/sw/sd以及未来store merge的必要语义，不属于AXI接口细节。
+// 字节掩码只控制指定字节的写入，未选中字节保持原值。
 module riscv_dcache_data_array
   import riscv_pkg::*;
 #(
@@ -27,7 +27,7 @@ module riscv_dcache_data_array
   core_data_t data_array_q[WAY_COUNT][WORDS_PER_LINE][SET_COUNT];
   core_data_t read_word_data_array_q[WAY_COUNT];
 
-  // 同步读出并保持结果，顶层用S1 present限定其有效性；同地址读写由顶层旁路定义。
+  // 同步读在上升沿采样；禁用读口时输出保持。lookup 或 miss 采集状态解释其有效性。
   always_ff @(posedge clk_i) begin
     if (read_enable_i) begin
       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
@@ -42,8 +42,8 @@ module riscv_dcache_data_array
   end
 
   // 每个byte lane独立写使能，使综合器能够映射到带byte-enable的SRAM或banked array。
-  // 当前查找与store写入可能同拍发生，顶层提供数据与脏位旁路；未来hit-under-miss
-  // 必须在D-cache顶层增加refill/store bypass，不能依赖工艺相关的read-during-write行为。
+  // RTL 同沿读写同一字时读到旧值。store 与下一 lookup 的冲突由 D-cache 顶层旁路处理；
+  // 阵列本身不检测请求相关性，也不复制另一套旁路。
   always_ff @(posedge clk_i) begin
     if (write_valid_i) begin
       for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
@@ -58,7 +58,8 @@ module riscv_dcache_data_array
 `ifndef SYNTHESIS
   initial begin
     assert (WORDS_PER_LINE > 0)
-    else $fatal(1, "D-cache line must contain at least one core data word");
+    else
+      $fatal(1, "D-cache line must contain at least one core data word");
   end
 `endif
 

@@ -4,8 +4,8 @@ module riscv_axi4_soc_width_converter_tb;
   import riscv_ysyx_soc_axi4_pkg::*;
   import riscv_addr_map_pkg::*;
 
-  logic clk;
-  logic rst_ni;
+  logic                             clk;
+  logic                             rst_ni;
 
   axi4_manager_to_target_t          upstream_request;
   axi4_target_to_manager_t          upstream_response;
@@ -24,43 +24,37 @@ module riscv_axi4_soc_width_converter_tb;
   always #5 clk = ~clk;
 
   task automatic accept_read_address(
-      input axi4_addr_t address,
-      input axi4_id_t   transaction_id,
-      input logic [2:0] transfer_size,
-      input logic [7:0] expected_downstream_length,
-      input logic [2:0] expected_downstream_size
-  );
+      input axi4_addr_t address, input axi4_id_t transaction_id, input logic [2:0] transfer_size,
+      input logic [7:0] expected_downstream_length, input logic [2:0] expected_downstream_size,
+      input logic [7:0] upstream_length = 0);
     @(negedge clk);
-    upstream_request.ar.addr  = address;
-    upstream_request.ar.id    = transaction_id;
-    upstream_request.ar.len   = 8'd0;
-    upstream_request.ar.size  = transfer_size;
-    upstream_request.ar.burst = AXI4_BURST_INCR;
-    upstream_request.ar_valid = 1'b1;
+    upstream_request.ar.addr     = address;
+    upstream_request.ar.id       = transaction_id;
+    upstream_request.ar.len      = upstream_length;
+    upstream_request.ar.size     = transfer_size;
+    upstream_request.ar.burst    = AXI4_BURST_INCR;
+    upstream_request.ar_valid    = 1'b1;
     downstream_response.ar_ready = 1'b0;
     #1;
     assert (downstream_request.ar_valid && !upstream_response.ar_ready)
-      else $fatal(1, "AR backpressure was not propagated");
+    else $fatal(1, "AR backpressure was not propagated");
     assert ((downstream_request.ar.addr == address) &&
             (downstream_request.ar.id == transaction_id) &&
             (downstream_request.ar.len == expected_downstream_length) &&
             (downstream_request.ar.size == expected_downstream_size))
-      else $fatal(1, "Converted AR payload mismatch");
+    else $fatal(1, "Converted AR payload mismatch");
 
     downstream_response.ar_ready = 1'b1;
     #1;
     assert (upstream_response.ar_ready)
-      else $fatal(1, "Upstream AR did not complete when downstream became ready");
+    else $fatal(1, "Upstream AR did not complete when downstream became ready");
     @(posedge clk);
     #1;
     upstream_request.ar_valid    = 1'b0;
     downstream_response.ar_ready = 1'b0;
   endtask
 
-  task automatic return_write_response(
-      input axi4_id_t   transaction_id,
-      input axi4_resp_e response
-  );
+  task automatic return_write_response(input axi4_id_t transaction_id, input axi4_resp_e response);
     @(negedge clk);
     downstream_response.b.id    = transaction_id;
     downstream_response.b.resp  = response;
@@ -71,12 +65,12 @@ module riscv_axi4_soc_width_converter_tb;
             (upstream_response.b.id == transaction_id) &&
             (upstream_response.b.resp == response) &&
             !downstream_request.b_ready)
-      else $fatal(1, "B response or B backpressure mismatch");
+    else $fatal(1, "B response or B backpressure mismatch");
 
     upstream_request.b_ready = 1'b1;
     #1;
     assert (downstream_request.b_ready)
-      else $fatal(1, "BREADY was not propagated");
+    else $fatal(1, "BREADY was not propagated");
     @(posedge clk);
     #1;
     downstream_response.b_valid = 1'b0;
@@ -94,8 +88,7 @@ module riscv_axi4_soc_width_converter_tb;
     rst_ni = 1'b1;
 
     // 32位窄读位于64位上游data bus的高lane。事务数量不变，只转换返回lane。
-    accept_read_address(axi4_addr_t'(PSRAM_BASE_ADDR + 32'd4), axi4_id_t'(3),
-                        3'd2, 8'd0, 3'd2);
+    accept_read_address(axi4_addr_t'(PSRAM_BASE_ADDR + 32'd4), axi4_id_t'(3), 3'd2, 8'd0, 3'd2);
     @(negedge clk);
     downstream_response.r.data  = 32'h89ab_cdef;
     downstream_response.r.id    = ysyx_soc_axi4_id_t'(3);
@@ -107,7 +100,7 @@ module riscv_axi4_soc_width_converter_tb;
     assert (upstream_response.r_valid &&
             (upstream_response.r.data == 64'h89ab_cdef_0000_0000) &&
             !downstream_request.r_ready)
-      else $fatal(1, "Narrow read lane conversion mismatch");
+    else $fatal(1, "Narrow read lane conversion mismatch");
     upstream_request.r_ready = 1'b1;
     @(posedge clk);
     #1;
@@ -115,8 +108,7 @@ module riscv_axi4_soc_width_converter_tb;
     upstream_request.r_ready    = 1'b0;
 
     // 64位普通存储器读转换成两个32位beat。第二拍SLVERR必须合并到唯一上游响应。
-    accept_read_address(axi4_addr_t'(PSRAM_BASE_ADDR + 32'h10), axi4_id_t'(4),
-                        3'd3, 8'd1, 3'd2);
+    accept_read_address(axi4_addr_t'(PSRAM_BASE_ADDR + 32'h10), axi4_id_t'(4), 3'd3, 8'd1, 3'd2);
     @(negedge clk);
     downstream_response.r.data  = 32'h7654_3210;
     downstream_response.r.id    = ysyx_soc_axi4_id_t'(4);
@@ -125,7 +117,7 @@ module riscv_axi4_soc_width_converter_tb;
     downstream_response.r_valid = 1'b1;
     #1;
     assert (downstream_request.r_ready && !upstream_response.r_valid)
-      else $fatal(1, "First wide-read beat was not buffered locally");
+    else $fatal(1, "First wide-read beat was not buffered locally");
     @(posedge clk);
     #1;
     downstream_response.r_valid = 1'b0;
@@ -141,7 +133,7 @@ module riscv_axi4_soc_width_converter_tb;
             (upstream_response.r.data == 64'hfedc_ba98_7654_3210) &&
             (upstream_response.r.resp == AXI4_RESP_SLVERR) &&
             upstream_response.r.last && !downstream_request.r_ready)
-      else $fatal(1, "Wide read merge or error aggregation mismatch");
+    else $fatal(1, "Wide read merge or error aggregation mismatch");
     upstream_request.r_ready = 1'b1;
     @(posedge clk);
     #1;
@@ -158,7 +150,7 @@ module riscv_axi4_soc_width_converter_tb;
     upstream_request.ar_valid = 1'b1;
     #1;
     assert (upstream_response.ar_ready && !downstream_request.ar_valid)
-      else $fatal(1, "Wide MMIO read escaped to downstream AXI");
+    else $fatal(1, "Wide MMIO read escaped to downstream AXI");
     @(posedge clk);
     #1;
     upstream_request.ar_valid = 1'b0;
@@ -168,7 +160,7 @@ module riscv_axi4_soc_width_converter_tb;
             (upstream_response.r.id == axi4_id_t'(6)) &&
             (upstream_response.r.resp == AXI4_RESP_DECERR) &&
             !downstream_request.ar_valid)
-      else $fatal(1, "Wide MMIO read did not return local DECERR");
+    else $fatal(1, "Wide MMIO read did not return local DECERR");
     upstream_request.r_ready = 1'b1;
     @(posedge clk);
     #1;
@@ -182,7 +174,7 @@ module riscv_axi4_soc_width_converter_tb;
     upstream_request.w_valid = 1'b1;
     #1;
     assert (upstream_response.w_ready)
-      else $fatal(1, "W-before-AW was not accepted");
+    else $fatal(1, "W-before-AW was not accepted");
     @(posedge clk);
     #1;
     upstream_request.w_valid = 1'b0;
@@ -196,7 +188,7 @@ module riscv_axi4_soc_width_converter_tb;
     upstream_request.aw_valid = 1'b1;
     #1;
     assert (upstream_response.aw_ready)
-      else $fatal(1, "AW was not accepted after buffered W");
+    else $fatal(1, "AW was not accepted after buffered W");
     @(posedge clk);
     #1;
     upstream_request.aw_valid = 1'b0;
@@ -212,7 +204,7 @@ module riscv_axi4_soc_width_converter_tb;
             (downstream_request.w.data == 32'h89ab_cdef) &&
             (downstream_request.w.strb == 4'hf) &&
             !downstream_request.w.last)
-      else $fatal(1, "First wide-write beat mismatch");
+    else $fatal(1, "First wide-write beat mismatch");
 
     downstream_response.w_ready = 1'b1;
     @(posedge clk);
@@ -223,7 +215,7 @@ module riscv_axi4_soc_width_converter_tb;
             (downstream_request.w.data == 32'h0123_4567) &&
             (downstream_request.w.strb == 4'hf) &&
             downstream_request.w.last && downstream_request.aw_valid)
-      else $fatal(1, "Second wide-write beat mismatch");
+    else $fatal(1, "Second wide-write beat mismatch");
     downstream_response.aw_ready = 1'b1;
     @(posedge clk);
     #1;
@@ -247,7 +239,7 @@ module riscv_axi4_soc_width_converter_tb;
     #1;
     assert (upstream_response.aw_ready && upstream_response.w_ready &&
             !downstream_request.aw_valid && !downstream_request.w_valid)
-      else $fatal(1, "Wide MMIO write escaped to downstream AXI");
+    else $fatal(1, "Wide MMIO write escaped to downstream AXI");
     @(posedge clk);
     #1;
     upstream_request.aw_valid = 1'b0;
@@ -262,10 +254,108 @@ module riscv_axi4_soc_width_converter_tb;
             (upstream_response.b.id == axi4_id_t'(7)) &&
             (upstream_response.b.resp == AXI4_RESP_DECERR) &&
             !downstream_request.aw_valid && !downstream_request.w_valid)
-      else $fatal(1, "Wide MMIO write did not return local DECERR");
+    else $fatal(1, "Wide MMIO write did not return local DECERR");
     upstream_request.b_ready = 1'b1;
     @(posedge clk);
     #1;
+
+    // A D-cache line has multiple 64-bit words: do not terminate after the first pair.
+    accept_read_address(axi4_addr_t'(SDRAM_BASE_ADDR), axi4_id_t'(4), 3'd3, 8'd7, 3'd2, 8'd3);
+    for (int beat = 0; beat < 8; beat++) begin
+      @(negedge clk);
+      downstream_response.r_valid = 1;
+      downstream_response.r.id    = 4;
+      downstream_response.r.data  = 32'h1000 + 32'(beat);
+      downstream_response.r.resp  = beat == 2 ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY;
+      downstream_response.r.last  = beat == 7;
+      upstream_request.r_ready    = 0;
+      #1;
+      if (beat % 2 == 0) begin
+        assert (downstream_request.r_ready && !upstream_response.r_valid)
+        else $fatal(1, "Burst lower word was not buffered");
+      end else begin
+        assert (upstream_response.r_valid && !downstream_request.r_ready &&
+                upstream_response.r.data == {32'h1000 + 32'(beat), 32'h1000 + 32'(beat-1)} &&
+                upstream_response.r.last == (beat == 7) &&
+                upstream_response.r.resp == (beat == 3 ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY))
+        else $fatal(1, "Burst merge/error/RLAST/backpressure mismatch");
+        repeat (2) @(negedge clk);
+        upstream_request.r_ready = 1;
+      end
+      @(posedge clk);
+      #1;
+      downstream_response.r_valid = 0;
+    end
+    upstream_request.r_ready = 0;
+
+    // Reject unsupported MMIO bursts with the full requested response count.
+    @(negedge clk);
+    upstream_request.ar.addr  = UART_BASE_ADDR;
+    upstream_request.ar.id    = 6;
+    upstream_request.ar.len   = 3;
+    upstream_request.ar.size  = 3;
+    upstream_request.ar_valid = 1;
+    @(posedge clk);
+    #1;
+    upstream_request.ar_valid = 0;
+    for (int beat = 0; beat < 4; beat++) begin
+      @(negedge clk);
+      upstream_request.r_ready = 0;
+      #1;
+      assert (upstream_response.r_valid && upstream_response.r.id == 6 &&
+              upstream_response.r.resp == AXI4_RESP_DECERR &&
+              upstream_response.r.last == (beat == 3) && !downstream_request.ar_valid)
+      else $fatal(1, "Error burst response count/RLAST mismatch");
+      upstream_request.r_ready = 1;
+      @(posedge clk);
+      #1;
+    end
+    upstream_request.r_ready = 0;
+
+    // Two 64-bit write words become four beats, with WLAST only on the fourth.
+    @(negedge clk);
+    upstream_request.aw.addr  = SDRAM_BASE_ADDR;
+    upstream_request.aw.id    = 5;
+    upstream_request.aw.len   = 1;
+    upstream_request.aw.size  = 3;
+    upstream_request.aw.burst = AXI4_BURST_INCR;
+    upstream_request.aw_valid = 1;
+    @(posedge clk);
+    #1;
+    upstream_request.aw_valid = 0;
+    @(negedge clk);
+    assert (downstream_request.aw_valid && downstream_request.aw.len == 3)
+    else $fatal(1, "Burst AW length conversion failed");
+    downstream_response.aw_ready = 1;
+    @(posedge clk);
+    #1;
+    downstream_response.aw_ready = 0;
+    for (int word_index = 0; word_index < 2; word_index++) begin
+      @(negedge clk);
+      upstream_request.w_valid = 1;
+      upstream_request.w.data  = {32'h2200 + 32'(word_index), 32'h1100 + 32'(word_index)};
+      upstream_request.w.strb  = 8'hf5;
+      upstream_request.w.last  = word_index == 1;
+      do @(posedge clk); while (!upstream_response.w_ready);
+      #1;
+      upstream_request.w_valid = 0;
+      for (int half_index = 0; half_index < 2; half_index++) begin
+        @(negedge clk);
+        downstream_response.w_ready = 0;
+        #1;
+        assert (downstream_request.w_valid &&
+                downstream_request.w.data == (half_index ? 32'h2200 : 32'h1100) + 32'(word_index) &&
+                downstream_request.w.strb == (half_index ? 4'hf : 4'h5) &&
+                downstream_request.w.last == (word_index == 1 && half_index == 1))
+        else $fatal(1, "Burst W data/strobe/LAST conversion failed");
+        @(negedge clk);
+        downstream_response.w_ready = 1;
+        @(posedge clk);
+        #1;
+        downstream_response.w_ready = 0;
+      end
+    end
+    return_write_response(axi4_id_t'(5), AXI4_RESP_OKAY);
 
     $display("AXI64-to-ysyxSoC-AXI32 width converter test passed");
     $finish;

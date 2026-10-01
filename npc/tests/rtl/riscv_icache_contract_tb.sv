@@ -1,5 +1,4 @@
-// 迁自RV32缓存协议测试；沿用RV64现有回填寄存与逐组失效时序。
-// 检查指令数据、请求身份、early restart、反压、回填错误和失效，不限定新增旁路延迟。
+// I-cache + AXI refill 集成测试：检查同步读、early restart、反压、错误和 invalidate。
 module riscv_icache_contract_tb;
   import riscv_pkg::*;
   import riscv_addr_map_pkg::*;
@@ -39,7 +38,7 @@ module riscv_icache_contract_tb;
       .refill_resp_ready_o(refill_response_ready),
       .event_o(events)
   );
-  riscv_icache_refill_axi4_master adapter (
+  riscv_icache_axi adapter (
       .clk_i(clk),
       .rst_ni(rst_n),
       .refill_req_i(refill_request),
@@ -63,9 +62,9 @@ module riscv_icache_contract_tb;
     return icache_fetch_data_t'(addr ^ 32'h12345678);
   endfunction
 
-  task automatic issue(input phys_addr_t addr);
+  task automatic issue(input phys_addr_t addr, input bit expect_miss_bypass = 0);
     @(negedge clk);
-    request = '{
+    request       = '{
         fetch_addr: addr,
         frontend_tag: frontend_tag_t'(checks),
         fetch_epoch: fetch_epoch_t'(2)
@@ -74,6 +73,11 @@ module riscv_icache_contract_tb;
     do begin
       @(posedge clk);
     end while (!request_ready);
+    if (expect_miss_bypass) begin
+      #1;
+      assert (manager.ar_valid)
+      else $fatal(1, "miss allocation inserted an AR wait cycle");
+    end
     @(negedge clk);
     request_valid = 0;
   endtask
@@ -85,10 +89,10 @@ module riscv_icache_contract_tb;
     phys_addr_t addr;
     while (!manager.ar_valid) @(negedge clk);
     captured_address = manager.ar;
-    words = cacheable ? ICACHE_WORDS_PER_LINE : 1;
-    critical=cacheable ? int'((request.fetch_addr/ICACHE_FETCH_BYTES)%ICACHE_WORDS_PER_LINE) : 0;
+    words            = cacheable ? ICACHE_WORDS_PER_LINE : 1;
+    critical         = cacheable ? int'((request.fetch_addr/ICACHE_FETCH_BYTES)%ICACHE_WORDS_PER_LINE) : 0;
     before_responses = response_count;
-    response_ready = direct_response;
+    response_ready   = direct_response;
     assert (int'(manager.ar.len) == words - 1 && manager.ar.size == $clog2(
         ICACHE_FETCH_BYTES
     ) && manager.ar.burst == AXI4_BURST_INCR)
@@ -103,14 +107,25 @@ module riscv_icache_contract_tb;
     target.ar_ready = 0;
     for (int beat = 0; beat < words; beat++) begin
       repeat (beat % 3 + 1) @(negedge clk);
-      addr = phys_addr_t'(captured_address.addr + MEM_AXI_ADDR_WIDTH'(beat * ICACHE_FETCH_BYTES));
-      lane = int'(addr % MEM_AXI_DATA_BYTE_COUNT) * 8;
-      target.r = '0;
-      target.r.id = captured_address.id;
-      target.r.data = MEM_AXI_DATA_WIDTH'(memory_word(addr)) << lane;
-      target.r.resp = (beat == fault_word) ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY;
-      target.r.last = beat == words - 1;
+      addr           = phys_addr_t'(captured_address.addr + MEM_AXI_ADDR_WIDTH'(beat * ICACHE_FETCH_BYTES));
+      lane           = int'(addr % MEM_AXI_DATA_BYTE_COUNT) * 8;
+      target.r       = '0;
+      target.r.id    = captured_address.id;
+      target.r.data  = MEM_AXI_DATA_WIDTH'(memory_word(addr)) << lane;
+      target.r.resp  = (beat == fault_word) ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY;
+      target.r.last  = beat == words - 1;
       target.r_valid = 1;
+      if (direct_response && beat == critical) begin
+        #1;
+        assert(response_valid && response.fetch_addr==request.fetch_addr &&
+               response.frontend_tag==request.frontend_tag && response.fetch_epoch==request.fetch_epoch &&
+               response.access_fault==((fault_word>=0) && (fault_word<=critical)))
+        else $fatal(1, "critical response did not bypass its empty buffer");
+        assert (response.fetch_data == (response.access_fault ? '0 : memory_word(
+            request.fetch_addr
+        )))
+        else $fatal(1, "direct critical response data mismatch");
+      end
       do begin
         @(posedge clk);
       end while (!manager.r_ready);
@@ -128,14 +143,6 @@ module riscv_icache_contract_tb;
       repeat (3) @(negedge clk);
       assert (response_count == before_responses + 1 && !response_valid)
       else $fatal(1, "direct response was lost or repeated");
-      assert(last_response.fetch_addr==request.fetch_addr &&
-             last_response.frontend_tag==request.frontend_tag &&
-             last_response.fetch_epoch==request.fetch_epoch &&
-             last_response.access_fault==((fault_word>=0) && (fault_word<=critical)) &&
-             last_response.fetch_data==(last_response.access_fault ? '0 : memory_word(
-          request.fetch_addr
-      )))
-      else $fatal(1, "ready response data or identity mismatch");
       response_ready = 0;
       checks++;
     end
@@ -180,8 +187,8 @@ module riscv_icache_contract_tb;
     @(negedge clk);
     invalidate = 1;
     #1;
-    assert (!request_ready)
-    else $fatal(1, "lookup accepted at invalidate start");
+    assert (invalidate_done && !request_ready)
+    else $fatal(1, "idle invalidate inserted a metadata scan delay");
     while (!invalidate_done) begin
       @(negedge clk);
       assert (!request_ready)
@@ -257,29 +264,27 @@ module riscv_icache_contract_tb;
     refill(1);
     consume(0);
     clear_cache();
-    issue(pc);
+    issue(pc, 1);
     refill(1, -1, 1);
     clear_cache();
-    issue(pc + phys_addr_t'((ICACHE_WORDS_PER_LINE - 1) * ICACHE_FETCH_BYTES));
+    issue(pc + phys_addr_t'((ICACHE_WORDS_PER_LINE - 1) * ICACHE_FETCH_BYTES), 1);
     refill(1, 0, 1);
-    issue(32'h0f000004);
+    issue(32'h0f000004, 1);
     refill(0, -1, 1);
     // 正在 refill 或等待响应消费时不得提前宣告失效完成。
     clear_cache();
-    issue(pc);
+    issue(pc, 1);
     invalidate = 1;
     refill(1);
     assert (!invalidate_done && !request_ready)
     else $fatal(1, "invalidate skipped a blocked old miss response");
     consume(0);
-    while (!invalidate_done) begin
-      @(negedge clk);
-      assert (!request_ready)
-      else $fatal(1, "lookup accepted during metadata invalidation");
-    end
+    #1;
+    assert (invalidate_done)
+    else $fatal(1, "drained invalidate did not finish");
     @(negedge clk);
     invalidate = 0;
-    issue(pc);
+    issue(pc, 1);
     refill(1);
     consume(0);
     $display("PASS I-cache contract: ways=%0d line=%0d checks=%0d AXI reads=%0d responses=%0d",

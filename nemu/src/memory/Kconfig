@@ -23,8 +23,8 @@ config MEM_RANDOM
     This may help to find undefined behaviors.
   
 config YSYXSOC_MEMORY
-  bool "Use ysyxSoC MROM and SRAM memory map"
-  depends on ISA_riscv && !RV64
+  bool "Use ysyxSoC memory regions"
+  depends on ISA_riscv
   default n
 
 config MBASE

@@ -1,4 +1,3 @@
-// core AXI 通道与方向结构体。
 package riscv_axi4_pkg;
 
   import riscv_config_pkg::*;

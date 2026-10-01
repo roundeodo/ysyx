@@ -109,10 +109,11 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
   constexpr size_t image_capacity = MEM_SIZE;
   constexpr const char *image_region_name = "pmem";
 #elif defined(NPC_YSYXSOC_SIM)
-  constexpr npc_word_t image_base = MROM_BASE;
+  constexpr npc_word_t image_base = YSYXSOC_RESET_VECTOR;
   constexpr npc_word_t reset_pc = YSYXSOC_RESET_VECTOR;
-  constexpr size_t image_capacity = MROM_SIZE;
-  constexpr const char *image_region_name = "MROM";
+  const size_t image_capacity = get_flash_storage_size();
+  constexpr const char *image_region_name = "Flash";
+  img_size = get_flash_img_size();
 #else
 #error "DiffTest simulation platform is not selected"
 #endif
@@ -163,7 +164,12 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
   // NEMU初始化后，将DUT使用的程序镜像复制到REF的同一物理地址。
   ref_difftest_init(0);
   const size_t image_size = static_cast<size_t>(img_size);
+#if defined(NPC_YSYXSOC_SIM)
+  // Copy the allocated, initialized Flash backing including erased padding.
+  ref_difftest_memcpy(image_base, get_flash_img_data(), get_flash_storage_size(), DIFFTEST_TO_REF);
+#else
   ref_difftest_memcpy(image_base, pmem, image_size, DIFFTEST_TO_REF);
+#endif
 
   // 在第一条指令执行前同步全部体系结构状态，避免REF自身的构建默认复位地址
   // 泄漏到比较过程。
@@ -175,6 +181,13 @@ void difftest_init(bool enable, const char *ref_so_file, long img_size) {
          ref_so_file, NPC_WORD_HEX_DIGITS,
          static_cast<unsigned long long>(image_base), image_size,
          NPC_WORD_HEX_DIGITS, static_cast<unsigned long long>(reset_pc));
+}
+
+void difftest_skip_mmio(npc_word_t next_pc) {
+  if (!difftest_enabled) return;
+  DiffTestRegs dut = {};
+  fill_dut_regs(&dut, next_pc);
+  ref_difftest_regcpy(&dut, DIFFTEST_TO_REF);
 }
 
 void difftest_step(npc_word_t pc, npc_word_t next_pc) {

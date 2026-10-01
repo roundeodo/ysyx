@@ -18,11 +18,11 @@
 #define UART_LSR_THRE (1u << 5)
 
 static inline void uart_write(uint32_t offset, uint8_t data) {
-  *(volatile uint8_t *)(UART_BASE + offset) = data;
+  *(volatile uint8_t *)(uintptr_t)(UART_BASE + offset) = data;
 }
 
 static inline uint8_t uart_read(uint32_t offset) {
-  return *(volatile uint8_t *)(UART_BASE + offset);
+  return *(volatile uint8_t *)(uintptr_t)(UART_BASE + offset);
 }
 
 void uart_init(void) {

@@ -19,7 +19,7 @@ read_slang --top riscv_pipeline_control_formal \
   -DYSYX_RETURN_STACK_ENTRY_COUNT=4 \
   -DYSYX_SDRAM_NATIVE_READ_BURST=1 \
   riscv_config_pkg.sv riscv_addr_map_pkg.sv riscv_pkg.sv \
-  riscv_fetch_buffer.sv riscv_pipeline_hazard_controller.sv \
+  riscv_fetch_buffer.sv riscv_hazard_ctrl.sv \
   riscv_pipeline_control_formal.sv
 prep -top riscv_pipeline_control_formal
 
@@ -28,5 +28,5 @@ vsrc/riscv/common/riscv_config_pkg.sv
 vsrc/riscv/common/riscv_addr_map_pkg.sv
 vsrc/riscv/common/riscv_pkg.sv
 vsrc/riscv/core/frontend/riscv_fetch_buffer.sv
-vsrc/riscv/core/riscv_pipeline_hazard_controller.sv
+vsrc/riscv/core/control/riscv_hazard_ctrl.sv
 tests/formal/riscv_pipeline_control_formal.sv

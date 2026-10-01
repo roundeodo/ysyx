@@ -12,6 +12,7 @@
 #include <string>
 
 int main(int argc, char **argv) {
+  setvbuf(stdout, nullptr, _IOLBF, 0);
 
   bool enable_nvboard = false;
   bool enable_trace = false;
@@ -114,6 +115,7 @@ int main(int argc, char **argv) {
   trace_cleanup();
   ftrace_cleanup();
   difftest_cleanup();
+  const int exit_status = batch_mode && !npc_exit_success() ? 1 : 0;
   cpu_cleanup();
-  return 0;
+  return exit_status;
 }

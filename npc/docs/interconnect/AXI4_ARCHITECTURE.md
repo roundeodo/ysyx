@@ -2,7 +2,12 @@
 
 状态：当前连接与事务范围说明
 
-最后更新：2026-09-05
+最后更新：2026-09-27
+
+程序仿真的外部边界固定接入 ysyxSoC，具体延迟与测量约定见
+[SoC 测试说明](../verification/SOC_TESTING.md)。AXI64→AXI32 转换器支持普通存储的
+64 位 INCR 突发（最多128拍）和可转换的 WRAP 突发（2/4/8拍），每拍拆为两个32位拍。
+上游 RLAST 只随整笔事务末拍返回；MMIO 不拆分，不支持的读突发按原请求拍数返回 DECERR。
 
 ## 1. 当前连接
 
@@ -32,12 +37,12 @@ flowchart LR
 
 | 模块 | 职责 |
 | --- | --- |
-| `riscv_icache_refill_axi4_master` | 将指令回填请求转换为 AXI 读事务 |
-| `riscv_dcache_line_axi4_master` | 将 D-cache 整行回填和写回转换为读写突发 |
-| `riscv_uncached_axi4_master` | 将单次本地 load/store 转换为 AXI 访问 |
-| `riscv_data_memory_subsystem` | 保存本次数据访问选择的路径，返回对应响应 |
-| `riscv_axi4_core_merge` | 仲裁指令/数据读请求，写通道来自数据侧 |
-| `riscv_axi4_address_router` | 按地址选择目标，保存事务归属 |
+| `riscv_icache_axi` | 将指令回填请求转换为 AXI 读事务 |
+| `riscv_dcache_axi` | 将 D-cache 整行回填和写回转换为读写突发 |
+| `riscv_uncached_axi` | 将单次本地 load/store 转换为 AXI 访问 |
+| `riscv_data_mem` | 保存本次数据访问选择的路径，返回对应响应 |
+| `riscv_axi4_arbiter` | 仲裁指令/数据读请求，写通道来自数据侧 |
+| `riscv_axi4_router` | 按地址选择目标，保存事务归属 |
 | `riscv_axi4_error_target` | 对未映射目标返回 DECERR 错误响应 |
 | `riscv_axi4_soc_width_converter` | 转换 core 64 位与 ysyxSoC 32 位数据事务 |
 | `riscv_npc_system` / `riscv_npc_axi` | 连接系统模块，并展开外部平台端口 |
@@ -58,7 +63,8 @@ CLINT 已有寄存器访问路径也不表示 CPU 中断输入已经接通，见
 | 64 位到 32 位平台转换 | 按传输大小拆分或转换，保持请求含义和响应归属 |
 
 当前 I/D 仲裁最多保存一个未完成的读事务。AR 被阻塞时锁定选择与地址；AR 握手后保持
-来源，直到接收最后一个读 beat。两侧同时请求时轮流获得下一次优先权。
+来源，直到接收最后一个读 beat。最后响应被接收时可以同拍接收下一地址，响应按旧事务归属，
+新地址按本次仲裁和路由结果发送；新地址反压时保存新的选择。两侧同时请求时轮流获得下一次优先权。
 
 读写通道分别处理。写地址 AW 与写数据 W 独立握手，B 表示写响应；不能用 AW 或最后一个
 W 握手代替写事务响应完成。当前实现不支持跨 ID 乱序返回。

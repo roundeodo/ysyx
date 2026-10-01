@@ -105,17 +105,17 @@ module riscv_icache_replacement_tb;
             if (read_victim != held_victim) $fatal(1, "snapshot changed under backpressure");
           end
         end
-        hit = !actual_miss;
-        hit_vector = ICACHE_WAY_COUNT'(1) << actual_way;
-        allocate = actual_miss;
-        allocate_way = icache_way_index_t'(actual_way);
-        victim_present = present[set_index][actual_way];
+        hit                            = !actual_miss;
+        hit_vector                     = ICACHE_WAY_COUNT'(1) << actual_way;
+        allocate                       = actual_miss;
+        allocate_way                   = icache_way_index_t'(actual_way);
+        victim_present                 = present[set_index][actual_way];
         present[set_index][actual_way] = 1;
-        tags[set_index][actual_way] = address;
+        tags[set_index][actual_way]    = address;
         // Next request read shares the edge with this hit/allocation update.
         read_enable = (index + 1 < count) &&
                       !(riscv_config_pkg::ICACHE_REPLACEMENT_POLICY >= 13 && actual_miss);
-        read_set = set_of(addresses[index+1]);
+        read_set    = set_of(addresses[index+1]);
         @(negedge clk);
         if (riscv_config_pkg::ICACHE_REPLACEMENT_POLICY >= 13 && actual_miss && index + 1 < count) begin
           allocate    = 0;

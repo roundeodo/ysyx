@@ -7,22 +7,11 @@
 PROJECT ?= riscv
 # 当前只维护 RV64 顺序核。容量参数保留为构建参数，方便 cachesim 与 RTL 比较；
 # 前端采用RV32面试分支2026-09-24选定的配置；RV64性能与PPA需独立测量。
-NPC_CONFIG ?= rv64-edge-ai
-NPC_ICACHE_WAY_COUNT      ?= 4
-NPC_ICACHE_CAPACITY_BYTES ?= 1024
-NPC_ICACHE_LINE_BYTES     ?= 32
-# 13：分段访问RRIP及同拍命中前递；0：原轮转策略，用于对照。
-NPC_ICACHE_REPLACEMENT_POLICY ?= 13
-NPC_DCACHE_ENABLE         ?= 1
-NPC_DCACHE_WAY_COUNT      ?= 2
-NPC_DCACHE_CAPACITY_BYTES ?= 4096
-NPC_DCACHE_LINE_BYTES     ?= 64
-NPC_SDRAM_NATIVE_READ_BURST ?= 1
-# 源分支最终仍选择PC索引二位BHT、轮转BTB和解析后更新的RAS。
-NPC_BRANCH_HISTORY_ENTRY_COUNT ?= 16
-NPC_BRANCH_TARGET_ENTRY_COUNT  ?= 16
-NPC_BRANCH_TARGET_WAY_COUNT    ?= 2
-NPC_RETURN_STACK_ENTRY_COUNT   ?= 4
+include configs/rv64-edge-ai.mk
+NPC_SIM_TIMING_DEFINE := +define+YSYX_SIM_CPU_FREQ_MHZ=$(NPC_SIM_CPU_FREQ_MHZ)
+ifeq ($(shell test "$(NPC_SIM_CPU_FREQ_MHZ)" -ge 100 -a "$(NPC_SIM_CPU_FREQ_MHZ)" -le 4000 2>/dev/null && echo yes),)
+$(error NPC_SIM_CPU_FREQ_MHZ must be an integer in 100..4000)
+endif
 
 ifeq ($(filter $(NPC_DCACHE_ENABLE),0 1),)
 $(error NPC_DCACHE_ENABLE must be 0 or 1)
@@ -79,7 +68,7 @@ SOC_TOP_MODULE := ysyxSoCFull
 
 DCACHE_BUILD_TAG := $(if $(filter 1,$(NPC_DCACHE_ENABLE)),dcache-$(NPC_DCACHE_CAPACITY_BYTES)b-way-$(NPC_DCACHE_WAY_COUNT)-line-$(NPC_DCACHE_LINE_BYTES)b,dcache-off)
 PREDICTOR_BUILD_TAG := predictor-bht-$(NPC_BRANCH_HISTORY_ENTRY_COUNT)-btb-$(NPC_BRANCH_TARGET_ENTRY_COUNT)x$(NPC_BRANCH_TARGET_WAY_COUNT)-ras-$(NPC_RETURN_STACK_ENTRY_COUNT)
-BUILD_DIR := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))/icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-policy-$(NPC_ICACHE_REPLACEMENT_POLICY)/$(DCACHE_BUILD_TAG)/$(PREDICTOR_BUILD_TAG)
+BUILD_DIR := $(abspath ./build/$(PROJECT)/$(NPC_CONFIG))/icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-policy-$(NPC_ICACHE_REPLACEMENT_POLICY)/$(DCACHE_BUILD_TAG)/$(PREDICTOR_BUILD_TAG)/cpu-$(NPC_SIM_CPU_FREQ_MHZ)mhz
 ifeq ($(NPC_SDRAM_NATIVE_READ_BURST),0)
 BUILD_DIR := $(BUILD_DIR)/sdram-read-bl1
 endif
@@ -144,9 +133,9 @@ BRANCHSIM_BINARY         := $(BRANCHSIM_BUILD_DIR)/branchsim
 BRANCHSIM_TEST_SCRIPT    := $(BRANCHSIM_DIR)/tests/test_branchsim.py
 BRANCHSIM_EXPLORE_SCRIPT := $(BRANCHSIM_DIR)/explore.py
 
-# 只收录能够在standalone内存环境中验证RV64I、Zicsr和异常闭环的测试。
+# ISA回归同样通过Flash启动，在完整SoC的SDRAM中执行。
 # unalign要求硬件透明处理非对齐访问，与当前“产生misaligned异常”的架构契约冲突；
-# GPIO、PSRAM、SDRAM、SPI等测试属于ysyxSoC外设回归，不放进处理器ISA基线。
+# 外设专用程序仍属于SoC外设回归，不混入ISA测试列表。
 RV64_CPU_TESTS := \
 	add add-longlong bit bubble-sort crc32 csr-trap div dummy fact fib goldbach \
 	hello-str if-else leap-year load-store matrix-mul max mersenne min3 mov-c \
@@ -204,7 +193,7 @@ SIM_CPP_SOURCES := $(shell find $(abspath ./csrc) -type f \
 VERILATOR ?= verilator
 VERILATOR_FLAGS := \
 	-MMD --build -cc -Wall -Wno-fatal \
-	-O3 --x-assign fast --x-initial fast \
+	-O3 -j 2 -MAKEFLAGS "OPT_FAST=-O3 OPT_GLOBAL=-O3 OPT_SLOW=-O1" --x-assign fast --x-initial fast \
 	--trace --autoflush \
 	--timescale "1ns/1ns" --no-timing
 
@@ -245,37 +234,43 @@ IDU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv_pkg.sv \
-	$(RTL_DIR)/core/riscv_idu.sv \
+	$(RTL_DIR)/core/decode/riscv_idu.sv \
 	$(abspath ./tests/rtl/riscv_idu_decode_tb.sv)
 
 EXU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv_pkg.sv \
-	$(RTL_DIR)/core/riscv_exu.sv \
+	$(RTL_DIR)/core/execute/riscv_alu.sv \
+	$(RTL_DIR)/core/execute/riscv_branch_unit.sv \
+	$(RTL_DIR)/core/execute/riscv_multiplier.sv \
+	$(RTL_DIR)/core/execute/riscv_divider.sv \
+	$(RTL_DIR)/core/execute/riscv_exu.sv \
 	$(abspath ./tests/rtl/riscv_exu_alu_tb.sv)
 
 LSU_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv_pkg.sv \
-	$(RTL_DIR)/core/riscv_lsu.sv \
+	$(RTL_DIR)/core/memory/riscv_lsu.sv \
 	$(abspath ./tests/rtl/riscv_lsu_tb.sv)
 
 PIPELINE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv_pkg.sv \
-	$(RTL_DIR)/core/riscv_register_read_stage.sv \
-	$(RTL_DIR)/core/riscv_decode_execute_stage.sv \
-	$(RTL_DIR)/core/riscv_pipeline_hazard_controller.sv \
-	$(RTL_DIR)/core/riscv_completion_mux.sv \
-	$(RTL_DIR)/core/riscv_writeback_stage.sv \
-	$(RTL_DIR)/core/riscv_commit.sv \
-	$(RTL_DIR)/core/riscv_trap_controller.sv \
+	$(RTL_DIR)/core/execute/riscv_id_ex_reg.sv \
+	$(RTL_DIR)/core/control/riscv_hazard_ctrl.sv \
+	$(RTL_DIR)/core/writeback/riscv_completion_mux.sv \
+	$(RTL_DIR)/core/writeback/riscv_wb_reg.sv \
+	$(RTL_DIR)/core/writeback/riscv_commit.sv \
+	$(RTL_DIR)/core/control/riscv_trap_ctrl.sv \
 	$(RTL_DIR)/core/frontend/riscv_fetch_buffer.sv \
-	$(RTL_DIR)/core/frontend/riscv_fetch_control_flow_predictor.sv \
-	$(RTL_DIR)/core/riscv_ifu.sv \
+	$(RTL_DIR)/core/frontend/riscv_bht.sv \
+	$(RTL_DIR)/core/frontend/riscv_btb.sv \
+	$(RTL_DIR)/core/frontend/riscv_ras.sv \
+	$(RTL_DIR)/core/frontend/riscv_branch_predictor.sv \
+	$(RTL_DIR)/core/frontend/riscv_ifu.sv \
 	$(abspath ./tests/rtl/riscv_pipeline_control_tb.sv)
 
 UNCACHED_TEST_SOURCES := \
@@ -283,7 +278,7 @@ UNCACHED_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv_axi4_pkg.sv \
 	$(RTL_DIR)/common/riscv_pkg.sv \
-	$(RTL_DIR)/core/memory/riscv_uncached_axi4_master.sv \
+	$(RTL_DIR)/core/memory/riscv_uncached_axi.sv \
 	$(abspath ./tests/rtl/riscv_uncached_axi4_master_tb.sv)
 
 DCACHE_TEST_SOURCES := \
@@ -293,16 +288,16 @@ DCACHE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_pkg.sv \
 	$(RTL_DIR)/core/memory/riscv_dcache_tag_array.sv \
 	$(RTL_DIR)/core/memory/riscv_dcache_data_array.sv \
-	$(RTL_DIR)/core/memory/riscv_dcache_line_axi4_master.sv \
+	$(RTL_DIR)/core/memory/riscv_dcache_axi.sv \
 	$(RTL_DIR)/core/memory/riscv_dcache_miss_unit.sv \
 	$(RTL_DIR)/core/memory/riscv_dcache.sv \
-	$(RTL_DIR)/core/riscv_cache_maintenance_controller.sv \
+	$(RTL_DIR)/core/control/riscv_fence_i_ctrl.sv \
 	$(abspath ./tests/rtl/riscv_dcache_tb.sv)
 
 CORE_MERGE_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv_axi4_pkg.sv \
-	$(RTL_DIR)/system/riscv_axi4_core_merge.sv \
+	$(RTL_DIR)/system/riscv_axi4_arbiter.sv \
 	$(abspath ./tests/rtl/riscv_axi4_core_merge_tb.sv)
 
 SOC_WIDTH_CONVERTER_TEST_SOURCES := \
@@ -319,10 +314,10 @@ PRIVILEGED_TEST_SOURCES := \
 	$(RTL_DIR)/common/riscv_config_pkg.sv \
 	$(RTL_DIR)/common/riscv_addr_map_pkg.sv \
 	$(RTL_DIR)/common/riscv_pkg.sv \
-	$(RTL_DIR)/core/riscv_pmu.sv \
-	$(RTL_DIR)/core/riscv_csr_file.sv \
-	$(RTL_DIR)/core/riscv_commit.sv \
-	$(RTL_DIR)/core/riscv_trap_controller.sv \
+	$(RTL_DIR)/core/writeback/riscv_pmu.sv \
+	$(RTL_DIR)/core/writeback/riscv_csr_file.sv \
+	$(RTL_DIR)/core/writeback/riscv_commit.sv \
+	$(RTL_DIR)/core/control/riscv_trap_ctrl.sv \
 	$(abspath ./tests/rtl/riscv_privileged_tb.sv)
 
 SDRAM_AXI_TEST_SOURCES := \
@@ -364,25 +359,12 @@ $(AXI_DELAYER_TEST_BUILD_DIR):
 	mkdir -p $@
 
 # Fast functional environment: CPU + local AXI models, reset PC 0x8000_0000.
-$(NPC_SIM_BINARY): $(wildcard $(RTL_DIR)/sim/*.svh) $(RTL_FILELIST) $(RTL_DEPENDENCIES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
-	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	$(VERILATOR) $(VERILATOR_FLAGS) \
-		$(NPC_CONFIG_DEFINE) \
-		--top-module $(NPC_TOP_MODULE) \
-		-f $(RTL_FILELIST) \
-		$(SIM_CPP_SOURCES) \
-		$(addprefix -CFLAGS ,$(NPC_CXXFLAGS)) \
-		$(addprefix -LDFLAGS ,$(COMMON_LDFLAGS)) \
-		--Mdir $(NPC_OBJ_DIR) \
-		--exe \
-		-o $(NPC_SIM_BINARY)
-
 # Accurate environment: CPU integrated into ysyxSoC and its peripherals.
-$(SOC_SIM_BINARY): $(wildcard $(RTL_DIR)/sim/*.svh) $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
+$(SOC_SIM_BINARY): Makefile configs/rv64-edge-ai.mk $(wildcard $(RTL_DIR)/sim/*.svh) $(RTL_FILELIST) $(RTL_DEPENDENCIES) \
 		$(SOC_VERILOG_SOURCES) $(SIM_CPP_SOURCES) | $(BUILD_DIR)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
-		$(NPC_CONFIG_DEFINE) \
+		$(NPC_CONFIG_DEFINE) $(NPC_SIM_TIMING_DEFINE) \
 		$(SOC_RTL_INCLUDE_FLAGS) \
 		--top-module $(SOC_TOP_MODULE) \
 		-f $(RTL_FILELIST) \
@@ -398,7 +380,7 @@ $(NVBOARD_SIM_BINARY): $(wildcard $(RTL_DIR)/sim/*.svh) $(RTL_FILELIST) $(RTL_DE
 		$(SOC_VERILOG_SOURCES) $(NVBOARD_CPP_SOURCES) $(NVBOARD_ARCHIVE) | $(BUILD_DIR)
 	$(call git_commit, "sim nvboard") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) $(VERILATOR_FLAGS) \
-		$(NPC_CONFIG_DEFINE) \
+		$(NPC_CONFIG_DEFINE) $(NPC_SIM_TIMING_DEFINE) \
 		$(SOC_RTL_INCLUDE_FLAGS) \
 		--top-module $(SOC_TOP_MODULE) \
 		-f $(RTL_FILELIST) \
@@ -517,7 +499,7 @@ $(AXI_DELAYER_TEST_BINARY): $(AXI_DELAYER_TEST_SOURCES) | $(AXI_DELAYER_TEST_BUI
 		-o $(AXI_DELAYER_TEST_BINARY)
 
 .PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-pipeline test-pipeline-configs test-uncached test-uncached-configs test-dcache test-dcache-configs test-core-merge test-core-merge-configs test-soc-width-converter test-sdram-axi test-axi-delayer test-privileged test-privileged-configs
-build-npc: $(NPC_SIM_BINARY)
+build-npc: build-soc
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
 	$(CONFIG_TEST_BINARY)
@@ -529,6 +511,16 @@ test-icache:
 
 test-icache-replacement:
 	python3 scripts/test_icache.py --test replacement --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
+.PHONY: test-bypass test-precise-exception test-cache-recovery
+test-bypass:
+	python3 scripts/test_bypass.py --output "$(BUILD_DIR)/bypass-tests" $(NPC_CONFIG_DEFINE)
+
+test-precise-exception:
+	python3 tests/exception/run_precise.py --output "$(BUILD_DIR)/precise-exception" $(NPC_CONFIG_DEFINE)
+
+test-cache-recovery:
+	python3 scripts/test_cache_recovery.py --test core --output "$(BUILD_DIR)/cache-recovery" $(NPC_CONFIG_DEFINE)
 
 test-configs:
 	$(MAKE) test-config PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
@@ -616,17 +608,10 @@ regression-rv64-isa:
 
 # 定向测试先定位模块边界，最后再运行完整ISA DiffTest。
 regression-rv64:
-	$(MAKE) test-configs PROJECT=$(PROJECT)
-	$(MAKE) test-icache PROJECT=$(PROJECT)
+	$(MAKE) test-bypass PROJECT=$(PROJECT)
 	$(MAKE) test-icache-replacement PROJECT=$(PROJECT)
-	$(MAKE) test-idu-configs PROJECT=$(PROJECT)
-	$(MAKE) test-exu-configs PROJECT=$(PROJECT)
-	$(MAKE) test-lsu-configs PROJECT=$(PROJECT)
-	$(MAKE) test-pipeline-configs PROJECT=$(PROJECT)
-	$(MAKE) test-uncached-configs PROJECT=$(PROJECT)
-	$(MAKE) test-dcache-configs PROJECT=$(PROJECT)
-	$(MAKE) test-core-merge-configs PROJECT=$(PROJECT)
-	$(MAKE) test-privileged-configs PROJECT=$(PROJECT)
+	$(MAKE) test-precise-exception PROJECT=$(PROJECT)
+	$(MAKE) test-cache-recovery PROJECT=$(PROJECT)
 	$(MAKE) lint-configs PROJECT=$(PROJECT)
 	$(MAKE) build-npc PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 	$(MAKE) regression-rv64-isa PROJECT=$(PROJECT)
@@ -637,61 +622,22 @@ regression-rv64:
 
 .PHONY: sim sim-npc sim-soc sim-am sim-image
 
-# 主线默认运行standalone RV64系统；ysyxSoC只保留为外部平台回归入口。
-sim: sim-npc
-
-sim-npc: $(NPC_SIM_BINARY)
-	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
-	@echo "NPC: standalone image = $(IMG)"
-	$(NPC_SIM_BINARY) $(SIM_ARGS) $(IMG)
+# All software simulation uses calibrated ysyxSoC. Old target names are aliases.
+sim sim-npc sim-am sim-image: sim-soc
 
 sim-soc: $(SOC_SIM_BINARY)
-	@test -n "$(strip $(IMG)$(FLASH_IMG))" || \
-		(echo "IMG or FLASH_IMG is required"; exit 1)
-	@echo "NPC: SoC MROM image  = $(IMG)"
-	@echo "NPC: SoC flash image = $(FLASH_IMG)"
-	$(SOC_SIM_BINARY) $(SIM_ARGS) \
-		$(if $(FLASH_IMG),--flash $(FLASH_IMG)) \
-		$(IMG)
+	@test -n "$(strip $(FLASH_IMG))" || (echo "FLASH_IMG is required: build ARCH=riscv64-npc image"; exit 1)
+	@test -z "$(strip $(IMG))" || (echo "Use FLASH_IMG with the SoC Flash/SDRAM image, not a flat IMG"; exit 1)
+	$(SOC_SIM_BINARY) $(SIM_ARGS) --flash $(FLASH_IMG)
 
-# Abstract Machine入口。
-sim-am: sim-npc
-sim-image: sim-soc
-
-.PHONY: sim-itrace sim-mtrace sim-ftrace sim-trace
-.PHONY: sim-difftest sim-wave sim-debug
-
-sim-itrace: $(NPC_SIM_BINARY)
-	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
-	$(NPC_SIM_BINARY) --itrace $(IMG)
-
-sim-mtrace: $(NPC_SIM_BINARY)
-	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
-	$(NPC_SIM_BINARY) --mtrace $(IMG)
-
-sim-ftrace: $(NPC_SIM_BINARY)
-	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
-	@test -n "$(strip $(ELF))" || (echo "ELF is required"; exit 1)
-	$(NPC_SIM_BINARY) --ftrace --elf $(ELF) $(IMG)
-
-sim-trace: $(NPC_SIM_BINARY)
-	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
-	$(NPC_SIM_BINARY) --itrace --mtrace $(IMG)
-
-sim-difftest: $(NPC_SIM_BINARY)
-	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
-	@test -n "$(strip $(REF))" || (echo "REF is required"; exit 1)
-	$(NPC_SIM_BINARY) --batch --diff $(REF) $(IMG)
-
-sim-wave: $(NPC_SIM_BINARY)
-	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
-	$(NPC_SIM_BINARY) --trace $(IMG)
-	gtkwave waveform.vcd
-
-sim-debug: $(NPC_SIM_BINARY)
-	@test -n "$(strip $(IMG))" || (echo "IMG is required"; exit 1)
-	$(NPC_SIM_BINARY) --trace --itrace --mtrace $(IMG)
-	gtkwave waveform.vcd
+.PHONY: sim-itrace sim-mtrace sim-ftrace sim-trace sim-difftest sim-wave sim-debug
+sim-itrace: SIM_ARGS += --itrace
+sim-mtrace: SIM_ARGS += --mtrace
+sim-ftrace: SIM_ARGS += --ftrace --elf $(ELF)
+sim-trace sim-debug: SIM_ARGS += --itrace --mtrace
+sim-wave sim-debug: SIM_ARGS += --trace
+sim-difftest: SIM_ARGS += --diff $(REF)
+sim-itrace sim-mtrace sim-ftrace sim-trace sim-difftest sim-wave sim-debug: sim-soc
 
 .PHONY: nvboard
 nvboard: $(NVBOARD_SIM_BINARY)
@@ -746,7 +692,7 @@ ICACHE_CALIBRATION_SCALE          ?= test
 ICACHE_CALIBRATION_ARCH           ?= riscv64-npc
 ICACHE_CALIBRATION_CAPACITY_BYTES ?= $(NPC_ICACHE_CAPACITY_BYTES)
 ICACHE_CALIBRATION_WAY_COUNT      ?= $(NPC_ICACHE_WAY_COUNT)
-ICACHE_CALIBRATION_MEMORY_NAME     = standalone
+ICACHE_CALIBRATION_MEMORY_NAME     = soc-sdram
 ICACHE_CALIBRATION_OUTPUT         ?= $(abspath ./result/cache/rtl_icache_penalty_rv64_$(ICACHE_CALIBRATION_MEMORY_NAME)_$(ICACHE_CALIBRATION_SCALE).csv)
 
 $(CACHESIM_BUILD_DIR):
@@ -830,7 +776,7 @@ cachesim-explore-transport:
 	$(MAKE) cachesim-explore CACHE_REFILL_MODEL=burst \
 		CACHE_SCAN_OUTPUT=$(abspath ./result/cache/cachesim_$(CACHE_TRACE_ISA)_burst_exploration.csv)
 
-# 在同一standalone RV64环境中逐项重编译并运行MicroBench，从RTL PMU提取critical-word
+# 在同一校准SoC环境中逐项重编译并运行MicroBench，从RTL PMU提取critical-word
 # 响应代价和整行refill占用。存储目标、容量和路数显式写入CSV，禁止跨环境混用代价。
 icache-calibrate-penalty:
 	python3 $(ICACHE_CALIBRATION_SCRIPT) \
@@ -1023,53 +969,39 @@ branchsim-explore: $(BRANCHSIM_BINARY)
 # Reproducible performance evaluation
 # ============================================================
 
-# 性能基线运行standalone RV64镜像；外部SoC平台另行记录，避免混合不同存储时序。
-PERF_ARCH             ?= riscv64-npc
-PERF_SCALE            ?= train
-PERF_MICROBENCH_DIR   := $(MICROBENCH_DIR)
-PERF_MICROBENCH_IMAGE := $(PERF_MICROBENCH_DIR)/build/microbench-$(PERF_ARCH).bin
-PERF_DESCRIPTION      ?=
-PERF_FREQUENCY_MHZ    ?=
-PERF_STA_REPORT       ?=
-PERF_RESULTS_TABLE    ?= $(abspath ./result/performance/README.md)
-PERF_RECORD_SCRIPT    := $(abspath ./scripts/record_performance.py)
+# One measurement implementation for native timer windows in calibrated ysyxSoC.
+PERF_SCALE ?= train
+PERF_ISA ?= rv64im
+PERF_OUTPUT ?=
+.PHONY: perf perf-prepare perf-record
+perf perf-record:
+	python3 scripts/run_microbench_perf.py --scale $(PERF_SCALE) --isa $(PERF_ISA) $(if $(PERF_OUTPUT),--output $(PERF_OUTPUT))
+perf-prepare:
+	python3 scripts/run_microbench_perf.py --scale $(PERF_SCALE) --isa $(PERF_ISA) --prepare-only $(if $(PERF_OUTPUT),--output $(PERF_OUTPUT))
 
-.PHONY: perf perf-record
-perf: $(NPC_SIM_BINARY)
-	$(MAKE) -C $(PERF_MICROBENCH_DIR) ARCH=$(PERF_ARCH) clean
-	$(MAKE) -C $(PERF_MICROBENCH_DIR) \
-		ARCH=$(PERF_ARCH) \
-		mainargs=$(PERF_SCALE) \
-		image
-	@echo "NPC commit        = $$(git -C $(abspath ..) rev-parse HEAD)"
-	@echo "AM-kernels commit = $$(git -C $(PERF_MICROBENCH_DIR) rev-parse HEAD)"
-	@echo "Benchmark scale   = $(PERF_SCALE)"
-	@echo "Benchmark image   = $(PERF_MICROBENCH_IMAGE)"
-	$(NPC_SIM_BINARY) --batch $(PERF_MICROBENCH_IMAGE)
+# Read-only comparison of two archives; this target never starts a simulation.
+.PHONY: perf-compare
+perf-compare:
+	@test -n "$(BASELINE)" -a -n "$(CANDIDATE)" || (echo "Set BASELINE and CANDIDATE to result directories"; exit 1)
+	python3 scripts/compare_soc_performance.py "$(BASELINE)" "$(CANDIDATE)"
 
-perf-record:
-	@test -n "$(strip $(PERF_DESCRIPTION))" || \
-		(echo "PERF_DESCRIPTION is required"; exit 1)
-	@test -n "$(strip $(PERF_FREQUENCY_MHZ)$(PERF_STA_REPORT))" || \
-		(echo "PERF_FREQUENCY_MHZ or PERF_STA_REPORT is required"; exit 1)
-	@test -z "$(strip $(PERF_FREQUENCY_MHZ))" -o -z "$(strip $(PERF_STA_REPORT))" || \
-		(echo "Set only one of PERF_FREQUENCY_MHZ and PERF_STA_REPORT"; exit 1)
-	python3 $(PERF_RECORD_SCRIPT) \
-		--npc-dir $(abspath .) \
-		--workspace-root $(abspath ..) \
-		--am-dir $(PERF_MICROBENCH_DIR) \
-		--scale $(PERF_SCALE) \
-		--description "$(PERF_DESCRIPTION)" \
-		--table $(PERF_RESULTS_TABLE) \
-		$(if $(PERF_FREQUENCY_MHZ),--frequency-mhz $(PERF_FREQUENCY_MHZ)) \
-		$(if $(PERF_STA_REPORT),--sta-report $(abspath $(PERF_STA_REPORT)))
+# Used by the runner instead of duplicating cache/frequency defaults in Python.
+.PHONY: print-sim-config
+print-sim-config:
+	@echo cpu_mhz=$(NPC_SIM_CPU_FREQ_MHZ)
+	@echo simulator=$(SOC_SIM_BINARY)
+	@echo config=$(NPC_CONFIG)
+	@echo sdram_native_read_burst=$(NPC_SDRAM_NATIVE_READ_BURST)
+	@echo icache=$(NPC_ICACHE_CAPACITY_BYTES),$(NPC_ICACHE_WAY_COUNT),$(NPC_ICACHE_LINE_BYTES),$(NPC_ICACHE_REPLACEMENT_POLICY)
+	@echo dcache=$(NPC_DCACHE_ENABLE),$(NPC_DCACHE_CAPACITY_BYTES),$(NPC_DCACHE_WAY_COUNT),$(NPC_DCACHE_LINE_BYTES)
+	@echo predictor=$(NPC_BRANCH_HISTORY_ENTRY_COUNT),$(NPC_BRANCH_TARGET_ENTRY_COUNT),$(NPC_BRANCH_TARGET_WAY_COUNT),$(NPC_RETURN_STACK_ENTRY_COUNT)
 
 # ============================================================
 # Static checks and maintenance
 # ============================================================
 
 .PHONY: lint lint-npc lint-soc lint-configs sta sta-configs clean
-lint: lint-npc
+lint: lint-soc
 
 lint-npc: $(RTL_FILELIST)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -1081,7 +1013,7 @@ lint-npc: $(RTL_FILELIST)
 lint-soc: $(RTL_FILELIST) $(SOC_VERILOG_SOURCES)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	$(VERILATOR) --lint-only -Wall -Wno-fatal \
-		$(NPC_CONFIG_DEFINE) \
+		$(NPC_CONFIG_DEFINE) $(NPC_SIM_TIMING_DEFINE) \
 		$(SOC_RTL_INCLUDE_FLAGS) \
 		--top-module $(SOC_TOP_MODULE) \
 		-f $(RTL_FILELIST) \
@@ -1090,17 +1022,21 @@ lint-soc: $(RTL_FILELIST) $(SOC_VERILOG_SOURCES)
 lint-configs:
 	$(MAKE) lint-npc PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
 
-# STA默认统计纯core。system wrapper、仿真内存和外设不进入该综合层级。
+# 默认验收处理器与真实复位边界；不包含仿真内存和外设。
 STA_TOOL_DIR      := $(abspath ../yosys-sta)
 STA_DESIGN        := riscv_core
-STA_FREQUENCY_MHZ ?= 300
-STA_SYNTH_STRATEGY ?= DELAY 0
+STA_FREQUENCY_MHZ ?= 700
+STA_SYNTH_STRATEGY ?= AREA 3
 STA_RUN_POWER_ANALYSIS ?= 0
 STA_SDC_FILE      := $(abspath ./constr/riscv_core.sdc)
 STA_PDK           ?= nangate45
 STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(STA_PDK)-$(NPC_CONFIG)-icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-policy-$(NPC_ICACHE_REPLACEMENT_POLICY)-$(DCACHE_BUILD_TAG)-$(PREDICTOR_BUILD_TAG))
 
-sta: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
+.PHONY: sta sta-core
+sta: sta-qualified
+
+# 原始纯核诊断保留；其工具退出码不代表完整时序、电气验收。
+sta-core: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
 	$(MAKE) -C $(STA_TOOL_DIR) sta \
 		NPC_HOME=$(abspath .) \
 		DESIGN=$(STA_DESIGN) \
@@ -1113,6 +1049,46 @@ sta: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) $(STA_SDC_FILE)
 		SYNTH_STRATEGY="$(STA_SYNTH_STRATEGY)" \
 		RUN_POWER_ANALYSIS=$(STA_RUN_POWER_ANALYSIS) \
 		CLK_PORT_NAME=clk_i
+
+# 完整综合后验收：真实复位边界、负载修复、连接审计、时序与电气检查。
+# sta 与 sta-qualified 使用同一验收入口，失败必须返回非零。
+# 若仅 setup 失败，最多三轮对少量组合单元增强驱动，每轮重做完整验收。
+STA_MAPPING_FREQUENCY_MHZ ?= 820
+STA_YOSYS ?= yosys
+STA_YOSYS_PLUGIN_FLAGS ?= -m slang
+STA_SYNTH_SCRIPT := $(abspath ./scripts/synth_timing.tcl)
+# 默认按实际电容约束修复；0 表示不额外限制扇出，1.0 表示使用完整库电容上限。
+STA_MAX_FANOUT ?= 0
+STA_CAPACITANCE_FRACTION ?= 1.0
+STA_QUALIFIED_FREQUENCY_MHZ ?= $(STA_FREQUENCY_MHZ)
+# Enable verbose Yosys debug output only when investigating the synthesis flow.
+STA_YOSYS_DEBUG_FLAGS ?=
+STA_QUALIFIED_OUTPUT_DIR ?= $(STA_OUTPUT_ROOT)/riscv_core_reset_boundary-$(STA_QUALIFIED_FREQUENCY_MHZ)MHz-qualified
+
+.PHONY: sta-qualified test-timing test-synthesis-target
+sta-qualified: $(STA_RTL_FILELIST) $(STA_RTL_DEPENDENCIES) constr/riscv_core_reset_boundary.sdc $(STA_SYNTH_SCRIPT)
+	@test "$(STA_PDK)" = nangate45 || (echo "sta-qualified currently uses Nangate45"; exit 1)
+	mkdir -p $(STA_OUTPUT_ROOT)/riscv_core_reset_boundary-$(STA_MAPPING_FREQUENCY_MHZ)MHz
+	$(STA_YOSYS) $(STA_YOSYS_PLUGIN_FLAGS) $(STA_YOSYS_DEBUG_FLAGS) \
+		-l $(STA_OUTPUT_ROOT)/riscv_core_reset_boundary-$(STA_MAPPING_FREQUENCY_MHZ)MHz/yosys.log \
+		-p 'tcl $(STA_SYNTH_SCRIPT) $(STA_TOOL_DIR) riscv_core_reset_boundary $(STA_PDK) "$(NPC_SLANG_DEFINE) $(STA_RTL_DEPENDENCIES)" $(STA_OUTPUT_ROOT)/riscv_core_reset_boundary-$(STA_MAPPING_FREQUENCY_MHZ)MHz/riscv_core_reset_boundary.netlist.v $(STA_MAPPING_FREQUENCY_MHZ)'
+	python3 scripts/qualify_mapped_sta.py \
+		--netlist $(STA_OUTPUT_ROOT)/riscv_core_reset_boundary-$(STA_MAPPING_FREQUENCY_MHZ)MHz/riscv_core_reset_boundary.netlist.v \
+		--toolflow $(STA_TOOL_DIR) --sdc constr/riscv_core_reset_boundary.sdc \
+		--output $(STA_QUALIFIED_OUTPUT_DIR) --frequency $(STA_QUALIFIED_FREQUENCY_MHZ) \
+		--fanout $(STA_MAX_FANOUT) --headroom $(STA_CAPACITANCE_FRACTION)
+
+TIMING_TEST_OUTPUT_DIR ?= $(abspath ./build/tests/timing/$(NPC_CONFIG))
+test-synthesis-target:
+	python3 tests/timing/test_synthesis_target.py --toolflow $(STA_TOOL_DIR) --output "$(TIMING_TEST_OUTPUT_DIR)/mapping-target"
+
+test-timing: test-synthesis-target
+	python3 tests/timing/run.py --output $(TIMING_TEST_OUTPUT_DIR) $(NPC_CONFIG_DEFINE)
+	python3 tests/timing/test_mapped_fanout.py
+	python3 tests/timing/test_buffer_refinement.py
+	python3 tests/timing/test_sta_acceptance.py
+	python3 tests/timing/test_clock_buffer_constraints.py --toolflow $(STA_TOOL_DIR) --output "$(TIMING_TEST_OUTPUT_DIR)/clock-coverage"
+	python3 tests/timing/test_critical_drive.py --liberty $(STA_TOOL_DIR)/pdk/nangate45/lib/Nangate45_typ.lib
 
 sta-configs:
 	$(MAKE) sta PROJECT=$(PROJECT) NPC_CONFIG=$(NPC_CONFIG)
@@ -1133,7 +1109,7 @@ help:
 	@echo "Configs: $(SUPPORTED_NPC_CONFIGS)"
 	@echo ""
 	@echo "Build targets:"
-	@echo "  build-npc     Build the fast standalone NPC simulator"
+	@echo "  build-npc     Compatibility alias of build-soc"
 	@echo "  build-soc     Build ysyxSoC; RV64 uses the AXI64-to-AXI32 boundary converter"
 	@echo "  test-configs  Check the RV64 static configuration contract"
 	@echo "  test-idu-configs  Run directed RV64 IDU tests"
@@ -1147,25 +1123,27 @@ help:
 	@echo "  test-sdram-axi  Test AXI transaction classification and native SDRAM BL8 reads"
 	@echo "  test-axi-delayer  Test per-beat AXI read timing and independent write timing"
 	@echo "  test-privileged-configs  Test RV64 CSR, trap, commit, and PMU semantics"
-	@echo "  nemu-ref-rv64  Build the standalone RV64 DiffTest reference"
+	@echo "  nemu-ref-rv64  Build the RV64 SoC Flash/SRAM/SDRAM DiffTest reference"
+	@echo "  test-icache        Check I-cache refill, errors, backpressure and invalidate"
+	@echo "  test-icache-replacement  Check policy 13 against an independent cache model"
 	@echo "  regression-rv64-isa  Run CPU and exception DiffTests"
 	@echo "  regression-rv64  Run the complete RV64 directed and ISA regression"
 	@echo ""
 	@echo "Run targets:"
-	@echo "  sim-npc       Run standalone NPC; requires IMG"
-	@echo "  sim-soc       Run ysyxSoC; requires IMG and/or FLASH_IMG"
-	@echo "  sim           Alias of sim-npc"
-	@echo "  sim-am        AM compatibility alias of sim-npc"
+	@echo "  sim           Run the calibrated SoC; requires FLASH_IMG"
+	@echo "  sim-soc       Run calibrated ysyxSoC; requires FLASH_IMG"
+	@echo "  sim-npc       Compatibility alias of sim-soc"
+	@echo "  sim-am        AM compatibility alias of sim-soc"
 	@echo "  sim-image     ysyxSoC AM compatibility alias of sim-soc"
 	@echo "  nvboard       Run ysyxSoC with NVBoard"
 	@echo ""
-	@echo "Debug targets use the faster standalone NPC:"
+	@echo "Debug targets use the same calibrated ysyxSoC:"
 	@echo "  sim-itrace sim-mtrace sim-ftrace sim-trace"
 	@echo "  sim-difftest sim-wave sim-debug"
 	@echo ""
 	@echo "Evaluation targets:"
-	@echo "  perf          Run RV64 MicroBench on standalone NPC"
-	@echo "  perf-record   Run and append a reproducible performance record"
+	@echo "  perf          Run calibrated SoC MicroBench and validate native timer windows"
+	@echo "  perf-prepare  Build/archive train without running; perf-record aliases perf"
 	@echo "  cachesim-test Build and test the metadata-only I-cache simulator"
 	@echo "  cachesim-trace  Generate an architectural PC trace with NEMU"
 	@echo "  cachesim-run    Evaluate one cache configuration"
@@ -1184,9 +1162,60 @@ help:
 	@echo "  lint-npc      Lint the standalone NPC"
 	@echo "  lint-soc      Lint the selected NPC configuration inside ysyxSoC"
 	@echo "  lint-configs  Lint the RV64 edge-AI configuration"
-	@echo "  sta / sta-configs  Run synthesis and STA for the RV64 core"
+	@echo "  sta / sta-qualified  Qualify core and reset boundary at 700 MHz by default"
+	@echo "  sta-core      Run raw core-only STA for diagnosis"
+	@echo "  test-timing   Test reset sequencing and mapped-netlist checks"
 	@echo ""
 	@echo "Examples:"
 	@echo "  make lint-npc"
 	@echo "  make lint-npc NPC_ICACHE_LINE_BYTES=128"
 	@echo "  make sim-npc IMG=path/to/riscv64-npc.bin"
+
+.PHONY: test-execution-units
+test-execution-units:
+	python3 scripts/test_execution_units.py --output $(abspath ./build/tests/execution-units/$(NPC_CONFIG)) $(NPC_CONFIG_DEFINE)
+
+.PHONY: test-execution-core
+EXECUTION_TEST_OUTPUT_DIR ?= $(abspath ./build/tests/execution-core/$(NPC_CONFIG))
+test-execution-core: $(SOC_SIM_BINARY) nemu-ref-rv64
+	python3 scripts/build_execution_payload.py --output $(EXECUTION_TEST_OUTPUT_DIR)
+	$(SOC_SIM_BINARY) --batch --diff $(RV64_NEMU_REF) --flash $(EXECUTION_TEST_OUTPUT_DIR)/rv64m-core.bin
+
+.PHONY: test-scoreboard
+test-scoreboard:
+	mkdir -p $(abspath ./build/tests/scoreboard)
+	$(VERILATOR) --binary --timing --assert -Wno-fatal -j 2 $(NPC_CONFIG_DEFINE) \
+		--top-module riscv_scoreboard_tb -I$(abspath ./vsrc/riscv/sim) -f $(STA_RTL_FILELIST) \
+		$(abspath ./tests/rtl/riscv_scoreboard_tb.sv) \
+		--Mdir $(abspath ./build/tests/scoreboard/obj)
+	$(abspath ./build/tests/scoreboard/obj/Vriscv_scoreboard_tb)
+
+.PHONY: test-scoreboard-core
+test-scoreboard-core:
+	mkdir -p $(abspath ./build/tests/scoreboard-core)
+	$(VERILATOR) --binary --timing --assert -Wno-fatal -j 2 $(NPC_CONFIG_DEFINE) \
+		-CFLAGS -O0 -MAKEFLAGS 'OPT_FAST=-O0 OPT_SLOW=-O0' \
+		--top-module riscv_scoreboard_core_tb -I$(abspath ./vsrc/riscv/sim) -f $(STA_RTL_FILELIST) \
+		$(abspath ./tests/rtl/riscv_scoreboard_core_tb.sv) \
+		--Mdir $(abspath ./build/tests/scoreboard-core/obj)
+	$(abspath ./build/tests/scoreboard-core/obj/Vriscv_scoreboard_core_tb) +mode=0
+	$(abspath ./build/tests/scoreboard-core/obj/Vriscv_scoreboard_core_tb) +mode=1
+	$(abspath ./build/tests/scoreboard-core/obj/Vriscv_scoreboard_core_tb) +mode=2
+	$(abspath ./build/tests/scoreboard-core/obj/Vriscv_scoreboard_core_tb) +mode=3
+	$(abspath ./build/tests/scoreboard-core/obj/Vriscv_scoreboard_core_tb) +mode=4
+	$(abspath ./build/tests/scoreboard-core/obj/Vriscv_scoreboard_core_tb) +mode=5
+	$(abspath ./build/tests/scoreboard-core/obj/Vriscv_scoreboard_core_tb) +mode=6
+
+# Protocol benches are component verification, never program performance measurements.
+.PHONY: test-soc-timing
+test-soc-timing: test-axi-delayer test-soc-width-converter
+	python3 scripts/test_soc_timing.py
+
+.PHONY: test-operand-wait
+test-operand-wait:
+	mkdir -p $(abspath ./build/tests/operand-wait)
+	$(VERILATOR) --binary --timing --assert -Wno-fatal -j 2 $(NPC_CONFIG_DEFINE) \
+		--top-module riscv_operand_wait_tb -I$(abspath ./vsrc/riscv/sim) -f $(STA_RTL_FILELIST) \
+		$(abspath ./tests/rtl/riscv_operand_wait_tb.sv) \
+		--Mdir $(abspath ./build/tests/operand-wait/obj)
+	$(abspath ./build/tests/operand-wait/obj/Vriscv_operand_wait_tb)

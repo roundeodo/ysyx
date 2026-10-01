@@ -8,10 +8,13 @@
 
 | 模块 | 主要内容 |
 | --- | --- |
-| [顺序流水线](PIPELINE_DESIGN_RECORD.md) | 指令经过哪些级，如何处理相关、阻塞、提交和恢复 |
+| [旁路迁移](RV64_BYPASS_MIGRATION_DESIGN.md) | RV32 优化如何适配到 RV64，以及保留的等待和平台边界 |
+| [顺序发射流水线](PIPELINE_DESIGN_RECORD.md) | 指令经过哪些级，如何处理相关、阻塞、提交和恢复 |
+| [Issue 与 scoreboard](SCOREBOARD_DESIGN_RECORD.md) | 顺序发射、最近生产者、乱序完成与顺序提交 |
 | [I-cache](ICACHE_DESIGN_RECORD.md) | 指令缓存查找、缺失回填、提前返回和失效 |
 | [D-cache](DCACHE_DESIGN_RECORD.md) | 数据缓存、脏行写回、uncached 访问和缓存维护 |
 | [分支预测](BRANCH_PREDICTION_DESIGN_RECORD.md) | 方向、目标与返回地址预测，预测更新和比较方法 |
+| [I-cache 替换](ICACHE_REPLACEMENT_DESIGN.md) | 分段访问 RRIP、候选路快照和同拍命中旁路 |
 
 总线连接见 [AXI4 互连](../interconnect/AXI4_ARCHITECTURE.md)，测试证据见
 [验证记录](../verification/EXPERIMENT_LOG.md)。
@@ -39,6 +42,8 @@
 | 前递 | 把尚未写入架构寄存器的结果直接提供给依赖它的指令 |
 | RAW | 写后读相关（read after write）：年轻指令要读取老指令将写入的结果 |
 | commit / retire | 按程序顺序确认指令结果或处理异常；退休计数不包括发生同步异常的指令 |
+| scoreboard | 本核同时管理在途指令、依赖与完成结果，并按序交给 commit；没有重复的独立 ROB 存储 |
+| WAW | 写后写相关：本核将同名写分别保存在结果槽中，按序提交；前递只选择最近生产者 |
 | ROB | 重排序缓冲区，保存指令顺序、完成和异常信息，控制顺序提交 |
 | LSQ | load/store 队列的合称，跟踪访存指令和顺序约束 |
 | MSHR | 保存一次缓存缺失处理进度的记录；数量限制可同时跟踪的缺失数 |
@@ -46,3 +51,5 @@
 | IPC / MPKI | 每周期退休指令数 / 每千条退休指令对应的事件数；使用时注明计数范围与事件 |
 
 术语说明用于帮助阅读，具体握手、恢复和计数规则仍以对应模块的定义为准。
+
+- [整数执行单元](EXECUTION_UNITS_DESIGN_RECORD.md)：共享 ALU、分支目标、三级乘法和迭代除法。

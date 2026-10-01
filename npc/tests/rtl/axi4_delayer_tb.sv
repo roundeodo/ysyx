@@ -1,83 +1,83 @@
-`timescale 1ns/1ns
+`timescale 1ns / 1ns
 
 module axi4_delayer_tb;
 
   localparam int READ_BEAT_COUNT = 16;
 
-  logic clock;
-  logic reset;
+  logic          clock;
+  logic          reset;
 
-  logic        in_arready;
-  logic        in_arvalid;
-  logic [ 3:0] in_arid;
-  logic [31:0] in_araddr;
-  logic [ 7:0] in_arlen;
-  logic [ 2:0] in_arsize;
-  logic [ 1:0] in_arburst;
-  logic        in_rready;
-  logic        in_rvalid;
-  logic [ 3:0] in_rid;
-  logic [31:0] in_rdata;
-  logic [ 1:0] in_rresp;
-  logic        in_rlast;
+  logic          in_arready;
+  logic          in_arvalid;
+  logic   [ 3:0] in_arid;
+  logic   [31:0] in_araddr;
+  logic   [ 7:0] in_arlen;
+  logic   [ 2:0] in_arsize;
+  logic   [ 1:0] in_arburst;
+  logic          in_rready;
+  logic          in_rvalid;
+  logic   [ 3:0] in_rid;
+  logic   [31:0] in_rdata;
+  logic   [ 1:0] in_rresp;
+  logic          in_rlast;
 
-  logic        in_awready;
-  logic        in_awvalid;
-  logic [ 3:0] in_awid;
-  logic [31:0] in_awaddr;
-  logic [ 7:0] in_awlen;
-  logic [ 2:0] in_awsize;
-  logic [ 1:0] in_awburst;
-  logic        in_wready;
-  logic        in_wvalid;
-  logic [31:0] in_wdata;
-  logic [ 3:0] in_wstrb;
-  logic        in_wlast;
-  logic        in_bready;
-  logic        in_bvalid;
-  logic [ 3:0] in_bid;
-  logic [ 1:0] in_bresp;
+  logic          in_awready;
+  logic          in_awvalid;
+  logic   [ 3:0] in_awid;
+  logic   [31:0] in_awaddr;
+  logic   [ 7:0] in_awlen;
+  logic   [ 2:0] in_awsize;
+  logic   [ 1:0] in_awburst;
+  logic          in_wready;
+  logic          in_wvalid;
+  logic   [31:0] in_wdata;
+  logic   [ 3:0] in_wstrb;
+  logic          in_wlast;
+  logic          in_bready;
+  logic          in_bvalid;
+  logic   [ 3:0] in_bid;
+  logic   [ 1:0] in_bresp;
 
-  logic        out_arready;
-  logic        out_arvalid;
-  logic [ 3:0] out_arid;
-  logic [31:0] out_araddr;
-  logic [ 7:0] out_arlen;
-  logic [ 2:0] out_arsize;
-  logic [ 1:0] out_arburst;
-  logic        out_rready;
-  logic        out_rvalid;
-  logic [ 3:0] out_rid;
-  logic [31:0] out_rdata;
-  logic [ 1:0] out_rresp;
-  logic        out_rlast;
+  logic          out_arready;
+  logic          out_arvalid;
+  logic   [ 3:0] out_arid;
+  logic   [31:0] out_araddr;
+  logic   [ 7:0] out_arlen;
+  logic   [ 2:0] out_arsize;
+  logic   [ 1:0] out_arburst;
+  logic          out_rready;
+  logic          out_rvalid;
+  logic   [ 3:0] out_rid;
+  logic   [31:0] out_rdata;
+  logic   [ 1:0] out_rresp;
+  logic          out_rlast;
 
-  logic        out_awready;
-  logic        out_awvalid;
-  logic [ 3:0] out_awid;
-  logic [31:0] out_awaddr;
-  logic [ 7:0] out_awlen;
-  logic [ 2:0] out_awsize;
-  logic [ 1:0] out_awburst;
-  logic        out_wready;
-  logic        out_wvalid;
-  logic [31:0] out_wdata;
-  logic [ 3:0] out_wstrb;
-  logic        out_wlast;
-  logic        out_bready;
-  logic        out_bvalid;
-  logic [ 3:0] out_bid;
-  logic [ 1:0] out_bresp;
+  logic          out_awready;
+  logic          out_awvalid;
+  logic   [ 3:0] out_awid;
+  logic   [31:0] out_awaddr;
+  logic   [ 7:0] out_awlen;
+  logic   [ 2:0] out_awsize;
+  logic   [ 1:0] out_awburst;
+  logic          out_wready;
+  logic          out_wvalid;
+  logic   [31:0] out_wdata;
+  logic   [ 3:0] out_wstrb;
+  logic          out_wlast;
+  logic          out_bready;
+  logic          out_bvalid;
+  logic   [ 3:0] out_bid;
+  logic   [ 1:0] out_bresp;
 
-  integer cycle_count;
-  integer read_transaction_start_cycle;
-  integer write_transaction_start_cycle;
-  integer downstream_read_response_cycle [0:READ_BEAT_COUNT-1];
-  integer upstream_read_response_cycle [0:READ_BEAT_COUNT-1];
-  integer downstream_read_response_count;
-  integer upstream_read_response_count;
-  integer downstream_write_response_cycle;
-  integer upstream_write_response_cycle;
+  integer        cycle_count;
+  integer        read_transaction_start_cycle;
+  integer        write_transaction_start_cycle;
+  integer        downstream_read_response_cycle  [0:READ_BEAT_COUNT-1];
+  integer        upstream_read_response_cycle    [0:READ_BEAT_COUNT-1];
+  integer        downstream_read_response_count;
+  integer        upstream_read_response_count;
+  integer        downstream_write_response_cycle;
+  integer        upstream_write_response_cycle;
 
   axi4_delayer #(
       .PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED(64'd2048),
@@ -97,40 +97,35 @@ module axi4_delayer_tb;
   // 因此不会混入testbench驱动相位的半周期偏差。
   always @(posedge clock) begin
     if (reset) begin
-      cycle_count                         = 0;
-      read_transaction_start_cycle       = -1;
-      write_transaction_start_cycle      = -1;
-      downstream_read_response_count     = 0;
-      upstream_read_response_count       = 0;
-      downstream_write_response_cycle    = -1;
-      upstream_write_response_cycle      = -1;
+      cycle_count                     = 0;
+      read_transaction_start_cycle    = -1;
+      write_transaction_start_cycle   = -1;
+      downstream_read_response_count  = 0;
+      upstream_read_response_count    = 0;
+      downstream_write_response_cycle = -1;
+      upstream_write_response_cycle   = -1;
     end else begin
       if (in_arvalid && read_transaction_start_cycle < 0) begin
         read_transaction_start_cycle = cycle_count;
       end
 
       if (out_rvalid && out_rready) begin
-        downstream_read_response_cycle[downstream_read_response_count] =
-            cycle_count;
-        downstream_read_response_count = downstream_read_response_count + 1;
+        downstream_read_response_cycle[downstream_read_response_count] = cycle_count;
+        downstream_read_response_count                                 = downstream_read_response_count + 1;
       end
 
       if (in_rvalid && in_rready) begin
         assert (in_rid == 4'h9)
-          else $fatal(1, "read response ID mismatch");
+        else $fatal(1, "read response ID mismatch");
         assert (in_rdata == 32'h2000_0000 + upstream_read_response_count)
-          else $fatal(1, "read response data mismatch at beat %0d",
-                      upstream_read_response_count);
+        else $fatal(1, "read response data mismatch at beat %0d", upstream_read_response_count);
         assert (in_rresp == 2'b00)
-          else $fatal(1, "read response status mismatch");
-        assert (in_rlast ==
-                (upstream_read_response_count == READ_BEAT_COUNT - 1))
-          else $fatal(1, "read response LAST mismatch at beat %0d",
-                      upstream_read_response_count);
+        else $fatal(1, "read response status mismatch");
+        assert (in_rlast == (upstream_read_response_count == READ_BEAT_COUNT - 1))
+        else $fatal(1, "read response LAST mismatch at beat %0d", upstream_read_response_count);
 
-        upstream_read_response_cycle[upstream_read_response_count] =
-            cycle_count;
-        upstream_read_response_count = upstream_read_response_count + 1;
+        upstream_read_response_cycle[upstream_read_response_count] = cycle_count;
+        upstream_read_response_count                               = upstream_read_response_count + 1;
       end
 
       if ((in_awvalid || in_wvalid) && write_transaction_start_cycle < 0) begin
@@ -143,9 +138,9 @@ module axi4_delayer_tb;
 
       if (in_bvalid && in_bready) begin
         assert (in_bid == 4'h5)
-          else $fatal(1, "write response ID mismatch");
+        else $fatal(1, "write response ID mismatch");
         assert (in_bresp == 2'b10)
-          else $fatal(1, "write response status mismatch");
+        else $fatal(1, "write response status mismatch");
         upstream_write_response_cycle = cycle_count;
       end
 
@@ -194,7 +189,7 @@ module axi4_delayer_tb;
 
     repeat (4) @(posedge clock);
     @(negedge clock);
-    reset = 1'b0;
+    reset      = 1'b0;
 
     // ----------------------------------------------------------------------
     // 16-beat读burst：下游每周期给一个beat，r=2后上游beat间隔应为2周期。
@@ -213,8 +208,7 @@ module axi4_delayer_tb;
     fork
       begin : drive_read_response_burst
         repeat (2) @(negedge clock);
-        for (beat_index = 0; beat_index < READ_BEAT_COUNT;
-             beat_index = beat_index + 1) begin
+        for (beat_index = 0; beat_index < READ_BEAT_COUNT; beat_index = beat_index + 1) begin
           out_rvalid = 1'b1;
           out_rid    = 4'h9;
           out_rdata  = 32'h2000_0000 + beat_index;
@@ -276,22 +270,23 @@ module axi4_delayer_tb;
     join
 
     assert (downstream_read_response_count == READ_BEAT_COUNT)
-      else $fatal(1, "downstream read response count mismatch");
+    else $fatal(1, "downstream read response count mismatch");
 
-    for (beat_index = 0; beat_index < READ_BEAT_COUNT;
-         beat_index = beat_index + 1) begin
+    for (beat_index = 0; beat_index < READ_BEAT_COUNT; beat_index = beat_index + 1) begin
       expected_upstream_cycle =
           read_transaction_start_cycle +
           2 * (downstream_read_response_cycle[beat_index] -
                read_transaction_start_cycle);
-      assert (upstream_read_response_cycle[beat_index] ==
-              expected_upstream_cycle)
-        else $fatal(1,
-                    "read beat %0d timing mismatch: downstream=%0d upstream=%0d expected=%0d",
-                    beat_index,
-                    downstream_read_response_cycle[beat_index],
-                    upstream_read_response_cycle[beat_index],
-                    expected_upstream_cycle);
+      assert (upstream_read_response_cycle[beat_index] == expected_upstream_cycle)
+      else
+        $fatal(
+            1,
+            "read beat %0d timing mismatch: downstream=%0d upstream=%0d expected=%0d",
+            beat_index,
+            downstream_read_response_cycle[beat_index],
+            upstream_read_response_cycle[beat_index],
+            expected_upstream_cycle
+        );
     end
 
     expected_upstream_cycle =
@@ -299,11 +294,14 @@ module axi4_delayer_tb;
         2 * (downstream_write_response_cycle -
              write_transaction_start_cycle);
     assert (upstream_write_response_cycle == expected_upstream_cycle)
-      else $fatal(1,
-                  "write timing mismatch: downstream=%0d upstream=%0d expected=%0d",
-                  downstream_write_response_cycle,
-                  upstream_write_response_cycle,
-                  expected_upstream_cycle);
+    else
+      $fatal(
+          1,
+          "write timing mismatch: downstream=%0d upstream=%0d expected=%0d",
+          downstream_write_response_cycle,
+          upstream_write_response_cycle,
+          expected_upstream_cycle
+      );
 
     $display("axi4_delayer_tb: PASS");
     $finish;
@@ -311,15 +309,13 @@ module axi4_delayer_tb;
 
   initial begin
     #2000;
-    $fatal(1,
-           "axi4_delayer_tb timeout: downstream_r=%0d upstream_r=%0d fifo_count=%0d read_active=%0b downstream_b=%0d upstream_b=%0d write_active=%0b",
-           downstream_read_response_count,
-           upstream_read_response_count,
-           u_axi4_delayer.read_response_count_q,
-           u_axi4_delayer.read_transaction_active_q,
-           downstream_write_response_cycle,
-           upstream_write_response_cycle,
-           u_axi4_delayer.write_transaction_active_q);
+    $fatal(
+        1,
+        "axi4_delayer_tb timeout: downstream_r=%0d upstream_r=%0d fifo_count=%0d read_active=%0b downstream_b=%0d upstream_b=%0d write_active=%0b",
+        downstream_read_response_count, upstream_read_response_count,
+        u_axi4_delayer.read_response_count_q, u_axi4_delayer.read_transaction_active_q,
+        downstream_write_response_cycle, upstream_write_response_cycle,
+        u_axi4_delayer.write_transaction_active_q);
   end
 
 endmodule

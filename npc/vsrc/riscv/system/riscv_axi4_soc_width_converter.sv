@@ -1,7 +1,7 @@
 // Processor memory AXI to ysyxSoC AXI32 width converter.
 //
 // 两侧同宽时，五个 channel 组合直通；当前 64 位到 32 位配置中，窄访问保留原事务，
-// 只转换64位data lane；单拍64位访问在普通存储区转换成两个32位beat。MMIO不允许
+// 只转换64位data lane；普通存储区的每个64位beat拆成两个32位beat。MMIO不允许
 // 拆分，转换器在任何下游请求发出前返回DECERR，避免设备只看到半次访问。
 module riscv_axi4_soc_width_converter
   import riscv_config_pkg::*;
@@ -136,7 +136,11 @@ module riscv_axi4_soc_width_converter
 
       assign read_request_supported = !read_width_conversion_requested ||
           ((upstream_manager_i.ar.size == 3'd3) &&
-           (upstream_manager_i.ar.len == 8'd0) &&
+           ((upstream_manager_i.ar.len == 8'd0) ||
+            ((upstream_manager_i.ar.burst == AXI4_BURST_INCR) &&
+             !upstream_manager_i.ar.len[7]) ||
+            ((upstream_manager_i.ar.burst == AXI4_BURST_WRAP) &&
+             (upstream_manager_i.ar.len inside {8'd1, 8'd3, 8'd7}))) &&
            (upstream_manager_i.ar.addr[2:0] == 3'b000) &&
            read_address_memory_attr.width_conversion_supported);
 
@@ -148,7 +152,11 @@ module riscv_axi4_soc_width_converter
 
       assign write_request_supported = !write_width_conversion_requested ||
           ((upstream_manager_i.aw.size == 3'd3) &&
-           (upstream_manager_i.aw.len == 8'd0) &&
+           ((upstream_manager_i.aw.len == 8'd0) ||
+            ((upstream_manager_i.aw.burst == AXI4_BURST_INCR) &&
+             !upstream_manager_i.aw.len[7]) ||
+            ((upstream_manager_i.aw.burst == AXI4_BURST_WRAP) &&
+             (upstream_manager_i.aw.len inside {8'd1, 8'd3, 8'd7}))) &&
            (upstream_manager_i.aw.addr[2:0] == 3'b000) &&
            write_address_memory_attr.width_conversion_supported);
 
@@ -192,14 +200,15 @@ module riscv_axi4_soc_width_converter
       assign current_write_data_completed = downstream_write_data_handshake &&
           (!write_width_conversion_q || wide_write_upper_half_q);
 
-      read_state_e                      read_state_q;
-      axi4_read_address_t               read_address_q;
-      axi4_addr_t                       current_read_beat_addr_q;
-      ysyx_soc_axi4_data_t              wide_read_low_data_q;
-      axi4_resp_e                       wide_read_first_response_q;
-      logic                             wide_read_second_beat_q;
-      axi4_target_to_manager_t          read_upstream_response;
-      ysyx_soc_axi4_manager_to_target_t read_downstream_request;
+      logic                             [7:0] read_error_remaining_q;
+      read_state_e                            read_state_q;
+      axi4_read_address_t                     read_address_q;
+      axi4_addr_t                             current_read_beat_addr_q;
+      ysyx_soc_axi4_data_t                    wide_read_low_data_q;
+      axi4_resp_e                             wide_read_first_response_q;
+      logic                                   wide_read_second_beat_q;
+      axi4_target_to_manager_t                read_upstream_response;
+      ysyx_soc_axi4_manager_to_target_t       read_downstream_request;
 
       // 下游AR和RREADY只依赖上游请求与本地状态；与反向的READY/R数据分开计算，
       // 避免一个过程把独立方向的组合依赖合并。每个打包接口仍只有一个驱动过程。
@@ -211,10 +220,11 @@ module riscv_axi4_soc_width_converter
               read_downstream_request.ar.addr  = upstream_manager_i.ar.addr;
               read_downstream_request.ar.id    = upstream_manager_i.ar.id;
               read_downstream_request.ar.len   = read_width_conversion_requested
-                  ? 8'd1 : upstream_manager_i.ar.len;
+                  ? {upstream_manager_i.ar.len[6:0], 1'b1} : upstream_manager_i.ar.len;
               read_downstream_request.ar.size  = read_width_conversion_requested
                   ? 3'(DOWNSTREAM_MAX_TRANSFER_SIZE) : upstream_manager_i.ar.size;
-              read_downstream_request.ar.burst = upstream_manager_i.ar.burst;
+              read_downstream_request.ar.burst = read_width_conversion_requested &&
+                  upstream_manager_i.ar.len == 0 ? AXI4_BURST_INCR : upstream_manager_i.ar.burst;
               read_downstream_request.ar_valid = 1'b1;
             end
           end
@@ -254,18 +264,28 @@ module riscv_axi4_soc_width_converter
               read_upstream_response.r.id    = read_address_q.id;
               read_upstream_response.r.resp  =
                   merge_response(wide_read_first_response_q, downstream_manager_i.r.resp);
-              read_upstream_response.r.last  = 1'b1;
+              read_upstream_response.r.last  = downstream_manager_i.r.last;
               read_upstream_response.r_valid = downstream_manager_i.r_valid;
             end
           end
           READ_RETURN_LOCAL_ERROR: begin
             read_upstream_response.r.id    = read_address_q.id;
             read_upstream_response.r.resp  = AXI4_RESP_DECERR;
-            read_upstream_response.r.last  = 1'b1;
+            read_upstream_response.r.last  = (read_error_remaining_q == 0);
             read_upstream_response.r_valid = 1'b1;
           end
           default: ;
         endcase
+      end
+
+      // An unsupported burst still receives ARLEN+1 error beats and one RLAST.
+      always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni) read_error_remaining_q <= '0;
+        else if (upstream_read_address_handshake)
+          read_error_remaining_q <= upstream_manager_i.ar.len;
+        else if (read_state_q == READ_RETURN_LOCAL_ERROR && upstream_manager_i.r_ready &&
+                 read_error_remaining_q != 0)
+          read_error_remaining_q <= read_error_remaining_q - 8'd1;
       end
 
       read_state_e         read_state_d;
@@ -325,17 +345,18 @@ module riscv_axi4_soc_width_converter
                 wide_read_first_response_d = downstream_manager_i.r.resp;
                 wide_read_second_beat_d    = 1'b1;
               end else begin
-                read_address_d             = '0;
+                if (downstream_manager_i.r.last) read_address_d = '0;
                 wide_read_low_data_d       = '0;
                 wide_read_first_response_d = AXI4_RESP_OKAY;
                 wide_read_second_beat_d    = 1'b0;
-                read_state_d               = READ_ACCEPT_ADDRESS;
+                if (downstream_manager_i.r.last) read_state_d = READ_ACCEPT_ADDRESS;
               end
             end
           end
 
           READ_RETURN_LOCAL_ERROR: begin
-            if (read_upstream_response.r_valid && upstream_manager_i.r_ready) begin
+            if (read_upstream_response.r_valid && upstream_manager_i.r_ready &&
+                read_error_remaining_q == 0) begin
               read_address_d = '0;
               read_state_d   = READ_ACCEPT_ADDRESS;
             end
@@ -392,10 +413,11 @@ module riscv_axi4_soc_width_converter
           WRITE_FORWARD_TRANSACTION: begin
             write_downstream_request.aw.addr  = write_address_q.addr;
             write_downstream_request.aw.id    = write_address_q.id;
-            write_downstream_request.aw.len   = write_width_conversion_q ? 8'd1 : write_address_q.len;
+            write_downstream_request.aw.len   = write_width_conversion_q ? {write_address_q.len[6:0], 1'b1} : write_address_q.len;
             write_downstream_request.aw.size  = write_width_conversion_q
                 ? 3'(DOWNSTREAM_MAX_TRANSFER_SIZE) : write_address_q.size;
-            write_downstream_request.aw.burst = write_address_q.burst;
+            write_downstream_request.aw.burst = write_width_conversion_q &&
+                  write_address_q.len == 0 ? AXI4_BURST_INCR : write_address_q.burst;
             write_downstream_request.aw_valid = downstream_write_address_pending_q;
 
             write_upstream_response.w_ready = !write_data_present_q;

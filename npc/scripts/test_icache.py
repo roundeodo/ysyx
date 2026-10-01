@@ -85,7 +85,7 @@ def main():
         "riscv_config_pkg.sv", "riscv_addr_map_pkg.sv", "riscv_axi4_pkg.sv", "riscv_pkg.sv")]
     if args.test == "cache":
         names = ("pma", "icache_tag_array", "icache_data_array", "icache_miss_unit",
-                 "icache_replacement", "icache", "icache_refill_axi4_master")
+                 "icache_replacement", "icache", "icache_axi")
         top = "riscv_icache_contract_tb"
         options = []
     else:

@@ -32,7 +32,7 @@ module riscv_pma
   //   SDRAM          0xa000_0000 - 0xa1ff_ffff，32 MiB；
   //   ChipLink MEM   0xc000_0000 - 0xffff_ffff，可选内存空间。
 
-  // 每个信号只表示lookup地址是否落入对应的已实现物理地址区间。
+  // 1. 地址译码：每个信号只表示lookup地址是否落入对应的已实现物理地址区间。
   logic lookup_addr_in_clint;
   logic lookup_addr_in_sram;
   logic lookup_addr_in_uart;
@@ -84,6 +84,7 @@ module riscv_pma
                                           lookup_addr_in_chiplink_memory;
   end
 
+  // 2. 属性输出：组合编码，无寄存器。
   // pma_attr_t字段的含义：
   //   readable/writable：数据侧访问权限；未映射地址两者均为0；
   //   executable：允许IFU从该区域取指；为0时I-cache返回取指访问异常；
@@ -94,8 +95,9 @@ module riscv_pma
   // SRAM不缓存是当前系统策略：它本身只有约1周期访问延迟，缓存收益很小。
   // MROM同样保持不缓存。Flash、PSRAM和SDRAM延迟高且读操作无设备副作用，
   // 因而允许取指、允许缓存且幂等。MMIO必须全部不可执行、不可缓存、非幂等。
-  // 显式优先级分类同时表达地址映射和属性所有权。地址区域必须互斥；若后续加入
-  // 重叠窗口，应先在address-map package中定义优先级，不能依赖本模块中的偶然顺序。
+  // 显式按区域分类可以清楚表达只读和可写内存的差异。曾尝试将属性改写为
+  // 多个区域命中信号的并行布尔方程，但标准单元映射后扩大了IFU高扇出逻辑锥，
+  // 在周期数不变的前提下同时恶化了面积、Fmax和TNS，因此保留本优先级形式。
   always_comb begin
     memory_attr_o = '0;
 

@@ -10,7 +10,7 @@ module riscv_npc_axi
     input logic clock,
     input logic reset,
 
-    // External interrupts are not consumed by the current single-cycle core.
+    // External interrupts are not connected to the current core.
     /* verilator lint_off UNUSEDSIGNAL */
     input logic io_interrupt,
 
@@ -145,18 +145,21 @@ module riscv_npc_axi
     io_slave_rid     = 4'b0;
   end
 
+  logic system_rst_n;
+
   riscv_npc_system #(
       .RESET_PC(RESET_PC)
   ) u_npc_system (
       .clk_i                  (clock),
       .rst_ni                 (~reset),
+      .system_rst_no          (system_rst_n),
       .external_axi4_manager_o(processor_memory_axi4_manager),
       .external_axi4_manager_i(processor_memory_axi4_response)
   );
 
   riscv_axi4_soc_width_converter u_soc_width_converter (
       .clk_i               (clock),
-      .rst_ni              (~reset),
+      .rst_ni              (system_rst_n),
       .upstream_manager_i  (processor_memory_axi4_manager),
       .upstream_manager_o  (processor_memory_axi4_response),
       .downstream_manager_o(soc_axi4_manager),

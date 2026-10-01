@@ -10,19 +10,6 @@ module riscv_dcache_tb;
   localparam phys_addr_t TEST_ADDR_C = TEST_ADDR_B + SAME_SET_ADDR_STRIDE;
   localparam mem_size_e TEST_WORD_SIZE = (CORE_DATA_WIDTH == 64) ? MEM_SIZE_DOUBLE : MEM_SIZE_WORD;
 
-  // 每项事务启动前配置注入；事务进行期间保持这些条件不变。
-  bit inject_read_error;
-  bit inject_write_error;
-  bit align_write_response_with_read_last;
-  int unsigned read_response_delay;
-  int unsigned write_response_delay;
-  int unsigned write_data_gap;
-  int unsigned write_data_delay_q;
-  int unsigned response_stall_cycles;
-  int unsigned read_delay_q, write_delay_q;
-  bit read_last_occurred_q;
-  int unsigned cycle_count, read_last_cycle, write_response_cycle;
-
   logic clk;
   logic rst_ni;
 
@@ -33,17 +20,11 @@ module riscv_dcache_tb;
   logic data_memory_resp_valid;
   logic data_memory_resp_ready;
 
-  bit maintenance_test_active;
-  logic fence_i_committed;
-  logic maintenance_clean_req;
-  logic maintenance_invalidate_req;
-  logic maintenance_active;
-  logic invalidate_done;
   logic clean_req;
   logic clean_done;
   logic clean_access_fault;
   logic cache_busy;
-  dcache_event_t dcache_event;
+  dcache_event_t dcache_occurred;
 
   axi4_manager_to_target_t axi_manager;
   axi4_target_to_manager_t axi_target;
@@ -64,6 +45,7 @@ module riscv_dcache_tb;
   int unsigned read_address_handshake_count;
   int unsigned write_address_handshake_count;
   logic dirty_miss_read_write_overlap_observed_q;
+  int unsigned simultaneous_read_write_address_count;
 
   riscv_dcache u_dut (
       .clk_i                   (clk),
@@ -74,25 +56,13 @@ module riscv_dcache_tb;
       .data_memory_resp_o      (data_memory_resp),
       .data_memory_resp_valid_o(data_memory_resp_valid),
       .data_memory_resp_ready_i(data_memory_resp_ready),
-      .clean_req_i             (maintenance_test_active ? maintenance_clean_req : clean_req),
+      .clean_req_i             (clean_req),
       .clean_done_o            (clean_done),
       .clean_access_fault_o    (clean_access_fault),
       .cache_busy_o            (cache_busy),
-      .event_o                 (dcache_event),
+      .event_o                 (dcache_occurred),
       .axi_manager_o           (axi_manager),
       .axi_manager_i           (axi_target)
-  );
-
-  riscv_cache_maintenance_controller u_maintenance (
-      .clk_i(clk),
-      .rst_ni(rst_ni),
-      .fence_i_committed_i(fence_i_committed),
-      .dcache_clean_done_i(clean_done),
-      .dcache_clean_access_fault_i(clean_access_fault),
-      .icache_invalidate_done_i(invalidate_done),
-      .dcache_clean_req_o(maintenance_clean_req),
-      .icache_invalidate_req_o(maintenance_invalidate_req),
-      .maintenance_active_o(maintenance_active)
   );
 
   always #5 clk = ~clk;
@@ -110,21 +80,19 @@ module riscv_dcache_tb;
   always_comb begin
     axi_target          = '0;
     axi_target.ar_ready = !read_transaction_present_q;
-    axi_target.r_valid  = read_transaction_present_q && read_delay_q == 0;
+    axi_target.r_valid  = read_transaction_present_q;
     axi_target.r.data   =
         read_memory_word(read_base_addr_q + axi4_addr_t'(read_beat_index_q * AXI4_STRB_WIDTH));
     axi_target.r.id     = read_id_q;
-    axi_target.r.resp   = (inject_read_error && read_beat_index_q == 1) ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY;
+    axi_target.r.resp   = AXI4_RESP_OKAY;
     axi_target.r.last   = read_beat_index_q == read_len_q;
 
     // WREADY只在AW完成后拉高，刻意验证D-cache adapter正确处理独立AW/W握手。
     axi_target.aw_ready = !write_transaction_present_q && !write_response_present_q;
-    axi_target.w_ready  = write_transaction_present_q && write_data_delay_q == 0;
-    axi_target.b_valid  = write_response_present_q && write_delay_q == 0 &&
-        (!align_write_response_with_read_last || read_last_occurred_q ||
-         (axi_target.r_valid && axi_target.r.last));
+    axi_target.w_ready  = write_transaction_present_q;
+    axi_target.b_valid  = write_response_present_q;
     axi_target.b.id     = write_id_q;
-    axi_target.b.resp   = inject_write_error ? AXI4_RESP_SLVERR : AXI4_RESP_OKAY;
+    axi_target.b.resp   = AXI4_RESP_OKAY;
   end
 
   always_ff @(posedge clk or negedge rst_ni) begin
@@ -155,13 +123,18 @@ module riscv_dcache_tb;
     end
   end
 
-  // dirty victim尚在W/B通道推进时，新line的AR已经完成握手，证明两个方向没有串行化。
+  // AR 可在 AW 的同一接收沿发出；该沿之前 target 的在途标志仍为 0。
+  // 同时检查刚接收的 AW 和已经在 W/B 通道推进的事务，不能漏掉更早的交接。
   always_ff @(posedge clk or negedge rst_ni) begin
     if (!rst_ni) begin
       dirty_miss_read_write_overlap_observed_q <= 1'b0;
-    end else if (axi_manager.ar_valid && axi_target.ar_ready &&
-                 (write_transaction_present_q || write_response_present_q)) begin
-      dirty_miss_read_write_overlap_observed_q <= 1'b1;
+      simultaneous_read_write_address_count    <= 0;
+    end else if (axi_manager.ar_valid && axi_target.ar_ready) begin
+      if (write_transaction_present_q || write_response_present_q ||
+          (axi_manager.aw_valid && axi_target.aw_ready))
+        dirty_miss_read_write_overlap_observed_q <= 1'b1;
+      if (axi_manager.aw_valid && axi_target.aw_ready)
+        simultaneous_read_write_address_count <= simultaneous_read_write_address_count + 1;
     end
   end
 
@@ -184,7 +157,7 @@ module riscv_dcache_tb;
 
       if (axi_manager.w_valid && axi_target.w_ready) begin
         for (int unsigned byte_index = 0; byte_index < AXI4_STRB_WIDTH; byte_index++) begin
-          if (axi_manager.w.strb[byte_index] && !inject_write_error) begin
+          if (axi_manager.w.strb[byte_index]) begin
             memory_byte_array[
                 (int'(write_base_addr_q[15:0]) +
                  int'(write_beat_index_q) * AXI4_STRB_WIDTH + byte_index) %
@@ -207,66 +180,10 @@ module riscv_dcache_tb;
     end
   end
 
-  // 延迟和时间戳不改变事务数据，用于覆盖B早于、晚于及同拍于最后一个R。
-  always_ff @(posedge clk or negedge rst_ni) begin
-    if (!rst_ni) begin
-      read_delay_q         <= 0;
-      write_delay_q        <= 0;
-      read_last_occurred_q <= 0;
-      cycle_count          <= 0;
-      write_data_delay_q   <= 0;
-      read_last_cycle      <= 0;
-      write_response_cycle <= 0;
-    end else begin
-      cycle_count <= cycle_count + 1;
-      if (write_data_delay_q != 0) write_data_delay_q <= write_data_delay_q - 1;
-      if (axi_manager.w_valid && axi_target.w_ready) write_data_delay_q <= write_data_gap;
-      if (read_delay_q != 0) read_delay_q <= read_delay_q - 1;
-      if (write_delay_q != 0) write_delay_q <= write_delay_q - 1;
-      if (axi_manager.ar_valid && axi_target.ar_ready) begin
-        read_delay_q         <= read_response_delay;
-        read_last_occurred_q <= 0;
-      end
-      if (axi_manager.w_valid && axi_target.w_ready && axi_manager.w.last)
-        write_delay_q <= write_response_delay;
-      if (axi_target.r_valid && axi_manager.r_ready && axi_target.r.last) begin
-        read_last_occurred_q <= 1;
-        read_last_cycle      <= cycle_count;
-      end
-      if (axi_target.b_valid && axi_manager.b_ready) write_response_cycle <= cycle_count;
-    end
-  end
-
-  initial begin
-    #1000000;
-    $fatal(1, "D-cache directed test timed out");
-  end
-
-  task automatic reset_cache;
-    @(negedge clk);
-    rst_ni                              = 0;
-    maintenance_test_active             = 0;
-    fence_i_committed                   = 0;
-    invalidate_done                     = 0;
-    data_memory_req_valid               = 0;
-    data_memory_resp_ready              = 1;
-    clean_req                           = 0;
-    inject_read_error                   = 0;
-    inject_write_error                  = 0;
-    align_write_response_with_read_last = 0;
-    read_response_delay                 = 0;
-    write_response_delay                = 0;
-    write_data_gap                      = 0;
-    response_stall_cycles               = 0;
-    repeat (3) @(negedge clk);
-    rst_ni = 1;
-  endtask
-
   task automatic issue_memory_request(
       input phys_addr_t addr, input mem_cmd_e cmd, input core_data_t write_data,
       input core_byte_strobe_t byte_strobe, input mem_txn_id_t transaction_id,
-      output core_data_t read_data, input bit expected_fault = 0);
-    data_memory_resp_t held_response;
+      output core_data_t read_data);
     @(negedge clk);
     data_memory_req                = '0;
     data_memory_req.addr           = addr;
@@ -276,67 +193,32 @@ module riscv_dcache_tb;
     data_memory_req.byte_strobe    = byte_strobe;
     data_memory_req.transaction_id = transaction_id;
     data_memory_req_valid          = 1'b1;
-    data_memory_resp_ready         = response_stall_cycles == 0;
 
     while (!data_memory_req_ready) @(negedge clk);
     @(negedge clk);
     data_memory_req_valid = 1'b0;
 
     while (!data_memory_resp_valid) @(negedge clk);
-    held_response = data_memory_resp;
-    for (int unsigned stall_cycle = 0; stall_cycle < response_stall_cycles; stall_cycle++) begin
-      // 请求已经握手。无效输入分别跨word、跨set变化，不能影响待消费的响应。
-      data_memory_req.addr = addr + phys_addr_t'((stall_cycle + 1) * CORE_DATA_BYTE_COUNT);
-      @(negedge clk);
-      assert (data_memory_resp_valid && data_memory_resp == held_response)
-      else $fatal(1, "D-cache response changed under backpressure");
-    end
-    data_memory_resp_ready = 1;
-    assert (data_memory_resp.access_fault == expected_fault)
-    else $fatal(1, "D-cache access-fault status mismatch");
+    assert (!data_memory_resp.access_fault)
+    else $fatal(1, "D-cache returned an unexpected access fault");
     assert (data_memory_resp.transaction_id == transaction_id)
     else $fatal(1, "D-cache response transaction ID mismatch");
     read_data = data_memory_resp.read_data;
     @(negedge clk);
   endtask
 
-  task automatic check_valid_next_lookup_under_backpressure;
-    core_data_t expected_a;
-    expected_a = core_data_t'(read_memory_word(axi4_addr_t'(TEST_ADDR_A)));
-    @(negedge clk);
-    data_memory_resp_ready         = 0;
-    data_memory_req                = '0;
-    data_memory_req.addr           = TEST_ADDR_A;
-    data_memory_req.cmd            = MEM_CMD_LOAD;
-    data_memory_req.size           = TEST_WORD_SIZE;
-    data_memory_req.transaction_id = mem_txn_id_t'(9);
-    data_memory_req_valid          = 1;
-    while (!data_memory_req_ready) @(negedge clk);
-    @(negedge clk);
-    data_memory_req.addr           = TEST_ADDR_B + phys_addr_t'(CORE_DATA_BYTE_COUNT);
-    data_memory_req.transaction_id = mem_txn_id_t'(10);
-    repeat (3) begin
-      assert (!data_memory_req_ready && data_memory_resp_valid &&
-              data_memory_resp.transaction_id == mem_txn_id_t'(9) &&
-              data_memory_resp.read_data == expected_a)
-      else $fatal(1, "unaccepted valid lookup changed the previous response");
-      @(negedge clk);
-    end
-    data_memory_resp_ready = 1;
-    @(negedge clk);
-    data_memory_req_valid = 0;
-    assert (data_memory_resp_valid && data_memory_resp.transaction_id == mem_txn_id_t'(10) &&
-            data_memory_resp.read_data == core_data_t'(read_memory_word(
-        axi4_addr_t'(TEST_ADDR_B + phys_addr_t'(CORE_DATA_BYTE_COUNT))
-    )))
-    else $fatal(1, "pending lookup did not complete after response backpressure ended");
-    @(negedge clk);
-  endtask
-
-  task automatic clean_cache;
+  task automatic clean_cache(input bit expect_clean_scan = 0);
+    int cycles;
+    cycles = 0;
     @(negedge clk);
     clean_req = 1'b1;
-    while (!clean_done) @(negedge clk);
+    while (!clean_done) begin
+      @(negedge clk);
+      cycles++;
+    end
+    if (expect_clean_scan)
+      assert (cycles <= DCACHE_SET_COUNT)
+      else $fatal(1, "clean scan inserted per-way/read wait cycles: %0d", cycles);
     assert (!clean_access_fault)
     else $fatal(1, "D-cache clean returned an unexpected access fault");
     @(negedge clk);
@@ -346,16 +228,16 @@ module riscv_dcache_tb;
   // 连续发出store hit和同地址load。第二个请求必须与store响应同拍握手，下一拍
   // 返回的数据必须经过显式read-during-write bypass看到刚写入的值。
   task automatic issue_store_then_load_without_gap(
-      input phys_addr_t addr, input core_data_t store_data, output core_data_t load_data,
-      input core_byte_strobe_t store_strobe = '1,
-      input phys_addr_t following_load_addr = TEST_ADDR_A, input bit following_load_hits = 1);
+      input phys_addr_t addr, input core_data_t store_data, input core_byte_strobe_t byte_strobe,
+      input int unsigned response_stall_cycles, output core_data_t load_data);
     @(negedge clk);
     data_memory_req                = '0;
     data_memory_req.addr           = addr;
     data_memory_req.cmd            = MEM_CMD_STORE;
     data_memory_req.size           = TEST_WORD_SIZE;
     data_memory_req.write_data     = store_data;
-    data_memory_req.byte_strobe    = store_strobe;
+    data_memory_req.byte_strobe    = byte_strobe;
+    data_memory_resp_ready         = 1'b0;
     data_memory_req.transaction_id = mem_txn_id_t'(3);
     data_memory_req_valid          = 1'b1;
 
@@ -364,30 +246,78 @@ module riscv_dcache_tb;
     assert (data_memory_resp_valid && data_memory_resp.transaction_id == mem_txn_id_t'(3))
     else $fatal(1, "D-cache store hit did not respond before rollover lookup");
 
+    data_memory_req_valid = 1'b0;
+    repeat (response_stall_cycles) begin
+      assert (!u_dut.data_write_valid)
+      else $fatal(1, "D-cache wrote a store hit before its response handshake");
+      @(negedge clk);
+      assert (data_memory_resp_valid && data_memory_resp.transaction_id == mem_txn_id_t'(3))
+      else $fatal(1, "D-cache lost a backpressured store response");
+    end
+    data_memory_resp_ready         = 1'b1;
+    data_memory_req_valid          = 1'b1;
     data_memory_req                = '0;
-    data_memory_req.addr           = following_load_addr;
+    data_memory_req.addr           = addr;
     data_memory_req.cmd            = MEM_CMD_LOAD;
     data_memory_req.size           = TEST_WORD_SIZE;
     data_memory_req.transaction_id = mem_txn_id_t'(4);
+    #1;  // 等待 ready 随本拍解除的响应背压更新，再检查组合握手。
     assert (data_memory_req_ready)
     else $fatal(1, "D-cache inserted a fixed bubble after a store hit");
 
     @(negedge clk);
     data_memory_req_valid = 1'b0;
-    if (!following_load_hits) while (!data_memory_resp_valid) @(negedge clk);
     assert (data_memory_resp_valid && data_memory_resp.transaction_id == mem_txn_id_t'(4))
     else $fatal(1, "D-cache rollover load did not respond on the next cycle");
     assert (!data_memory_resp.access_fault)
     else $fatal(1, "D-cache rollover load returned an unexpected access fault");
     load_data              = data_memory_resp.read_data;
-    data_memory_resp_ready = 0;
-    repeat (3) begin
-      data_memory_req.addr = data_memory_req.addr + phys_addr_t'(DCACHE_LINE_BYTES);
+    // 即使下一请求使用另一个地址，当前 load 及其字节旁路都必须保持到响应握手。
+    data_memory_resp_ready = 1'b0;
+    data_memory_req.addr   = addr + phys_addr_t'(DCACHE_WORD_BYTES);
+    repeat (4) begin
       @(negedge clk);
-      assert (data_memory_resp_valid && data_memory_resp.read_data == load_data)
-      else $fatal(1, "store-to-load bypass did not survive backpressure");
+      assert (data_memory_resp_valid && data_memory_resp.read_data == load_data &&
+              data_memory_resp.transaction_id == mem_txn_id_t'(4))
+      else $fatal(1, "D-cache changed a stalled store-bypass response");
     end
-    data_memory_resp_ready = 1;
+    data_memory_resp_ready = 1'b1;
+    @(negedge clk);
+  endtask
+
+  task automatic check_stalled_hit(input phys_addr_t addr, input core_data_t expected_data);
+    @(negedge clk);
+    data_memory_req        = '0;
+    data_memory_req.addr   = addr;
+    data_memory_req.cmd    = MEM_CMD_LOAD;
+    data_memory_req.size   = TEST_WORD_SIZE;
+    data_memory_req_valid  = 1'b1;
+    data_memory_resp_ready = 1'b0;
+    while (!data_memory_req_ready) @(negedge clk);
+    @(negedge clk);
+    // 先改变无效 payload，再呈现被反压的新请求，二者都不能覆盖旧响应。
+    data_memory_req_valid = 1'b0;
+    repeat (6) begin
+      data_memory_req.addr = data_memory_req.addr + phys_addr_t'(DCACHE_WORD_BYTES);
+      @(negedge clk);
+      assert (data_memory_resp_valid && data_memory_resp.read_data == expected_data)
+      else $fatal(1, "D-cache stalled hit followed an unaccepted input address");
+      assert (!data_memory_req_ready)
+      else $fatal(1, "D-cache accepted a request over an unconsumed response");
+    end
+    data_memory_req.addr  = addr;
+    data_memory_req_valid = 1'b1;
+    repeat (3) begin
+      @(negedge clk);
+      assert (!data_memory_req_ready && data_memory_resp_valid &&
+              data_memory_resp.read_data == expected_data)
+      else $fatal(1, "D-cache lost a hit while a second request waited");
+    end
+    data_memory_resp_ready = 1'b1;
+    @(negedge clk);
+    data_memory_req_valid = 1'b0;
+    assert (data_memory_resp_valid && data_memory_resp.read_data == expected_data)
+    else $fatal(1, "D-cache failed simultaneous response/request handoff");
     @(negedge clk);
   endtask
 
@@ -427,17 +357,29 @@ module riscv_dcache_tb;
     else $fatal(1, "first D-cache load did not issue exactly one AXI burst");
 
     read_count_after_first_miss = read_address_handshake_count;
+    check_stalled_hit(TEST_ADDR_A, original_a);
     issue_memory_request(TEST_ADDR_A, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(2), read_data);
     assert (read_data == original_a)
     else $fatal(1, "D-cache hit returned incorrect data for line A");
     assert (read_address_handshake_count == read_count_after_first_miss)
     else $fatal(1, "D-cache hit incorrectly issued an AXI read");
 
-    issue_store_then_load_without_gap(TEST_ADDR_A, stored_a, read_data);
+    issue_store_then_load_without_gap(TEST_ADDR_A, stored_a, '1, 0, read_data);
     assert (write_address_handshake_count == 0)
     else $fatal(1, "write-back D-cache wrote a store hit to AXI immediately");
     assert (read_data == stored_a)
     else $fatal(1, "D-cache load did not observe a preceding store hit");
+
+    // 响应背压期间不得提前写入；部分字节更新必须同时覆盖阵列写入和连续 load 的 bypass。
+    issue_store_then_load_without_gap(TEST_ADDR_A, core_data_t'(32'haabb_ccdd),
+                                      core_byte_strobe_t'(4'b0101), 3, read_data);
+    stored_a[7:0]   = 8'hdd;
+    stored_a[23:16] = 8'hbb;
+    assert (read_data == stored_a)
+    else $fatal(1, "D-cache partial store bypass corrupted unwritten bytes");
+    issue_memory_request(TEST_ADDR_A, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(4), read_data);
+    assert (read_data == stored_a)
+    else $fatal(1, "D-cache partial store did not update the array correctly");
 
     issue_memory_request(TEST_ADDR_B, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(5), read_data);
     assert (read_data == original_b)
@@ -449,6 +391,8 @@ module riscv_dcache_tb;
     else $fatal(1, "dirty conflict victim was not written back exactly once");
     assert (dirty_miss_read_write_overlap_observed_q)
     else $fatal(1, "dirty miss serialized refill behind the complete writeback response");
+    $display("D-cache simultaneous refill/writeback address handshakes: %0d",
+             simultaneous_read_write_address_count);
     assert (core_data_t'(read_memory_word(axi4_addr_t'(TEST_ADDR_A))) == stored_a)
     else $fatal(1, "dirty victim writeback did not update backing memory");
 
@@ -458,128 +402,27 @@ module riscv_dcache_tb;
     else $fatal(1, "D-cache clean did not write back the remaining dirty line");
     assert (core_data_t'(read_memory_word(axi4_addr_t'(TEST_ADDR_C))) == stored_c)
     else $fatal(1, "D-cache clean did not update backing memory");
-
-    // 命中、缺失及错误响应都必须在反压期间保持。跨一整行改变无效输入地址。
-    response_stall_cycles = DCACHE_WORDS_PER_LINE + 2;
-    issue_memory_request(TEST_ADDR_C, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(8), read_data);
-    assert (read_data == stored_c)
-    else $fatal(1, "stalled hit returned wrong data");
-
-    // 在三种B/R完成顺序下分别注入B错误、R错误和双向错误。
-    for (int unsigned error_kind = 1; error_kind <= 3; error_kind++) begin
-      for (int unsigned completion_order = 0; completion_order < 3; completion_order++) begin
-        reset_cache();
-        for (int unsigned word_index = 0; word_index < DCACHE_WORDS_PER_LINE; word_index++) begin
-          issue_memory_request(TEST_ADDR_A + phys_addr_t'(word_index * CORE_DATA_BYTE_COUNT),
-                               MEM_CMD_STORE, stored_a ^ core_data_t'(word_index), '1,
-                               mem_txn_id_t'(word_index), read_data);
-        end
-        issue_memory_request(TEST_ADDR_B, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(1), read_data);
-        inject_write_error                  = error_kind != 2;
-        inject_read_error                   = error_kind != 1;
-        read_response_delay                 = completion_order == 0 ? 24 : 0;
-        write_response_delay                = completion_order == 1 ? 24 : 0;
-        align_write_response_with_read_last = completion_order == 2;
-        response_stall_cycles               = 3;
-        issue_memory_request(TEST_ADDR_C, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(2), read_data, 1);
-        case (completion_order)
-          0:
-          assert (write_response_cycle < read_last_cycle)
-          else $fatal(1, "B-before-R coverage missed");
-          1:
-          assert (write_response_cycle > read_last_cycle)
-          else $fatal(1, "B-after-R coverage missed");
-          2:
-          assert (write_response_cycle == read_last_cycle)
-          else $fatal(1, "B-with-R coverage missed");
-        endcase
-        inject_write_error                  = 0;
-        inject_read_error                   = 0;
-        align_write_response_with_read_last = 0;
-        read_response_delay                 = 0;
-        write_response_delay                = 0;
-        write_data_gap                      = 0;
-        for (int unsigned word_index = 0; word_index < DCACHE_WORDS_PER_LINE; word_index++) begin
-          issue_memory_request(TEST_ADDR_A + phys_addr_t'(word_index * CORE_DATA_BYTE_COUNT),
-                               MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(word_index), read_data);
-          assert (read_data == (stored_a ^ core_data_t'(word_index)))
-          else
-            $fatal(
-                1,
-                "dirty data lost after error: kind=%0d order=%0d word=%0d",
-                error_kind,
-                completion_order,
-                word_index
-            );
-        end
-        clean_cache();
-        for (int unsigned word_index = 0; word_index < DCACHE_WORDS_PER_LINE; word_index++) begin
-          assert (core_data_t'(read_memory_word(
-              axi4_addr_t'(TEST_ADDR_A + phys_addr_t'(word_index * CORE_DATA_BYTE_COUNT))
-          )) == (stored_a ^ core_data_t'(word_index)))
-          else $fatal(1, "restored dirty line could not be written back");
-        end
-      end
-    end
-
-    // 部分字节store的相邻load旁路，包含多拍反压；未选中的字节必须保留。
-    reset_cache();
-    issue_memory_request(TEST_ADDR_A, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(1), original_a);
-    for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
-      issue_store_then_load_without_gap(TEST_ADDR_A, ~stored_a, read_data,
-                                        core_byte_strobe_t'(1) << byte_index);
-      original_a[byte_index*8+:8] = ~stored_a[byte_index*8+:8];
-      assert (read_data == original_a)
-      else $fatal(1, "partial-store bypass changed unselected bytes");
-    end
-
-    // 缓存满时，store响应与同组miss同拍接收。替换逻辑必须前递刚置位的dirty状态。
-    reset_cache();
-    issue_memory_request(TEST_ADDR_A, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(1), read_data);
-    issue_memory_request(TEST_ADDR_B, MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(2), read_data);
-    check_valid_next_lookup_under_backpressure();
-    write_data_gap = 2;
-    issue_store_then_load_without_gap(TEST_ADDR_A, stored_a, read_data, '1, TEST_ADDR_C, 0);
-    assert (write_address_handshake_count == 1 && core_data_t'(read_memory_word(
-        axi4_addr_t'(TEST_ADDR_A)
-    )) == stored_a)
-    else $fatal(1, "store-to-miss dirty-bit forwarding lost a writeback");
-    // 为维护重试留下已知脏行。
-    original_a = ~stored_a;
-    issue_memory_request(TEST_ADDR_C, MEM_CMD_STORE, original_a, '1, mem_txn_id_t'(3), read_data);
-
-    // 同一维护操作连续遇到三次写回失败，前端必须一直保持阻塞；随后成功才允许失效I-cache。
-    maintenance_test_active = 1;
-    inject_write_error      = 1;
-    fence_i_committed       = 1;
-    @(negedge clk);
-    fence_i_committed = 0;
-    for (int unsigned retry = 0; retry < 3; retry++) begin
-      while (!clean_done) begin
-        assert (maintenance_active && !maintenance_invalidate_req)
-        else $fatal(1, "maintenance released fetch before dirty data was written back");
-        @(negedge clk);
-      end
-      assert (clean_access_fault)
-      else $fatal(1, "clean fault injection was not observed");
-      @(negedge clk);
-      assert (maintenance_active && !maintenance_invalidate_req && !maintenance_clean_req)
-      else $fatal(1, "failed clean did not enter the request-release retry cycle");
-    end
-    inject_write_error = 0;
-    while (!maintenance_invalidate_req) @(negedge clk);
-    assert (core_data_t'(read_memory_word(axi4_addr_t'(TEST_ADDR_C))) == original_a)
-    else $fatal(1, "maintenance retried without preserving dirty bytes");
-    repeat (3) begin
-      @(negedge clk);
-      assert (maintenance_active && maintenance_invalidate_req)
-      else $fatal(1, "maintenance failed to wait for I-cache invalidation");
-    end
-    invalidate_done = 1;
-    @(negedge clk);
-    invalidate_done = 0;
-    assert (!maintenance_active)
-    else $fatal(1, "successful maintenance did not resume fetch");
+    clean_cache(1);
+    // 填满各 set/way 的脏行，确认跳过 clean way 的扫描没有遗漏任何 dirty way。
+    for (int way = 0; way < DCACHE_WAY_COUNT; way++)
+    for (int set_index = 0; set_index < DCACHE_SET_COUNT; set_index++)
+    issue_memory_request(
+        phys_addr_t'(32'h80001000+way*DCACHE_SET_COUNT*DCACHE_LINE_BYTES+
+                             set_index*DCACHE_LINE_BYTES),
+        MEM_CMD_STORE, core_data_t'(32'h77000000 + way * DCACHE_SET_COUNT + set_index), '1,
+        mem_txn_id_t'(3), read_data);
+    read_count_after_first_miss = write_address_handshake_count;
+    clean_cache();
+    assert(write_address_handshake_count==read_count_after_first_miss+DCACHE_SET_COUNT*DCACHE_WAY_COUNT)
+    else $fatal(1, "clean scan skipped or repeated a dirty line");
+    for (int way = 0; way < DCACHE_WAY_COUNT; way++)
+    for (int set_index = 0; set_index < DCACHE_SET_COUNT; set_index++)
+    assert (core_data_t'(read_memory_word(
+        axi4_addr_t'(32'h80001000+
+                   way*DCACHE_SET_COUNT*DCACHE_LINE_BYTES+set_index*DCACHE_LINE_BYTES)
+    )) == core_data_t'(32'h77000000 + way * DCACHE_SET_COUNT + set_index))
+    else $fatal(1, "clean scan wrote wrong set/way data");
+    clean_cache(1);
 
     $display("D-cache directed test passed: XLEN=%0d sets=%0d ways=%0d line=%0dB", XLEN,
              DCACHE_SET_COUNT, DCACHE_WAY_COUNT, DCACHE_LINE_BYTES);

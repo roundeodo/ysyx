@@ -16,6 +16,10 @@ static constexpr uint32_t FLASH_BASE = 0x30000000u;
 
 static uint8_t flash_mem[FLASH_SIZE];
 static bool flash_initialized = false;
+static long flash_img_size = 0;
+long get_flash_img_size() { return flash_img_size; }
+uint8_t *get_flash_img_data() { return flash_mem; }
+size_t get_flash_storage_size() { return sizeof(flash_mem); }
 
 static long img_size = 0;
 static constexpr uint32_t SERIAL_PORT = 0x10000000;
@@ -78,6 +82,7 @@ void load_flash_bin(const char *path) {
   }
 
   flash_initialized = true;
+  flash_img_size = image_size;
   printf("NPC: loaded %ld bytes into flash\n", image_size);
 }
 

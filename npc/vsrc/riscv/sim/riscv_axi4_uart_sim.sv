@@ -26,33 +26,33 @@ module riscv_axi4_uart_sim
     WRITE_RETURN_RESPONSE
   } write_state_e;
 
-  read_state_e read_state_q;
-  read_state_e read_state_d;
-  write_state_e write_state_q;
-  write_state_e write_state_d;
+  read_state_e                         read_state_q;
+  read_state_e                         read_state_d;
+  write_state_e                        write_state_q;
+  write_state_e                        write_state_d;
 
-  logic [MEM_AXI_ID_WIDTH-1:0] read_id_q;
-  logic [MEM_AXI_ID_WIDTH-1:0] read_id_d;
-  logic [7:0] read_last_beat_index_q;
-  logic [7:0] read_last_beat_index_d;
-  logic [7:0] read_beat_index_q;
-  logic [7:0] read_beat_index_d;
-  axi4_resp_e read_response_q;
-  axi4_resp_e read_response_d;
+  logic         [MEM_AXI_ID_WIDTH-1:0] read_id_q;
+  logic         [MEM_AXI_ID_WIDTH-1:0] read_id_d;
+  logic         [                 7:0] read_last_beat_index_q;
+  logic         [                 7:0] read_last_beat_index_d;
+  logic         [                 7:0] read_beat_index_q;
+  logic         [                 7:0] read_beat_index_d;
+  axi4_resp_e                          read_response_q;
+  axi4_resp_e                          read_response_d;
 
-  logic [MEM_AXI_ID_WIDTH-1:0] write_id_q;
-  logic [MEM_AXI_ID_WIDTH-1:0] write_id_d;
-  axi4_resp_e write_response_q;
-  axi4_resp_e write_response_d;
+  logic         [MEM_AXI_ID_WIDTH-1:0] write_id_q;
+  logic         [MEM_AXI_ID_WIDTH-1:0] write_id_d;
+  axi4_resp_e                          write_response_q;
+  axi4_resp_e                          write_response_d;
 
-  logic read_address_handshake;
-  logic read_data_handshake;
-  logic write_address_handshake;
-  logic write_data_handshake;
-  logic write_response_handshake;
+  logic                                read_address_handshake;
+  logic                                read_data_handshake;
+  logic                                write_address_handshake;
+  logic                                write_data_handshake;
+  logic                                write_response_handshake;
 
-  logic write_character_event;
-  logic [7:0] write_character_data;
+  logic                                write_character_event;
+  logic         [                 7:0] write_character_data;
 
   assign read_address_handshake   = uart_axi_i.ar_valid && uart_axi_o.ar_ready;
   assign read_data_handshake      = uart_axi_o.r_valid && uart_axi_i.r_ready;

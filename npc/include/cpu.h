@@ -17,6 +17,7 @@ void cpu_cleanup();
 
 // see the program is end or not
 bool npc_is_halted();
+bool npc_exit_success();
 
 // read pc
 npc_word_t npc_get_pc();

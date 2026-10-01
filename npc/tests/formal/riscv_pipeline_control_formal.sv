@@ -110,13 +110,14 @@ module riscv_pipeline_control_formal;
   always_comb begin
     if (rst_ni) begin
       assert (expected_entry_count_q <= 2'd2);
-      assert (fetch_entry_to_idu_valid == (expected_entry_count_q != 2'd0));
-      // DUT刻意不使用IDU本拍ready组合旁路入口ready，以切断后端冒险判断到IFU的长路径。
-      // 因而队列满时，即使本拍同时出队，也要到下一拍才能重新接收IFU entry。
+      assert (fetch_entry_to_idu_valid == ((expected_entry_count_q != 0) ||
+              (fetch_entry_from_ifu_valid && !fetch_queue_flush)));
+      // 空队列直通；满队列可以在出队同拍接收新项。
       assert (fetch_entry_from_ifu_ready ==
-              (!fetch_queue_flush && (expected_entry_count_q != 2'd2)));
+              (!fetch_queue_flush && ((expected_entry_count_q != 2) || fetch_entry_to_idu_ready)));
       if (fetch_entry_to_idu_valid) begin
-        assert (fetch_entry_to_idu.pc[7:0] == expected_first_token_q);
+        assert (fetch_entry_to_idu.pc[7:0] == ((expected_entry_count_q == 0) ?
+                fetch_entry_token_from_ifu : expected_first_token_q));
       end
     end
   end
@@ -146,13 +147,16 @@ module riscv_pipeline_control_formal;
   (* anyseq *)logic          writeback_serializing;
   (* anyseq *)logic          writeback_forwarding_available;
   (* anyseq *)logic          lsu_busy;
+  (* anyseq *)logic          lsu_completion_succeeded;
+  (* anyseq *)logic          execute_result_exception_valid;
+  logic rs1_lsu_forwarding_selected, rs2_lsu_forwarding_selected;
   (* anyseq *)logic          lsu_pending_writes_rd;
   (* anyseq *)arch_reg_idx_t lsu_pending_rd;
   (* anyseq *)logic          execute_result_ready;
   (* anyseq *)logic          execute_result_serializing;
   (* anyseq *)logic          execute_redirect_present;
   (* anyseq *)logic          frontend_redirect_applied;
-  (* anyseq *)logic          commit_redirect_occurred;
+  (* anyseq *)logic          commit_redirect_event;
 
   logic          execute_progress_allowed;
   logic          decode_accept_allowed;
@@ -178,7 +182,7 @@ module riscv_pipeline_control_formal;
   logic          lsu_matches_rs1;
   logic          lsu_matches_rs2;
 
-  riscv_pipeline_hazard_controller u_pipeline_hazard_controller (
+  riscv_hazard_ctrl u_pipeline_hazard_controller (
       .clk_i(clk_i),
       .rst_ni(rst_ni),
       .decoded_uop_valid_i(decoded_uop_valid),
@@ -196,6 +200,7 @@ module riscv_pipeline_control_formal;
       .execute_serializing_instruction_present_i(execute_uop_valid && execute_serializing),
       .execute_result_valid_i(execute_result_valid),
       .execute_result_ready_i(execute_result_ready),
+      .execute_result_exception_valid_i(execute_result_exception_valid),
       .execute_result_writes_rd_i(execute_result_writes_rd),
       .execute_result_rd_i(execute_result_rd),
       .execute_result_forwarding_available_i(execute_result_forwarding_available),
@@ -206,11 +211,14 @@ module riscv_pipeline_control_formal;
       .writeback_serializing_i(writeback_serializing),
       .writeback_forwarding_available_i(writeback_forwarding_available),
       .lsu_busy_i(lsu_busy),
+      .lsu_completion_succeeded_i(lsu_completion_succeeded),
+      .rs1_lsu_forwarding_selected_o(rs1_lsu_forwarding_selected),
+      .rs2_lsu_forwarding_selected_o(rs2_lsu_forwarding_selected),
       .lsu_pending_writes_rd_i(lsu_pending_writes_rd),
       .lsu_pending_rd_i(lsu_pending_rd),
       .execute_redirect_present_i(execute_redirect_present),
       .frontend_redirect_applied_i(frontend_redirect_applied),
-      .commit_redirect_occurred_i(commit_redirect_occurred),
+      .commit_redirect_event_i(commit_redirect_event),
       .decode_accept_allowed_o(decode_accept_allowed),
       .execute_progress_allowed_o(execute_progress_allowed),
       .execute_issue_allowed_o(execute_issue_allowed),
@@ -256,6 +264,12 @@ module riscv_pipeline_control_formal;
                       (lsu_pending_rd == decoded_rs2);
 
     if (rst_ni) begin
+      assert (rs1_lsu_forwarding_selected ==
+          (!execute_matches_rs1 && !execute_result_matches_rs1 &&
+           lsu_matches_rs1 && lsu_completion_succeeded));
+      assert (!(rs1_lsu_forwarding_selected &&
+          (rs1_execute_forwarding_selected || rs1_execute_result_forwarding_selected ||
+           rs1_writeback_forwarding_selected)));
       assert (!(rs1_execute_forwarding_selected && rs1_execute_result_forwarding_selected));
       assert (!(rs1_execute_forwarding_selected && rs1_writeback_forwarding_selected));
       assert (!(rs1_execute_result_forwarding_selected && rs1_writeback_forwarding_selected));
@@ -268,8 +282,8 @@ module riscv_pipeline_control_formal;
         assert (!rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected);
         assert (execute_result_forwarding_available || raw_hazard_present);
       end else if (lsu_matches_rs1) begin
-        // 当前LSU只在WB提供结果：不得越过这个较年轻生产者选择老WB值。
-        assert (raw_hazard_present);
+        // LSU 成功交付时可前递；否则不能选更老的 WB 值。
+        assert (lsu_completion_succeeded || raw_hazard_present);
         assert (!rs1_execute_forwarding_selected &&
                 !rs1_execute_result_forwarding_selected && !rs1_writeback_forwarding_selected);
       end else if (writeback_matches_rs1) begin
@@ -279,6 +293,12 @@ module riscv_pipeline_control_formal;
         assert (!rs1_execute_forwarding_selected &&
                 !rs1_execute_result_forwarding_selected && !rs1_writeback_forwarding_selected);
       end
+      assert (rs2_lsu_forwarding_selected ==
+          (!execute_matches_rs2 && !execute_result_matches_rs2 &&
+           lsu_matches_rs2 && lsu_completion_succeeded));
+      assert (!(rs2_lsu_forwarding_selected &&
+          (rs2_execute_forwarding_selected || rs2_execute_result_forwarding_selected ||
+           rs2_writeback_forwarding_selected)));
       assert (!(rs2_execute_forwarding_selected && rs2_execute_result_forwarding_selected));
       assert (!(rs2_execute_forwarding_selected && rs2_writeback_forwarding_selected));
       assert (!(rs2_execute_result_forwarding_selected && rs2_writeback_forwarding_selected));
@@ -291,8 +311,8 @@ module riscv_pipeline_control_formal;
         assert (!rs2_execute_forwarding_selected && !rs2_writeback_forwarding_selected);
         assert (execute_result_forwarding_available || raw_hazard_present);
       end else if (lsu_matches_rs2) begin
-        // 当前LSU只在WB提供结果：不得越过这个较年轻生产者选择老WB值。
-        assert (raw_hazard_present);
+        // LSU 成功交付时可前递；否则不能选更老的 WB 值。
+        assert (lsu_completion_succeeded || raw_hazard_present);
         assert (!rs2_execute_forwarding_selected &&
                 !rs2_execute_result_forwarding_selected && !rs2_writeback_forwarding_selected);
       end else if (writeback_matches_rs2) begin
@@ -303,13 +323,16 @@ module riscv_pipeline_control_formal;
                 !rs2_execute_result_forwarding_selected && !rs2_writeback_forwarding_selected);
       end
       // ready只表达容量/数据相关；恢复通过flush取消valid，不要求拉低decode ready。
-      assert (decode_accept_allowed == !(raw_hazard_present || serializing_hazard_present));
-      assert (execute_progress_allowed == !(lsu_busy || (execute_result_valid && !execute_result_ready)));
+      // valid=0 时 ready 可反映无效载荷；有请求时必须与实际冒险决策一致。
+      if (decoded_uop_valid)
+        assert (decode_accept_allowed == !(raw_hazard_present || serializing_hazard_present));
+      assert (execute_progress_allowed == !((lsu_busy && !lsu_completion_succeeded) ||
+              (execute_result_valid && (!execute_result_ready || execute_result_exception_valid))));
       assert (execute_issue_allowed == (execute_progress_allowed && !execute_redirect_present &&
-                                       !frontend_redirect_applied && !commit_redirect_occurred));
+                                       !frontend_redirect_applied && !commit_redirect_event));
       assert (decode_execute_flush == (execute_redirect_present || frontend_redirect_applied ||
-                                      commit_redirect_occurred));
-      assert (writeback_flush == commit_redirect_occurred);
+                                      commit_redirect_event));
+      assert (writeback_flush == commit_redirect_event);
       assert (!decoded_uop_valid || !decoded_serializing ||
               !(execute_uop_valid || execute_result_valid || lsu_busy || writeback_result_valid) ||
               serializing_hazard_present);

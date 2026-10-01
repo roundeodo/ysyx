@@ -10,7 +10,23 @@ module riscv_exu_alu_tb;
   logic            lsu_req_valid;
 
   riscv_exu u_exu (
+      .clk_i(1'b0),
+      .rst_ni(1'b0),
+      .flush_i(1'b0),
+      .issue_flush_i(1'b0),
+      .scoreboard_index_i('0),
+      .multiply_result_o(),
+      .multiply_result_valid_o(),
+      .multiply_result_present_o(),
+      .multiply_result_ready_i(1'b1),
+      .divide_result_o(),
+      .divide_result_valid_o(),
+      .divide_result_present_o(),
+      .divide_result_ready_i(1'b1),
+      .sequential_redirect_o(),
+      .sequential_redirect_valid_o(),
       .execute_packet_i(execute_packet),
+      .arithmetic_operand_i('{execute_packet.source_a_value, execute_packet.source_b_value}),
       .execute_packet_valid_i(execute_packet_valid),
       .execute_packet_issue_allowed_i(1'b1),
       .execute_packet_ready_o(execute_packet_ready),
@@ -25,14 +41,14 @@ module riscv_exu_alu_tb;
   task automatic expect_register_operation(input alu_op_e operation, input xlen_data_t operand_a,
                                            input xlen_data_t operand_b,
                                            input xlen_data_t expected_result);
-    execute_packet                            = '0;
-    execute_packet.uop.fu_type                = FU_INT;
-    execute_packet.uop.int_ctrl.op            = operation;
-    execute_packet.uop.int_ctrl.operand_a_sel = OPA_RS1;
-    execute_packet.uop.int_ctrl.operand_b_sel = OPB_RS2;
-    execute_packet.source_a_value             = operand_a;
-    execute_packet.source_b_value             = operand_b;
-    execute_packet_valid                      = 1'b1;
+    execute_packet                               = '0;
+    execute_packet.uop.fu_type                   = FU_INT;
+    execute_packet.uop.int_ctrl.op               = operation;
+    execute_packet.uop.int_ctrl.operand_a_select = OPA_RS1;
+    execute_packet.uop.int_ctrl.operand_b_select = OPB_RS2;
+    execute_packet.source_a_value                = operand_a;
+    execute_packet.source_b_value                = operand_b;
+    execute_packet_valid                         = 1'b1;
     #1;
 
     assert (execute_packet_ready && exu_result_valid && !lsu_req_valid)
@@ -54,15 +70,15 @@ module riscv_exu_alu_tb;
   task automatic expect_immediate_operation(input alu_op_e operation, input xlen_data_t operand_a,
                                             input xlen_data_t immediate,
                                             input xlen_data_t expected_result);
-    execute_packet                            = '0;
-    execute_packet.uop.fu_type                = FU_INT;
-    execute_packet.uop.int_ctrl.op            = operation;
-    execute_packet.uop.int_ctrl.operand_a_sel = OPA_RS1;
-    execute_packet.uop.int_ctrl.operand_b_sel = OPB_IMM;
-    execute_packet.uop.imm                    = immediate;
-    execute_packet.source_a_value             = operand_a;
-    execute_packet.source_b_value             = immediate;
-    execute_packet_valid                      = 1'b1;
+    execute_packet                               = '0;
+    execute_packet.uop.fu_type                   = FU_INT;
+    execute_packet.uop.int_ctrl.op               = operation;
+    execute_packet.uop.int_ctrl.operand_a_select = OPA_RS1;
+    execute_packet.uop.int_ctrl.operand_b_select = OPB_IMM;
+    execute_packet.uop.imm                       = immediate;
+    execute_packet.source_a_value                = operand_a;
+    execute_packet.source_b_value                = immediate;
+    execute_packet_valid                         = 1'b1;
     #1;
 
     assert (execute_packet_ready && exu_result_valid && !lsu_req_valid)
@@ -116,7 +132,7 @@ module riscv_exu_alu_tb;
     execute_packet       = '0;
     execute_packet_valid = 1'b0;
 
-    // 先验证完整XLEN数据通路，再验证RV64的32位结果指令。
+    // 验证 RV64 的普通整数通路与 W 通路。
     expect_register_operation(ALU_ADD, xlen_data_t'('1), xlen_data_t'(1), xlen_data_t'('0));
     expect_register_operation(ALU_SUB, xlen_data_t'(0), xlen_data_t'(1), xlen_data_t'('1));
     expect_register_operation(ALU_SLL, xlen_data_t'(1), xlen_data_t'(31),
@@ -145,6 +161,7 @@ module riscv_exu_alu_tb;
     // 普通RV64移位仍使用6位移位量，不得被*W的5位规则污染。
     expect_register_operation(ALU_SLL, 64'd1, 64'd32, 64'h0000_0001_0000_0000);
     expect_register_operation(ALU_SRL, 64'h8000_0000_0000_0000, 64'd63, 64'd1);
+
     $display("EXU directed ALU test passed for XLEN=%0d", XLEN);
     $finish;
   end

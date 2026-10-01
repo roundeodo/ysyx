@@ -43,6 +43,7 @@ module riscv_pipeline_control_tb;
   program_counter_t    predictor_lookup_response_pc;
   fetch_epoch_t        predictor_lookup_response_epoch;
   branch_prediction_t  predictor_lookup_prediction;
+  program_counter_t    predictor_lookup_next_pc;
   logic                predictor_lookup_response_valid;
   logic                predictor_lookup_response_ready;
   branch_prediction_t  ifu_predictor_prediction;
@@ -88,10 +89,11 @@ module riscv_pipeline_control_tb;
   writeback_result_t   hazard_writeback_result;
   logic                hazard_writeback_result_valid;
   logic                lsu_busy;
+  logic                lsu_completion_succeeded;
   logic                lsu_pending_writes_rd;
   arch_reg_idx_t       lsu_pending_rd;
   logic                frontend_redirect_applied;
-  logic                commit_redirect_occurred;
+  logic                commit_redirect_event;
   logic                decode_accept_allowed;
   logic                execute_progress_allowed;
   logic                execute_issue_allowed;
@@ -105,6 +107,7 @@ module riscv_pipeline_control_tb;
   logic                hazard_execute_serializing_instruction_present;
   logic                execute_result_valid;
   logic                execute_result_ready;
+  logic                execute_result_exception_valid;
   logic                execute_result_writes_rd;
   arch_reg_idx_t       execute_result_rd;
   logic                execute_result_forwarding_available;
@@ -112,14 +115,17 @@ module riscv_pipeline_control_tb;
   logic                writeback_forwarding_available;
   logic                rs1_execute_forwarding_selected;
   logic                rs1_execute_result_forwarding_selected;
+  logic                rs1_lsu_forwarding_selected;
   logic                rs1_writeback_forwarding_selected;
   logic                rs2_execute_forwarding_selected;
   logic                rs2_execute_result_forwarding_selected;
+  logic                rs2_lsu_forwarding_selected;
   logic                rs2_writeback_forwarding_selected;
 
   riscv_ifu #(
       .PC_START(IFU_TEST_START_PC)
   ) u_ifu (
+      .prediction_enable_i                      (1'b1),
       .clk_i                                    (clk),
       .rst_ni                                   (rst_ni),
       .redirect_req_i                           (ifu_redirect_req),
@@ -145,7 +151,11 @@ module riscv_pipeline_control_tb;
       .fetch_entry_ready_i                      (ifu_fetch_entry_ready)
   );
 
-  riscv_decode_execute_stage u_decode_execute_stage (
+  riscv_id_ex_reg u_id_ex_reg (
+      .arithmetic_operand_o(),
+      .operand_pending_i('0), .operand_index_i('{default:'0}),
+      .operand_source_i('{default:COMPLETION_LSU}),
+      .completion_i('{default:'0}), .completion_valid_i('0), .operands_ready_o(),
       .clk_i                                    (clk),
       .rst_ni                                   (rst_ni),
       .decoded_execute_packet_i                 (decoded_execute_packet),
@@ -172,31 +182,32 @@ module riscv_pipeline_control_tb;
       .flush_i                (fetch_buffer_flush)
   );
 
-  riscv_fetch_control_flow_predictor u_fetch_control_flow_predictor (
-      .clk_i                           (clk),
-      .rst_ni                          (rst_ni),
-      .lookup_request_pc_i             (predictor_lookup_pc),
-      .lookup_request_epoch_i          (predictor_lookup_epoch),
-      .lookup_request_valid_i          (predictor_lookup_request_valid),
-      .lookup_request_ready_o          (predictor_lookup_request_ready),
-      .lookup_response_pc_o            (predictor_lookup_response_pc),
-      .lookup_response_epoch_o         (predictor_lookup_response_epoch),
-      .lookup_prediction_o             (predictor_lookup_prediction),
-      .lookup_response_valid_o         (predictor_lookup_response_valid),
-      .lookup_response_ready_i         (predictor_lookup_response_ready),
-      .resolved_control_flow_pc_i      (predictor_resolved_control_flow_pc),
-      .resolved_control_flow_target_i  (predictor_resolved_control_flow_target),
-      .resolved_control_flow_imm_i     (predictor_resolved_control_flow_imm),
-      .resolved_control_flow_op_i      (predictor_resolved_control_flow_op),
-      .resolved_control_flow_rs1_i     (predictor_resolved_control_flow_rs1),
-      .resolved_control_flow_rd_i      (predictor_resolved_control_flow_rd),
-      .resolved_control_flow_occurred_i(predictor_resolved_control_flow_occurred),
-      .resolved_control_flow_taken_i   (predictor_resolved_control_flow_taken),
-      .flush_lookup_i                  (predictor_flush),
-      .invalidate_i                    (predictor_invalidate)
+  riscv_branch_predictor u_branch_predictor (
+      .clk_i                         (clk),
+      .rst_ni                        (rst_ni),
+      .lookup_request_pc_i           (predictor_lookup_pc),
+      .lookup_request_epoch_i        (predictor_lookup_epoch),
+      .lookup_request_valid_i        (predictor_lookup_request_valid),
+      .lookup_request_ready_o        (predictor_lookup_request_ready),
+      .lookup_response_pc_o          (predictor_lookup_response_pc),
+      .lookup_response_epoch_o       (predictor_lookup_response_epoch),
+      .lookup_prediction_o           (predictor_lookup_prediction),
+      .lookup_next_pc_o              (predictor_lookup_next_pc),
+      .lookup_response_valid_o       (predictor_lookup_response_valid),
+      .lookup_response_ready_i       (predictor_lookup_response_ready),
+      .resolved_control_flow_pc_i    (predictor_resolved_control_flow_pc),
+      .resolved_control_flow_target_i(predictor_resolved_control_flow_target),
+      .resolved_control_flow_imm_i   (predictor_resolved_control_flow_imm),
+      .resolved_control_flow_op_i    (predictor_resolved_control_flow_op),
+      .resolved_control_flow_rs1_i   (predictor_resolved_control_flow_rs1),
+      .resolved_control_flow_rd_i    (predictor_resolved_control_flow_rd),
+      .resolved_control_flow_event_i (predictor_resolved_control_flow_occurred),
+      .resolved_control_flow_taken_i (predictor_resolved_control_flow_taken),
+      .flush_lookup_i                (predictor_flush),
+      .invalidate_i                  (predictor_invalidate)
   );
 
-  riscv_writeback_stage u_writeback_stage (
+  riscv_wb_reg u_wb_reg (
       .clk_i                    (clk),
       .rst_ni                   (rst_ni),
       .completion_result_i      (completion_result),
@@ -219,7 +230,7 @@ module riscv_pipeline_control_tb;
       .gpr_write_enable_o      ()
   );
 
-  riscv_trap_controller u_trap_controller (
+  riscv_trap_ctrl u_trap_ctrl (
       .commit_i            (staged_commit),
       .commit_valid_i      (staged_commit_valid),
       .mtvec_i             (program_counter_t'(64'h8000_0100)),
@@ -233,7 +244,7 @@ module riscv_pipeline_control_tb;
       .redirect_req_valid_o(staged_trap_redirect_valid)
   );
 
-  riscv_pipeline_hazard_controller u_pipeline_hazard_controller (
+  riscv_hazard_ctrl u_hazard_ctrl (
       .clk_i                                    (clk),
       .rst_ni                                   (rst_ni),
       .decoded_uop_valid_i                      (hazard_decoded_uop_valid),
@@ -249,6 +260,7 @@ module riscv_pipeline_control_tb;
       .execute_serializing_instruction_present_i(hazard_execute_serializing_instruction_present),
       .execute_result_valid_i                   (execute_result_valid),
       .execute_result_ready_i                   (execute_result_ready),
+      .execute_result_exception_valid_i         (execute_result_exception_valid),
       .execute_result_writes_rd_i               (execute_result_writes_rd),
       .execute_result_rd_i                      (execute_result_rd),
       .execute_result_forwarding_available_i    (execute_result_forwarding_available),
@@ -259,11 +271,12 @@ module riscv_pipeline_control_tb;
       .writeback_serializing_i                  (hazard_writeback_result.uop.serializing),
       .writeback_forwarding_available_i         (writeback_forwarding_available),
       .lsu_busy_i                               (lsu_busy),
+      .lsu_completion_succeeded_i               (lsu_completion_succeeded),
       .lsu_pending_writes_rd_i                  (lsu_pending_writes_rd),
       .lsu_pending_rd_i                         (lsu_pending_rd),
       .execute_redirect_present_i               (1'b0),
       .frontend_redirect_applied_i              (frontend_redirect_applied),
-      .commit_redirect_occurred_i               (commit_redirect_occurred),
+      .commit_redirect_event_i                  (commit_redirect_event),
       .decode_accept_allowed_o                  (decode_accept_allowed),
       .execute_progress_allowed_o               (execute_progress_allowed),
       .execute_issue_allowed_o                  (execute_issue_allowed),
@@ -274,9 +287,11 @@ module riscv_pipeline_control_tb;
       .structural_hazard_present_o              (structural_hazard_present),
       .rs1_execute_forwarding_selected_o        (rs1_execute_forwarding_selected),
       .rs1_execute_result_forwarding_selected_o (rs1_execute_result_forwarding_selected),
+      .rs1_lsu_forwarding_selected_o            (rs1_lsu_forwarding_selected),
       .rs1_writeback_forwarding_selected_o      (rs1_writeback_forwarding_selected),
       .rs2_execute_forwarding_selected_o        (rs2_execute_forwarding_selected),
       .rs2_execute_result_forwarding_selected_o (rs2_execute_result_forwarding_selected),
+      .rs2_lsu_forwarding_selected_o            (rs2_lsu_forwarding_selected),
       .rs2_writeback_forwarding_selected_o      (rs2_writeback_forwarding_selected)
   );
 
@@ -352,15 +367,17 @@ module riscv_pipeline_control_tb;
     hazard_writeback_result                        = '0;
     hazard_writeback_result_valid                  = 1'b0;
     lsu_busy                                       = 1'b0;
+    lsu_completion_succeeded                       = 1'b0;
     lsu_pending_writes_rd                          = 1'b0;
     lsu_pending_rd                                 = '0;
     frontend_redirect_applied                      = 1'b0;
-    commit_redirect_occurred                       = 1'b0;
+    commit_redirect_event                          = 1'b0;
     hazard_execute_forwardable_producer_present    = 1'b0;
     hazard_execute_blocking_producer_present       = 1'b0;
     hazard_execute_serializing_instruction_present = 1'b0;
     execute_result_valid                           = 1'b0;
     execute_result_ready                           = 1'b1;
+    execute_result_exception_valid                 = 1'b0;
     execute_result_writes_rd                       = 1'b0;
     execute_result_rd                              = '0;
     execute_result_forwarding_available            = 1'b0;
@@ -411,10 +428,9 @@ module riscv_pipeline_control_tb;
     @(posedge clk);
     @(negedge clk);
     predictor_lookup_request_valid = 1'b0;
-    @(posedge clk);
     #1;
     assert (predictor_lookup_response_valid && (predictor_lookup_response_pc == lookup_pc))
-    else $fatal(1, "predictor did not publish the two-stage lookup response");
+    else $fatal(1, "predictor did not publish the single-stage lookup response");
   endtask
 
   task automatic check_fetch_control_flow_predictor;
@@ -425,36 +441,35 @@ module riscv_pipeline_control_tb;
     localparam program_counter_t JAL_TARGET = JAL_PC + program_counter_t'(8);
     localparam program_counter_t BRANCH_TARGET = BRANCH_PC + program_counter_t'(8);
 
-    // 冷BTB返回不跳预测，并保留查询PC。下一PC由IFU选择，其行为在后面的IFU用例检查。
+    // 冷BTB只能给出顺序PC。查询在一次采样后返回。
     query_predictor(JAL_PC);
     assert (!predictor_lookup_prediction.predicted_taken &&
-            (predictor_lookup_response_pc == JAL_PC))
+            (predictor_lookup_next_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
     else $fatal(1, "cold BTB lookup did not select the sequential PC");
 
-    // 响应反压时，空闲的查询级仍能吸收一个请求；两级都占满后才停止接收。
+    // 单个响应槽被反压时拒绝新请求；解除反压可同沿消费旧响应并接收新请求。
     predictor_lookup_response_ready = 1'b0;
     predictor_lookup_pc             = JAL_PC + program_counter_t'(INSTRUCTION_BYTES);
     predictor_lookup_request_valid  = 1'b1;
     #1;
+    assert (!predictor_lookup_request_ready)
+    else $fatal(1, "predictor accepted a request while its response slot was full");
+    repeat (3) begin
+      @(posedge clk);
+      @(negedge clk);
+      assert (predictor_lookup_response_valid && predictor_lookup_response_pc == JAL_PC)
+      else $fatal(1, "predictor changed its stalled response");
+    end
+    predictor_lookup_response_ready = 1'b1;
+    #1;
     assert (predictor_lookup_request_ready)
-    else $fatal(1, "predictor did not use its free query stage during response backpressure");
+    else $fatal(1, "predictor did not replace a consumed response");
     @(posedge clk);
     @(negedge clk);
     predictor_lookup_request_valid = 1'b0;
-    #1;
-    assert (!predictor_lookup_request_ready)
-    else $fatal(1, "predictor accepted a third lookup while both pipeline stages were occupied");
-    @(posedge clk);
-    assert (predictor_lookup_response_valid && (predictor_lookup_response_pc == JAL_PC))
-    else $fatal(1, "predictor response changed while backpressured");
-    @(negedge clk);
-    predictor_lookup_response_ready = 1'b1;
-    @(posedge clk);
-    #1;
     assert (predictor_lookup_response_valid &&
-            (predictor_lookup_response_pc ==
-             JAL_PC + program_counter_t'(INSTRUCTION_BYTES)))
-    else $fatal(1, "predictor did not advance its buffered query after backpressure");
+            predictor_lookup_response_pc == JAL_PC + program_counter_t'(INSTRUCTION_BYTES))
+    else $fatal(1, "predictor failed simultaneous consume and capture");
 
     // EX解析JAL后训练BTB，随后查询同一PC应直接采用目标地址。
     predictor_resolved_control_flow_pc       = JAL_PC;
@@ -474,10 +489,10 @@ module riscv_pipeline_control_tb;
     query_predictor(JAL_PC);
     assert (predictor_lookup_prediction.predicted_taken &&
             (predictor_lookup_prediction.predicted_target == JAL_TARGET) &&
-            (predictor_lookup_response_pc == JAL_PC))
+            (predictor_lookup_next_pc == JAL_TARGET))
     else $fatal(1, "trained JAL BTB entry did not predict its target");
 
-    // 条件分支BTB和BHT分别训练；BHT写口晚一级，因此等待训练真正落入数组后再查询。
+    // 条件分支同时更新 BTB 和 BHT；训练沿后查询新表值。
     predictor_resolved_control_flow_pc       = BRANCH_PC;
     predictor_resolved_control_flow_target   = BRANCH_TARGET;
     predictor_resolved_control_flow_op       = CF_BRANCH;
@@ -503,7 +518,7 @@ module riscv_pipeline_control_tb;
     @(posedge clk);
     query_predictor(BRANCH_PC);
     assert (!predictor_lookup_prediction.predicted_taken &&
-            (predictor_lookup_response_pc == BRANCH_PC))
+            (predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES)))
     else $fatal(1, "BHT saturating counter did not learn the not-taken outcome");
 
     // 先训练return类型，再解析call压入PC+4；查询return时应优先使用RAS栈顶。
@@ -530,7 +545,7 @@ module riscv_pipeline_control_tb;
     @(posedge clk);
     query_predictor(RETURN_PC);
     assert (predictor_lookup_prediction.predicted_taken &&
-            (predictor_lookup_prediction.predicted_target == CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+            (predictor_lookup_next_pc == CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
     else $fatal(1, "return-address stack did not predict the call return target");
 
     // fence.i清除BTB和RAS可见状态，软件改写指令后不能继续采用旧控制流目标。
@@ -571,8 +586,8 @@ module riscv_pipeline_control_tb;
     buffered_packet              = decoded_execute_packet;
     decoded_execute_packet_valid = 1'b1;
     #1;
-    assert (decoded_execute_packet_ready)
-    else $fatal(1, "ID/EX skid entry did not absorb one cycle of backpressure");
+    assert (!decoded_execute_packet_ready)
+    else $fatal(1, "Occupied ID/EX accepted a request while blocked");
 
     @(posedge clk);
     #1;
@@ -580,17 +595,16 @@ module riscv_pipeline_control_tb;
     else $fatal(1, "ID/EX stage changed its payload while backpressured");
 
     @(negedge clk);
-    decoded_execute_packet =
-        make_execute_packet(program_counter_t'('h240), arch_reg_idx_t'(7), xlen_data_t'('h9abc));
+    // 保持尚未握手的第二条指令，直到旧指令离开。
     #1;
     assert (!decoded_execute_packet_ready)
-    else $fatal(1, "ID/EX stage accepted a third payload while both entries were occupied");
+    else $fatal(1, "ID/EX stage accepted a request while its only entry was occupied");
 
     execute_packet_ready = 1'b1;
     @(posedge clk);
     #1;
     assert (execute_packet_valid && (execute_packet == buffered_packet))
-    else $fatal(1, "ID/EX stage did not promote the buffered payload after output handshake");
+    else $fatal(1, "ID/EX stage did not accept the waiting payload after output handshake");
 
     @(negedge clk);
     decode_execute_flush = 1'b1;
@@ -677,12 +691,26 @@ module riscv_pipeline_control_tb;
     assert (raw_hazard_present && !decode_accept_allowed)
     else $fatal(1, "execute-stage rs1 RAW hazard was not detected");
 
+    // 撤销 valid 不能改变容量/操作数就绪判断，也不能输出无效前递指示。
+    hazard_decoded_uop_valid = 1'b0;
+    #1;
+    assert (!decode_accept_allowed && !raw_hazard_present && !rs1_execute_forwarding_selected)
+    else $fatal(1, "decode readiness depended on cancelling valid");
+    hazard_decoded_uop_valid                    = 1'b1;
+
+
     hazard_execute_blocking_producer_present    = 1'b0;
     hazard_execute_forwardable_producer_present = 1'b1;
     #1;
     assert (!raw_hazard_present && decode_accept_allowed &&
             rs1_execute_forwarding_selected && !rs1_writeback_forwarding_selected)
     else $fatal(1, "available execute result was not selected for rs1 forwarding");
+    hazard_decoded_uop_valid = 1'b0;
+    #1;
+    assert (decode_accept_allowed && !rs1_execute_forwarding_selected && !raw_hazard_present)
+    else $fatal(1, "invalid decoded payload selected a forwarding transaction");
+    hazard_decoded_uop_valid = 1'b1;
+
 
     // EX/MEM结果已经寄存，可以在ID/EX采样前写入payload。该生产者比LSU completion
     // 和WB年轻，因此同rd并存时必须优先选择EX/MEM值。
@@ -770,17 +798,47 @@ module riscv_pipeline_control_tb;
     assert (structural_hazard_present && decode_accept_allowed && !execute_issue_allowed)
     else $fatal(1, "pipeline issued a younger instruction ahead of an older LSU transaction");
 
-    // 在途load的数据尚未跨越WB寄存边界，因此依赖指令必须停在ID。LSU响应不能直接
-    // 穿过D-cache、LSU和冒险控制进入ID/EX，否则会形成跨多个模块的组合长路径。
+    // 成功完成拍解除结构阻塞并允许前递；异常或反压时 succeeded 必须为 0。
+    lsu_completion_succeeded = 1'b1;
+    #1;
+    assert (!structural_hazard_present && execute_issue_allowed && execute_progress_allowed)
+    else $fatal(1, "successful LSU completion unnecessarily blocked independent execution");
+    execute_result_valid = 1'b1;
+    execute_result_ready = 1'b0;
+    #1;
+    assert (!execute_issue_allowed && !execute_progress_allowed)
+    else $fatal(1, "LSU completion overrode execute result backpressure");
+    execute_result_valid = 1'b0;
+    execute_result_ready = 1'b1;
+
+    // 成功交付的 load 可直接前递；未完成或故障返回不得解除相关等待。
     lsu_pending_writes_rd       = 1'b1;
     lsu_pending_rd              = arch_reg_idx_t'(13);
     hazard_decoded_uop.uses_rs1 = 1'b1;
     hazard_decoded_uop.rs1      = arch_reg_idx_t'(13);
     #1;
-    assert (raw_hazard_present && !decode_accept_allowed)
-    else $fatal(1, "pending LSU load dependency was not blocked before response");
+    assert (!raw_hazard_present && decode_accept_allowed && rs1_lsu_forwarding_selected)
+    else $fatal(1, "successful LSU completion did not forward to its consumer");
 
-    // LSU完成后，结果先进入WB寄存器。下一拍由现有WB前递网络解除相关冒险。
+    // 同一载荷被取消后，ready 可保持，但两路前递都不构成有效交付。
+    @(negedge clk);
+    hazard_decoded_uop_valid    = 1'b0;
+    hazard_decoded_uop.uses_rs2 = 1'b1;
+    hazard_decoded_uop.rs2      = arch_reg_idx_t'(13);
+    @(posedge clk);
+    #1;
+    assert (decode_accept_allowed && !rs1_lsu_forwarding_selected && !rs2_lsu_forwarding_selected)
+    else $fatal(1, "cancelled decode selected an LSU forwarding transaction");
+    @(negedge clk);
+    hazard_decoded_uop_valid    = 1'b1;
+    hazard_decoded_uop.uses_rs2 = 1'b0;
+
+    lsu_completion_succeeded    = 1'b0;
+    #1;
+    assert (!execute_issue_allowed && raw_hazard_present && !rs1_lsu_forwarding_selected)
+    else $fatal(1, "unfinished or faulting LSU completion enabled execution");
+
+    // 完成沿后结果进入 WB，由 WB 前递继续提供操作数。
     lsu_busy                              = 1'b0;
     lsu_pending_writes_rd                 = 1'b0;
     hazard_writeback_result_valid         = 1'b1;
@@ -801,24 +859,47 @@ module riscv_pipeline_control_tb;
     else $fatal(1, "pipeline did not prioritize the younger EX producer over WB load result");
 
     clear_hazard_inputs();
-    clear_hazard_inputs();
     hazard_decoded_uop_valid  = 1'b1;
     frontend_redirect_applied = 1'b1;
     #1;
-    // redirect经过寄存边界并应用到前端时，残留的旧路径EX内容必须停止执行。
+    // redirect 组合应用到前端的同拍，旧路径 EX 内容必须停止执行。
     // decode accept保持为容量/数据冒险决策；flush负责使同拍采样的payload失效。
     assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && !hazard_writeback_flush)
-    else $fatal(1, "registered frontend redirect did not block stale execute work");
+    else $fatal(1, "frontend redirect did not block stale execute work");
 
     clear_hazard_inputs();
     hazard_decoded_uop_valid = 1'b1;
-    commit_redirect_occurred = 1'b1;
+    commit_redirect_event    = 1'b1;
     #1;
     assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && hazard_writeback_flush)
     else $fatal(1, "commit redirect did not discard all younger work");
 
+    clear_hazard_inputs();
+  endtask
+
+  task automatic check_execute_exception_blocks_issue;
+    clear_hazard_inputs();
+    execute_result_exception_valid = 1'b1;
+    #1;
+    assert (execute_progress_allowed && execute_issue_allowed)
+    else $fatal(1, "invalid EX result payload blocked execution");
+
+    execute_result_valid = 1'b1;
+    for (int ready_value = 0; ready_value < 2; ready_value++) begin
+      execute_result_ready = 1'(ready_value);
+      #1;
+      assert (!execute_progress_allowed && !execute_issue_allowed)
+      else $fatal(1, "older EX exception allowed a younger instruction to advance");
+      assert (!hazard_writeback_flush)
+      else $fatal(1, "EX exception prematurely flushed older WB work");
+    end
+
+    execute_result_exception_valid = 1'b0;
+    #1;
+    assert (execute_progress_allowed && execute_issue_allowed)
+    else $fatal(1, "ordinary EX result unnecessarily blocked execution");
     clear_hazard_inputs();
   endtask
 
@@ -838,7 +919,8 @@ module riscv_pipeline_control_tb;
     fetch_buffer_input_entry = first_entry;
     fetch_buffer_input_valid = 1'b1;
     #1;
-    assert (fetch_buffer_input_ready && !fetch_buffer_output_valid)
+    assert (fetch_buffer_input_ready && fetch_buffer_output_valid &&
+            fetch_buffer_output_entry == first_entry)
     else $fatal(1, "empty fetch buffer did not accept its first entry");
     @(posedge clk);
 
@@ -860,12 +942,13 @@ module riscv_pipeline_control_tb;
 
     fetch_buffer_output_ready = 1'b1;
     #1;
-    assert (!fetch_buffer_input_ready)
-    else $fatal(1, "full fetch buffer ready retained a downstream combinational dependency");
+    assert (fetch_buffer_input_ready)
+    else $fatal(1, "full fetch buffer failed simultaneous dequeue/enqueue");
     @(posedge clk);
 
     @(negedge clk);
     #1;
+    fetch_buffer_input_valid = 1'b0;
     assert (fetch_buffer_input_ready && fetch_buffer_output_valid &&
             (fetch_buffer_output_entry == second_entry))
     else $fatal(1, "fetch buffer did not restore input capacity after dequeue");
@@ -966,7 +1049,7 @@ module riscv_pipeline_control_tb;
             (staged_trap_redirect.target_pc == program_counter_t'(64'h8000_0100)))
     else $fatal(1, "oldest exception did not produce the trap redirect");
 
-    commit_redirect_occurred = staged_trap_redirect_valid;
+    commit_redirect_event = staged_trap_redirect_valid;
     #1;
     assert (decode_accept_allowed && !execute_issue_allowed &&
             hazard_decode_execute_flush && hazard_writeback_flush)
@@ -989,6 +1072,86 @@ module riscv_pipeline_control_tb;
     decode_execute_flush         = 1'b0;
     writeback_flush              = 1'b0;
     clear_hazard_inputs();
+  endtask
+
+  // 用事务队列检查外部顺序，不依赖DUT的槽位、指针或数据搬移实现。
+  task automatic check_fetch_buffer_wrap_and_flush;
+    fetch_entry_t expected_entries[$];
+    fetch_entry_t consumed_entry;
+    logic [31:0] stimulus_state;
+    logic input_pending;
+    logic push_occurred;
+    logic pop_occurred;
+    int unsigned next_entry_index;
+    int unsigned checked_pop_count;
+    int unsigned simultaneous_count;
+    int unsigned flush_count;
+
+    stimulus_state     = 32'h91a3_7b2d;
+    input_pending      = 1'b0;
+    next_entry_index   = 0;
+    checked_pop_count  = 0;
+    simultaneous_count = 0;
+    flush_count        = 0;
+    for (int unsigned cycle_index = 0; cycle_index < 2048; cycle_index++) begin
+      @(negedge clk);
+      stimulus_state = {
+        stimulus_state[30:0],
+        stimulus_state[31] ^ stimulus_state[21] ^ stimulus_state[1] ^ stimulus_state[0]
+      };
+      if (!input_pending && stimulus_state[0]) begin
+        fetch_buffer_input_entry                             =
+            make_fetch_entry(program_counter_t'('h8000_0000 + 4 * next_entry_index),
+                             instruction_t'(next_entry_index));
+        fetch_buffer_input_entry.prediction.predicted_taken  = stimulus_state[4];
+        fetch_buffer_input_entry.prediction.predicted_target = program_counter_t'(stimulus_state);
+        fetch_buffer_input_entry.exception_valid             = stimulus_state[5];
+        fetch_buffer_input_entry.exception_tval              = xlen_data_t'(stimulus_state);
+        next_entry_index++;
+        input_pending = 1'b1;
+      end
+      fetch_buffer_input_valid  = input_pending;
+      fetch_buffer_output_ready = stimulus_state[1] || stimulus_state[2];
+      fetch_buffer_flush        = stimulus_state[8:3] == 6'h17;
+      #1;
+      assert (fetch_buffer_output_valid == ((expected_entries.size() != 0) ||
+          (fetch_buffer_input_valid && !fetch_buffer_flush)))
+      else $fatal(1, "fetch queue valid differs from transaction history");
+      if (fetch_buffer_output_valid) begin
+        assert (fetch_buffer_output_entry === ((expected_entries.size() != 0) ?
+            expected_entries[0] : fetch_buffer_input_entry))
+        else $fatal(1, "fetch queue reordered or corrupted an entry at cycle %0d", cycle_index);
+      end
+      push_occurred = fetch_buffer_input_valid && fetch_buffer_input_ready;
+      pop_occurred  = fetch_buffer_output_valid && fetch_buffer_output_ready;
+      @(posedge clk);
+      if (fetch_buffer_flush) begin
+        assert (!push_occurred)
+        else $fatal(1, "fetch queue accepted an entry during flush");
+        expected_entries.delete();
+        flush_count++;
+      end else begin
+        if (push_occurred) begin
+          expected_entries.push_back(fetch_buffer_input_entry);
+          input_pending = 1'b0;
+        end
+        if (pop_occurred) begin
+          consumed_entry = expected_entries.pop_front();
+          checked_pop_count++;
+        end
+        if (push_occurred && pop_occurred) simultaneous_count++;
+      end
+    end
+    assert (checked_pop_count > 500 && simultaneous_count > 100 && flush_count > 10)
+    else $fatal(1, "fetch queue stress did not exercise enough transfers and recoveries");
+    @(negedge clk);
+    fetch_buffer_flush       = 1'b1;
+    fetch_buffer_input_valid = 1'b0;
+    @(posedge clk);
+    @(negedge clk);
+    clear_fetch_buffer_inputs();
+    $display("PASS fetch queue: %0d checked outputs, %0d simultaneous transfers, %0d flushes",
+             checked_pop_count, simultaneous_count, flush_count);
   endtask
 
   task automatic check_ifu_zero_bubble_lookup;
@@ -1046,11 +1209,11 @@ module riscv_pipeline_control_tb;
       next_predictor_response_request_pc    = ifu_predictor_lookup_request_pc;
       next_predictor_response_request_epoch = ifu_predictor_lookup_request_epoch;
 
-      if (instruction_index != 0) begin
+      begin
         assert (icache_lookup_req_valid &&
                 (icache_lookup_req.fetch_addr ==
                  phys_addr_t'(IFU_TEST_START_PC) +
-                 phys_addr_t'((instruction_index - 1) * INSTRUCTION_BYTES)))
+                 phys_addr_t'(instruction_index * INSTRUCTION_BYTES)))
         else $fatal(1, "IFU predicted lookup queue inserted an I-cache request bubble");
         accepted_request = icache_lookup_req;
       end
@@ -1064,7 +1227,7 @@ module riscv_pipeline_control_tb;
       @(posedge clk);
       predictor_response_request_pc    = next_predictor_response_request_pc;
       predictor_response_request_epoch = next_predictor_response_request_epoch;
-      if (instruction_index != 0) begin
+      begin
         response_request         = accepted_request;
         response_request_present = 1'b1;
       end
@@ -1079,7 +1242,7 @@ module riscv_pipeline_control_tb;
     @(negedge clk);
     rst_ni                             = 1'b1;
     ifu_predictor_lookup_request_ready = 1'b1;
-    icache_lookup_req_ready            = 1'b1;
+    icache_lookup_req_ready            = 1'b0;
     ifu_fetch_entry_ready              = 1'b1;
     #1;
     initial_epoch = ifu_predictor_lookup_request_epoch;
@@ -1099,7 +1262,8 @@ module riscv_pipeline_control_tb;
     #1;
     assert (icache_lookup_req_valid)
     else $fatal(1, "IFU did not issue the predicted reset-vector request");
-    accepted_request = icache_lookup_req;
+    accepted_request        = icache_lookup_req;
+    icache_lookup_req_ready = 1'b1;
     @(posedge clk);
 
     @(negedge clk);
@@ -1127,6 +1291,7 @@ module riscv_pipeline_control_tb;
     @(posedge clk);
 
     @(negedge clk);
+    icache_lookup_req_ready             = 1'b0;
     icache_lookup_resp_valid            = 1'b0;
     ifu_predictor_lookup_response_pc    = redirect_request.target_pc;
     ifu_predictor_lookup_response_epoch = ifu_predictor_lookup_request_epoch;
@@ -1169,7 +1334,9 @@ module riscv_pipeline_control_tb;
     check_decode_execute_stage();
     check_writeback_stage();
     check_hazard_controller();
+    check_execute_exception_blocks_issue();
     check_fetch_buffer();
+    check_fetch_buffer_wrap_and_flush();
     check_fetch_control_flow_predictor();
     check_precise_exception_age_priority();
     check_ifu_zero_bubble_lookup();
