@@ -53,6 +53,10 @@ NPC_BRANCH_GLOBAL_HISTORY_BITS ?= 4
 NPC_RETURN_STACK_ENTRY_COUNT   ?= 4
 
 # 显式频率同时控制 CLINT 微秒和设备延迟。空值仅用于复现历史计时环境。
+NPC_DEVICE_TIMING_MODE ?= 1
+ifeq ($(filter $(NPC_DEVICE_TIMING_MODE),0 1),)
+$(error NPC_DEVICE_TIMING_MODE must be 0 or 1)
+endif
 NPC_SIM_CPU_FREQ_MHZ ?=
 ifneq ($(strip $(NPC_SIM_CPU_FREQ_MHZ)),)
 NPC_SIM_TIMING_DEFINE := +define+YSYX_SIM_CPU_FREQ_MHZ=$(NPC_SIM_CPU_FREQ_MHZ)
@@ -66,7 +70,7 @@ $(error NPC_SDRAM_NATIVE_READ_BURST must be 0 or 1)
 endif
 
 SUPPORTED_NPC_CONFIGS := rv32-course-area rv32-baseline rv32-balanced rv64-sequential
-CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-core-merge-configs test-sdram-axi test-axi-delayer test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore branchsim-build branchsim-test branchsim-trace branchsim-run branchsim-explore icache-calibrate-penalty cachesim-explore-calibrated
+CONFIG_FREE_GOALS     := help clean lint-configs sta-configs test-configs test-idu-configs test-exu-configs test-lsu-configs test-pipeline-configs formal-pipeline test-uncached-configs test-dcache-configs test-core-merge-configs test-sdram-axi test-axi-delayer test-soc-timing test-privileged-configs nemu-ref-rv32 nemu-ref-rv64 regression-p3-e regression-p3-f-rv32 regression-p3-f-rv64 regression-p3-g perf-record cachesim-build cachesim-test cachesim-trace cachesim-run cachesim-explore cachesim-explore-transport dcachesim-trace dcachesim-run dcachesim-explore branchsim-build branchsim-test branchsim-trace branchsim-run branchsim-explore icache-calibrate-penalty cachesim-explore-calibrated
 CONFIG_REQUIRED_GOALS := $(filter-out $(CONFIG_FREE_GOALS),$(MAKECMDGOALS))
 
 ifneq ($(strip $(CONFIG_REQUIRED_GOALS)),)
@@ -140,7 +144,7 @@ ifeq ($(NPC_SDRAM_NATIVE_READ_BURST),0)
 BUILD_DIR := $(BUILD_DIR)/sdram-read-bl1
 endif
 ifneq ($(strip $(NPC_SIM_CPU_FREQ_MHZ)),)
-BUILD_DIR := $(BUILD_DIR)/sim-cpu-$(NPC_SIM_CPU_FREQ_MHZ)mhz-device-100mhz
+BUILD_DIR := $(BUILD_DIR)/sim-cpu-$(NPC_SIM_CPU_FREQ_MHZ)mhz-device-100mhz-model-$(NPC_DEVICE_TIMING_MODE)
 endif
 NPC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_npc
 SOC_OBJ_DIR     := $(BUILD_DIR)/obj_dir_soc
@@ -250,7 +254,7 @@ SOC_PERIPHERAL_DIR   := $(SOC_HOME)/perip
 SOC_GENERATED_TOP    := $(SOC_HOME)/build/ysyxSoCFull.v
 SOC_VERILOG_SOURCES  := $(shell find $(SOC_PERIPHERAL_DIR) -type f -name "*.v" | sort)
 SOC_VERILOG_SOURCES  += $(SOC_GENERATED_TOP)
-SOC_RTL_INCLUDE_FLAGS := \
+SOC_RTL_INCLUDE_FLAGS := +define+YSYX_DEVICE_TIMING_MODE=$(NPC_DEVICE_TIMING_MODE) \
 	-I$(SOC_PERIPHERAL_DIR)/uart16550/rtl \
 	-I$(SOC_PERIPHERAL_DIR)/spi/rtl
 
@@ -398,6 +402,7 @@ SDRAM_AXI_TEST_SOURCES := \
 	$(abspath ./tests/rtl/sdram_axi_transaction_classification_tb.sv)
 
 AXI_DELAYER_TEST_SOURCES := \
+	$(SOC_HOME)/perip/amba/device_clock.v \
 	$(SOC_HOME)/perip/amba/axi4_delayer.v \
 	$(abspath ./tests/rtl/axi4_delayer_tb.sv)
 
@@ -580,7 +585,7 @@ $(AXI_DELAYER_TEST_BINARY): $(AXI_DELAYER_TEST_SOURCES) | $(AXI_DELAYER_TEST_BUI
 		--Mdir $(AXI_DELAYER_TEST_OBJ_DIR) \
 		-o $(AXI_DELAYER_TEST_BINARY)
 
-.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-pipeline test-pipeline-configs test-uncached test-uncached-configs test-dcache test-dcache-configs test-core-merge test-core-merge-configs test-soc-width-converter test-sdram-axi test-axi-delayer test-privileged test-privileged-configs
+.PHONY: build-npc build-soc test-config test-configs test-idu test-idu-configs test-exu test-exu-configs test-lsu test-lsu-configs test-pipeline test-pipeline-configs test-uncached test-uncached-configs test-dcache test-dcache-configs test-core-merge test-core-merge-configs test-soc-width-converter test-sdram-axi test-axi-delayer test-soc-timing test-privileged test-privileged-configs
 build-npc: $(NPC_SIM_BINARY)
 build-soc: $(SOC_SIM_BINARY)
 test-config: $(CONFIG_TEST_BINARY)
@@ -1417,3 +1422,8 @@ test-timing:
 .PHONY: test-issue-window
 test-issue-window:
 	python3 tests/hardware-optimization/run_monitor.py $(NPC_CONFIG_DEFINE)
+
+.PHONY: test-soc-timing
+test-soc-timing: test-axi-delayer
+	python3 scripts/test_soc_timing.py
+	python3 scripts/test_device_timing.py

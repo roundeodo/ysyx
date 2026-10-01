@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "model": "device-clock-v1",
+  "device_mhz": 100,
+  "unit_groups_passed": 20,
+  "cpu_mhz_tested": [
+    100,
+    200,
+    250,
+    580,
+    720
+  ],
+  "same_image_sha256": "e8ef4f270c257d6bfe74cf3d1ccdef2d46c151f1522fc1c82104a3813f28c89b",
+  "changed_cpu_sources_from_old_run": [
+    "npc/vsrc/riscv32/common/riscv32_pkg.sv"
+  ],
+  "added_cpu_sources": [],
+  "baseline_report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-20260927/microbench-i/report.json",
+  "new_report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-timing-20260928/test-720/report.json",
+  "baseline": {
+    "total": {
+      "cycles": 4728464,
+      "retired_instructions": 773643,
+      "ipc": 0.16361401926714467,
+      "timer_ticks": 6567,
+      "timer_seconds": 0.006567,
+      "cycle_seconds": 0.006567311111111111,
+      "interrupts": 0
+    },
+    "scored": {
+      "cycles": 1616057,
+      "retired_instructions": 430313,
+      "ipc": 0.26627340496034485,
+      "timer_ticks": 2242,
+      "timer_seconds": 0.002242,
+      "cycle_seconds": 0.002244523611111111,
+      "interrupts": 0
+    }
+  },
+  "new": {
+    "total": {
+      "cycles": 2774833,
+      "retired_instructions": 831978,
+      "ipc": 0.2998299357114464,
+      "timer_ticks": 3854,
+      "timer_seconds": 0.003854,
+      "cycle_seconds": 0.0038539347222222224,
+      "interrupts": 0
+    },
+    "scored": {
+      "cycles": 1088342,
+      "retired_instructions": 430313,
+      "ipc": 0.3953839877538494,
+      "timer_ticks": 1512,
+      "timer_seconds": 0.001512,
+      "cycle_seconds": 0.001511586111111111,
+      "interrupts": 0
+    }
+  },
+  "train_run": false,
+  "core_rtl_changed_by_this_task": false,
+  "bridge_assumption": "ideal synchronous event crossing; no asynchronous CDC/PHY cost",
+  "raw_logs": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-timing-20260928",
+  "observer_on_off_verified": true,
+  "total_cycle_reduction": 0.4131639788311807,
+  "scored_cycle_reduction": 0.3265447939026903,
+  "cpu_source_difference_review": "Only explicit import of existing MULDIV_ENABLE; both runs have M disabled; no datapath or control logic changes.",
+  "legacy_write_cases_passed": 32,
+  "rv32im_soc_test": "build interrupted before simulation; not claimed as passed",
+  "legacy_read_passed": true,
+  "dcache_miss_latency_cycles": {
+    "old": {
+      "clean": 83.612,
+      "dirty": 488.508
+    },
+    "new": {
+      "clean": 85.39,
+      "dirty": 151.127
+    }
+  }
+}

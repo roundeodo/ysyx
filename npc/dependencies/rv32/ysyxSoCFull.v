@@ -2563,9 +2563,9 @@ module APBFanout(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/
   assign auto_anon_out_0_pstrb = auto_anon_in_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/apb/Xbar.scala:28:9
 endmodule
 
-module CPU(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:36:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:36:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:36:9
+module CPU(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:36:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:36:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:36:9
                 auto_master_out_awready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output        auto_master_out_awvalid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [3:0]  auto_master_out_awid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -2597,10 +2597,10 @@ module CPU(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:36:9
   input         auto_master_out_rlast	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
 );
 
-  riscv32_npc_axi cpu (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:41:21
+  riscv32_npc_axi cpu (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:41:21
     .clock                   (clock),
     .reset                   (reset),
-    .io_interrupt            (1'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
+    .io_interrupt            (1'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
     .io_master_awready      (auto_master_out_awready),
     .io_master_awvalid      (auto_master_out_awvalid),
     .io_master_awid    (auto_master_out_awid),
@@ -2631,40 +2631,40 @@ module CPU(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:36:9
     .io_master_rresp   (auto_master_out_rresp),
     .io_master_rlast   (auto_master_out_rlast),
     .io_slave_awready       (/* unused */),
-    .io_slave_awvalid       (1'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
-    .io_slave_awid     (4'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_awaddr   (32'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_awlen    (8'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_awsize   (3'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_awburst  (2'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_awvalid       (1'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
+    .io_slave_awid     (4'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_awaddr   (32'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_awlen    (8'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_awsize   (3'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_awburst  (2'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
     .io_slave_wready        (/* unused */),
-    .io_slave_wvalid        (1'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
-    .io_slave_wdata    (32'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_wstrb    (4'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_wlast    (1'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
-    .io_slave_bready        (1'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
+    .io_slave_wvalid        (1'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
+    .io_slave_wdata    (32'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_wstrb    (4'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_wlast    (1'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
+    .io_slave_bready        (1'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
     .io_slave_bvalid        (/* unused */),
     .io_slave_bid      (/* unused */),
     .io_slave_bresp    (/* unused */),
     .io_slave_arready       (/* unused */),
-    .io_slave_arvalid       (1'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
-    .io_slave_arid     (4'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_araddr   (32'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_arlen    (8'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_arsize   (3'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_arburst  (2'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:39:19, :41:21
-    .io_slave_rready        (1'h0),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
+    .io_slave_arvalid       (1'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
+    .io_slave_arid     (4'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_araddr   (32'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_arlen    (8'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_arsize   (3'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_arburst  (2'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:39:19, :41:21
+    .io_slave_rready        (1'h0),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:38:23, :39:19, :41:21
     .io_slave_rvalid        (/* unused */),
     .io_slave_rid      (/* unused */),
     .io_slave_rdata    (/* unused */),
     .io_slave_rresp    (/* unused */),
     .io_slave_rlast    (/* unused */)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/CPU.scala:41:21
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/CPU.scala:41:21
 endmodule
 
-module APBUart16550(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:35:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:35:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:35:9
+module APBUart16550(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Uart16550.scala:35:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Uart16550.scala:35:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Uart16550.scala:35:9
                 auto_in_psel,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_penable,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -2675,17 +2675,17 @@ module APBUart16550(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart165
   output        auto_in_pready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pslverr,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  input         uart_rx,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:37:18
-  output        uart_tx	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:37:18
+  input         uart_rx,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Uart16550.scala:37:18
+  output        uart_tx	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Uart16550.scala:37:18
 );
 
-  uart_top_apb muart (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:39:23
+  uart_top_apb muart (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Uart16550.scala:39:23
     .clock      (clock),
     .reset      (reset),
     .in_psel    (auto_in_psel),
     .in_penable (auto_in_penable),
     .in_pwrite  (auto_in_pwrite),
-    .in_paddr   ({3'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:42:17
+    .in_paddr   ({3'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Uart16550.scala:42:17
     .in_pprot   (auto_in_pprot),
     .in_pwdata  (auto_in_pwdata),
     .in_pstrb   (auto_in_pstrb),
@@ -2694,12 +2694,12 @@ module APBUart16550(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart165
     .in_prdata  (auto_in_prdata),
     .uart_rx    (uart_rx),
     .uart_tx    (uart_tx)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Uart16550.scala:39:23
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Uart16550.scala:39:23
 endmodule
 
-module APBGPIO(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:42:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:42:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:42:9
+module APBGPIO(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:42:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:42:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:42:9
                 auto_in_psel,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_penable,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -2710,25 +2710,25 @@ module APBGPIO(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:4
   output        auto_in_pready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pslverr,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output [15:0] gpio_bundle_out,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-  input  [15:0] gpio_bundle_in,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-  output [7:0]  gpio_bundle_seg_0,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-                gpio_bundle_seg_1,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-                gpio_bundle_seg_2,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-                gpio_bundle_seg_3,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-                gpio_bundle_seg_4,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-                gpio_bundle_seg_5,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-                gpio_bundle_seg_6,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
-                gpio_bundle_seg_7	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:44:25
+  output [15:0] gpio_bundle_out,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+  input  [15:0] gpio_bundle_in,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+  output [7:0]  gpio_bundle_seg_0,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+                gpio_bundle_seg_1,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+                gpio_bundle_seg_2,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+                gpio_bundle_seg_3,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+                gpio_bundle_seg_4,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+                gpio_bundle_seg_5,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+                gpio_bundle_seg_6,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
+                gpio_bundle_seg_7	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:44:25
 );
 
-  gpio_top_apb mgpio (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:46:23
+  gpio_top_apb mgpio (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:46:23
     .clock      (clock),
     .reset      (reset),
     .in_psel    (auto_in_psel),
     .in_penable (auto_in_penable),
     .in_pwrite  (auto_in_pwrite),
-    .in_paddr   ({3'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:49:17
+    .in_paddr   ({3'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:49:17
     .in_pprot   (auto_in_pprot),
     .in_pwdata  (auto_in_pwdata),
     .in_pstrb   (auto_in_pstrb),
@@ -2745,12 +2745,12 @@ module APBGPIO(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:4
     .gpio_seg_5 (gpio_bundle_seg_5),
     .gpio_seg_6 (gpio_bundle_seg_6),
     .gpio_seg_7 (gpio_bundle_seg_7)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/GPIO.scala:46:23
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/GPIO.scala:46:23
 endmodule
 
-module APBKeyboard(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:41:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:41:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:41:9
+module APBKeyboard(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Keyboard.scala:41:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Keyboard.scala:41:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Keyboard.scala:41:9
                 auto_in_psel,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_penable,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -2761,17 +2761,17 @@ module APBKeyboard(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard
   output        auto_in_pready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pslverr,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  input         ps2_bundle_clk,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:43:24
-                ps2_bundle_data	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:43:24
+  input         ps2_bundle_clk,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Keyboard.scala:43:24
+                ps2_bundle_data	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Keyboard.scala:43:24
 );
 
-  ps2_top_apb mps2 (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:45:22
+  ps2_top_apb mps2 (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Keyboard.scala:45:22
     .clock      (clock),
     .reset      (reset),
     .in_psel    (auto_in_psel),
     .in_penable (auto_in_penable),
     .in_pwrite  (auto_in_pwrite),
-    .in_paddr   ({3'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:48:16
+    .in_paddr   ({3'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Keyboard.scala:48:16
     .in_pprot   (auto_in_pprot),
     .in_pwdata  (auto_in_pwdata),
     .in_pstrb   (auto_in_pstrb),
@@ -2780,12 +2780,12 @@ module APBKeyboard(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard
     .in_prdata  (auto_in_prdata),
     .ps2_clk    (ps2_bundle_clk),
     .ps2_data   (ps2_bundle_data)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/Keyboard.scala:45:22
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/Keyboard.scala:45:22
 endmodule
 
-module APBVGA(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:45:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:45:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:45:9
+module APBVGA(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:45:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:45:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:45:9
                 auto_in_psel,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_penable,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -2796,21 +2796,21 @@ module APBVGA(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:45:
   output        auto_in_pready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pslverr,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output [7:0]  vga_bundle_r,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:47:24
-                vga_bundle_g,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:47:24
-                vga_bundle_b,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:47:24
-  output        vga_bundle_hsync,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:47:24
-                vga_bundle_vsync,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:47:24
-                vga_bundle_valid	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:47:24
+  output [7:0]  vga_bundle_r,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:47:24
+                vga_bundle_g,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:47:24
+                vga_bundle_b,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:47:24
+  output        vga_bundle_hsync,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:47:24
+                vga_bundle_vsync,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:47:24
+                vga_bundle_valid	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:47:24
 );
 
-  vga_top_apb mvga (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:49:22
+  vga_top_apb mvga (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:49:22
     .clock      (clock),
     .reset      (reset),
     .in_psel    (auto_in_psel),
     .in_penable (auto_in_penable),
     .in_pwrite  (auto_in_pwrite),
-    .in_paddr   ({2'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:52:16
+    .in_paddr   ({2'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:52:16
     .in_pprot   (auto_in_pprot),
     .in_pwdata  (auto_in_pwdata),
     .in_pstrb   (auto_in_pstrb),
@@ -2823,12 +2823,12 @@ module APBVGA(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:45:
     .vga_hsync  (vga_bundle_hsync),
     .vga_vsync  (vga_bundle_vsync),
     .vga_valid  (vga_bundle_valid)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/VGA.scala:49:22
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/VGA.scala:49:22
 endmodule
 
-module APBSPI(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:42:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:42:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:42:9
+module APBSPI(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:42:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:42:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:42:9
                 auto_in_psel,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_penable,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -2839,19 +2839,19 @@ module APBSPI(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:42:
   output        auto_in_pready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pslverr,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output        spi_bundle_sck,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:44:24
-  output [7:0]  spi_bundle_ss,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:44:24
-  output        spi_bundle_mosi,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:44:24
-  input         spi_bundle_miso	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:44:24
+  output        spi_bundle_sck,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:44:24
+  output [7:0]  spi_bundle_ss,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:44:24
+  output        spi_bundle_mosi,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:44:24
+  input         spi_bundle_miso	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:44:24
 );
 
-  spi_top_apb mspi (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:46:22
+  spi_top_apb mspi (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:46:22
     .clock       (clock),
     .reset       (reset),
     .in_psel     (auto_in_psel),
     .in_penable  (auto_in_penable),
     .in_pwrite   (auto_in_pwrite),
-    .in_paddr    ({2'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:49:16
+    .in_paddr    ({2'h0, auto_in_paddr}),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:49:16
     .in_pprot    (auto_in_pprot),
     .in_pwdata   (auto_in_pwdata),
     .in_pstrb    (auto_in_pstrb),
@@ -2863,12 +2863,12 @@ module APBSPI(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:42:
     .spi_mosi    (spi_bundle_mosi),
     .spi_miso    (spi_bundle_miso),
     .spi_irq_out (/* unused */)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SPI.scala:46:22
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SPI.scala:46:22
 endmodule
 
-module APBPSRAM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:46:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:46:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:46:9
+module APBPSRAM(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/PSRAM.scala:46:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/PSRAM.scala:46:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/PSRAM.scala:46:9
                 auto_in_psel,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_penable,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pwrite,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -2879,12 +2879,12 @@ module APBPSRAM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala
   output        auto_in_pready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_pslverr,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [31:0] auto_in_prdata,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-  output        qspi_bundle_sck,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:48:25
-                qspi_bundle_ce_n,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:48:25
-  inout  [3:0]  qspi_bundle_dio	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:48:25
+  output        qspi_bundle_sck,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/PSRAM.scala:48:25
+                qspi_bundle_ce_n,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/PSRAM.scala:48:25
+  inout  [3:0]  qspi_bundle_dio	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/PSRAM.scala:48:25
 );
 
-  psram_top_apb mpsram (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:50:24
+  psram_top_apb mpsram (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/PSRAM.scala:50:24
     .clock      (clock),
     .reset      (reset),
     .in_psel    (auto_in_psel),
@@ -2900,12 +2900,12 @@ module APBPSRAM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala
     .qspi_sck   (qspi_bundle_sck),
     .qspi_ce_n  (qspi_bundle_ce_n),
     .qspi_dio   (qspi_bundle_dio)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/PSRAM.scala:50:24
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/PSRAM.scala:50:24
 endmodule
 
-module AXI4MROM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
+module AXI4MROM(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
                 auto_in_awvalid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
                 auto_in_wvalid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output        auto_in_arready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -2918,70 +2918,70 @@ module AXI4MROM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:
   output [31:0] auto_in_rdata	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
 );
 
-  wire [31:0] _mrom_rdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:48:22
-  reg         state;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:51:24
-  wire        _nodeIn_rid_T = ~state & auto_in_arvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:51:24, :52:24, src/main/scala/chisel3/util/Decoupled.scala:51:35
-  reg  [31:0] nodeIn_rdata_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:61:32
-  reg  [3:0]  nodeIn_rid_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:62:30
-  `ifndef SYNTHESIS	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:71:11
-    always @(posedge clock) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:71:11
-      if (~reset & auto_in_awvalid) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:71:11
-        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:71:11
-          $error("Assertion failed: do not support write operations\n");	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:71:11
-        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:71:11
-          $fatal;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:71:11
+  wire [31:0] _mrom_rdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:48:22
+  reg         state;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:51:24
+  wire        _nodeIn_rid_T = ~state & auto_in_arvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:51:24, :52:24, src/main/scala/chisel3/util/Decoupled.scala:51:35
+  reg  [31:0] nodeIn_rdata_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:61:32
+  reg  [3:0]  nodeIn_rid_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:62:30
+  `ifndef SYNTHESIS	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:71:11
+    always @(posedge clock) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:71:11
+      if (~reset & auto_in_awvalid) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:71:11
+        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:71:11
+          $error("Assertion failed: do not support write operations\n");	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:71:11
+        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:71:11
+          $fatal;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:71:11
       end
-      if (~reset & auto_in_wvalid) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:71:11, :72:11
-        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:72:11
-          $error("Assertion failed: do not support write operations\n");	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:72:11
-        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:72:11
-          $fatal;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:72:11
+      if (~reset & auto_in_wvalid) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:71:11, :72:11
+        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:72:11
+          $error("Assertion failed: do not support write operations\n");	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:72:11
+        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:72:11
+          $fatal;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:72:11
       end
     end // always @(posedge)
   `endif // not def SYNTHESIS
-  always @(posedge clock) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-    if (reset)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-      state <= 1'h0;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :51:24
-    else if (state)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:51:24
-      state <= ~(auto_in_rready & state);	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:51:24, :54:19, src/main/scala/chisel3/util/Decoupled.scala:51:35
-    else	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:51:24
-      state <= _nodeIn_rid_T;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:51:24, src/main/scala/chisel3/util/Decoupled.scala:51:35
+  always @(posedge clock) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+    if (reset)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+      state <= 1'h0;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :51:24
+    else if (state)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:51:24
+      state <= ~(auto_in_rready & state);	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:51:24, :54:19, src/main/scala/chisel3/util/Decoupled.scala:51:35
+    else	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:51:24
+      state <= _nodeIn_rid_T;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:51:24, src/main/scala/chisel3/util/Decoupled.scala:51:35
     if (_nodeIn_rid_T) begin	// src/main/scala/chisel3/util/Decoupled.scala:51:35
-      nodeIn_rdata_r <= _mrom_rdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:48:22, :61:32
-      nodeIn_rid_r <= auto_in_arid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:62:30
+      nodeIn_rdata_r <= _mrom_rdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:48:22, :61:32
+      nodeIn_rid_r <= auto_in_arid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:62:30
     end
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_REG_	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-    `ifdef FIRRTL_BEFORE_INITIAL	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-      `FIRRTL_BEFORE_INITIAL	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
+  `ifdef ENABLE_INITIAL_REG_	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+    `ifdef FIRRTL_BEFORE_INITIAL	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+      `FIRRTL_BEFORE_INITIAL	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
     `endif // FIRRTL_BEFORE_INITIAL
-    initial begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-      automatic logic [31:0] _RANDOM[0:1];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-      `ifdef INIT_RANDOM_PROLOG_	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-        `INIT_RANDOM_PROLOG_	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
+    initial begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+      automatic logic [31:0] _RANDOM[0:1];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+      `ifdef INIT_RANDOM_PROLOG_	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+        `INIT_RANDOM_PROLOG_	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
       `endif // INIT_RANDOM_PROLOG_
-      `ifdef RANDOMIZE_REG_INIT	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
+      `ifdef RANDOMIZE_REG_INIT	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
         for (logic [1:0] i = 2'h0; i < 2'h2; i += 2'h1) begin
-          _RANDOM[i[0]] = `RANDOM;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-        end	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-        state = _RANDOM[1'h0][0];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :51:24
-        nodeIn_rdata_r = {_RANDOM[1'h0][31:1], _RANDOM[1'h1][0]};	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :51:24, :61:32
-        nodeIn_rid_r = _RANDOM[1'h1][4:1];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :61:32, :62:30
+          _RANDOM[i[0]] = `RANDOM;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+        end	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+        state = _RANDOM[1'h0][0];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :51:24
+        nodeIn_rdata_r = {_RANDOM[1'h0][31:1], _RANDOM[1'h1][0]};	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :51:24, :61:32
+        nodeIn_rid_r = _RANDOM[1'h1][4:1];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :61:32, :62:30
       `endif // RANDOMIZE_REG_INIT
     end // initial
-    `ifdef FIRRTL_AFTER_INITIAL	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
-      `FIRRTL_AFTER_INITIAL	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9
+    `ifdef FIRRTL_AFTER_INITIAL	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
+      `FIRRTL_AFTER_INITIAL	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  MROMHelper mrom (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:48:22
-    .raddr ({2'h0, auto_in_araddr}),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :56:19
+  MROMHelper mrom (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:48:22
+    .raddr ({2'h0, auto_in_araddr}),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :56:19
     .ren   (_nodeIn_rid_T),	// src/main/scala/chisel3/util/Decoupled.scala:51:35
     .rdata (_mrom_rdata)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:48:22
-  assign auto_in_arready = ~state;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :51:24, :52:24
-  assign auto_in_rvalid = state;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :51:24
-  assign auto_in_rid = nodeIn_rid_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :62:30
-  assign auto_in_rdata = nodeIn_rdata_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/MROM.scala:45:9, :61:32
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:48:22
+  assign auto_in_arready = ~state;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :51:24, :52:24
+  assign auto_in_rvalid = state;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :51:24
+  assign auto_in_rid = nodeIn_rid_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :62:30
+  assign auto_in_rdata = nodeIn_rdata_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/MROM.scala:45:9, :61:32
 endmodule
 
 // VCS coverage exclude_file
@@ -3162,9 +3162,9 @@ module AXI4RAM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/sc
   assign auto_in_rresp = r_sel1 ? 2'h0 : 2'h3;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:58:9, :78:25, :125:26
 endmodule
 
-module AXI4SDRAM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:66:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:66:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:66:9
+module AXI4SDRAM(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:66:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:66:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:66:9
   output        auto_in_awready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input         auto_in_awvalid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input  [3:0]  auto_in_awid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -3194,19 +3194,19 @@ module AXI4SDRAM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scal
   output [31:0] auto_in_rdata,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output [1:0]  auto_in_rresp,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   output        auto_in_rlast,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
-                sdram_bundle_clk,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-                sdram_bundle_cke,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-                sdram_bundle_cs,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-                sdram_bundle_ras,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-                sdram_bundle_cas,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-                sdram_bundle_we,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-  output [12:0] sdram_bundle_a,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-  output [1:0]  sdram_bundle_ba,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-  output [3:0]  sdram_bundle_dqm,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
-  inout  [31:0] sdram_bundle_dq	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:68:26
+                sdram_bundle_clk,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+                sdram_bundle_cke,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+                sdram_bundle_cs,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+                sdram_bundle_ras,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+                sdram_bundle_cas,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+                sdram_bundle_we,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+  output [12:0] sdram_bundle_a,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+  output [1:0]  sdram_bundle_ba,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+  output [3:0]  sdram_bundle_dqm,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
+  inout  [31:0] sdram_bundle_dq	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:68:26
 );
 
-  sdram_top_axi msdram (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:70:24
+  sdram_top_axi msdram (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:70:24
     .clock            (clock),
     .reset            (reset),
     .in_awready      (auto_in_awready),
@@ -3248,12 +3248,12 @@ module AXI4SDRAM(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scal
     .sdram_ba         (sdram_bundle_ba),
     .sdram_dqm        (sdram_bundle_dqm),
     .sdram_dq         (sdram_bundle_dq)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/device/SDRAM.scala:70:24
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/device/SDRAM.scala:70:24
 endmodule
 
-module AXI4ToAPB(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+module AXI4ToAPB(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
   output        auto_in_awready,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input         auto_in_awvalid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
   input  [3:0]  auto_in_awid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
@@ -3290,63 +3290,63 @@ module AXI4ToAPB(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.sc
   input  [31:0] auto_out_prdata	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/dependencies/diplomacy/diplomacy/src/diplomacy/lazymodule/LazyModuleImp.scala:100:25
 );
 
-  wire        nodeOut_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28
-  reg  [1:0]  state;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26
-  wire        _is_write_T = state == 2'h0;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32
-  wire        accept_read = _is_write_T & auto_in_arvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:51:{32,44}
+  wire        nodeOut_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28
+  reg  [1:0]  state;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26
+  wire        _is_write_T = state == 2'h0;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32
+  wire        accept_read = _is_write_T & auto_in_arvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:51:{32,44}
   wire        accept_write =
-    ~accept_read & _is_write_T & auto_in_awvalid & auto_in_wvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:51:{32,44}, :52:{26,39,61,73}
+    ~accept_read & _is_write_T & auto_in_awvalid & auto_in_wvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:51:{32,44}, :52:{26,39,61,73}
   reg         is_write_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
-  wire        is_write = _is_write_T ? accept_write : is_write_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:51:32, :52:{39,61,73}
-  `ifndef SYNTHESIS	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
-    always @(posedge clock) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
-      if (~reset & auto_in_arvalid & (|auto_in_arlen)) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:{13,25,40}
-        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
-          $error("Assertion failed at AXI4ToAPB.scala:61\n");	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
-        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
-          $fatal;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
+  wire        is_write = _is_write_T ? accept_write : is_write_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:51:32, :52:{39,61,73}, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}
+  `ifndef SYNTHESIS	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
+    always @(posedge clock) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
+      if (~reset & auto_in_arvalid & (|auto_in_arlen)) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:61:{13,25,40}
+        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
+          $error("Assertion failed at AXI4ToAPB.scala:61\n");	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
+        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
+          $fatal;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13
       end
-      if (~reset & auto_in_awvalid & (|auto_in_awlen)) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13, :62:{13,25,40}
-        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:62:13
-          $error("Assertion failed at AXI4ToAPB.scala:62\n");	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:62:13
-        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:62:13
-          $fatal;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:62:13
+      if (~reset & auto_in_awvalid & (|auto_in_awlen)) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:61:13, :62:{13,25,40}
+        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:62:13
+          $error("Assertion failed at AXI4ToAPB.scala:62\n");	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:62:13
+        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:62:13
+          $fatal;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:62:13
       end
-      if (~reset & auto_in_arvalid & auto_in_arsize > 3'h2) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :61:13, :64:{13,25,41}
-        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
-          $error("Assertion failed at AXI4ToAPB.scala:64\n");	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
-        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
-          $fatal;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
+      if (~reset & auto_in_arvalid & auto_in_arsize > 3'h2) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :61:13, :64:{13,25,41}
+        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
+          $error("Assertion failed at AXI4ToAPB.scala:64\n");	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
+        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
+          $fatal;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:64:13
       end
-      if (~reset & auto_in_awvalid & auto_in_awsize > 3'h2) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :61:13, :65:{13,25,41}
-        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:65:13
-          $error("Assertion failed at AXI4ToAPB.scala:65\n");	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:65:13
-        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:65:13
-          $fatal;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:65:13
+      if (~reset & auto_in_awvalid & auto_in_awsize > 3'h2) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :61:13, :65:{13,25,41}
+        if (`ASSERT_VERBOSE_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:65:13
+          $error("Assertion failed at AXI4ToAPB.scala:65\n");	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:65:13
+        if (`STOP_COND_)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:65:13
+          $fatal;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:65:13
       end
     end // always @(posedge)
   `endif // not def SYNTHESIS
-  reg  [3:0]  rid_reg;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:67:33
-  reg  [3:0]  bid_reg;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:68:33
+  reg  [3:0]  rid_reg;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:67:33
+  reg  [3:0]  bid_reg;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:68:33
   reg  [31:0] araddr_reg_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
   reg  [31:0] awaddr_reg_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
   reg  [31:0] wdata_reg_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
   reg  [3:0]  wstrb_reg_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
-  assign nodeOut_penable = state == 2'h1;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :75:28
-  wire [1:0]  resp = {auto_out_pslverr, 1'h0};	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:86:21
+  assign nodeOut_penable = state == 2'h1;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :75:28
+  wire [1:0]  resp = {auto_out_pslverr, 1'h0};	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:86:21
   reg  [1:0]  resp_hold_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
-  wire [1:0]  resp_hold = nodeOut_penable ? resp : resp_hold_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28, :86:21
-  wire        _nodeIn_bvalid_T_2 = state == 2'h2;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :88:82
+  wire [1:0]  resp_hold = nodeOut_penable ? resp : resp_hold_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28, :86:21, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}
+  wire        _nodeIn_bvalid_T_2 = state == 2'h2;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :88:82
   wire        nodeIn_rvalid =
-    ~is_write & (nodeOut_penable & auto_out_pready | _nodeIn_bvalid_T_2);	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28, :88:{19,29,57,72,82}
+    ~is_write & (nodeOut_penable & auto_out_pready | _nodeIn_bvalid_T_2);	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28, :88:{19,29,57,72,82}, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42
   reg  [31:0] nodeIn_rdata_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
   wire        nodeIn_bvalid =
-    is_write & (nodeOut_penable & auto_out_pready | _nodeIn_bvalid_T_2);	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28, :88:82, :94:{28,56,71}
-  always @(posedge clock) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-    if (reset)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-      state <= 2'h0;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26
-    else begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-      automatic logic [3:0][1:0] _GEN;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
+    is_write & (nodeOut_penable & auto_out_pready | _nodeIn_bvalid_T_2);	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28, :88:82, :94:{28,56,71}, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42
+  always @(posedge clock) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+    if (reset)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+      state <= 2'h0;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26
+    else begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+      automatic logic [3:0][1:0] _GEN;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
       _GEN =
         {{state},
          {{~(auto_in_rready & nodeIn_rvalid | auto_in_bready & nodeIn_bvalid), 1'h0}},
@@ -3354,75 +3354,75 @@ module AXI4ToAPB(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.sc
             ? {~(auto_in_rready & nodeIn_rvalid | auto_in_bready & nodeIn_bvalid),
                1'h0}
             : 2'h1},
-         {{1'h0, auto_in_arvalid | auto_in_awvalid & auto_in_wvalid}}};	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:{33,39,49,62}, :56:{33,39,55,63}, :57:{43,49,57}, :88:29, :94:28, src/main/scala/chisel3/util/Decoupled.scala:51:35
-      state <= _GEN[state];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
+         {{1'h0, auto_in_arvalid | auto_in_awvalid & auto_in_wvalid}}};	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:{33,39,49,62}, :56:{33,39,55,63}, :57:{43,49,57}, :88:29, :94:28, src/main/scala/chisel3/util/Decoupled.scala:51:35
+      state <= _GEN[state];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:50:26, :51:32, :54:22, :55:33, :56:33, :57:43
     end
-    if (_is_write_T)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:51:32
-      is_write_r <= accept_write;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:52:{39,61,73}
-    if (accept_read) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:51:44
-      rid_reg <= auto_in_arid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:67:33
+    if (_is_write_T)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:51:32
+      is_write_r <= accept_write;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:52:{39,61,73}, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
+    if (accept_read) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:51:44
+      rid_reg <= auto_in_arid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:67:33
       araddr_reg_r <= auto_in_araddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
     end
-    if (accept_write) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:52:{39,61,73}
-      bid_reg <= auto_in_awid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:68:33
+    if (accept_write) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:52:{39,61,73}
+      bid_reg <= auto_in_awid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:68:33
       awaddr_reg_r <= auto_in_awaddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
       wdata_reg_r <= auto_in_wdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
       wstrb_reg_r <= auto_in_wstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
     end
-    if (nodeOut_penable) begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28
-      resp_hold_r <= resp;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:86:21
+    if (nodeOut_penable) begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:75:28
+      resp_hold_r <= resp;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:86:21, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
       nodeIn_rdata_r <= auto_out_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
     end
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_REG_	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-    `ifdef FIRRTL_BEFORE_INITIAL	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-      `FIRRTL_BEFORE_INITIAL	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+  `ifdef ENABLE_INITIAL_REG_	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+    `ifdef FIRRTL_BEFORE_INITIAL	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+      `FIRRTL_BEFORE_INITIAL	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
     `endif // FIRRTL_BEFORE_INITIAL
-    initial begin	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-      automatic logic [31:0] _RANDOM[0:4];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-      `ifdef INIT_RANDOM_PROLOG_	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-        `INIT_RANDOM_PROLOG_	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+    initial begin	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+      automatic logic [31:0] _RANDOM[0:4];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+      `ifdef INIT_RANDOM_PROLOG_	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+        `INIT_RANDOM_PROLOG_	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
       `endif // INIT_RANDOM_PROLOG_
-      `ifdef RANDOMIZE_REG_INIT	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+      `ifdef RANDOMIZE_REG_INIT	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
         for (logic [2:0] i = 3'h0; i < 3'h5; i += 3'h1) begin
-          _RANDOM[i] = `RANDOM;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-        end	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-        state = _RANDOM[3'h0][1:0];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26
-        is_write_r = _RANDOM[3'h0][2];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26
-        rid_reg = _RANDOM[3'h0][6:3];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26, :67:33
-        bid_reg = _RANDOM[3'h0][10:7];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26, :68:33
-        araddr_reg_r = {_RANDOM[3'h0][31:11], _RANDOM[3'h1][10:0]};	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26
-        awaddr_reg_r = {_RANDOM[3'h1][31:11], _RANDOM[3'h2][10:0]};	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-        wdata_reg_r = {_RANDOM[3'h2][31:11], _RANDOM[3'h3][10:0]};	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-        wstrb_reg_r = _RANDOM[3'h3][14:11];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-        resp_hold_r = _RANDOM[3'h3][16:15];	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-        nodeIn_rdata_r = {_RANDOM[3'h3][31:17], _RANDOM[3'h4][16:0]};	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+          _RANDOM[i] = `RANDOM;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+        end	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+        state = _RANDOM[3'h0][1:0];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26
+        is_write_r = _RANDOM[3'h0][2];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
+        rid_reg = _RANDOM[3'h0][6:3];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26, :67:33
+        bid_reg = _RANDOM[3'h0][10:7];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26, :68:33
+        araddr_reg_r = {_RANDOM[3'h0][31:11], _RANDOM[3'h1][10:0]};	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :50:26, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
+        awaddr_reg_r = {_RANDOM[3'h1][31:11], _RANDOM[3'h2][10:0]};	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
+        wdata_reg_r = {_RANDOM[3'h2][31:11], _RANDOM[3'h3][10:0]};	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
+        wstrb_reg_r = _RANDOM[3'h3][14:11];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
+        resp_hold_r = _RANDOM[3'h3][16:15];	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
+        nodeIn_rdata_r = {_RANDOM[3'h3][31:17], _RANDOM[3'h4][16:0]};	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:63
       `endif // RANDOMIZE_REG_INIT
     end // initial
-    `ifdef FIRRTL_AFTER_INITIAL	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-      `FIRRTL_AFTER_INITIAL	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+    `ifdef FIRRTL_AFTER_INITIAL	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+      `FIRRTL_AFTER_INITIAL	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  assign auto_in_awready = accept_write;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :52:{39,61,73}
-  assign auto_in_wready = accept_write;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :52:{39,61,73}
-  assign auto_in_bvalid = nodeIn_bvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :94:28
-  assign auto_in_bid = bid_reg;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :68:33
-  assign auto_in_bresp = resp_hold;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-  assign auto_in_arready = accept_read;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :51:44
-  assign auto_in_rvalid = nodeIn_rvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :88:29
-  assign auto_in_rid = rid_reg;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :67:33
-  assign auto_in_rdata = nodeOut_penable ? auto_out_prdata : nodeIn_rdata_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :75:28
-  assign auto_in_rresp = resp_hold;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
-  assign auto_out_psel = accept_read | accept_write | nodeOut_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :51:44, :52:{39,61,73}, :74:{35,52}, :75:28
-  assign auto_out_penable = nodeOut_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :75:28
-  assign auto_out_pwrite = is_write;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25
+  assign auto_in_awready = accept_write;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :52:{39,61,73}
+  assign auto_in_wready = accept_write;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :52:{39,61,73}
+  assign auto_in_bvalid = nodeIn_bvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :94:28
+  assign auto_in_bid = bid_reg;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :68:33
+  assign auto_in_bresp = resp_hold;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42
+  assign auto_in_arready = accept_read;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :51:44
+  assign auto_in_rvalid = nodeIn_rvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :88:29
+  assign auto_in_rid = rid_reg;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :67:33
+  assign auto_in_rdata = nodeOut_penable ? auto_out_prdata : nodeIn_rdata_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :75:28, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}
+  assign auto_in_rresp = resp_hold;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42
+  assign auto_out_psel = accept_read | accept_write | nodeOut_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :51:44, :52:{39,61,73}, :74:{35,52}, :75:28
+  assign auto_out_penable = nodeOut_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :75:28
+  assign auto_out_pwrite = is_write;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:42
   assign auto_out_paddr =
     is_write
       ? (accept_write ? auto_in_awaddr : awaddr_reg_r)
-      : accept_read ? auto_in_araddr : araddr_reg_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :51:44, :52:{39,61,73}, :77:25
-  assign auto_out_pwdata = accept_write ? auto_in_wdata : wdata_reg_r;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :52:{39,61,73}
+      : accept_read ? auto_in_araddr : araddr_reg_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :51:44, :52:{39,61,73}, :77:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}
+  assign auto_out_pwdata = accept_write ? auto_in_wdata : wdata_reg_r;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :52:{39,61,73}, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}
   assign auto_out_pstrb =
-    is_write ? (accept_write ? auto_in_wstrb : wstrb_reg_r) : 4'h0;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :52:{39,61,73}, :80:25
+    is_write ? (accept_write ? auto_in_wstrb : wstrb_reg_r) : 4'h0;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:45:25, :52:{39,61,73}, :80:25, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/package.scala:88:{42,63}
 endmodule
 
 // VCS coverage exclude_file
@@ -5396,78 +5396,49 @@ module SynchronizerShiftReg_w1_d10(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/roc
   );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/ShiftReg.scala:45:23
 endmodule
 
-module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
-  output        spi_sck,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:86:17
-  output [7:0]  spi_ss,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:86:17
-  output        spi_mosi,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:86:17
-  input         spi_miso,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:86:17
-                uart_rx,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:87:18
-  output        uart_tx,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:87:18
-                psram_sck,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:88:19
-                psram_ce_n,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:88:19
-  inout  [3:0]  psram_dio,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:88:19
-  output        sdram_clk,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-                sdram_cke,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-                sdram_cs,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-                sdram_ras,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-                sdram_cas,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-                sdram_we,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-  output [12:0] sdram_a,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-  output [1:0]  sdram_ba,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-  output [3:0]  sdram_dqm,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-  inout  [31:0] sdram_dq,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:89:19
-  output [15:0] gpio_out,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-  input  [15:0] gpio_in,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-  output [7:0]  gpio_seg_0,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-                gpio_seg_1,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-                gpio_seg_2,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-                gpio_seg_3,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-                gpio_seg_4,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-                gpio_seg_5,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-                gpio_seg_6,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-                gpio_seg_7,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:90:18
-  input         ps2_clk,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:91:17
-                ps2_data,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:91:17
-  output [7:0]  vga_r,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:92:17
-                vga_g,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:92:17
-                vga_b,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:92:17
-  output        vga_hsync,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:92:17
-                vga_vsync,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:92:17
-                vga_valid	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:92:17
+module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:61:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:61:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:61:9
+  output        spi_sck,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:97:17
+  output [7:0]  spi_ss,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:97:17
+  output        spi_mosi,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:97:17
+  input         spi_miso,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:97:17
+                uart_rx,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:98:18
+  output        uart_tx,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:98:18
+                psram_sck,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:99:19
+                psram_ce_n,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:99:19
+  inout  [3:0]  psram_dio,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:99:19
+  output        sdram_clk,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+                sdram_cke,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+                sdram_cs,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+                sdram_ras,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+                sdram_cas,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+                sdram_we,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+  output [12:0] sdram_a,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+  output [1:0]  sdram_ba,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+  output [3:0]  sdram_dqm,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+  inout  [31:0] sdram_dq,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:100:19
+  output [15:0] gpio_out,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+  input  [15:0] gpio_in,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+  output [7:0]  gpio_seg_0,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+                gpio_seg_1,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+                gpio_seg_2,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+                gpio_seg_3,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+                gpio_seg_4,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+                gpio_seg_5,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+                gpio_seg_6,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+                gpio_seg_7,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:101:18
+  input         ps2_clk,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:102:17
+                ps2_data,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:102:17
+  output [7:0]  vga_r,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:103:17
+                vga_g,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:103:17
+                vga_b,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:103:17
+  output        vga_hsync,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:103:17
+                vga_vsync,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:103:17
+                vga_valid	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:103:17
 );
 
   wire        _cpu_reset_chain_io_q;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/ShiftReg.scala:45:23
-  wire        _axi4delay_delayer_in_awready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_in_wready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_in_bvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [3:0]  _axi4delay_delayer_in_bid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [1:0]  _axi4delay_delayer_in_bresp;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_in_arready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_in_rvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [3:0]  _axi4delay_delayer_in_rid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [31:0] _axi4delay_delayer_in_rdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [1:0]  _axi4delay_delayer_in_rresp;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_in_rlast;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_out_awvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [3:0]  _axi4delay_delayer_out_awid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [31:0] _axi4delay_delayer_out_awaddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [7:0]  _axi4delay_delayer_out_awlen;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [2:0]  _axi4delay_delayer_out_awsize;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [1:0]  _axi4delay_delayer_out_awburst;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_out_wvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [31:0] _axi4delay_delayer_out_wdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [3:0]  _axi4delay_delayer_out_wstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_out_wlast;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_out_bready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_out_arvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [3:0]  _axi4delay_delayer_out_arid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [31:0] _axi4delay_delayer_out_araddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [7:0]  _axi4delay_delayer_out_arlen;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [2:0]  _axi4delay_delayer_out_arsize;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire [1:0]  _axi4delay_delayer_out_arburst;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-  wire        _axi4delay_delayer_out_rready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
   wire        _axi4frag_auto_in_awready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
   wire        _axi4frag_auto_in_wready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
   wire        _axi4frag_auto_in_bvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
@@ -5552,43 +5523,33 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
   wire [7:0]  _axi4buf_auto_out_arlen;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Buffer.scala:68:29
   wire [2:0]  _axi4buf_auto_out_arsize;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Buffer.scala:68:29
   wire        _axi4buf_auto_out_rready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Buffer.scala:68:29
-  wire        _axi42apb_auto_in_awready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire        _axi42apb_auto_in_wready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire        _axi42apb_auto_in_bvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire [3:0]  _axi42apb_auto_in_bid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire [1:0]  _axi42apb_auto_in_bresp;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire        _axi42apb_auto_in_arready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire        _axi42apb_auto_in_rvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire [3:0]  _axi42apb_auto_in_rid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire [31:0] _axi42apb_auto_in_rdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire [1:0]  _axi42apb_auto_in_rresp;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire        _axi42apb_auto_out_psel;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire        _axi42apb_auto_out_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire        _axi42apb_auto_out_pwrite;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire [31:0] _axi42apb_auto_out_paddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire [31:0] _axi42apb_auto_out_pwdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire [3:0]  _axi42apb_auto_out_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-  wire        _apbdelay_delayer_in_pready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire        _apbdelay_delayer_in_pslverr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire [31:0] _apbdelay_delayer_in_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire        _apbdelay_delayer_out_psel;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire        _apbdelay_delayer_out_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire        _apbdelay_delayer_out_pwrite;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire [31:0] _apbdelay_delayer_out_paddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire [2:0]  _apbdelay_delayer_out_pprot;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire [31:0] _apbdelay_delayer_out_pwdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire [3:0]  _apbdelay_delayer_out_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  wire        _lsdram_axi_auto_in_awready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire        _lsdram_axi_auto_in_wready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire        _lsdram_axi_auto_in_bvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire [3:0]  _lsdram_axi_auto_in_bid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire [1:0]  _lsdram_axi_auto_in_bresp;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire        _lsdram_axi_auto_in_arready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire        _lsdram_axi_auto_in_rvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire [3:0]  _lsdram_axi_auto_in_rid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire [31:0] _lsdram_axi_auto_in_rdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire [1:0]  _lsdram_axi_auto_in_rresp;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  wire        _lsdram_axi_auto_in_rlast;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
+  wire        _axi42apb_auto_in_awready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire        _axi42apb_auto_in_wready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire        _axi42apb_auto_in_bvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire [3:0]  _axi42apb_auto_in_bid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire [1:0]  _axi42apb_auto_in_bresp;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire        _axi42apb_auto_in_arready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire        _axi42apb_auto_in_rvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire [3:0]  _axi42apb_auto_in_rid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire [31:0] _axi42apb_auto_in_rdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire [1:0]  _axi42apb_auto_in_rresp;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire        _axi42apb_auto_out_psel;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire        _axi42apb_auto_out_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire        _axi42apb_auto_out_pwrite;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire [31:0] _axi42apb_auto_out_paddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire [31:0] _axi42apb_auto_out_pwdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire [3:0]  _axi42apb_auto_out_pstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  wire        _lsdram_axi_auto_in_awready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire        _lsdram_axi_auto_in_wready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire        _lsdram_axi_auto_in_bvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire [3:0]  _lsdram_axi_auto_in_bid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire [1:0]  _lsdram_axi_auto_in_bresp;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire        _lsdram_axi_auto_in_arready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire        _lsdram_axi_auto_in_rvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire [3:0]  _lsdram_axi_auto_in_rid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire [31:0] _lsdram_axi_auto_in_rdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire [1:0]  _lsdram_axi_auto_in_rresp;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  wire        _lsdram_axi_auto_in_rlast;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
   wire        _axi4ram_auto_in_awready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
   wire        _axi4ram_auto_in_wready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
   wire        _axi4ram_auto_in_bvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
@@ -5599,91 +5560,132 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
   wire [3:0]  _axi4ram_auto_in_rid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
   wire [31:0] _axi4ram_auto_in_rdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
   wire [1:0]  _axi4ram_auto_in_rresp;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
-  wire        _lmrom_auto_in_arready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
-  wire        _lmrom_auto_in_rvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
-  wire [3:0]  _lmrom_auto_in_rid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
-  wire [31:0] _lmrom_auto_in_rdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
-  wire        _lpsram_auto_in_pready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:42:26
-  wire        _lpsram_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:42:26
-  wire [31:0] _lpsram_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:42:26
-  wire        _lspi_auto_in_pready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:38:25
-  wire        _lspi_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:38:25
-  wire [31:0] _lspi_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:38:25
-  wire        _lvga_auto_in_pready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
-  wire        _lvga_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
-  wire [31:0] _lvga_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
-  wire        _lkeyboard_auto_in_pready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-  wire        _lkeyboard_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-  wire [31:0] _lkeyboard_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-  wire        _lgpio_auto_in_pready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-  wire        _lgpio_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-  wire [31:0] _lgpio_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-  wire        _luart_auto_in_pready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
-  wire        _luart_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
-  wire [31:0] _luart_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
-  wire        _cpu_auto_master_out_awvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [3:0]  _cpu_auto_master_out_awid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [31:0] _cpu_auto_master_out_awaddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [7:0]  _cpu_auto_master_out_awlen;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [2:0]  _cpu_auto_master_out_awsize;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [1:0]  _cpu_auto_master_out_awburst;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire        _cpu_auto_master_out_wvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [31:0] _cpu_auto_master_out_wdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [3:0]  _cpu_auto_master_out_wstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire        _cpu_auto_master_out_wlast;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire        _cpu_auto_master_out_bready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire        _cpu_auto_master_out_arvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [3:0]  _cpu_auto_master_out_arid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [31:0] _cpu_auto_master_out_araddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [7:0]  _cpu_auto_master_out_arlen;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [2:0]  _cpu_auto_master_out_arsize;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire [1:0]  _cpu_auto_master_out_arburst;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire        _cpu_auto_master_out_rready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  wire        _apbxbar_auto_anon_in_pready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_in_pslverr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_in_prdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_5_psel;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_5_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_5_pwrite;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [29:0] _apbxbar_auto_anon_out_5_paddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [2:0]  _apbxbar_auto_anon_out_5_pprot;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_out_5_pwdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [3:0]  _apbxbar_auto_anon_out_5_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_4_psel;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_4_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_4_pwrite;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [28:0] _apbxbar_auto_anon_out_4_paddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [2:0]  _apbxbar_auto_anon_out_4_pprot;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_out_4_pwdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [3:0]  _apbxbar_auto_anon_out_4_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_3_psel;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_3_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_3_pwrite;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [28:0] _apbxbar_auto_anon_out_3_paddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [2:0]  _apbxbar_auto_anon_out_3_pprot;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_out_3_pwdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [3:0]  _apbxbar_auto_anon_out_3_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_2_psel;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_2_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_2_pwrite;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_out_2_paddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [2:0]  _apbxbar_auto_anon_out_2_pprot;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_out_2_pwdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [3:0]  _apbxbar_auto_anon_out_2_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_1_psel;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_1_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_1_pwrite;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [28:0] _apbxbar_auto_anon_out_1_paddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [2:0]  _apbxbar_auto_anon_out_1_pprot;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_out_1_pwdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [3:0]  _apbxbar_auto_anon_out_1_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_0_psel;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_0_penable;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire        _apbxbar_auto_anon_out_0_pwrite;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [29:0] _apbxbar_auto_anon_out_0_paddr;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [2:0]  _apbxbar_auto_anon_out_0_pprot;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [31:0] _apbxbar_auto_anon_out_0_pwdata;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  wire [3:0]  _apbxbar_auto_anon_out_0_pstrb;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
+  wire        _lmrom_auto_in_arready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
+  wire        _lmrom_auto_in_rvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
+  wire [3:0]  _lmrom_auto_in_rid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
+  wire [31:0] _lmrom_auto_in_rdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
+  wire        _lpsram_auto_in_pready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:44:26
+  wire        _lpsram_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:44:26
+  wire [31:0] _lpsram_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:44:26
+  wire        _lspi_auto_in_pready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:40:25
+  wire        _lspi_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:40:25
+  wire [31:0] _lspi_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:40:25
+  wire        _lvga_auto_in_pready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:39:24
+  wire        _lvga_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:39:24
+  wire [31:0] _lvga_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:39:24
+  wire        _lkeyboard_auto_in_pready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:38:29
+  wire        _lkeyboard_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:38:29
+  wire [31:0] _lkeyboard_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:38:29
+  wire        _lgpio_auto_in_pready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:37:25
+  wire        _lgpio_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:37:25
+  wire [31:0] _lgpio_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:37:25
+  wire        _luart_auto_in_pready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:36:25
+  wire        _luart_auto_in_pslverr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:36:25
+  wire [31:0] _luart_auto_in_prdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:36:25
+  wire        _cpu_auto_master_out_awvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [3:0]  _cpu_auto_master_out_awid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [31:0] _cpu_auto_master_out_awaddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [7:0]  _cpu_auto_master_out_awlen;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [2:0]  _cpu_auto_master_out_awsize;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [1:0]  _cpu_auto_master_out_awburst;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire        _cpu_auto_master_out_wvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [31:0] _cpu_auto_master_out_wdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [3:0]  _cpu_auto_master_out_wstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire        _cpu_auto_master_out_wlast;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire        _cpu_auto_master_out_bready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire        _cpu_auto_master_out_arvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [3:0]  _cpu_auto_master_out_arid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [31:0] _cpu_auto_master_out_araddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [7:0]  _cpu_auto_master_out_arlen;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [2:0]  _cpu_auto_master_out_arsize;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire [1:0]  _cpu_auto_master_out_arburst;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire        _cpu_auto_master_out_rready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  wire        _axiClockBridge_delayer_device_clock_o;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_in_awready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_in_wready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_in_bvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [3:0]  _axiClockBridge_delayer_in_bid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [1:0]  _axiClockBridge_delayer_in_bresp;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_in_arready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_in_rvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [3:0]  _axiClockBridge_delayer_in_rid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [31:0] _axiClockBridge_delayer_in_rdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [1:0]  _axiClockBridge_delayer_in_rresp;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_in_rlast;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_out_awvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [3:0]  _axiClockBridge_delayer_out_awid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [31:0] _axiClockBridge_delayer_out_awaddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [7:0]  _axiClockBridge_delayer_out_awlen;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [2:0]  _axiClockBridge_delayer_out_awsize;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [1:0]  _axiClockBridge_delayer_out_awburst;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_out_wvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [31:0] _axiClockBridge_delayer_out_wdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [3:0]  _axiClockBridge_delayer_out_wstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_out_wlast;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_out_bready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_out_arvalid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [3:0]  _axiClockBridge_delayer_out_arid;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [31:0] _axiClockBridge_delayer_out_araddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [7:0]  _axiClockBridge_delayer_out_arlen;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [2:0]  _axiClockBridge_delayer_out_arsize;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire [1:0]  _axiClockBridge_delayer_out_arburst;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _axiClockBridge_delayer_out_rready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  wire        _apbClockBridge_delayer_device_clock_o;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire        _apbClockBridge_delayer_in_pready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire        _apbClockBridge_delayer_in_pslverr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire [31:0] _apbClockBridge_delayer_in_prdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire        _apbClockBridge_delayer_out_psel;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire        _apbClockBridge_delayer_out_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire        _apbClockBridge_delayer_out_pwrite;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire [31:0] _apbClockBridge_delayer_out_paddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire [2:0]  _apbClockBridge_delayer_out_pprot;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire [31:0] _apbClockBridge_delayer_out_pwdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire [3:0]  _apbClockBridge_delayer_out_pstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  wire        _apbxbar_auto_anon_in_pready;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_in_pslverr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [31:0] _apbxbar_auto_anon_in_prdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_5_psel;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_5_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_5_pwrite;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [29:0] _apbxbar_auto_anon_out_5_paddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [2:0]  _apbxbar_auto_anon_out_5_pprot;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [31:0] _apbxbar_auto_anon_out_5_pwdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [3:0]  _apbxbar_auto_anon_out_5_pstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_4_psel;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_4_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_4_pwrite;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [28:0] _apbxbar_auto_anon_out_4_paddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [2:0]  _apbxbar_auto_anon_out_4_pprot;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [31:0] _apbxbar_auto_anon_out_4_pwdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [3:0]  _apbxbar_auto_anon_out_4_pstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_3_psel;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_3_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_3_pwrite;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [28:0] _apbxbar_auto_anon_out_3_paddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [2:0]  _apbxbar_auto_anon_out_3_pprot;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [31:0] _apbxbar_auto_anon_out_3_pwdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [3:0]  _apbxbar_auto_anon_out_3_pstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_2_psel;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_2_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_2_pwrite;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [31:0] _apbxbar_auto_anon_out_2_paddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [2:0]  _apbxbar_auto_anon_out_2_pprot;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [31:0] _apbxbar_auto_anon_out_2_pwdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [3:0]  _apbxbar_auto_anon_out_2_pstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_1_psel;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_1_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_1_pwrite;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [28:0] _apbxbar_auto_anon_out_1_paddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [2:0]  _apbxbar_auto_anon_out_1_pprot;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [31:0] _apbxbar_auto_anon_out_1_pwdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [3:0]  _apbxbar_auto_anon_out_1_pstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_0_psel;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_0_penable;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire        _apbxbar_auto_anon_out_0_pwrite;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [29:0] _apbxbar_auto_anon_out_0_paddr;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [2:0]  _apbxbar_auto_anon_out_0_pprot;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [31:0] _apbxbar_auto_anon_out_0_pwdata;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  wire [3:0]  _apbxbar_auto_anon_out_0_pstrb;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
   wire        _axi4xbar_1_auto_anon_in_awready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
   wire        _axi4xbar_1_auto_anon_in_wready;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
   wire        _axi4xbar_1_auto_anon_in_bvalid;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
@@ -5779,51 +5781,51 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .clock                         (clock),
     .reset                         (reset),
     .auto_anon_in_awready         (_axi4xbar_auto_anon_in_awready),
-    .auto_anon_in_awvalid         (_cpu_auto_master_out_awvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_awid       (_cpu_auto_master_out_awid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_awaddr     (_cpu_auto_master_out_awaddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_awlen      (_cpu_auto_master_out_awlen),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_awsize     (_cpu_auto_master_out_awsize),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_awburst    (_cpu_auto_master_out_awburst),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
+    .auto_anon_in_awvalid         (_cpu_auto_master_out_awvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_awid       (_cpu_auto_master_out_awid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_awaddr     (_cpu_auto_master_out_awaddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_awlen      (_cpu_auto_master_out_awlen),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_awsize     (_cpu_auto_master_out_awsize),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_awburst    (_cpu_auto_master_out_awburst),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
     .auto_anon_in_wready          (_axi4xbar_auto_anon_in_wready),
-    .auto_anon_in_wvalid          (_cpu_auto_master_out_wvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_wdata      (_cpu_auto_master_out_wdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_wstrb      (_cpu_auto_master_out_wstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_wlast      (_cpu_auto_master_out_wlast),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_bready          (_cpu_auto_master_out_bready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
+    .auto_anon_in_wvalid          (_cpu_auto_master_out_wvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_wdata      (_cpu_auto_master_out_wdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_wstrb      (_cpu_auto_master_out_wstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_wlast      (_cpu_auto_master_out_wlast),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_bready          (_cpu_auto_master_out_bready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
     .auto_anon_in_bvalid          (_axi4xbar_auto_anon_in_bvalid),
     .auto_anon_in_bid        (_axi4xbar_auto_anon_in_bid),
     .auto_anon_in_bresp      (_axi4xbar_auto_anon_in_bresp),
     .auto_anon_in_arready         (_axi4xbar_auto_anon_in_arready),
-    .auto_anon_in_arvalid         (_cpu_auto_master_out_arvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_arid       (_cpu_auto_master_out_arid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_araddr     (_cpu_auto_master_out_araddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_arlen      (_cpu_auto_master_out_arlen),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_arsize     (_cpu_auto_master_out_arsize),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_arburst    (_cpu_auto_master_out_arburst),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-    .auto_anon_in_rready          (_cpu_auto_master_out_rready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
+    .auto_anon_in_arvalid         (_cpu_auto_master_out_arvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_arid       (_cpu_auto_master_out_arid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_araddr     (_cpu_auto_master_out_araddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_arlen      (_cpu_auto_master_out_arlen),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_arsize     (_cpu_auto_master_out_arsize),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_arburst    (_cpu_auto_master_out_arburst),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+    .auto_anon_in_rready          (_cpu_auto_master_out_rready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
     .auto_anon_in_rvalid          (_axi4xbar_auto_anon_in_rvalid),
     .auto_anon_in_rid        (_axi4xbar_auto_anon_in_rid),
     .auto_anon_in_rdata      (_axi4xbar_auto_anon_in_rdata),
     .auto_anon_in_rresp      (_axi4xbar_auto_anon_in_rresp),
     .auto_anon_in_rlast      (_axi4xbar_auto_anon_in_rlast),
-    .auto_anon_out_1_awready      (_axi4delay_delayer_in_awready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
+    .auto_anon_out_1_awready      (_axiClockBridge_delayer_in_awready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
     .auto_anon_out_1_awvalid      (_axi4xbar_auto_anon_out_1_awvalid),
     .auto_anon_out_1_awid    (_axi4xbar_auto_anon_out_1_awid),
     .auto_anon_out_1_awaddr  (_axi4xbar_auto_anon_out_1_awaddr),
     .auto_anon_out_1_awlen   (_axi4xbar_auto_anon_out_1_awlen),
     .auto_anon_out_1_awsize  (_axi4xbar_auto_anon_out_1_awsize),
     .auto_anon_out_1_awburst (_axi4xbar_auto_anon_out_1_awburst),
-    .auto_anon_out_1_wready       (_axi4delay_delayer_in_wready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
+    .auto_anon_out_1_wready       (_axiClockBridge_delayer_in_wready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
     .auto_anon_out_1_wvalid       (_axi4xbar_auto_anon_out_1_wvalid),
     .auto_anon_out_1_wdata   (_axi4xbar_auto_anon_out_1_wdata),
     .auto_anon_out_1_wstrb   (_axi4xbar_auto_anon_out_1_wstrb),
     .auto_anon_out_1_wlast   (_axi4xbar_auto_anon_out_1_wlast),
     .auto_anon_out_1_bready       (_axi4xbar_auto_anon_out_1_bready),
-    .auto_anon_out_1_bvalid       (_axi4delay_delayer_in_bvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_anon_out_1_bid     (_axi4delay_delayer_in_bid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_anon_out_1_bresp   (_axi4delay_delayer_in_bresp),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_anon_out_1_arready      (_axi4delay_delayer_in_arready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
+    .auto_anon_out_1_bvalid       (_axiClockBridge_delayer_in_bvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_anon_out_1_bid     (_axiClockBridge_delayer_in_bid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_anon_out_1_bresp   (_axiClockBridge_delayer_in_bresp),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_anon_out_1_arready      (_axiClockBridge_delayer_in_arready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
     .auto_anon_out_1_arvalid      (_axi4xbar_auto_anon_out_1_arvalid),
     .auto_anon_out_1_arid    (_axi4xbar_auto_anon_out_1_arid),
     .auto_anon_out_1_araddr  (_axi4xbar_auto_anon_out_1_araddr),
@@ -5831,11 +5833,11 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_1_arsize  (_axi4xbar_auto_anon_out_1_arsize),
     .auto_anon_out_1_arburst (_axi4xbar_auto_anon_out_1_arburst),
     .auto_anon_out_1_rready       (_axi4xbar_auto_anon_out_1_rready),
-    .auto_anon_out_1_rvalid       (_axi4delay_delayer_in_rvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_anon_out_1_rid     (_axi4delay_delayer_in_rid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_anon_out_1_rdata   (_axi4delay_delayer_in_rdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_anon_out_1_rresp   (_axi4delay_delayer_in_rresp),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_anon_out_1_rlast   (_axi4delay_delayer_in_rlast),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
+    .auto_anon_out_1_rvalid       (_axiClockBridge_delayer_in_rvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_anon_out_1_rid     (_axiClockBridge_delayer_in_rid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_anon_out_1_rdata   (_axiClockBridge_delayer_in_rdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_anon_out_1_rresp   (_axiClockBridge_delayer_in_rresp),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_anon_out_1_rlast   (_axiClockBridge_delayer_in_rlast),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
     .auto_anon_out_0_awready      (_axi4frag_auto_in_awready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
     .auto_anon_out_0_awvalid      (_axi4xbar_auto_anon_out_0_awvalid),
     .auto_anon_out_0_awid    (_axi4xbar_auto_anon_out_0_awid),
@@ -5919,14 +5921,14 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_2_rresp   (_axi4ram_auto_in_rresp),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
     .auto_anon_out_1_awvalid      (_axi4xbar_1_auto_anon_out_1_awvalid),
     .auto_anon_out_1_wvalid       (_axi4xbar_1_auto_anon_out_1_wvalid),
-    .auto_anon_out_1_arready      (_lmrom_auto_in_arready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
+    .auto_anon_out_1_arready      (_lmrom_auto_in_arready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
     .auto_anon_out_1_arvalid      (_axi4xbar_1_auto_anon_out_1_arvalid),
     .auto_anon_out_1_arid    (_axi4xbar_1_auto_anon_out_1_arid),
     .auto_anon_out_1_araddr  (_axi4xbar_1_auto_anon_out_1_araddr),
     .auto_anon_out_1_rready       (_axi4xbar_1_auto_anon_out_1_rready),
-    .auto_anon_out_1_rvalid       (_lmrom_auto_in_rvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
-    .auto_anon_out_1_rid     (_lmrom_auto_in_rid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
-    .auto_anon_out_1_rdata   (_lmrom_auto_in_rdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
+    .auto_anon_out_1_rvalid       (_lmrom_auto_in_rvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
+    .auto_anon_out_1_rid     (_lmrom_auto_in_rid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
+    .auto_anon_out_1_rdata   (_lmrom_auto_in_rdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
     .auto_anon_out_0_awready      (_axi4buf_auto_in_awready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Buffer.scala:68:29
     .auto_anon_out_0_awvalid      (_axi4xbar_1_auto_anon_out_0_awvalid),
     .auto_anon_out_0_awid    (_axi4xbar_1_auto_anon_out_0_awid),
@@ -5955,14 +5957,14 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_0_rresp   (_axi4buf_auto_in_rresp),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Buffer.scala:68:29
     .auto_anon_out_0_rlast   (_axi4buf_auto_in_rlast)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Buffer.scala:68:29
   );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-  APBFanout apbxbar (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_anon_in_psel       (_apbdelay_delayer_out_psel),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .auto_anon_in_penable    (_apbdelay_delayer_out_penable),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .auto_anon_in_pwrite     (_apbdelay_delayer_out_pwrite),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .auto_anon_in_paddr      (_apbdelay_delayer_out_paddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .auto_anon_in_pprot      (_apbdelay_delayer_out_pprot),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .auto_anon_in_pwdata     (_apbdelay_delayer_out_pwdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .auto_anon_in_pstrb      (_apbdelay_delayer_out_pstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
+  APBFanout apbxbar (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_anon_in_psel       (_apbClockBridge_delayer_out_psel),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .auto_anon_in_penable    (_apbClockBridge_delayer_out_penable),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .auto_anon_in_pwrite     (_apbClockBridge_delayer_out_pwrite),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .auto_anon_in_paddr      (_apbClockBridge_delayer_out_paddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .auto_anon_in_pprot      (_apbClockBridge_delayer_out_pprot),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .auto_anon_in_pwdata     (_apbClockBridge_delayer_out_pwdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .auto_anon_in_pstrb      (_apbClockBridge_delayer_out_pstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
     .auto_anon_in_pready     (_apbxbar_auto_anon_in_pready),
     .auto_anon_in_pslverr    (_apbxbar_auto_anon_in_pslverr),
     .auto_anon_in_prdata     (_apbxbar_auto_anon_in_prdata),
@@ -5973,9 +5975,9 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_5_pprot   (_apbxbar_auto_anon_out_5_pprot),
     .auto_anon_out_5_pwdata  (_apbxbar_auto_anon_out_5_pwdata),
     .auto_anon_out_5_pstrb   (_apbxbar_auto_anon_out_5_pstrb),
-    .auto_anon_out_5_pready  (_lvga_auto_in_pready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
-    .auto_anon_out_5_pslverr (_lvga_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
-    .auto_anon_out_5_prdata  (_lvga_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
+    .auto_anon_out_5_pready  (_lvga_auto_in_pready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:39:24
+    .auto_anon_out_5_pslverr (_lvga_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:39:24
+    .auto_anon_out_5_prdata  (_lvga_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:39:24
     .auto_anon_out_4_psel    (_apbxbar_auto_anon_out_4_psel),
     .auto_anon_out_4_penable (_apbxbar_auto_anon_out_4_penable),
     .auto_anon_out_4_pwrite  (_apbxbar_auto_anon_out_4_pwrite),
@@ -5983,9 +5985,9 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_4_pprot   (_apbxbar_auto_anon_out_4_pprot),
     .auto_anon_out_4_pwdata  (_apbxbar_auto_anon_out_4_pwdata),
     .auto_anon_out_4_pstrb   (_apbxbar_auto_anon_out_4_pstrb),
-    .auto_anon_out_4_pready  (_lkeyboard_auto_in_pready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-    .auto_anon_out_4_pslverr (_lkeyboard_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-    .auto_anon_out_4_prdata  (_lkeyboard_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
+    .auto_anon_out_4_pready  (_lkeyboard_auto_in_pready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:38:29
+    .auto_anon_out_4_pslverr (_lkeyboard_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:38:29
+    .auto_anon_out_4_prdata  (_lkeyboard_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:38:29
     .auto_anon_out_3_psel    (_apbxbar_auto_anon_out_3_psel),
     .auto_anon_out_3_penable (_apbxbar_auto_anon_out_3_penable),
     .auto_anon_out_3_pwrite  (_apbxbar_auto_anon_out_3_pwrite),
@@ -5993,9 +5995,9 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_3_pprot   (_apbxbar_auto_anon_out_3_pprot),
     .auto_anon_out_3_pwdata  (_apbxbar_auto_anon_out_3_pwdata),
     .auto_anon_out_3_pstrb   (_apbxbar_auto_anon_out_3_pstrb),
-    .auto_anon_out_3_pready  (_lgpio_auto_in_pready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-    .auto_anon_out_3_pslverr (_lgpio_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-    .auto_anon_out_3_prdata  (_lgpio_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
+    .auto_anon_out_3_pready  (_lgpio_auto_in_pready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:37:25
+    .auto_anon_out_3_pslverr (_lgpio_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:37:25
+    .auto_anon_out_3_prdata  (_lgpio_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:37:25
     .auto_anon_out_2_psel    (_apbxbar_auto_anon_out_2_psel),
     .auto_anon_out_2_penable (_apbxbar_auto_anon_out_2_penable),
     .auto_anon_out_2_pwrite  (_apbxbar_auto_anon_out_2_pwrite),
@@ -6003,9 +6005,9 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_2_pprot   (_apbxbar_auto_anon_out_2_pprot),
     .auto_anon_out_2_pwdata  (_apbxbar_auto_anon_out_2_pwdata),
     .auto_anon_out_2_pstrb   (_apbxbar_auto_anon_out_2_pstrb),
-    .auto_anon_out_2_pready  (_lpsram_auto_in_pready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:42:26
-    .auto_anon_out_2_pslverr (_lpsram_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:42:26
-    .auto_anon_out_2_prdata  (_lpsram_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:42:26
+    .auto_anon_out_2_pready  (_lpsram_auto_in_pready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:44:26
+    .auto_anon_out_2_pslverr (_lpsram_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:44:26
+    .auto_anon_out_2_prdata  (_lpsram_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:44:26
     .auto_anon_out_1_psel    (_apbxbar_auto_anon_out_1_psel),
     .auto_anon_out_1_penable (_apbxbar_auto_anon_out_1_penable),
     .auto_anon_out_1_pwrite  (_apbxbar_auto_anon_out_1_pwrite),
@@ -6013,9 +6015,9 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_1_pprot   (_apbxbar_auto_anon_out_1_pprot),
     .auto_anon_out_1_pwdata  (_apbxbar_auto_anon_out_1_pwdata),
     .auto_anon_out_1_pstrb   (_apbxbar_auto_anon_out_1_pstrb),
-    .auto_anon_out_1_pready  (_luart_auto_in_pready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
-    .auto_anon_out_1_pslverr (_luart_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
-    .auto_anon_out_1_prdata  (_luart_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
+    .auto_anon_out_1_pready  (_luart_auto_in_pready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:36:25
+    .auto_anon_out_1_pslverr (_luart_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:36:25
+    .auto_anon_out_1_prdata  (_luart_auto_in_prdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:36:25
     .auto_anon_out_0_psel    (_apbxbar_auto_anon_out_0_psel),
     .auto_anon_out_0_penable (_apbxbar_auto_anon_out_0_penable),
     .auto_anon_out_0_pwrite  (_apbxbar_auto_anon_out_0_pwrite),
@@ -6023,13 +6025,101 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_anon_out_0_pprot   (_apbxbar_auto_anon_out_0_pprot),
     .auto_anon_out_0_pwdata  (_apbxbar_auto_anon_out_0_pwdata),
     .auto_anon_out_0_pstrb   (_apbxbar_auto_anon_out_0_pstrb),
-    .auto_anon_out_0_pready  (_lspi_auto_in_pready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:38:25
-    .auto_anon_out_0_pslverr (_lspi_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:38:25
-    .auto_anon_out_0_prdata  (_lspi_auto_in_prdata)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:38:25
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  CPU cpu (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
+    .auto_anon_out_0_pready  (_lspi_auto_in_pready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:40:25
+    .auto_anon_out_0_pslverr (_lspi_auto_in_pslverr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:40:25
+    .auto_anon_out_0_prdata  (_lspi_auto_in_prdata)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:40:25
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  apb_delayer apbClockBridge_delayer (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .clock          (clock),
+    .reset          (reset),
+    .device_clock_o (_apbClockBridge_delayer_device_clock_o),
+    .in_psel        (_axi42apb_auto_out_psel),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .in_penable     (_axi42apb_auto_out_penable),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .in_pwrite      (_axi42apb_auto_out_pwrite),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .in_paddr       (_axi42apb_auto_out_paddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .in_pprot       (3'h1),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27, home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .in_pwdata      (_axi42apb_auto_out_pwdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .in_pstrb       (_axi42apb_auto_out_pstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .in_pready      (_apbClockBridge_delayer_in_pready),
+    .in_pslverr     (_apbClockBridge_delayer_in_pslverr),
+    .in_prdata      (_apbClockBridge_delayer_in_prdata),
+    .out_psel       (_apbClockBridge_delayer_out_psel),
+    .out_penable    (_apbClockBridge_delayer_out_penable),
+    .out_pwrite     (_apbClockBridge_delayer_out_pwrite),
+    .out_paddr      (_apbClockBridge_delayer_out_paddr),
+    .out_pprot      (_apbClockBridge_delayer_out_pprot),
+    .out_pwdata     (_apbClockBridge_delayer_out_pwdata),
+    .out_pstrb      (_apbClockBridge_delayer_out_pstrb),
+    .out_pready     (_apbxbar_auto_anon_in_pready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .out_pslverr    (_apbxbar_auto_anon_in_pslverr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .out_prdata     (_apbxbar_auto_anon_in_prdata)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  axi4_delayer axiClockBridge_delayer (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .clock             (clock),
+    .reset             (reset),
+    .device_clock_o    (_axiClockBridge_delayer_device_clock_o),
+    .in_awready       (_axiClockBridge_delayer_in_awready),
+    .in_awvalid       (_axi4xbar_auto_anon_out_1_awvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_awid     (_axi4xbar_auto_anon_out_1_awid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_awaddr   (_axi4xbar_auto_anon_out_1_awaddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_awlen    (_axi4xbar_auto_anon_out_1_awlen),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_awsize   (_axi4xbar_auto_anon_out_1_awsize),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_awburst  (_axi4xbar_auto_anon_out_1_awburst),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_wready        (_axiClockBridge_delayer_in_wready),
+    .in_wvalid        (_axi4xbar_auto_anon_out_1_wvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_wdata    (_axi4xbar_auto_anon_out_1_wdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_wstrb    (_axi4xbar_auto_anon_out_1_wstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_wlast    (_axi4xbar_auto_anon_out_1_wlast),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_bready        (_axi4xbar_auto_anon_out_1_bready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_bvalid        (_axiClockBridge_delayer_in_bvalid),
+    .in_bid      (_axiClockBridge_delayer_in_bid),
+    .in_bresp    (_axiClockBridge_delayer_in_bresp),
+    .in_arready       (_axiClockBridge_delayer_in_arready),
+    .in_arvalid       (_axi4xbar_auto_anon_out_1_arvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_arid     (_axi4xbar_auto_anon_out_1_arid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_araddr   (_axi4xbar_auto_anon_out_1_araddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_arlen    (_axi4xbar_auto_anon_out_1_arlen),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_arsize   (_axi4xbar_auto_anon_out_1_arsize),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_arburst  (_axi4xbar_auto_anon_out_1_arburst),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_rready        (_axi4xbar_auto_anon_out_1_rready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
+    .in_rvalid        (_axiClockBridge_delayer_in_rvalid),
+    .in_rid      (_axiClockBridge_delayer_in_rid),
+    .in_rdata    (_axiClockBridge_delayer_in_rdata),
+    .in_rresp    (_axiClockBridge_delayer_in_rresp),
+    .in_rlast    (_axiClockBridge_delayer_in_rlast),
+    .out_awready      (_lsdram_axi_auto_in_awready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_awvalid      (_axiClockBridge_delayer_out_awvalid),
+    .out_awid    (_axiClockBridge_delayer_out_awid),
+    .out_awaddr  (_axiClockBridge_delayer_out_awaddr),
+    .out_awlen   (_axiClockBridge_delayer_out_awlen),
+    .out_awsize  (_axiClockBridge_delayer_out_awsize),
+    .out_awburst (_axiClockBridge_delayer_out_awburst),
+    .out_wready       (_lsdram_axi_auto_in_wready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_wvalid       (_axiClockBridge_delayer_out_wvalid),
+    .out_wdata   (_axiClockBridge_delayer_out_wdata),
+    .out_wstrb   (_axiClockBridge_delayer_out_wstrb),
+    .out_wlast   (_axiClockBridge_delayer_out_wlast),
+    .out_bready       (_axiClockBridge_delayer_out_bready),
+    .out_bvalid       (_lsdram_axi_auto_in_bvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_bid     (_lsdram_axi_auto_in_bid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_bresp   (_lsdram_axi_auto_in_bresp),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_arready      (_lsdram_axi_auto_in_arready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_arvalid      (_axiClockBridge_delayer_out_arvalid),
+    .out_arid    (_axiClockBridge_delayer_out_arid),
+    .out_araddr  (_axiClockBridge_delayer_out_araddr),
+    .out_arlen   (_axiClockBridge_delayer_out_arlen),
+    .out_arsize  (_axiClockBridge_delayer_out_arsize),
+    .out_arburst (_axiClockBridge_delayer_out_arburst),
+    .out_rready       (_axiClockBridge_delayer_out_rready),
+    .out_rvalid       (_lsdram_axi_auto_in_rvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_rid     (_lsdram_axi_auto_in_rid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_rdata   (_lsdram_axi_auto_in_rdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_rresp   (_lsdram_axi_auto_in_rresp),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .out_rlast   (_lsdram_axi_auto_in_rlast)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+  CPU cpu (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
     .clock                         (clock),
-    .reset                         (_cpu_reset_chain_io_q | reset),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/ShiftReg.scala:45:23, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:62:64
+    .reset                         (_cpu_reset_chain_io_q | reset),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:73:64, home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/ShiftReg.scala:45:23
     .auto_master_out_awready      (_axi4xbar_auto_anon_in_awready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
     .auto_master_out_awvalid      (_cpu_auto_master_out_awvalid),
     .auto_master_out_awid    (_cpu_auto_master_out_awid),
@@ -6059,33 +6149,33 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_master_out_rdata   (_axi4xbar_auto_anon_in_rdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
     .auto_master_out_rresp   (_axi4xbar_auto_anon_in_rresp),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
     .auto_master_out_rlast   (_axi4xbar_auto_anon_in_rlast)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:30:23
-  APBUart16550 luart (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
-    .clock           (clock),
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:32:23
+  APBUart16550 luart (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:36:25
+    .clock           (_apbClockBridge_delayer_device_clock_o),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
     .reset           (reset),
-    .auto_in_psel    (_apbxbar_auto_anon_out_1_psel),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_penable (_apbxbar_auto_anon_out_1_penable),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwrite  (_apbxbar_auto_anon_out_1_pwrite),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_paddr   (_apbxbar_auto_anon_out_1_paddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pprot   (_apbxbar_auto_anon_out_1_pprot),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwdata  (_apbxbar_auto_anon_out_1_pwdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pstrb   (_apbxbar_auto_anon_out_1_pstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_psel    (_apbxbar_auto_anon_out_1_psel),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_penable (_apbxbar_auto_anon_out_1_penable),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwrite  (_apbxbar_auto_anon_out_1_pwrite),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_paddr   (_apbxbar_auto_anon_out_1_paddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pprot   (_apbxbar_auto_anon_out_1_pprot),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwdata  (_apbxbar_auto_anon_out_1_pwdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pstrb   (_apbxbar_auto_anon_out_1_pstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pready  (_luart_auto_in_pready),
     .auto_in_pslverr (_luart_auto_in_pslverr),
     .auto_in_prdata  (_luart_auto_in_prdata),
     .uart_rx         (uart_rx),
     .uart_tx         (uart_tx)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:34:25
-  APBGPIO lgpio (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-    .clock             (clock),
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:36:25
+  APBGPIO lgpio (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:37:25
+    .clock             (_apbClockBridge_delayer_device_clock_o),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
     .reset             (reset),
-    .auto_in_psel      (_apbxbar_auto_anon_out_3_psel),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_penable   (_apbxbar_auto_anon_out_3_penable),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwrite    (_apbxbar_auto_anon_out_3_pwrite),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_paddr     (_apbxbar_auto_anon_out_3_paddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pprot     (_apbxbar_auto_anon_out_3_pprot),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwdata    (_apbxbar_auto_anon_out_3_pwdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pstrb     (_apbxbar_auto_anon_out_3_pstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_psel      (_apbxbar_auto_anon_out_3_psel),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_penable   (_apbxbar_auto_anon_out_3_penable),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwrite    (_apbxbar_auto_anon_out_3_pwrite),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_paddr     (_apbxbar_auto_anon_out_3_paddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pprot     (_apbxbar_auto_anon_out_3_pprot),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwdata    (_apbxbar_auto_anon_out_3_pwdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pstrb     (_apbxbar_auto_anon_out_3_pstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pready    (_lgpio_auto_in_pready),
     .auto_in_pslverr   (_lgpio_auto_in_pslverr),
     .auto_in_prdata    (_lgpio_auto_in_prdata),
@@ -6099,33 +6189,33 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .gpio_bundle_seg_5 (gpio_seg_5),
     .gpio_bundle_seg_6 (gpio_seg_6),
     .gpio_bundle_seg_7 (gpio_seg_7)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:35:25
-  APBKeyboard lkeyboard (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-    .clock           (clock),
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:37:25
+  APBKeyboard lkeyboard (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:38:29
+    .clock           (_apbClockBridge_delayer_device_clock_o),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
     .reset           (reset),
-    .auto_in_psel    (_apbxbar_auto_anon_out_4_psel),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_penable (_apbxbar_auto_anon_out_4_penable),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwrite  (_apbxbar_auto_anon_out_4_pwrite),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_paddr   (_apbxbar_auto_anon_out_4_paddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pprot   (_apbxbar_auto_anon_out_4_pprot),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwdata  (_apbxbar_auto_anon_out_4_pwdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pstrb   (_apbxbar_auto_anon_out_4_pstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_psel    (_apbxbar_auto_anon_out_4_psel),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_penable (_apbxbar_auto_anon_out_4_penable),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwrite  (_apbxbar_auto_anon_out_4_pwrite),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_paddr   (_apbxbar_auto_anon_out_4_paddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pprot   (_apbxbar_auto_anon_out_4_pprot),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwdata  (_apbxbar_auto_anon_out_4_pwdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pstrb   (_apbxbar_auto_anon_out_4_pstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pready  (_lkeyboard_auto_in_pready),
     .auto_in_pslverr (_lkeyboard_auto_in_pslverr),
     .auto_in_prdata  (_lkeyboard_auto_in_prdata),
     .ps2_bundle_clk  (ps2_clk),
     .ps2_bundle_data (ps2_data)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:36:29
-  APBVGA lvga (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
-    .clock            (clock),
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:38:29
+  APBVGA lvga (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:39:24
+    .clock            (_apbClockBridge_delayer_device_clock_o),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
     .reset            (reset),
-    .auto_in_psel     (_apbxbar_auto_anon_out_5_psel),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_penable  (_apbxbar_auto_anon_out_5_penable),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwrite   (_apbxbar_auto_anon_out_5_pwrite),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_paddr    (_apbxbar_auto_anon_out_5_paddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pprot    (_apbxbar_auto_anon_out_5_pprot),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwdata   (_apbxbar_auto_anon_out_5_pwdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pstrb    (_apbxbar_auto_anon_out_5_pstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_psel     (_apbxbar_auto_anon_out_5_psel),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_penable  (_apbxbar_auto_anon_out_5_penable),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwrite   (_apbxbar_auto_anon_out_5_pwrite),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_paddr    (_apbxbar_auto_anon_out_5_paddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pprot    (_apbxbar_auto_anon_out_5_pprot),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwdata   (_apbxbar_auto_anon_out_5_pwdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pstrb    (_apbxbar_auto_anon_out_5_pstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pready   (_lvga_auto_in_pready),
     .auto_in_pslverr  (_lvga_auto_in_pslverr),
     .auto_in_prdata   (_lvga_auto_in_prdata),
@@ -6135,17 +6225,17 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .vga_bundle_hsync (vga_hsync),
     .vga_bundle_vsync (vga_vsync),
     .vga_bundle_valid (vga_valid)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:37:24
-  APBSPI lspi (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:38:25
-    .clock           (clock),
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:39:24
+  APBSPI lspi (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:40:25
+    .clock           (_apbClockBridge_delayer_device_clock_o),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
     .reset           (reset),
-    .auto_in_psel    (_apbxbar_auto_anon_out_0_psel),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_penable (_apbxbar_auto_anon_out_0_penable),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwrite  (_apbxbar_auto_anon_out_0_pwrite),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_paddr   (_apbxbar_auto_anon_out_0_paddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pprot   (_apbxbar_auto_anon_out_0_pprot),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwdata  (_apbxbar_auto_anon_out_0_pwdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pstrb   (_apbxbar_auto_anon_out_0_pstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_psel    (_apbxbar_auto_anon_out_0_psel),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_penable (_apbxbar_auto_anon_out_0_penable),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwrite  (_apbxbar_auto_anon_out_0_pwrite),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_paddr   (_apbxbar_auto_anon_out_0_paddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pprot   (_apbxbar_auto_anon_out_0_pprot),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwdata  (_apbxbar_auto_anon_out_0_pwdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pstrb   (_apbxbar_auto_anon_out_0_pstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pready  (_lspi_auto_in_pready),
     .auto_in_pslverr (_lspi_auto_in_pslverr),
     .auto_in_prdata  (_lspi_auto_in_prdata),
@@ -6153,25 +6243,25 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .spi_bundle_ss   (spi_ss),
     .spi_bundle_mosi (spi_mosi),
     .spi_bundle_miso (spi_miso)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:38:25
-  APBPSRAM lpsram (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:42:26
-    .clock            (clock),
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:40:25
+  APBPSRAM lpsram (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:44:26
+    .clock            (_apbClockBridge_delayer_device_clock_o),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
     .reset            (reset),
-    .auto_in_psel     (_apbxbar_auto_anon_out_2_psel),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_penable  (_apbxbar_auto_anon_out_2_penable),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwrite   (_apbxbar_auto_anon_out_2_pwrite),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_paddr    (_apbxbar_auto_anon_out_2_paddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pprot    (_apbxbar_auto_anon_out_2_pprot),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pwdata   (_apbxbar_auto_anon_out_2_pwdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .auto_in_pstrb    (_apbxbar_auto_anon_out_2_pstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_psel     (_apbxbar_auto_anon_out_2_psel),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_penable  (_apbxbar_auto_anon_out_2_penable),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwrite   (_apbxbar_auto_anon_out_2_pwrite),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_paddr    (_apbxbar_auto_anon_out_2_paddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pprot    (_apbxbar_auto_anon_out_2_pprot),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pwdata   (_apbxbar_auto_anon_out_2_pwdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
+    .auto_in_pstrb    (_apbxbar_auto_anon_out_2_pstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:29:27
     .auto_in_pready   (_lpsram_auto_in_pready),
     .auto_in_pslverr  (_lpsram_auto_in_pslverr),
     .auto_in_prdata   (_lpsram_auto_in_prdata),
     .qspi_bundle_sck  (psram_sck),
     .qspi_bundle_ce_n (psram_ce_n),
     .qspi_bundle_dio  (psram_dio)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:42:26
-  AXI4MROM lmrom (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:44:26
+  AXI4MROM lmrom (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
     .clock                (clock),
     .reset                (reset),
     .auto_in_awvalid     (_axi4xbar_1_auto_anon_out_1_awvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
@@ -6184,7 +6274,7 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_in_rvalid      (_lmrom_auto_in_rvalid),
     .auto_in_rid    (_lmrom_auto_in_rid),
     .auto_in_rdata  (_lmrom_auto_in_rdata)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:43:25
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:45:25
   AXI4RAM axi4ram (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
     .clock                (clock),
     .reset                (reset),
@@ -6210,33 +6300,33 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_in_rdata  (_axi4ram_auto_in_rdata),
     .auto_in_rresp  (_axi4ram_auto_in_rresp)
   );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/SRAM.scala:144:29
-  AXI4SDRAM lsdram_axi (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .clock                 (clock),
+  AXI4SDRAM lsdram_axi (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+    .clock                 (_axiClockBridge_delayer_device_clock_o),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
     .reset                 (reset),
     .auto_in_awready      (_lsdram_axi_auto_in_awready),
-    .auto_in_awvalid      (_axi4delay_delayer_out_awvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_awid    (_axi4delay_delayer_out_awid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_awaddr  (_axi4delay_delayer_out_awaddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_awlen   (_axi4delay_delayer_out_awlen),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_awsize  (_axi4delay_delayer_out_awsize),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_awburst (_axi4delay_delayer_out_awburst),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
+    .auto_in_awvalid      (_axiClockBridge_delayer_out_awvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_awid    (_axiClockBridge_delayer_out_awid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_awaddr  (_axiClockBridge_delayer_out_awaddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_awlen   (_axiClockBridge_delayer_out_awlen),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_awsize  (_axiClockBridge_delayer_out_awsize),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_awburst (_axiClockBridge_delayer_out_awburst),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
     .auto_in_wready       (_lsdram_axi_auto_in_wready),
-    .auto_in_wvalid       (_axi4delay_delayer_out_wvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_wdata   (_axi4delay_delayer_out_wdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_wstrb   (_axi4delay_delayer_out_wstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_wlast   (_axi4delay_delayer_out_wlast),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_bready       (_axi4delay_delayer_out_bready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
+    .auto_in_wvalid       (_axiClockBridge_delayer_out_wvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_wdata   (_axiClockBridge_delayer_out_wdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_wstrb   (_axiClockBridge_delayer_out_wstrb),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_wlast   (_axiClockBridge_delayer_out_wlast),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_bready       (_axiClockBridge_delayer_out_bready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
     .auto_in_bvalid       (_lsdram_axi_auto_in_bvalid),
     .auto_in_bid     (_lsdram_axi_auto_in_bid),
     .auto_in_bresp   (_lsdram_axi_auto_in_bresp),
     .auto_in_arready      (_lsdram_axi_auto_in_arready),
-    .auto_in_arvalid      (_axi4delay_delayer_out_arvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_arid    (_axi4delay_delayer_out_arid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_araddr  (_axi4delay_delayer_out_araddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_arlen   (_axi4delay_delayer_out_arlen),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_arsize  (_axi4delay_delayer_out_arsize),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_arburst (_axi4delay_delayer_out_arburst),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .auto_in_rready       (_axi4delay_delayer_out_rready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
+    .auto_in_arvalid      (_axiClockBridge_delayer_out_arvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_arid    (_axiClockBridge_delayer_out_arid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_araddr  (_axiClockBridge_delayer_out_araddr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_arlen   (_axiClockBridge_delayer_out_arlen),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_arsize  (_axiClockBridge_delayer_out_arsize),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_arburst (_axiClockBridge_delayer_out_arburst),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
+    .auto_in_rready       (_axiClockBridge_delayer_out_rready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4Delayer.scala:37:27
     .auto_in_rvalid       (_lsdram_axi_auto_in_rvalid),
     .auto_in_rid     (_lsdram_axi_auto_in_rid),
     .auto_in_rdata   (_lsdram_axi_auto_in_rdata),
@@ -6252,32 +6342,8 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .sdram_bundle_ba       (sdram_ba),
     .sdram_bundle_dqm      (sdram_dqm),
     .sdram_bundle_dq       (sdram_dq)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  apb_delayer apbdelay_delayer (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .clock       (clock),
-    .reset       (reset),
-    .in_psel     (_axi42apb_auto_out_psel),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .in_penable  (_axi42apb_auto_out_penable),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .in_pwrite   (_axi42apb_auto_out_pwrite),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .in_paddr    (_axi42apb_auto_out_paddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .in_pprot    (3'h1),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27, home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .in_pwdata   (_axi42apb_auto_out_pwdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .in_pstrb    (_axi42apb_auto_out_pstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .in_pready   (_apbdelay_delayer_in_pready),
-    .in_pslverr  (_apbdelay_delayer_in_pslverr),
-    .in_prdata   (_apbdelay_delayer_in_prdata),
-    .out_psel    (_apbdelay_delayer_out_psel),
-    .out_penable (_apbdelay_delayer_out_penable),
-    .out_pwrite  (_apbdelay_delayer_out_pwrite),
-    .out_paddr   (_apbdelay_delayer_out_paddr),
-    .out_pprot   (_apbdelay_delayer_out_pprot),
-    .out_pwdata  (_apbdelay_delayer_out_pwdata),
-    .out_pstrb   (_apbdelay_delayer_out_pstrb),
-    .out_pready  (_apbxbar_auto_anon_in_pready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .out_pslverr (_apbxbar_auto_anon_in_pslverr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-    .out_prdata  (_apbxbar_auto_anon_in_prdata)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:29:27
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  AXI4ToAPB axi42apb (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:50:60
+  AXI4ToAPB axi42apb (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
     .clock                (clock),
     .reset                (reset),
     .auto_in_awready     (_axi42apb_auto_in_awready),
@@ -6311,10 +6377,10 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_out_paddr       (_axi42apb_auto_out_paddr),
     .auto_out_pwdata      (_axi42apb_auto_out_pwdata),
     .auto_out_pstrb       (_axi42apb_auto_out_pstrb),
-    .auto_out_pready      (_apbdelay_delayer_in_pready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .auto_out_pslverr     (_apbdelay_delayer_in_pslverr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-    .auto_out_prdata      (_apbdelay_delayer_in_prdata)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/APBDelayer.scala:34:27
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_pready      (_apbClockBridge_delayer_in_pready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .auto_out_pslverr     (_apbClockBridge_delayer_in_pslverr),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+    .auto_out_prdata      (_apbClockBridge_delayer_in_prdata)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/APBDelayer.scala:37:27
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
   AXI4Buffer axi4buf (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Buffer.scala:68:29
     .clock                 (clock),
     .reset                 (reset),
@@ -6345,31 +6411,31 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_in_rdata   (_axi4buf_auto_in_rdata),
     .auto_in_rresp   (_axi4buf_auto_in_rresp),
     .auto_in_rlast   (_axi4buf_auto_in_rlast),
-    .auto_out_awready     (_axi42apb_auto_in_awready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_awready     (_axi42apb_auto_in_awready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
     .auto_out_awvalid     (_axi4buf_auto_out_awvalid),
     .auto_out_awid   (_axi4buf_auto_out_awid),
     .auto_out_awaddr (_axi4buf_auto_out_awaddr),
     .auto_out_awlen  (_axi4buf_auto_out_awlen),
     .auto_out_awsize (_axi4buf_auto_out_awsize),
-    .auto_out_wready      (_axi42apb_auto_in_wready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_wready      (_axi42apb_auto_in_wready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
     .auto_out_wvalid      (_axi4buf_auto_out_wvalid),
     .auto_out_wdata  (_axi4buf_auto_out_wdata),
     .auto_out_wstrb  (_axi4buf_auto_out_wstrb),
     .auto_out_bready      (_axi4buf_auto_out_bready),
-    .auto_out_bvalid      (_axi42apb_auto_in_bvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .auto_out_bid    (_axi42apb_auto_in_bid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .auto_out_bresp  (_axi42apb_auto_in_bresp),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .auto_out_arready     (_axi42apb_auto_in_arready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_bvalid      (_axi42apb_auto_in_bvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_bid    (_axi42apb_auto_in_bid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_bresp  (_axi42apb_auto_in_bresp),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_arready     (_axi42apb_auto_in_arready),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
     .auto_out_arvalid     (_axi4buf_auto_out_arvalid),
     .auto_out_arid   (_axi4buf_auto_out_arid),
     .auto_out_araddr (_axi4buf_auto_out_araddr),
     .auto_out_arlen  (_axi4buf_auto_out_arlen),
     .auto_out_arsize (_axi4buf_auto_out_arsize),
     .auto_out_rready      (_axi4buf_auto_out_rready),
-    .auto_out_rvalid      (_axi42apb_auto_in_rvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .auto_out_rid    (_axi42apb_auto_in_rid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .auto_out_rdata  (_axi42apb_auto_in_rdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
-    .auto_out_rresp  (_axi42apb_auto_in_rresp)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_rvalid      (_axi42apb_auto_in_rvalid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_rid    (_axi42apb_auto_in_rid),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_rdata  (_axi42apb_auto_in_rdata),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
+    .auto_out_rresp  (_axi42apb_auto_in_rresp)	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/amba/AXI4ToAPB.scala:103:30
   );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Buffer.scala:68:29
   AXI4UserYanker axi4yank (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:125:30
     .clock                          (clock),
@@ -6497,68 +6563,6 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
     .auto_out_recho_real_last  (_axi4yank_auto_in_recho_real_last),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:125:30
     .auto_out_rlast            (_axi4yank_auto_in_rlast)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/UserYanker.scala:125:30
   );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Fragmenter.scala:224:30
-  axi4_delayer axi4delay_delayer (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
-    .clock             (clock),
-    .reset             (reset),
-    .in_awready       (_axi4delay_delayer_in_awready),
-    .in_awvalid       (_axi4xbar_auto_anon_out_1_awvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awid     (_axi4xbar_auto_anon_out_1_awid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awaddr   (_axi4xbar_auto_anon_out_1_awaddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awlen    (_axi4xbar_auto_anon_out_1_awlen),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awsize   (_axi4xbar_auto_anon_out_1_awsize),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_awburst  (_axi4xbar_auto_anon_out_1_awburst),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_wready        (_axi4delay_delayer_in_wready),
-    .in_wvalid        (_axi4xbar_auto_anon_out_1_wvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_wdata    (_axi4xbar_auto_anon_out_1_wdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_wstrb    (_axi4xbar_auto_anon_out_1_wstrb),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_wlast    (_axi4xbar_auto_anon_out_1_wlast),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_bready        (_axi4xbar_auto_anon_out_1_bready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_bvalid        (_axi4delay_delayer_in_bvalid),
-    .in_bid      (_axi4delay_delayer_in_bid),
-    .in_bresp    (_axi4delay_delayer_in_bresp),
-    .in_arready       (_axi4delay_delayer_in_arready),
-    .in_arvalid       (_axi4xbar_auto_anon_out_1_arvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_arid     (_axi4xbar_auto_anon_out_1_arid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_araddr   (_axi4xbar_auto_anon_out_1_araddr),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_arlen    (_axi4xbar_auto_anon_out_1_arlen),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_arsize   (_axi4xbar_auto_anon_out_1_arsize),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_arburst  (_axi4xbar_auto_anon_out_1_arburst),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_rready        (_axi4xbar_auto_anon_out_1_rready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/amba/axi4/Xbar.scala:241:30
-    .in_rvalid        (_axi4delay_delayer_in_rvalid),
-    .in_rid      (_axi4delay_delayer_in_rid),
-    .in_rdata    (_axi4delay_delayer_in_rdata),
-    .in_rresp    (_axi4delay_delayer_in_rresp),
-    .in_rlast    (_axi4delay_delayer_in_rlast),
-    .out_awready      (_lsdram_axi_auto_in_awready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_awvalid      (_axi4delay_delayer_out_awvalid),
-    .out_awid    (_axi4delay_delayer_out_awid),
-    .out_awaddr  (_axi4delay_delayer_out_awaddr),
-    .out_awlen   (_axi4delay_delayer_out_awlen),
-    .out_awsize  (_axi4delay_delayer_out_awsize),
-    .out_awburst (_axi4delay_delayer_out_awburst),
-    .out_wready       (_lsdram_axi_auto_in_wready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_wvalid       (_axi4delay_delayer_out_wvalid),
-    .out_wdata   (_axi4delay_delayer_out_wdata),
-    .out_wstrb   (_axi4delay_delayer_out_wstrb),
-    .out_wlast   (_axi4delay_delayer_out_wlast),
-    .out_bready       (_axi4delay_delayer_out_bready),
-    .out_bvalid       (_lsdram_axi_auto_in_bvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_bid     (_lsdram_axi_auto_in_bid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_bresp   (_lsdram_axi_auto_in_bresp),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_arready      (_lsdram_axi_auto_in_arready),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_arvalid      (_axi4delay_delayer_out_arvalid),
-    .out_arid    (_axi4delay_delayer_out_arid),
-    .out_araddr  (_axi4delay_delayer_out_araddr),
-    .out_arlen   (_axi4delay_delayer_out_arlen),
-    .out_arsize  (_axi4delay_delayer_out_arsize),
-    .out_arburst (_axi4delay_delayer_out_arburst),
-    .out_rready       (_axi4delay_delayer_out_rready),
-    .out_rvalid       (_lsdram_axi_auto_in_rvalid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_rid     (_lsdram_axi_auto_in_rid),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_rdata   (_lsdram_axi_auto_in_rdata),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_rresp   (_lsdram_axi_auto_in_rresp),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-    .out_rlast   (_lsdram_axi_auto_in_rlast)	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:48:60
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/amba/AXI4Delayer.scala:34:27
   SynchronizerShiftReg_w1_d10 cpu_reset_chain (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/ShiftReg.scala:45:23
     .clock (clock),
     .io_d  (reset),
@@ -6566,56 +6570,56 @@ module ysyxSoCASIC(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:59:9
   );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/rocket-chip/src/main/scala/util/ShiftReg.scala:45:23
 endmodule
 
-module ysyxSoCFull(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:111:9
-  input         clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:111:9
-                reset,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:111:9
-  output [15:0] externalPins_gpio_out,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-  input  [15:0] externalPins_gpio_in,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-  output [7:0]  externalPins_gpio_seg_0,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_gpio_seg_1,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_gpio_seg_2,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_gpio_seg_3,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_gpio_seg_4,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_gpio_seg_5,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_gpio_seg_6,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_gpio_seg_7,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-  input         externalPins_ps2_clk,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_ps2_data,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-  output [7:0]  externalPins_vga_r,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_vga_g,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_vga_b,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-  output        externalPins_vga_hsync,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_vga_vsync,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-                externalPins_vga_valid,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-  input         externalPins_uart_rx,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
-  output        externalPins_uart_tx	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:148:26
+module ysyxSoCFull(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:122:9
+  input         clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:122:9
+                reset,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:122:9
+  output [15:0] externalPins_gpio_out,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+  input  [15:0] externalPins_gpio_in,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+  output [7:0]  externalPins_gpio_seg_0,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_gpio_seg_1,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_gpio_seg_2,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_gpio_seg_3,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_gpio_seg_4,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_gpio_seg_5,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_gpio_seg_6,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_gpio_seg_7,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+  input         externalPins_ps2_clk,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_ps2_data,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+  output [7:0]  externalPins_vga_r,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_vga_g,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_vga_b,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+  output        externalPins_vga_hsync,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_vga_vsync,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+                externalPins_vga_valid,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+  input         externalPins_uart_rx,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
+  output        externalPins_uart_tx	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:159:26
 );
 
-  wire        _bitrev_miso;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:138:24
-  wire        _flash_miso;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:135:23
-  wire        _asic_spi_sck;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire [7:0]  _asic_spi_ss;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_spi_mosi;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_psram_sck;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_psram_ce_n;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_sdram_clk;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_sdram_cke;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_sdram_cs;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_sdram_ras;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_sdram_cas;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire        _asic_sdram_we;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire [12:0] _asic_sdram_a;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire [1:0]  _asic_sdram_ba;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire [3:0]  _asic_sdram_dqm;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  wire [3:0]  _dio_wire;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:143:23
-  wire [31:0] _dq_wire;	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
-  ysyxSoCASIC asic (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+  wire        _bitrev_miso;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:149:24
+  wire        _flash_miso;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:146:23
+  wire        _asic_spi_sck;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire [7:0]  _asic_spi_ss;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_spi_mosi;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_psram_sck;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_psram_ce_n;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_sdram_clk;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_sdram_cke;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_sdram_cs;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_sdram_ras;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_sdram_cas;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire        _asic_sdram_we;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire [12:0] _asic_sdram_a;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire [1:0]  _asic_sdram_ba;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire [3:0]  _asic_sdram_dqm;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  wire [3:0]  _dio_wire;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:154:23
+  wire [31:0] _dq_wire;	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:156:23
+  ysyxSoCASIC asic (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
     .clock      (clock),
     .reset      (reset),
     .spi_sck    (_asic_spi_sck),
     .spi_ss     (_asic_spi_ss),
     .spi_mosi   (_asic_spi_mosi),
-    .spi_miso   (_bitrev_miso & _flash_miso),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:135:23, :138:24, :141:69
+    .spi_miso   (_bitrev_miso & _flash_miso),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:146:23, :149:24, :152:69
     .uart_rx    (externalPins_uart_rx),
     .uart_tx    (externalPins_uart_tx),
     .psram_sck  (_asic_psram_sck),
@@ -6649,44 +6653,44 @@ module ysyxSoCFull(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:111:9
     .vga_hsync  (externalPins_vga_hsync),
     .vga_vsync  (externalPins_vga_vsync),
     .vga_valid  (externalPins_vga_valid)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-  flash flash (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:135:23
-    .sck  (_asic_spi_sck),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ss   (_asic_spi_ss[0]),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24, :137:32
-    .mosi (_asic_spi_mosi),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+  flash flash (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:146:23
+    .sck  (_asic_spi_sck),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .ss   (_asic_spi_ss[0]),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24, :148:32
+    .mosi (_asic_spi_mosi),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
     .miso (_flash_miso)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:135:23
-  bitrev bitrev (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:138:24
-    .sck  (_asic_spi_sck),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ss   (_asic_spi_ss[7]),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24, :140:33
-    .mosi (_asic_spi_mosi),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:146:23
+  bitrev bitrev (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:149:24
+    .sck  (_asic_spi_sck),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .ss   (_asic_spi_ss[7]),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24, :151:33
+    .mosi (_asic_spi_mosi),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
     .miso (_bitrev_miso)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:138:24
-  psram psram (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:143:23
-    .sck  (_asic_psram_sck),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ce_n (_asic_psram_ce_n),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:149:24
+  psram psram (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:154:23
+    .sck  (_asic_psram_sck),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .ce_n (_asic_psram_ce_n),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
     .dio  (_dio_wire)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:143:23
-  sdram sdram (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
-    .clk (_asic_sdram_clk),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cke (_asic_sdram_cke),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cs  (_asic_sdram_cs),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ras (_asic_sdram_ras),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .cas (_asic_sdram_cas),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .we  (_asic_sdram_we),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .a   (_asic_sdram_a),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .ba  (_asic_sdram_ba),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
-    .dqm (_asic_sdram_dqm),	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:107:24
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:154:23
+  sdram sdram (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:156:23
+    .clk (_asic_sdram_clk),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .cke (_asic_sdram_cke),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .cs  (_asic_sdram_cs),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .ras (_asic_sdram_ras),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .cas (_asic_sdram_cas),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .we  (_asic_sdram_we),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .a   (_asic_sdram_a),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .ba  (_asic_sdram_ba),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
+    .dqm (_asic_sdram_dqm),	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:118:24
     .dq  (_dq_wire)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/SoC.scala:145:23
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/SoC.scala:156:23
 endmodule
 
-module ysyxSoCTop(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/Top.scala:13:7
-  input clock,	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/Top.scala:13:7
-        reset	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/Top.scala:13:7
+module ysyxSoCTop(	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/Top.scala:13:7
+  input clock,	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/Top.scala:13:7
+        reset	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/Top.scala:13:7
 );
 
-  ysyxSoCFull dut (	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/Top.scala:18:20
+  ysyxSoCFull dut (	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/Top.scala:18:20
     .clock                   (clock),
     .reset                   (reset),
     .externalPins_gpio_out   (/* unused */),
@@ -6709,7 +6713,7 @@ module ysyxSoCTop(	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/Top.scala:13:7
     .externalPins_vga_valid  (/* unused */),
     .externalPins_uart_rx    (1'h0),
     .externalPins_uart_tx    (/* unused */)
-  );	// home/yong/ysyx/ysyx-workbench/ysyxSoC/src/Top.scala:18:20
+  );	// home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/src/Top.scala:18:20
 endmodule
 
 

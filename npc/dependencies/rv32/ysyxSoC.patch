@@ -1,8 +1,8 @@
 diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
-index c0d20764..7e547014 100644
+index c0d20764..66aa255c 100644
 --- a/perip/amba/apb_delayer.v
 +++ b/perip/amba/apb_delayer.v
-@@ -1,38 +1,290 @@
+@@ -1,38 +1,412 @@
 -module apb_delayer(
 -  input         clock,
 -  input         reset,
@@ -28,6 +28,138 @@ index c0d20764..7e547014 100644
 -  input  [31:0] out_prdata,
 -  input         out_pslverr
 +module apb_delayer #(
++`ifdef YSYX_DEVICE_TIMING_MODE
++    parameter integer DEVICE_TIMING_MODE = `YSYX_DEVICE_TIMING_MODE,
++`else
++    parameter integer DEVICE_TIMING_MODE = 1,
++`endif
++`ifdef YSYX_SIM_CPU_FREQ_MHZ
++    parameter [63:0] CPU_FREQUENCY_HZ = 64'd1000000 * `YSYX_SIM_CPU_FREQ_MHZ,
++`else
++    parameter [63:0] CPU_FREQUENCY_HZ = 100_000_000,
++`endif
++    parameter [63:0] DEVICE_FREQUENCY_HZ = 100_000_000,
++`ifdef YSYX_SIM_CPU_FREQ_MHZ
++    // 与 CPU 本地 CLINT 共享频率输入；外设参考频率固定为 100 MHz。
++    parameter [63:0] PROCESSOR_TO_PERIPHERAL_FREQUENCY_RATIO_SCALED =
++        (64'd1 << FREQUENCY_RATIO_SCALE_SHIFT) * `YSYX_SIM_CPU_FREQ_MHZ / 64'd100,
++`else
++    parameter [63:0] PROCESSOR_TO_PERIPHERAL_FREQUENCY_RATIO_SCALED = 64'd3037,
++`endif
++    parameter integer FREQUENCY_RATIO_SCALE_SHIFT = 10
++) (
++    input             clock,
++    input             reset,
++    output            device_clock_o,
++    input      [31:0] in_paddr,
++    input             in_psel,
++    input             in_penable,
++    input      [ 2:0] in_pprot,
++    input             in_pwrite,
++    input      [31:0] in_pwdata,
++    input      [ 3:0] in_pstrb,
++    output reg        in_pready,
++    output reg [31:0] in_prdata,
++    output reg        in_pslverr,
++
++    output reg [31:0] out_paddr,
++    output reg        out_psel,
++    output reg        out_penable,
++    output reg [ 2:0] out_pprot,
++    output reg        out_pwrite,
++    output reg [31:0] out_pwdata,
++    output reg [ 3:0] out_pstrb,
++    input             out_pready,
++    input      [31:0] out_prdata,
++    input             out_pslverr
+ );
+ 
+-  assign out_paddr   = in_paddr;
+-  assign out_psel    = in_psel;
+-  assign out_penable = in_penable;
+-  assign out_pprot   = in_pprot;
+-  assign out_pwrite  = in_pwrite;
+-  assign out_pwdata  = in_pwdata;
+-  assign out_pstrb   = in_pstrb;
+-  assign in_pready   = out_pready;
+-  assign in_prdata   = out_prdata;
+-  assign in_pslverr  = out_pslverr;
++
++  generate
++    if (DEVICE_TIMING_MODE == 0) begin : g_legacy
++      assign device_clock_o = clock;
++      apb_delayer_legacy #(
++          .PROCESSOR_TO_PERIPHERAL_FREQUENCY_RATIO_SCALED(PROCESSOR_TO_PERIPHERAL_FREQUENCY_RATIO_SCALED),
++          .FREQUENCY_RATIO_SCALE_SHIFT(FREQUENCY_RATIO_SCALE_SHIFT)
++      ) u_legacy (
++          .*
++      );
++    end else begin : g_device
++      wire device_step;
++      device_clock #(
++          .CPU_FREQUENCY_HZ(CPU_FREQUENCY_HZ),
++          .DEVICE_FREQUENCY_HZ(DEVICE_FREQUENCY_HZ)
++      ) u_clock (
++          .clock(clock),
++          .reset(reset),
++          .device_clock_o(device_clock_o),
++          .device_step_o(device_step)
++      );
++
++      localparam [1:0] IDLE = 0, SETUP = 1, ACCESS = 2;
++      reg [1:0] state_q, state_d;
++      reg [71:0] request_q;
++      wire setup_present = in_psel && !in_penable;
++
++      // Capture fast-side setup if it misses a device edge. At an aligned edge
++      // setup goes straight through; ACCESS completes without a response stage.
++      always @(*) begin
++        {out_paddr, out_pprot, out_pwrite, out_pwdata, out_pstrb} =
++            (state_q == IDLE) ? {in_paddr, in_pprot, in_pwrite, in_pwdata, in_pstrb} : request_q;
++        out_psel = (state_q != IDLE) || setup_present;
++        out_penable = state_q == ACCESS;
++        in_prdata = out_prdata;
++        in_pslverr = out_pslverr;
++        in_pready = (state_q == ACCESS) && device_step && out_pready;
++      end
++
++      always @(*) begin
++        state_d = state_q;
++        case (state_q)
++          IDLE: begin
++            if (setup_present) state_d = device_step ? ACCESS : SETUP;
++          end
++          SETUP: begin
++            if (device_step) state_d = ACCESS;
++          end
++          ACCESS: begin
++            if (device_step && out_pready) state_d = IDLE;
++          end
++          default: state_d = IDLE;
++        endcase
++      end
++
++      always @(posedge clock) begin
++        if (reset) begin
++          state_q   <= IDLE;
++          request_q <= 0;
++        end else begin
++          state_q <= state_d;
++          if (state_q == IDLE && setup_present)
++            request_q <= {in_paddr, in_pprot, in_pwrite, in_pwdata, in_pstrb};
++        end
++      end
++    end
++  endgenerate
++
++  initial begin
++    if (DEVICE_TIMING_MODE < 0 || DEVICE_TIMING_MODE > 1) $fatal(1, "invalid device timing mode");
++  end
++endmodule
++
++
++// Historical response-scaling model, retained only for explicit reproduction.
++module apb_delayer_legacy #(
 +`ifdef YSYX_SIM_CPU_FREQ_MHZ
 +    // 与 CPU 本地 CLINT 共享频率输入；外设参考频率固定为 100 MHz。
 +    parameter [63:0] PROCESSOR_TO_PERIPHERAL_FREQUENCY_RATIO_SCALED =
@@ -60,18 +192,8 @@ index c0d20764..7e547014 100644
 +    input         out_pready,
 +    input  [31:0] out_prdata,
 +    input         out_pslverr
- );
- 
--  assign out_paddr   = in_paddr;
--  assign out_psel    = in_psel;
--  assign out_penable = in_penable;
--  assign out_pprot   = in_pprot;
--  assign out_pwrite  = in_pwrite;
--  assign out_pwdata  = in_pwdata;
--  assign out_pstrb   = in_pstrb;
--  assign in_pready   = out_pready;
--  assign in_prdata   = out_prdata;
--  assign in_pslverr  = out_pslverr;
++);
++
 +  localparam [1:0] APB_WAIT_REQUEST_STATE = 2'd0;
 +  localparam [1:0] APB_WAIT_DEVICE_RESPONSE_STATE = 2'd1;
 +  localparam [1:0] APB_DELAY_RESPONSE_STATE = 2'd2;
@@ -328,10 +450,10 @@ index c0d20764..7e547014 100644
  
  endmodule
 diff --git a/perip/amba/axi4_delayer.v b/perip/amba/axi4_delayer.v
-index f692803b..4067bdf2 100644
+index f692803b..e68d36a2 100644
 --- a/perip/amba/axi4_delayer.v
 +++ b/perip/amba/axi4_delayer.v
-@@ -1,96 +1,591 @@
+@@ -1,96 +1,877 @@
 -module axi4_delayer(
 -  input         clock,
 -  input         reset,
@@ -396,6 +518,17 @@ index f692803b..4067bdf2 100644
 -  input  [3:0]  out_bid,
 -  input  [1:0]  out_bresp
 +module axi4_delayer #(
++`ifdef YSYX_DEVICE_TIMING_MODE
++    parameter integer DEVICE_TIMING_MODE = `YSYX_DEVICE_TIMING_MODE,
++`else
++    parameter integer DEVICE_TIMING_MODE = 1,
++`endif
++`ifdef YSYX_SIM_CPU_FREQ_MHZ
++    parameter [63:0] CPU_FREQUENCY_HZ = 64'd1000000 * `YSYX_SIM_CPU_FREQ_MHZ,
++`else
++    parameter [63:0] CPU_FREQUENCY_HZ = 100_000_000,
++`endif
++    parameter [63:0] DEVICE_FREQUENCY_HZ = 100_000_000,
 +`ifdef YSYX_SIM_CPU_FREQ_MHZ
 +    // 与 CPU 本地 CLINT 共享频率输入；外设参考频率固定为 100 MHz。
 +    parameter [63:0] PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED =
@@ -407,8 +540,9 @@ index f692803b..4067bdf2 100644
 +    parameter integer READ_RESPONSE_BUFFER_DEPTH = 16,
 +    parameter integer READ_RESPONSE_BUFFER_ADDR_WIDTH = 4
 +) (
-+    input         clock,
-+    input         reset,
++    input  clock,
++    input  reset,
++    output device_clock_o,
 +
 +    output reg        in_arready,
 +    input             in_arvalid,
@@ -502,6 +636,236 @@ index f692803b..4067bdf2 100644
 -  assign in_bvalid = out_bvalid;
 -  assign in_bid = out_bid;
 -  assign in_bresp = out_bresp;
++
++  generate
++    if (DEVICE_TIMING_MODE == 0) begin : g_legacy
++      assign device_clock_o = clock;
++      axi4_delayer_legacy #(
++          .PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED(PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED),
++          .FREQUENCY_RATIO_SCALE_SHIFT(FREQUENCY_RATIO_SCALE_SHIFT),
++          .READ_RESPONSE_BUFFER_DEPTH(READ_RESPONSE_BUFFER_DEPTH),
++          .READ_RESPONSE_BUFFER_ADDR_WIDTH(READ_RESPONSE_BUFFER_ADDR_WIDTH)
++      ) u_legacy (
++          .*
++      );
++    end else begin : g_device
++      wire device_step;
++      device_clock #(
++          .CPU_FREQUENCY_HZ(CPU_FREQUENCY_HZ),
++          .DEVICE_FREQUENCY_HZ(DEVICE_FREQUENCY_HZ)
++      ) u_clock (
++          .clock(clock),
++          .reset(reset),
++          .device_clock_o(device_clock_o),
++          .device_step_o(device_step)
++      );
++
++      // One read and one write transaction may coexist. Request payload stays
++      // with the CPU until a device edge accepts it; no extra request FIFO.
++      reg read_active_q;
++      reg write_address_accepted_q;
++      reg write_last_accepted_q;
++
++      always @(*) begin
++        out_arid    = in_arid;
++        out_araddr  = in_araddr;
++        out_arlen   = in_arlen;
++        out_arsize  = in_arsize;
++        out_arburst = in_arburst;
++        out_arvalid = in_arvalid && !read_active_q;
++        in_arready  = device_step && out_arready && !read_active_q;
++
++        out_awid    = in_awid;
++        out_awaddr  = in_awaddr;
++        out_awlen   = in_awlen;
++        out_awsize  = in_awsize;
++        out_awburst = in_awburst;
++        out_awvalid = in_awvalid && !write_address_accepted_q;
++        in_awready  = device_step && out_awready && !write_address_accepted_q;
++
++        out_wdata  = in_wdata;
++        out_wstrb  = in_wstrb;
++        out_wlast  = in_wlast;
++        out_wvalid = in_wvalid && !write_last_accepted_q;
++        in_wready  = device_step && out_wready && !write_last_accepted_q;
++      end
++
++      // The existing 16-beat R capacity absorbs CPU backpressure. An empty
++      // queue bypasses on a device edge; a stalled beat is captured once.
++      reg [38:0] read_response_array[0:READ_RESPONSE_BUFFER_DEPTH-1];
++      reg [READ_RESPONSE_BUFFER_ADDR_WIDTH-1:0] read_index_q, write_index_q;
++      reg [READ_RESPONSE_BUFFER_ADDR_WIDTH:0] read_count_q;
++      wire read_buffer_present = read_count_q != 0;
++      wire read_buffer_pop = read_buffer_present && in_rready;
++      wire read_direct_present = !read_buffer_present && device_step && read_active_q && out_rvalid;
++      wire read_direct_consumed = read_direct_present && in_rready;
++      wire read_buffer_push = device_step && out_rvalid && out_rready && !read_direct_consumed;
++
++      always @(*) begin
++        out_rready = read_active_q &&
++            (!read_count_q[READ_RESPONSE_BUFFER_ADDR_WIDTH] || read_buffer_pop);
++        in_rvalid = read_buffer_present || read_direct_present;
++        {in_rid, in_rdata, in_rresp, in_rlast} = read_buffer_present ?
++            read_response_array[read_index_q] : {out_rid, out_rdata, out_rresp, out_rlast};
++      end
++
++      always @(posedge clock) begin
++        if (reset) begin
++          read_count_q  <= 0;
++          read_index_q  <= 0;
++          write_index_q <= 0;
++        end else begin
++          if (read_buffer_push) begin
++            read_response_array[write_index_q] <= {out_rid, out_rdata, out_rresp, out_rlast};
++            write_index_q <= write_index_q + 1'b1;
++          end
++          if (read_buffer_pop) read_index_q <= read_index_q + 1'b1;
++          case ({
++            read_buffer_push, read_buffer_pop
++          })
++            2'b10:   read_count_q <= read_count_q + 1'b1;
++            2'b01:   read_count_q <= read_count_q - 1'b1;
++            default: ;
++          endcase
++        end
++      end
++
++      // One B response, with the same empty bypass and stall capture as R.
++      reg write_response_present_q;
++      reg [5:0] write_response_q;
++      wire write_inputs_accepted = write_address_accepted_q && write_last_accepted_q;
++      wire write_direct_present = !write_response_present_q && device_step &&
++          out_bvalid && write_inputs_accepted;
++      wire write_response_pop = write_response_present_q && in_bready;
++      wire write_response_push = device_step && out_bvalid && out_bready &&
++          !(write_direct_present && in_bready);
++
++      always @(*) begin
++        out_bready = write_inputs_accepted && (!write_response_present_q || write_response_pop);
++        in_bvalid = write_response_present_q || write_direct_present;
++        {in_bid, in_bresp} = write_response_present_q ? write_response_q : {out_bid, out_bresp};
++      end
++
++      always @(posedge clock) begin
++        if (reset) begin
++          write_response_present_q <= 1'b0;
++          write_response_q <= 0;
++        end else begin
++          if (write_response_pop) write_response_present_q <= 1'b0;
++          if (write_response_push) begin
++            write_response_present_q <= 1'b1;
++            write_response_q <= {out_bid, out_bresp};
++          end
++        end
++      end
++
++      // Transaction ownership ends only when the CPU consumes the last reply.
++      always @(posedge clock) begin
++        if (reset) begin
++          read_active_q <= 1'b0;
++          write_address_accepted_q <= 1'b0;
++          write_last_accepted_q <= 1'b0;
++        end else begin
++          if (in_arvalid && in_arready) read_active_q <= 1'b1;
++          if (in_rvalid && in_rready && in_rlast) read_active_q <= 1'b0;
++          if (in_awvalid && in_awready) write_address_accepted_q <= 1'b1;
++          if (in_wvalid && in_wready && in_wlast) write_last_accepted_q <= 1'b1;
++          if (in_bvalid && in_bready) begin
++            write_address_accepted_q <= 1'b0;
++            write_last_accepted_q <= 1'b0;
++          end
++        end
++      end
++    end
++  endgenerate
++
++  initial begin
++    if (DEVICE_TIMING_MODE < 0 || DEVICE_TIMING_MODE > 1 ||
++        READ_RESPONSE_BUFFER_DEPTH != (1 << READ_RESPONSE_BUFFER_ADDR_WIDTH))
++      $fatal(1, "invalid device timing mode or read response queue depth");
++  end
++endmodule
++
++
++// Historical response-scaling model, retained only for explicit reproduction.
++module axi4_delayer_legacy #(
++`ifdef YSYX_SIM_CPU_FREQ_MHZ
++    // 与 CPU 本地 CLINT 共享频率输入；外设参考频率固定为 100 MHz。
++    parameter [63:0] PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED =
++        (64'd1 << FREQUENCY_RATIO_SCALE_SHIFT) * `YSYX_SIM_CPU_FREQ_MHZ / 64'd100,
++`else
++    parameter [63:0] PROCESSOR_TO_DEVICE_FREQUENCY_RATIO_SCALED = 64'd3037,
++`endif
++    parameter integer FREQUENCY_RATIO_SCALE_SHIFT = 10,
++    parameter integer READ_RESPONSE_BUFFER_DEPTH = 16,
++    parameter integer READ_RESPONSE_BUFFER_ADDR_WIDTH = 4
++) (
++    input         clock,
++    input         reset,
++
++    output reg        in_arready,
++    input             in_arvalid,
++    input      [ 3:0] in_arid,
++    input      [31:0] in_araddr,
++    input      [ 7:0] in_arlen,
++    input      [ 2:0] in_arsize,
++    input      [ 1:0] in_arburst,
++    input             in_rready,
++    output reg        in_rvalid,
++    output reg [ 3:0] in_rid,
++    output reg [31:0] in_rdata,
++    output reg [ 1:0] in_rresp,
++    output reg        in_rlast,
++
++    output reg        in_awready,
++    input             in_awvalid,
++    input      [ 3:0] in_awid,
++    input      [31:0] in_awaddr,
++    input      [ 7:0] in_awlen,
++    input      [ 2:0] in_awsize,
++    input      [ 1:0] in_awburst,
++    output reg        in_wready,
++    input             in_wvalid,
++    input      [31:0] in_wdata,
++    input      [ 3:0] in_wstrb,
++    input             in_wlast,
++    input             in_bready,
++    output reg        in_bvalid,
++    output reg [ 3:0] in_bid,
++    output reg [ 1:0] in_bresp,
++
++    input             out_arready,
++    output reg        out_arvalid,
++    output reg [ 3:0] out_arid,
++    output reg [31:0] out_araddr,
++    output reg [ 7:0] out_arlen,
++    output reg [ 2:0] out_arsize,
++    output reg [ 1:0] out_arburst,
++    output reg        out_rready,
++    input             out_rvalid,
++    input      [ 3:0] out_rid,
++    input      [31:0] out_rdata,
++    input      [ 1:0] out_rresp,
++    input             out_rlast,
++
++    input             out_awready,
++    output reg        out_awvalid,
++    output reg [ 3:0] out_awid,
++    output reg [31:0] out_awaddr,
++    output reg [ 7:0] out_awlen,
++    output reg [ 2:0] out_awsize,
++    output reg [ 1:0] out_awburst,
++    input             out_wready,
++    output reg        out_wvalid,
++    output reg [31:0] out_wdata,
++    output reg [ 3:0] out_wstrb,
++    output reg        out_wlast,
++    output reg        out_bready,
++    input             out_bvalid,
++    input      [ 3:0] out_bid,
++    input      [ 1:0] out_bresp
++);
++
 +  localparam [63:0] FREQUENCY_RATIO_SCALE =
 +      64'd1 << FREQUENCY_RATIO_SCALE_SHIFT;
 +  localparam [63:0] FREQUENCY_RATIO_SCALED =
@@ -794,8 +1158,8 @@ index f692803b..4067bdf2 100644
 +  reg         write_address_handshake_occurred_d;
 +  reg         write_data_last_handshake_occurred_q;
 +  reg         write_data_last_handshake_occurred_d;
-+  reg  [31:0] write_device_elapsed_cycle_count_q;
-+  reg  [31:0] write_device_elapsed_cycle_count_d;
++  reg  [31:0] write_elapsed_cycle_count_q;
++  reg  [31:0] write_elapsed_cycle_count_d;
 +  reg  [63:0] write_calibrated_elapsed_cycle_scaled_q;
 +  reg  [63:0] write_calibrated_elapsed_cycle_scaled_d;
 +  reg  [63:0] write_frequency_ratio_fraction_remainder_q;
@@ -810,11 +1174,34 @@ index f692803b..4067bdf2 100644
 +  wire upstream_write_response_handshake_occurred =
 +      in_bvalid && in_bready;
 +
-+  wire [31:0] current_write_device_elapsed_cycle_count =
-+      write_device_elapsed_cycle_count_q + 32'd1;
++  // A downstream W acceptance is acknowledged upstream only at its calibrated
++  // deadline. Until then the master holds the payload and we suppress duplicates.
++  reg         write_data_ack_pending_q;
++  reg  [31:0] write_data_ack_cycle_q;
++  reg         write_upstream_last_accepted_q;
++  // Device work can overlap an inserted W acknowledgement delay. In particular,
++  // do not stop AW progress or the final B latency just because W is pending.
++  wire write_address_device_wait =
++      !write_address_handshake_occurred_q && in_awvalid;
++  wire write_data_device_wait =
++      !write_data_last_handshake_occurred_q &&
++      !write_data_ack_pending_q && in_wvalid;
++  wire write_response_device_wait =
++      write_address_handshake_occurred_q &&
++      write_data_last_handshake_occurred_q && !write_response_present_q;
++
++  // Producer gaps are already CPU time. Scale only device work, count a source
++  // gap once, and never charge our own acknowledgement wait a second time.
++  wire [63:0] write_time_increment_scaled =
++      (write_address_device_wait || write_data_device_wait || write_response_device_wait)
++      ? FREQUENCY_RATIO_SCALED
++      : (write_data_ack_pending_q ? 64'd0 : FREQUENCY_RATIO_SCALE);
++
++  wire [31:0] current_write_elapsed_cycle_count =
++      write_elapsed_cycle_count_q + 32'd1;
 +  wire [63:0] current_write_calibrated_total_cycle_scaled =
 +      write_calibrated_elapsed_cycle_scaled_q +
-+      FREQUENCY_RATIO_SCALED +
++      write_time_increment_scaled +
 +      write_frequency_ratio_fraction_remainder_q;
 +  wire [31:0] current_write_response_scheduled_cycle =
 +      current_write_calibrated_total_cycle_scaled[
@@ -836,17 +1223,34 @@ index f692803b..4067bdf2 100644
 +
 +  wire write_response_buffer_due =
 +      write_response_present_q &&
-+      current_write_device_elapsed_cycle_count >=
++      current_write_elapsed_cycle_count >=
 +      write_response_scheduled_cycle_q;
 +  wire downstream_write_response_due =
-+      current_write_device_elapsed_cycle_count >=
++      current_write_elapsed_cycle_count >=
 +      current_write_response_scheduled_cycle;
 +  wire write_response_direct_path_selected =
 +      write_transaction_active_q &&
 +      !write_response_present_q &&
-+      out_bvalid && downstream_write_response_due;
++      out_bvalid && downstream_write_response_due && write_upstream_last_accepted_q;
 +  wire downstream_write_response_handshake_occurred =
 +      out_bvalid && out_bready;
++
++  always @(posedge clock) begin
++    if (reset || upstream_write_response_handshake_occurred) begin
++      write_data_ack_pending_q       <= 1'b0;
++      write_data_ack_cycle_q         <= 32'd0;
++      write_upstream_last_accepted_q <= 1'b0;
++    end else begin
++      if (downstream_write_data_handshake_occurred && !in_wready) begin
++        write_data_ack_pending_q <= 1'b1;
++        write_data_ack_cycle_q   <= current_write_response_scheduled_cycle;
++      end
++      if (in_wvalid && in_wready) begin
++        write_data_ack_pending_q <= 1'b0;
++        if (in_wlast) write_upstream_last_accepted_q <= 1'b1;
++      end
++    end
++  end
 +
 +  // ------------------------------------------------------------------------
 +  // 第一段：写通道输出
@@ -864,8 +1268,12 @@ index f692803b..4067bdf2 100644
 +    out_wdata  = in_wdata;
 +    out_wstrb  = in_wstrb;
 +    out_wlast  = in_wlast;
-+    out_wvalid = in_wvalid && !write_data_last_handshake_occurred_q;
-+    in_wready  = out_wready && !write_data_last_handshake_occurred_q;
++    out_wvalid = in_wvalid && !write_data_last_handshake_occurred_q &&
++                 !write_data_ack_pending_q;
++    in_wready = write_data_ack_pending_q ?
++        (current_write_elapsed_cycle_count >= write_data_ack_cycle_q) :
++        (out_wready && !write_data_last_handshake_occurred_q &&
++         current_write_elapsed_cycle_count >= current_write_response_scheduled_cycle);
 +
 +    in_bvalid  = 1'b0;
 +    in_bid     = 4'd0;
@@ -873,14 +1281,14 @@ index f692803b..4067bdf2 100644
 +    out_bready = 1'b0;
 +
 +    if (write_response_present_q) begin
-+      in_bvalid = write_response_buffer_due;
++      in_bvalid = write_response_buffer_due && write_upstream_last_accepted_q;
 +      in_bid    = write_response_id_q;
 +      in_bresp  = write_response_status_q;
 +    end else if (write_response_direct_path_selected) begin
-+      in_bvalid  = out_bvalid;
++      in_bvalid  = out_bvalid && write_upstream_last_accepted_q;
 +      in_bid     = out_bid;
 +      in_bresp   = out_bresp;
-+      out_bready = in_bready;
++      out_bready = in_bready && write_upstream_last_accepted_q;
 +    end else begin
 +      out_bready = write_transaction_active_q;
 +    end
@@ -894,7 +1302,7 @@ index f692803b..4067bdf2 100644
 +    write_transaction_active_d                = write_transaction_active_q;
 +    write_address_handshake_occurred_d        = write_address_handshake_occurred_q;
 +    write_data_last_handshake_occurred_d      = write_data_last_handshake_occurred_q;
-+    write_device_elapsed_cycle_count_d         = write_device_elapsed_cycle_count_q;
++    write_elapsed_cycle_count_d         = write_elapsed_cycle_count_q;
 +    write_calibrated_elapsed_cycle_scaled_d    = write_calibrated_elapsed_cycle_scaled_q;
 +    write_frequency_ratio_fraction_remainder_d =
 +        write_frequency_ratio_fraction_remainder_q;
@@ -908,13 +1316,13 @@ index f692803b..4067bdf2 100644
 +      write_transaction_active_d              = 1'b1;
 +      write_address_handshake_occurred_d      = 1'b0;
 +      write_data_last_handshake_occurred_d    = 1'b0;
-+      write_device_elapsed_cycle_count_d       = 32'd0;
++      write_elapsed_cycle_count_d       = 32'd0;
 +      write_calibrated_elapsed_cycle_scaled_d  = 64'd0;
 +    end else if (write_transaction_active_q) begin
-+      write_device_elapsed_cycle_count_d =
-+          write_device_elapsed_cycle_count_q + 32'd1;
++      write_elapsed_cycle_count_d =
++          write_elapsed_cycle_count_q + 32'd1;
 +      write_calibrated_elapsed_cycle_scaled_d =
-+          write_calibrated_elapsed_cycle_scaled_q + FREQUENCY_RATIO_SCALED;
++          write_calibrated_elapsed_cycle_scaled_q + write_time_increment_scaled;
 +    end
 +
 +    if (downstream_write_address_handshake_occurred) begin
@@ -942,7 +1350,7 @@ index f692803b..4067bdf2 100644
 +      write_transaction_active_d              = 1'b0;
 +      write_address_handshake_occurred_d      = 1'b0;
 +      write_data_last_handshake_occurred_d    = 1'b0;
-+      write_device_elapsed_cycle_count_d       = 32'd0;
++      write_elapsed_cycle_count_d       = 32'd0;
 +      write_calibrated_elapsed_cycle_scaled_d  = 64'd0;
 +      write_response_present_d                = 1'b0;
 +    end
@@ -967,11 +1375,11 @@ index f692803b..4067bdf2 100644
 +
 +  always @(posedge clock) begin
 +    if (reset) begin
-+      write_device_elapsed_cycle_count_q         <= 32'd0;
++      write_elapsed_cycle_count_q         <= 32'd0;
 +      write_calibrated_elapsed_cycle_scaled_q    <= 64'd0;
 +      write_frequency_ratio_fraction_remainder_q <= 64'd0;
 +    end else begin
-+      write_device_elapsed_cycle_count_q      <= write_device_elapsed_cycle_count_d;
++      write_elapsed_cycle_count_q      <= write_elapsed_cycle_count_d;
 +      write_calibrated_elapsed_cycle_scaled_q <=
 +          write_calibrated_elapsed_cycle_scaled_d;
 +      write_frequency_ratio_fraction_remainder_q <=
@@ -3535,6 +3943,46 @@ index 7559195f..365d0f3f 100644
    val io = IO(new Bundle {
      val clock = Input(Clock())
      val reset = Input(Reset())
+diff --git a/src/SoC.scala b/src/SoC.scala
+index 1c65cd87..08d2d792 100644
+--- a/src/SoC.scala
++++ b/src/SoC.scala
+@@ -27,6 +27,8 @@ class ysyxSoCASIC(implicit p: Parameters) extends LazyModule {
+   val xbar = AXI4Xbar()
+   val xbar2 = AXI4Xbar()
+   val apbxbar = LazyModule(new APBFanout).node
++  val apbClockBridge = LazyModule(new APBDelayerWrapper)
++  val axiClockBridge = if (Config.sdramUseAXI) Some(LazyModule(new AXI4DelayerWrapper)) else None
+   val cpu = LazyModule(new CPU(idBits = ChipLinkParam.idBits))
+   val chipMaster = if (Config.hasChipLink) Some(LazyModule(new ChipLinkMaster)) else None
+   val chiplinkNode = if (Config.hasChipLink) Some(AXI4SlaveNodeGenerator(p(ExtBus), ChipLinkParam.allSpace)) else None
+@@ -48,15 +50,24 @@ class ysyxSoCASIC(implicit p: Parameters) extends LazyModule {
+   val lsdram_axi = if ( Config.sdramUseAXI) Some(LazyModule(new AXI4SDRAM(sdramAddressSet))) else None
+ 
+   List(lspi.node, luart.node, lpsram.node, lgpio.node, lkeyboard.node, lvga.node).map(_ := apbxbar)
+-  List(apbxbar := APBDelayer() := AXI4ToAPB() := AXI4Buffer(), lmrom.node, sramNode).map(_ := xbar2)
++  List(apbxbar := apbClockBridge.node := AXI4ToAPB() := AXI4Buffer(), lmrom.node, sramNode).map(_ := xbar2)
+   xbar2 := AXI4UserYanker(Some(1)) := AXI4Fragmenter() := xbar
+-  if (Config.sdramUseAXI) lsdram_axi.get.node := ysyx.AXI4Delayer() := xbar
++  if (Config.sdramUseAXI) lsdram_axi.get.node := axiClockBridge.get.node := xbar
+   else                    lsdram_apb.get.node := apbxbar
+   if (Config.hasChipLink) chiplinkNode.get := xbar
+   xbar := cpu.masterNode
+ 
+   override lazy val module = new Impl
+   class Impl extends LazyModuleImp(this) with DontTouch {
++    // Only the device domain advances at the modeled peripheral frequency.
++    List(luart, lgpio, lkeyboard, lvga, lspi, lpsram).foreach { peripheral =>
++      peripheral.module.clock := apbClockBridge.module.device_clock
++    }
++    if (Config.sdramUseAXI)
++      lsdram_axi.get.module.clock := axiClockBridge.get.module.device_clock
++    else
++      lsdram_apb.get.module.clock := apbClockBridge.module.device_clock
++
+     // generate delayed reset for cpu, since chiplink should finish reset
+     // to initialize some async modules before accept any requests from cpu
+     cpu.module.reset := SynchronizerShiftReg(reset.asBool, 10) || reset.asBool
 diff --git a/src/Top.scala b/src/Top.scala
 index c00378a6..2913155b 100644
 --- a/src/Top.scala
@@ -3548,6 +3996,72 @@ index c00378a6..2913155b 100644
  }
  
  class ysyxSoCTop extends Module {
+diff --git a/src/amba/APBDelayer.scala b/src/amba/APBDelayer.scala
+index 0cfc3d0c..214d0d4f 100644
+--- a/src/amba/APBDelayer.scala
++++ b/src/amba/APBDelayer.scala
+@@ -12,6 +12,7 @@ import freechips.rocketchip.util._
+ class APBDelayerIO extends Bundle {
+   val clock = Input(Clock())
+   val reset = Input(Reset())
++  val device_clock_o = Output(Clock())
+   val in = Flipped(new APBBundle(APBBundleParameters(addrBits = 32, dataBits = 32)))
+   val out = new APBBundle(APBBundleParameters(addrBits = 32, dataBits = 32))
+ }
+@@ -23,6 +24,7 @@ class apb_delayer extends BlackBox {
+ class APBDelayerChisel extends Module {
+   val io = IO(new APBDelayerIO)
+   io.out <> io.in
++  io.device_clock_o := io.clock
+ }
+ 
+ class APBDelayerWrapper(implicit p: Parameters) extends LazyModule {
+@@ -30,10 +32,12 @@ class APBDelayerWrapper(implicit p: Parameters) extends LazyModule {
+ 
+   lazy val module = new Impl
+   class Impl extends LazyModuleImp(this) {
++    val device_clock = IO(Output(Clock()))
+     (node.in zip node.out) foreach { case ((in, edgeIn), (out, edgeOut)) =>
+       val delayer = Module(new apb_delayer)
+       delayer.io.clock := clock
+       delayer.io.reset := reset
++      device_clock := delayer.io.device_clock_o
+       delayer.io.in <> in
+       out <> delayer.io.out
+     }
+diff --git a/src/amba/AXI4Delayer.scala b/src/amba/AXI4Delayer.scala
+index b60bb57d..4d88f9e6 100644
+--- a/src/amba/AXI4Delayer.scala
++++ b/src/amba/AXI4Delayer.scala
+@@ -12,6 +12,7 @@ import freechips.rocketchip.util._
+ class AXI4DelayerIO extends Bundle {
+   val clock = Input(Clock())
+   val reset = Input(Reset())
++  val device_clock_o = Output(Clock())
+   val in = Flipped(new AXI4Bundle(AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = 4)))
+   val out = new AXI4Bundle(AXI4BundleParameters(addrBits = 32, dataBits = 32, idBits = 4))
+ }
+@@ -23,6 +24,7 @@ class axi4_delayer extends BlackBox {
+ class AXI4DelayerChisel extends Module {
+   val io = IO(new AXI4DelayerIO)
+   io.out <> io.in
++  io.device_clock_o := io.clock
+ }
+ 
+ class AXI4DelayerWrapper(implicit p: Parameters) extends LazyModule {
+@@ -30,10 +32,12 @@ class AXI4DelayerWrapper(implicit p: Parameters) extends LazyModule {
+ 
+   lazy val module = new Impl
+   class Impl extends LazyModuleImp(this) {
++    val device_clock = IO(Output(Clock()))
+     (node.in zip node.out) foreach { case ((in, edgeIn), (out, edgeOut)) =>
+       val delayer = Module(new axi4_delayer)
+       delayer.io.clock := clock
+       delayer.io.reset := reset
++      device_clock := delayer.io.device_clock_o
+       delayer.io.in <> in
+       out <> delayer.io.out
+     }
 diff --git a/src/device/SDRAM.scala b/src/device/SDRAM.scala
 index a823c718..ec49822c 100644
 --- a/src/device/SDRAM.scala
@@ -3564,3 +4078,44 @@ index a823c718..ec49822c 100644
  }
  
  class sdram_top_axi extends BlackBox {
+diff --git a/perip/amba/device_clock.v b/perip/amba/device_clock.v
+new file mode 100644
+index 00000000..6664ce5a
+--- /dev/null
++++ b/perip/amba/device_clock.v
+@@ -0,0 +1,35 @@
++// Simulation device-time scheduler. Enable changes on the falling CPU edge,
++// so both the bridge and the complete device domain observe the same next edge.
++// Pulses model digital state updates, not an analog clock or a silicon CDC.
++module device_clock #(
++    parameter [63:0] CPU_FREQUENCY_HZ = 100_000_000,
++    parameter [63:0] DEVICE_FREQUENCY_HZ = 100_000_000
++) (
++    input clock,
++    input reset,
++    output device_clock_o,
++    output reg device_step_o
++);
++  reg  [63:0] phase_q;
++  wire [63:0] phase_sum = phase_q + DEVICE_FREQUENCY_HZ;
++
++  assign device_clock_o = clock && device_step_o;
++
++  always @(negedge clock) begin
++    if (reset) begin
++      phase_q       <= 64'd0;
++      device_step_o <= 1'b1;
++    end else if (phase_sum >= CPU_FREQUENCY_HZ) begin
++      phase_q       <= phase_sum - CPU_FREQUENCY_HZ;
++      device_step_o <= 1'b1;
++    end else begin
++      phase_q       <= phase_sum;
++      device_step_o <= 1'b0;
++    end
++  end
++
++  initial begin
++    if (DEVICE_FREQUENCY_HZ == 0 || CPU_FREQUENCY_HZ < DEVICE_FREQUENCY_HZ)
++      $fatal(1, "device clock requires CPU frequency >= nonzero device frequency");
++  end
++endmodule

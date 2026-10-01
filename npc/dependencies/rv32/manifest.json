@@ -5,7 +5,7 @@
   },
   "ysyxSoC": {
     "base": "a9fe2e0421291c40c2ae38e7507a399b6617a859",
-    "patch_sha256": "df66807cf31a517905723f0c2531c7bb5d2801a6fa71cec0d1c5484b345e474f"
+    "patch_sha256": "1923b5b937117b9a0e2d108dcfc86d7bb1685dd9859823c3435fdfbec602c7c2"
   },
-  "generated_soc_sha256": "41edc24c2f8fd5daa916b34719760f1267cd0a396fbc69e6570d0175aaee4e37"
+  "generated_soc_sha256": "1723ae9bc031cef3975eb25c55bd43aff49f9ce09013ccffd3b4d83456d33519"
 }
