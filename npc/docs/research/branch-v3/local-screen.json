@@ -1,0 +1,812 @@
+[
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 1288,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 1205,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 1093,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 941,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 928,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 871,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 821,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 813,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 731,
+    "branches": 10138,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 1308,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 1199,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 1077,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 937,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 930,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 862,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 817,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 814,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 722,
+    "branches": 10218,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 1332,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 1359,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 1338,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 1276,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 1263,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 1239,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 988,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 1036,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 1034,
+    "branches": 14510,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 1294,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 1335,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 1317,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 1250,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 1246,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 1225,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 957,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 1010,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 1018,
+    "branches": 15936,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 3875,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 3592,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 3298,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 3685,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 3459,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 3126,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 3250,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 2992,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 2785,
+    "branches": 50898,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 3937,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 3671,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 3416,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 3738,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 3519,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 3238,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 3300,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 3030,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 2895,
+    "branches": 50972,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 6642,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 5879,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 5476,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 6115,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 5108,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 4678,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 3380,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 2924,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 2824,
+    "branches": 38116,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 7254,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 6317,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 5930,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 6642,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 5450,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 5082,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 3646,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 3222,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 3026,
+    "branches": 42098,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 4249,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 3537,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 2888,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 3372,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 2728,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 2473,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 2167,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 1887,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 1869,
+    "branches": 38644,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 16,
+    "history_bits": 2,
+    "bits": 176,
+    "errors": 4200,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 16,
+    "history_bits": 3,
+    "bits": 320,
+    "errors": 3493,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 16,
+    "history_bits": 4,
+    "bits": 592,
+    "errors": 2886,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 32,
+    "history_bits": 2,
+    "bits": 336,
+    "errors": 3344,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 32,
+    "history_bits": 3,
+    "bits": 624,
+    "errors": 2682,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 32,
+    "history_bits": 4,
+    "bits": 1168,
+    "errors": 2447,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 128,
+    "history_bits": 2,
+    "bits": 1296,
+    "errors": 2120,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 128,
+    "history_bits": 3,
+    "bits": 2448,
+    "errors": 1838,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "entries": 128,
+    "history_bits": 4,
+    "bits": 4624,
+    "errors": 1819,
+    "branches": 38146,
+    "scope": "M0 cold decoded branches; immediate training; not CVA6S+ RTL"
+  }
+]

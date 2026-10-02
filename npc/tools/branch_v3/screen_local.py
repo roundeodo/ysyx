@@ -2,12 +2,13 @@
 """Separate local history from Gshare and TAGE; finite resources, M0 only."""
 import json
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 from models import LocalHistory
 NPC=Path(__file__).resolve().parents[2]
 records=[]
-for path in sorted((NPC/'result/branch-v3/rtl/B0').glob('*.events')):
+for path in sorted(event_files(NPC/'result/branch-v3/rtl/B0')):
     branches=[]
-    for line in path.open():
+    for line in open_text(path):
         row=line.strip().split(',')
         if row[0]=='R' and int(row[5])==1:branches.append((int(row[3],16),bool(int(row[6]))))
     for entries in (16,32,128):

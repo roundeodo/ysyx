@@ -3,6 +3,7 @@
 import collections
 import json
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 
 NPC = Path(__file__).resolve().parents[2]
 ROOT = NPC/'result/branch-v3/rtl'
@@ -11,7 +12,7 @@ ROOT = NPC/'result/branch-v3/rtl'
 def branches(path):
     results = []
     early = {}
-    for line in path.open():
+    for line in open_text(path):
         row = line.strip().split(',')
         if row[0] == 'E':
             early[int(row[1])] = int(row[3], 16)
@@ -29,12 +30,12 @@ def branches(path):
 
 def main():
     records = []
-    baseline = {path.stem: branches(path) for path in (ROOT/'B0').glob('*.events')}
+    baseline = {path.stem: branches(path) for path in event_files(ROOT/'B0')}
     for name in ['S','H2-narrow-v2','E0','H2E-narrow','N0','NL','NS','NSL',
                  'N0E','N0-spec-final','R0-held','ER0-held','NER0-held','NSmallER-held']:
         source = ROOT.parent/'snapshots'/name/'tests/core_tb.sv'
         early_logged = source.exists() and '"E,' in source.read_text()
-        for path in sorted((ROOT/name).glob('*.events')):
+        for path in sorted(event_files(ROOT/name)):
             actual, reference = branches(path), baseline[path.stem]
             assert len(actual) == len(reference), (name, path.stem, 'window mismatch')
             counts, sites = collections.Counter(), collections.defaultdict(collections.Counter)

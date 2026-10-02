@@ -35,3 +35,8 @@ __pycache__/
 !docs/verification/data/*/references.json
 !docs/verification/data/*/tool-manifest.json
 !docs/verification/data/*/tool-bindings.json
+
+# V3 keeps compact research contracts/results; simulator and synthesis trees stay ignored.
+!docs/research/branch-v3/*.json
+!docs/research/branch-v3/*.csv
+!tests/branch_v3/*.json

@@ -1,0 +1,254 @@
+[
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "json_bpe-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "json_bpe-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "quant_loader-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "quant_loader-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "runtime_graph-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "runtime_graph-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "regex_tokenizer-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "regex_tokenizer-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "ini_config-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "ini_config-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "jsmn_stream-cold",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "jsmn_stream-warm",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "miniz_stream-cold",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "reference": "BT32-select-fold",
+    "case": "miniz_stream-warm",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "json_bpe-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "json_bpe-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "quant_loader-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "quant_loader-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "runtime_graph-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "runtime_graph-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "regex_tokenizer-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "regex_tokenizer-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "ini_config-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "ini_config-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "jsmn_stream-cold",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "jsmn_stream-warm",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "miniz_stream-cold",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "reference": "H2E-victim",
+    "case": "miniz_stream-warm",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "json_bpe-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "json_bpe-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "quant_loader-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "quant_loader-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "runtime_graph-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "runtime_graph-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "regex_tokenizer-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "regex_tokenizer-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "ini_config-dev-2411",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "ini_config-dev-2418",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "jsmn_stream-cold",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "jsmn_stream-warm",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "miniz_stream-cold",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  },
+  {
+    "candidate": "R0-victim-long",
+    "reference": "R0-victim",
+    "case": "miniz_stream-warm",
+    "all_RESULT_COUNTERS_DETAIL_equal": true
+  }
+]

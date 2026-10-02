@@ -1,0 +1,12 @@
+{
+  "reason": "Lowest measured area (taken admission) and low-cost 740 MHz SRRIP-all candidate; identified on development PPA before any of their long results. Workloads/partitions unchanged.",
+  "candidates": {
+    "BT16-admit-long": {
+      "target_admission": 2
+    },
+    "BT16-rrip-all-long": {
+      "target_admission": 1,
+      "target_policy": 2
+    }
+  }
+}

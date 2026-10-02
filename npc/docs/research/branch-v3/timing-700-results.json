@@ -1,0 +1,2194 @@
+{
+  "scope": "700MHz circuit optimization; final holdout and selection remain unfinished",
+  "process": "NanGate45, AREA 3, 820MHz mapping, unchanged reset/IO constraints",
+  "points": {
+    "B0off": {
+      "coarse": {
+        "mhz": 720,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 101424.47,
+        "wall_seconds": 414.70283555984497,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:720"
+      },
+      "source_hashes": {
+        "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "05ff581bc007363840cf12798b27fda24eb7715a7bbec410a0049c173e8e2cc0",
+        "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+        "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+        "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+        "npc/vsrc/riscv32/common/riscv32_pkg.sv": "f276c843b92d2ca4ed93fe98a48abf7c36814d6d564f5844c1546f4547c8860a",
+        "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "d50bc7f6ed893e26e652be35c7014b04da4f295661200eb8105f4d68721d0134",
+        "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+        "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+        "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+        "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+        "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+        "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b",
+        "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+        "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "b33600019932f5b177264cbe1042986709137060726eec0cdffba35cd7a27de3",
+        "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+        "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "56946155fd168fd289b4545468a2d514120ea77e4f46205fc3a242797f4a75b4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv": "a835f9d9d9519f45db38398c62cc746c64f06ffb157b928346475d3ea89e3dc8",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "aa36d5f5e854409b4bd6769cf0192247de0bc9ad0fbd3cefa78caa53f8dd1ff2",
+        "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31",
+        "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+        "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "f51d0f777b7ab1b63978574c6a827bea9f61583e71a7420266373e41995737ad",
+        "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "ec87e8e1a7aa732574a32d6f8da8d855c03b8fc5d8ea43c1be6b7ae68468d654",
+        "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "a06a44eadfd8952fb906ebf4dad52d385f9b6656a4e4792958ed63d5dfc12e00",
+        "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+        "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+        "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+        "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+        "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+        "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "66cc0311da9d3505f45b58f1ae69b025ad1f595182f1ac5469431cda0121a362",
+        "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431",
+        "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+        "npc/vsrc/riscv32/core/riscv32_core.sv": "c84755bd93d1bf8fa9df4f8a7ce91b486093ccb6191370fe48d90a5186bc583d",
+        "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+        "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+        "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+        "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+        "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+        "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+        "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+        "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0off/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=0",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_BRANCH_STATIC_POLICY=0"
+      ],
+      "qualified-fine": {
+        "mhz": 720,
+        "grid_mhz": 5,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 101424.47,
+        "wall_seconds": 414.70283555984497,
+        "search": "same mapped netlist; 5MHz refinement within measured 20MHz bracket",
+        "source": "qualified.json plus timing-fine.json"
+      },
+      "timing": {
+        "740": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_1__reg_p:D",
+              "slack_ns": -0.025,
+              "fmax_mhz": 726.773
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.027,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 10,
+          "passed": false
+        },
+        "720": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_1__reg_p:D",
+              "slack_ns": 0.005,
+              "fmax_mhz": 722.83
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.003,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "timing-fine": [
+        {
+          "mhz": 725,
+          "passed": false,
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_1__reg_p:D",
+              "slack_ns": -0.003,
+              "fmax_mhz": 723.832
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": -0.004,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 6
+        }
+      ]
+    },
+    "B0-victim": {
+      "coarse": {
+        "mhz": 720,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 101348.394,
+        "wall_seconds": 435.64009857177734,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:720"
+      },
+      "source_hashes": {
+        "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "ef96f3f34b3d35c410f1bb44012c9eac9fb572b99b44c1a7c128ea50a863c4ea",
+        "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+        "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+        "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+        "npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+        "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "28d4cfc9257690badcca38be10f566f1cd72c23b343de503a0453637d2d1089b",
+        "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+        "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+        "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+        "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+        "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+        "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b",
+        "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv": "bcbc2f8b8c4782390cfc397a59989ce2ef58774ce4a266ef6f119cc29b96e3e1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "1d5d719f040f8a121ab719c30cf35da9819c717f5111cdd002d3776b75e8da48",
+        "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+        "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "56946155fd168fd289b4545468a2d514120ea77e4f46205fc3a242797f4a75b4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv": "e7af3ecae1f2f9074997cfdb0a7ab78579c7c15f7b1001b09e852a04a216c6da",
+        "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv": "5e8f71270aca28ada0a96946b75e5c1bfbe44a03b2ffd23456f72664ce349d7a",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "0d7b0410ef36012504b4b6c69c1a91e08a4861fe6fdb79bf0cad2ff96d5d0ed1",
+        "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31",
+        "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+        "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "f51d0f777b7ab1b63978574c6a827bea9f61583e71a7420266373e41995737ad",
+        "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "71e63b1a9cf57d48cbce91f18f01020b3089ce06710d1c6aa194651886956dbb",
+        "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "99673cd9c83a2b2c49a663740f1e271d836a7ed2a4f0d569714233290ef7472a",
+        "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+        "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+        "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+        "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+        "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+        "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "5e744e224e53d949d19ae5dd328a6ac765b440e676ef13dee0fa104cbdc64c96",
+        "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431",
+        "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+        "npc/vsrc/riscv32/core/riscv32_core.sv": "3068ab9ffdd2c77187ff362dd1208ace446499d4490356770c9d0498ac0f9d0a",
+        "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+        "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+        "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+        "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+        "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+        "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+        "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+        "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/B0-victim/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=0",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_BRANCH_EARLY_RAS=0",
+        "NPC_BRANCH_SC_ENABLE=0",
+        "NPC_BRANCH_LOOP_ENABLE=0",
+        "NPC_BRANCH_EARLY_TARGET=0",
+        "NPC_BRANCH_STATIC_POLICY=0"
+      ],
+      "qualified-fine": {
+        "mhz": 735,
+        "grid_mhz": 5,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 101348.394,
+        "wall_seconds": 435.64009857177734,
+        "search": "same mapped netlist; 5MHz refinement within measured 20MHz bracket",
+        "source": "qualified.json plus timing-fine.json"
+      },
+      "timing": {
+        "740": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": -0.006,
+              "fmax_mhz": 736.982
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.016,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 1,
+          "passed": false
+        },
+        "720": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": 0.024,
+              "fmax_mhz": 732.927
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.045,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "timing-fine": [
+        {
+          "mhz": 725,
+          "passed": true,
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": 0.017,
+              "fmax_mhz": 733.957
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.038,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0
+        },
+        {
+          "mhz": 730,
+          "passed": true,
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": 0.008,
+              "fmax_mhz": 734.977
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.03,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0
+        },
+        {
+          "mhz": 735,
+          "passed": true,
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": 0.001,
+              "fmax_mhz": 735.985
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.023,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+              "slack_ns": 0.094,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0
+        }
+      ]
+    },
+    "NSL": {
+      "coarse": {
+        "mhz": 540,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 119382.928,
+        "wall_seconds": 182.21346974372864,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:540"
+      },
+      "source_hashes": {
+        "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "ef96f3f34b3d35c410f1bb44012c9eac9fb572b99b44c1a7c128ea50a863c4ea",
+        "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+        "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+        "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+        "npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+        "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "d50bc7f6ed893e26e652be35c7014b04da4f295661200eb8105f4d68721d0134",
+        "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+        "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+        "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+        "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+        "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+        "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b",
+        "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv": "732e21ef986ea64e8b022beeae8b5b3a9754c2b3f3fc545bdaf4368ded01415b",
+        "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "1d5d719f040f8a121ab719c30cf35da9819c717f5111cdd002d3776b75e8da48",
+        "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+        "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "56946155fd168fd289b4545468a2d514120ea77e4f46205fc3a242797f4a75b4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv": "e7af3ecae1f2f9074997cfdb0a7ab78579c7c15f7b1001b09e852a04a216c6da",
+        "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv": "5e8f71270aca28ada0a96946b75e5c1bfbe44a03b2ffd23456f72664ce349d7a",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "0d7b0410ef36012504b4b6c69c1a91e08a4861fe6fdb79bf0cad2ff96d5d0ed1",
+        "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31",
+        "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+        "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "f51d0f777b7ab1b63978574c6a827bea9f61583e71a7420266373e41995737ad",
+        "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "71e63b1a9cf57d48cbce91f18f01020b3089ce06710d1c6aa194651886956dbb",
+        "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "99673cd9c83a2b2c49a663740f1e271d836a7ed2a4f0d569714233290ef7472a",
+        "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+        "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+        "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+        "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+        "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+        "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "5e744e224e53d949d19ae5dd328a6ac765b440e676ef13dee0fa104cbdc64c96",
+        "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431",
+        "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+        "npc/vsrc/riscv32/core/riscv32_core.sv": "3068ab9ffdd2c77187ff362dd1208ace446499d4490356770c9d0498ac0f9d0a",
+        "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+        "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+        "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+        "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+        "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+        "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+        "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+        "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=5",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_BRANCH_EARLY_RAS=0",
+        "NPC_BRANCH_SC_ENABLE=1",
+        "NPC_BRANCH_LOOP_ENABLE=1",
+        "NPC_BRANCH_EARLY_TARGET=0",
+        "NPC_BRANCH_STATIC_POLICY=0"
+      ],
+      "timing": {
+        "580": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": -0.076,
+              "fmax_mhz": 555.51
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.019,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.decoded_execute_packet_ready_NAND2_X1_ZN_A1_NAND3_X1_A3_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 5,
+          "passed": false
+        },
+        "540": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": 0.025,
+              "fmax_mhz": 547.738
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.12,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.decoded_execute_packet_ready_NAND2_X1_ZN_A1_NAND3_X1_A3_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        },
+        "560": {
+          "groups": {
+            "data_max": {
+              "endpoint": "data_axi4_manager_o_1_",
+              "slack_ns": -0.027,
+              "fmax_mhz": 551.736
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.068,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.decoded_execute_packet_ready_NAND2_X1_ZN_A1_NAND3_X1_A3_ZN_CLKGATE_X1_E:E",
+              "slack_ns": 0.096,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 1,
+          "passed": false
+        }
+      },
+      "probe-700": {
+        "mhz": 700,
+        "groups": {
+          "data_max": {
+            "endpoint": "data_axi4_manager_o_1_",
+            "slack_ns": -0.313,
+            "fmax_mhz": 574.372
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": -0.218,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.decoded_execute_packet_ready_NAND2_X1_ZN_A1_NAND3_X1_A3_ZN_CLKGATE_X1_E:E",
+            "slack_ns": 0.096,
+            "fmax_mhz": null
+          }
+        },
+        "violations": 10,
+        "passed": false,
+        "input_sha256": {
+          "riscv32_core_reset_boundary.netlist.v": "502d6e1cb364ed29b33a6a2dc92c061eafd0d2d64ebe99fb0b15ec46deb57b3c",
+          "constraints.sdc": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+        },
+        "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.rpt"
+      }
+    },
+    "NSL-parallel": {
+      "coarse": {
+        "mhz": 660,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 119623.126,
+        "wall_seconds": 465.46967244148254,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:660"
+      },
+      "source_hashes": {
+        "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "ef96f3f34b3d35c410f1bb44012c9eac9fb572b99b44c1a7c128ea50a863c4ea",
+        "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+        "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+        "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+        "npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+        "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "d50bc7f6ed893e26e652be35c7014b04da4f295661200eb8105f4d68721d0134",
+        "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+        "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+        "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+        "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+        "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+        "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b",
+        "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv": "a1504c77fbd90b062003c9723e20d13c33bd4fccf09060a96cc0d88359c31fa6",
+        "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "1d5d719f040f8a121ab719c30cf35da9819c717f5111cdd002d3776b75e8da48",
+        "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+        "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "56946155fd168fd289b4545468a2d514120ea77e4f46205fc3a242797f4a75b4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv": "e7af3ecae1f2f9074997cfdb0a7ab78579c7c15f7b1001b09e852a04a216c6da",
+        "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv": "5e8f71270aca28ada0a96946b75e5c1bfbe44a03b2ffd23456f72664ce349d7a",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "0d7b0410ef36012504b4b6c69c1a91e08a4861fe6fdb79bf0cad2ff96d5d0ed1",
+        "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31",
+        "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+        "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "f51d0f777b7ab1b63978574c6a827bea9f61583e71a7420266373e41995737ad",
+        "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "71e63b1a9cf57d48cbce91f18f01020b3089ce06710d1c6aa194651886956dbb",
+        "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "99673cd9c83a2b2c49a663740f1e271d836a7ed2a4f0d569714233290ef7472a",
+        "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+        "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+        "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+        "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+        "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+        "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "5e744e224e53d949d19ae5dd328a6ac765b440e676ef13dee0fa104cbdc64c96",
+        "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431",
+        "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+        "npc/vsrc/riscv32/core/riscv32_core.sv": "3068ab9ffdd2c77187ff362dd1208ace446499d4490356770c9d0498ac0f9d0a",
+        "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+        "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+        "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+        "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+        "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+        "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+        "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+        "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=5",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_BRANCH_EARLY_RAS=0",
+        "NPC_BRANCH_SC_ENABLE=1",
+        "NPC_BRANCH_LOOP_ENABLE=1",
+        "NPC_BRANCH_EARLY_TARGET=0",
+        "NPC_BRANCH_STATIC_POLICY=0"
+      ],
+      "timing": {
+        "680": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": -0.035,
+              "fmax_mhz": 664.558
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.03,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 5,
+          "passed": false
+        },
+        "660": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": 0.001,
+              "fmax_mhz": 660.645
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.066,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "probe-700": {
+        "mhz": 700,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+            "slack_ns": -0.068,
+            "fmax_mhz": 668.29
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": -0.004,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.097,
+            "fmax_mhz": null
+          }
+        },
+        "violations": 6,
+        "passed": false,
+        "input_sha256": {
+          "riscv32_core_reset_boundary.netlist.v": "391077e8559032e1c17575b652e91406510180257c63b80800939563dca576f1",
+          "constraints.sdc": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+        },
+        "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-parallel/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.rpt"
+      }
+    },
+    "NSL-provider": {
+      "coarse": {
+        "mhz": 660,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 119774.214,
+        "wall_seconds": 542.5552644729614,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:660"
+      },
+      "source_hashes": {
+        "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "ef96f3f34b3d35c410f1bb44012c9eac9fb572b99b44c1a7c128ea50a863c4ea",
+        "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+        "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+        "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+        "npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+        "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "d50bc7f6ed893e26e652be35c7014b04da4f295661200eb8105f4d68721d0134",
+        "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+        "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+        "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+        "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+        "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+        "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b",
+        "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv": "bcbc2f8b8c4782390cfc397a59989ce2ef58774ce4a266ef6f119cc29b96e3e1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "1d5d719f040f8a121ab719c30cf35da9819c717f5111cdd002d3776b75e8da48",
+        "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+        "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "56946155fd168fd289b4545468a2d514120ea77e4f46205fc3a242797f4a75b4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv": "e7af3ecae1f2f9074997cfdb0a7ab78579c7c15f7b1001b09e852a04a216c6da",
+        "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv": "5e8f71270aca28ada0a96946b75e5c1bfbe44a03b2ffd23456f72664ce349d7a",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "0d7b0410ef36012504b4b6c69c1a91e08a4861fe6fdb79bf0cad2ff96d5d0ed1",
+        "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31",
+        "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+        "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "f51d0f777b7ab1b63978574c6a827bea9f61583e71a7420266373e41995737ad",
+        "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "71e63b1a9cf57d48cbce91f18f01020b3089ce06710d1c6aa194651886956dbb",
+        "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "99673cd9c83a2b2c49a663740f1e271d836a7ed2a4f0d569714233290ef7472a",
+        "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+        "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+        "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+        "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+        "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+        "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "5e744e224e53d949d19ae5dd328a6ac765b440e676ef13dee0fa104cbdc64c96",
+        "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431",
+        "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+        "npc/vsrc/riscv32/core/riscv32_core.sv": "3068ab9ffdd2c77187ff362dd1208ace446499d4490356770c9d0498ac0f9d0a",
+        "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+        "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+        "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+        "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+        "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+        "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+        "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+        "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=5",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_BRANCH_EARLY_RAS=0",
+        "NPC_BRANCH_SC_ENABLE=1",
+        "NPC_BRANCH_LOOP_ENABLE=1",
+        "NPC_BRANCH_EARLY_TARGET=0",
+        "NPC_BRANCH_STATIC_POLICY=0"
+      ],
+      "timing": {
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": -0.042,
+              "fmax_mhz": 680.375
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.011,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 5,
+          "passed": false
+        },
+        "680": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": -0.008,
+              "fmax_mhz": 676.507
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.045,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 5,
+          "passed": false
+        },
+        "660": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": 0.028,
+              "fmax_mhz": 672.452
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.081,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "probe-700": {
+        "mhz": 700,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+            "slack_ns": -0.042,
+            "fmax_mhz": 680.375
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.011,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.097,
+            "fmax_mhz": null
+          }
+        },
+        "violations": 5,
+        "passed": false,
+        "input_sha256": {
+          "riscv32_core_reset_boundary.netlist.v": "1a645e48e14af822867fcaf1ac6575f9a55e31d1f6160ea100af8e411eaccb7a",
+          "constraints.sdc": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+        },
+        "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-provider/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.rpt"
+      }
+    },
+    "NSL-victim": {
+      "coarse": {
+        "mhz": 700,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 119986.748,
+        "wall_seconds": 474.84098863601685,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:700"
+      },
+      "source_hashes": {
+        "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "ef96f3f34b3d35c410f1bb44012c9eac9fb572b99b44c1a7c128ea50a863c4ea",
+        "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+        "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+        "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+        "npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+        "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+        "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "28d4cfc9257690badcca38be10f566f1cd72c23b343de503a0453637d2d1089b",
+        "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+        "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df",
+        "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+        "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+        "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+        "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+        "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b",
+        "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+        "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv": "bcbc2f8b8c4782390cfc397a59989ce2ef58774ce4a266ef6f119cc29b96e3e1",
+        "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "1d5d719f040f8a121ab719c30cf35da9819c717f5111cdd002d3776b75e8da48",
+        "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+        "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "56946155fd168fd289b4545468a2d514120ea77e4f46205fc3a242797f4a75b4",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv": "e7af3ecae1f2f9074997cfdb0a7ab78579c7c15f7b1001b09e852a04a216c6da",
+        "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv": "5e8f71270aca28ada0a96946b75e5c1bfbe44a03b2ffd23456f72664ce349d7a",
+        "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "0d7b0410ef36012504b4b6c69c1a91e08a4861fe6fdb79bf0cad2ff96d5d0ed1",
+        "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31",
+        "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+        "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "f51d0f777b7ab1b63978574c6a827bea9f61583e71a7420266373e41995737ad",
+        "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "71e63b1a9cf57d48cbce91f18f01020b3089ce06710d1c6aa194651886956dbb",
+        "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "99673cd9c83a2b2c49a663740f1e271d836a7ed2a4f0d569714233290ef7472a",
+        "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+        "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+        "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+        "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+        "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+        "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+        "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "5e744e224e53d949d19ae5dd328a6ac765b440e676ef13dee0fa104cbdc64c96",
+        "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431",
+        "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+        "npc/vsrc/riscv32/core/riscv32_core.sv": "3068ab9ffdd2c77187ff362dd1208ace446499d4490356770c9d0498ac0f9d0a",
+        "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+        "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+        "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+        "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+        "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+        "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+        "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+        "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+      },
+      "command": [
+        "make",
+        "-C",
+        "npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "sta-reset",
+        "STA_FREQUENCY_MHZ=820",
+        "STA_SYNTH_STRATEGY=AREA 3",
+        "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+        "STA_OUTPUT_ROOT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/sta",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "STA_RTL_DEPENDENCIES=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/common/riscv_config_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/common/riscv32_pkg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_pma.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/decode/riscv32_idu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/execute/riscv32_exu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/core/riscv32_core.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/system/riscv32_axi4_router.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/system/riscv32_reset_controller.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/system/riscv32_npc_system.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/source/npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=5",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "NPC_BRANCH_EARLY_RAS=0",
+        "NPC_BRANCH_SC_ENABLE=1",
+        "NPC_BRANCH_LOOP_ENABLE=1",
+        "NPC_BRANCH_EARLY_TARGET=0",
+        "NPC_BRANCH_STATIC_POLICY=0"
+      ],
+      "qualified-fine": {
+        "mhz": 715,
+        "grid_mhz": 5,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 119986.748,
+        "wall_seconds": 474.84098863601685,
+        "search": "same mapped netlist; 5MHz refinement within measured 20MHz bracket",
+        "source": "qualified.json plus timing-fine.json"
+      },
+      "timing": {
+        "720": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": -0.006,
+              "fmax_mhz": 717.586
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.011,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 5,
+          "passed": false
+        },
+        "700": {
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": 0.027,
+              "fmax_mhz": 713.522
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.043,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0,
+          "passed": true
+        }
+      },
+      "timing-fine": [
+        {
+          "mhz": 705,
+          "passed": true,
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": 0.019,
+              "fmax_mhz": 714.556
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.035,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0
+        },
+        {
+          "mhz": 710,
+          "passed": true,
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": 0.011,
+              "fmax_mhz": 715.577
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.027,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0
+        },
+        {
+          "mhz": 715,
+          "passed": true,
+          "groups": {
+            "data_max": {
+              "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+              "slack_ns": 0.002,
+              "fmax_mhz": 716.587
+            },
+            "gating_max": {
+              "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.019,
+              "fmax_mhz": null
+            },
+            "data_min": {
+              "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+              "slack_ns": 0.059,
+              "fmax_mhz": null
+            },
+            "gating_min": {
+              "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+              "slack_ns": 0.097,
+              "fmax_mhz": null
+            }
+          },
+          "violations": 0
+        }
+      ],
+      "probe-700": {
+        "mhz": 700,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+            "slack_ns": 0.027,
+            "fmax_mhz": 713.522
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.043,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.097,
+            "fmax_mhz": null
+          }
+        },
+        "violations": 0,
+        "passed": true,
+        "input_sha256": {
+          "riscv32_core_reset_boundary.netlist.v": "f84decd07b7a5a26cac0b4e8c0eafe9c576e6bd3a7662ff1012593f2c320e568",
+          "constraints.sdc": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+        },
+        "report": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/ppa/NSL-victim/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.rpt"
+      }
+    }
+  },
+  "native_test": {
+    "native-B0-victim-720": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 720,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2774833,
+        "retired_instructions": 831978,
+        "ipc": 0.2998299357114464,
+        "timer_ticks": 3854,
+        "timer_seconds": 0.003854,
+        "cycle_seconds": 0.0038539347222222224,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1088342,
+        "retired_instructions": 430313,
+        "ipc": 0.3953839877538494,
+        "timer_ticks": 1512,
+        "timer_seconds": 0.001512,
+        "cycle_seconds": 0.001511586111111111,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 24638,
+          "retired_instructions": 9707,
+          "ipc": 0.3939849013718646,
+          "timer_ticks": 35,
+          "timer_seconds": 3.5e-05,
+          "cycle_seconds": 3.421944444444444e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112450,
+          "retired_instructions": 83537,
+          "ipc": 0.7428812805691418,
+          "timer_ticks": 156,
+          "timer_seconds": 0.000156,
+          "cycle_seconds": 0.00015618055555555556,
+          "interrupts": 0
+        },
+        {
+          "cycles": 231646,
+          "retired_instructions": 141943,
+          "ipc": 0.6127582604491336,
+          "timer_ticks": 322,
+          "timer_seconds": 0.000322,
+          "cycle_seconds": 0.00032173055555555555,
+          "interrupts": 0
+        },
+        {
+          "cycles": 121010,
+          "retired_instructions": 85308,
+          "ipc": 0.7049665316915957,
+          "timer_ticks": 168,
+          "timer_seconds": 0.000168,
+          "cycle_seconds": 0.00016806944444444446,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7622,
+          "retired_instructions": 4742,
+          "ipc": 0.6221464182629232,
+          "timer_ticks": 10,
+          "timer_seconds": 1e-05,
+          "cycle_seconds": 1.058611111111111e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 110721,
+          "retired_instructions": 29136,
+          "ipc": 0.26314791232015605,
+          "timer_ticks": 154,
+          "timer_seconds": 0.000154,
+          "cycle_seconds": 0.00015377916666666668,
+          "interrupts": 0
+        },
+        {
+          "cycles": 173427,
+          "retired_instructions": 17979,
+          "ipc": 0.10366897887872131,
+          "timer_ticks": 241,
+          "timer_seconds": 0.000241,
+          "cycle_seconds": 0.00024087083333333334,
+          "interrupts": 0
+        },
+        {
+          "cycles": 86767,
+          "retired_instructions": 14661,
+          "ipc": 0.16896976961287125,
+          "timer_ticks": 120,
+          "timer_seconds": 0.00012,
+          "cycle_seconds": 0.00012050972222222222,
+          "interrupts": 0
+        },
+        {
+          "cycles": 204999,
+          "retired_instructions": 38348,
+          "ipc": 0.18706432714305923,
+          "timer_ticks": 285,
+          "timer_seconds": 0.000285,
+          "cycle_seconds": 0.00028472083333333335,
+          "interrupts": 0
+        },
+        {
+          "cycles": 15062,
+          "retired_instructions": 4952,
+          "ipc": 0.32877439915017925,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.0919444444444444e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 3403496,
+        "retired_instructions": 910615,
+        "ipc": 0.26755283390960355,
+        "cycle_seconds": 0.004727077777777778,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 33.91732520000005,
+      "timing_model": "device-clock-v1",
+      "observer_on_off_verified": true,
+      "manifest_sha256": "592aed4c7dac61341ec82cdc310bc3ab571e12acca899b97da180f3e2a104210"
+    },
+    "native-NSL-victim-700": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 700,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2669313,
+        "retired_instructions": 831441,
+        "ipc": 0.31148126877589855,
+        "timer_ticks": 3814,
+        "timer_seconds": 0.003814,
+        "cycle_seconds": 0.0038133042857142856,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1058109,
+        "retired_instructions": 430313,
+        "ipc": 0.40668116422788203,
+        "timer_ticks": 1509,
+        "timer_seconds": 0.001509,
+        "cycle_seconds": 0.0015115842857142856,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 24542,
+          "retired_instructions": 9707,
+          "ipc": 0.3955260369977997,
+          "timer_ticks": 35,
+          "timer_seconds": 3.5e-05,
+          "cycle_seconds": 3.506e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 109431,
+          "retired_instructions": 83537,
+          "ipc": 0.7633760086264404,
+          "timer_ticks": 156,
+          "timer_seconds": 0.000156,
+          "cycle_seconds": 0.00015633,
+          "interrupts": 0
+        },
+        {
+          "cycles": 230160,
+          "retired_instructions": 141943,
+          "ipc": 0.6167144595064303,
+          "timer_ticks": 329,
+          "timer_seconds": 0.000329,
+          "cycle_seconds": 0.0003288,
+          "interrupts": 0
+        },
+        {
+          "cycles": 116662,
+          "retired_instructions": 85308,
+          "ipc": 0.7312406781985565,
+          "timer_ticks": 166,
+          "timer_seconds": 0.000166,
+          "cycle_seconds": 0.00016666,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7612,
+          "retired_instructions": 4742,
+          "ipc": 0.6229637414608513,
+          "timer_ticks": 11,
+          "timer_seconds": 1.1e-05,
+          "cycle_seconds": 1.0874285714285714e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 104699,
+          "retired_instructions": 29136,
+          "ipc": 0.2782834602049685,
+          "timer_ticks": 149,
+          "timer_seconds": 0.000149,
+          "cycle_seconds": 0.00014957,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168182,
+          "retired_instructions": 17979,
+          "ipc": 0.10690204659238206,
+          "timer_ticks": 240,
+          "timer_seconds": 0.00024,
+          "cycle_seconds": 0.00024026,
+          "interrupts": 0
+        },
+        {
+          "cycles": 84063,
+          "retired_instructions": 14661,
+          "ipc": 0.17440491060276223,
+          "timer_ticks": 120,
+          "timer_seconds": 0.00012,
+          "cycle_seconds": 0.00012009,
+          "interrupts": 0
+        },
+        {
+          "cycles": 197904,
+          "retired_instructions": 38348,
+          "ipc": 0.19377071711536906,
+          "timer_ticks": 282,
+          "timer_seconds": 0.000282,
+          "cycle_seconds": 0.00028272,
+          "interrupts": 0
+        },
+        {
+          "cycles": 14854,
+          "retired_instructions": 4952,
+          "ipc": 0.333378214622324,
+          "timer_ticks": 21,
+          "timer_seconds": 2.1e-05,
+          "cycle_seconds": 2.122e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 3280415,
+        "retired_instructions": 909715,
+        "ipc": 0.27731704677609387,
+        "cycle_seconds": 0.004686307142857143,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 31.700805676000527,
+      "timing_model": "device-clock-v1",
+      "observer_on_off_verified": true,
+      "manifest_sha256": "bdb07b23e00d721ef6a6126d4aecd2dbc6ec0a0e885a3b988924f6a05284d5e3"
+    }
+  },
+  "comparisons": {
+    "same_700MHz_against_B0": {
+      "family_geomeans": {
+        "json_bpe": 1.0014583504298487,
+        "quant_loader": 0.9978068424909237,
+        "runtime_graph": 0.9921000058203504,
+        "regex_tokenizer": 0.997204002392313,
+        "ini_config": 0.9935194139795472,
+        "jsmn": 0.9980703233512596,
+        "miniz": 0.9979131744197173
+      },
+      "paired_geomean": 0.9968632471790219,
+      "worst_ratio": 1.003129674375791,
+      "details": [
+        {
+          "case": "json_bpe-dev-2411",
+          "family": "json_bpe",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 261546,
+          "reference_cycles": 260730,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 1.003129674375791
+        },
+        {
+          "case": "json_bpe-dev-2418",
+          "family": "json_bpe",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 266371,
+          "reference_cycles": 266427,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9997898110927197
+        },
+        {
+          "case": "quant_loader-dev-2411",
+          "family": "quant_loader",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 1212046,
+          "reference_cycles": 1215853,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9968688649038987
+        },
+        {
+          "case": "quant_loader-dev-2418",
+          "family": "quant_loader",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 1223054,
+          "reference_cycles": 1224590,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9987457026433337
+        },
+        {
+          "case": "runtime_graph-dev-2411",
+          "family": "runtime_graph",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 1229216,
+          "reference_cycles": 1238055,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9928605756610167
+        },
+        {
+          "case": "runtime_graph-dev-2418",
+          "family": "runtime_graph",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 1207354,
+          "reference_cycles": 1217901,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9913400186057816
+        },
+        {
+          "case": "regex_tokenizer-dev-2411",
+          "family": "regex_tokenizer",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 2394333,
+          "reference_cycles": 2397726,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9985849092014684
+        },
+        {
+          "case": "regex_tokenizer-dev-2418",
+          "family": "regex_tokenizer",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 2681933,
+          "reference_cycles": 2693177,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9958250051890388
+        },
+        {
+          "case": "ini_config-dev-2411",
+          "family": "ini_config",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 146918,
+          "reference_cycles": 148504,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.989320152992512
+        },
+        {
+          "case": "ini_config-dev-2418",
+          "family": "ini_config",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev",
+          "candidate_cycles": 149429,
+          "reference_cycles": 149768,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9977364991186368
+        },
+        {
+          "case": "jsmn_stream-cold",
+          "family": "jsmn",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "B0-victim-stream-dev-700",
+          "candidate_cycles": 2035885,
+          "reference_cycles": 2040388,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9977930668088618
+        },
+        {
+          "case": "jsmn_stream-warm",
+          "family": "jsmn",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "B0-victim-stream-dev-700",
+          "candidate_cycles": 1918943,
+          "reference_cycles": 1922119,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9983476569348724
+        },
+        {
+          "case": "miniz_stream-cold",
+          "family": "miniz",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "B0-victim-stream-dev-700",
+          "candidate_cycles": 2925859,
+          "reference_cycles": 2930739,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9983348909609486
+        },
+        {
+          "case": "miniz_stream-warm",
+          "family": "miniz",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "B0-victim-stream-dev-700",
+          "candidate_cycles": 1802621,
+          "reference_cycles": 1807154,
+          "candidate_mhz": 700,
+          "reference_mhz": 700,
+          "time_ratio": 0.9974916360199519
+        }
+      ]
+    },
+    "700MHz_against_B0_720MHz": {
+      "family_geomeans": {
+        "json_bpe": 1.004787610009534,
+        "quant_loader": 1.0018391011629544,
+        "runtime_graph": 0.9923571552717404,
+        "regex_tokenizer": 0.9960940373291242,
+        "ini_config": 1.000826972276728,
+        "jsmn": 0.9972647132192292,
+        "miniz": 1.0002824310742828
+      },
+      "paired_geomean": 0.999057269413525,
+      "worst_ratio": 1.0062831942108814,
+      "details": [
+        {
+          "case": "json_bpe-dev-2411",
+          "family": "json_bpe",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 261546,
+          "reference_cycles": 267339,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 1.0062831942108814
+        },
+        {
+          "case": "json_bpe-dev-2418",
+          "family": "json_bpe",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 266371,
+          "reference_cycles": 273082,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 1.0032942486139695
+        },
+        {
+          "case": "quant_loader-dev-2411",
+          "family": "quant_loader",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 1212046,
+          "reference_cycles": 1245540,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 1.0009119624534624
+        },
+        {
+          "case": "quant_loader-dev-2418",
+          "family": "quant_loader",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 1223054,
+          "reference_cycles": 1254527,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 1.0027670986754371
+        },
+        {
+          "case": "runtime_graph-dev-2411",
+          "family": "runtime_graph",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 1229216,
+          "reference_cycles": 1273124,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 0.9930976536007939
+        },
+        {
+          "case": "runtime_graph-dev-2418",
+          "family": "runtime_graph",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 1207354,
+          "reference_cycles": 1252348,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 0.9916172090915852
+        },
+        {
+          "case": "regex_tokenizer-dev-2411",
+          "family": "regex_tokenizer",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 2394333,
+          "reference_cycles": 2468886,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 0.9975116365379828
+        },
+        {
+          "case": "regex_tokenizer-dev-2418",
+          "family": "regex_tokenizer",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 2681933,
+          "reference_cycles": 2773318,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 0.994678452720841
+        },
+        {
+          "case": "ini_config-dev-2411",
+          "family": "ini_config",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 146918,
+          "reference_cycles": 151631,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 0.9966013357615339
+        },
+        {
+          "case": "ini_config-dev-2418",
+          "family": "ini_config",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "B0-victim-dev-720",
+          "candidate_cycles": 149429,
+          "reference_cycles": 152923,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 1.0050705256893993
+        },
+        {
+          "case": "jsmn_stream-cold",
+          "family": "jsmn",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "B0-victim-stream-dev-720",
+          "candidate_cycles": 2035885,
+          "reference_cycles": 2100122,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 0.9971102359087438
+        },
+        {
+          "case": "jsmn_stream-warm",
+          "family": "jsmn",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "B0-victim-stream-dev-720",
+          "candidate_cycles": 1918943,
+          "reference_cycles": 1978877,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 0.997419214462113
+        },
+        {
+          "case": "miniz_stream-cold",
+          "family": "miniz",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "B0-victim-stream-dev-720",
+          "candidate_cycles": 2925859,
+          "reference_cycles": 3008068,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 1.000461083801487
+        },
+        {
+          "case": "miniz_stream-warm",
+          "family": "miniz",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "B0-victim-stream-dev-720",
+          "candidate_cycles": 1802621,
+          "reference_cycles": 1853932,
+          "candidate_mhz": 700,
+          "reference_mhz": 720,
+          "time_ratio": 1.0001038102491662
+        }
+      ]
+    },
+    "700MHz_against_original_NSL_540MHz": {
+      "family_geomeans": {
+        "json_bpe": 0.9287242304383282,
+        "quant_loader": 0.9229795429825275,
+        "runtime_graph": 0.9552292598434803,
+        "regex_tokenizer": 0.9650253070574359,
+        "ini_config": 0.9006903962644542,
+        "jsmn": 0.9599769826536577,
+        "miniz": 0.9350555116670259
+      },
+      "paired_geomean": 0.9379935357654712,
+      "worst_ratio": 0.9652923320235872,
+      "details": [
+        {
+          "case": "json_bpe-dev-2411",
+          "family": "json_bpe",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 261546,
+          "reference_cycles": 216902,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9302083758695501
+        },
+        {
+          "case": "json_bpe-dev-2418",
+          "family": "json_bpe",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 266371,
+          "reference_cycles": 221610,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.927242452957899
+        },
+        {
+          "case": "quant_loader-dev-2411",
+          "family": "quant_loader",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 1212046,
+          "reference_cycles": 1013207,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9228192405754345
+        },
+        {
+          "case": "quant_loader-dev-2418",
+          "family": "quant_loader",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 1223054,
+          "reference_cycles": 1022054,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9231398732356607
+        },
+        {
+          "case": "runtime_graph-dev-2411",
+          "family": "runtime_graph",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 1229216,
+          "reference_cycles": 992483,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9554343428120612
+        },
+        {
+          "case": "runtime_graph-dev-2418",
+          "family": "runtime_graph",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 1207354,
+          "reference_cycles": 975250,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9550242208957411
+        },
+        {
+          "case": "regex_tokenizer-dev-2411",
+          "family": "regex_tokenizer",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 2394333,
+          "reference_cycles": 1914528,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9647583559573356
+        },
+        {
+          "case": "regex_tokenizer-dev-2418",
+          "family": "regex_tokenizer",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 2681933,
+          "reference_cycles": 2143309,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9652923320235872
+        },
+        {
+          "case": "ini_config-dev-2411",
+          "family": "ini_config",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 146918,
+          "reference_cycles": 125894,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9002553168311664
+        },
+        {
+          "case": "ini_config-dev-2418",
+          "family": "ini_config",
+          "candidate_run": "NSL-victim-dev",
+          "reference_run": "NSL-540MHz-proxy",
+          "candidate_cycles": 149429,
+          "reference_cycles": 127922,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9011256859648848
+        },
+        {
+          "case": "jsmn_stream-cold",
+          "family": "jsmn",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "NSL-540MHz-stream",
+          "candidate_cycles": 2035885,
+          "reference_cycles": 1637629,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9590327584226079
+        },
+        {
+          "case": "jsmn_stream-warm",
+          "family": "jsmn",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "NSL-540MHz-stream",
+          "candidate_cycles": 1918943,
+          "reference_cycles": 1540528,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9609221365290712
+        },
+        {
+          "case": "miniz_stream-cold",
+          "family": "miniz",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "NSL-540MHz-stream",
+          "candidate_cycles": 2925859,
+          "reference_cycles": 2409041,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9369252032536718
+        },
+        {
+          "case": "miniz_stream-warm",
+          "family": "miniz",
+          "candidate_run": "NSL-victim-stream-dev-700",
+          "reference_run": "NSL-540MHz-stream",
+          "candidate_cycles": 1802621,
+          "reference_cycles": 1490151,
+          "candidate_mhz": 700,
+          "reference_mhz": 540,
+          "time_ratio": 0.9331895511643739
+        }
+      ]
+    }
+  },
+  "evidence": [
+    {
+      "path": "result/branch-v3/ppa/B0off/qualified.json",
+      "sha256": "6d9462cafcd8a5ad2e29a1589f633db01aa0787f0ae8bec7977b6a956144af23"
+    },
+    {
+      "path": "result/branch-v3/ppa/B0-victim/qualified.json",
+      "sha256": "838862ac22410f4657372e9ee0248e3def92b8e72b4e47b1b5c7f40556723b0b"
+    },
+    {
+      "path": "result/branch-v3/ppa/NSL/qualified.json",
+      "sha256": "f506e70754eb17312ada748f462100d0e359c973e528ba411ed1b2999c314510"
+    },
+    {
+      "path": "result/branch-v3/ppa/NSL-parallel/qualified.json",
+      "sha256": "110912a4685f702156f075dd9adb564b009ca84e332808604d7838103d9700ce"
+    },
+    {
+      "path": "result/branch-v3/ppa/NSL-provider/qualified.json",
+      "sha256": "e06494097d713f297d0fa6b2fe1d4f65da181d8945cafc70f7b17bbaf3693054"
+    },
+    {
+      "path": "result/branch-v3/ppa/NSL-victim/qualified.json",
+      "sha256": "50ef88a9560b7fd9b2a63ca9a5d3b22fc3356394d64d5b61599427314cf0eb07"
+    },
+    {
+      "path": "result/branch-v3/native-B0-victim-720/report.json",
+      "sha256": "ee0d4d632d5e612026b9a1e56fd78e9dfe560ba2b1afdb44d7f55321386fe87e"
+    },
+    {
+      "path": "result/branch-v3/native-NSL-victim-700/report.json",
+      "sha256": "4a3400dc1fec07574ef1be63be2d1ac0da19e65d82fb6625490fabcd8806c9b4"
+    },
+    {
+      "path": "result/branch-v3/sc-parallel-cycle-equivalence.json",
+      "sha256": "b3abd95a0c45dde30edc2c65e27560bdd56bf1b41f0a77f101b728c777a8256c"
+    },
+    {
+      "path": "result/branch-v3/provider-parallel-cycle-equivalence.json",
+      "sha256": "224c80745423b45bdc07a4f0dafbd5353091f2b82889cfd89daaaae2ec55a893"
+    },
+    {
+      "path": "result/branch-v3/provider-parallel-stream-equivalence.json",
+      "sha256": "da436a682b701e7026945ddb9a49ed95fb8ab58b3288b7caa8c066d98fd7ab2d"
+    },
+    {
+      "path": "result/branch-v3/victim-parallel-cycle-equivalence.json",
+      "sha256": "41e59edf7cf4e4639997a9df59a98a5425089f00b10ad92432ba3d71958b3d78"
+    },
+    {
+      "path": "result/branch-v3/victim-parallel-unit/manifest.json",
+      "sha256": "6ea938e9fa3c80dc63e5763b4f359e2eb0f580a45a01887faeb181a909b55958"
+    },
+    {
+      "path": "result/branch-v3/safety/NSL-victim/results.json",
+      "sha256": "fe64d111cbafa29c73bd77f4ff8a434fc9a23d7fd866c001aac4a7251445b839"
+    },
+    {
+      "path": "result/branch-v3/safety/B0-victim/results.json",
+      "sha256": "0aae0fe6e355679183aba84cbb6b07a7e32f182bfa0ebbca5fa154df2f3294f6"
+    },
+    {
+      "path": "result/branch-v3/isa/difftest/results.json",
+      "sha256": "fe12f277c2d0453d447f13499a98405bd8ab07c14ca380950311d4e7c02c1618"
+    }
+  ]
+}

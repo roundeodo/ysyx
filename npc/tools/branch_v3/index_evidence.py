@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Index compact contracts and raw evidence without copying generated build trees."""
+import hashlib
+import json
+import subprocess
+
+from run_btb_matrix import NPC, ROOT
+
+
+def identity(path):
+    return {'path': str(path.relative_to(NPC)), 'bytes': path.stat().st_size,
+            'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
+
+
+def main():
+    docs = NPC/'docs/research/branch-v3'
+    summaries = [path for path in docs.glob('*.json')
+                 if path.name not in ['evidence-index.json', 'coverage.json']]
+    raw = []
+    for pattern in ['builds/*/manifest.json', 'ppa/*/qualified*.json', 'ppa/*/probe-*.json',
+                    'rtl/*/index.json', 'rtl/*/model-check.json', 'safety/*/results.json',
+                    'isa/difftest/results.json', 'btb-unit-expanded/manifest.json',
+                    'btb-unit-expanded/run.log', 'btb-mutations/results.json',
+                    'btb-unit-replacement/manifest.json', 'btb-unit-replacement/run.log',
+                    'btb-mutations-valid/results.json', '*/manifest.json',
+                    '*/results.json', 'native-btb-*/report.json']:
+        raw.extend(ROOT.glob(pattern))
+    raw.extend(path for path in ROOT.glob('*compression.json'))
+    raw.extend(path for path in ROOT.glob('*sharing.json'))
+    records = [identity(path) for path in sorted(set(raw)) if path.is_file()]
+    sources = [*list((NPC/'vsrc/riscv32').rglob('*.sv')),
+               *list((NPC/'tools/branch_v3').glob('*.py')),
+               *list((NPC/'tools/branch_v3').glob('*.h')),
+               *list((NPC/'tools/branch_v3').glob('*.cpp'))]
+    source_records = [identity(path) for path in sorted(sources)]
+    document = {'schema': 1,
+                'head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=NPC.parent, text=True).strip(),
+                'scope': 'Paths are local raw evidence; Git delivery contains sources/contracts/compact results, not build trees.',
+                'summaries': [identity(path) for path in sorted(summaries)],
+                'raw_indices': records, 'current_sources': source_records,
+                'retention': 'Only rebuildable linked objects pruned. Qualified intermediate JSON is losslessly compressed; identical immutable frequency netlists share storage. Logs, binaries, inputs, snapshots and failure evidence remain.'}
+    (docs/'evidence-index.json').write_text(json.dumps(document, indent=2)+'\n')
+    final = docs/'final-results.json'
+    coverage = {
+        'scope': 'Bounded V3 exploration. Diagnosis-only mechanisms are not described as implemented.',
+        'stable_default_changed': False,
+        'baseline': {'status': 'frozen and rechecked', 'record': 'baseline_manifest.json',
+                     'btb_extension': 'btb-source-freeze.json', 'default_equivalence': 'btb-baseline-equivalence.json'},
+        'conditional_hybrid': {'status': 'RTL and pure static/dynamic controls tested', 'details': 'H2 weak-counter BTFNT fallback; H1/H3/H4 remain model candidates'},
+        'tage_sc_loop': {'status': 'ablatable scaled RTL, actual CPU state checks, random/direct tests and PPA',
+                         'full_reference': 'Unmodified author 2016 8KB implementation; immediate correct-path training with cold/natural-prefix data',
+                         'not_done': ['standard author competition-trace rerun', 'delayed multi-pending adapter for the unmodified author implementation', 'full original SC local/path/IMLI feature set in RTL']},
+        'T0_btb': {'model_candidates': 120, 'rtl_performance_ppa_candidates': 35,
+                   'unit_configurations': 53, 'queries': 1908000, 'state_entries': 41472000,
+                   'controls': 'capacity, ways, index, replacement and new-entry admission separated'},
+        'replacement_extension': {'contract': 'btb-replacement-contract.json',
+                                  'model_record': 'btb-replacement-models.json',
+                                  'model_summary': 'btb-replacement-summary.json',
+                                  'policies': 14, 'joint_model_points': 420, 'development_inputs': 14,
+                                  'baseline_query_equivalence_checks': 3234632,
+                                  'matched_rtl_candidates': 2,
+                                  'rtl_record': 'btb-replacement-rtl-results.json',
+                                  'limits': 'SHiP-like resolved reuse and SRRIP matched control have RTL/PPA; other new policies and all prefill/retirement combinations are fixed-event models only. No new final holdout or stable default change.'},
+        'T1_tiered_btb': 'finite fast4+slow32 model with 1/2/3-cycle late predictions, three direction controls and 14 development inputs; no closed-loop RTL',
+        'T2_early_direct': 'B/J instruction-side target calculation, hybrid/dynamic/TAGE controls and safety/PPA',
+        'T3_predecode_prefill': 'actual I-cache install/word events drive finite resident metadata and four-hint/one-idle-write models; three direction controls and 14 development inputs; no candidate RTL/PPA',
+        'T4_compact_targets': 'existing RTL rechecked on width/region boundaries; finite U16/mixed-width models combined with folded index/SRRIP/taken admission and three direction controls, no joint RTL/PPA',
+        'shared_target_regions': 'independent 2/4-region finite models with reference invalidation on reuse and directed checks; actual development inputs did not exercise region pressure; no RTL',
+        'target_accuracy_extension': {'record': 'target-accuracy-models.json', 'summary': 'target-accuracy-summary.json',
+                                      'target_organizations': 18, 'direction_controls': 3, 'development_inputs': 14,
+                                      'baseline_query_equivalence_checks': 3234632,
+                                      'limits': 'fixed actual baseline timing/residence; no candidate wrong-path regeneration, speed, PPA or new final holdout'},
+        'T5_ras': 'independent returned-instruction recognition with resolved RAS and stall holding; no speculative-content rollback RTL',
+        'T6_indirect': 'last-target and limited path-history model compared; no complete ITTAGE RTL',
+        'T7_operand_resolution': 'readiness/forwarding opportunity recorded; no extra RF port or early-EX RTL',
+        'history': 'resolved and recoverable speculative TAGE verified separately; speculative plus local early override explicitly unsupported',
+        'sensitivity': '20/100/200ns first response, fixed 10ns beat, two random seeds, two whole-image relocations; no function-order randomization or beat-interval sweep',
+        'software': 'five development proxy families, extra NMS validation family, real jsmn/miniz code and disjoint GPT-2 vocabulary data; 128 distinct requests. Not full LLM inference/tokenization.',
+        'native_soc': 'MicroBench test, device-clock-v1, no train; distinct from fixed-ns testbench',
+        'final_holdout': 'completed, see final-results.json' if final.exists() else 'pending; do not claim final selection',
+        'ppa_boundary': 'NanGate45 standard-cell mapping and setup/hold/gating STA; no placement/routing signoff or power measurement',
+    }
+    (docs/'coverage.json').write_text(json.dumps(coverage, indent=2)+'\n')
+    print('INDEXED', len(records), 'raw records and', len(source_records), 'source files')
+
+
+if __name__ == '__main__':
+    main()

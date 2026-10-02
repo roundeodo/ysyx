@@ -4,6 +4,7 @@ import collections
 import hashlib
 import json
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 
 from targets import TargetTable
 
@@ -13,9 +14,9 @@ ROOT = NPC / 'result/branch-v3'
 
 def main():
     records = []
-    for path in sorted((ROOT / 'rtl/B0-opportunity').glob('*.events')):
+    for path in sorted(event_files(ROOT / 'rtl/B0-opportunity')):
         queries, accepts, operands, retired, resolved = {}, {}, {}, {}, {}
-        for line in path.open():
+        for line in open_text(path):
             row = line.strip().split(',')
             if row[0] == 'Q':
                 queries[int(row[1])] = row
@@ -89,7 +90,7 @@ def main():
                 slow.train(pc, target)
                 seen.add(pc)
                 pending.discard(pc)
-        records.append({'case': path.stem, 'source_sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+        records.append({'case': path.stem, 'source_sha256': sha_uncompressed(path),
                         'counts': dict(counts), 'gap_histograms': {key: dict(value) for key, value in gaps.items()},
                         'tier_fixed_event_M1': dict(tier)})
     document = {'scope': 'B0 development retired ROI branches; actual query/accept/resolve events',

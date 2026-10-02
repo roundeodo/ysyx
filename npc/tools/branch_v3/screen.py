@@ -2,14 +2,15 @@
 """M0 decoded-branch screening. This does not predict candidate CPU cycles."""
 import json,subprocess
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 from models import Hybrid, ScaledTage
 NPC=Path(__file__).resolve().parents[2]
 root=NPC/'result/branch-v3'
 records=[]
-for file in sorted((root/'rtl/B0').glob('*.events')):
+for file in sorted(event_files(root/'rtl/B0')):
     queries={};branches=[];cross={};ambiguous=0
-    instructions = {int(x[0],16): int(x[1],16) for x in (line.strip().split(',') for line in file.with_suffix('.trace').open())}
-    for line in file.open():
+    instructions = {int(x[0],16): int(x[1],16) for x in (line.strip().split(',') for line in open_text(file.with_suffix('.trace')))}
+    for line in open_text(file):
         x=line.strip().split(',')
         if x[0]=='Q':queries[int(x[1])]=int(x[3],16)
         elif x[0]=='R':

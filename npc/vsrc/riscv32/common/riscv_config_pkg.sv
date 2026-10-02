@@ -99,6 +99,16 @@ package riscv_config_pkg;
 `else
   localparam int unsigned BRANCH_TARGET_POLICY = 0;
 `endif
+`ifdef YSYX_BRANCH_TARGET_INDEX_POLICY
+  localparam int unsigned BRANCH_TARGET_INDEX_POLICY = `YSYX_BRANCH_TARGET_INDEX_POLICY;
+`else
+  localparam int unsigned BRANCH_TARGET_INDEX_POLICY = 0;
+`endif
+`ifdef YSYX_BRANCH_TARGET_ADMISSION_POLICY
+  localparam int unsigned BRANCH_TARGET_ADMISSION_POLICY = `YSYX_BRANCH_TARGET_ADMISSION_POLICY;
+`else
+  localparam int unsigned BRANCH_TARGET_ADMISSION_POLICY = 0;
+`endif
 `ifdef YSYX_BRANCH_TAGE_BASE_ENTRIES
   localparam int unsigned BRANCH_TAGE_BASE_ENTRIES = `YSYX_BRANCH_TAGE_BASE_ENTRIES;
 `else

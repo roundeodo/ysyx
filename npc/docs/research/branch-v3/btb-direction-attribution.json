@@ -1,0 +1,38 @@
+[
+  {
+    "name": "BT0-long",
+    "counts": {
+      "conditional": 578760,
+      "raw_errors": 70477,
+      "missing": 108445,
+      "redirects": 75563
+    }
+  },
+  {
+    "name": "TAGE-long",
+    "counts": {
+      "conditional": 578760,
+      "raw_errors": 25981,
+      "missing": 108614,
+      "redirects": 55733
+    }
+  },
+  {
+    "name": "TAGE-BT64",
+    "counts": {
+      "conditional": 578760,
+      "raw_errors": 28355,
+      "missing": 150361,
+      "redirects": 26179
+    }
+  },
+  {
+    "name": "NSL-BT64",
+    "counts": {
+      "conditional": 578760,
+      "raw_errors": 31023,
+      "missing": 150361,
+      "redirects": 27940
+    }
+  }
+]

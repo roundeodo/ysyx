@@ -147,44 +147,85 @@ module riscv32_tage_scl #(
   logic [31:0] loop_pc_q[4];
   logic [7:0] loop_trip_q[4], loop_current_q[4];
   logic [1:0] loop_confidence_q[4];
-  logic signed [2:0] provider, alternate;
-  logic signed [8:0] total;
-  logic signed [2:0] provider_counter;
+  logic [TABLE_COUNT-1:0][INDEX_BITS-1:0] lookup_index_array;
+  logic [TABLE_COUNT-1:0][TAG_BITS-1:0] lookup_tag_array;
+  logic [TABLE_COUNT-1:0] match_vector, provider_select_vector, alternate_select_vector;
+  logic [TABLE_COUNT-1:0] direction_vector, weak_vector;
+  logic base_direction;
+  assign base_direction = base_counter_array_q[lookup_pc_i[BASE_INDEX_BITS+1:2]][1];
+  for (genvar bank = 0; bank < TABLE_COUNT; bank++) begin : g_tagged_query
+    logic signed [2:0] counter;
+    logic longer_match, multiple_longer_matches;
+    assign lookup_index_array[bank] = lookup_pc_i[INDEX_BITS+1:2] ^ index_fold_q[bank];
+    assign lookup_tag_array[bank] = lookup_pc_i[TAG_BITS+1:2] ^ tag_fold_q[bank] ^
+        {tag_short_fold_q[bank], 1'b0};
+    assign match_vector[bank] = present_array_q[bank][lookup_index_array[bank]] &&
+        tag_array_q[bank][lookup_index_array[bank]] == lookup_tag_array[bank];
+    assign counter = counter_array_q[bank][lookup_index_array[bank]];
+    assign direction_vector[bank] = !counter[2];
+    assign weak_vector[bank] = counter == -1 || counter == 0;
+    // 最长匹配没有更长命中；次长匹配恰有一个更长命中。
+    always_comb begin
+      longer_match = 1'b0;
+      multiple_longer_matches = 1'b0;
+      for (int other = bank + 1; other < TABLE_COUNT; other++) begin
+        multiple_longer_matches |= longer_match && match_vector[other];
+        longer_match |= match_vector[other];
+      end
+    end
+    assign provider_select_vector[bank] = match_vector[bank] && !longer_match;
+    assign alternate_select_vector[bank] = match_vector[bank] && longer_match &&
+        !multiple_longer_matches;
+  end
+
+  // SC与TAGE并行：第三张表按两个方向读；公共部分和只计算一次。
+  logic [INDEX_BITS-1:0] sc_index_array[3];
+  logic signed [5:0] sc_weight_pair;
+  logic signed [6:0] sc_common_sum;
+  logic signed [7:0] sc_sum_array[2];
+  logic [1:0] sc_prediction_vector;
+  assign sc_index_array[0] = lookup_pc_i[INDEX_BITS+1:2];
+  assign sc_index_array[1] = lookup_pc_i[INDEX_BITS+1:2] ^ INDEX_BITS'(history_q);
+  assign sc_index_array[2] = lookup_pc_i[INDEX_BITS+1:2] ^ index_fold_q[TABLE_COUNT-1];
+  assign sc_weight_pair = 6'(weight_array_q[0][sc_index_array[0]]) +
+      6'(weight_array_q[1][sc_index_array[1]]);
+  assign sc_common_sum = {sc_weight_pair, 1'b0} + 7'sd2;
+  for (genvar direction = 0; direction < 2; direction++) begin : g_sc_direction
+    logic signed [4:0] weight;
+    logic signed [6:0] tail_sum;
+    assign weight = weight_array_q[2][sc_index_array[2] ^ INDEX_BITS'(direction)];
+    assign tail_sum = 7'(weight) * 7'sd2 + (direction == 0 ? -7'sd3 : 7'sd5);
+    assign sc_sum_array[direction] = 8'(sc_common_sum) + 8'(tail_sum);
+    // 原规则：强负和覆盖为NT，强正和覆盖为T，其余保持TAGE方向。
+    assign sc_prediction_vector[direction] = direction == 0 ?
+        sc_sum_array[direction] >= $signed({3'b0, threshold_q}) :
+        sc_sum_array[direction] > -$signed({3'b0, threshold_q});
+  end
+
   always_comb begin
     query                = '0;
     query.history_before = SPECULATIVE_HISTORY ? history_q : '0;
     query.pc             = lookup_pc_i;
     query.epoch          = epoch_q;
     query.base_index     = lookup_pc_i[BASE_INDEX_BITS+1:2];
-    provider             = -1;
-    alternate            = -1;
+    query.index          = lookup_index_array;
+    query.tag            = lookup_tag_array;
+    query.provider       = -1;
     for (int b = 0; b < TABLE_COUNT; b++) begin
-      query.index[b] = lookup_pc_i[INDEX_BITS+1:2] ^ index_fold_q[b];
-      query.tag[b]   = lookup_pc_i[TAG_BITS+1:2] ^ tag_fold_q[b] ^ {tag_short_fold_q[b], 1'b0};
-      if (present_array_q[b][query.index[b]] &&
-          tag_array_q[b][query.index[b]] == query.tag[b]) begin
-        alternate = provider;
-        provider  = b;
-      end
+      if (provider_select_vector[b])
+        query.provider = 3'(b);
     end
-    query.provider = 3'(provider);
-    query.alt = alternate >= 0 ? counter_array_q[alternate][query.index[alternate]] >= 0 :
-        base_counter_array_q[query.base_index][1];
-    provider_counter = provider >= 0 ?
-        counter_array_q[provider][query.index[provider]] : (query.alt ? 3'sd1 : -3'sd2);
-    query.raw = provider >= 0 ? provider_counter >= 0 : query.alt;
-    query.provider_weak = provider_counter == -1 || provider_counter == 0;
-    query.tage = provider >= 0 && query.provider_weak && alternate_select_q >= 0 ? query.alt :
-        query.raw;
-    query.sc_index[0] = lookup_pc_i[INDEX_BITS+1:2];
-    query.sc_index[1] = lookup_pc_i[INDEX_BITS+1:2] ^ INDEX_BITS'(history_q);
-    query.sc_index[2] = lookup_pc_i[INDEX_BITS+1:2] ^ index_fold_q[TABLE_COUNT-1] ^
-        INDEX_BITS'(query.tage);
-    total = query.tage ? 4 : -4;
-    for (int b = 0; b < 3; b++) total += 2 * int'(weight_array_q[b][query.sc_index[b]]) + 1;
-    query.sum = 9'(total);
-    query.prediction = SC_ENABLE && (total >= int'(threshold_q) || total <= -int'(threshold_q)) ?
-        total >= 0 : query.tage;
+    query.alt = (|(alternate_select_vector & direction_vector)) ||
+        (!(|alternate_select_vector) && base_direction);
+    query.raw = (|(provider_select_vector & direction_vector)) ||
+        (!(|provider_select_vector) && base_direction);
+    query.provider_weak = |(provider_select_vector & weak_vector);
+    query.tage = query.provider_weak && alternate_select_q >= 0 ? query.alt : query.raw;
+    query.sc_index[0] = sc_index_array[0];
+    query.sc_index[1] = sc_index_array[1];
+    query.sc_index[2] = sc_index_array[2] ^ INDEX_BITS'(query.tage);
+    query.sum = 9'(sc_sum_array[query.tage]);
+    query.prediction = SC_ENABLE ? sc_prediction_vector[query.tage] : query.tage;
     query.loop_index = lookup_pc_i[3:2];
     if (LOOP_ENABLE && loop_present_q[query.loop_index] &&
         loop_pc_q[query.loop_index] == lookup_pc_i && loop_confidence_q[query.loop_index] == 3 &&

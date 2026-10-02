@@ -1,0 +1,244 @@
+{
+  "source_final_results_sha256": "6e359a7216ac1df18fad003ed69d92c4bf54bcc9f94cd9ddc0d1c48b2ed81182",
+  "scope": "Frozen final inputs at each qualified clock: BT0 735MHz, NSL-BT32-fold 720MHz.",
+  "definitions": {
+    "raw_direction_errors": "Conditional predictor direction before BTB availability or early target overrides, compared with actual taken.",
+    "conditional_EX_redirects": "Conditional instructions whose resolved next-PC mismatch triggers EX redirect; includes direction, absent target and wrong target.",
+    "JAL_JALR_EX_redirects": "Non-conditional jumps corrected at EX; includes returns. Not all conditional wrong-target cases.",
+    "aggregation": "Sum across measured windows, including final partial branch windows. Cold and warm windows overlap; these are not unique counts from one invocation. Counts are not family-weighted performance averages."
+  },
+  "groups": {
+    "short_own": {
+      "baseline": {
+        "counts": {
+          "conditional_branches": 913454,
+          "raw_direction_errors": 135634,
+          "conditional_EX_redirects": 142113,
+          "JAL_JALR_EX_redirects": 81905,
+          "all_control_flow_EX_redirects": 224018,
+          "retired": 3790590
+        },
+        "raw_direction_error_rate": 0.14848476223214305,
+        "conditional_EX_redirect_rate": 0.15557762076689138,
+        "logs": [
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/json_bpe-held-2467.log",
+            "sha256": "8a1c87d78e5cced19d98b170603e7fd044a3e7be9241953c1bf3a7c86ff51be6"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/json_bpe-held-2474.log",
+            "sha256": "7984345cc3f214b1ab0734caa4e1162b509acde886121c71fdd4dceab5018c7b"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/quant_loader-held-2467.log",
+            "sha256": "3fc9eb94e86300c06b3c7f8db2ac8c4fa36695d8168adf2073843534b5057061"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/quant_loader-held-2474.log",
+            "sha256": "3190064083e4327f3c13b894d9857371403607a1713b37bcbc795c48007c561b"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/runtime_graph-held-2467.log",
+            "sha256": "ee0e12a23066826a54841dd506da4122ac367d5e0996949a00a707c19f1ed8c3"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/runtime_graph-held-2474.log",
+            "sha256": "0d89509b4b782e7207d421db73f6a36a55c72b683fa8b8e78502bf7dd7131538"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/regex_tokenizer-held-2467.log",
+            "sha256": "35df90b8ea544e9a533753d05e9848ef6c3ee3140d82d18c50c3c8347cc5de1b"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/regex_tokenizer-held-2474.log",
+            "sha256": "a598ee6edf3c3f9fe810a1442adcd93ef3395675418d870b34564dcecabc4574"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/ini_config-held-2467.log",
+            "sha256": "05951f5f8e023a78ee175744aceef5cb28959fa4efbcf3430e1f2ee52dd20b69"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/ini_config-held-2474.log",
+            "sha256": "675ec62d61d023518a83bba0cdb99832a5143566de8a749f5e3fa8e8de4f9ea0"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/nms_postprocess-held-2467.log",
+            "sha256": "b693eec842ee3dc1777862152e0efbb488a02cf78de18d4431b45374cda666ce"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-images-final/nms_postprocess-held-2474.log",
+            "sha256": "9c4786dedbaaa0cd03cde0e5bd19e8d28ee86447be9fe9aacb0de4b876c59697"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-streams-final/jsmn_stream-cold.log",
+            "sha256": "11a485a6f144ee582b7bd3d440a13b8c476336056a5ec049d9d143b434c18d86"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-streams-final/jsmn_stream-warm.log",
+            "sha256": "0e32dfedbf78b04113b5d5eb0a18861397a86c17a0170487387eaea72f576451"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-streams-final/miniz_stream-cold.log",
+            "sha256": "91715ba5866c1f07ee68eaafb9d33efdb5282691d2403c1caa3e1878e9f5667d"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-streams-final/miniz_stream-warm.log",
+            "sha256": "37dc9e12a547b58a6be13566fe846618226227beaae5b4beb54a587aba99be3a"
+          }
+        ]
+      },
+      "TAGE_SC_Loop_BTB32": {
+        "counts": {
+          "conditional_branches": 913454,
+          "raw_direction_errors": 63749,
+          "conditional_EX_redirects": 66549,
+          "JAL_JALR_EX_redirects": 41742,
+          "all_control_flow_EX_redirects": 108291,
+          "retired": 3790590
+        },
+        "raw_direction_error_rate": 0.0697889548899014,
+        "conditional_EX_redirect_rate": 0.07285424334449245,
+        "logs": [
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/json_bpe-held-2467.log",
+            "sha256": "a619967a488be200a92aa6844aa57f6d34399aed5a62f4e3582ed5f56efa4088"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/json_bpe-held-2474.log",
+            "sha256": "b48272766b41afca4ad3008aaed1ce9dc98d186b6ce209a7e0fb85925a69e60d"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/quant_loader-held-2467.log",
+            "sha256": "9419dc925ad7602190b9ae1a4a35ec753fefead5591c67ff16f1f1102cafbba3"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/quant_loader-held-2474.log",
+            "sha256": "d29fd976434d4e10a72bf60fd94b42b6d5511048ebe508265f3bf673cc3f7c10"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/runtime_graph-held-2467.log",
+            "sha256": "46c40c1cd81a82aedfcb4dc381f10b81257f4706d65b8234078b4a33f09b1c29"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/runtime_graph-held-2474.log",
+            "sha256": "f147d8930192c294cc6a54f583f4835f130965d1159dc7b3107542055aec49aa"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/regex_tokenizer-held-2467.log",
+            "sha256": "9431b2b759a9e3d69fa29d44b84482ced52b5adc51d8f1fd5430d5682f39de28"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/regex_tokenizer-held-2474.log",
+            "sha256": "e181a1d4448675a56ec3cbb7c170b2f2e12ad401d103d5e15bbf8aa6a53c0d83"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/ini_config-held-2467.log",
+            "sha256": "7aad99e121f372fc413c7496216704e0e8d010b5c0370b7ec1bf231cddd3592e"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/ini_config-held-2474.log",
+            "sha256": "74dda7e0766ebbd45ddd1b0ecff7babf6b6a1a5737afd16b320b6d99f50834e7"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/nms_postprocess-held-2467.log",
+            "sha256": "1194691304ea091a4b73dea5ea2d4c0b24d99aa8c2097dc6db10b759e7782b01"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-images-final/nms_postprocess-held-2474.log",
+            "sha256": "c0d88ae506030ac0f09024932c5ce25714dd21799d72923423f20e511caf6849"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-streams-final/jsmn_stream-cold.log",
+            "sha256": "d56beb755e2ec1350d396646e4f66feddc0000b1bcada2161fddd9a86b07fdb7"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-streams-final/jsmn_stream-warm.log",
+            "sha256": "08ecdd0555379212f929d00d793625b6a94a622abc8dfb14961082a1f9f7ea24"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-streams-final/miniz_stream-cold.log",
+            "sha256": "b11dc8c35a74337c4023b5b9cb46907442712f4e7222aad76dc4af173ecb5b13"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-streams-final/miniz_stream-warm.log",
+            "sha256": "81c2e4d7a1f0eb17afb600586fda01342851070cce756c494ff257ad90185cbb"
+          }
+        ]
+      },
+      "count_reduction": {
+        "raw_direction_errors": 0.5299924797617117,
+        "conditional_EX_redirects": 0.5317177175909311,
+        "JAL_JALR_EX_redirects": 0.49036078383493076,
+        "all_control_flow_EX_redirects": 0.5165968806078083
+      }
+    },
+    "long_own": {
+      "baseline": {
+        "counts": {
+          "conditional_branches": 8692260,
+          "raw_direction_errors": 843259,
+          "conditional_EX_redirects": 978610,
+          "JAL_JALR_EX_redirects": 230534,
+          "all_control_flow_EX_redirects": 1209144,
+          "retired": 33966462
+        },
+        "raw_direction_error_rate": 0.09701262962681742,
+        "conditional_EX_redirect_rate": 0.11258406904533458,
+        "logs": [
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-streams-long-paired-final/jsmn_long-128-cold.log",
+            "sha256": "297c8fff96d13bcf28d0026dca4fbbd18818803898da59c3cfd6bdc799601d91"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-streams-long-paired-final/jsmn_long-128-warm.log",
+            "sha256": "953631f3c237677128924dfc2a499f34611f7e4ee80245bc48966a4c7c1515ec"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-streams-long-paired-final/miniz_long-128-cold.log",
+            "sha256": "e0df55b04bab0abc672aa6d34847861d8f9844fcf53c4f1630afffbc964b2051"
+          },
+          {
+            "path": "result/branch-v3/rtl/BT0-long-final-735MHz-streams-long-paired-final/miniz_long-128-warm.log",
+            "sha256": "e9071e8b65c5d9bae1156fe8bbc357a92cb86265d0c614446cd4eabe654da6e9"
+          }
+        ]
+      },
+      "TAGE_SC_Loop_BTB32": {
+        "counts": {
+          "conditional_branches": 8692260,
+          "raw_direction_errors": 333280,
+          "conditional_EX_redirects": 365399,
+          "JAL_JALR_EX_redirects": 114271,
+          "all_control_flow_EX_redirects": 479670,
+          "retired": 33966462
+        },
+        "raw_direction_error_rate": 0.03834215727555319,
+        "conditional_EX_redirect_rate": 0.042037283744388684,
+        "logs": [
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-streams-long-paired-final/jsmn_long-128-cold.log",
+            "sha256": "d908d6d3d8cdd7257b1605eba37e33c3ab1c06f585de429792cbe3978a1e0782"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-streams-long-paired-final/jsmn_long-128-warm.log",
+            "sha256": "adc38f1ae46ddc338739fe688ec46f364f36f11850459b9b65aec6d4a88026ac"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-streams-long-paired-final/miniz_long-128-cold.log",
+            "sha256": "f88a70d16c524b8916453819764f92fe206ea44664187f0dd557cc8af4d71b3e"
+          },
+          {
+            "path": "result/branch-v3/rtl/NSL-BT32-fold-final-720MHz-streams-long-paired-final/miniz_long-128-warm.log",
+            "sha256": "ecf92ed949cb08d84133aefc9785c038c3bd11f9828cdf9f472257bbe9898ee2"
+          }
+        ]
+      },
+      "count_reduction": {
+        "raw_direction_errors": 0.604771487763546,
+        "conditional_EX_redirects": 0.6266142794371609,
+        "JAL_JALR_EX_redirects": 0.504320403931741,
+        "all_control_flow_EX_redirects": 0.6032978702288561
+      }
+    }
+  }
+}

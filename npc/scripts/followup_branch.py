@@ -10,9 +10,13 @@ import explore_frontend as experiment
 def defines(c):
     cache=c.get('icache',[1024,4,32,13])
     settings=dict(ICACHE_CAPACITY_BYTES=cache[0],ICACHE_WAY_COUNT=cache[1],ICACHE_LINE_BYTES=cache[2],ICACHE_REPLACEMENT_POLICY=cache[3],
-                  BRANCH_HISTORY_ENTRY_COUNT=c.get('bht',16),BRANCH_TARGET_ENTRY_COUNT=c.get('btb',16),BRANCH_TARGET_WAY_COUNT=2,
+                  BRANCH_HISTORY_ENTRY_COUNT=c.get('bht',16),BRANCH_TARGET_ENTRY_COUNT=c.get('btb',16),BRANCH_TARGET_WAY_COUNT=c.get('btb_ways',2),
                   BRANCH_TARGET_POLICY=c.get('target_policy',0),RETURN_STACK_ENTRY_COUNT=4,
                   BRANCH_DIRECTION_POLICY=c.get('direction_policy',0),BRANCH_GLOBAL_HISTORY_BITS=c.get('history_bits',4))
+    for key, macro in [('target_index', 'BRANCH_TARGET_INDEX_POLICY'),
+                       ('target_admission', 'BRANCH_TARGET_ADMISSION_POLICY')]:
+        if key in c:
+            settings[macro] = c[key]
     return [f'YSYX_{k}={v}' for k,v in settings.items()]
 
 

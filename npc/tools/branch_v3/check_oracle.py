@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 
 NPC=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(NPC/'scripts'))
@@ -51,7 +52,7 @@ experiment.build_rtl(OUT/'build',source/'rtl',defines({}),host_opt=1)
 results=[]
 for case in json.loads((ROOT/'rtl/B0-final-off/index.json').read_text()):
     name=case['name'];events=ROOT/'rtl/B0-final-off'/(name+'.events')
-    pcs=[line.split(',')[3] for line in events.open() if line.startswith('C,')]
+    pcs=[line.split(',')[3] for line in open_text(events) if line.startswith('C,')]
     assert len(pcs)>2, 'Baseline must contain full C events, not only ROI trace'
     oracle=OUT/(name+'.oracle');oracle.write_text('\n'.join(pcs)+'\n')
     baseline=(ROOT/'rtl/B0-final-off'/(name+'.log')).read_text()
@@ -71,7 +72,7 @@ for case in json.loads((ROOT/'rtl/B0-final-off/index.json').read_text()):
         if mode==0:assert measured==reference
         def retired_hash(file):
             digest=hashlib.sha256()
-            for line in file.open():digest.update((','.join(line.split(',')[:3])+'\n').encode())
+            for line in open_text(file):digest.update((','.join(line.split(',')[:3])+'\n').encode())
             return digest.hexdigest()
         assert retired_hash(folder/(name+'.trace'))==retired_hash(ROOT/'rtl/B0-final-off'/(name+'.trace'))
         results.append({'case':name,'mode':mode,'values':measured,'baseline':reference,'command':command,'oracle_sha256':experiment.sha(oracle),'log_sha256':experiment.sha(log)})

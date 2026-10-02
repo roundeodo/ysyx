@@ -1,0 +1,84 @@
+[
+  {
+    "candidate": "BT0-long",
+    "frozen_ppa": "BT0",
+    "delivered_ppa": "BT0",
+    "identical_delivered_RTL_files": 56,
+    "area_um2": 101348.394,
+    "passed_frozen_frequencies": [
+      400,
+      735
+    ]
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "frozen_ppa": "BT32-select-fold",
+    "delivered_ppa": "BT32-select-fold",
+    "identical_delivered_RTL_files": 56,
+    "area_um2": 110639.774,
+    "passed_frozen_frequencies": [
+      400,
+      720
+    ]
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "frozen_ppa": "H2E-victim",
+    "delivered_ppa": "H2E-delivery",
+    "identical_delivered_RTL_files": 56,
+    "area_um2": 102253.06,
+    "passed_frozen_frequencies": [
+      400,
+      700
+    ],
+    "reason": "Earlier H2E source preceded default-off BTB options; remapped current source after freeze without retuning.",
+    "identical_netlist_and_SDC_sha256": {
+      "riscv32_core_reset_boundary.netlist.v": "39a5f6b6175abcf90afd69fb6019a8eaa38597363b8ca6076433c7b1fac985ce",
+      "constraints.sdc": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+    },
+    "identical_700MHz_timing_groups": {
+      "data_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+        "slack_ns": 0.008,
+        "fmax_mhz": 704.096
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.lookup_queue_entry_count_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.013,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+        "slack_ns": 0.094,
+        "fmax_mhz": null
+      }
+    }
+  },
+  {
+    "candidate": "NSL-BT32-fold",
+    "frozen_ppa": "NSL-BT32-fold",
+    "delivered_ppa": "NSL-BT32-fold",
+    "identical_delivered_RTL_files": 56,
+    "area_um2": 128856.784,
+    "passed_frozen_frequencies": [
+      400,
+      720
+    ]
+  },
+  {
+    "candidate": "NSL-BT64",
+    "frozen_ppa": "NSL-BT64",
+    "delivered_ppa": "NSL-BT64",
+    "identical_delivered_RTL_files": 56,
+    "area_um2": 143246.586,
+    "passed_frozen_frequencies": [
+      400,
+      715
+    ]
+  }
+]

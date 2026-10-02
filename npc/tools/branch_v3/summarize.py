@@ -12,7 +12,13 @@ from pathlib import Path
 NPC = Path(__file__).resolve().parents[2]
 ROOT = NPC / 'result/branch-v3'
 DOCS = NPC / 'docs/research/branch-v3'
-PPA = {'NL':'NL','NS':'NS','NSL':'NSL','SE0':'SE0','B0off': 'B0-final-off', 'B0-current': 'B0-latest', 'B32': 'B32',
+PPA = {'S-victim':'S-victim','SE0-victim':'SE0-victim','E0-victim':'E0-victim',
+       'NER0-victim':'NER0-victim','NSLER-victim':'NSLER-victim',
+       'H2E-victim':'H2E-victim','R0-victim':'R0-victim','NSmallER-victim':'NSmallER-victim',
+       'N0-victim':'N0-victim','NL-victim':'NL-victim','NS-victim':'NS-victim',
+       'NSL-parallel':'NSL-parallel','NSL-provider':'NSL-provider',
+       'NSL-victim':'NSL-victim','B0-victim':'B0-victim',
+       'NL':'NL','NS':'NS','NSL':'NSL','SE0':'SE0','B0off': 'B0-final-off', 'B0-current': 'B0-latest', 'B32': 'B32',
        'H2-narrow': 'H2-narrow-v2', 'H2E-narrow': 'H2E-narrow', 'S': 'S',
        'E0': 'E0', 'N0-widthfix': 'N0', 'N0E': 'N0E', 'R0-held': 'R0-held',
        'NSmallER': 'NSmallER-held', 'NSmall': 'NSmall', 'B64': 'B64',

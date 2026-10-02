@@ -190,6 +190,8 @@ def main():
     parser.add_argument('--btb-target-bits', type=int, nargs='+',
                         help='Target bits per way, low address bits retained; omitted selects original BTB')
     parser.add_argument('--btb-policy', type=int, choices=range(4), default=0)
+    parser.add_argument('--btb-index', type=int, choices=range(3), default=0)
+    parser.add_argument('--btb-admission', type=int, choices=range(3), default=0)
     parser.add_argument('--ras-entries', type=int, default=4)
     parser.add_argument('--direction-policy', type=int, choices=range(6), default=0)
     parser.add_argument('--history-bits', type=int, default=4)
@@ -214,6 +216,8 @@ def main():
             not args.early_target and not args.early_ras),
             'Speculative history currently requires policy5 without local early override')
     branch_options = {
+        'TARGET_INDEX_POLICY': args.btb_index,
+        'TARGET_ADMISSION_POLICY': args.btb_admission,
         'STATIC_POLICY': args.branch_static, 'EARLY_TARGET': args.early_target,
         'EARLY_RAS': args.early_ras, 'SC_ENABLE': args.branch_sc,
         'LOOP_ENABLE': args.branch_loop, 'SPEC_HISTORY': args.spec_history,
@@ -223,6 +227,8 @@ def main():
                            for i, value in enumerate(args.tage_lengths)})
     target_way_bits = 0
     if args.btb_target_bits:
+        require(args.btb_index == 0 and args.btb_admission == 0,
+                'Compact BTB currently requires legacy index and admission')
         require(args.btb_ways in [2, 4] and len(args.btb_target_bits) == args.btb_ways,
                 'Compact BTB needs one width for each of two or four ways')
         require(all(1 <= width <= 32 for width in args.btb_target_bits), 'Target bits must be 1..32')
@@ -305,6 +311,7 @@ def main():
                                    'policy': args.icache_policy, 'line_bytes': args.icache_line},
                         'predictor': {'bht_entries': args.bht_entries, 'btb_entries': args.btb_entries,
                                       'btb_ways': args.btb_ways, 'btb_policy': args.btb_policy,
+                                      'btb_index': args.btb_index, 'btb_admission': args.btb_admission,
                                       'ras_entries': args.ras_entries,
                                       'direction_policy': args.direction_policy, 'history_bits': args.history_bits,
                                       'target_bits': args.btb_target_bits, 'target_way_bits': target_way_bits},

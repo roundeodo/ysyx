@@ -11,7 +11,12 @@ module exploration_axi_memory
     output logic result_valid_o,
     output logic [31:0] result_o
 );
-  logic [31:0] words[32768];
+`ifdef BRANCH_V3_RAM_BYTES
+  localparam int unsigned RAM_BYTES = `BRANCH_V3_RAM_BYTES;
+`else
+  localparam int unsigned RAM_BYTES = 131072;
+`endif
+  logic [31:0] words[RAM_BYTES / 4];
   axi4_read_address_t read_address_q;
   axi4_write_address_t write_address_q;
   logic read_present_q = 0, write_present_q = 0, write_complete_q = 0;
@@ -24,11 +29,13 @@ module exploration_axi_memory
   logic [31:0] read_stalled_data_q;
   string image, memory_mode = "cycle";
   function automatic logic [31:0] read_word(input logic [31:0] address);
-    if (address >= 32'h80000000 && address < 32'h80020000)
+    if (address >= 32'h80000000 && address < 32'h80000000 + RAM_BYTES)
       return words[(address - 32'h80000000) >> 2];
     return 0;
   endfunction
   initial begin
+    if (RAM_BYTES < 131072 || RAM_BYTES > 4194304 || RAM_BYTES % 4 != 0)
+      $fatal(1, "RAM must fit the core's cacheable 4 MiB range");
     foreach (words[i]) words[i] = 0;
     if ($value$plusargs("image=%s", image)) $readmemh(image, words);
     void'($value$plusargs("cpu_mhz=%d", cpu_mhz));
@@ -95,7 +102,7 @@ module exploration_axi_memory
       write_beat_q <= 0;
     end
     if (request_i.w_valid && response_o.w_ready) begin
-      if (write_address_q.addr >= 32'h80000000 && write_address_q.addr < 32'h80020000)
+      if (write_address_q.addr >= 32'h80000000 && write_address_q.addr < 32'h80000000 + RAM_BYTES)
         for (int byte_index = 0; byte_index < 4; byte_index++)
           if (request_i.w.strb[byte_index])
             words[((write_address_q.addr-32'h80000000) >> 2)+write_beat_q][byte_index*8+:8]

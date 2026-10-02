@@ -1,0 +1,1239 @@
+{
+  "window_definition": "8192 resolved conditional branches; final partial window retained; first/last are CPU cycles",
+  "scope": "same-image passive cold/warm windows, 128 distinct requests; quarters describe phases, not a convergence test",
+  "limits": "missing counts all conditional BTB absences, including intentionally unadmitted not-taken branches; not useful-target starvation. Inputs differ across phases; changes in error rate cannot all be assigned to training.",
+  "records": [
+    {
+      "name": "BT0-long",
+      "case": "jsmn_long-128-cold",
+      "windows": 232,
+      "conditional_events": 1894252,
+      "quarters": [
+        {
+          "conditional": 475136,
+          "raw_errors": 36032,
+          "missing": 78431,
+          "redirects": 40394,
+          "raw_error_rate": 0.07583512931034483,
+          "conditional_redirect_rate": 0.08501565867456896
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35172,
+          "missing": 76753,
+          "redirects": 39524,
+          "raw_error_rate": 0.07402512122844827,
+          "conditional_redirect_rate": 0.08318460398706896
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35061,
+          "missing": 76517,
+          "redirects": 39398,
+          "raw_error_rate": 0.07379150390625,
+          "conditional_redirect_rate": 0.08291941675646551
+        },
+        {
+          "conditional": 468844,
+          "raw_errors": 34314,
+          "missing": 74829,
+          "redirects": 38539,
+          "raw_error_rate": 0.07318852326146863,
+          "conditional_redirect_rate": 0.08220004948341025
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 65,
+        "retired_32B_lines": 43
+      }
+    },
+    {
+      "name": "BT0-long",
+      "case": "jsmn_long-128-warm",
+      "windows": 218,
+      "conditional_events": 1785828,
+      "quarters": [
+        {
+          "conditional": 442368,
+          "raw_errors": 33295,
+          "missing": 72596,
+          "redirects": 37391,
+          "raw_error_rate": 0.07526538990162036,
+          "conditional_redirect_rate": 0.08452464916087964
+        },
+        {
+          "conditional": 450560,
+          "raw_errors": 33411,
+          "missing": 72916,
+          "redirects": 37546,
+          "raw_error_rate": 0.0741543856534091,
+          "conditional_redirect_rate": 0.08333185369318181
+        },
+        {
+          "conditional": 442368,
+          "raw_errors": 32469,
+          "missing": 70855,
+          "redirects": 36484,
+          "raw_error_rate": 0.0733981662326389,
+          "conditional_redirect_rate": 0.08247432002314815
+        },
+        {
+          "conditional": 450532,
+          "raw_errors": 33079,
+          "missing": 72134,
+          "redirects": 37152,
+          "raw_error_rate": 0.07342208766524909,
+          "conditional_redirect_rate": 0.0824625109870109
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 62,
+        "retired_32B_lines": 42
+      }
+    },
+    {
+      "name": "BT0-long",
+      "case": "miniz_long-128-cold",
+      "windows": 295,
+      "conditional_events": 2408740,
+      "quarters": [
+        {
+          "conditional": 598016,
+          "raw_errors": 61481,
+          "missing": 88597,
+          "redirects": 72320,
+          "raw_error_rate": 0.10280828606592465,
+          "conditional_redirect_rate": 0.1209332191780822
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 65003,
+          "missing": 91194,
+          "redirects": 75735,
+          "raw_error_rate": 0.1072288719383446,
+          "conditional_redirect_rate": 0.12493236644847973
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 66057,
+          "missing": 92290,
+          "redirects": 76867,
+          "raw_error_rate": 0.10896754909206081,
+          "conditional_redirect_rate": 0.12679971230996623
+        },
+        {
+          "conditional": 598308,
+          "raw_errors": 67081,
+          "missing": 92766,
+          "redirects": 77282,
+          "raw_error_rate": 0.11211783897256931,
+          "conditional_redirect_rate": 0.12916758592564365
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 186,
+        "retired_32B_lines": 163
+      }
+    },
+    {
+      "name": "BT0-long",
+      "case": "miniz_long-128-warm",
+      "windows": 278,
+      "conditional_events": 2271454,
+      "quarters": [
+        {
+          "conditional": 565248,
+          "raw_errors": 59019,
+          "missing": 84276,
+          "redirects": 69241,
+          "raw_error_rate": 0.10441257642663043,
+          "conditional_redirect_rate": 0.12249667402626811
+        },
+        {
+          "conditional": 573440,
+          "raw_errors": 61563,
+          "missing": 85982,
+          "redirects": 71529,
+          "raw_error_rate": 0.10735735212053571,
+          "conditional_redirect_rate": 0.12473667689732143
+        },
+        {
+          "conditional": 565248,
+          "raw_errors": 62075,
+          "missing": 86877,
+          "redirects": 72311,
+          "raw_error_rate": 0.10981905287590579,
+          "conditional_redirect_rate": 0.12792791836503623
+        },
+        {
+          "conditional": 567518,
+          "raw_errors": 63222,
+          "missing": 87307,
+          "redirects": 72782,
+          "raw_error_rate": 0.1114008718666192,
+          "conditional_redirect_rate": 0.12824615254494132
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 183,
+        "retired_32B_lines": 162
+      }
+    },
+    {
+      "name": "BT16-admit-long",
+      "case": "jsmn_long-128-cold",
+      "windows": 232,
+      "conditional_events": 1894252,
+      "quarters": [
+        {
+          "conditional": 475136,
+          "raw_errors": 36170,
+          "missing": 256328,
+          "redirects": 29228,
+          "raw_error_rate": 0.07612557246767242,
+          "conditional_redirect_rate": 0.06151501885775862
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35308,
+          "missing": 255897,
+          "redirects": 28590,
+          "raw_error_rate": 0.07431135506465517,
+          "conditional_redirect_rate": 0.06017224542025862
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35191,
+          "missing": 255988,
+          "redirects": 28502,
+          "raw_error_rate": 0.07406510977909483,
+          "conditional_redirect_rate": 0.05998703529094827
+        },
+        {
+          "conditional": 468844,
+          "raw_errors": 34441,
+          "missing": 252344,
+          "redirects": 27883,
+          "raw_error_rate": 0.07345940227453054,
+          "conditional_redirect_rate": 0.05947180725358541
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 65,
+        "retired_32B_lines": 43
+      }
+    },
+    {
+      "name": "BT16-admit-long",
+      "case": "jsmn_long-128-warm",
+      "windows": 218,
+      "conditional_events": 1785828,
+      "quarters": [
+        {
+          "conditional": 442368,
+          "raw_errors": 33427,
+          "missing": 238564,
+          "redirects": 27054,
+          "raw_error_rate": 0.07556378399884259,
+          "conditional_redirect_rate": 0.0611572265625
+        },
+        {
+          "conditional": 450560,
+          "raw_errors": 33541,
+          "missing": 242556,
+          "redirects": 27159,
+          "raw_error_rate": 0.07444291548295455,
+          "conditional_redirect_rate": 0.0602783203125
+        },
+        {
+          "conditional": 442368,
+          "raw_errors": 32590,
+          "missing": 238207,
+          "redirects": 26393,
+          "raw_error_rate": 0.07367169415509259,
+          "conditional_redirect_rate": 0.059662995515046294
+        },
+        {
+          "conditional": 450532,
+          "raw_errors": 33198,
+          "missing": 242597,
+          "redirects": 26880,
+          "raw_error_rate": 0.07368621984675894,
+          "conditional_redirect_rate": 0.05966279864693296
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 62,
+        "retired_32B_lines": 42
+      }
+    },
+    {
+      "name": "BT16-admit-long",
+      "case": "miniz_long-128-cold",
+      "windows": 295,
+      "conditional_events": 2408740,
+      "quarters": [
+        {
+          "conditional": 598016,
+          "raw_errors": 61481,
+          "missing": 101092,
+          "redirects": 70950,
+          "raw_error_rate": 0.10280828606592465,
+          "conditional_redirect_rate": 0.11864231057363013
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 65003,
+          "missing": 104135,
+          "redirects": 74091,
+          "raw_error_rate": 0.1072288719383446,
+          "conditional_redirect_rate": 0.12222042599239864
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 66057,
+          "missing": 105045,
+          "redirects": 75096,
+          "raw_error_rate": 0.10896754909206081,
+          "conditional_redirect_rate": 0.12387827280405406
+        },
+        {
+          "conditional": 598308,
+          "raw_errors": 67081,
+          "missing": 105433,
+          "redirects": 75449,
+          "raw_error_rate": 0.11211783897256931,
+          "conditional_redirect_rate": 0.12610394646235717
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 186,
+        "retired_32B_lines": 163
+      }
+    },
+    {
+      "name": "BT16-admit-long",
+      "case": "miniz_long-128-warm",
+      "windows": 278,
+      "conditional_events": 2271454,
+      "quarters": [
+        {
+          "conditional": 565248,
+          "raw_errors": 59019,
+          "missing": 96147,
+          "redirects": 67819,
+          "raw_error_rate": 0.10441257642663043,
+          "conditional_redirect_rate": 0.11998096410778986
+        },
+        {
+          "conditional": 573440,
+          "raw_errors": 61563,
+          "missing": 98188,
+          "redirects": 69958,
+          "raw_error_rate": 0.10735735212053571,
+          "conditional_redirect_rate": 0.1219970703125
+        },
+        {
+          "conditional": 565248,
+          "raw_errors": 62075,
+          "missing": 98769,
+          "redirects": 70629,
+          "raw_error_rate": 0.10981905287590579,
+          "conditional_redirect_rate": 0.12495223335597826
+        },
+        {
+          "conditional": 567518,
+          "raw_errors": 63222,
+          "missing": 99319,
+          "redirects": 71081,
+          "raw_error_rate": 0.1114008718666192,
+          "conditional_redirect_rate": 0.12524889078408086
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 183,
+        "retired_32B_lines": 162
+      }
+    },
+    {
+      "name": "BT16-rrip-all-long",
+      "case": "jsmn_long-128-cold",
+      "windows": 232,
+      "conditional_events": 1894252,
+      "quarters": [
+        {
+          "conditional": 475136,
+          "raw_errors": 36032,
+          "missing": 71953,
+          "redirects": 35977,
+          "raw_error_rate": 0.07583512931034483,
+          "conditional_redirect_rate": 0.07571937297952586
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35172,
+          "missing": 70396,
+          "redirects": 35198,
+          "raw_error_rate": 0.07402512122844827,
+          "conditional_redirect_rate": 0.07407984240301724
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35061,
+          "missing": 70180,
+          "redirects": 35086,
+          "raw_error_rate": 0.07379150390625,
+          "conditional_redirect_rate": 0.07384412042025862
+        },
+        {
+          "conditional": 468844,
+          "raw_errors": 34314,
+          "missing": 68648,
+          "redirects": 34324,
+          "raw_error_rate": 0.07318852326146863,
+          "conditional_redirect_rate": 0.07320985231761525
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 65,
+        "retired_32B_lines": 43
+      }
+    },
+    {
+      "name": "BT16-rrip-all-long",
+      "case": "jsmn_long-128-warm",
+      "windows": 218,
+      "conditional_events": 1785828,
+      "quarters": [
+        {
+          "conditional": 442368,
+          "raw_errors": 33295,
+          "missing": 66604,
+          "redirects": 33303,
+          "raw_error_rate": 0.07526538990162036,
+          "conditional_redirect_rate": 0.0752834743923611
+        },
+        {
+          "conditional": 450560,
+          "raw_errors": 33411,
+          "missing": 66873,
+          "redirects": 33436,
+          "raw_error_rate": 0.0741543856534091,
+          "conditional_redirect_rate": 0.0742098721590909
+        },
+        {
+          "conditional": 442368,
+          "raw_errors": 32469,
+          "missing": 64987,
+          "redirects": 32491,
+          "raw_error_rate": 0.0733981662326389,
+          "conditional_redirect_rate": 0.07344789858217593
+        },
+        {
+          "conditional": 450532,
+          "raw_errors": 33079,
+          "missing": 66176,
+          "redirects": 33088,
+          "raw_error_rate": 0.07342208766524909,
+          "conditional_redirect_rate": 0.07344206404872462
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 62,
+        "retired_32B_lines": 42
+      }
+    },
+    {
+      "name": "BT16-rrip-all-long",
+      "case": "miniz_long-128-cold",
+      "windows": 295,
+      "conditional_events": 2408740,
+      "quarters": [
+        {
+          "conditional": 598016,
+          "raw_errors": 61481,
+          "missing": 83318,
+          "redirects": 69799,
+          "raw_error_rate": 0.10280828606592465,
+          "conditional_redirect_rate": 0.11671761290667808
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 65003,
+          "missing": 86093,
+          "redirects": 73394,
+          "raw_error_rate": 0.1072288719383446,
+          "conditional_redirect_rate": 0.12107065561655406
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 66057,
+          "missing": 87165,
+          "redirects": 74614,
+          "raw_error_rate": 0.10896754909206081,
+          "conditional_redirect_rate": 0.12308316617398649
+        },
+        {
+          "conditional": 598308,
+          "raw_errors": 67081,
+          "missing": 87674,
+          "redirects": 74942,
+          "raw_error_rate": 0.11211783897256931,
+          "conditional_redirect_rate": 0.1252565568235758
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 186,
+        "retired_32B_lines": 163
+      }
+    },
+    {
+      "name": "BT16-rrip-all-long",
+      "case": "miniz_long-128-warm",
+      "windows": 278,
+      "conditional_events": 2271454,
+      "quarters": [
+        {
+          "conditional": 565248,
+          "raw_errors": 59019,
+          "missing": 79291,
+          "redirects": 66851,
+          "raw_error_rate": 0.10441257642663043,
+          "conditional_redirect_rate": 0.11826844146286232
+        },
+        {
+          "conditional": 573440,
+          "raw_errors": 61563,
+          "missing": 81237,
+          "redirects": 69394,
+          "raw_error_rate": 0.10735735212053571,
+          "conditional_redirect_rate": 0.12101353236607143
+        },
+        {
+          "conditional": 565248,
+          "raw_errors": 62075,
+          "missing": 82083,
+          "redirects": 70183,
+          "raw_error_rate": 0.10981905287590579,
+          "conditional_redirect_rate": 0.12416319916213768
+        },
+        {
+          "conditional": 567518,
+          "raw_errors": 63222,
+          "missing": 82509,
+          "redirects": 70599,
+          "raw_error_rate": 0.1114008718666192,
+          "conditional_redirect_rate": 0.12439957851557132
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 183,
+        "retired_32B_lines": 162
+      }
+    },
+    {
+      "name": "H2E-victim-long",
+      "case": "jsmn_long-128-cold",
+      "windows": 232,
+      "conditional_events": 1894252,
+      "quarters": [
+        {
+          "conditional": 475136,
+          "raw_errors": 36066,
+          "missing": 78430,
+          "redirects": 38043,
+          "raw_error_rate": 0.07590668776939655,
+          "conditional_redirect_rate": 0.08006760169719827
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35210,
+          "missing": 76753,
+          "redirects": 37209,
+          "raw_error_rate": 0.07410509832974138,
+          "conditional_redirect_rate": 0.07831231478987069
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35098,
+          "missing": 76517,
+          "redirects": 37094,
+          "raw_error_rate": 0.07386937634698276,
+          "conditional_redirect_rate": 0.07807027882543104
+        },
+        {
+          "conditional": 468844,
+          "raw_errors": 34351,
+          "missing": 74829,
+          "redirects": 36291,
+          "raw_error_rate": 0.07326744076921109,
+          "conditional_redirect_rate": 0.07740527766165292
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 65,
+        "retired_32B_lines": 43
+      }
+    },
+    {
+      "name": "H2E-victim-long",
+      "case": "jsmn_long-128-warm",
+      "windows": 218,
+      "conditional_events": 1785828,
+      "quarters": [
+        {
+          "conditional": 442368,
+          "raw_errors": 33326,
+          "missing": 72596,
+          "redirects": 35206,
+          "raw_error_rate": 0.07533546730324074,
+          "conditional_redirect_rate": 0.07958532262731481
+        },
+        {
+          "conditional": 450560,
+          "raw_errors": 33447,
+          "missing": 72916,
+          "redirects": 35349,
+          "raw_error_rate": 0.07423428622159091,
+          "conditional_redirect_rate": 0.07845569957386364
+        },
+        {
+          "conditional": 442368,
+          "raw_errors": 32504,
+          "missing": 70855,
+          "redirects": 34350,
+          "raw_error_rate": 0.07347728587962964,
+          "conditional_redirect_rate": 0.07765028211805555
+        },
+        {
+          "conditional": 450532,
+          "raw_errors": 33114,
+          "missing": 72134,
+          "redirects": 34985,
+          "raw_error_rate": 0.07349977360098728,
+          "conditional_redirect_rate": 0.07765264176573473
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 62,
+        "retired_32B_lines": 42
+      }
+    },
+    {
+      "name": "H2E-victim-long",
+      "case": "miniz_long-128-cold",
+      "windows": 295,
+      "conditional_events": 2408740,
+      "quarters": [
+        {
+          "conditional": 598016,
+          "raw_errors": 62536,
+          "missing": 88904,
+          "redirects": 66215,
+          "raw_error_rate": 0.1045724529109589,
+          "conditional_redirect_rate": 0.11072446222174658
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 66201,
+          "missing": 91500,
+          "redirects": 69832,
+          "raw_error_rate": 0.10920509132179054,
+          "conditional_redirect_rate": 0.11519478462837837
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 67256,
+          "missing": 92592,
+          "redirects": 71021,
+          "raw_error_rate": 0.11094541807432433,
+          "conditional_redirect_rate": 0.11715615762246621
+        },
+        {
+          "conditional": 598308,
+          "raw_errors": 68297,
+          "missing": 93076,
+          "redirects": 71812,
+          "raw_error_rate": 0.11415023700167806,
+          "conditional_redirect_rate": 0.12002513755457056
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 186,
+        "retired_32B_lines": 163
+      }
+    },
+    {
+      "name": "H2E-victim-long",
+      "case": "miniz_long-128-warm",
+      "windows": 278,
+      "conditional_events": 2271454,
+      "quarters": [
+        {
+          "conditional": 565248,
+          "raw_errors": 60047,
+          "missing": 84574,
+          "redirects": 63491,
+          "raw_error_rate": 0.10623124716938406,
+          "conditional_redirect_rate": 0.11232414798460146
+        },
+        {
+          "conditional": 573440,
+          "raw_errors": 62707,
+          "missing": 86261,
+          "redirects": 66075,
+          "raw_error_rate": 0.10935232979910714,
+          "conditional_redirect_rate": 0.11522565569196429
+        },
+        {
+          "conditional": 565248,
+          "raw_errors": 63190,
+          "missing": 87163,
+          "redirects": 66735,
+          "raw_error_rate": 0.11179163836050725,
+          "conditional_redirect_rate": 0.11806322180706522
+        },
+        {
+          "conditional": 567518,
+          "raw_errors": 64375,
+          "missing": 87601,
+          "redirects": 67699,
+          "raw_error_rate": 0.11343252548817835,
+          "conditional_redirect_rate": 0.11928960843532715
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 183,
+        "retired_32B_lines": 162
+      }
+    },
+    {
+      "name": "BT32-fold-long",
+      "case": "jsmn_long-128-cold",
+      "windows": 232,
+      "conditional_events": 1894252,
+      "quarters": [
+        {
+          "conditional": 475136,
+          "raw_errors": 36170,
+          "missing": 257022,
+          "redirects": 24848,
+          "raw_error_rate": 0.07612557246767242,
+          "conditional_redirect_rate": 0.05229660560344827
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35308,
+          "missing": 255149,
+          "redirects": 24298,
+          "raw_error_rate": 0.07431135506465517,
+          "conditional_redirect_rate": 0.05113904229525862
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 35191,
+          "missing": 255094,
+          "redirects": 24223,
+          "raw_error_rate": 0.07406510977909483,
+          "conditional_redirect_rate": 0.050981192753232756
+        },
+        {
+          "conditional": 468844,
+          "raw_errors": 34441,
+          "missing": 251570,
+          "redirects": 23703,
+          "raw_error_rate": 0.07345940227453054,
+          "conditional_redirect_rate": 0.05055626178430352
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 65,
+        "retired_32B_lines": 43
+      }
+    },
+    {
+      "name": "BT32-fold-long",
+      "case": "jsmn_long-128-warm",
+      "windows": 218,
+      "conditional_events": 1785828,
+      "quarters": [
+        {
+          "conditional": 442368,
+          "raw_errors": 33427,
+          "missing": 237821,
+          "redirects": 23001,
+          "raw_error_rate": 0.07556378399884259,
+          "conditional_redirect_rate": 0.051995171440972224
+        },
+        {
+          "conditional": 450560,
+          "raw_errors": 33541,
+          "missing": 241982,
+          "redirects": 23081,
+          "raw_error_rate": 0.07444291548295455,
+          "conditional_redirect_rate": 0.051227361505681815
+        },
+        {
+          "conditional": 442368,
+          "raw_errors": 32590,
+          "missing": 237364,
+          "redirects": 22430,
+          "raw_error_rate": 0.07367169415509259,
+          "conditional_redirect_rate": 0.05070439091435185
+        },
+        {
+          "conditional": 450532,
+          "raw_errors": 33198,
+          "missing": 241845,
+          "redirects": 22850,
+          "raw_error_rate": 0.07368621984675894,
+          "conditional_redirect_rate": 0.050717818046220914
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 62,
+        "retired_32B_lines": 42
+      }
+    },
+    {
+      "name": "BT32-fold-long",
+      "case": "miniz_long-128-cold",
+      "windows": 295,
+      "conditional_events": 2408740,
+      "quarters": [
+        {
+          "conditional": 598016,
+          "raw_errors": 61481,
+          "missing": 60920,
+          "redirects": 52261,
+          "raw_error_rate": 0.10280828606592465,
+          "conditional_redirect_rate": 0.0873906383775685
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 65003,
+          "missing": 63067,
+          "redirects": 55002,
+          "raw_error_rate": 0.1072288719383446,
+          "conditional_redirect_rate": 0.09073123416385136
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 66057,
+          "missing": 62503,
+          "redirects": 55723,
+          "raw_error_rate": 0.10896754909206081,
+          "conditional_redirect_rate": 0.09192059491131757
+        },
+        {
+          "conditional": 598308,
+          "raw_errors": 67081,
+          "missing": 63418,
+          "redirects": 56166,
+          "raw_error_rate": 0.11211783897256931,
+          "conditional_redirect_rate": 0.09387472672937684
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 186,
+        "retired_32B_lines": 163
+      }
+    },
+    {
+      "name": "BT32-fold-long",
+      "case": "miniz_long-128-warm",
+      "windows": 278,
+      "conditional_events": 2271454,
+      "quarters": [
+        {
+          "conditional": 565248,
+          "raw_errors": 59019,
+          "missing": 57907,
+          "redirects": 50003,
+          "raw_error_rate": 0.10441257642663043,
+          "conditional_redirect_rate": 0.0884620555932971
+        },
+        {
+          "conditional": 573440,
+          "raw_errors": 61563,
+          "missing": 59491,
+          "redirects": 52020,
+          "raw_error_rate": 0.10735735212053571,
+          "conditional_redirect_rate": 0.09071568080357142
+        },
+        {
+          "conditional": 565248,
+          "raw_errors": 62075,
+          "missing": 58658,
+          "redirects": 52319,
+          "raw_error_rate": 0.10981905287590579,
+          "conditional_redirect_rate": 0.09255937216938406
+        },
+        {
+          "conditional": 567518,
+          "raw_errors": 63222,
+          "missing": 59704,
+          "redirects": 52979,
+          "raw_error_rate": 0.1114008718666192,
+          "conditional_redirect_rate": 0.09335210513146719
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 183,
+        "retired_32B_lines": 162
+      }
+    },
+    {
+      "name": "NSL-BT32-fold",
+      "case": "jsmn_long-128-cold",
+      "windows": 232,
+      "conditional_events": 1894252,
+      "quarters": [
+        {
+          "conditional": 475136,
+          "raw_errors": 8184,
+          "missing": 257022,
+          "redirects": 8898,
+          "raw_error_rate": 0.01722454202586207,
+          "conditional_redirect_rate": 0.018727269665948277
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 8249,
+          "missing": 255149,
+          "redirects": 9160,
+          "raw_error_rate": 0.017361344962284482,
+          "conditional_redirect_rate": 0.019278690732758622
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 8327,
+          "missing": 255094,
+          "redirects": 9177,
+          "raw_error_rate": 0.017525508485991378,
+          "conditional_redirect_rate": 0.019314469962284482
+        },
+        {
+          "conditional": 468844,
+          "raw_errors": 8176,
+          "missing": 251570,
+          "redirects": 9004,
+          "raw_error_rate": 0.017438636305466212,
+          "conditional_redirect_rate": 0.019204682154405302
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 65,
+        "retired_32B_lines": 43
+      }
+    },
+    {
+      "name": "NSL-BT32-fold",
+      "case": "jsmn_long-128-warm",
+      "windows": 218,
+      "conditional_events": 1785828,
+      "quarters": [
+        {
+          "conditional": 442368,
+          "raw_errors": 7669,
+          "missing": 237821,
+          "redirects": 8392,
+          "raw_error_rate": 0.01733624493634259,
+          "conditional_redirect_rate": 0.01897063078703704
+        },
+        {
+          "conditional": 450560,
+          "raw_errors": 7852,
+          "missing": 241982,
+          "redirects": 8722,
+          "raw_error_rate": 0.017427201704545453,
+          "conditional_redirect_rate": 0.01935813210227273
+        },
+        {
+          "conditional": 442368,
+          "raw_errors": 7742,
+          "missing": 237364,
+          "redirects": 8544,
+          "raw_error_rate": 0.017501265914351853,
+          "conditional_redirect_rate": 0.019314236111111112
+        },
+        {
+          "conditional": 450532,
+          "raw_errors": 7851,
+          "missing": 241845,
+          "redirects": 8652,
+          "raw_error_rate": 0.01742606518515888,
+          "conditional_redirect_rate": 0.019203963314481546
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 62,
+        "retired_32B_lines": 42
+      }
+    },
+    {
+      "name": "NSL-BT32-fold",
+      "case": "miniz_long-128-cold",
+      "windows": 295,
+      "conditional_events": 2408740,
+      "quarters": [
+        {
+          "conditional": 598016,
+          "raw_errors": 28697,
+          "missing": 60920,
+          "redirects": 29346,
+          "raw_error_rate": 0.04798701038099315,
+          "conditional_redirect_rate": 0.049072265625
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 30176,
+          "missing": 63067,
+          "redirects": 31166,
+          "raw_error_rate": 0.04977829391891892,
+          "conditional_redirect_rate": 0.051411396748310814
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 31012,
+          "missing": 62503,
+          "redirects": 31958,
+          "raw_error_rate": 0.05115735853040541,
+          "conditional_redirect_rate": 0.05271787901182432
+        },
+        {
+          "conditional": 598308,
+          "raw_errors": 30886,
+          "missing": 63418,
+          "redirects": 31709,
+          "raw_error_rate": 0.05162224138737907,
+          "conditional_redirect_rate": 0.052997787092935414
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 186,
+        "retired_32B_lines": 163
+      }
+    },
+    {
+      "name": "NSL-BT32-fold",
+      "case": "miniz_long-128-warm",
+      "windows": 278,
+      "conditional_events": 2271454,
+      "quarters": [
+        {
+          "conditional": 565248,
+          "raw_errors": 27479,
+          "missing": 57907,
+          "redirects": 28125,
+          "raw_error_rate": 0.048614059669384056,
+          "conditional_redirect_rate": 0.049756920855978264
+        },
+        {
+          "conditional": 573440,
+          "raw_errors": 28543,
+          "missing": 59491,
+          "redirects": 29455,
+          "raw_error_rate": 0.04977504185267857,
+          "conditional_redirect_rate": 0.051365443638392856
+        },
+        {
+          "conditional": 565248,
+          "raw_errors": 29217,
+          "missing": 58658,
+          "redirects": 30114,
+          "raw_error_rate": 0.05168881623641304,
+          "conditional_redirect_rate": 0.05327573029891304
+        },
+        {
+          "conditional": 567518,
+          "raw_errors": 29126,
+          "missing": 59704,
+          "redirects": 29906,
+          "raw_error_rate": 0.05132172019213487,
+          "conditional_redirect_rate": 0.05269612593785571
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 183,
+        "retired_32B_lines": 162
+      }
+    },
+    {
+      "name": "NSL-BT64",
+      "case": "jsmn_long-128-cold",
+      "windows": 232,
+      "conditional_events": 1894252,
+      "quarters": [
+        {
+          "conditional": 475136,
+          "raw_errors": 7381,
+          "missing": 240237,
+          "redirects": 6209,
+          "raw_error_rate": 0.015534499595905173,
+          "conditional_redirect_rate": 0.013067837419181034
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 7254,
+          "missing": 236706,
+          "redirects": 6276,
+          "raw_error_rate": 0.01526720770474138,
+          "conditional_redirect_rate": 0.013208849676724138
+        },
+        {
+          "conditional": 475136,
+          "raw_errors": 7311,
+          "missing": 236222,
+          "redirects": 6299,
+          "raw_error_rate": 0.015387173356681034,
+          "conditional_redirect_rate": 0.013257256869612068
+        },
+        {
+          "conditional": 468844,
+          "raw_errors": 7220,
+          "missing": 232547,
+          "redirects": 6163,
+          "raw_error_rate": 0.015399578537850542,
+          "conditional_redirect_rate": 0.01314509730315414
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 65,
+        "retired_32B_lines": 43
+      }
+    },
+    {
+      "name": "NSL-BT64",
+      "case": "jsmn_long-128-warm",
+      "windows": 218,
+      "conditional_events": 1785828,
+      "quarters": [
+        {
+          "conditional": 442368,
+          "raw_errors": 6855,
+          "missing": 221680,
+          "redirects": 5837,
+          "raw_error_rate": 0.015496148003472222,
+          "conditional_redirect_rate": 0.013194896556712963
+        },
+        {
+          "conditional": 450560,
+          "raw_errors": 6877,
+          "missing": 224388,
+          "redirects": 5954,
+          "raw_error_rate": 0.015263227982954545,
+          "conditional_redirect_rate": 0.013214666193181818
+        },
+        {
+          "conditional": 442368,
+          "raw_errors": 6783,
+          "missing": 219863,
+          "redirects": 5853,
+          "raw_error_rate": 0.015333387586805556,
+          "conditional_redirect_rate": 0.013231065538194444
+        },
+        {
+          "conditional": 450532,
+          "raw_errors": 6947,
+          "missing": 223499,
+          "redirects": 5932,
+          "raw_error_rate": 0.015419548444949527,
+          "conditional_redirect_rate": 0.013166656308541901
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 62,
+        "retired_32B_lines": 42
+      }
+    },
+    {
+      "name": "NSL-BT64",
+      "case": "miniz_long-128-cold",
+      "windows": 295,
+      "conditional_events": 2408740,
+      "quarters": [
+        {
+          "conditional": 598016,
+          "raw_errors": 28181,
+          "missing": 44594,
+          "redirects": 27125,
+          "raw_error_rate": 0.047124157213184935,
+          "conditional_redirect_rate": 0.04535831817208904
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 30048,
+          "missing": 45804,
+          "redirects": 29011,
+          "raw_error_rate": 0.04956714527027027,
+          "conditional_redirect_rate": 0.0478565112964527
+        },
+        {
+          "conditional": 606208,
+          "raw_errors": 30410,
+          "missing": 46389,
+          "redirects": 29319,
+          "raw_error_rate": 0.05016430004222973,
+          "conditional_redirect_rate": 0.048364587732263514
+        },
+        {
+          "conditional": 598308,
+          "raw_errors": 30674,
+          "missing": 46250,
+          "redirects": 29477,
+          "raw_error_rate": 0.05126790883625156,
+          "conditional_redirect_rate": 0.049267267026347636
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 186,
+        "retired_32B_lines": 163
+      }
+    },
+    {
+      "name": "NSL-BT64",
+      "case": "miniz_long-128-warm",
+      "windows": 278,
+      "conditional_events": 2271454,
+      "quarters": [
+        {
+          "conditional": 565248,
+          "raw_errors": 26859,
+          "missing": 42551,
+          "redirects": 25910,
+          "raw_error_rate": 0.047517195991847824,
+          "conditional_redirect_rate": 0.04583828691123189
+        },
+        {
+          "conditional": 573440,
+          "raw_errors": 28588,
+          "missing": 43108,
+          "redirects": 27586,
+          "raw_error_rate": 0.049853515625,
+          "conditional_redirect_rate": 0.04810616629464286
+        },
+        {
+          "conditional": 565248,
+          "raw_errors": 28562,
+          "missing": 43699,
+          "redirects": 27534,
+          "raw_error_rate": 0.05053003283514493,
+          "conditional_redirect_rate": 0.048711362092391304
+        },
+        {
+          "conditional": 567518,
+          "raw_errors": 28958,
+          "missing": 43515,
+          "redirects": 27831,
+          "raw_error_rate": 0.051025694339210385,
+          "conditional_redirect_rate": 0.049039854242508604
+        }
+      ],
+      "footprint": {
+        "branch_pcs": 183,
+        "retired_32B_lines": 162
+      }
+    }
+  ]
+}

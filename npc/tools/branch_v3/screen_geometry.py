@@ -3,6 +3,7 @@
 import collections
 import json
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 from models import ScaledTage, Hybrid
 
 NPC=Path(__file__).resolve().parents[2]
@@ -15,9 +16,9 @@ GEOMETRIES={
     'N-h32':{'lengths':(4,13,32)},
 }
 records=[]
-for path in sorted((NPC/'result/branch-v3/rtl/B0').glob('*.events')):
+for path in sorted(event_files(NPC/'result/branch-v3/rtl/B0')):
     branches=[]
-    for line in path.open():
+    for line in open_text(path):
         f=line.strip().split(',')
         if f[0]=='R' and int(f[5])==1:
             branches.append((int(f[3],16),int(f[4],16),bool(int(f[6]))))

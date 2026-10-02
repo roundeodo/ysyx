@@ -2,13 +2,16 @@
 """Replay actual CPU query/train contexts against independent Python state."""
 import argparse,json
 from pathlib import Path
+from trace_io import open_text
 from models import ScaledTage,SpeculativeTage
 from check_tage_scl import pack_context,pack_state
-p=argparse.ArgumentParser();p.add_argument('files',type=Path,nargs='+');p.add_argument('--sc',action='store_true');p.add_argument('--loop',action='store_true');p.add_argument('--spec',action='store_true');p.add_argument('--tage-base',type=int,default=32);p.add_argument('--tage-entries',type=int,default=16);p.add_argument('--tage-tags',type=int,default=8);p.add_argument('--tage-lengths',type=int,nargs='+',default=[3,7,16]);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('files',type=Path,nargs='+');p.add_argument('--report',type=Path);p.add_argument('--sc',action='store_true');p.add_argument('--loop',action='store_true');p.add_argument('--spec',action='store_true');p.add_argument('--tage-base',type=int,default=32);p.add_argument('--tage-entries',type=int,default=16);p.add_argument('--tage-tags',type=int,default=8);p.add_argument('--tage-lengths',type=int,nargs='+',default=[3,7,16]);a=p.parse_args()
+report=a.report or a.files[0].parent/'model-check.json'
+assert not report.exists(), 'Use --report to preserve the previous verification record'
 records=[]
 for file in a.files:
     model=(SpeculativeTage if a.spec else ScaledTage)(sc=a.sc,loop=a.loop,base=a.tage_base,entries=a.tage_entries,tag_bits=a.tage_tags,lengths=a.tage_lengths);saved={};steps=0;trains=0
-    stream=iter(file.open())
+    stream=iter(open_text(file))
     for line in stream:
         fields=line.strip().split(',');assert fields[0]=='M'
         pc,context,tv,taken,tc,iv,counter=[int(x,16) for x in fields[1:8]]
@@ -30,4 +33,4 @@ for file in a.files:
         steps+=1
     records.append({'file':str(file),'events':steps,'training':trains,'sc':a.sc,'loop':a.loop,'status':'passed'})
     print('PASS actual CPU contexts/state',file.name,steps,trains)
-Path(str(a.files[0].parent/'model-check.json')).write_text(json.dumps(records,indent=2)+'\n')
+report.write_text(json.dumps(records,indent=2)+'\n')

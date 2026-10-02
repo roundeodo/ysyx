@@ -4,6 +4,7 @@ import collections
 import json
 import subprocess
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 
 NPC = Path(__file__).resolve().parents[2]
 ROOT = NPC/'result/branch-v3'
@@ -15,11 +16,11 @@ def main():
                          ('B0-latest-stream-validation','streams-validation')]:
         manifest = json.loads((ROOT/dataset/'manifest.json').read_text())
         cases = {case['name']: case for case in manifest['cases']}
-        for path in sorted((ROOT/'rtl'/run).glob('*.events')):
+        for path in sorted(event_files(ROOT/'rtl'/run)):
             case = cases[path.stem]
             instructions, retired, branches = {}, [], []
             inside = False
-            for line in path.open():
+            for line in open_text(path):
                 row = line.strip().split(',')
                 if row[0] == 'C':
                     pc = int(row[3],16)

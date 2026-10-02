@@ -174,6 +174,7 @@ module riscv32_icache_replacement
       logic [5:0] signature;
       logic [1:0] maximum_rrpv, age_amount, insertion;
       logic [1:0] read_rrpv_array [WAYS];
+      logic [WAYS-1:0] read_winner_vector;
       icache_way_index_t read_victim;
 
       // 当前行地址发生变化时，开始新的访问段。
@@ -256,9 +257,24 @@ module riscv32_icache_replacement
           end
         end
         read_victim = '0;
-        for (int way = 1; way < WAYS; way++) begin
-          if (read_rrpv_array[way] > read_rrpv_array[read_victim])
-            read_victim = icache_way_index_t'(way);
+        read_winner_vector = '0;
+        if (QUERY_BYPASS && WAYS <= 4) begin
+          // 各路并行比较，平局选最小路号；不再串联victim编码与RRPV索引。
+          for (int way = 0; way < WAYS; way++) begin
+            read_winner_vector[way] = 1'b1;
+            for (int other = 0; other < WAYS; other++) begin
+              if (other < way)
+                read_winner_vector[way] &= read_rrpv_array[way] > read_rrpv_array[other];
+              else if (other > way)
+                read_winner_vector[way] &= read_rrpv_array[way] >= read_rrpv_array[other];
+            end
+            read_victim |= icache_way_index_t'(way) & {WAY_BITS{read_winner_vector[way]}};
+          end
+        end else begin
+          for (int way = 1; way < WAYS; way++) begin
+            if (read_rrpv_array[way] > read_rrpv_array[read_victim])
+              read_victim = icache_way_index_t'(way);
+          end
         end
       end
 

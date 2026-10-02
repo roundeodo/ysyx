@@ -4,13 +4,14 @@ import hashlib
 import json
 import subprocess
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 
 NPC = Path(__file__).resolve().parents[2]
 ROOT = NPC / 'result/branch-v3'
 
 
 def sha(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return sha_uncompressed(path)
 
 
 def main():
@@ -24,7 +25,7 @@ def main():
             path = ROOT / f'rtl/B0-latest-stream-{split}' / (case['name'] + '.events')
             commits, resolved, scored = {}, [], set()
             inside = False
-            for line in path.open():
+            for line in open_text(path):
                 row = line.strip().split(',')
                 if row[0] == 'C':
                     identity, pc = int(row[1]), int(row[3], 16)

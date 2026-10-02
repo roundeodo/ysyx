@@ -1,0 +1,46 @@
+{
+  "TAGE-BT32-fold": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5
+  },
+  "NL-BT32-fold": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5,
+    "loop": 1
+  },
+  "NS-BT32-fold": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5,
+    "sc": 1
+  },
+  "NSL-BT32-fold": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5,
+    "sc": 1,
+    "loop": 1
+  },
+  "TAGE-BT64-linear": {
+    "btb": 64,
+    "btb_ways": 4,
+    "target_index": 0,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5
+  }
+}

@@ -2,13 +2,14 @@
 """Opportunity accounting at resolved/decoded M0 timing; no CPU-time estimates."""
 import json,collections
 from pathlib import Path
+from trace_io import event_files, open_text, sha_uncompressed
 from targets import TargetTable,IndirectHistory
 NPC=Path(__file__).resolve().parents[2];root=NPC/'result/branch-v3';records=[]
-for file in sorted((root/'rtl/B0').glob('*.events')):
-    instructions={int(x[0],16):int(x[1],16) for x in (line.strip().split(',') for line in file.with_suffix('.trace').open())}
+for file in sorted(event_files(root/'rtl/B0')):
+    instructions={int(x[0],16):int(x[1],16) for x in (line.strip().split(',') for line in open_text(file.with_suffix('.trace')))}
     tables={n:TargetTable(n) for n in [16,32,64,128]};fast=TargetTable(4);slow=TargetTable(32)
     indirect=IndirectHistory();ras={n:[] for n in [4,8,16]};counts=collections.Counter();sites=collections.defaultdict(set)
-    for line in file.open():
+    for line in open_text(file):
         x=line.strip().split(',')
         if x[0]!='R':continue
         pc,target,kind=int(x[3],16),int(x[4],16),int(x[5]);taken=bool(int(x[6]));ins=instructions[pc]

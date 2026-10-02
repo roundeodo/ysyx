@@ -26,7 +26,12 @@ module exploration_core_tb;
   int lookups = 0, misses = 0, i_bursts = 0, i_beats = 0, d_beats = 0, d_wait = 0;
   int branch_events = 0, direction_errors = 0, target_errors = 0, indirect_errors = 0;
   int return_errors = 0, nonbranch_errors = 0, lookup_queries = 0, idle_bus = 0;
-  int observer = 1, trace_fd = 0, fetch_fd = 0, event_fd = 0;
+  int observer = 1, trace_fd = 0, fetch_fd = 0, event_fd = 0, metadata_fd = 0;
+  int max_cycles = 20000000, branch_window = 0;
+  int window_count = 0, window_raw_errors = 0, window_missing = 0, window_redirects = 0;
+  int window_index = 0, window_first_cycle = 0;
+  bit branch_pc_seen[logic [31:0]];
+  bit code_line_seen[logic [31:0]];
   longint unsigned query_id = 0, response_id = 0;
   logic response_raw = 0;
   logic [191:0] response_context;
@@ -49,14 +54,18 @@ module exploration_core_tb;
   query_record_t retirement_records[$], retired_record, discarded_record;
   logic measuring = 0, finished_window = 0;
   logic [31:0] begin_pc, end_pc, expected, digest = 0;
-  string trace_name, fetch_name, event_name;
+  string trace_name, fetch_name, event_name, metadata_name;
   initial begin
     if (!$value$plusargs("begin_pc=%h", begin_pc) || !$value$plusargs("end_pc=%h", end_pc) ||
         !$value$plusargs("expected=%h", expected)) $fatal(1, "missing workload contract");
     void'($value$plusargs("observer=%d", observer));
+    void'($value$plusargs("max_cycles=%d", max_cycles));
+    void'($value$plusargs("branch_window=%d", branch_window));
     if ($value$plusargs("trace=%s", trace_name)) trace_fd = $fopen(trace_name, "w");
     if ($value$plusargs("fetch_trace=%s", fetch_name)) fetch_fd = $fopen(fetch_name, "w");
     if ($value$plusargs("events=%s", event_name)) event_fd = $fopen(event_name, "w");
+    if ($value$plusargs("metadata_trace=%s", metadata_name))
+      metadata_fd = $fopen(metadata_name, "w");
     repeat (5) @(negedge clk);
     rst_n = 1;
   end
@@ -89,6 +98,26 @@ module exploration_core_tb;
 `endif
   always @(posedge clk) if (rst_n) begin
     cycle = cycle + 1;
+    // Passive cache write events: models cannot decode a word before it arrives.
+    // Queries at this edge see old metadata; D/L/V take effect after the edge.
+    if (metadata_fd) begin
+      if (dut.u_icache.refill_metadata_write_valid)
+        $fdisplay(metadata_fd,"L,%0d,%0d,%0d,%0d,%h",cycle,
+            dut.u_icache.refill_metadata_write_set_index,
+            dut.u_icache.refill_metadata_write_way_index,
+            dut.u_icache.refill_metadata_write_line_present,
+            (program_counter_t'(dut.u_icache.refill_metadata_write_tag) <<
+             (ICACHE_SET_INDEX_BITS+ICACHE_LINE_OFFSET_W)) |
+            (program_counter_t'(dut.u_icache.refill_metadata_write_set_index) << ICACHE_LINE_OFFSET_W));
+      if (dut.u_icache.refill_data_write_valid)
+        $fdisplay(metadata_fd,"D,%0d,%0d,%0d,%0d,%h",cycle,
+            dut.u_icache.refill_data_write_set_index,
+            dut.u_icache.refill_data_write_way_index,
+            dut.u_icache.refill_data_write_word_index,
+            dut.u_icache.refill_data_write_word_data);
+      if (dut.u_icache.invalidate_done_o)
+        $fdisplay(metadata_fd,"V,%0d",cycle);
+    end
     // Old response metadata is consumed before a same-cycle new query is saved.
     if (observer && dut.u_ifu.lookup_queue_enqueue_event) begin
       query_by_tag[dut.u_ifu.next_frontend_tag_q].dynamic_id = response_id;
@@ -111,7 +140,7 @@ module exploration_core_tb;
       response_target_present = dut.u_branch_predictor.target_present;
       response_query_cycle = cycle;
     end
-    if (cycle > 20000000) $fatal(1, "workload timeout");
+    if (cycle > max_cycles) $fatal(1, "workload timeout");
     if (dut.commit_valid) begin
       if (observer) begin
         assert(retirement_records.size()!=0) else $fatal(1,"retire without decoded identity");
@@ -124,6 +153,7 @@ module exploration_core_tb;
       if (dut.commit.trap_taken) $fatal(1, "unexpected trap at %h cause %d", dut.commit.pc, dut.commit.trap_cause_code);
       if (measuring) begin
         retired++;
+        if (branch_window > 0) code_line_seen[dut.commit.pc >> 5] = 1;
         if (observer && trace_fd) $fdisplay(trace_fd, "%h,%h,%h,%0d", dut.commit.pc, dut.commit.instruction, dut.commit.next_pc, cycle);
       end
     end
@@ -172,6 +202,21 @@ module exploration_core_tb;
       if (dut.resolved_execute_result_valid && dut.resolved_execute_result_ready &&
           dut.resolved_execute_result.uop.fu_type == FU_BRANCH && !dut.resolved_execute_result.uop.exception_valid) begin
         branch_events++;
+        if (branch_window > 0) begin
+          branch_pc_seen[dut.resolved_execute_result.uop.pc] = 1;
+          if (dut.resolved_execute_result.uop.branch_ctrl.op == CF_BRANCH) begin
+            if (window_count == 0) window_first_cycle = cycle;
+            window_count++;
+            window_raw_errors += (result_record.raw_taken != dut.resolved_execute_result.branch_taken);
+            window_missing += !result_record.target_present;
+            window_redirects += dut.resolved_execute_result.redirect_valid;
+            if (window_count == branch_window) begin
+              $display("WINDOW index=%0d first=%0d last=%0d conditional=%0d raw_errors=%0d missing=%0d redirects=%0d", window_index,window_first_cycle,cycle,window_count,window_raw_errors,window_missing,window_redirects);
+              window_index++;
+              window_count = 0; window_raw_errors = 0; window_missing = 0; window_redirects = 0;
+            end
+          end
+        end
         assert(result_record.pc==dut.resolved_execute_result.uop.pc) else $fatal(1,"resolve identity mismatch");
         assert(result_record.snapshot==dut.resolved_execute_result.uop.prediction.direction.tage_scl)
           else $fatal(1,"actual CPU training context is not the accepted query context");
@@ -255,6 +300,11 @@ module exploration_core_tb;
       if (observer && retired_cycles+data_wait+frontend_wait+other_wait != end_cycle-begin_cycle)
         $fatal(1, "exclusive cycle classification mismatch");
       $display("DETAIL btb_missing=%0d direction=%0d target=%0d lead_sum=%0d lead_samples=%0d lead_max=%0d hints_resident=%0d hints_absent=%0d",btb_miss_errors,bht_direction_errors,btb_target_errors,lead_sum,lead_samples,lead_max,hints_resident,hints_absent);
+      if (branch_window > 0) begin
+        if (window_count != 0)
+          $display("WINDOW index=%0d first=%0d last=%0d conditional=%0d raw_errors=%0d missing=%0d redirects=%0d partial=1", window_index,window_first_cycle,end_cycle,window_count,window_raw_errors,window_missing,window_redirects);
+        $display("FOOTPRINT branch_pcs=%0d retired_32B_lines=%0d", branch_pc_seen.num(), code_line_seen.num());
+      end
       $display("PASS proxy");
       #2;  // Let the passive post-edge state record complete before simulation exit.
       $finish;

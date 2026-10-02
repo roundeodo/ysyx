@@ -1,9 +1,9 @@
-# RV32 面试稳定预设，2026-09-24 固定。命令行覆盖后视为新实验。
-# 结构选择：docs/verification/ICACHE_SELECTION_2026-09-21.md
-# 预测器选择：docs/verification/BRANCH_HISTORY_EXPLORATION_2026-09-24.md
-# 当前源码关闭实验机制（B0I）：整核含复位边界 101418.618 um^2，
-# NanGate45 综合后完整 STA 通过 720 MHz；不是布局布线后频率。
-# 映射仍使用统一 AREA3 / 820 MHz 目标，不由仿真频率替代。
+# RV32 面试最终预设，2026-10-02 经用户确认采用。命令行覆盖后视为新实验。
+# I-cache：docs/verification/ICACHE_SELECTION_2026-09-21.md
+# 分支预测：docs/research/branch-v3/decision.md，H2E-victim。
+# BHT16/BTB16两路/RAS4，弱态BTFNT及I-cache返回后的直接目标计算。
+# 冻结候选测量：整核面积102253.060 um^2，NanGate45/AREA3综合后STA通过700 MHz；
+# 非布局布线签核。映射目标820 MHz与运行频率分开。
 NPC_ICACHE_CAPACITY_BYTES      ?= 1024
 NPC_ICACHE_WAY_COUNT           ?= 4
 NPC_ICACHE_LINE_BYTES          ?= 32
@@ -21,4 +21,14 @@ NPC_BRANCH_DIRECTION_POLICY    ?= 0
 NPC_BRANCH_GLOBAL_HISTORY_BITS ?= 4
 NPC_RETURN_STACK_ENTRY_COUNT   ?= 4
 NPC_SDRAM_NATIVE_READ_BURST     ?= 1
-NPC_SIM_CPU_FREQ_MHZ            ?= 720
+NPC_SIM_CPU_FREQ_MHZ            ?= 700
+
+# 只启用冻结的均衡组合，其他方向保持显式实验开关。
+NPC_BRANCH_STATIC_POLICY          ?= 2
+NPC_BRANCH_EARLY_TARGET           ?= 1
+NPC_BRANCH_TARGET_INDEX_POLICY    ?= 0
+NPC_BRANCH_TARGET_ADMISSION_POLICY ?= 0
+NPC_BRANCH_EARLY_RAS              ?= 0
+NPC_BRANCH_SPEC_HISTORY           ?= 0
+NPC_BRANCH_SC_ENABLE              ?= 0
+NPC_BRANCH_LOOP_ENABLE            ?= 0

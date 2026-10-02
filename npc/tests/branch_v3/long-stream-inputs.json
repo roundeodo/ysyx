@@ -1,0 +1,28 @@
+{
+  "source_sha256": "196139668be63f3b5d6574427317ae82f612a97c5d1cdaf36ed2256dbf636783",
+  "source_manifest": "npc/tests/branch_v3/stream-inputs.json",
+  "ranges": {
+    "development": [
+      1024,
+      9728
+    ],
+    "validation": [
+      17408,
+      26112
+    ],
+    "final": [
+      33792,
+      42496
+    ]
+  },
+  "scales": [
+    8,
+    32,
+    128
+  ],
+  "prefix_requests": 8,
+  "keys_per_request": 64,
+  "RAM_bytes": 2097152,
+  "scope": "distinct vocabulary metadata requests; parser/decompressor reuse, not full tokenizer/inference",
+  "selection": "declared before long-stream candidate results; cold and 8-request prefix both scored; no convergence assumption"
+}
