@@ -40,3 +40,6 @@ __pycache__/
 !docs/research/branch-v3/*.json
 !docs/research/branch-v3/*.csv
 !tests/branch_v3/*.json
+
+# Compact evidence and rejected source patches for the measured wait optimizations.
+!docs/verification/data/wait-opt-20261002/**

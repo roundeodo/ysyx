@@ -42,13 +42,15 @@ module exploration_core_tb;
   logic response_target_present = 0;
   typedef struct packed {
     logic [31:0] pc;
+    fetch_epoch_t epoch;
+    frontend_tag_t tag;
     logic target_present;
     int query_cycle;
     longint unsigned dynamic_id;
     logic raw_taken;
     logic [191:0] snapshot;
   } query_record_t;
-  query_record_t query_by_tag[FRONTEND_TAG_COUNT];
+  query_record_t query_records[$], accepted_query, new_query;
   query_record_t pending_record, execute_record, result_record;
   query_record_t fetch_records[$];
   query_record_t retirement_records[$], retired_record, discarded_record;
@@ -118,14 +120,36 @@ module exploration_core_tb;
       if (dut.u_icache.invalidate_done_o)
         $fdisplay(metadata_fd,"V,%0d",cycle);
     end
+    // Track queue order, not a table indexed by the short transport tag. A queued
+    // old-epoch request may remain stalled while discarded predictions wrap tags.
     // Old response metadata is consumed before a same-cycle new query is saved.
     if (observer && dut.u_ifu.lookup_queue_enqueue_event) begin
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].dynamic_id = response_id;
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].raw_taken = response_raw;
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].snapshot = response_context;
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].pc = dut.next_pc_predictor_lookup_response_pc;
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].target_present = response_target_present;
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].query_cycle = response_query_cycle;
+      new_query.dynamic_id = response_id;
+      new_query.raw_taken = response_raw;
+      new_query.snapshot = response_context;
+      new_query.pc = dut.next_pc_predictor_lookup_response_pc;
+      new_query.epoch = dut.next_pc_predictor_lookup_response_epoch;
+      new_query.tag = dut.u_ifu.next_frontend_tag_q;
+      new_query.target_present = response_target_present;
+      new_query.query_cycle = response_query_cycle;
+      query_records.push_back(new_query);
+    end
+    if (observer && dut.icache_lookup_req_valid && dut.icache_lookup_req_ready &&
+        dut.frontend_memory_access_allowed) begin
+      assert(query_records.size()!=0) else $fatal(1,"observer accepted request without prediction");
+      accepted_query = query_records.pop_front();
+      assert(accepted_query.pc==dut.icache_lookup_req.fetch_addr &&
+             accepted_query.epoch==dut.icache_lookup_req.fetch_epoch &&
+             accepted_query.tag==dut.icache_lookup_req.frontend_tag)
+        else $fatal(1,"observer request pairing: PC, epoch or tag mismatch");
+    end
+    if (observer && dut.u_ifu.frontend_restart_event) begin
+      if (dut.icache_lookup_req_valid &&
+          !(dut.icache_lookup_req_ready && dut.frontend_memory_access_allowed)) begin
+        while(query_records.size()>1) discarded_record=query_records.pop_back();
+      end else begin
+        query_records.delete();
+      end
     end
     if (observer && dut.next_pc_predictor_lookup_request_valid && dut.next_pc_predictor_lookup_request_ready) begin
       response_id = query_id; query_id++;
@@ -183,7 +207,7 @@ module exploration_core_tb;
       if (dut.next_pc_predictor_lookup_request_valid && dut.next_pc_predictor_lookup_request_ready) lookup_queries++;
       if (dut.icache_lookup_req_valid && dut.icache_lookup_req_ready && dut.frontend_memory_access_allowed) begin
         int lead;
-        lead = cycle-query_by_tag[dut.icache_lookup_req.frontend_tag].query_cycle;
+        lead = cycle-accepted_query.query_cycle;
         lead_sum += lead; lead_samples++;
         if (lead > lead_max) lead_max = lead;
       end
@@ -282,7 +306,7 @@ module exploration_core_tb;
         end
       end
       if (dut.icache_lookup_req_valid && dut.icache_lookup_req_ready && dut.frontend_memory_access_allowed) begin
-        pending_record = query_by_tag[dut.icache_lookup_req.frontend_tag];
+        pending_record = accepted_query;
         if (pending_record.pc != dut.icache_lookup_req.fetch_addr) $fatal(1, "observer request pairing");
       end
     end

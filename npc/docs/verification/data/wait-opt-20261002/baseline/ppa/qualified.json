@@ -1,0 +1,5 @@
+{
+  "area_um2": 102253.06,
+  "passed_mhz": 700,
+  "grid_note": "5MHz upward or 10MHz downward from 700; all four STA groups required"
+}

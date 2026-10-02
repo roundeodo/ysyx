@@ -2,7 +2,8 @@
 # I-cache：docs/verification/ICACHE_SELECTION_2026-09-21.md
 # 分支预测：docs/research/branch-v3/decision.md，H2E-victim。
 # BHT16/BTB16两路/RAS4，弱态BTFNT及I-cache返回后的直接目标计算。
-# 冻结候选测量：整核面积102253.060 um^2，NanGate45/AREA3综合后STA通过700 MHz；
+# 当前测量：整核面积102004.882 um^2，NanGate45/AREA3综合后STA通过700 MHz；
+# 阵列旁路简化见 docs/verification/RV32_WAIT_OPT_2026-10-02.md；运行默认仍为700 MHz。
 # 非布局布线签核。映射目标820 MHz与运行频率分开。
 NPC_ICACHE_CAPACITY_BYTES      ?= 1024
 NPC_ICACHE_WAY_COUNT           ?= 4

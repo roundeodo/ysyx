@@ -1,0 +1,1 @@
+Only move store hit read-during-write forwarding into the existing synchronous array read registers. Keep the original miss/next-request handshake boundary. Remove 43 bits of duplicate top-level forwarding state. Require byte mask, dirty victim and held response regressions plus PPA before retaining.

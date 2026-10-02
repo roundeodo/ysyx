@@ -1,0 +1,130 @@
+[
+  {
+    "target": "test-dcache",
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/build",
+      "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/frontend",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/exception",
+      "test-dcache"
+    ],
+    "status": "passed"
+  },
+  {
+    "target": "test-dcache-axi",
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/build",
+      "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/frontend",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/exception",
+      "test-dcache-axi"
+    ],
+    "status": "passed"
+  },
+  {
+    "target": "test-dcache-recovery",
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/build",
+      "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/frontend",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/exception",
+      "test-dcache-recovery"
+    ],
+    "status": "passed"
+  },
+  {
+    "target": "test-fence-i-ctrl",
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/build",
+      "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/frontend",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/exception",
+      "test-fence-i-ctrl"
+    ],
+    "status": "passed"
+  },
+  {
+    "target": "test-fence-i",
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/build",
+      "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/frontend",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/exception",
+      "test-fence-i"
+    ],
+    "status": "passed"
+  },
+  {
+    "target": "test-precise-exception",
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/build",
+      "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/frontend",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/exception",
+      "test-precise-exception"
+    ],
+    "status": "passed"
+  },
+  {
+    "target": "test-pipeline",
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/build",
+      "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/frontend",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/exception",
+      "test-pipeline"
+    ],
+    "status": "passed"
+  },
+  {
+    "target": "test-fetch",
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/build",
+      "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/frontend",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/exception",
+      "test-fetch"
+    ],
+    "status": "passed"
+  }
+]

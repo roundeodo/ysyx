@@ -58,7 +58,7 @@
 
 ## 当前前端
 
-- [V3 分支预测实验](BRANCH_V3_DESIGN.md)：同一条件分支静态/动态混合、缩放 TAGE/SC/loop、历史恢复与早期目标；全部由显式开关启用，稳定默认不变。
+- [V3 分支预测结构与实验](BRANCH_V3_DESIGN.md)：`rv32-balanced` 已采用弱态 BTFNT 混合与早期直接目标；TAGE/SC/loop、推测历史等其余实验机制默认关闭。
 - [取指预测器](FETCH_PREDICTOR_DESIGN_RECORD.md)：BHT、BTB、RAS、单级查询与训练时序。
 - [历史方向预测原型](DIRECTION_PREDICTOR_DESIGN.md)：默认关闭的 gshare/Bi-mode、查询快照与恢复。
 - [BTB实验策略](BTB_POLICY_DESIGN.md)：准入、RRIP/LRU、状态更新与默认关闭边界。
@@ -73,6 +73,7 @@
 - [总线连接](../interconnect/AXI4_ARCHITECTURE.md)：仲裁、地址路由、错误目标与 SoC 适配。
 
 整核参数见[RV32 架构说明](../interview/RV32_ARCHITECTURE_ATLAS.md)。
+最终预设的等待、旁路与状态复查见[2026-10-02 检查记录](../verification/RV32_WAIT_REVIEW_2026-10-02.md)。
 [分支预测实验](BRANCH_PREDICTION_DESIGN_RECORD.md)保留退休 trace 与 BranchSim 的实验过程；
 `archive/` 只用于追溯，不作为当前设计依据。
 

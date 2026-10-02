@@ -1,0 +1,107 @@
+NPC performance statistics:
+ retired instructions = 267015949
+ CPU cycle            = 642063812
+ IPC                  = 0.415871
+CACHE_WAIT I-cache: completions=272980 next_waiting_same_set=259435 next_waiting_other_set=13545
+CACHE_WAIT D-cache: completions=2610688 next_waiting_same_set=168086 next_waiting_other_set=241433
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 642063800
+decoded instructions               : 285926570
+retired instructions               : 267015949
+IPC                                : 0.415871
+
+instruction class        count       ratio       average execution cycles
+integer               175874405    61.510%         1.389
+branch/jump            87264350    30.520%         1.243
+load/store             22787801     7.970%         5.597
+  load                 15263600     5.338%
+  store                 7524201     2.632%
+CSR                            0     0.000%         0.000
+system                        14     0.000%         1.143
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 306180629 / 306180629 / 285926570
+IFU average response latency           : 1.947 cycles
+IFU AR backpressure cycles             : 301351109 (46.935%)
+IFU response-wait cycles               : 596267003 (92.867%)
+IFU downstream-backpressure cycles     : 280743551 (43.725%)
+IFU discarded wrong-path responses     : 18446584
+
+LSU requests / completions             : 21746309 / 21746309
+LSU load operation average latency     : 12.697 cycles (12122045 operations)
+LSU store operation average latency    : 4.434 cycles (6125353 operations)
+LSU AXI read average latency           : 15.144 cycles (6311138 transactions)
+LSU AXI write-response average latency : 9.685 cycles (4536788 transactions)
+EXU / LSU completions                  : 245269641 / 21746309
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 285926570 (44.532%)
+  control recovery stalls             : 52366168 (8.156%)
+  LSU structural stalls               : 276388764 (43.047%)
+  unresolved RAW stalls               : 4329907 (0.674%)
+  serializing stalls                  : 2 (0.000%)
+  frontend supply stalls              : 19992520 (3.114%)
+    request backpressure              : 18000311 (2.804%)
+    I-cache miss service              : 2180 (0.000%)
+    lookup response in flight         : 1268260 (0.198%)
+    request launch or delivery gap    : 721769 (0.112%)
+  other empty issue slots             : 3059869 (0.477%)
+recovery redirects / taken fetch predictions / EX corrections: 16643029 / 60966234 / 16643027
+actual EX corrections by branch / JAL / JALR          : 15449102 / 0 / 1193925
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 77035112 / 56056576 (72.768% taken)
+  backward / taken                  : 37579455 / 33860310 (90.103% taken)
+  forward / taken                   : 39455657 / 22196266 (56.256% taken)
+direct / indirect jumps             : 6450055 / 3260163
+always-not-taken prediction errors  : 65766794 (75.816% of control flow)
+BTFNT+JAL prediction errors          : 29175574 (33.634% of control flow)
+16-entry BHT+JAL errors              : 18328709 (conditional 15068546 + JALR 3260163)
+64-entry BHT+JAL errors              : 18105327 (conditional 14845164 + JALR 3260163)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 104761171.000
+I-cache critical miss excess cycles   : 18286621.000
+oracle 1-cycle data memory / speedup   : 537302629.000 / 1.195x
+ideal single-issue pipeline cycles     : 390063741.000 / 1.646x
+ideal pipeline + oracle data memory    : 285302570.000 / 2.250x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 306180629 / 305907649 / 272980
+I-cache hit rate                            : 99.911%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 67.989 cycles
+average miss penalty                        : 66.989 cycles
+I-cache AMAT                                : 1.060 cycles
+average complete refill latency             : 108.390 cycles
+lookup request waiting cycles               : 301351109
+successful line installs / refill finishes  : 272980 / 272980
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 13557559 / 10946871 / 2610688
+D-cache hit rate                           : 80.744%
+load lookups / hits / misses               : 10157856 / 7811145 / 2346711
+store lookups / hits / misses              : 3399703 / 3135726 / 263977
+average hit response latency               : 1.000 cycles
+average miss response latency              : 105.081 cycles
+  clean-victim miss latency                : 80.982 cycles (1906671)
+  dirty-victim miss latency                : 170.348 cycles (704017)
+average miss penalty                       : 104.081 cycles
+D-cache AMAT                               : 21.042 cycles
+dirty victim misses                        : 704017 (26.967% of misses)
+refill requests / words / completions      : 2610688 / 10442752 / 2610688
+line installs / writeback requests/responses: 2610688 / 704031 / 704031
+lookup request waiting cycles              : 409519
+store-hit same-cycle next lookups          : 426674
+==========================================================
+
+PASS: train native Total time = 0.916352 s; same-window IPC = 0.416145342
+      native Scored time = 0.739959 s; same-window IPC = 0.360657776
+Report: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/performance/current/report.json
+Analysis: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/docs/verification/data/run-history/20261002T051514Z-performance-1a7ccb6d

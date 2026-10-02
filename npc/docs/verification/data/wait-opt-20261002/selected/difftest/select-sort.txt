@@ -1,0 +1,106 @@
+NPC: load image/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-difftest/current/difftest/images/select-sort-riscv32-npc.bin
+[1;34m[src/memory/paddr.c:127 init_mem] physical memory area [0x80000000, 0x81ffffff][0m
+DiffTest: ON, REF=/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so, image=[0x80000000, +500 bytes], reset_pc=0x80000000
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0x80000160
+NPC performance statistics:
+ retired instructions = 2855
+ CPU cycle            = 3664
+ IPC                  = 0.779203
+CACHE_WAIT I-cache: completions=11 next_waiting_same_set=11 next_waiting_other_set=0
+CACHE_WAIT D-cache: completions=9 next_waiting_same_set=0 next_waiting_other_set=1
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 3662
+decoded instructions               : 3019
+retired instructions               : 2855
+IPC                                : 0.779629
+
+instruction class        count       ratio       average execution cycles
+integer                    1459    48.327%         0.944
+branch/jump                 972    32.196%         0.960
+load/store                  587    19.444%         0.991
+  load                      505    16.727%
+  store                      82     2.716%
+CSR                            0     0.000%         0.000
+system                         1     0.033%         2.000
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 3193 / 3193 / 3019
+IFU average response latency           : 1.015 cycles
+IFU AR backpressure cycles             : 132 (3.605%)
+IFU response-wait cycles               : 3240 (88.476%)
+IFU downstream-backpressure cycles     : 35 (0.956%)
+IFU discarded wrong-path responses     : 171
+
+LSU requests / completions             : 545 / 545
+LSU load operation average latency     : 1.052 cycles (461 operations)
+LSU store operation average latency    : 1.099 cycles (81 operations)
+LSU AXI read average latency           : 1.000 cycles (9 transactions)
+LSU AXI write-response average latency : 0.000 cycles (0 transactions)
+EXU / LSU completions                  : 2311 / 545
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 3019 (82.441%)
+  control recovery stalls             : 483 (13.190%)
+  LSU structural stalls               : 29 (0.792%)
+  unresolved RAW stalls               : 0 (0.000%)
+  serializing stalls                  : 5 (0.137%)
+  frontend supply stalls              : 118 (3.222%)
+    request backpressure              : 85 (2.321%)
+    I-cache miss service              : 0 (0.000%)
+    lookup response in flight         : 26 (0.710%)
+    request launch or delivery gap    : 7 (0.191%)
+  other empty issue slots             : 8 (0.218%)
+recovery redirects / taken fetch predictions / EX corrections: 162 / 877 / 161
+actual EX corrections by branch / JAL / JALR          : 117 / 0 / 44
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 880 / 755 (85.795% taken)
+  backward / taken                  : 458 / 416 (90.830% taken)
+  forward / taken                   : 422 / 339 (80.332% taken)
+direct / indirect jumps             : 46 / 45
+always-not-taken prediction errors  : 846 (87.127% of control flow)
+BTFNT+JAL prediction errors          : 426 (43.872% of control flow)
+16-entry BHT+JAL errors              : 139 (conditional 94 + JALR 45)
+64-entry BHT+JAL errors              : 140 (conditional 95 + JALR 45)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 0.000
+I-cache critical miss excess cycles   : 29.000
+oracle 1-cycle data memory / speedup   : 3662.000 / 1.000x
+ideal single-issue pipeline cycles     : 2884.000 / 1.270x
+ideal pipeline + oracle data memory    : 2884.000 / 1.270x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 3193 / 3181 / 12
+I-cache hit rate                            : 99.624%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 3.417 cycles
+average miss penalty                        : 2.417 cycles
+I-cache AMAT                                : 1.009 cycles
+average complete refill latency             : 8.818 cycles
+lookup request waiting cycles               : 132
+successful line installs / refill finishes  : 11 / 11
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 545 / 536 / 9
+D-cache hit rate                           : 98.349%
+load lookups / hits / misses               : 463 / 457 / 6
+store lookups / hits / misses              : 82 / 79 / 3
+average hit response latency               : 1.000 cycles
+average miss response latency              : 5.000 cycles
+  clean-victim miss latency                : 5.000 cycles (9)
+  dirty-victim miss latency                : 0.000 cycles (0)
+average miss penalty                       : 4.000 cycles
+D-cache AMAT                               : 1.066 cycles
+dirty victim misses                        : 0 (0.000% of misses)
+refill requests / words / completions      : 9 / 36 / 9
+line installs / writeback requests/responses: 9 / 0 / 0
+lookup request waiting cycles              : 1
+store-hit same-cycle next lookups          : 2
+==========================================================

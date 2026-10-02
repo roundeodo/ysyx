@@ -1,0 +1,286 @@
+diff --git a/npc/tests/branch_v3/core_tb.sv b/npc/tests/branch_v3/core_tb.sv
+index 77cd507..3a26b97 100644
+--- a/npc/tests/branch_v3/core_tb.sv
++++ b/npc/tests/branch_v3/core_tb.sv
+@@ -42,13 +42,15 @@ module exploration_core_tb;
+   logic response_target_present = 0;
+   typedef struct packed {
+     logic [31:0] pc;
++    fetch_epoch_t epoch;
++    frontend_tag_t tag;
+     logic target_present;
+     int query_cycle;
+     longint unsigned dynamic_id;
+     logic raw_taken;
+     logic [191:0] snapshot;
+   } query_record_t;
+-  query_record_t query_by_tag[FRONTEND_TAG_COUNT];
++  query_record_t query_records[$], accepted_query, new_query;
+   query_record_t pending_record, execute_record, result_record;
+   query_record_t fetch_records[$];
+   query_record_t retirement_records[$], retired_record, discarded_record;
+@@ -118,14 +120,36 @@ module exploration_core_tb;
+       if (dut.u_icache.invalidate_done_o)
+         $fdisplay(metadata_fd,"V,%0d",cycle);
+     end
++    // Track queue order, not a table indexed by the short transport tag. A queued
++    // old-epoch request may remain stalled while discarded predictions wrap tags.
+     // Old response metadata is consumed before a same-cycle new query is saved.
+     if (observer && dut.u_ifu.lookup_queue_enqueue_event) begin
+-      query_by_tag[dut.u_ifu.next_frontend_tag_q].dynamic_id = response_id;
+-      query_by_tag[dut.u_ifu.next_frontend_tag_q].raw_taken = response_raw;
+-      query_by_tag[dut.u_ifu.next_frontend_tag_q].snapshot = response_context;
+-      query_by_tag[dut.u_ifu.next_frontend_tag_q].pc = dut.next_pc_predictor_lookup_response_pc;
+-      query_by_tag[dut.u_ifu.next_frontend_tag_q].target_present = response_target_present;
+-      query_by_tag[dut.u_ifu.next_frontend_tag_q].query_cycle = response_query_cycle;
++      new_query.dynamic_id = response_id;
++      new_query.raw_taken = response_raw;
++      new_query.snapshot = response_context;
++      new_query.pc = dut.next_pc_predictor_lookup_response_pc;
++      new_query.epoch = dut.next_pc_predictor_lookup_response_epoch;
++      new_query.tag = dut.u_ifu.next_frontend_tag_q;
++      new_query.target_present = response_target_present;
++      new_query.query_cycle = response_query_cycle;
++      query_records.push_back(new_query);
++    end
++    if (observer && dut.icache_lookup_req_valid && dut.icache_lookup_req_ready &&
++        dut.frontend_memory_access_allowed) begin
++      assert(query_records.size()!=0) else $fatal(1,"observer accepted request without prediction");
++      accepted_query = query_records.pop_front();
++      assert(accepted_query.pc==dut.icache_lookup_req.fetch_addr &&
++             accepted_query.epoch==dut.icache_lookup_req.fetch_epoch &&
++             accepted_query.tag==dut.icache_lookup_req.frontend_tag)
++        else $fatal(1,"observer request pairing: PC, epoch or tag mismatch");
++    end
++    if (observer && dut.u_ifu.frontend_restart_event) begin
++      if (dut.icache_lookup_req_valid &&
++          !(dut.icache_lookup_req_ready && dut.frontend_memory_access_allowed)) begin
++        while(query_records.size()>1) discarded_record=query_records.pop_back();
++      end else begin
++        query_records.delete();
++      end
+     end
+     if (observer && dut.next_pc_predictor_lookup_request_valid && dut.next_pc_predictor_lookup_request_ready) begin
+       response_id = query_id; query_id++;
+@@ -183,7 +207,7 @@ module exploration_core_tb;
+       if (dut.next_pc_predictor_lookup_request_valid && dut.next_pc_predictor_lookup_request_ready) lookup_queries++;
+       if (dut.icache_lookup_req_valid && dut.icache_lookup_req_ready && dut.frontend_memory_access_allowed) begin
+         int lead;
+-        lead = cycle-query_by_tag[dut.icache_lookup_req.frontend_tag].query_cycle;
++        lead = cycle-accepted_query.query_cycle;
+         lead_sum += lead; lead_samples++;
+         if (lead > lead_max) lead_max = lead;
+       end
+@@ -282,7 +306,7 @@ module exploration_core_tb;
+         end
+       end
+       if (dut.icache_lookup_req_valid && dut.icache_lookup_req_ready && dut.frontend_memory_access_allowed) begin
+-        pending_record = query_by_tag[dut.icache_lookup_req.frontend_tag];
++        pending_record = accepted_query;
+         if (pending_record.pc != dut.icache_lookup_req.fetch_addr) $fatal(1, "observer request pairing");
+       end
+     end
+diff --git a/npc/tests/rtl/riscv32_dcache_tb.sv b/npc/tests/rtl/riscv32_dcache_tb.sv
+index 36d7de0..027022c 100644
+--- a/npc/tests/rtl/riscv32_dcache_tb.sv
++++ b/npc/tests/rtl/riscv32_dcache_tb.sv
+@@ -335,6 +335,60 @@ module riscv32_dcache_tb;
+     @(negedge clk);
+   endtask
+ 
++  // store响应与同组miss的查询同沿。下一拍必须看到新dirty位，不能当成干净替换。
++  task automatic check_store_then_conflict(input int response_stalls,
++                                           input core_byte_strobe_t strobe);
++    phys_addr_t base_addr, conflict_addr;
++    core_data_t read_data, expected_data, store_data;
++    int writes_before;
++    @(negedge clk);
++    rst_ni = 0;
++    data_memory_req_valid = 0;
++    data_memory_resp_ready = 1;
++    repeat (2) @(negedge clk);
++    rst_ni = 1;
++    base_addr = phys_addr_t'(32'h80006000);
++    conflict_addr = base_addr + phys_addr_t'(DCACHE_WAY_COUNT * SAME_SET_ADDR_STRIDE);
++    // 所有路先保持clean；填满一组后轮转指针回到第一路。
++    for (int way = 0; way < DCACHE_WAY_COUNT; way++)
++      issue_memory_request(base_addr + phys_addr_t'(way * SAME_SET_ADDR_STRIDE),
++                           MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(1), read_data);
++    store_data = core_data_t'(32'hb7829a51 ^ response_stalls);
++    expected_data = merge_store_bytes(core_data_t'(read_memory_word(axi4_addr_t'(base_addr))),
++                                      store_data, strobe);
++    writes_before = write_address_handshake_count;
++    @(negedge clk);
++    data_memory_req = '0;
++    data_memory_req.addr = base_addr;
++    data_memory_req.cmd = MEM_CMD_STORE;
++    data_memory_req.size = TEST_WORD_SIZE;
++    data_memory_req.write_data = store_data;
++    data_memory_req.byte_strobe = strobe;
++    data_memory_req.transaction_id = mem_txn_id_t'(7);
++    data_memory_req_valid = 1;
++    data_memory_resp_ready = 0;
++    while (!data_memory_req_ready) @(negedge clk);
++    @(negedge clk);
++    data_memory_req.addr = conflict_addr;
++    data_memory_req.cmd = MEM_CMD_LOAD;
++    data_memory_req.transaction_id = mem_txn_id_t'(8);
++    repeat (response_stalls) @(negedge clk);
++    data_memory_resp_ready = 1;
++    #1;
++    assert (data_memory_req_ready && data_memory_resp_valid &&
++            data_memory_resp.transaction_id == mem_txn_id_t'(7))
++      else $fatal(1, "store/conflict lookup inserted a bubble or lost its response");
++    @(negedge clk);
++    data_memory_req_valid = 0;
++    while (!data_memory_resp_valid) @(negedge clk);
++    assert (!data_memory_resp.access_fault &&
++            data_memory_resp.transaction_id == mem_txn_id_t'(8) &&
++            write_address_handshake_count == writes_before + 1 &&
++            core_data_t'(read_memory_word(axi4_addr_t'(base_addr))) == expected_data)
++      else $fatal(1, "store/conflict lookup lost dirty metadata or newly stored bytes");
++    @(negedge clk);
++  endtask
++
+   initial begin
+     core_data_t read_data;
+     core_data_t original_a;
+@@ -437,6 +491,11 @@ module riscv32_dcache_tb;
+           else $fatal(1,"clean scan wrote wrong set/way data");
+     clean_cache(1);
+ 
++    check_store_then_conflict(0, '1);
++    check_store_then_conflict(3, '1);
++    check_store_then_conflict(0, core_byte_strobe_t'(5));
++    check_store_then_conflict(3, core_byte_strobe_t'(5));
++    $display("PASS store/conflict handoff: 4 dirty-bit/byte-mask/response-stall cases");
+     $display("D-cache directed test passed: XLEN=%0d sets=%0d ways=%0d line=%0dB",
+              XLEN, DCACHE_SET_COUNT, DCACHE_WAY_COUNT, DCACHE_LINE_BYTES);
+     $finish;
+diff --git a/npc/tests/rtl/riscv32_pipeline_control_tb.sv b/npc/tests/rtl/riscv32_pipeline_control_tb.sv
+index 67b053b..30fe9a4 100644
+--- a/npc/tests/rtl/riscv32_pipeline_control_tb.sv
++++ b/npc/tests/rtl/riscv32_pipeline_control_tb.sv
+@@ -487,11 +487,7 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    // BTB训练依次经过解析事件、set快照和写事务寄存器，再写入数组。这里等待写入
+-    // 真正可见；训练延迟不改变预测查询吞吐，也不参与精确控制流恢复。
+-    @(posedge clk);
+-    @(posedge clk);
+-    @(posedge clk);
++    // 解析事件直接在训练沿更新表；下一次查询即可观察，不增加训练等待拍。
+     query_predictor(JAL_PC);
+     assert (predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_prediction.predicted_target == JAL_TARGET) &&
+@@ -508,20 +504,23 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    @(posedge clk);
+-    @(posedge clk);
+-    @(posedge clk);
+     query_predictor(BRANCH_PC);
+-    assert (predictor_lookup_prediction.predicted_taken &&
+-            (predictor_lookup_prediction.predicted_target == BRANCH_TARGET))
+-    else $fatal(1, "trained BHT entry did not predict the branch taken");
++    // 01经一次taken训练成为10。纯动态预测taken；静态/弱态混合对前向分支预测不跳。
++    if (riscv_config_pkg::BRANCH_STATIC_POLICY == 0) begin
++      assert (predictor_lookup_prediction.predicted_taken &&
++              predictor_lookup_prediction.predicted_target == BRANCH_TARGET)
++      else $fatal(1, "dynamic BHT weak-taken state did not predict taken");
++    end else begin
++      assert (!predictor_lookup_prediction.predicted_taken &&
++              predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES))
++      else $fatal(1, "forward weak branch did not use BTFNT");
++    end
+ 
+     predictor_resolved_control_flow_occurred = 1'b1;
+     predictor_resolved_control_flow_taken    = 1'b0;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    @(posedge clk);
+     query_predictor(BRANCH_PC);
+     assert (!predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES)))
+@@ -545,10 +544,7 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    // RAS先接收已译码训练事务，再由独立写口更新数组；BTB还经过set快照级。
+-    // 预测状态不是架构状态，允许训练延迟，EX仍对尚未训练的return做精确恢复。
+-    @(posedge clk);
+-    @(posedge clk);
++    // call解析沿已更新RAS；紧随其后的查询就必须使用新的栈顶。
+     query_predictor(RETURN_PC);
+     assert (predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_next_pc == CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+@@ -566,6 +562,58 @@ module riscv32_pipeline_control_tb;
+     clear_predictor_inputs();
+   endtask
+ 
++  // 从实际解析训练建立四种状态；检查同一条件分支的前/后向静态与动态选择。
++  task automatic check_conditional_prediction_states;
++    localparam program_counter_t PC = program_counter_t'('h8000_0600);
++    program_counter_t target;
++    bit expected_taken;
++    for (int backward = 0; backward < 2; backward++) begin
++      target = backward ? PC - program_counter_t'(8) : PC + program_counter_t'(8);
++      // 三次not-taken保证任何初始两位状态都饱和到00，同时安装当前目标。
++      @(negedge clk);
++      predictor_resolved_control_flow_pc = PC;
++      predictor_resolved_control_flow_target = target;
++      predictor_resolved_control_flow_op = CF_BRANCH;
++      predictor_resolved_control_flow_rd = '0;
++      predictor_resolved_control_flow_rs1 = '0;
++      predictor_resolved_control_flow_taken = 1'b0;
++      predictor_resolved_control_flow_occurred = 1'b1;
++      repeat (3) @(posedge clk);
++      @(negedge clk);
++      predictor_resolved_control_flow_occurred = 1'b0;
++      for (int counter = 0; counter < 4; counter++) begin
++        if (counter != 0) begin
++          predictor_resolved_control_flow_taken = 1'b1;
++          predictor_resolved_control_flow_occurred = 1'b1;
++          @(posedge clk);
++          @(negedge clk);
++          predictor_resolved_control_flow_occurred = 1'b0;
++        end
++        query_predictor(PC);
++        case (riscv_config_pkg::BRANCH_STATIC_POLICY)
++          0: expected_taken = counter >= 2;
++          1: expected_taken = backward != 0;
++          2: begin
++            case (counter)
++              0: expected_taken = 1'b0;
++              3: expected_taken = 1'b1;
++              default: expected_taken = backward != 0;
++            endcase
++          end
++          default: $fatal(1, "unsupported branch choice in pipeline test");
++        endcase
++        assert (predictor_lookup_prediction.predicted_taken == expected_taken &&
++                predictor_lookup_next_pc == (expected_taken ? target :
++                    PC + program_counter_t'(INSTRUCTION_BYTES)))
++        else $fatal(1, "conditional choice mismatch: policy=%0d backward=%0d state=%0d",
++                    riscv_config_pkg::BRANCH_STATIC_POLICY, backward, counter);
++      end
++    end
++    clear_predictor_inputs();
++    $display("PASS conditional choice: 8 direction/state combinations, policy=%0d",
++             riscv_config_pkg::BRANCH_STATIC_POLICY);
++  endtask
++
+   task automatic check_decode_execute_stage;
+     execute_packet_t held_packet;
+     execute_packet_t buffered_packet;
+@@ -1316,6 +1364,7 @@ module riscv32_pipeline_control_tb;
+     check_fetch_buffer();
+     check_fetch_buffer_wrap_and_flush();
+     check_fetch_control_flow_predictor();
++    check_conditional_prediction_states();
+     check_precise_exception_age_priority();
+     check_ifu_zero_bubble_lookup();
+ 

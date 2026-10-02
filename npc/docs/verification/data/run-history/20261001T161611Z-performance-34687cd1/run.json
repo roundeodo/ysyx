@@ -1,0 +1,25 @@
+{
+  "status": "complete",
+  "command": [
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_microbench_perf.py",
+    "--scale",
+    "test",
+    "--cpu-mhz",
+    "700",
+    "--host-opt",
+    "1",
+    "--icache-bytes",
+    "1024",
+    "--icache-ways",
+    "4",
+    "--icache-line",
+    "32",
+    "--icache-policy",
+    "13",
+    "--keep-artifacts",
+    "--output",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/native-btb-BT0-700"
+  ],
+  "workspace": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/native-btb-BT0-700",
+  "retention": "compact reports only; generated binaries, source snapshots and netlists are disposable"
+}

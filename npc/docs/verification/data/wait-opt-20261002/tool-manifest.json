@@ -1,0 +1,37 @@
+[
+  {
+    "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+    "resolved_path": "/home/yong/ysyx/ysyx-workbench/yosys-sta/bin/iEDA",
+    "sha256": "99bdaf0e96a3a2f3fbb8014e0cd2c13f8973a4e26c92bd45f587bb444f1ca9e3"
+  },
+  {
+    "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+    "resolved_path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+    "sha256": "fcb14879d0be86119c17a3fb2e6b531020fb12e3a91e0bd5615a39ad111ba55d"
+  },
+  {
+    "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/yosys.tcl",
+    "resolved_path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/yosys.tcl",
+    "sha256": "d5a626fc1d1a9590586a3bc113feec94a5d1baef56ca84e6454eedc53270a4ea"
+  },
+  {
+    "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_typ.lib",
+    "resolved_path": "/home/yong/ysyx/ysyx-workbench/yosys-sta/pdk/nangate45/lib/Nangate45_typ.lib",
+    "sha256": "2efd0b32eb580e4e60e72fc0575bb3bc69aac907c91d908442e4ae6d7fe55895"
+  },
+  {
+    "path": "/home/yong/tools/oss-cad-suite/bin/verilator",
+    "resolved_path": "/home/yong/tools/oss-cad-suite/bin/verilator",
+    "sha256": "6ac75de2af147e085ed043af91a4d9b527daff128c672bbf0279c031534fdccf"
+  },
+  {
+    "path": "/usr/bin/g++",
+    "resolved_path": "/usr/bin/x86_64-linux-gnu-g++-11",
+    "sha256": "2360901d864cf10bfd6296e261cb2c14053552a80377761ab07146ec9ec9a2c0"
+  },
+  {
+    "path": "/usr/bin/riscv64-linux-gnu-gcc",
+    "resolved_path": "/usr/bin/riscv64-linux-gnu-gcc-11",
+    "sha256": "0c54895c55568be5b5fee49e2426abcc8fb05ca2c121ca5685dea2cbc24a1c13"
+  }
+]

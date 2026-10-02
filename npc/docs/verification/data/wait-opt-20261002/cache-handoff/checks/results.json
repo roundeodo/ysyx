@@ -1,0 +1,58 @@
+[
+  {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/build",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/exception",
+      "test-dcache"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/build",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/exception",
+      "test-dcache-recovery"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/build",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/exception",
+      "test-fence-i"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "make",
+      "-C",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/build",
+      "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/recovery",
+      "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/cache/exception",
+      "test-precise-exception"
+    ],
+    "returncode": 0
+  }
+]

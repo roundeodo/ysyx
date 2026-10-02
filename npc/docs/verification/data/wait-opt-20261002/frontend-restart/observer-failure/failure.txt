@@ -1,0 +1,3 @@
+[66395] %Fatal: core_tb.sv:286: Assertion failed in exploration_core_tb: observer request pairing
+%Error: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:286: Verilog $stop
+Aborting...

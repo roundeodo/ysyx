@@ -1,0 +1,36 @@
+[
+  {
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/build/obj/Vexploration_core_tb",
+      "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/images/json_bpe-dev-2411/image.hex",
+      "+begin_pc=80000008",
+      "+end_pc=80000010",
+      "+expected=459c90e5",
+      "+cpu_mhz=700",
+      "+latency_ns=100",
+      "+beat_ns=10",
+      "+seed=97531",
+      "+memory_mode=physical",
+      "+random_stalls=0",
+      "+observer=0"
+    ],
+    "matched_RESULT": "RESULT cycles=251554 retired=45330 total_cycles=251705 all_retired=45334 digest=f114a6a3 checksum=459c90e5"
+  },
+  {
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/build/obj/Vexploration_core_tb",
+      "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/images/quant_loader-dev-2411/image.hex",
+      "+begin_pc=80000008",
+      "+end_pc=80000010",
+      "+expected=af29285",
+      "+cpu_mhz=700",
+      "+latency_ns=100",
+      "+beat_ns=10",
+      "+seed=97531",
+      "+memory_mode=physical",
+      "+random_stalls=0",
+      "+observer=0"
+    ],
+    "matched_RESULT": "RESULT cycles=1196766 retired=253655 total_cycles=1196917 all_retired=253659 digest=f9dc899a checksum=0af29285"
+  }
+]

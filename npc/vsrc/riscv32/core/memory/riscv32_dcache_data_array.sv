@@ -33,6 +33,14 @@ module riscv32_dcache_data_array
       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
         read_word_data_array_q[way_index] <=
             data_array_q[way_index][read_word_index_i][read_set_index_i];
+        // 显式定义同址读写为新数据，在原有同步读寄存器之前合并store字节。
+        if (write_valid_i && write_set_index_i == read_set_index_i &&
+            write_word_index_i == read_word_index_i &&
+            write_way_index_i == dcache_way_index_t'(way_index)) begin
+          read_word_data_array_q[way_index] <= merge_store_bytes(
+              data_array_q[way_index][read_word_index_i][read_set_index_i],
+              write_word_data_i, write_byte_strobe_i);
+        end
       end
     end
   end
@@ -42,8 +50,7 @@ module riscv32_dcache_data_array
   end
 
   // 每个byte lane独立写使能，使综合器能够映射到带byte-enable的SRAM或banked array。
-  // RTL 同沿读写同一字时读到旧值。store 与下一 lookup 的冲突由 D-cache 顶层旁路处理；
-  // 阵列本身不检测请求相关性，也不复制另一套旁路。
+  // 存储本体的写口不变；上方显式旁路定义读写冲突，不依赖SRAM宏的默认行为。
   always_ff @(posedge clk_i) begin
     if (write_valid_i) begin
       for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin

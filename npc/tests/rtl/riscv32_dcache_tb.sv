@@ -335,6 +335,60 @@ module riscv32_dcache_tb;
     @(negedge clk);
   endtask
 
+  // store响应与同组miss的查询同沿。下一拍必须看到新dirty位，不能当成干净替换。
+  task automatic check_store_then_conflict(input int response_stalls,
+                                           input core_byte_strobe_t strobe);
+    phys_addr_t base_addr, conflict_addr;
+    core_data_t read_data, expected_data, store_data;
+    int writes_before;
+    @(negedge clk);
+    rst_ni = 0;
+    data_memory_req_valid = 0;
+    data_memory_resp_ready = 1;
+    repeat (2) @(negedge clk);
+    rst_ni = 1;
+    base_addr = phys_addr_t'(32'h80006000);
+    conflict_addr = base_addr + phys_addr_t'(DCACHE_WAY_COUNT * SAME_SET_ADDR_STRIDE);
+    // 所有路先保持clean；填满一组后轮转指针回到第一路。
+    for (int way = 0; way < DCACHE_WAY_COUNT; way++)
+      issue_memory_request(base_addr + phys_addr_t'(way * SAME_SET_ADDR_STRIDE),
+                           MEM_CMD_LOAD, '0, '0, mem_txn_id_t'(1), read_data);
+    store_data = core_data_t'(32'hb7829a51 ^ response_stalls);
+    expected_data = merge_store_bytes(core_data_t'(read_memory_word(axi4_addr_t'(base_addr))),
+                                      store_data, strobe);
+    writes_before = write_address_handshake_count;
+    @(negedge clk);
+    data_memory_req = '0;
+    data_memory_req.addr = base_addr;
+    data_memory_req.cmd = MEM_CMD_STORE;
+    data_memory_req.size = TEST_WORD_SIZE;
+    data_memory_req.write_data = store_data;
+    data_memory_req.byte_strobe = strobe;
+    data_memory_req.transaction_id = mem_txn_id_t'(7);
+    data_memory_req_valid = 1;
+    data_memory_resp_ready = 0;
+    while (!data_memory_req_ready) @(negedge clk);
+    @(negedge clk);
+    data_memory_req.addr = conflict_addr;
+    data_memory_req.cmd = MEM_CMD_LOAD;
+    data_memory_req.transaction_id = mem_txn_id_t'(8);
+    repeat (response_stalls) @(negedge clk);
+    data_memory_resp_ready = 1;
+    #1;
+    assert (data_memory_req_ready && data_memory_resp_valid &&
+            data_memory_resp.transaction_id == mem_txn_id_t'(7))
+      else $fatal(1, "store/conflict lookup inserted a bubble or lost its response");
+    @(negedge clk);
+    data_memory_req_valid = 0;
+    while (!data_memory_resp_valid) @(negedge clk);
+    assert (!data_memory_resp.access_fault &&
+            data_memory_resp.transaction_id == mem_txn_id_t'(8) &&
+            write_address_handshake_count == writes_before + 1 &&
+            core_data_t'(read_memory_word(axi4_addr_t'(base_addr))) == expected_data)
+      else $fatal(1, "store/conflict lookup lost dirty metadata or newly stored bytes");
+    @(negedge clk);
+  endtask
+
   initial begin
     core_data_t read_data;
     core_data_t original_a;
@@ -437,6 +491,11 @@ module riscv32_dcache_tb;
           else $fatal(1,"clean scan wrote wrong set/way data");
     clean_cache(1);
 
+    check_store_then_conflict(0, '1);
+    check_store_then_conflict(3, '1);
+    check_store_then_conflict(0, core_byte_strobe_t'(5));
+    check_store_then_conflict(3, core_byte_strobe_t'(5));
+    $display("PASS store/conflict handoff: 4 dirty-bit/byte-mask/response-stall cases");
     $display("D-cache directed test passed: XLEN=%0d sets=%0d ways=%0d line=%0dB",
              XLEN, DCACHE_SET_COUNT, DCACHE_WAY_COUNT, DCACHE_LINE_BYTES);
     $finish;

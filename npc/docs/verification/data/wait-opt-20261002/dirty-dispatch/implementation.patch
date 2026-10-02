@@ -1,0 +1,43 @@
+diff --git a/npc/tests/rtl/riscv32_dcache_miss_contract_tb.sv b/npc/tests/rtl/riscv32_dcache_miss_contract_tb.sv
+index c8043d1..b1bf398 100644
+--- a/npc/tests/rtl/riscv32_dcache_miss_contract_tb.sv
++++ b/npc/tests/rtl/riscv32_dcache_miss_contract_tb.sv
+@@ -106,6 +106,8 @@ module riscv32_dcache_miss_contract_tb;
+         if (writeback_ready && !writeback_valid) capture_waits++;
+       end
+       if (writeback_valid && writeback_ready && !dut.clean_operation_q) begin
++        assert (refill_valid)
++          else $fatal(1, "accepted dirty writeback did not present the refill in the same cycle");
+         if (refill_ready && !refill_valid) refill_waits++;
+       end
+       if (writeback_valid && !saved_line_present) begin
+diff --git a/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv b/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv
+index e405b64..fc819aa 100644
+--- a/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv
+@@ -269,6 +269,12 @@ module riscv32_dcache_miss_unit
+             victim_read_word_data_array_i[active_way_index_q];
+       end
+       writeback_req_valid_o = 1'b1;
++      // 行数据已归写通路持有，独立读通路可同拍接收新行请求。
++      // 读口反压时，下一拍 SEND_REFILL 继续保持同一请求和失效状态。
++      if (!clean_operation_q && writeback_req_ready_i) begin
++        refill_req_valid_o     = 1'b1;
++        metadata_write_valid_o = 1'b1;
++      end
+     end
+ 
+     // 最后一个必要总线响应当拍即可完成，反压时沿后由原请求字寄存器保持。
+@@ -406,9 +412,9 @@ module riscv32_dcache_miss_unit
+ 
+     if (writeback_req_handshake) begin
+       writeback_response_pending_d = 1'b1;
+-      // 普通 miss 下一拍发 refill，写回与读请求错开一个发起周期。
+-      // B 仍独立跟踪，refill 不等待完整写回结束。
+-      state_d = clean_operation_q ? MISS_WAIT_WRITEBACK_RESPONSE : MISS_SEND_REFILL;
++      // 读写请求独立握手，B 继续独立跟踪；没有额外的交接寄存级。
++      state_d = clean_operation_q ? MISS_WAIT_WRITEBACK_RESPONSE :
++          (refill_req_handshake ? MISS_RECEIVE_REFILL : MISS_SEND_REFILL);
+     end
+   end
+ 

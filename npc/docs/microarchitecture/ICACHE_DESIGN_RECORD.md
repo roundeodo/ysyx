@@ -1,9 +1,10 @@
 # RV32 I-cache：原理与电路结构
 
-当前实现，2026-09-22。`rv32-baseline` 为 256 B、一路、16 B/行、每次取 4 B；
+当前实现，2026-10-02 核对。`rv32-baseline` 为 256 B、一路、16 B/行、每次取 4 B；
 参数由 [Makefile](../../Makefile) 进入 `riscv_config_pkg`。
-均衡预设`rv32-balanced`为1 KiB、4路、32 B/行、策略13，仿真720 MHz；
-这是本轮AI代理与存储模型下的选型，原基线仍可直接复现。
+均衡预设`rv32-balanced`为1 KiB、4路、32 B/行、策略13；当前预设为700 MHz，
+频率与分支预测配置见[最终选型](../research/branch-v3/decision.md)。缓存组织沿用此前
+AI代理负载探索的选择，原基线仍可直接复现。
 结果、简单对照与退化场景见[选型记录](../verification/ICACHE_SELECTION_2026-09-21.md)。
 
 ## 查询路径

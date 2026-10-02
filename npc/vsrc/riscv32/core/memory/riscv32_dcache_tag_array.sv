@@ -41,6 +41,15 @@ module riscv32_dcache_tag_array
             line_present_array_q[way_index][read_set_index_i];
         read_line_dirty_vector_q[way_index] <=
             line_dirty_array_q[way_index][read_set_index_i];
+        // 同址写与同步读重合时，读出寄存器采样新元数据，尤其是store置dirty。
+        if (metadata_write_valid_i && metadata_write_set_index_i == read_set_index_i &&
+            metadata_write_way_index_i == dcache_way_index_t'(way_index)) begin
+          if (metadata_write_line_present_i)
+            read_tag_array_q[way_index] <= metadata_write_tag_i;
+          read_line_present_vector_q[way_index] <= metadata_write_line_present_i;
+          read_line_dirty_vector_q[way_index] <=
+              metadata_write_line_present_i && metadata_write_line_dirty_i;
+        end
       end
     end
   end

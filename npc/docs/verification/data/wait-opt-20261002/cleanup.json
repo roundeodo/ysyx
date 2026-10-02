@@ -1,0 +1,52 @@
+[
+  {
+    "path": "npc/result/wait-opt-synthesis/current",
+    "generated_bytes": 119771053,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-cache-synthesis/current",
+    "generated_bytes": 201289205,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-difftest/current",
+    "generated_bytes": 155748950,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-checks/array",
+    "generated_bytes": 3005599,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-checks/cache",
+    "generated_bytes": 303369652,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-checks/current",
+    "generated_bytes": 306329275,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-checks/final",
+    "generated_bytes": 455427134,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-checks/frontend",
+    "generated_bytes": 445318029,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-checks/selected",
+    "generated_bytes": 592442148,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  },
+  {
+    "path": "npc/result/wait-opt-sources",
+    "generated_bytes": 728686,
+    "reason": "compact logs, source patches and reports archived; no active process"
+  }
+]

@@ -1,0 +1,202 @@
+[
+  {
+    "path": "array-forward/ppa/700/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "aa191d81ed3f4fa6e81fd4ff44c0c1587489d49d639f7f9b12f83aa74ce1c17f",
+    "original_bytes": 419221
+  },
+  {
+    "path": "array-forward/ppa/705/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "319b054d5d138cd7ee94416be69ec5587d5716510581caf9bcfca2e450fda583",
+    "original_bytes": 419221
+  },
+  {
+    "path": "array-forward/ppa/710/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "5322549b81cf74a5d666b3159cb6e2c4d8e3f127794dd790863bf1de5f8f4bd9",
+    "original_bytes": 419221
+  },
+  {
+    "path": "array-forward/ppa/715/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "ac72b0b1a4296681896275617fa614bcd0eb90b47d07e55a409155ef724ab11a",
+    "original_bytes": 419221
+  },
+  {
+    "path": "array-forward/ppa/720/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "40c0e090d7194e63753a79d593dce5c828a64009862ec0e38073299ee756761e",
+    "original_bytes": 419251
+  },
+  {
+    "path": "baseline/ppa/700/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "50330402499f81efbf9d3337853c72c11aaf0226b30fd4374d8293202b52a81d",
+    "original_bytes": 464981
+  },
+  {
+    "path": "baseline/ppa/705/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "6fea3d5e720a5b424285f0e17787a57d4a7885d14e4735bb19d1b4a82731f430",
+    "original_bytes": 465011
+  },
+  {
+    "path": "cache-handoff/ppa/550/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "1adccb0a3348d25a994ce753586e2e4b519881fdc22d3b1d72254741f03f8af0",
+    "original_bytes": 558598
+  },
+  {
+    "path": "cache-handoff/ppa/700/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "19cbeb83e37af491d1c23a4d048e7e025e91aa02633cfcc8396705f72669d934",
+    "original_bytes": 558640
+  },
+  {
+    "path": "combined/ppa/550/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "89f39d850c073c082fef024393562ccc680a22e4a760e6b776a686057f94a1f2",
+    "original_bytes": 548670
+  },
+  {
+    "path": "combined/ppa/700/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "ee5ece003f9a2602f0d5d7bad2682032e120ff646e3f4156b6e87e6c9ad13f29",
+    "original_bytes": 548712
+  },
+  {
+    "path": "dirty-dispatch/ppa/700/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "b6fd02b8883bcd75fb23a2617b94e1c46120ee30b4734891559cda34a268cf2f",
+    "original_bytes": 476010
+  },
+  {
+    "path": "dirty-dispatch/ppa/705/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "885c529f318205fd7a1f6d71f6a24b9207d8c96c177fa4e0c4821f1e37db4a18",
+    "original_bytes": 476040
+  },
+  {
+    "path": "frontend-ex-restart/ppa/530/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "3fbaae37b76492320a5f3742c688f65dcd2a76a85d991bf211113e0a5870a901",
+    "original_bytes": 498137
+  },
+  {
+    "path": "frontend-ex-restart/ppa/700/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "43c59c5a64a11a7a23c4cf4b64644257151343fccbe6d7b936ec5e0d16974d16",
+    "original_bytes": 509437
+  },
+  {
+    "path": "frontend-restart/ppa/460/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "99d5bb7d5672ac835543f5bb173b3688e1b9ea039b2eb1250a5ffc9b05529cf7",
+    "original_bytes": 693909
+  },
+  {
+    "path": "frontend-restart/ppa/470/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "65dbea0ceb6500cb1cb2f1f96052c228a71fc0b445be5c405b8499525a838e35",
+    "original_bytes": 693939
+  },
+  {
+    "path": "frontend-restart/ppa/480/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "ce37dc9e1c588a1b6fda734d78c47678651bbc2088496e4198ebe1852bee0a95",
+    "original_bytes": 693939
+  },
+  {
+    "path": "frontend-restart/ppa/490/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "7685e84f90dc06527e07480468223c0eaa65ad1189633e3a50b7a164758f6a6a",
+    "original_bytes": 693945
+  },
+  {
+    "path": "frontend-restart/ppa/500/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "1c2984e80a843c72faf3625f7baed137d2a9fc998e761132a4c76df05a83968a",
+    "original_bytes": 693945
+  },
+  {
+    "path": "frontend-restart/ppa/510/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "32b5d091ad54c191acf45471cc522de3b2e2713cca6730f1e7147c76f17dc4f3",
+    "original_bytes": 699281
+  },
+  {
+    "path": "frontend-restart/ppa/520/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "b1e2d6e216f4f559ba6f0a7d78e3762209e35076e0d1faca08626af2166d46a0",
+    "original_bytes": 709125
+  },
+  {
+    "path": "frontend-restart/ppa/530/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "80d00f3928a6961de6d9c4b3e141b5cf09eb68975a0123e3cb51b166477f872e",
+    "original_bytes": 709125
+  },
+  {
+    "path": "frontend-restart/ppa/540/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "dd070c7b059ef71b268b6b8cdd6aadcd28a44ebd43a002430dc9b9363afb6c99",
+    "original_bytes": 712805
+  },
+  {
+    "path": "frontend-restart/ppa/550/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "e2c799bf5414df2c11c985d5c85ac6dc986c780778cde504480b0469c7dd74c9",
+    "original_bytes": 712805
+  },
+  {
+    "path": "frontend-restart/ppa/560/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "a6206f7cec5fd24864f793e92d1519306ee8a0ff9cc96ba08003fa5fc4087aef",
+    "original_bytes": 716317
+  },
+  {
+    "path": "frontend-restart/ppa/570/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "7f29ee3e1032704449403631a87ffb677f9e09afc302c9a5234785e1b10bde98",
+    "original_bytes": 716317
+  },
+  {
+    "path": "frontend-restart/ppa/580/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "ed93fd9558639696bdd6d33df293405cd07b6a987cd834136b499647b797461c",
+    "original_bytes": 716317
+  },
+  {
+    "path": "frontend-restart/ppa/590/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "78ae251ce266d0cc556156e5564cf2916fab7f18c2dd7a98038f58d6b43d140e",
+    "original_bytes": 716317
+  },
+  {
+    "path": "frontend-restart/ppa/600/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "006c4a1e02d779dbae1687d131a24d67b54628e8a63694bec829e473985b417e",
+    "original_bytes": 716317
+  },
+  {
+    "path": "frontend-restart/ppa/610/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "fc77b1853c186cfc917551fc43ccfce8bbaeb2fc14569220eef849068ed393a3",
+    "original_bytes": 716317
+  },
+  {
+    "path": "frontend-restart/ppa/620/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "7336f5b67ff5f15f31b17b4e80f0aa67cb855cfa6aba8f439f4df5a6f44f39ca",
+    "original_bytes": 716323
+  },
+  {
+    "path": "frontend-restart/ppa/630/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "d3b3aa1d73d640002add9e70ba6e93d39e5d3fc089b10b09287e4e37fb9a58be",
+    "original_bytes": 716323
+  },
+  {
+    "path": "frontend-restart/ppa/640/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "08221b6ec173b7f3b11d0ff46c62b4d567df14f41e8c2dcda6819f15e082d3a1",
+    "original_bytes": 716323
+  },
+  {
+    "path": "frontend-restart/ppa/650/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "bf55e5dd28fec03a75cd519801aee537a060e19c6c4b184bc881bb4012ad206b",
+    "original_bytes": 716323
+  },
+  {
+    "path": "frontend-restart/ppa/660/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "656f03fb69f23027669f322f8f4d27904fc6e197e6d0061fb94b779dc2db983c",
+    "original_bytes": 716323
+  },
+  {
+    "path": "frontend-restart/ppa/670/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "9ed8f9f523790497e005399abcba52579d59d7e663023065738ef475c234b6e5",
+    "original_bytes": 716323
+  },
+  {
+    "path": "frontend-restart/ppa/680/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "33b2aef07502c36f6d5043b0988652ac216b2e19e3680a5b1e766ccdf4102188",
+    "original_bytes": 716323
+  },
+  {
+    "path": "frontend-restart/ppa/690/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "6790f5d19f9b7489161267a0f3a13c533f90f5b4a7f3308ca42943639c731409",
+    "original_bytes": 716323
+  },
+  {
+    "path": "frontend-restart/ppa/700/riscv32_core_reset_boundary.rpt.gz",
+    "original_sha256": "7ec1c4620383c0cc9d57a3754edb920c6d9cad95528f3c4dd5056e3705296e12",
+    "original_bytes": 716323
+  }
+]
