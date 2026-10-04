@@ -3,12 +3,12 @@
 module riscv32_btb
   import riscv32_pkg::*;
 #(
-    parameter int unsigned        BTB_ENTRY_COUNT     = riscv_config_pkg::BRANCH_TARGET_ENTRY_COUNT,
-    parameter int unsigned        BTB_WAY_COUNT       = riscv_config_pkg::BRANCH_TARGET_WAY_COUNT,
-    parameter int unsigned        BTB_POLICY          = riscv_config_pkg::BRANCH_TARGET_POLICY,
-    parameter int unsigned        BTB_INDEX_POLICY    = riscv_config_pkg::BRANCH_TARGET_INDEX_POLICY,
-    parameter int unsigned        BTB_ADMISSION_POLICY = riscv_config_pkg::BRANCH_TARGET_ADMISSION_POLICY,
-    parameter logic        [31:0] BTB_WAY_TARGET_BITS = riscv_config_pkg::BRANCH_TARGET_WAY_BITS
+    parameter int unsigned BTB_ENTRY_COUNT = riscv_config_pkg::BRANCH_TARGET_ENTRY_COUNT,
+    parameter int unsigned BTB_WAY_COUNT = riscv_config_pkg::BRANCH_TARGET_WAY_COUNT,
+    parameter int unsigned BTB_POLICY = riscv_config_pkg::BRANCH_TARGET_POLICY,
+    parameter int unsigned BTB_INDEX_POLICY = riscv_config_pkg::BRANCH_TARGET_INDEX_POLICY,
+    parameter int unsigned BTB_ADMISSION_POLICY = riscv_config_pkg::BRANCH_TARGET_ADMISSION_POLICY,
+    parameter logic [31:0] BTB_WAY_TARGET_BITS = riscv_config_pkg::BRANCH_TARGET_WAY_BITS
 ) (
     input  logic                clk_i,
     input  logic                rst_ni,
@@ -31,9 +31,9 @@ module riscv32_btb
           $fatal(1, "Compact BTB supports only legacy index and admission");
       end
       riscv32_compact_btb #(
-          .BTB_ENTRY_COUNT(BTB_ENTRY_COUNT),
-          .BTB_WAY_COUNT(BTB_WAY_COUNT),
-          .BTB_POLICY(BTB_POLICY),
+          .BTB_ENTRY_COUNT    (BTB_ENTRY_COUNT),
+          .BTB_WAY_COUNT      (BTB_WAY_COUNT),
+          .BTB_POLICY         (BTB_POLICY),
           .BTB_WAY_TARGET_BITS(BTB_WAY_TARGET_BITS)
       ) u_compact_btb (
           .*
@@ -81,11 +81,10 @@ module riscv32_btb
       function automatic set_index_t pc_set_index(input program_counter_t pc);
         set_index_t index_value;
         index_value = pc[OFFSET_BITS+:SET_BITS];
-        for (int unsigned bit_index = OFFSET_BITS + SET_BITS; bit_index < XLEN;
-             bit_index++) begin
+        for (int unsigned bit_index = OFFSET_BITS + SET_BITS; bit_index < XLEN; bit_index++) begin
           if ((BTB_INDEX_POLICY == 2) ||
               ((BTB_INDEX_POLICY == 1) && (bit_index < OFFSET_BITS + 2 * SET_BITS)))
-            index_value[(bit_index - OFFSET_BITS) % SET_BITS] ^= pc[bit_index];
+            index_value[(bit_index-OFFSET_BITS)%SET_BITS] ^= pc[bit_index];
         end
         return index_value;
       endfunction
@@ -99,12 +98,12 @@ module riscv32_btb
         lookup_target_kind_o = TARGET_KIND_CONDITIONAL_BRANCH;
         for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
           lookup_hit_vector[way_index] = entry_present_array_q[lookup_set_index][way_index] &&
-                                        (entry_array_q[lookup_set_index][way_index].tag == lookup_tag);
+              (entry_array_q[lookup_set_index][way_index].tag == lookup_tag);
           // 命中保证 one-hot；按位合并避免以 way 数量增长的目标优先级链。
           if (lookup_hit_vector[way_index]) begin
             lookup_target_pc_o |= entry_array_q[lookup_set_index][way_index].target_pc;
-            lookup_target_kind_o = branch_target_kind_e'(
-                lookup_target_kind_o | entry_array_q[lookup_set_index][way_index].kind);
+            lookup_target_kind_o =
+                branch_target_kind_e'(lookup_target_kind_o | entry_array_q[lookup_set_index][way_index].kind);
           end
         end
         lookup_target_present_o = |lookup_hit_vector;
@@ -125,20 +124,18 @@ module riscv32_btb
       assign training_tag = training_pc_i[XLEN-1-:TAG_BITS];
       // 只限制新表项准入；已有条目的更新和父模块的 BHT/RAS 训练仍然保留。
       assign training_write_enable = training_valid_i && !invalidate_i &&
-          (BTB_ADMISSION_POLICY == 1 ||
-           (BTB_ADMISSION_POLICY == 0 && BTB_POLICY == 0) ||
-           training_hit_present || training_taken_i ||
-           training_kind_i != TARGET_KIND_CONDITIONAL_BRANCH);
+          (BTB_ADMISSION_POLICY == 1 || (BTB_ADMISSION_POLICY == 0 && BTB_POLICY == 0) ||
+           training_hit_present || training_taken_i || training_kind_i != TARGET_KIND_CONDITIONAL_BRANCH);
 
       always_comb begin
         training_way_index = replacement_way_array_q[training_set_index];
         maximum_reuse      = '0;
         if (BTB_POLICY == 2 || BTB_POLICY == 4) begin
           training_way_index = '0;
-          maximum_reuse = reuse_array_q[training_set_index][0];
+          maximum_reuse      = reuse_array_q[training_set_index][0];
           for (int unsigned way_index = 1; way_index < BTB_WAY_COUNT; way_index++) begin
             if (reuse_array_q[training_set_index][way_index] > maximum_reuse) begin
-              maximum_reuse = reuse_array_q[training_set_index][way_index];
+              maximum_reuse      = reuse_array_q[training_set_index][way_index];
               training_way_index = way_index_t'(way_index);
             end
           end
@@ -150,14 +147,15 @@ module riscv32_btb
               entry_array_q[training_set_index][way_index].tag == training_tag) begin
             training_way_index   = way_index_t'(way_index);
             training_hit_present = 1'b1;
-          end else if (!entry_present_array_q[training_set_index][way_index] &&
-                       !empty_way_present && !training_hit_present) begin
+          end else if (!entry_present_array_q[training_set_index][way_index] && !empty_way_present &&
+                       !training_hit_present) begin
             training_way_index = way_index_t'(way_index);
             empty_way_present  = 1'b1;
           end
         end
         replacement_next_way = training_way_index + way_index_t'(1);
-        if (training_way_index == way_index_t'(BTB_WAY_COUNT - 1)) replacement_next_way = '0;
+        if (training_way_index == way_index_t'(BTB_WAY_COUNT - 1))
+          replacement_next_way = '0;
         age_amount = (!training_hit_present && !empty_way_present) ? 2'd3 - maximum_reuse : 2'd0;
       end
 
@@ -169,26 +167,27 @@ module riscv32_btb
         if (BTB_POLICY == 4) begin : g_signature
           localparam int unsigned SIGNATURE_COUNT = 16;
           typedef logic [3:0] signature_t;
-          logic [1:0] signature_counter_array_q[SIGNATURE_COUNT];
-          logic [BTB_WAY_COUNT-1:0] reused_array_q[SET_COUNT];
-          program_counter_t victim_pc;
-          signature_t training_signature;
-          signature_t victim_signature;
-          logic victim_unused;
-          logic [1:0] insertion_counter;
+          logic             [              1:0] signature_counter_array_q[SIGNATURE_COUNT];
+          logic             [BTB_WAY_COUNT-1:0] reused_array_q           [      SET_COUNT];
+          program_counter_t                     victim_pc;
+          signature_t                           training_signature;
+          signature_t                           victim_signature;
+          logic                                 victim_unused;
+          logic             [              1:0] insertion_counter;
 
           function automatic signature_t pc_signature(input program_counter_t pc);
             signature_t signature_value;
             signature_value = '0;
             for (int unsigned bit_index = OFFSET_BITS; bit_index < XLEN; bit_index++)
-              signature_value[(bit_index - OFFSET_BITS) % 4] ^= pc[bit_index];
+              signature_value[(bit_index-OFFSET_BITS)%4] ^= pc[bit_index];
             return signature_value;
           endfunction
 
           // tag保留全部高位；反解索引即可取得低组位，不存重复的签名/PC副本。
           always_comb begin
-            victim_pc = {entry_array_q[training_set_index][training_way_index].tag,
-                         {SET_BITS + OFFSET_BITS{1'b0}}};
+            victim_pc = {
+              entry_array_q[training_set_index][training_way_index].tag, {SET_BITS + OFFSET_BITS{1'b0}}
+            };
             victim_pc[OFFSET_BITS+:SET_BITS] = training_set_index ^ pc_set_index(victim_pc);
           end
           assign training_signature = pc_signature(training_pc_i);
@@ -199,22 +198,19 @@ module riscv32_btb
           // 被替换项与新项签名相同时，新项观察扣减后的计数。
           always_comb begin
             insertion_counter = signature_counter_array_q[training_signature];
-            if (victim_unused && victim_signature == training_signature &&
-                insertion_counter != 0)
+            if (victim_unused && victim_signature == training_signature && insertion_counter != 0)
               insertion_counter = insertion_counter - 2'd1;
             insertion_reuse = (insertion_counter != 0) ? 2'd2 : 2'd3;
           end
 
           always_ff @(posedge clk_i or negedge rst_ni) begin
             if (!rst_ni) begin
-              for (int unsigned signature_index = 0; signature_index < SIGNATURE_COUNT;
-                   signature_index++)
+              for (int unsigned signature_index = 0; signature_index < SIGNATURE_COUNT; signature_index++)
                 signature_counter_array_q[signature_index] <= 2'd1;
               for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++)
                 reused_array_q[set_index] <= '0;
             end else if (invalidate_i) begin
-              for (int unsigned signature_index = 0; signature_index < SIGNATURE_COUNT;
-                   signature_index++)
+              for (int unsigned signature_index = 0; signature_index < SIGNATURE_COUNT; signature_index++)
                 signature_counter_array_q[signature_index] <= 2'd1;
               for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++)
                 reused_array_q[set_index] <= '0;
@@ -222,8 +218,8 @@ module riscv32_btb
               if (!training_hit_present) begin
                 reused_array_q[training_set_index][training_way_index] <= 1'b0;
                 if (victim_unused && signature_counter_array_q[victim_signature] != 0)
-                  signature_counter_array_q[victim_signature] <=
-                      signature_counter_array_q[victim_signature] - 2'd1;
+                  signature_counter_array_q[victim_signature] <= signature_counter_array_q[victim_signature] -
+                      2'd1;
               end else if (training_taken_i) begin
                 reused_array_q[training_set_index][training_way_index] <= 1'b1;
                 if (signature_counter_array_q[training_signature] != 2'd3)
@@ -240,18 +236,18 @@ module riscv32_btb
           if (!rst_ni) begin
             for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
               for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++)
-              reuse_array_q[set_index][way_index] <= 2'd3;
+                reuse_array_q[set_index][way_index] <= 2'd3;
             end
           end else if (invalidate_i) begin
             for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
               for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++)
-              reuse_array_q[set_index][way_index] <= 2'd3;
+                reuse_array_q[set_index][way_index] <= 2'd3;
             end
           end else if (training_write_enable) begin
             if (!training_hit_present) begin
               for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++)
-              reuse_array_q[training_set_index][way_index] <=
-                      reuse_array_q[training_set_index][way_index] + age_amount;
+                reuse_array_q[training_set_index][way_index] <= reuse_array_q[training_set_index][way_index] +
+                    age_amount;
               reuse_array_q[training_set_index][training_way_index] <= insertion_reuse;
             end else if (training_taken_i) begin
               reuse_array_q[training_set_index][training_way_index] <= 2'd0;
@@ -290,7 +286,8 @@ module riscv32_btb
 
 `ifndef SYNTHESIS
       assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(lookup_hit_vector))
-      else $error("multiple BTB ways matched the same lookup PC");
+      else
+        $error("multiple BTB ways matched the same lookup PC");
 `endif
     end
   endgenerate

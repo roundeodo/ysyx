@@ -28,7 +28,7 @@ SC第三张表的索引最低位受TAGE方向影响，因此同时读取两个�
 | 状态 | 写入与保持 | 清除/恢复 |
 | --- | --- | --- |
 | base二位counter、tagged有效/tag/有符号3bit counter/2bit useful | 解析时按查询快照定位，以当前counter更新；provider已替换时不训练新住户。TAGE判断错误时优先分配最短可用的更长表，否则压力老化 | invalidate清tagged有效位，base保留；无效payload不复位 |
-| 4bit USE_ALT选择器 | provider弱且raw/alternate分歧时训练 | 复位初始化，普通flush不改变 |
+| 4bit USE_ALT选择器 | provider弱且原始方向/备用方向分歧时训练 | 复位初始化，普通flush不改变 |
 | 全局方向历史和index/tag fold | resolved模式按训练推进；spec模式按已接受、已识别条件分支的实际采用方向推进 | invalidate清空；spec恢复从检查点或解析历史重建fold |
 | SC的3×entries个有符号5bit权重及5bit阈值 | PC、短全局历史、折叠历史+TAGE方向三特征；中心化和加±4先验；错误或低margin更新；阈值1至31 | 复位初始化，失效时保持但不得同拍训练 |
 | loop的4项全PC身份、8bit trip/current、2bit confidence及direction | 稳定trip后预测退出，变长重学，计数溢出撤销可信度 | invalidate清有效位；当前缩放版没有作者完整age/替换组织 |

@@ -1,0 +1,15 @@
+PASS predictor contract case=0 policy=0 BHT=16 BTB=16x2 RAS=4 queries=7830 stalls=1535 hits='{'h9e5, 'h5a1, 'h3e6, 'h81c}
+PASS predictor contract case=1 policy=0 BHT=16 BTB=16x1 RAS=4 queries=7889 stalls=1532 hits='{'h96a, 'h590, 'h430, 'h891}
+PASS predictor contract case=2 policy=0 BHT=16 BTB=16x4 RAS=4 queries=7771 stalls=1517 hits='{'h9be, 'h578, 'h3dd, 'h833}
+PASS predictor contract case=3 policy=0 BHT=2 BTB=4x2 RAS=2 queries=7810 stalls=1523 hits='{'h59e, 'h237, 'h189, 'h32a}
+PASS predictor contract case=4 policy=0 BHT=64 BTB=32x2 RAS=8 queries=7784 stalls=1559 hits='{'h98d, 'h583, 'h3fb, 'h833}
+PASS predictor contract case=5 policy=1 BHT=64 BTB=32x2 RAS=4 queries=7950 stalls=1516 hits='{'h979, 'h59d, 'h415, 'h84c}
+PASS predictor contract case=6 policy=2 BHT=64 BTB=32x2 RAS=4 queries=7860 stalls=1523 hits='{'h936, 'h58c, 'h408, 'h867}
+PASS predictor contract case=7 policy=3 BHT=64 BTB=32x2 RAS=4 queries=7864 stalls=1526 hits='{'h93c, 'h593, 'h3fa, 'h853}
+PASS predictor contract case=8 policy=2 BHT=16 BTB=16x4 RAS=4 queries=7844 stalls=1550 hits='{'h957, 'h55f, 'h40b, 'h834}
+PASS predictor contract case=9 policy=1 BHT=16 BTB=16x1 RAS=4 queries=7871 stalls=1525 hits='{'h913, 'h584, 'h413, 'h847}
+PASS predictor contract: 10 configurations, 120000 cycles
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_predictor_contract_tb.sv:290: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 120ns; walltime 0.112 s; speed 1.076 us/s
+- Verilator: cpu 0.112 s on 1 threads; alloced 6 MB

@@ -1,0 +1,37 @@
+{
+  "base_commit": "99022745468c6a3d0def7273424cb82163ee8223",
+  "configuration": "rv32-balanced",
+  "reviewed_files": 74,
+  "changed_rtl_files": 11,
+  "hardware_behavior_changes": false,
+  "checks": {
+    "token_equivalence": "74 files plus renamed test function passed; two continuous-assignment moves explicitly allowed",
+    "verilator_lint": "passed",
+    "yosys_slang_read_hierarchy": "passed, not mapped synthesis or STA",
+    "fetch": "100 deliveries passed",
+    "cache_recovery_core": "84 passed",
+    "precise_exception": "40 passed",
+    "tage_scl": "36000 cycles passed across four SC/Loop combinations",
+    "icache_policy13": "2/4/8-way model comparisons passed",
+    "legacy_predictor_contract": "10 configurations, 120000 cycles passed with static policy and early target off",
+    "balanced_predictor_contract": "pre-existing failure reproduced on base commit; raw direction metadata and hybrid direction missing in old test model"
+  },
+  "ppa_rerun": false,
+  "microbench_rerun": false,
+  "commit_created": false,
+  "pushed": false,
+  "second_review": {
+    "baseline_artifact": "equivalence.json",
+    "latest_source_hashes": "recheck-equivalence.json",
+    "files_changed_since_first_review": [
+      "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv",
+      "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv"
+    ],
+    "change_scope": "whitespace and explanatory comments only",
+    "rtl_files_scanned_for_inline_if_for_bodies": 71,
+    "inline_if_for_bodies_remaining": 0,
+    "token_check": "74 files passed",
+    "lint": "passed with existing warnings; see recheck-lint.log",
+    "functional_tests_rerun": false
+  }
+}

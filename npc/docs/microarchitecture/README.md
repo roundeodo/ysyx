@@ -2,6 +2,7 @@
 
 当前 RV32 前端从[数据流与源码顺序](FRONTEND_REWRITE_DESIGN_RECORD.md)开始阅读。
 模块说明用于快速理解当前电路；实验过程与测量结果在 `verification/` 中维护。
+全目录命名、源码顺序及验证范围见[2026-10-04 可读性复查](../verification/RV32_READABILITY_2026-10-04.md)。
 预测器从[查询与训练结构](FETCH_PREDICTOR_DESIGN_RECORD.md)进入；可选的
 [BTB 准入与替换策略](BTB_POLICY_DESIGN.md)不改变查询寄存级，默认保持原策略。
 方向预测的可选[小型TAGE](TAGE_DESIGN.md)沿用同一查询响应级，默认关闭；

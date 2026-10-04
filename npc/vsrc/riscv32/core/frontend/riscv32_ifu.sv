@@ -254,8 +254,9 @@ module riscv32_ifu
   assign icache_lookup_response_handshake =
       icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
 
-  logic early_known, early_taken;
-  logic direct_known, direct_taken;
+  // 3a. 返回指令译码：B/J直接目标与可选返回地址预测并行。
+  logic early_control_flow_present, early_taken;
+  logic direct_control_flow_present, direct_taken;
   program_counter_t direct_target;
   logic instruction_is_return, return_rs1_link, return_rd_link;
   instruction_t returned_instruction;
@@ -266,11 +267,16 @@ module riscv32_ifu
       returned_instruction[14:12] == 3'b000 && returned_instruction[31:20] == 12'b0 &&
       return_rs1_link && (!return_rd_link || returned_instruction[11:7] != returned_instruction[19:15]);
   // 解析RAS可在返回响应被反压时变化；首次受阻才保留其当时值。
-  logic return_hold_present_q, return_hold_usable_q;
+  logic return_hold_present_q, return_hold_target_present_q;
   program_counter_t return_hold_pc_q;
-  logic selected_return_present;
+  logic selected_return_target_present;
   program_counter_t selected_return_pc;
+  // 3b. 返回栈快照：首次受阻才保存；同一响应交付或外部恢复时释放。
   if (riscv_config_pkg::BRANCH_EARLY_RAS) begin : g_return_hold
+    assign selected_return_target_present = return_hold_present_q ?
+        return_hold_target_present_q : early_return_present_i;
+    assign selected_return_pc = return_hold_present_q ? return_hold_pc_q : early_return_pc_i;
+
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni)
         return_hold_present_q <= 1'b0;
@@ -282,58 +288,58 @@ module riscv32_ifu
     always_ff @(posedge clk_i) begin
       if (fetch_entry_valid_o && !fetch_entry_ready_i && instruction_is_return &&
           !return_hold_present_q) begin
-        return_hold_usable_q <= early_return_present_i;
+        return_hold_target_present_q <= early_return_present_i;
         return_hold_pc_q <= early_return_pc_i;
       end
     end
-    assign selected_return_present = return_hold_present_q ?
-        return_hold_usable_q : early_return_present_i;
-    assign selected_return_pc = return_hold_present_q ? return_hold_pc_q : early_return_pc_i;
   end else begin : g_no_return_hold
     assign return_hold_present_q = 1'b0;
-    assign return_hold_usable_q = 1'b0;
+    assign return_hold_target_present_q = 1'b0;
     assign return_hold_pc_q = '0;
-    assign selected_return_present = 1'b0;
+    assign selected_return_target_present = 1'b0;
     assign selected_return_pc = '0;
   end
+  // 3c. 直接目标：指令立即数加PC，沿用请求时的方向计数器快照。
   program_counter_t early_target, original_next_pc;
   if (riscv_config_pkg::BRANCH_EARLY_TARGET) begin : g_early_target
     riscv32_direct_target u_direct_target (
         .pc_i(program_counter_t'(icache_lookup_resp_i.fetch_addr)),
         .instruction_i(icache_lookup_resp_i.fetch_data),
         .direction_counter_i(pending_prediction_q.raw_direction_counter),
-        .known_o(direct_known), .taken_o(direct_taken), .target_o(direct_target));
+        .known_o(direct_control_flow_present), .taken_o(direct_taken), .target_o(direct_target));
   end else begin : g_no_early_target
-    assign direct_known = 1'b0;
+    assign direct_control_flow_present = 1'b0;
     assign direct_taken = 1'b0;
     assign direct_target = '0;
   end
   always_comb begin
-    early_known = direct_known;
+    early_control_flow_present = direct_control_flow_present;
     early_taken = direct_taken;
     early_target = direct_target;
-    if (riscv_config_pkg::BRANCH_EARLY_RAS && instruction_is_return && selected_return_present) begin
-      early_known = 1'b1;
+    if (riscv_config_pkg::BRANCH_EARLY_RAS && instruction_is_return && selected_return_target_present) begin
+      early_control_flow_present = 1'b1;
       early_taken = 1'b1;
       early_target = selected_return_pc;
     end
   end
+  // 3d. 下一PC比较：交付当前指令时只取消年轻请求，外部恢复优先。
   assign early_next_pc = early_taken ? early_target :
       program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
   assign original_next_pc = pending_prediction_q.predicted_taken ?
       pending_prediction_q.predicted_target :
       program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
-  assign early_redirect_event = early_known && !icache_lookup_resp_i.access_fault &&
+  assign early_redirect_event = early_control_flow_present && !icache_lookup_resp_i.access_fault &&
       (!early_taken || early_target[1:0] == 2'b00) && early_next_pc != original_next_pc &&
       fetch_entry_valid_o && fetch_entry_ready_i;
 
+  // 3e. 响应交付：指令、异常与更新后的预测信息由此处统一打包。
   always_comb begin
     fetch_entry_o                 = '0;
     fetch_entry_o.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
     fetch_entry_o.instruction     = icache_lookup_resp_i.fetch_data;
     fetch_entry_o.frontend_tag    = icache_lookup_resp_i.frontend_tag;
     fetch_entry_o.prediction      = pending_prediction_q;
-    if (early_known && !icache_lookup_resp_i.access_fault &&
+    if (early_control_flow_present && !icache_lookup_resp_i.access_fault &&
         (!early_taken || early_target[1:0] == 2'b00)) begin
       fetch_entry_o.prediction.predicted_taken = early_taken;
       fetch_entry_o.prediction.predicted_target = early_taken ? early_target : '0;

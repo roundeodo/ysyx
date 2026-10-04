@@ -1,0 +1,63 @@
+{
+  "riscv32_tage_scl.sv": {
+    "query": "lookup_context",
+    "training": "training_context",
+    "alt": "alternate_taken",
+    "raw": "provider_taken",
+    "tage": "tage_taken",
+    "sum": "sc_sum",
+    "provider": "provider_index",
+    "index": "tagged_index_vector",
+    "tag": "tagged_tag_vector",
+    "sc_index": "sc_index_vector",
+    "index_fold_q": "index_fold_array_q",
+    "tag_fold_q": "tag_fold_array_q",
+    "tag_short_fold_q": "tag_short_fold_array_q",
+    "loop_present_q": "loop_present_array_q",
+    "loop_direction_q": "loop_direction_array_q",
+    "loop_pc_q": "loop_pc_array_q",
+    "loop_trip_q": "loop_trip_count_array_q",
+    "loop_current_q": "loop_iteration_count_array_q",
+    "loop_confidence_q": "loop_confidence_array_q",
+    "lookup_index_array": "lookup_index_vector",
+    "lookup_tag_array": "lookup_tag_vector",
+    "allocation_bank": "allocation_table_index",
+    "LENGTHS": "HISTORY_LENGTH_ARRAY",
+    "INDEX_BITS": "TAGGED_INDEX_BITS",
+    "step": "saturating_step",
+    "b": "table_index",
+    "i": "entry_index",
+    "offset": "state_bit_offset"
+  },
+  "riscv32_tage.sv": {
+    "allocation_bank": "allocation_bank_index"
+  },
+  "riscv32_icache_replacement.sv": {
+    "WAYS": "WAY_COUNT",
+    "SETS": "SET_COUNT",
+    "access_set": "access_set_index",
+    "access_way": "access_way_index",
+    "access_line": "access_line_addr",
+    "read_victim": "read_victim_index",
+    "update_node": "update_node_index",
+    "read_node": "read_node_index",
+    "BURST": "SEGMENT_REUSE",
+    "LEARNED": "REUSE_FEEDBACK",
+    "PATH_HISTORY": "PATH_SIGNATURE",
+    "burst_start": "segment_start"
+  },
+  "riscv32_ifu.sv": {
+    "early_known": "early_control_flow_present",
+    "direct_known": "direct_control_flow_present",
+    "return_hold_usable_q": "return_hold_target_present_q",
+    "selected_return_present": "selected_return_target_present"
+  },
+  "riscv32_direct_target.sv": {
+    "conditional": "conditional_branch",
+    "direct_jump": "jal_instruction",
+    "displacement": "branch_displacement"
+  },
+  "riscv32_branch_choice.sv": {
+    "dynamic_weak": "dynamic_counter_weak"
+  }
+}

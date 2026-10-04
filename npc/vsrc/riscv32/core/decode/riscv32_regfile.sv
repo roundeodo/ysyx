@@ -24,7 +24,7 @@ module riscv32_regfile
 
   // 架构提交和寄存器堆写入发生在同一个上升沿。提交事件被仿真器或Difftest观察到时，
   // gpr_array_q必须已经反映该条指令的架构结果，不能再延迟到下降半周期。同拍进入ID/EX的
-  // 消费者通过 operand_prepare 中的 WB 前递取得新值；后续由组合读口读取更新后的 GPR。
+  // 消费者通过 operand_mux 中的 WB 前递取得新值；后续由组合读口读取更新后的 GPR。
   // 寄存器内容无需复位，软件在读取前负责初始化；x0不在物理阵列中。
   always_ff @(posedge clk_i) begin
     if (gpr_write_enable_i && (gpr_write_addr_i != '0)) begin

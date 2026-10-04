@@ -42,7 +42,7 @@ module tage_scl_tb #(
           expected = value + (up ? 1 : -1);
           if (expected < lower_bounds[kind]) expected = lower_bounds[kind];
           if (expected > upper_bounds[kind]) expected = upper_bounds[kind];
-          assert (dut.step(value, 1'(up), lower_bounds[kind], upper_bounds[kind]) == expected)
+          assert (dut.saturating_step(value, 1'(up), lower_bounds[kind], upper_bounds[kind]) == expected)
             else $fatal(1, "Counter saturation mismatch kind=%0d value=%0d up=%0d", kind, value, up);
         end
       end

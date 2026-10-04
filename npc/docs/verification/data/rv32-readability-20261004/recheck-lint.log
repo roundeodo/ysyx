@@ -1,0 +1,672 @@
+make: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+# DO NOT REMOVE THIS LINE!!!
+verilator --lint-only -Wall -Wno-fatal \
+	+define+YSYX_RV32_BASELINE +define+YSYX_SIM_CPU_FREQ_MHZ=700 +define+YSYX_ICACHE_CAPACITY_BYTES=1024 +define+YSYX_ICACHE_WAY_COUNT=4 +define+YSYX_ICACHE_REPLACEMENT_POLICY=13 +define+YSYX_ICACHE_LINE_BYTES=32 +define+YSYX_DCACHE_ENABLE=1 +define+YSYX_DCACHE_CAPACITY_BYTES=256 +define+YSYX_DCACHE_WAY_COUNT=2 +define+YSYX_DCACHE_LINE_BYTES=16 +define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16 +define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16 +define+YSYX_BRANCH_TARGET_WAY_COUNT=2 +define+YSYX_BRANCH_TARGET_WAY_BITS=0 +define+YSYX_BRANCH_TARGET_POLICY=0 +define+YSYX_BRANCH_TARGET_INDEX_POLICY=0 +define+YSYX_BRANCH_TARGET_ADMISSION_POLICY=0 +define+YSYX_BRANCH_TAGE_BASE_ENTRIES=32 +define+YSYX_BRANCH_TAGE_TAGGED_ENTRIES=16 +define+YSYX_BRANCH_TAGE_TABLE_COUNT=3 +define+YSYX_BRANCH_TAGE_TAG_BITS=8 +define+YSYX_BRANCH_TAGE_HISTORY_BITS_0=3 +define+YSYX_BRANCH_TAGE_HISTORY_BITS_1=7 +define+YSYX_BRANCH_TAGE_HISTORY_BITS_2=16 +define+YSYX_BRANCH_SPEC_HISTORY=0 +define+YSYX_BRANCH_SC_ENABLE=0 +define+YSYX_BRANCH_LOOP_ENABLE=0 +define+YSYX_BRANCH_EARLY_RAS=0 +define+YSYX_BRANCH_EARLY_TARGET=1 +define+YSYX_BRANCH_STATIC_POLICY=2 +define+YSYX_BRANCH_DIRECTION_POLICY=0 +define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4 +define+YSYX_RETURN_STACK_ENTRY_COUNT=4 +define+YSYX_SDRAM_NATIVE_READ_BURST=1 \
+	--top-module top \
+	-f /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/filelist/filelist.f
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:170:8: Instance pin connected by name with empty reference: 'lookup_next_pc_o'
+  170 |       .lookup_next_pc_o               (),
+      |        ^~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.043
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/top.sv:48:8: Instance pin connected by name with empty reference: 'system_rst_no'
+   48 |       .system_rst_no           (),
+      |        ^~~~~~~~~~~~~
+%Warning-WIDTHEXPAND: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv:89:63: Operator COND expects 8 bits on the Conditional True, but Conditional True's SEL generates 4 bits.
+                                                                                                                              : ... note: In instance 'top.u_npc_system.u_core.u_icache_axi'
+   89 |         axi_manager_o.ar.len   = 8'(((state_q == REFILL_IDLE) ?
+      |                                                               ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.043
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv:89:63: Operator COND expects 8 bits on the Conditional False, but Conditional False's SEL generates 4 bits.
+                                                                                                                              : ... note: In instance 'top.u_npc_system.u_core.u_icache_axi'
+   89 |         axi_manager_o.ar.len   = 8'(((state_q == REFILL_IDLE) ?
+      |                                                               ^
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv:76:16: Bits of signal are not used: 'random_latency_seed'[31:16]
+                                                                                                                       : ... note: In instance 'top.u_sim_mem'
+   76 |   int unsigned random_latency_seed;
+      |                ^~~~~~~~~~~~~~~~~~~
+                       ... For warning description see https://verilator.org/warn/UNUSEDSIGNAL?v=5.043
+                       ... Use "/* verilator lint_off UNUSEDSIGNAL */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:9:37: Bits of signal are not used: 'instruction_manager_i'[139:51]
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_axi4_arbiter'
+    9 |     input  axi4_manager_to_target_t instruction_manager_i,
+      |                                     ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv:22:37: Bits of signal are not used: 'axi_manager_i'[49:41]
+                                                                                                                               : ... note: In instance 'top.u_npc_system.u_core.u_icache_axi'
+   22 |     input  axi4_target_to_manager_t axi_manager_i
+      |                                     ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv:40:14: Bits of signal are not used: 'lookup_memory_attr'[5:4,1:0]
+                                                                                                                           : ... note: In instance 'top.u_npc_system.u_core.u_icache'
+   40 |   pma_attr_t lookup_memory_attr;
+      |              ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv:57:24: Bits of signal are not used: 'miss_unit_events'[9:6,4,0]
+                                                                                                                           : ... note: In instance 'top.u_npc_system.u_core.u_icache'
+   57 |   icache_event_t       miss_unit_events;
+      |                        ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv:72:15: Signal is not used: 'array_read_rrpv_array'
+                                                                                                                           : ... note: In instance 'top.u_npc_system.u_core.u_icache'
+   72 |   logic [1:0] array_read_rrpv_array [ICACHE_WAY_COUNT];
+      |               ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv:110:68: Bits of signal are not used: 'addr'[7:0]
+                                                                                                                            : ... note: In instance 'top.u_npc_system.u_core.u_icache'
+  110 |   function automatic icache_tag_t get_icache_tag(input phys_addr_t addr);
+      |                                                                    ^~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:40:22: Bits of signal are not used: 'request_memory_attr'[3,1:0]
+                                                                                                                           : ... note: In instance 'top.u_npc_system.u_core.u_data_mem'
+   40 |   pma_attr_t         request_memory_attr;
+      |                      ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv:21:30: Bits of signal are not used: 'trap_pc_i'[1:0]
+                                                                                                                              : ... note: In instance 'top.u_npc_system.u_core.u_csr_file'
+   21 |     input  program_counter_t trap_pc_i,
+      |                              ^~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv:34:31: Bits of signal are not used: 'resolved_control_flow_prediction_i'[239:205]
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor'
+   34 |     input branch_prediction_t resolved_control_flow_prediction_i,
+      |                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv:162:16: Bits of signal are not used: 'conditional_displacement'[11:0]
+                                                                                                                                      : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor'
+  162 |   logic [12:0] conditional_displacement;
+      |                ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:22:31: Bits of signal are not used: 'data_memory_resp_i'[3:0]
+                                                                                                                      : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+   22 |     input  data_memory_resp_t data_memory_resp_i,
+      |                               ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:90:71: Bits of signal are not used: 'request'[95:64,31:0]
+                                                                                                                      : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+   90 |   function automatic logic request_address_misaligned(input lsu_req_t request);
+      |                                                                       ^~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:99:90: Bits of signal are not used: 'addr'[31:2]
+                                                                                                                      : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+   99 |   function automatic core_byte_strobe_t request_store_byte_strobe(input effective_addr_t addr,
+      |                                                                                          ^~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:113:30: Bits of signal are not used: 'addr'[31:2]
+                                                                                                                       : ... note: In instance 'top.u_npc_system.u_core.u_lsu'
+  113 |       input effective_addr_t addr, input mem_size_e size, input xlen_data_t store_data);
+      |                              ^~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/writeback/riscv32_commit.sv:4:31: Bits of signal are not used: 'writeback_result_i'[132]
+                                                                                                                           : ... note: In instance 'top.u_npc_system.u_core.u_commit'
+    4 |     input  writeback_result_t writeback_result_i,
+      |                               ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv:10:27: Bits of signal are not used: 'commit_i'[321:290,257:70,68:3]
+                                                                                                                                : ... note: In instance 'top.u_npc_system.u_core.u_fence_i_ctrl'
+   10 |     input  commit_t       commit_i,
+      |                           ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:37:30: Bits of signal are not used: 'resolved_control_flow_pc_i'[31:8,1:0]
+                                                                                                                           : ... note: In instance 'top.u_npc_system.u_core.u_sim_perf_monitor'
+   37 |     input  program_counter_t resolved_control_flow_pc_i,
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv:9:27: Bits of signal are not used: 'commit_i'[353:322,289:258,256:252,219:70,68:0]
+                                                                                                                                  : ... note: In instance 'top.u_npc_system.u_core.u_sim_issue_window_monitor'
+    9 |     input  commit_t       commit_i,
+      |                           ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv:18:27: Bits of signal are not used: 'icache_event_i'[9:6,4:0]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_sim_issue_window_monitor'
+   18 |     input  icache_event_t icache_event_i,
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv:19:27: Bits of signal are not used: 'dcache_event_i'[13:8,5:0]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_sim_issue_window_monitor'
+   19 |     input  dcache_event_t dcache_event_i
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv:35:16: Bits of signal are not used: 'category_index'[31:3]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_sim_issue_window_monitor'
+   35 |   int unsigned category_index;
+      |                ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv:11:26: Bits of signal are not used: 'redirect_req_i'[41:0]
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_ifu'
+   11 |     input redirect_req_t redirect_req_i,
+      |                          ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv:16:17: Signal is not used: 'early_return_present_i'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_ifu'
+   16 |     input logic early_return_present_i,
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv:17:29: Signal is not used: 'early_return_pc_i'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_ifu'
+   17 |     input program_counter_t early_return_pc_i,
+      |                             ^~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv:270:9: Signal is not used: 'return_hold_present_q'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_ifu'
+  270 |   logic return_hold_present_q, return_hold_target_present_q;
+      |         ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv:270:32: Signal is not used: 'return_hold_target_present_q'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_ifu'
+  270 |   logic return_hold_present_q, return_hold_target_present_q;
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv:271:21: Signal is not used: 'return_hold_pc_q'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_ifu'
+  271 |   program_counter_t return_hold_pc_q;
+      |                     ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv:13:30: Bits of signal are not used: 'commit_i'[353:290,257:70,68:0]
+                                                                                                                                  : ... note: In instance 'top.u_npc_system.u_core.u_interrupt_ctrl'
+   13 |     input  commit_t          commit_i,
+      |                              ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv:15:30: Bits of signal are not used: 'redirect_i'[41:0]
+                                                                                                                                  : ... note: In instance 'top.u_npc_system.u_core.u_interrupt_ctrl'
+   15 |     input  redirect_req_t    redirect_i,
+      |                              ^~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv:22:17: Signal is not used: 'age_valid_i'
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_icache.u_riscv32_icache_tag_array'
+   22 |     input logic age_valid_i,
+      |                 ^~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv:23:30: Signal is not used: 'age_set_index_i'
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_icache.u_riscv32_icache_tag_array'
+   23 |     input icache_set_index_t age_set_index_i,
+      |                              ^~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv:24:23: Signal is not used: 'age_amount_i'
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_icache.u_riscv32_icache_tag_array'
+   24 |     input logic [1:0] age_amount_i,
+      |                       ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv:25:17: Signal is not used: 'hit_valid_i'
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_icache.u_riscv32_icache_tag_array'
+   25 |     input logic hit_valid_i,
+      |                 ^~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv:26:30: Signal is not used: 'hit_set_index_i'
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_icache.u_riscv32_icache_tag_array'
+   26 |     input icache_set_index_t hit_set_index_i,
+      |                              ^~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv:27:33: Signal is not used: 'hit_way_vector_i'
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_icache.u_riscv32_icache_tag_array'
+   27 |     input logic [WAY_COUNT-1:0] hit_way_vector_i,
+      |                                 ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv:28:17: Signal is not used: 'retired_valid_i'
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_icache.u_riscv32_icache_tag_array'
+   28 |     input logic retired_valid_i,
+      |                 ^~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv:29:29: Signal is not used: 'retired_pc_i'
+                                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_icache.u_riscv32_icache_tag_array'
+   29 |     input program_counter_t retired_pc_i,
+      |                             ^~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv:11:38: Bits of signal are not used: 'lookup_pc_i'[31:6,1:0]
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_bht'
+   11 |     input  program_counter_t         lookup_pc_i,
+      |                                      ^~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv:14:38: Bits of signal are not used: 'training_pc_i'[31:6,1:0]
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_bht'
+   14 |     input  program_counter_t         training_pc_i,
+      |                                      ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv:17:38: Signal is not used: 'training_context_i'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_bht'
+   17 |     input  direction_context_t       training_context_i,
+      |                                      ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv:18:38: Signal is not used: 'lookup_handshake_i'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_bht'
+   18 |     input  logic                     lookup_handshake_i,
+      |                                      ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv:19:38: Signal is not used: 'lookup_conditional_i'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_bht'
+   19 |     input  logic                     lookup_conditional_i,
+      |                                      ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv:20:38: Signal is not used: 'lookup_taken_i'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_bht'
+   20 |     input  logic                     lookup_taken_i,
+      |                                      ^~~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv:21:38: Signal is not used: 'flush_i'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_bht'
+   21 |     input  logic                     flush_i,
+      |                                      ^~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv:46:28: Signal is not used: 'history'
+                                                                                                                        : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_bht'
+   46 |   logic [HISTORY_BITS-1:0] history;
+      |                            ^~~~~~~
+%Warning-UNDRIVEN: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv:73:39: Signal is not driven: 'reuse_array_q'
+                                                                                                                    : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_btb'
+   73 |       logic       [              1:0] reuse_array_q          [SET_COUNT] [BTB_WAY_COUNT];
+      |                                       ^~~~~~~~~~~~~
+                   ... For warning description see https://verilator.org/warn/UNDRIVEN?v=5.043
+                   ... Use "/* verilator lint_off UNDRIVEN */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv:121:25: Signal is not used: 'age_amount'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_branch_predictor.u_btb'
+  121 |       logic       [1:0] age_amount;
+      |                         ^~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:55:33: Bits of signal are not used: 'refill_resp_i'[3:0]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit'
+   55 |     input  dcache_refill_resp_t refill_resp_i,
+      |                                 ^~~~~~~~~~~~~
+%Warning-UNUSEDSIGNAL: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:64:36: Bits of signal are not used: 'writeback_resp_i'[3:0]
+                                                                                                                                   : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit'
+   64 |     input  dcache_writeback_resp_t writeback_resp_i,
+      |                                    ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:14:27: Parameter is not used: 'CLINT_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   14 |   localparam int unsigned CLINT_SIZE_BYTES = 32'h0001_0000;
+      |                           ^~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/UNUSEDPARAM?v=5.043
+                      ... Use "/* verilator lint_off UNUSEDPARAM */" and lint_on around source to disable this message.
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:15:26: Parameter is not used: 'CLINT_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   15 |   localparam phys_addr_t CLINT_ADDR_MATCH_MASK = 32'hffff_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:26:27: Parameter is not used: 'SRAM_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   26 |   localparam int unsigned SRAM_SIZE_BYTES = 32'h0000_2000;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:27:26: Parameter is not used: 'SRAM_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   27 |   localparam phys_addr_t SRAM_ADDR_MATCH_MASK = 32'hffff_e000;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:31:27: Parameter is not used: 'UART_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   31 |   localparam int unsigned UART_SIZE_BYTES = 32'h0000_1000;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:32:26: Parameter is not used: 'UART_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   32 |   localparam phys_addr_t UART_ADDR_MATCH_MASK = 32'hffff_f000;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:36:27: Parameter is not used: 'SPI_REG_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   36 |   localparam int unsigned SPI_REG_SIZE_BYTES = 32'h0000_1000;
+      |                           ^~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:37:26: Parameter is not used: 'SPI_REG_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   37 |   localparam phys_addr_t SPI_REG_ADDR_MATCH_MASK = 32'hffff_f000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:41:27: Parameter is not used: 'GPIO_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   41 |   localparam int unsigned GPIO_SIZE_BYTES = 32'h0000_0010;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:42:26: Parameter is not used: 'GPIO_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   42 |   localparam phys_addr_t GPIO_ADDR_MATCH_MASK = 32'hffff_fff0;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:46:27: Parameter is not used: 'PS2_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   46 |   localparam int unsigned PS2_SIZE_BYTES = 32'h0000_0008;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:47:26: Parameter is not used: 'PS2_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   47 |   localparam phys_addr_t PS2_ADDR_MATCH_MASK = 32'hffff_fff8;
+      |                          ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:51:27: Parameter is not used: 'MROM_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   51 |   localparam int unsigned MROM_SIZE_BYTES = 32'h0000_1000;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:52:26: Parameter is not used: 'MROM_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   52 |   localparam phys_addr_t MROM_ADDR_MATCH_MASK = 32'hffff_f000;
+      |                          ^~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:56:27: Parameter is not used: 'VGA_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   56 |   localparam int unsigned VGA_SIZE_BYTES = 32'h0020_0000;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:57:26: Parameter is not used: 'VGA_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   57 |   localparam phys_addr_t VGA_ADDR_MATCH_MASK = 32'hffe0_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:61:27: Parameter is not used: 'FLASH_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   61 |   localparam int unsigned FLASH_SIZE_BYTES = 32'h1000_0000;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:62:26: Parameter is not used: 'FLASH_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   62 |   localparam phys_addr_t FLASH_ADDR_MATCH_MASK = 32'hf000_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:68:27: Parameter is not used: 'CHIPLINK_MMIO_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   68 |   localparam int unsigned CHIPLINK_MMIO_SIZE_BYTES = 32'h4000_0000;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:69:26: Parameter is not used: 'CHIPLINK_MMIO_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   69 |   localparam phys_addr_t CHIPLINK_MMIO_ADDR_MATCH_MASK = 32'hc000_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:73:27: Parameter is not used: 'PSRAM_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   73 |   localparam int unsigned PSRAM_SIZE_BYTES = 32'h0040_0000;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:74:26: Parameter is not used: 'PSRAM_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   74 |   localparam phys_addr_t PSRAM_ADDR_MATCH_MASK = 32'hffc0_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:78:27: Parameter is not used: 'SDRAM_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   78 |   localparam int unsigned SDRAM_SIZE_BYTES = 32'h0200_0000;
+      |                           ^~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:79:26: Parameter is not used: 'SDRAM_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   79 |   localparam phys_addr_t SDRAM_ADDR_MATCH_MASK = 32'hfe00_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:83:27: Parameter is not used: 'CHIPLINK_MEMORY_SIZE_BYTES'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   83 |   localparam int unsigned CHIPLINK_MEMORY_SIZE_BYTES = 32'h4000_0000;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv:84:26: Parameter is not used: 'CHIPLINK_MEMORY_ADDR_MATCH_MASK'
+                                                                                                                         : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   84 |   localparam phys_addr_t CHIPLINK_MEMORY_ADDR_MATCH_MASK = 32'hc000_0000;
+      |                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:17:27: Parameter is not used: 'CONFIG_SELECTION_COUNT'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   17 |   localparam int unsigned CONFIG_SELECTION_COUNT = 1;
+      |                           ^~~~~~~~~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:58:27: Parameter is not used: 'XLEN_BYTE_COUNT'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   58 |   localparam int unsigned XLEN_BYTE_COUNT = XLEN / 8;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:70:27: Parameter is not used: 'FETCH_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   70 |   localparam int unsigned FETCH_WIDTH = 1;
+      |                           ^~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:71:27: Parameter is not used: 'DECODE_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   71 |   localparam int unsigned DECODE_WIDTH = 1;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:73:27: Parameter is not used: 'RENAME_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   73 |   localparam int unsigned RENAME_WIDTH = 1;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:74:27: Parameter is not used: 'DISPATCH_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   74 |   localparam int unsigned DISPATCH_WIDTH = 1;
+      |                           ^~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:75:27: Parameter is not used: 'COMMIT_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   75 |   localparam int unsigned COMMIT_WIDTH = 1;
+      |                           ^~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:76:27: Parameter is not used: 'INT_ISSUE_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   76 |   localparam int unsigned INT_ISSUE_WIDTH = 1;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:77:27: Parameter is not used: 'MEM_ISSUE_WIDTH'
+                                                                                                                     : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+   77 |   localparam int unsigned MEM_ISSUE_WIDTH = 1;
+      |                           ^~~~~~~~~~~~~~~
+%Warning-UNUSEDPARAM: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv:212:27: Parameter is not used: 'DCACHE_MSHR_COUNT'
+                                                                                                                      : ... note: In instance 'top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_cache_wait_monitor'
+  212 |   localparam int unsigned DCACHE_MSHR_COUNT = 1;
+      |                           ^~~~~~~~~~~~~~~~~
+%Warning-UNOPTFLAT: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv:63:9: Signal unoptimizable: Circular combinational logic: 'top.u_npc_system.u_core.u_data_mem.u_uncached_axi.new_request_window_open'
+   63 |   logic new_request_window_open;
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/UNOPTFLAT?v=5.043
+                    ... Use "/* verilator lint_off UNOPTFLAT */" and lint_on around source to disable this message.
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv:63:9:      Example path: top.u_npc_system.u_core.u_data_mem.u_uncached_axi.new_request_window_open
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: __VdfgRegularize_he50b618e_0_33
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: top.u_npc_system.data_axi4_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:26:20:      Example path: top.u_npc_system.u_axi4_arbiter.selected_read_requester
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: __VdfgRegularize_he50b618e_0_53
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: __VdfgRegularize_he50b618e_0_41
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: top.u_npc_system.u_core.data_memory_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:244:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:64:22:      Example path: top.u_npc_system.u_core.u_lsu.memory_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:294:33:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:288:22:      Example path: top.u_npc_system.u_core.lsu_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: top.u_npc_system.u_core.__Vcellinp__u_hazard_ctrl__lsu_completion_succeeded_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: top.u_npc_system.u_core.structural_hazard_present
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: top.u_npc_system.u_core.execute_progress_allowed
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: top.u_npc_system.u_core.u_exu.__VdfgRegularize_he55ea976_0_2
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: top.u_npc_system.u_core.lsu_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: top.u_npc_system.u_core.__Vcellinp__u_sim_perf_monitor__lsu_request_event_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: top.u_npc_system.u_core.data_memory_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: top.u_npc_system.u_core.u_data_mem.__VdfgRegularize_hb430599b_0_1
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_23
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_32
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_24
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+%Warning-UNOPTFLAT: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:35:9: Signal unoptimizable: Circular combinational logic: 'top.u_npc_system.u_axi4_arbiter.read_last_handshake'
+   35 |   logic read_last_handshake;
+      |         ^~~~~~~~~~~~~~~~~~~
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:35:9:      Example path: top.u_npc_system.u_axi4_arbiter.read_last_handshake
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:26:20:      Example path: top.u_npc_system.u_axi4_arbiter.selected_read_requester
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: __VdfgRegularize_he50b618e_0_53
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: __VdfgRegularize_he50b618e_0_41
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: top.u_npc_system.u_core.data_memory_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:244:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:64:22:      Example path: top.u_npc_system.u_core.u_lsu.memory_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:294:33:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:288:22:      Example path: top.u_npc_system.u_core.lsu_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: top.u_npc_system.u_core.__Vcellinp__u_hazard_ctrl__lsu_completion_succeeded_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: top.u_npc_system.u_core.structural_hazard_present
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: top.u_npc_system.u_core.execute_progress_allowed
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: top.u_npc_system.u_core.u_exu.__VdfgRegularize_he55ea976_0_2
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: top.u_npc_system.u_core.lsu_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: top.u_npc_system.u_core.__Vcellinp__u_sim_perf_monitor__lsu_request_event_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: top.u_npc_system.u_core.data_memory_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: top.u_npc_system.u_core.u_data_mem.__VdfgRegularize_hb430599b_0_1
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_23
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_32
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_24
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: __VdfgRegularize_he50b618e_0_33
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: top.u_npc_system.data_axi4_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+%Warning-UNOPTFLAT: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28: Signal unoptimizable: Circular combinational logic: 'top.u_npc_system.u_core.u_data_mem.uncached_req_valid'
+   54 |   logic                    uncached_req_valid;
+      |                            ^~~~~~~~~~~~~~~~~~
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_23
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_32
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_24
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: __VdfgRegularize_he50b618e_0_33
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: top.u_npc_system.data_axi4_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:26:20:      Example path: top.u_npc_system.u_axi4_arbiter.selected_read_requester
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: __VdfgRegularize_he50b618e_0_53
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: __VdfgRegularize_he50b618e_0_41
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: top.u_npc_system.u_core.data_memory_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:244:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:64:22:      Example path: top.u_npc_system.u_core.u_lsu.memory_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:294:33:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:288:22:      Example path: top.u_npc_system.u_core.lsu_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: top.u_npc_system.u_core.__Vcellinp__u_hazard_ctrl__lsu_completion_succeeded_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: top.u_npc_system.u_core.structural_hazard_present
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: top.u_npc_system.u_core.execute_progress_allowed
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: top.u_npc_system.u_core.u_exu.__VdfgRegularize_he55ea976_0_2
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: top.u_npc_system.u_core.lsu_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: top.u_npc_system.u_core.__Vcellinp__u_sim_perf_monitor__lsu_request_event_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: top.u_npc_system.u_core.data_memory_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: top.u_npc_system.u_core.u_data_mem.__VdfgRegularize_hb430599b_0_1
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_req_valid
+%Warning-UNOPTFLAT: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:147:75: Signal unoptimizable: Circular combinational logic: 'top.u_npc_system.u_local_address_router.__VdfgRegularize_h06703aa3_0_4'
+  147 |     assign target_manager_array_o[target].aw_valid = write_address_window &&
+      |                                                                           ^~
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:147:75:      Example path: top.u_npc_system.u_local_address_router.__VdfgRegularize_h06703aa3_0_4
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:165:95:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:165:95:      Example path: top.u_npc_system.u_local_address_router.__VdfgRegularize_h06703aa3_0_12
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:63:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:63:28:      Example path: top.u_npc_system.merged_axi4_manager_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv:99:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv:99:27:      Example path: top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.refill_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:132:40:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:106:15:      Example path: top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.refill_word_after_store_merge
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:147:62:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:147:62:      Example path: __VdfgRegularize_h6e95ff9d_0_24
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:47:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:47:28:      Example path: top.u_npc_system.u_core.u_data_mem.dcache_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: top.u_npc_system.u_core.data_memory_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:244:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:64:22:      Example path: top.u_npc_system.u_core.u_lsu.memory_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:294:33:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:288:22:      Example path: top.u_npc_system.u_core.lsu_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: top.u_npc_system.u_core.__Vcellinp__u_hazard_ctrl__lsu_completion_succeeded_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: top.u_npc_system.u_core.structural_hazard_present
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: top.u_npc_system.u_core.execute_progress_allowed
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: top.u_npc_system.u_core.u_exu.__VdfgRegularize_he55ea976_0_2
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: top.u_npc_system.u_core.lsu_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: top.u_npc_system.u_core.__Vcellinp__u_sim_perf_monitor__lsu_request_event_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: top.u_npc_system.u_core.data_memory_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: top.u_npc_system.u_core.u_data_mem.__VdfgRegularize_hb430599b_0_1
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_23
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_32
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_24
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: __VdfgRegularize_he50b618e_0_33
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: top.u_npc_system.data_axi4_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:26:20:      Example path: top.u_npc_system.u_axi4_arbiter.selected_read_requester
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: __VdfgRegularize_he50b618e_0_53
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: __VdfgRegularize_he50b618e_0_41
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+%Warning-UNOPTFLAT: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:141:74: Signal unoptimizable: Circular combinational logic: 'top.u_sim_address_router.__VdfgRegularize_h666d9b92_0_2'
+  141 |     assign target_manager_array_o[target].ar_valid = read_address_window &&
+      |                                                                          ^~
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:141:74:      Example path: top.u_sim_address_router.__VdfgRegularize_h666d9b92_0_2
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:142:39:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:142:39:      Example path: __VdfgRegularize_he50b618e_0_3
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv:11:37:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv:11:37:      Example path: top.__Vcellinp__u_uart_sim__uart_axi_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv:12:37:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv:12:37:      Example path: top.__Vcellout__u_uart_sim__uart_axi_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/top.sv:73:45:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/top.sv:41:28:      Example path: top.sim_target_response_array
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:160:93:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:160:93:      Example path: __VdfgRegularize_he50b618e_0_75
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:160:60:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_router.sv:160:60:      Example path: __VdfgRegularize_he50b618e_0_82
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/top.sv:38:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/top.sv:38:28:      Example path: top.npc_external_axi4_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:120:45:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:66:28:      Example path: top.u_npc_system.local_target_manager_response_array
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:63:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:63:28:      Example path: top.u_npc_system.merged_axi4_manager_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv:99:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv:99:27:      Example path: top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.refill_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:132:40:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:106:15:      Example path: top.u_npc_system.u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.refill_word_after_store_merge
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:147:62:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv:147:62:      Example path: __VdfgRegularize_h6e95ff9d_0_24
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:47:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:47:28:      Example path: top.u_npc_system.u_core.u_data_mem.dcache_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: top.u_npc_system.u_core.data_memory_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:244:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:64:22:      Example path: top.u_npc_system.u_core.u_lsu.memory_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_lsu.sv:294:33:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:288:22:      Example path: top.u_npc_system.u_core.lsu_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: top.u_npc_system.u_core.__Vcellinp__u_hazard_ctrl__lsu_completion_succeeded_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:298:22:      Example path: top.u_npc_system.u_core.structural_hazard_present
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:292:22:      Example path: top.u_npc_system.u_core.execute_progress_allowed
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/execute/riscv32_exu.sv:203:54:      Example path: top.u_npc_system.u_core.u_exu.__VdfgRegularize_he55ea976_0_2
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:435:13:      Example path: top.u_npc_system.u_core.lsu_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv:41:22:      Example path: top.u_npc_system.u_core.__Vcellinp__u_sim_perf_monitor__lsu_request_event_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:472:22:      Example path: top.u_npc_system.u_core.data_memory_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:97:31:      Example path: top.u_npc_system.u_core.u_data_mem.__VdfgRegularize_hb430599b_0_1
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:54:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_req_valid
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_23
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_32
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgSynthAssign_top.u_npc_system.u_core.u_data_mem.uncached_axi_manager_h6e95ff9d_0_24
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:59:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:165:59:      Example path: __VdfgRegularize_he50b618e_0_33
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_npc_system.sv:59:28:      Example path: top.u_npc_system.data_axi4_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:26:20:      Example path: top.u_npc_system.u_axi4_arbiter.selected_read_requester
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv:86:56:      Example path: __VdfgRegularize_he50b618e_0_53
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:175:72:      Example path: __VdfgRegularize_he50b618e_0_41
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:60:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_axi_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv:56:28:      Example path: top.u_npc_system.u_core.u_data_mem.uncached_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+- V e r i l a t i o n   R e p o r t: Verilator 5.043 devel rev v5.042-244-g4080284e5
+- Verilator: Built from 24.252 MB sources in 66 modules, into 3.071 MB in 7 C++ files needing 0.000 MB
+- Verilator: Walltime 0.657 s (elab=0.081, cvt=0.467, bld=0.000); cpu 0.656 s on 1 threads; alloced 48.973 MB
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'

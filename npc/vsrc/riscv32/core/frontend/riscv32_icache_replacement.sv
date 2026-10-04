@@ -5,62 +5,63 @@ module riscv32_icache_replacement
 #(
     parameter int unsigned POLICY = riscv_config_pkg::ICACHE_REPLACEMENT_POLICY
 ) (
-    input  logic                             clk_i,
-    input  logic                             rst_ni,
-    input  logic                             invalidate_i,
-    input  logic                             read_enable_i,
-    input  icache_set_index_t                read_set_i,
-    output icache_way_index_t                read_victim_o,
-    input  logic                             hit_i,
-    input  logic [ICACHE_WAY_COUNT-1:0]      hit_way_vector_i,
-    input  logic                             allocate_i,
-    input  icache_way_index_t                allocate_way_i,
-    input  logic                             victim_present_i,
-    input  phys_addr_t                       access_addr_i
+    input  logic                                     clk_i,
+    input  logic                                     rst_ni,
+    input  logic                                     invalidate_i,
+    input  logic                                     read_enable_i,
+    input  icache_set_index_t                        read_set_i,
+    output icache_way_index_t                        read_victim_o,
+    input  logic                                     hit_i,
+    input  logic              [ICACHE_WAY_COUNT-1:0] hit_way_vector_i,
+    input  logic                                     allocate_i,
+    input  icache_way_index_t                        allocate_way_i,
+    input  logic                                     victim_present_i,
+    input  phys_addr_t                               access_addr_i
 );
-  localparam int unsigned WAYS = ICACHE_WAY_COUNT;
-  localparam int unsigned SETS = ICACHE_SET_COUNT;
-  localparam int unsigned WAY_BITS = $clog2(WAYS);
+  localparam int unsigned WAY_COUNT = ICACHE_WAY_COUNT;
+  localparam int unsigned SET_COUNT = ICACHE_SET_COUNT;
+  localparam int unsigned WAY_BITS = $clog2(WAY_COUNT);
   localparam int unsigned LINE_ADDR_BITS = PADDR_WIDTH - ICACHE_LINE_OFFSET_W;
 
   initial begin
-    if (WAYS < 2 || POLICY < 4 || POLICY > 16)
+    if (WAY_COUNT < 2 || POLICY < 4 || POLICY > 16)
       $fatal(1, "replacement experiment requires policy4..16 and multiple ways");
   end
 
   // 同一个S1槽只产生hit或分配事件。按实际握手更新，不按valid重复更新。
-  logic access_event;
-  icache_set_index_t access_set;
-  icache_way_index_t access_way;
-  logic [LINE_ADDR_BITS-1:0] access_line;
+  logic                                   access_event;
+  icache_set_index_t                      access_set_index;
+  icache_way_index_t                      access_way_index;
+  logic              [LINE_ADDR_BITS-1:0] access_line_addr;
   assign access_event = hit_i || allocate_i;
-  assign access_set = (SETS == 1) ? '0 : icache_set_index_t'(access_addr_i >> ICACHE_LINE_OFFSET_W);
-  assign access_line = access_addr_i[PADDR_WIDTH-1:ICACHE_LINE_OFFSET_W];
+  assign access_set_index = (SET_COUNT == 1) ? '0 :
+      icache_set_index_t'(access_addr_i >> ICACHE_LINE_OFFSET_W);
+  assign access_line_addr = access_addr_i[PADDR_WIDTH-1:ICACHE_LINE_OFFSET_W];
   always_comb begin
-    access_way = allocate_way_i;
+    access_way_index = allocate_way_i;
     if (hit_i) begin
-      for (int way = 0; way < WAYS; way++) begin
+      for (int way = 0; way < WAY_COUNT; way++) begin
         if (hit_way_vector_i[way])
-          access_way = icache_way_index_t'(way);
+          access_way_index = icache_way_index_t'(way);
       end
     end
   end
 
   generate
-    if ((POLICY == 4 || POLICY == 5) && WAYS == 2) begin : g_two_way_lru
-      logic victim_array_q[SETS];
-      logic victim_array_d[SETS];
+    if ((POLICY == 4 || POLICY == 5) && WAY_COUNT == 2) begin : g_two_way_lru
+      logic victim_array_q[SET_COUNT];
+      logic victim_array_d[SET_COUNT];
       always_comb begin
-        for (int set_index = 0; set_index < SETS; set_index++) begin
+        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
           victim_array_d[set_index] = victim_array_q[set_index];
-          if (access_event && access_set == icache_set_index_t'(set_index))
-            victim_array_d[set_index] = !access_way[0];
+          if (access_event && access_set_index == icache_set_index_t'(set_index))
+            victim_array_d[set_index] = !access_way_index[0];
         end
       end
       always_ff @(posedge clk_i) begin
         if (read_enable_i)
           read_victim_o <= icache_way_index_t'(victim_array_d[read_set_i]);
-        for (int set_index = 0; set_index < SETS; set_index++) begin
+        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
           if (!rst_ni || invalidate_i)
             victim_array_q[set_index] <= 1'b0;
           else
@@ -68,69 +69,69 @@ module riscv32_icache_replacement
         end
       end
     end else if (POLICY == 4) begin : g_lru
-      logic [WAY_BITS-1:0] age_array_q[SETS][WAYS];
-      logic [WAY_BITS-1:0] age_array_d[SETS][WAYS];
-      icache_way_index_t read_victim;
+      logic              [WAY_BITS-1:0] age_array_q       [SET_COUNT][WAY_COUNT];
+      logic              [WAY_BITS-1:0] age_array_d       [SET_COUNT][WAY_COUNT];
+      icache_way_index_t                read_victim_index;
 
       always_comb begin
-        for (int set_index = 0; set_index < SETS; set_index++) begin
-          for (int way = 0; way < WAYS; way++) begin
+        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+          for (int way = 0; way < WAY_COUNT; way++) begin
             age_array_d[set_index][way] = age_array_q[set_index][way];
-            if (access_event && access_set == icache_set_index_t'(set_index)) begin
-              if (access_way == icache_way_index_t'(way))
+            if (access_event && access_set_index == icache_set_index_t'(set_index)) begin
+              if (access_way_index == icache_way_index_t'(way))
                 age_array_d[set_index][way] = '0;
-              else if (age_array_q[set_index][way] < age_array_q[set_index][access_way])
+              else if (age_array_q[set_index][way] < age_array_q[set_index][access_way_index])
                 age_array_d[set_index][way] = age_array_q[set_index][way] + 1'b1;
             end
           end
         end
-        read_victim = '0;
-        for (int way = 1; way < WAYS; way++) begin
-          if (age_array_d[read_set_i][way] > age_array_d[read_set_i][read_victim])
-            read_victim = icache_way_index_t'(way);
+        read_victim_index = '0;
+        for (int way = 1; way < WAY_COUNT; way++) begin
+          if (age_array_d[read_set_i][way] > age_array_d[read_set_i][read_victim_index])
+            read_victim_index = icache_way_index_t'(way);
         end
       end
       always_ff @(posedge clk_i) begin
         if (read_enable_i)
-          read_victim_o <= read_victim;
-        for (int set_index = 0; set_index < SETS; set_index++) begin
-          for (int way = 0; way < WAYS; way++) begin
+          read_victim_o <= read_victim_index;
+        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+          for (int way = 0; way < WAY_COUNT; way++) begin
             if (!rst_ni || invalidate_i)
-              age_array_q[set_index][way] <= WAY_BITS'(WAYS - 1);
+              age_array_q[set_index][way] <= WAY_BITS'(WAY_COUNT - 1);
             else
               age_array_q[set_index][way] <= age_array_d[set_index][way];
           end
         end
       end
     end else if (POLICY == 5) begin : g_plru
-      logic [WAYS-2:0] tree_array_q[SETS];
-      logic [WAYS-2:0] tree_array_d[SETS];
-      icache_way_index_t read_victim;
-      integer update_node, read_node;
+      logic              [WAY_COUNT-2:0] tree_array_q      [SET_COUNT];
+      logic              [WAY_COUNT-2:0] tree_array_d      [SET_COUNT];
+      icache_way_index_t                 read_victim_index;
+      integer update_node_index, read_node_index;
       logic direction;
 
       always_comb begin
-        for (int set_index = 0; set_index < SETS; set_index++)
+        for (int set_index = 0; set_index < SET_COUNT; set_index++)
           tree_array_d[set_index] = tree_array_q[set_index];
-        update_node = 0;
+        update_node_index = 0;
         for (int depth = 0; depth < WAY_BITS; depth++) begin
           if (access_event)
-            tree_array_d[access_set][update_node] = !access_way[WAY_BITS-1-depth];
-          update_node = 2 * update_node + 1 + int'(access_way[WAY_BITS-1-depth]);
+            tree_array_d[access_set_index][update_node_index] = !access_way_index[WAY_BITS-1-depth];
+          update_node_index = 2 * update_node_index + 1 + int'(access_way_index[WAY_BITS-1-depth]);
         end
-        read_node   = 0;
-        read_victim = '0;
-        direction   = 1'b0;
+        read_node_index   = 0;
+        read_victim_index = '0;
+        direction         = 1'b0;
         for (int depth = 0; depth < WAY_BITS; depth++) begin
-          direction = tree_array_d[read_set_i][read_node];
-          read_victim[WAY_BITS-1-depth] = direction;
-          read_node = 2 * read_node + 1 + int'(direction);
+          direction                           = tree_array_d[read_set_i][read_node_index];
+          read_victim_index[WAY_BITS-1-depth] = direction;
+          read_node_index                     = 2 * read_node_index + 1 + int'(direction);
         end
       end
       always_ff @(posedge clk_i) begin
         if (read_enable_i)
-          read_victim_o <= read_victim;
-        for (int set_index = 0; set_index < SETS; set_index++) begin
+          read_victim_o <= read_victim_index;
+        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
           if (!rst_ni || invalidate_i)
             tree_array_q[set_index] <= '0;
           else
@@ -156,145 +157,148 @@ module riscv32_icache_replacement
           read_victim_o <= icache_way_index_t'(random_d);
       end
     end else begin : g_rrip
-      localparam bit BURST = (POLICY >= 9 && POLICY <= 11) || POLICY == 13 || POLICY >= 15;
-      localparam bit LEARNED = POLICY == 10 || POLICY == 11 || POLICY >= 15;
-      localparam bit PATH_HISTORY = POLICY == 11 || POLICY == 15;
+      localparam bit SEGMENT_REUSE = (POLICY >= 9 && POLICY <= 11) || POLICY == 13 || POLICY >= 15;
+      localparam bit REUSE_FEEDBACK = POLICY == 10 || POLICY == 11 || POLICY >= 15;
+      localparam bit PATH_SIGNATURE = POLICY == 11 || POLICY == 15;
       localparam bit QUERY_BYPASS = POLICY >= 13;
-      localparam int unsigned LEADER_STRIDE = (SETS >= 32) ? 32 : ((SETS >= 4) ? SETS : 4);
-      logic [1:0] rrpv_array_q[SETS][WAYS], rrpv_array_d[SETS][WAYS];
+      localparam int unsigned LEADER_STRIDE = (SET_COUNT >= 32) ? 32 : ((SET_COUNT >= 4) ? SET_COUNT : 4);
+      logic [1:0] rrpv_array_q[SET_COUNT][WAY_COUNT], rrpv_array_d[SET_COUNT][WAY_COUNT];
       logic [4:0] insertion_count_q, insertion_count_d;
       logic [9:0] selector_q, selector_d;
       logic [LINE_ADDR_BITS-1:0] previous_line_q;
-      logic previous_line_present_q;
-      logic [15:0] history_q;
-      logic [5:0] signature_array_q[SETS][WAYS], signature_array_d[SETS][WAYS];
-      logic reused_array_q[SETS][WAYS], reused_array_d[SETS][WAYS];
+      logic                      previous_line_present_q;
+      logic [              15:0] history_q;
+      logic [5:0] signature_array_q[SET_COUNT][WAY_COUNT], signature_array_d[SET_COUNT][WAY_COUNT];
+      logic reused_array_q[SET_COUNT][WAY_COUNT], reused_array_d[SET_COUNT][WAY_COUNT];
       logic [1:0] prediction_array_q[64], prediction_array_d[64];
-      logic burst_start, bimodal;
+      logic segment_start, bimodal;
       logic [5:0] signature;
       logic [1:0] maximum_rrpv, age_amount, insertion;
-      logic [1:0] read_rrpv_array [WAYS];
-      logic [WAYS-1:0] read_winner_vector;
-      icache_way_index_t read_victim;
+      logic              [          1:0] read_rrpv_array    [WAY_COUNT];
+      logic              [WAY_COUNT-1:0] read_winner_vector;
+      icache_way_index_t                 read_victim_index;
 
       // 当前行地址发生变化时，开始新的访问段。
-      assign burst_start = !previous_line_present_q || previous_line_q != access_line;
-      assign signature = 6'(access_line ^ (access_line >> 6)) ^ (PATH_HISTORY ? history_q[5:0] : 6'd0);
+      assign segment_start = !previous_line_present_q || previous_line_q != access_line_addr;
+      assign signature = 6'(access_line_addr ^ (access_line_addr >> 6)) ^
+          (PATH_SIGNATURE ? history_q[5:0] : 6'd0);
 
       // 先训练旧身份，再查新签名，覆盖同索引训练/插入的旁路。每拍最多一次训练。
       always_comb begin
         for (int index = 0; index < 64; index++)
           prediction_array_d[index] = prediction_array_q[index];
-        for (int set_index = 0; set_index < SETS; set_index++) begin
-          for (int way = 0; way < WAYS; way++) begin
+        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+          for (int way = 0; way < WAY_COUNT; way++) begin
             signature_array_d[set_index][way] = signature_array_q[set_index][way];
-            reused_array_d[set_index][way] = reused_array_q[set_index][way];
+            reused_array_d[set_index][way]    = reused_array_q[set_index][way];
           end
         end
-        if (LEARNED && allocate_i) begin
-          if (victim_present_i && !reused_array_q[access_set][access_way] &&
-              prediction_array_q[signature_array_q[access_set][access_way]] != 0)
-            prediction_array_d[signature_array_q[access_set][access_way]] =
-                prediction_array_q[signature_array_q[access_set][access_way]] - 1'b1;
-          signature_array_d[access_set][access_way] = signature;
-          reused_array_d[access_set][access_way] = 1'b0;
-        end else if (LEARNED && hit_i && burst_start && !reused_array_q[access_set][access_way]) begin
-          if (prediction_array_q[signature_array_q[access_set][access_way]] != 3)
-            prediction_array_d[signature_array_q[access_set][access_way]] =
-                prediction_array_q[signature_array_q[access_set][access_way]] + 1'b1;
-          reused_array_d[access_set][access_way] = 1'b1;
+        if (REUSE_FEEDBACK && allocate_i) begin
+          if (victim_present_i && !reused_array_q[access_set_index][access_way_index] &&
+              prediction_array_q[signature_array_q[access_set_index][access_way_index]] != 0)
+            prediction_array_d[signature_array_q[access_set_index][access_way_index]] =
+                prediction_array_q[signature_array_q[access_set_index][access_way_index]] - 1'b1;
+          signature_array_d[access_set_index][access_way_index] = signature;
+          reused_array_d[access_set_index][access_way_index]    = 1'b0;
+        end else if (REUSE_FEEDBACK && hit_i && segment_start &&
+                     !reused_array_q[access_set_index][access_way_index]) begin
+          if (prediction_array_q[signature_array_q[access_set_index][access_way_index]] != 3)
+            prediction_array_d[signature_array_q[access_set_index][access_way_index]] =
+                prediction_array_q[signature_array_q[access_set_index][access_way_index]] + 1'b1;
+          reused_array_d[access_set_index][access_way_index] = 1'b1;
         end
       end
 
       always_comb begin
         insertion_count_d = insertion_count_q;
-        selector_d = selector_q;
-        bimodal = POLICY == 7;
+        selector_d        = selector_q;
+        bimodal           = POLICY == 7;
         if (allocate_i)
           insertion_count_d = insertion_count_q + 1'b1;
         if (POLICY == 8) begin
-          if (int'(access_set) % LEADER_STRIDE == 0) begin
+          if (int'(access_set_index) % LEADER_STRIDE == 0) begin
             if (allocate_i && selector_q != 1023)
               selector_d = selector_q + 1'b1;
             bimodal = 1'b0;
-          end else if (int'(access_set) % LEADER_STRIDE == LEADER_STRIDE - 1) begin
+          end else if (int'(access_set_index) % LEADER_STRIDE == LEADER_STRIDE - 1) begin
             if (allocate_i && selector_q != 0)
               selector_d = selector_q - 1'b1;
             bimodal = 1'b1;
-          end else
-            bimodal = selector_q >= 512;
+        end else
+          bimodal = selector_q >= 512;
         end
         insertion = (bimodal && insertion_count_d != 0) ? 2'd3 : 2'd2;
-        if (LEARNED)
+        if (REUSE_FEEDBACK)
           insertion = prediction_array_d[signature] == 0 ? 2'd3 : 2'd2;
-        maximum_rrpv = rrpv_array_q[access_set][0];
-        for (int way = 1; way < WAYS; way++) begin
-          if (rrpv_array_q[access_set][way] > maximum_rrpv)
-            maximum_rrpv = rrpv_array_q[access_set][way];
+        maximum_rrpv = rrpv_array_q[access_set_index][0];
+        for (int way = 1; way < WAY_COUNT; way++) begin
+          if (rrpv_array_q[access_set_index][way] > maximum_rrpv)
+            maximum_rrpv = rrpv_array_q[access_set_index][way];
         end
         age_amount = victim_present_i ? 2'd3 - maximum_rrpv : 2'd0;
-        for (int set_index = 0; set_index < SETS; set_index++) begin
-          for (int way = 0; way < WAYS; way++) begin
+        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+          for (int way = 0; way < WAY_COUNT; way++) begin
             rrpv_array_d[set_index][way] = rrpv_array_q[set_index][way];
-            if (access_set == icache_set_index_t'(set_index)) begin
+            if (access_set_index == icache_set_index_t'(set_index)) begin
               if (allocate_i) begin
                 rrpv_array_d[set_index][way] = rrpv_array_q[set_index][way] + age_amount;
-                if (access_way == icache_way_index_t'(way))
+                if (access_way_index == icache_way_index_t'(way))
                   rrpv_array_d[set_index][way] = insertion;
-              end else if (hit_i && access_way == icache_way_index_t'(way) && (!BURST || burst_start))
+              end else if (hit_i && access_way_index == icache_way_index_t'(way) &&
+                           (!SEGMENT_REUSE || segment_start))
                 rrpv_array_d[set_index][way] = 2'd0;
             end
           end
         end
         // 阻塞式cache的miss分配与新查询互斥；13～16只保留真实的同组hit前递。
-        for (int way = 0; way < WAYS; way++) begin
+        for (int way = 0; way < WAY_COUNT; way++) begin
           read_rrpv_array[way] = rrpv_array_d[read_set_i][way];
           if (QUERY_BYPASS) begin
             read_rrpv_array[way] = rrpv_array_q[read_set_i][way];
-            if (hit_i && access_set == read_set_i && access_way == icache_way_index_t'(way) &&
-                (!BURST || burst_start))
+            if (hit_i && access_set_index == read_set_i && access_way_index == icache_way_index_t'(way) &&
+                (!SEGMENT_REUSE || segment_start))
               read_rrpv_array[way] = 2'd0;
           end
         end
-        read_victim = '0;
+        read_victim_index  = '0;
         read_winner_vector = '0;
-        if (QUERY_BYPASS && WAYS <= 4) begin
+        if (QUERY_BYPASS && WAY_COUNT <= 4) begin
           // 各路并行比较，平局选最小路号；不再串联victim编码与RRPV索引。
-          for (int way = 0; way < WAYS; way++) begin
+          for (int way = 0; way < WAY_COUNT; way++) begin
             read_winner_vector[way] = 1'b1;
-            for (int other = 0; other < WAYS; other++) begin
+            for (int other = 0; other < WAY_COUNT; other++) begin
               if (other < way)
                 read_winner_vector[way] &= read_rrpv_array[way] > read_rrpv_array[other];
               else if (other > way)
                 read_winner_vector[way] &= read_rrpv_array[way] >= read_rrpv_array[other];
             end
-            read_victim |= icache_way_index_t'(way) & {WAY_BITS{read_winner_vector[way]}};
+            read_victim_index |= icache_way_index_t'(way) & {WAY_BITS{read_winner_vector[way]}};
           end
         end else begin
-          for (int way = 1; way < WAYS; way++) begin
-            if (read_rrpv_array[way] > read_rrpv_array[read_victim])
-              read_victim = icache_way_index_t'(way);
+          for (int way = 1; way < WAY_COUNT; way++) begin
+            if (read_rrpv_array[way] > read_rrpv_array[read_victim_index])
+              read_victim_index = icache_way_index_t'(way);
           end
         end
       end
 
       always_ff @(posedge clk_i) begin
         if (read_enable_i)
-          read_victim_o <= read_victim;
+          read_victim_o <= read_victim_index;
         if (!rst_ni || invalidate_i) begin
-          insertion_count_q <= '0;
-          selector_q <= 10'd511;
-          previous_line_q <= '0;
+          insertion_count_q       <= '0;
+          selector_q              <= 10'd511;
+          previous_line_q         <= '0;
           previous_line_present_q <= 1'b0;
-          history_q <= '0;
+          history_q               <= '0;
         end else begin
           insertion_count_q <= insertion_count_d;
-          selector_q <= selector_d;
+          selector_q        <= selector_d;
           if (access_event) begin
-            previous_line_q <= access_line;
+            previous_line_q         <= access_line_addr;
             previous_line_present_q <= 1'b1;
-            if (burst_start)
-              history_q <= (history_q << 3) ^ {13'd0, access_line[2:0]};
+            if (segment_start)
+              history_q <= (history_q << 3) ^ {13'd0, access_line_addr[2:0]};
           end
         end
         for (int index = 0; index < 64; index++) begin
@@ -303,16 +307,16 @@ module riscv32_icache_replacement
           else
             prediction_array_q[index] <= prediction_array_d[index];
         end
-        for (int set_index = 0; set_index < SETS; set_index++) begin
-          for (int way = 0; way < WAYS; way++) begin
+        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+          for (int way = 0; way < WAY_COUNT; way++) begin
             if (!rst_ni || invalidate_i) begin
-              rrpv_array_q[set_index][way] <= 2'd3;
+              rrpv_array_q[set_index][way]      <= 2'd3;
               signature_array_q[set_index][way] <= '0;
-              reused_array_q[set_index][way] <= 1'b0;
+              reused_array_q[set_index][way]    <= 1'b0;
             end else begin
-              rrpv_array_q[set_index][way] <= rrpv_array_d[set_index][way];
+              rrpv_array_q[set_index][way]      <= rrpv_array_d[set_index][way];
               signature_array_q[set_index][way] <= signature_array_d[set_index][way];
-              reused_array_q[set_index][way] <= reused_array_d[set_index][way];
+              reused_array_q[set_index][way]    <= reused_array_d[set_index][way];
             end
           end
         end

@@ -5,17 +5,17 @@ module riscv32_tage
     parameter int unsigned TABLE_ENTRIES = riscv_config_pkg::BRANCH_HISTORY_ENTRY_COUNT,
     parameter bit PROTECT_ALTERNATE = (riscv_config_pkg::BRANCH_DIRECTION_POLICY == 4)
 ) (
-    input  logic               clk_i,
-    input  logic               rst_ni,
-    input  program_counter_t   lookup_pc_i,
-    input  logic [15:0]         lookup_history_i,
-    output logic [1:0]          lookup_counter_o,
-    output direction_context_t lookup_context_o,
-    input  program_counter_t   training_pc_i,
-    input  direction_context_t training_context_i,
-    input  logic               training_valid_i,
-    input  logic               training_taken_i,
-    input  logic               invalidate_i
+    input  logic                      clk_i,
+    input  logic                      rst_ni,
+    input  program_counter_t          lookup_pc_i,
+    input  logic               [15:0] lookup_history_i,
+    output logic               [ 1:0] lookup_counter_o,
+    output direction_context_t        lookup_context_o,
+    input  program_counter_t          training_pc_i,
+    input  direction_context_t        training_context_i,
+    input  logic                      training_valid_i,
+    input  logic                      training_taken_i,
+    input  logic                      invalidate_i
 );
   localparam int unsigned INDEX_BITS = $clog2(TABLE_ENTRIES);
   localparam int unsigned BANK_COUNT = 3;
@@ -34,17 +34,17 @@ module riscv32_tage
   end
 
   // 1. PC/历史组合哈希：长度由generate常量决定，没有折叠历史寄存器。
-  function automatic logic [15:0] fold_history(
-      input logic [15:0] history, input int unsigned width, input int unsigned length);
+  function automatic logic [15:0] fold_history(input logic [15:0] history, input int unsigned width,
+                                               input int unsigned length);
     logic [15:0] folded;
     folded = '0;
     for (int unsigned bit_index = 0; bit_index < length; bit_index++)
-      folded[bit_index % width] ^= history[bit_index];
+      folded[bit_index%width] ^= history[bit_index];
     return folded;
   endfunction
 
-  function automatic tag_t history_tag(
-      input program_counter_t pc, input logic [15:0] history, input int unsigned length);
+  function automatic tag_t history_tag(input program_counter_t pc, input logic [15:0] history,
+                                       input int unsigned length);
     return tag_t'((pc >> 2) ^ (pc >> 10) ^ fold_history(history, 8, length) ^
                   (fold_history(history, 7, length) << 1));
   endfunction
@@ -52,33 +52,33 @@ module riscv32_tage
   index_t lookup_base_index, training_base_index;
   index_t lookup_index_array[BANK_COUNT], training_index_array[BANK_COUNT];
   tag_t lookup_tag_array[BANK_COUNT], training_tag_array[BANK_COUNT];
-  entry_t entry_array_q[BANK_COUNT][TABLE_ENTRIES];
-  logic [1:0] base_counter_array_q[TABLE_ENTRIES];
+  entry_t       entry_array_q       [   BANK_COUNT] [TABLE_ENTRIES];
+  logic   [1:0] base_counter_array_q[TABLE_ENTRIES];
   logic [BANK_COUNT-1:0] lookup_match_vector, training_match_vector;
 
   assign lookup_base_index   = index_t'(lookup_pc_i >> 2);
   assign training_base_index = index_t'(training_pc_i >> 2);
   for (genvar bank = 0; bank < BANK_COUNT; bank++) begin : g_hash
     localparam int unsigned HISTORY_BITS = 4 << bank;
-    assign lookup_index_array[bank] =
-        lookup_base_index ^ index_t'(fold_history(lookup_history_i, INDEX_BITS, HISTORY_BITS));
-    assign training_index_array[bank] =
-        training_base_index ^ index_t'(fold_history(training_context_i.history, INDEX_BITS, HISTORY_BITS));
+    assign lookup_index_array[bank] = lookup_base_index ^ index_t'(fold_history(
+        lookup_history_i, INDEX_BITS, HISTORY_BITS
+    ));
+    assign training_index_array[bank] = training_base_index ^ index_t'(fold_history(
+        training_context_i.history, INDEX_BITS, HISTORY_BITS
+    ));
     assign lookup_tag_array[bank] = history_tag(lookup_pc_i, lookup_history_i, HISTORY_BITS);
     assign training_tag_array[bank] = history_tag(training_pc_i, training_context_i.history, HISTORY_BITS);
-    assign lookup_match_vector[bank] =
-        entry_array_q[bank][lookup_index_array[bank]].present &&
+    assign lookup_match_vector[bank] = entry_array_q[bank][lookup_index_array[bank]].present &&
         entry_array_q[bank][lookup_index_array[bank]].tag == lookup_tag_array[bank];
-    assign training_match_vector[bank] =
-        entry_array_q[bank][training_index_array[bank]].present &&
+    assign training_match_vector[bank] = entry_array_q[bank][training_index_array[bank]].present &&
         entry_array_q[bank][training_index_array[bank]].tag == training_tag_array[bank];
   end
 
   // 2. 最长匹配选择：完整查询快照随指令走，反压由外层响应寄存器负责。
   always_comb begin
-    lookup_counter_o = base_counter_array_q[lookup_base_index];
-    lookup_context_o = '0;
-    lookup_context_o.history = lookup_history_i;
+    lookup_counter_o                 = base_counter_array_q[lookup_base_index];
+    lookup_context_o                 = '0;
+    lookup_context_o.history         = lookup_history_i;
     lookup_context_o.alternate_taken = lookup_counter_o[1];
     for (int unsigned bank = 0; bank < BANK_COUNT; bank++) begin
       if (lookup_match_vector[bank]) begin
@@ -96,17 +96,17 @@ module riscv32_tage
 
   // 3. 分配反馈：仅错误预测分配一项，失败则老化候选项，不阻塞取指。
   logic allocation_requested, allocation_present;
-  logic [1:0] allocation_bank;
+  logic [1:0] allocation_bank_index;
   assign allocation_requested = training_context_i.taken != training_taken_i;
   always_comb begin
-    allocation_present = 1'b0;
-    allocation_bank = '0;
+    allocation_present    = 1'b0;
+    allocation_bank_index = '0;
     for (int unsigned bank = 0; bank < BANK_COUNT; bank++) begin
       if (!allocation_present && (bank >= int'(training_context_i.provider)) &&
           (!entry_array_q[bank][training_index_array[bank]].present ||
            !entry_array_q[bank][training_index_array[bank]].useful)) begin
-        allocation_present = 1'b1;
-        allocation_bank = 2'(bank);
+        allocation_present    = 1'b1;
+        allocation_bank_index = 2'(bank);
       end
     end
   end
@@ -144,17 +144,17 @@ module riscv32_tage
         if (training_context_i.taken != training_context_i.alternate_taken)
           training_entry.useful = training_context_i.taken == training_taken_i;
       end
-      if (PROTECT_ALTERNATE && training_match_vector[bank] &&
-          (training_context_i.alternate_provider == 2'(bank + 1)) &&
+      if (PROTECT_ALTERNATE &&
+          training_match_vector[bank] && (training_context_i.alternate_provider == 2'(bank + 1)) &&
           (training_context_i.taken != training_taken_i) &&
           (training_context_i.alternate_taken == training_taken_i))
         training_entry.useful = 1'b1;
       if (allocation_requested && bank >= int'(training_context_i.provider)) begin
-        if (allocation_present && allocation_bank == 2'(bank)) begin
+        if (allocation_present && allocation_bank_index == 2'(bank)) begin
           training_entry.present = 1'b1;
-          training_entry.tag = training_tag_array[bank];
+          training_entry.tag     = training_tag_array[bank];
           training_entry.counter = training_taken_i ? 3'b100 : 3'b011;
-          training_entry.useful = 1'b0;
+          training_entry.useful  = 1'b0;
         end else if (!allocation_present) begin
           training_entry.useful = 1'b0;
         end

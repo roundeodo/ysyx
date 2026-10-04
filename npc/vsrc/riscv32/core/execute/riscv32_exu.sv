@@ -30,7 +30,7 @@ module riscv32_exu
   xlen_data_t execute_rs1_value;
   xlen_data_t execute_rs2_value;
 
-  // operand_prepare 在消费者写入 ID/EX 时完成源选择与前递。EX 只消费寄存后的
+  // operand_mux 在消费者写入 ID/EX 时完成源选择与前递。EX 只消费寄存后的
   // 操作数，不再串联rd/rs比较、操作数选择或旁路mux。
   assign execute_rs1_value = execute_packet_i.source_a_value;
   assign execute_rs2_value = execute_packet_i.source_b_value;
