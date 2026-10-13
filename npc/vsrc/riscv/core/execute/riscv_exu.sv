@@ -16,7 +16,7 @@ module riscv_exu
     input  logic               divide_result_ready_i,
 
     input  execute_packet_t execute_packet_i,
-    input  xlen_data_t      arithmetic_operand_i          [2],
+    input  xlen_data_t      muldiv_operand_array_i        [2],
     input  logic            execute_packet_valid_i,
     // 请求在功能单元接收时离开 ID/EX；乘除结果通过独立返回口交付。
     input  logic            execute_packet_issue_allowed_i,
@@ -35,26 +35,26 @@ module riscv_exu
     output logic          sequential_redirect_valid_o
 );
   // ID/EX 已保存语义操作数；单周期单元保持组合路径，不新增寄存边界。
-  xlen_data_t execute_rs1_value;
-  xlen_data_t execute_rs2_value;
+  xlen_data_t execute_operand_a_value;
+  xlen_data_t execute_operand_b_value;
   xlen_data_t alu_result;
   program_counter_t branch_target;
   program_counter_t sequential_next_pc;
   program_counter_t actual_next_pc;
   logic branch_target_misaligned;
-  assign execute_rs1_value = execute_packet_i.source_a_value;
-  assign execute_rs2_value = execute_packet_i.source_b_value;
+  assign execute_operand_a_value = execute_packet_i.source_a_value;
+  assign execute_operand_b_value = execute_packet_i.source_b_value;
   riscv_alu u_alu (
       .operation_i(execute_packet_i.uop.int_ctrl.op),
-      .operand_a_i(execute_rs1_value),
-      .operand_b_i(execute_rs2_value),
+      .operand_a_i(execute_operand_a_value),
+      .operand_b_i(execute_operand_b_value),
       .result_o   (alu_result)
   );
   riscv_branch_unit u_branch (
       .operation_i        (execute_packet_i.uop.branch_ctrl),
       .instruction_pc_i   (execute_packet_i.uop.pc),
-      .operand_a_i        (execute_rs1_value),
-      .operand_b_i        (execute_rs2_value),
+      .operand_a_i        (execute_operand_a_value),
+      .operand_b_i        (execute_operand_b_value),
       .immediate_i        (execute_packet_i.uop.imm),
       .sequential_pc_o    (sequential_next_pc),
       .target_pc_o        (branch_target),
@@ -82,8 +82,8 @@ module riscv_exu
       .request_index_i    (scoreboard_index_i),
       .result_index_o     (multiply_result_o.scoreboard_index),
       .request_operation_i(execute_packet_i.uop.muldiv_ctrl),
-      .request_operand_a_i(arithmetic_operand_i[0]),
-      .request_operand_b_i(arithmetic_operand_i[1]),
+      .request_operand_a_i(muldiv_operand_array_i[0]),
+      .request_operand_b_i(muldiv_operand_array_i[1]),
       .request_valid_i    (muldiv_request_valid && !divide_operation),
       .request_ready_o    (multiply_request_ready),
       .result_o           (multiply_result_o.result),
@@ -98,8 +98,8 @@ module riscv_exu
       .request_index_i    (scoreboard_index_i),
       .result_index_o     (divide_result_o.scoreboard_index),
       .request_operation_i(execute_packet_i.uop.muldiv_ctrl),
-      .request_operand_a_i(arithmetic_operand_i[0]),
-      .request_operand_b_i(arithmetic_operand_i[1]),
+      .request_operand_a_i(muldiv_operand_array_i[0]),
+      .request_operand_b_i(muldiv_operand_array_i[1]),
       .request_valid_i    (muldiv_request_valid && divide_operation),
       .request_ready_o    (divide_request_ready),
       .result_o           (divide_result_o.result),
@@ -114,7 +114,7 @@ module riscv_exu
 
   assign csr_operand = execute_packet_i.uop.csr_ctrl.use_imm ?
       {{(XLEN-5){1'b0}}, execute_packet_i.uop.rs1} :
-      execute_rs1_value;
+      execute_operand_a_value;
 
   always_comb begin
     unique case (execute_packet_i.uop.csr_ctrl.op)
@@ -127,8 +127,20 @@ module riscv_exu
 
   // AGU 独立生成访存地址，不经过整数 ALU 的结果选择。
   effective_addr_t lsu_effective_addr;
-  assign lsu_effective_addr = effective_addr_t'(execute_rs1_value + execute_packet_i.uop.imm);
+  assign lsu_effective_addr = effective_addr_t'(execute_operand_a_value + execute_packet_i.uop.imm);
 
+  always_comb begin
+    lsu_req_o                  = '0;
+    lsu_req_o.scoreboard_index = scoreboard_index_i;
+    lsu_req_o.uop              = execute_packet_i.uop;
+    lsu_req_o.next_pc          = sequential_next_pc;
+    lsu_req_o.effective_addr   = lsu_effective_addr;
+    lsu_req_o.store_data       = execute_operand_b_value;
+  end
+  // LSU请求一旦握手就可能产生架构可见的访存副作用，因此同样在接口边界检查
+  // issue_allowed；被阻塞或恢复取消的指令不能依赖下游valid-only squash补救。
+  assign lsu_req_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
+      (execute_packet_i.uop.fu_type == FU_LSU);
   // 非访存结果汇合；异常指令在本出口撤销寄存器和 CSR 写副作用。
   execute_result_t exu_result;
 
@@ -177,23 +189,11 @@ module riscv_exu
     endcase
   end
 
-  always_comb begin
-    lsu_req_o                  = '0;
-    lsu_req_o.scoreboard_index = scoreboard_index_i;
-    lsu_req_o.uop              = execute_packet_i.uop;
-    lsu_req_o.next_pc          = sequential_next_pc;
-    lsu_req_o.effective_addr   = lsu_effective_addr;
-    lsu_req_o.store_data       = execute_rs2_value;
-  end
 
   assign exu_result_o = exu_result;
   assign exu_result_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
       (execute_packet_i.uop.fu_type != FU_LSU) &&
       !muldiv_instruction;
-  // LSU请求一旦握手就可能产生架构可见的访存副作用，因此同样在接口边界检查
-  // issue_allowed；被阻塞或恢复取消的指令不能依赖下游valid-only squash补救。
-  assign lsu_req_valid_o = execute_packet_valid_i && execute_packet_issue_allowed_i &&
-      (execute_packet_i.uop.fu_type == FU_LSU);
   assign execute_packet_ready_o = (execute_packet_i.uop.fu_type == FU_LSU) ?
       lsu_req_ready_i : (muldiv_instruction ?
       (divide_operation ? divide_request_ready : multiply_request_ready) : exu_result_ready_i);

@@ -49,25 +49,43 @@ module riscv_icache_replacement
   end
 
   // RRPV越大越优先替换。仅替换有效行时老化整组，新行插入值为2。
-  logic [1:0] rrpv_array_q [ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
-  logic [1:0] rrpv_array_d [ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
-  logic [1:0] maximum_rrpv;
-  logic [1:0] age_amount;
+  logic [1:0] rrpv_array_q[ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
+  logic [1:0] rrpv_array_d[ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
+  // 查询与miss分配互斥，只需前递同组命中提升。该路径不经过整组老化逻辑。
+  logic [1:0] read_rrpv_array[ICACHE_WAY_COUNT];
+  icache_way_index_t read_victim_way_index;
 
   always_comb begin
-    maximum_rrpv = rrpv_array_q[access_set_index][0];
-    for (int unsigned way_index = 1; way_index < ICACHE_WAY_COUNT; way_index++) begin
-      if (rrpv_array_q[access_set_index][way_index] > maximum_rrpv)
-        maximum_rrpv = rrpv_array_q[access_set_index][way_index];
+    for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
+      read_rrpv_array[way_index] = rrpv_array_q[read_set_index_i][way_index];
+      if (hit_i && access_set_index == read_set_index_i && hit_way_vector_i[way_index] &&
+          access_starts_segment)
+        read_rrpv_array[way_index] = 2'd0;
     end
-    age_amount = victim_present_i ? 2'd3 - maximum_rrpv : 2'd0;
+    read_victim_way_index = '0;
+    for (int unsigned way_index = 1; way_index < ICACHE_WAY_COUNT; way_index++) begin
+      if (read_rrpv_array[way_index] > read_rrpv_array[read_victim_way_index])
+        read_victim_way_index = icache_way_index_t'(way_index);
+    end
+  end
+
+  logic [1:0] access_set_max_rrpv;
+  logic [1:0] rrpv_age_increment;
+
+  always_comb begin
+    access_set_max_rrpv = rrpv_array_q[access_set_index][0];
+    for (int unsigned way_index = 1; way_index < ICACHE_WAY_COUNT; way_index++) begin
+      if (rrpv_array_q[access_set_index][way_index] > access_set_max_rrpv)
+        access_set_max_rrpv = rrpv_array_q[access_set_index][way_index];
+    end
+    rrpv_age_increment = victim_present_i ? 2'd3 - access_set_max_rrpv : 2'd0;
 
     for (int unsigned set_index = 0; set_index < ICACHE_SET_COUNT; set_index++) begin
       for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
         rrpv_array_d[set_index][way_index] = rrpv_array_q[set_index][way_index];
         if (access_set_index == icache_set_index_t'(set_index)) begin
           if (allocate_i) begin
-            rrpv_array_d[set_index][way_index] = rrpv_array_q[set_index][way_index] + age_amount;
+            rrpv_array_d[set_index][way_index] = rrpv_array_q[set_index][way_index] + rrpv_age_increment;
             if (allocate_way_index_i == icache_way_index_t'(way_index))
               rrpv_array_d[set_index][way_index] = 2'd2;
           end else if (hit_i && hit_way_vector_i[way_index] && access_starts_segment) begin
@@ -86,24 +104,6 @@ module riscv_icache_replacement
         else
           rrpv_array_q[set_index][way_index] <= rrpv_array_d[set_index][way_index];
       end
-    end
-  end
-
-  // 查询与miss分配互斥，只需前递同组命中提升。该路径不经过整组老化逻辑。
-  logic [1:0] read_rrpv_array[ICACHE_WAY_COUNT];
-  icache_way_index_t read_victim_way_index;
-
-  always_comb begin
-    for (int unsigned way_index = 0; way_index < ICACHE_WAY_COUNT; way_index++) begin
-      read_rrpv_array[way_index] = rrpv_array_q[read_set_index_i][way_index];
-      if (hit_i && access_set_index == read_set_index_i && hit_way_vector_i[way_index] &&
-          access_starts_segment)
-        read_rrpv_array[way_index] = 2'd0;
-    end
-    read_victim_way_index = '0;
-    for (int unsigned way_index = 1; way_index < ICACHE_WAY_COUNT; way_index++) begin
-      if (read_rrpv_array[way_index] > read_rrpv_array[read_victim_way_index])
-        read_victim_way_index = icache_way_index_t'(way_index);
     end
   end
 

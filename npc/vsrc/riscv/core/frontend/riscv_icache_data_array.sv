@@ -45,6 +45,12 @@ module riscv_icache_data_array
   icache_fetch_data_t staged_refill_write_word_data_q;
   logic               staged_refill_write_enable_q;
 
+  // 连续赋值不会增加hit latency。read_enable_i为0时，读出寄存器保持上次内容；I-cache
+  // 顶层必须使用对应流水级的present位判断输出是否属于当前lookup。
+  for (genvar way_index = 0; way_index < WAY_COUNT; way_index++) begin : gen_read_data_output
+    assign read_word_data_array_o[way_index] = read_word_data_array_q[way_index];
+  end
+
   // read_enable_i为1的上升沿，读取所有way中由set和word共同索引的word。读地址必须
   // 与tag array使用同一个set，二者在lookup请求握手的同一时钟沿采样。
   always_ff @(posedge clk_i) begin
@@ -54,12 +60,6 @@ module riscv_icache_data_array
             data_array_q[way_index][read_word_index_i][read_set_index_i];
       end
     end
-  end
-
-  // 连续赋值不会增加hit latency。read_enable_i为0时，读出寄存器保持上次内容；I-cache
-  // 顶层必须使用对应流水级的present位判断输出是否属于当前lookup。
-  for (genvar way_index = 0; way_index < WAY_COUNT; way_index++) begin : gen_read_data_output
-    assign read_word_data_array_o[way_index] = read_word_data_array_q[way_index];
   end
 
   // refill_write_valid_i为1时，只更新指定way/set/word。I-cache只读，所以没有dirty

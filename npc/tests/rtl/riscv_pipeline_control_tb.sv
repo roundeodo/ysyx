@@ -152,10 +152,13 @@ module riscv_pipeline_control_tb;
   );
 
   riscv_id_ex_reg u_id_ex_reg (
-      .arithmetic_operand_o(),
-      .operand_pending_i('0), .operand_index_i('{default:'0}),
-      .operand_source_i('{default:COMPLETION_LSU}),
-      .completion_i('{default:'0}), .completion_valid_i('0), .operands_ready_o(),
+      .muldiv_operand_array_o                   (),
+      .operand_pending_vector_i                 ('0),
+      .operand_producer_index_array_i           ('{default: '0}),
+      .operand_completion_source_array_i        ('{default: COMPLETION_LSU}),
+      .completion_result_array_i                ('{default: '0}),
+      .completion_valid_vector_i                ('0),
+      .operands_ready_o                         (),
       .clk_i                                    (clk),
       .rst_ni                                   (rst_ni),
       .decoded_execute_packet_i                 (decoded_execute_packet),

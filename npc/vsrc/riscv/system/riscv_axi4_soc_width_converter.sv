@@ -61,12 +61,15 @@ module riscv_axi4_soc_width_converter
     wrap_base_addr   = start_addr & ~(burst_bytes - axi4_addr_t'(1));
 
     unique case (burst_type)
-      AXI4_BURST_FIXED: return current_addr;
+      AXI4_BURST_FIXED:
+        return current_addr;
       AXI4_BURST_WRAP: begin
-        if (incremented_addr >= wrap_base_addr + burst_bytes) return wrap_base_addr;
+        if (incremented_addr >= wrap_base_addr + burst_bytes)
+          return wrap_base_addr;
         return incremented_addr;
       end
-      default:          return incremented_addr;
+      default:
+        return incremented_addr;
     endcase
   endfunction
 
@@ -168,39 +171,7 @@ module riscv_axi4_soc_width_converter
 
       assign downstream_read_data_handshake =
           downstream_manager_i.r_valid && downstream_manager_o.r_ready;
-      logic upstream_write_address_handshake;
-
-      assign upstream_write_address_handshake =
-          upstream_manager_i.aw_valid && upstream_manager_o.aw_ready;
-      logic upstream_write_data_handshake;
-
-      assign upstream_write_data_handshake =
-          upstream_manager_i.w_valid && upstream_manager_o.w_ready;
-      logic downstream_write_address_handshake;
-
-      assign downstream_write_address_handshake =
-          downstream_manager_o.aw_valid && downstream_manager_i.aw_ready;
-      logic downstream_write_data_handshake;
-
-      assign downstream_write_data_handshake =
-          downstream_manager_o.w_valid && downstream_manager_i.w_ready;
-      logic downstream_write_response_handshake;
-
-      assign downstream_write_response_handshake =
-          downstream_manager_i.b_valid && downstream_manager_o.b_ready;
-      logic upstream_write_response_handshake;
-
-      assign upstream_write_response_handshake =
-          upstream_manager_o.b_valid && upstream_manager_i.b_ready;
-
-      logic write_width_conversion_q;
-      logic wide_write_upper_half_q;
-      logic current_write_data_completed;
-
-      assign current_write_data_completed = downstream_write_data_handshake &&
-          (!write_width_conversion_q || wide_write_upper_half_q);
-
-      logic                             [7:0] read_error_remaining_q;
+      logic                             [7:0] read_error_remaining_beats_q;
       read_state_e                            read_state_q;
       axi4_read_address_t                     read_address_q;
       axi4_addr_t                             current_read_beat_addr_q;
@@ -271,21 +242,11 @@ module riscv_axi4_soc_width_converter
           READ_RETURN_LOCAL_ERROR: begin
             read_upstream_response.r.id    = read_address_q.id;
             read_upstream_response.r.resp  = AXI4_RESP_DECERR;
-            read_upstream_response.r.last  = (read_error_remaining_q == 0);
+            read_upstream_response.r.last  = (read_error_remaining_beats_q == 0);
             read_upstream_response.r_valid = 1'b1;
           end
           default: ;
         endcase
-      end
-
-      // An unsupported burst still receives ARLEN+1 error beats and one RLAST.
-      always_ff @(posedge clk_i or negedge rst_ni) begin
-        if (!rst_ni) read_error_remaining_q <= '0;
-        else if (upstream_read_address_handshake)
-          read_error_remaining_q <= upstream_manager_i.ar.len;
-        else if (read_state_q == READ_RETURN_LOCAL_ERROR && upstream_manager_i.r_ready &&
-                 read_error_remaining_q != 0)
-          read_error_remaining_q <= read_error_remaining_q - 8'd1;
       end
 
       read_state_e         read_state_d;
@@ -345,18 +306,20 @@ module riscv_axi4_soc_width_converter
                 wide_read_first_response_d = downstream_manager_i.r.resp;
                 wide_read_second_beat_d    = 1'b1;
               end else begin
-                if (downstream_manager_i.r.last) read_address_d = '0;
+                if (downstream_manager_i.r.last)
+                  read_address_d = '0;
                 wide_read_low_data_d       = '0;
                 wide_read_first_response_d = AXI4_RESP_OKAY;
                 wide_read_second_beat_d    = 1'b0;
-                if (downstream_manager_i.r.last) read_state_d = READ_ACCEPT_ADDRESS;
+                if (downstream_manager_i.r.last)
+                  read_state_d = READ_ACCEPT_ADDRESS;
               end
             end
           end
 
           READ_RETURN_LOCAL_ERROR: begin
             if (read_upstream_response.r_valid && upstream_manager_i.r_ready &&
-                read_error_remaining_q == 0) begin
+                read_error_remaining_beats_q == 0) begin
               read_address_d = '0;
               read_state_d   = READ_ACCEPT_ADDRESS;
             end
@@ -387,6 +350,50 @@ module riscv_axi4_soc_width_converter
         end
       end
 
+      // 本地错误仍返回 ARLEN+1 拍；计数保存当前拍之后还需返回的拍数。
+      always_ff @(posedge clk_i or negedge rst_ni) begin
+        if (!rst_ni)
+          read_error_remaining_beats_q <= '0;
+        else if (upstream_read_address_handshake)
+          read_error_remaining_beats_q <= upstream_manager_i.ar.len;
+        else if (read_state_q == READ_RETURN_LOCAL_ERROR && upstream_manager_i.r_ready &&
+                 read_error_remaining_beats_q != 0)
+          read_error_remaining_beats_q <= read_error_remaining_beats_q - 8'd1;
+      end
+
+      // 写通路：独立 AW/W 握手 → 数据拆分进度 → 输出 → 下一状态 → 寄存器。
+      logic upstream_write_address_handshake;
+
+      assign upstream_write_address_handshake =
+          upstream_manager_i.aw_valid && upstream_manager_o.aw_ready;
+      logic upstream_write_data_handshake;
+
+      assign upstream_write_data_handshake =
+          upstream_manager_i.w_valid && upstream_manager_o.w_ready;
+      logic downstream_write_address_handshake;
+
+      assign downstream_write_address_handshake =
+          downstream_manager_o.aw_valid && downstream_manager_i.aw_ready;
+      logic downstream_write_data_handshake;
+
+      assign downstream_write_data_handshake =
+          downstream_manager_o.w_valid && downstream_manager_i.w_ready;
+      logic downstream_write_response_handshake;
+
+      assign downstream_write_response_handshake =
+          downstream_manager_i.b_valid && downstream_manager_o.b_ready;
+      logic upstream_write_response_handshake;
+
+      assign upstream_write_response_handshake =
+          upstream_manager_o.b_valid && upstream_manager_i.b_ready;
+
+      logic write_width_conversion_q;
+      logic wide_write_upper_half_q;
+      logic write_beat_forward_event;
+
+      assign write_beat_forward_event = downstream_write_data_handshake &&
+          (!write_width_conversion_q || wide_write_upper_half_q);
+
       write_state_e                     write_state_q;
       axi4_write_address_t              write_address_q;
       logic                             write_address_present_q;
@@ -394,7 +401,8 @@ module riscv_axi4_soc_width_converter
       logic                             write_data_present_q;
       axi4_addr_t                       current_write_beat_addr_q;
       logic                             downstream_write_address_pending_q;
-      logic                             write_last_data_forwarded_q;
+      // 正常路径已转发最后一拍，或错误路径已丢弃 WLAST；B 响应仍须单独完成。
+      logic                             write_data_phase_completed_q;
       axi4_target_to_manager_t          write_upstream_response;
       ysyx_soc_axi4_manager_to_target_t write_downstream_request;
 
@@ -453,7 +461,7 @@ module riscv_axi4_soc_width_converter
             end else begin
               write_upstream_response.w_ready = 1'b1;
             end
-            if (write_last_data_forwarded_q) begin
+            if (write_data_phase_completed_q) begin
               write_upstream_response.w_ready = 1'b0;
               write_upstream_response.b.id    = write_address_q.id;
               write_upstream_response.b.resp  = AXI4_RESP_DECERR;
@@ -490,7 +498,7 @@ module riscv_axi4_soc_width_converter
       logic                write_width_conversion_d;
       logic                downstream_write_address_pending_d;
       logic                wide_write_upper_half_d;
-      logic                write_last_data_forwarded_d;
+      logic                write_data_phase_completed_d;
 
       // 写通路的状态转移：独立接收AW/W，拆分数据拍并跟踪响应归属。
       always_comb begin
@@ -503,7 +511,7 @@ module riscv_axi4_soc_width_converter
         write_width_conversion_d           = write_width_conversion_q;
         downstream_write_address_pending_d = downstream_write_address_pending_q;
         wide_write_upper_half_d            = wide_write_upper_half_q;
-        write_last_data_forwarded_d        = write_last_data_forwarded_q;
+        write_data_phase_completed_d       = write_data_phase_completed_q;
 
         unique case (write_state_q)
           WRITE_COLLECT_ADDRESS_DATA: begin
@@ -513,12 +521,12 @@ module riscv_axi4_soc_width_converter
             end
 
             if (upstream_write_address_handshake) begin
-              write_address_d             = upstream_manager_i.aw;
-              write_address_present_d     = 1'b1;
-              current_write_beat_addr_d   = upstream_manager_i.aw.addr;
-              write_width_conversion_d    = write_width_conversion_requested;
-              wide_write_upper_half_d     = 1'b0;
-              write_last_data_forwarded_d = 1'b0;
+              write_address_d              = upstream_manager_i.aw;
+              write_address_present_d      = 1'b1;
+              current_write_beat_addr_d    = upstream_manager_i.aw.addr;
+              write_width_conversion_d     = write_width_conversion_requested;
+              wide_write_upper_half_d      = 1'b0;
+              write_data_phase_completed_d = 1'b0;
 
               if (write_request_supported) begin
                 downstream_write_address_pending_d = 1'b1;
@@ -547,7 +555,7 @@ module riscv_axi4_soc_width_converter
                 wide_write_upper_half_d = 1'b0;
                 write_data_present_d    = 1'b0;
                 if (write_data_q.last) begin
-                  write_last_data_forwarded_d = 1'b1;
+                  write_data_phase_completed_d = 1'b1;
                 end else begin
                   current_write_beat_addr_d = next_burst_addr(
                     current_write_beat_addr_q,
@@ -562,8 +570,8 @@ module riscv_axi4_soc_width_converter
 
             if ((!downstream_write_address_pending_q ||
                  downstream_write_address_handshake) &&
-                (write_last_data_forwarded_q ||
-                 (current_write_data_completed && write_data_q.last))) begin
+                (write_data_phase_completed_q ||
+                 (write_beat_forward_event && write_data_q.last))) begin
               write_state_d = WRITE_WAIT_RESPONSE;
             end
           end
@@ -578,30 +586,31 @@ module riscv_axi4_soc_width_converter
               write_width_conversion_d           = 1'b0;
               downstream_write_address_pending_d = 1'b0;
               wide_write_upper_half_d            = 1'b0;
-              write_last_data_forwarded_d        = 1'b0;
+              write_data_phase_completed_d       = 1'b0;
               write_state_d                      = WRITE_COLLECT_ADDRESS_DATA;
             end
           end
 
           WRITE_RETURN_LOCAL_ERROR: begin
-            if (write_data_present_q && !write_last_data_forwarded_q) begin
-              write_last_data_forwarded_d = write_data_q.last;
-              write_data_present_d        = 1'b0;
+            if (write_data_present_q && !write_data_phase_completed_q) begin
+              write_data_phase_completed_d = write_data_q.last;
+              write_data_present_d         = 1'b0;
             end else if (upstream_write_data_handshake) begin
-              write_last_data_forwarded_d = upstream_manager_i.w.last;
+              write_data_phase_completed_d = upstream_manager_i.w.last;
             end
 
             if (upstream_write_response_handshake) begin
-              write_address_d             = '0;
-              write_address_present_d     = 1'b0;
-              write_data_d                = '0;
-              write_data_present_d        = 1'b0;
-              write_last_data_forwarded_d = 1'b0;
-              write_state_d               = WRITE_COLLECT_ADDRESS_DATA;
+              write_address_d              = '0;
+              write_address_present_d      = 1'b0;
+              write_data_d                 = '0;
+              write_data_present_d         = 1'b0;
+              write_data_phase_completed_d = 1'b0;
+              write_state_d                = WRITE_COLLECT_ADDRESS_DATA;
             end
           end
 
-          default: write_state_d = WRITE_COLLECT_ADDRESS_DATA;
+          default:
+            write_state_d = WRITE_COLLECT_ADDRESS_DATA;
         endcase
       end
 
@@ -616,7 +625,7 @@ module riscv_axi4_soc_width_converter
           write_width_conversion_q           <= 1'b0;
           downstream_write_address_pending_q <= 1'b0;
           wide_write_upper_half_q            <= 1'b0;
-          write_last_data_forwarded_q        <= 1'b0;
+          write_data_phase_completed_q       <= 1'b0;
         end else begin
           write_state_q                      <= write_state_d;
           write_address_q                    <= write_address_d;
@@ -627,16 +636,18 @@ module riscv_axi4_soc_width_converter
           write_width_conversion_q           <= write_width_conversion_d;
           downstream_write_address_pending_q <= downstream_write_address_pending_d;
           wide_write_upper_half_q            <= wide_write_upper_half_d;
-          write_last_data_forwarded_q        <= write_last_data_forwarded_d;
+          write_data_phase_completed_q       <= write_data_phase_completed_d;
         end
       end
 
 `ifndef SYNTHESIS
       initial begin
         assert (MEM_AXI_DATA_WIDTH == 64)
-        else $fatal(1, "supported width conversion requires a 64-bit processor AXI");
+        else
+          $fatal(1, "supported width conversion requires a 64-bit processor AXI");
         assert (YSYX_SOC_AXI_DATA_WIDTH == 32)
-        else $fatal(1, "ysyxSoC AXI boundary must remain 32-bit");
+        else
+          $fatal(1, "ysyxSoC AXI boundary must remain 32-bit");
       end
 
       property p_no_downstream_read_for_local_error;

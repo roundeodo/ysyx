@@ -17,6 +17,7 @@
 
 本表覆盖当前文件与职责。此前逐文件检查及后续修复见 [实现记录](RTL_CLEANUP_RECORD.md)，
 不代表已经逐项证明全部功能。
+2026-10-04 的源码顺序与信号语义复核见[可读性检查](../verification/RTL_READABILITY_2026-10-04.md)。
 命名与格式修改的验证结果见 [验证记录](../verification/EXPERIMENT_LOG.md)。
 
 与 RV32 当前工作区的逐项区别见[实现对照](RV64_RV32_CURRENT_COMPARISON.md)。
@@ -81,7 +82,7 @@ flowchart TD
 
 | 文件 | 当前职责 | 可读性、维护性与后续关注点 |
 | --- | --- | --- |
-| [riscv_config_pkg](../../vsrc/riscv/common/riscv_config_pkg.sv) | 全核位宽、容量和构建配置 | 只保留当前使用的配置；已使用的 SCOREBOARD_ENTRY_COUNT 统一为 8，重命名/LSQ 候选参数仍不预置 |
+| [riscv_config_pkg](../../vsrc/riscv/common/riscv_config_pkg.sv) | 全核位宽、容量和构建配置 | 当前 SCOREBOARD_ENTRY_COUNT 为 4；保留实际使用的配置，不预置重命名/LSQ 候选参数 |
 | [riscv_addr_map_pkg](../../vsrc/riscv/common/riscv_addr_map_pkg.sv) | 物理地址区间、复位地址和地址范围判断 | 地址属于物理地址类型，避免与整数宽度混用 |
 | [riscv_axi4_pkg](../../vsrc/riscv/common/riscv_axi4_pkg.sv) | core AXI 通道与方向结构体 | 保留 AXI 标准字段名，统一地址、数据和字节使能宽度 |
 | [riscv_ysyx_soc_axi4_pkg](../../vsrc/riscv/common/riscv_ysyx_soc_axi4_pkg.sv) | 外部 ysyxSoC 的 AXI 类型 | 与 core AXI 类型分开，由转换模块连接 |
@@ -119,7 +120,7 @@ flowchart TD
 | [riscv_csr_file](../../vsrc/riscv/core/writeback/riscv_csr_file.sv) | CSR 访问、合法性、异常入口和返回时状态更新 | 多类 CSR 更新集中在一个时序块；若拆分须保持异常、返回和普通写入的优先级 |
 | [riscv_pmu](../../vsrc/riscv/core/writeback/riscv_pmu.sv) | 软件可见的周期、退休计数及控制位 | 与仿真统计分开；保留按计数器分组的更新 |
 | [riscv_issue_ctrl](../../vsrc/riscv/core/issue/riscv_issue_ctrl.sv) | 检查 RAW、选择最近生产者前递、控制顺序发射 | 同时检查 scoreboard 与尚在 ID/EX 的生产者，复用既有寄存边界 |
-| [riscv_scoreboard](../../vsrc/riscv/core/issue/riscv_scoreboard.sv) | 按序分配、按标识接收四路完成、按序交给提交 | 紧凑元数据与最近写者标志；单访存/串行 CSR 副作用各存一份；分支保留较老运算 |
+| [riscv_scoreboard](../../vsrc/riscv/core/issue/riscv_scoreboard.sv) | 普通结果随分配保存，LSU/MUL/DIV 经三个返回口完成，最老项交给提交 | 查询给出最近写者的槽号、完成端口及就绪值；访存跟踪信息按槽保存，串行 CSR 写值只存一份 |
 | [riscv_id_ex_reg](../../vsrc/riscv/core/execute/riscv_id_ex_reg.sv) | 保存进入 EX 的指令和操作数 | 有效位与数据寄存器分开，检查旁路标记及反压语义 |
 | [riscv_hazard_ctrl](../../vsrc/riscv/core/control/riscv_hazard_ctrl.sv) | 旧顺序核的相关与推进控制，现仅供历史测试 | 活动核改用 Issue/scoreboard；旧形式结果不证明新后端 |
 | [riscv_exu](../../vsrc/riscv/core/execute/riscv_exu.sv) | 按序向各 FU 发请求，生成 CSR 写值和 LSU 地址 | 请求接收即释放 ID/EX，乘除通过独立带标识结果口返回 |

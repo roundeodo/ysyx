@@ -10,7 +10,7 @@ module riscv_csr_file
     input  logic              csr_access_write_enable_i,
     // CSR数据属于XLEN宽架构状态；PC类CSR单独标注PC语义，避免误接物理总线地址。
     output xlen_data_t        csr_read_data_o,
-    output logic              csr_read_illegal_o,
+    output logic              csr_access_illegal_o,
 
     input logic              csr_write_valid_i,
     input logic       [11:0] csr_write_addr_i,
@@ -131,32 +131,45 @@ module riscv_csr_file
 
     unique case (csr_read_addr_i)
       // 固定32位实现常量显式转换到CSR访问宽度，避免依赖隐式零扩展。
-      CSR_MVENDORID: csr_selected_read_data = xlen_data_t'(MVENDORID_VALUE);
-      CSR_MARCHID:   csr_selected_read_data = xlen_data_t'(MARCHID_VALUE);
-      CSR_MIMPID:    csr_selected_read_data = '0;
-      CSR_MHARTID:   csr_selected_read_data = '0;
-      CSR_MSTATUS:   csr_selected_read_data = mstatus_value;
-      CSR_MISA:      csr_selected_read_data = misa_value;
-      CSR_MIE:       csr_selected_read_data = mie_value;
-      CSR_MTVEC:     csr_selected_read_data = mtvec_value;
-      CSR_MSCRATCH:  csr_selected_read_data = mscratch_q;
-      CSR_MEPC:      csr_selected_read_data = mepc_value;
-      CSR_MCAUSE:    csr_selected_read_data = mcause_value;
-      CSR_MTVAL:     csr_selected_read_data = mtval_q;
-      CSR_MIP:       csr_selected_read_data = '0;
+      CSR_MVENDORID:
+        csr_selected_read_data = xlen_data_t'(MVENDORID_VALUE);
+      CSR_MARCHID:
+        csr_selected_read_data = xlen_data_t'(MARCHID_VALUE);
+      CSR_MIMPID:
+        csr_selected_read_data = '0;
+      CSR_MHARTID:
+        csr_selected_read_data = '0;
+      CSR_MSTATUS:
+        csr_selected_read_data = mstatus_value;
+      CSR_MISA:
+        csr_selected_read_data = misa_value;
+      CSR_MIE:
+        csr_selected_read_data = mie_value;
+      CSR_MTVEC:
+        csr_selected_read_data = mtvec_value;
+      CSR_MSCRATCH:
+        csr_selected_read_data = mscratch_q;
+      CSR_MEPC:
+        csr_selected_read_data = mepc_value;
+      CSR_MCAUSE:
+        csr_selected_read_data = mcause_value;
+      CSR_MTVAL:
+        csr_selected_read_data = mtval_q;
+      CSR_MIP:
+        csr_selected_read_data = '0;
       default: begin
         csr_addr_implemented   = pmu_csr_read_select;
         csr_selected_read_data = pmu_csr_read_data;
       end
     endcase
 
-    csr_addr_read_only = csr_read_addr_i[11:10] == 2'b11;
-    csr_read_illegal_o = (csr_read_enable_i || csr_access_write_enable_i) &&
+    csr_addr_read_only   = csr_read_addr_i[11:10] == 2'b11;
+    csr_access_illegal_o = (csr_read_enable_i || csr_access_write_enable_i) &&
                          (!csr_addr_implemented ||
                           (csr_access_write_enable_i && csr_addr_read_only));
 
     csr_read_data_o = '0;
-    if (csr_read_enable_i && !csr_read_illegal_o) begin
+    if (csr_read_enable_i && !csr_access_illegal_o) begin
       csr_read_data_o = csr_selected_read_data;
     end
   end
@@ -201,17 +214,22 @@ module riscv_csr_file
             mie_meie_q <= csr_write_data_i[int'(IRQ_MACHINE_EXTERNAL)];
           end
           // 第一版只支持Direct模式，低两位强制为0。
-          CSR_MTVEC:    mtvec_base_q <= csr_write_data_i[XLEN-1:2];
-          CSR_MSCRATCH: mscratch_q <= csr_write_data_i;
+          CSR_MTVEC:
+            mtvec_base_q <= csr_write_data_i[XLEN-1:2];
+          CSR_MSCRATCH:
+            mscratch_q <= csr_write_data_i;
           // 未实现C扩展，IALIGN=32，因此mepc低两位均不可写。
-          CSR_MEPC:     mepc_base_q <= csr_write_data_i[XLEN-1:2];
+          CSR_MEPC:
+            mepc_base_q <= csr_write_data_i[XLEN-1:2];
           // mcause是WLRL字段；只保存当前实现可能产生的中断位和4位cause code。
           CSR_MCAUSE: begin
             mcause_interrupt_q <= csr_write_data_i[XLEN-1];
             mcause_code_q      <= csr_write_data_i[MCAUSE_CODE_WIDTH-1:0];
           end
-          CSR_MTVAL:    mtval_q <= csr_write_data_i;
-          default:      ;
+          CSR_MTVAL:
+            mtval_q <= csr_write_data_i;
+          default:
+             ;
         endcase
       end
     end

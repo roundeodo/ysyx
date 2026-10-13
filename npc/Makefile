@@ -1030,7 +1030,7 @@ STA_SYNTH_STRATEGY ?= AREA 3
 STA_RUN_POWER_ANALYSIS ?= 0
 STA_SDC_FILE      := $(abspath ./constr/riscv_core.sdc)
 STA_PDK           ?= nangate45
-STA_OUTPUT_ROOT   := $(abspath ./result/sta/$(STA_PDK)-$(NPC_CONFIG)-icache-$(NPC_ICACHE_CAPACITY_BYTES)b-way-$(NPC_ICACHE_WAY_COUNT)-line-$(NPC_ICACHE_LINE_BYTES)b-policy-$(NPC_ICACHE_REPLACEMENT_POLICY)-$(DCACHE_BUILD_TAG)-$(PREDICTOR_BUILD_TAG))
+STA_OUTPUT_ROOT   := $(abspath ./result/sta-current)
 
 .PHONY: sta sta-core
 sta: sta-qualified

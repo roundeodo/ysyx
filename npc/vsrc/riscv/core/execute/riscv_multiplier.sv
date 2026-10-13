@@ -37,9 +37,9 @@ module riscv_multiplier
 
   // 全局推进仅由结果槽容量决定；控制与各级数据在同一使能下前进。
   logic [2:0] valid_vector_q;
-  result_format_t format_array_q[3];
-  scoreboard_index_t index_array_q[3];
-  assign result_index_o = index_array_q[2];
+  result_format_t result_format_array_q[3];
+  scoreboard_index_t scoreboard_index_array_q[3];
+  assign result_index_o = scoreboard_index_array_q[2];
   logic pipeline_advance;
   logic request_handshake;
   assign pipeline_advance  = !valid_vector_q[2] || result_ready_i;
@@ -58,14 +58,14 @@ module riscv_multiplier
   logic operand_a_negative;
   logic operand_b_negative;
   logic [2*PART_WIDTH-1:0] partial_product_array_q[PRODUCT_COUNT];
-  xlen_data_t correction_array_q[2];
-  logic [1:0] correction_carry_q;
+  xlen_data_t sign_correction_array_q[2];
+  logic [1:0] sign_correction_carry_q;
   assign operand_a_negative = request_operand_a_i[XLEN-1] &&
       (request_operation_i.op inside {MULDIV_MULH, MULDIV_MULHSU});
   assign operand_b_negative = request_operand_b_i[XLEN-1] && request_operation_i.op == MULDIV_MULH;
   always_ff @(posedge clk_i) begin
     if (request_handshake) begin
-      index_array_q[0] <= request_index_i;
+      scoreboard_index_array_q[0] <= request_index_i;
       for (int a_index = 0; a_index < PART_COUNT; a_index++) begin
         for (int b_index = 0; b_index < PART_COUNT; b_index++) begin
           partial_product_array_q[a_index*PART_COUNT+b_index] <=
@@ -74,11 +74,11 @@ module riscv_multiplier
         end
       end
       // -B = ~B + 1；修正只影响高半部，进位一并送入压缩树。
-      correction_array_q[0]         <= operand_a_negative ? ~request_operand_b_i : '0;
-      correction_array_q[1]         <= operand_b_negative ? ~request_operand_a_i : '0;
-      correction_carry_q            <= {1'b0, operand_a_negative} + {1'b0, operand_b_negative};
-      format_array_q[0].high_half   <= request_operation_i.op != MULDIV_MUL;
-      format_array_q[0].word_result <= request_operation_i.word_operation;
+      sign_correction_array_q[0]           <= operand_a_negative ? ~request_operand_b_i : '0;
+      sign_correction_array_q[1]           <= operand_b_negative ? ~request_operand_a_i : '0;
+      sign_correction_carry_q              <= {1'b0, operand_a_negative} + {1'b0, operand_b_negative};
+      result_format_array_q[0].high_half   <= request_operation_i.op != MULDIV_MUL;
+      result_format_array_q[0].word_result <= request_operation_i.word_operation;
     end
   end
 
@@ -95,9 +95,9 @@ module riscv_multiplier
     for (int index = 0; index < level; index++) count = (count / 3) * 2 + count % 3;
     return count;
   endfunction
-  product_t compression_array[COMPRESSION_LEVELS+1][TERM_COUNT];
-  product_t sum_vector_q;
-  product_t carry_vector_q;
+  product_t compression_array  [COMPRESSION_LEVELS+1][TERM_COUNT];
+  product_t compressed_sum_q;
+  product_t compressed_carry_q;
   for (genvar a_index = 0; a_index < PART_COUNT; a_index++) begin : gen_a_part
     for (genvar b_index = 0; b_index < PART_COUNT; b_index++) begin : gen_b_part
       assign compression_array[0][a_index*PART_COUNT+b_index] =
@@ -105,10 +105,10 @@ module riscv_multiplier
           ((a_index+b_index)*PART_WIDTH);
     end
   end
-  assign compression_array[0][PRODUCT_COUNT] = {correction_array_q[0], {XLEN{1'b0}}};
-  assign compression_array[0][PRODUCT_COUNT+1] = {correction_array_q[1], {XLEN{1'b0}}};
+  assign compression_array[0][PRODUCT_COUNT] = {sign_correction_array_q[0], {XLEN{1'b0}}};
+  assign compression_array[0][PRODUCT_COUNT+1] = {sign_correction_array_q[1], {XLEN{1'b0}}};
   assign compression_array[0][PRODUCT_COUNT+2] = {
-    {(XLEN - 2) {1'b0}}, correction_carry_q, {XLEN{1'b0}}
+    {(XLEN - 2) {1'b0}}, sign_correction_carry_q, {XLEN{1'b0}}
   };
   for (genvar level = 0; level < COMPRESSION_LEVELS; level++) begin : gen_compression
     localparam int unsigned INPUT_COUNT = terms_at_level(level);
@@ -140,10 +140,10 @@ module riscv_multiplier
   end
   always_ff @(posedge clk_i) begin
     if (pipeline_advance && valid_vector_q[0]) begin
-      sum_vector_q      <= compression_array[COMPRESSION_LEVELS][0];
-      carry_vector_q    <= compression_array[COMPRESSION_LEVELS][1];
-      format_array_q[1] <= format_array_q[0];
-      index_array_q[1]  <= index_array_q[0];
+      compressed_sum_q            <= compression_array[COMPRESSION_LEVELS][0];
+      compressed_carry_q          <= compression_array[COMPRESSION_LEVELS][1];
+      result_format_array_q[1]    <= result_format_array_q[0];
+      scoreboard_index_array_q[1] <= scoreboard_index_array_q[0];
     end
   end
 
@@ -153,26 +153,26 @@ module riscv_multiplier
   xlen_data_t high_sum_q;
   xlen_data_t high_sum_with_carry_q;
   logic low_carry_q;
-  assign low_sum = {1'b0, sum_vector_q[XLEN-1:0]} + {1'b0, carry_vector_q[XLEN-1:0]};
+  // 组合结果：从已保存的分半加法结果形成架构值，不另加输出寄存器。
+  // 输出反压时第三级保持，因而结果稳定；同拍可交付到 scoreboard 并前递。
+  xlen_data_t selected_result;
+  assign selected_result = result_format_array_q[2].high_half ?
+      (low_carry_q ? high_sum_with_carry_q : high_sum_q) : low_result_q;
+  assign result_o = result_format_array_q[2].word_result ?
+      {{(XLEN-32){selected_result[31]}}, selected_result[31:0]} : selected_result;
+  assign low_sum = {1'b0, compressed_sum_q[XLEN-1:0]} + {1'b0, compressed_carry_q[XLEN-1:0]};
   always_ff @(posedge clk_i) begin
     if (pipeline_advance && valid_vector_q[1]) begin
       low_result_q <= low_sum[XLEN-1:0];
       low_carry_q  <= low_sum[XLEN];
-      high_sum_q   <= sum_vector_q[2*XLEN-1:XLEN] + carry_vector_q[2*XLEN-1:XLEN];
+      high_sum_q   <= compressed_sum_q[2*XLEN-1:XLEN] + compressed_carry_q[2*XLEN-1:XLEN];
       // ~(~a + ~b) = a + b + 1；与无进位和并行，避免先求和再串联自增器。
-      high_sum_with_carry_q <= ~(~sum_vector_q[2*XLEN-1:XLEN] + ~carry_vector_q[2*XLEN-1:XLEN]);
-      format_array_q[2]     <= format_array_q[1];
-      index_array_q[2]      <= index_array_q[1];
+      high_sum_with_carry_q       <= ~(~compressed_sum_q[2*XLEN-1:XLEN] + ~compressed_carry_q[2*XLEN-1:XLEN]);
+      result_format_array_q[2]    <= result_format_array_q[1];
+      scoreboard_index_array_q[2] <= scoreboard_index_array_q[1];
     end
   end
 
-  // 组合结果：从已保存的分半加法结果形成架构值，不另加输出寄存器。
-  // 输出反压时第三级保持，因而结果稳定；同拍可交付到 scoreboard 并前递。
-  xlen_data_t selected_result;
-  assign selected_result = format_array_q[2].high_half ?
-      (low_carry_q ? high_sum_with_carry_q : high_sum_q) : low_result_q;
-  assign result_o = format_array_q[2].word_result ?
-      {{(XLEN-32){selected_result[31]}}, selected_result[31:0]} : selected_result;
 
 `ifndef SYNTHESIS
   // verilog_format: off

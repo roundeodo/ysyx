@@ -59,10 +59,10 @@ module riscv_data_mem
   axi4_manager_to_target_t uncached_axi_manager;
   axi4_target_to_manager_t uncached_axi_response;
 
-  logic                    new_request_window_open;
+  logic                    request_slot_available;
   logic                    selected_data_request_ready;
-  logic                    selected_request_handshake;
-  logic                    local_resp_handshake;
+  logic                    data_memory_req_handshake;
+  logic                    data_memory_resp_handshake;
 
   riscv_pma u_data_pma (
       .lookup_addr_i(data_memory_req_i.addr),
@@ -72,9 +72,12 @@ module riscv_data_mem
   always_comb begin
     request_access_allowed = 1'b0;
     unique case (data_memory_req_i.cmd)
-      MEM_CMD_LOAD:  request_access_allowed = request_memory_attr.readable;
-      MEM_CMD_STORE: request_access_allowed = request_memory_attr.writable;
-      default:       request_access_allowed = 1'b0;
+      MEM_CMD_LOAD:
+        request_access_allowed = request_memory_attr.readable;
+      MEM_CMD_STORE:
+        request_access_allowed = request_memory_attr.writable;
+      default:
+        request_access_allowed = 1'b0;
     endcase
 
     if (!request_access_allowed) begin
@@ -86,123 +89,34 @@ module riscv_data_mem
     end
   end
 
-  assign new_request_window_open = (route_state_q == DATA_ROUTE_IDLE) || local_resp_handshake;
+  assign request_slot_available = (route_state_q == DATA_ROUTE_IDLE) || data_memory_resp_handshake;
 
   assign dcache_req = data_memory_req_i;
   assign uncached_req = data_memory_req_i;
 
   // IDLE是普通直通窗口；当前响应完成的同一拍也是滚动窗口。
   assign dcache_req_valid = !dcache_clean_req_i &&
-      new_request_window_open && data_memory_req_valid_i &&
+      request_slot_available && data_memory_req_valid_i &&
       selected_request_route == DATA_ROUTE_DCACHE;
   assign uncached_req_valid = !dcache_clean_req_i &&
-      new_request_window_open && data_memory_req_valid_i &&
+      request_slot_available && data_memory_req_valid_i &&
       selected_request_route == DATA_ROUTE_UNCACHED;
 
   always_comb begin
     selected_data_request_ready = 1'b0;
     unique case (selected_request_route)
-      DATA_ROUTE_DCACHE:       selected_data_request_ready = dcache_req_ready;
-      DATA_ROUTE_UNCACHED:     selected_data_request_ready = uncached_req_ready;
-      DATA_ROUTE_ACCESS_FAULT: selected_data_request_ready = 1'b1;
-      default:                 ;
+      DATA_ROUTE_DCACHE:
+        selected_data_request_ready = dcache_req_ready;
+      DATA_ROUTE_UNCACHED:
+        selected_data_request_ready = uncached_req_ready;
+      DATA_ROUTE_ACCESS_FAULT:
+        selected_data_request_ready = 1'b1;
+      default:
+         ;
     endcase
   end
 
-  always_comb begin
-    data_memory_resp_o       = '0;
-    data_memory_resp_valid_o = 1'b0;
-    dcache_resp_ready        = 1'b0;
-    uncached_resp_ready      = 1'b0;
-
-    unique case (route_state_q)
-      DATA_ROUTE_DCACHE: begin
-        data_memory_resp_o       = dcache_resp;
-        data_memory_resp_valid_o = dcache_resp_valid;
-        dcache_resp_ready        = data_memory_resp_ready_i;
-      end
-
-      DATA_ROUTE_UNCACHED: begin
-        data_memory_resp_o       = uncached_resp;
-        data_memory_resp_valid_o = uncached_resp_valid;
-        uncached_resp_ready      = data_memory_resp_ready_i;
-      end
-
-      DATA_ROUTE_ACCESS_FAULT: begin
-        data_memory_resp_o.access_fault   = 1'b1;
-        data_memory_resp_o.transaction_id = fault_transaction_id_q;
-        data_memory_resp_valid_o          = 1'b1;
-      end
-
-      default: ;
-    endcase
-  end
-  assign local_resp_handshake = data_memory_resp_valid_o && data_memory_resp_ready_i;
-
-  // ready由当前PMA路由选中的目标返回。响应完成拍可以同时接收下一请求，避免连续
-  // D-cache hit之间出现固定空闲拍；目标反压时由LSU保持请求payload。
-  assign data_memory_req_ready_o = !dcache_clean_req_i && new_request_window_open &&
-      selected_data_request_ready;
-  assign selected_request_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
-
-  // 请求与响应分别选路：交接拍的新 uncached 请求不改变旧响应的归属。
-  logic dcache_response_selected;
-  assign dcache_response_selected = dcache_clean_req_i || route_state_q == DATA_ROUTE_DCACHE;
-
-  // cache 的总线请求在内部 S1/miss 状态确定，优先选择其实际有效通道。
-  // 其余时间预先呈现 uncached payload，不让 LSU 发射允许条件控制宽地址 mux。
-  assign axi_manager_o.ar = dcache_axi_manager.ar_valid ?
-      dcache_axi_manager.ar : uncached_axi_manager.ar;
-  assign axi_manager_o.ar_valid = dcache_axi_manager.ar_valid || uncached_axi_manager.ar_valid;
-  assign axi_manager_o.aw = dcache_axi_manager.aw_valid ?
-      dcache_axi_manager.aw : uncached_axi_manager.aw;
-  assign axi_manager_o.aw_valid = dcache_axi_manager.aw_valid || uncached_axi_manager.aw_valid;
-  assign axi_manager_o.w = dcache_axi_manager.w_valid ? dcache_axi_manager.w : uncached_axi_manager.w;
-  assign axi_manager_o.w_valid = dcache_axi_manager.w_valid || uncached_axi_manager.w_valid;
-  assign axi_manager_o.r_ready = dcache_response_selected ?
-      dcache_axi_manager.r_ready : uncached_axi_manager.r_ready;
-  assign axi_manager_o.b_ready = dcache_response_selected ?
-      dcache_axi_manager.b_ready : uncached_axi_manager.b_ready;
-
-  assign dcache_axi_response.ar_ready = axi_manager_i.ar_ready;
-  assign dcache_axi_response.aw_ready = axi_manager_i.aw_ready;
-  assign dcache_axi_response.w_ready = axi_manager_i.w_ready;
-  assign dcache_axi_response.r = axi_manager_i.r;
-  assign dcache_axi_response.r_valid = dcache_response_selected && axi_manager_i.r_valid;
-  assign dcache_axi_response.b = axi_manager_i.b;
-  assign dcache_axi_response.b_valid = dcache_response_selected && axi_manager_i.b_valid;
-  assign uncached_axi_response.ar_ready = !dcache_axi_manager.ar_valid && axi_manager_i.ar_ready;
-  assign uncached_axi_response.aw_ready = !dcache_axi_manager.aw_valid && axi_manager_i.aw_ready;
-  assign uncached_axi_response.w_ready = !dcache_axi_manager.w_valid && axi_manager_i.w_ready;
-  assign uncached_axi_response.r = axi_manager_i.r;
-  assign uncached_axi_response.r_valid = !dcache_response_selected && axi_manager_i.r_valid;
-  assign uncached_axi_response.b = axi_manager_i.b;
-  assign uncached_axi_response.b_valid = !dcache_response_selected && axi_manager_i.b_valid;
-
-  always_comb begin
-    route_state_d          = route_state_q;
-    fault_transaction_id_d = fault_transaction_id_q;
-    if (selected_request_handshake) begin
-      route_state_d = selected_request_route;
-      if (selected_request_route == DATA_ROUTE_ACCESS_FAULT) begin
-        fault_transaction_id_d = data_memory_req_i.transaction_id;
-      end
-    end else if (route_state_q != DATA_ROUTE_IDLE && local_resp_handshake) begin
-      route_state_d = DATA_ROUTE_IDLE;
-    end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni)
-      route_state_q <= DATA_ROUTE_IDLE;
-    else
-      route_state_q <= route_state_d;
-  end
-
-  always_ff @(posedge clk_i) begin
-    fault_transaction_id_q <= fault_transaction_id_d;
-  end
-
+  // 请求分流后的两个实际目标：D-cache 与 uncached AXI 适配器。
   generate
     if (DCACHE_ENABLED) begin : gen_dcache
       riscv_dcache u_dcache (
@@ -246,6 +160,101 @@ module riscv_data_mem
       .axi_manager_o           (uncached_axi_manager),
       .axi_manager_i           (uncached_axi_response)
   );
+  // 返回路径按已保存的事务归属选择，不随新输入地址改变。
+  always_comb begin
+    data_memory_resp_o       = '0;
+    data_memory_resp_valid_o = 1'b0;
+    dcache_resp_ready        = 1'b0;
+    uncached_resp_ready      = 1'b0;
+
+    unique case (route_state_q)
+      DATA_ROUTE_DCACHE: begin
+        data_memory_resp_o       = dcache_resp;
+        data_memory_resp_valid_o = dcache_resp_valid;
+        dcache_resp_ready        = data_memory_resp_ready_i;
+      end
+
+      DATA_ROUTE_UNCACHED: begin
+        data_memory_resp_o       = uncached_resp;
+        data_memory_resp_valid_o = uncached_resp_valid;
+        uncached_resp_ready      = data_memory_resp_ready_i;
+      end
+
+      DATA_ROUTE_ACCESS_FAULT: begin
+        data_memory_resp_o.access_fault   = 1'b1;
+        data_memory_resp_o.transaction_id = fault_transaction_id_q;
+        data_memory_resp_valid_o          = 1'b1;
+      end
+
+      default: ;
+    endcase
+  end
+  assign data_memory_resp_handshake = data_memory_resp_valid_o && data_memory_resp_ready_i;
+
+  // ready由当前PMA路由选中的目标返回。响应完成拍可以同时接收下一请求，避免连续
+  // D-cache hit之间出现固定空闲拍；目标反压时由LSU保持请求payload。
+  assign data_memory_req_ready_o = !dcache_clean_req_i && request_slot_available &&
+      selected_data_request_ready;
+  assign data_memory_req_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
+
+  // 请求与响应分别选路：交接拍的新 uncached 请求不改变旧响应的归属。
+  logic dcache_response_selected;
+  assign dcache_response_selected = dcache_clean_req_i || route_state_q == DATA_ROUTE_DCACHE;
+
+  // cache 的总线请求在内部 S1/miss 状态确定，优先选择其实际有效通道。
+  // 其余时间预先呈现 uncached payload，不让 LSU 发射允许条件控制宽地址 mux。
+  assign axi_manager_o.ar = dcache_axi_manager.ar_valid ?
+      dcache_axi_manager.ar : uncached_axi_manager.ar;
+  assign axi_manager_o.ar_valid = dcache_axi_manager.ar_valid || uncached_axi_manager.ar_valid;
+  assign axi_manager_o.aw = dcache_axi_manager.aw_valid ?
+      dcache_axi_manager.aw : uncached_axi_manager.aw;
+  assign axi_manager_o.aw_valid = dcache_axi_manager.aw_valid || uncached_axi_manager.aw_valid;
+  assign axi_manager_o.w = dcache_axi_manager.w_valid ? dcache_axi_manager.w : uncached_axi_manager.w;
+  assign axi_manager_o.w_valid = dcache_axi_manager.w_valid || uncached_axi_manager.w_valid;
+  assign axi_manager_o.r_ready = dcache_response_selected ?
+      dcache_axi_manager.r_ready : uncached_axi_manager.r_ready;
+  assign axi_manager_o.b_ready = dcache_response_selected ?
+      dcache_axi_manager.b_ready : uncached_axi_manager.b_ready;
+
+  assign dcache_axi_response.ar_ready = axi_manager_i.ar_ready;
+  assign dcache_axi_response.aw_ready = axi_manager_i.aw_ready;
+  assign dcache_axi_response.w_ready = axi_manager_i.w_ready;
+  assign dcache_axi_response.r = axi_manager_i.r;
+  assign dcache_axi_response.r_valid = dcache_response_selected && axi_manager_i.r_valid;
+  assign dcache_axi_response.b = axi_manager_i.b;
+  assign dcache_axi_response.b_valid = dcache_response_selected && axi_manager_i.b_valid;
+  assign uncached_axi_response.ar_ready = !dcache_axi_manager.ar_valid && axi_manager_i.ar_ready;
+  assign uncached_axi_response.aw_ready = !dcache_axi_manager.aw_valid && axi_manager_i.aw_ready;
+  assign uncached_axi_response.w_ready = !dcache_axi_manager.w_valid && axi_manager_i.w_ready;
+  assign uncached_axi_response.r = axi_manager_i.r;
+  assign uncached_axi_response.r_valid = !dcache_response_selected && axi_manager_i.r_valid;
+  assign uncached_axi_response.b = axi_manager_i.b;
+  assign uncached_axi_response.b_valid = !dcache_response_selected && axi_manager_i.b_valid;
+
+  always_comb begin
+    route_state_d          = route_state_q;
+    fault_transaction_id_d = fault_transaction_id_q;
+    if (data_memory_req_handshake) begin
+      route_state_d = selected_request_route;
+      if (selected_request_route == DATA_ROUTE_ACCESS_FAULT) begin
+        fault_transaction_id_d = data_memory_req_i.transaction_id;
+      end
+    end else if (route_state_q != DATA_ROUTE_IDLE && data_memory_resp_handshake) begin
+      route_state_d = DATA_ROUTE_IDLE;
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni)
+      route_state_q <= DATA_ROUTE_IDLE;
+    else
+      route_state_q <= route_state_d;
+  end
+
+  always_ff @(posedge clk_i) begin
+    fault_transaction_id_q <= fault_transaction_id_d;
+  end
+
 
 `ifndef SYNTHESIS
   assert property (@(posedge clk_i) disable iff (!rst_ni)
@@ -262,12 +271,14 @@ module riscv_data_mem
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     data_memory_req_valid_i && !data_memory_req_ready_o |=>
-      (data_memory_req_valid_i && $stable(data_memory_req_i)))
+      (data_memory_req_valid_i && $stable(
+      data_memory_req_i
+  )))
   else
     $error("data memory request changed while the subsystem was stalled");
 
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    route_state_q != DATA_ROUTE_IDLE && local_resp_handshake &&
+    route_state_q != DATA_ROUTE_IDLE && data_memory_resp_handshake &&
       data_memory_req_valid_i && !data_memory_req_ready_o |=> data_memory_req_valid_i)
   else
     $error("LSU did not retain a rollover request rejected by the memory target");

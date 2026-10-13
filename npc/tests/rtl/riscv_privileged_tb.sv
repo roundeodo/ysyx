@@ -21,7 +21,7 @@ module riscv_privileged_tb;
   logic              [11:0] csr_read_addr;
   logic                     csr_access_write_enable;
   xlen_data_t               csr_read_data;
-  logic                     csr_read_illegal;
+  logic                     csr_access_illegal;
   logic                     csr_write_valid;
   logic              [11:0] csr_write_addr;
   xlen_data_t               csr_write_data;
@@ -54,7 +54,7 @@ module riscv_privileged_tb;
       .csr_read_addr_i            (csr_read_addr),
       .csr_access_write_enable_i  (csr_access_write_enable),
       .csr_read_data_o            (csr_read_data),
-      .csr_read_illegal_o         (csr_read_illegal),
+      .csr_access_illegal_o       (csr_access_illegal),
       .csr_write_valid_i          (csr_write_valid),
       .csr_write_addr_i           (csr_write_addr),
       .csr_write_data_i           (csr_write_data),
@@ -97,7 +97,7 @@ module riscv_privileged_tb;
     csr_read_addr   = address;
     csr_read_enable = 1'b1;
     #1;
-    assert (!csr_read_illegal && (csr_read_data == expected_data))
+    assert (!csr_access_illegal && (csr_read_data == expected_data))
     else
       $fatal(
           1,
@@ -106,7 +106,7 @@ module riscv_privileged_tb;
           address,
           expected_data,
           csr_read_data,
-          csr_read_illegal
+          csr_access_illegal
       );
     csr_read_enable = 1'b0;
   endtask
@@ -141,45 +141,52 @@ module riscv_privileged_tb;
     csr_read_addr   = CSR_MISA;
     csr_read_enable = 1'b1;
     #1;
-    assert (!csr_read_illegal && csr_read_data[8] && csr_read_data[12] &&
+    assert (!csr_access_illegal && csr_read_data[8] && csr_read_data[12] &&
             (csr_read_data[XLEN-1 -: 2] == ((XLEN == 32) ? 2'b01 : 2'b10)))
-    else $fatal(1, "misa does not report the selected RV64IM configuration");
+    else
+      $fatal(1, "misa does not report the selected RV64IM configuration");
     csr_read_enable = 1'b0;
 
     csr_read_addr   = 12'h7c0;
     csr_read_enable = 1'b1;
     #1;
-    assert (csr_read_illegal)
-    else $fatal(1, "unknown CSR read was accepted");
+    assert (csr_access_illegal)
+    else
+      $fatal(1, "unknown CSR read was accepted");
     csr_read_enable         = 1'b0;
 
     csr_read_addr           = 12'h7c0;
     csr_access_write_enable = 1'b1;
     #1;
-    assert (csr_read_illegal)
-    else $fatal(1, "unknown CSRRW rd=x0 was accepted");
+    assert (csr_access_illegal)
+    else
+      $fatal(1, "unknown CSRRW rd=x0 was accepted");
     csr_access_write_enable = 1'b0;
 
     csr_read_addr           = CSR_MVENDORID;
     csr_access_write_enable = 1'b1;
     #1;
-    assert (csr_read_illegal)
-    else $fatal(1, "read-only CSR write was accepted");
+    assert (csr_access_illegal)
+    else
+      $fatal(1, "read-only CSR write was accepted");
     csr_access_write_enable = 1'b0;
 
     csr_read_addr   = CSR_MCYCLEH;
     csr_read_enable = 1'b1;
     #1;
-    assert (csr_read_illegal == (XLEN == 64))
-    else $fatal(1, "mcycleh legality does not match XLEN");
+    assert (csr_access_illegal == (XLEN == 64))
+    else
+      $fatal(1, "mcycleh legality does not match XLEN");
     csr_read_enable = 1'b0;
 
     write_csr(CSR_MTVEC, xlen_data_t'(64'h0000_0000_8000_0103));
     assert (mtvec == program_counter_t'(64'h0000_0000_8000_0100))
-    else $fatal(1, "mtvec direct-mode WARL alignment failed");
+    else
+      $fatal(1, "mtvec direct-mode WARL alignment failed");
     write_csr(CSR_MEPC, xlen_data_t'(64'h0000_0000_8000_0227));
     assert (mepc == program_counter_t'(64'h0000_0000_8000_0224))
-    else $fatal(1, "mepc IALIGN WARL alignment failed");
+    else
+      $fatal(1, "mepc IALIGN WARL alignment failed");
     write_csr(CSR_MSTATUS, '1);
     read_csr(CSR_MSTATUS, xlen_data_t'(32'h0000_1888));
 
@@ -199,10 +206,12 @@ module riscv_privileged_tb;
     #1;
     assert (commit_valid && commit.trap_taken && !commit.gpr_write &&
             !commit.csr_write && !commit.memory_access && !gpr_write_enable)
-    else $fatal(1, "exception commit leaked a normal architectural side effect");
+    else
+      $fatal(1, "exception commit leaked a normal architectural side effect");
     assert (trap_redirect_valid && trap_redirect.reason == REDIRECT_TRAP &&
             trap_redirect.target_pc == program_counter_t'(64'h8000_0100))
-    else $fatal(1, "trap redirect did not use aligned mtvec");
+    else
+      $fatal(1, "trap redirect did not use aligned mtvec");
     @(posedge clk);
     #1;
     writeback_result_valid = 1'b0;
@@ -218,7 +227,8 @@ module riscv_privileged_tb;
     #1;
     assert (mret_valid && trap_redirect_valid &&
             trap_redirect.target_pc == program_counter_t'(64'h8000_0040))
-    else $fatal(1, "mret redirect did not use mepc");
+    else
+      $fatal(1, "mret redirect did not use mepc");
     @(posedge clk);
     #1;
     writeback_result_valid = 1'b0;

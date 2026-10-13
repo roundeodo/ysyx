@@ -43,9 +43,9 @@ module riscv_btb
     branch_target_kind_e kind;
   } entry_t;
 
-  entry_t                         entry_array_q          [SET_COUNT] [BTB_WAY_COUNT];
-  logic       [BTB_WAY_COUNT-1:0] entry_present_array_q  [SET_COUNT];
-  way_index_t                     replacement_way_array_q[SET_COUNT];
+  entry_t                         entry_array_q                [SET_COUNT] [BTB_WAY_COUNT];
+  logic       [BTB_WAY_COUNT-1:0] entry_present_array_q        [SET_COUNT];
+  way_index_t                     replacement_way_index_array_q[SET_COUNT];
 
   // 2. 查询读口：读取一个 set，并行比较各 way，合并唯一命中项。
   set_index_t                     lookup_set_index;
@@ -76,7 +76,7 @@ module riscv_btb
   set_index_t training_set_index;
   tag_t       training_tag;
   way_index_t training_way_index;
-  way_index_t replacement_next_way;
+  way_index_t replacement_next_way_index;
   logic       training_hit_present;
   logic       empty_way_present;
   logic       training_write_enable;
@@ -86,7 +86,7 @@ module riscv_btb
   assign training_write_enable = training_valid_i && !invalidate_i;
 
   always_comb begin
-    training_way_index   = replacement_way_array_q[training_set_index];
+    training_way_index   = replacement_way_index_array_q[training_set_index];
     training_hit_present = 1'b0;
     empty_way_present    = 1'b0;
     for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
@@ -100,9 +100,9 @@ module riscv_btb
         empty_way_present  = 1'b1;
       end
     end
-    replacement_next_way = training_way_index + way_index_t'(1);
+    replacement_next_way_index = training_way_index + way_index_t'(1);
     if (training_way_index == way_index_t'(BTB_WAY_COUNT - 1))
-      replacement_next_way = '0;
+      replacement_next_way_index = '0;
   end
 
   // 4. 同步写口：连续训练在下一周期直接看到本沿写入的状态，不需要旁路。
@@ -117,18 +117,18 @@ module riscv_btb
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
-        entry_present_array_q[set_index]   <= '0;
-        replacement_way_array_q[set_index] <= '0;
+        entry_present_array_q[set_index]         <= '0;
+        replacement_way_index_array_q[set_index] <= '0;
       end
     end else if (invalidate_i) begin
       for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
-        entry_present_array_q[set_index]   <= '0;
-        replacement_way_array_q[set_index] <= '0;
+        entry_present_array_q[set_index]         <= '0;
+        replacement_way_index_array_q[set_index] <= '0;
       end
     end else if (training_write_enable) begin
       entry_present_array_q[training_set_index][training_way_index] <= 1'b1;
       if (!training_hit_present && !empty_way_present)
-        replacement_way_array_q[training_set_index] <= replacement_next_way;
+        replacement_way_index_array_q[training_set_index] <= replacement_next_way_index;
     end
   end
 

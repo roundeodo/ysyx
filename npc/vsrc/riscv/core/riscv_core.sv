@@ -24,6 +24,7 @@ module riscv_core
   localparam int unsigned FENCE_I_REDIRECT_INDEX = 2;
   localparam int unsigned COMMIT_REDIRECT_INDEX = 3;
 
+  // 取指前端：预测请求/响应 → IFU → I-cache → 取指缓冲；回填走独立 AXI 接口。
   icache_lookup_req_t  icache_lookup_req;
   logic                icache_lookup_req_valid;
   logic                icache_lookup_req_ready;
@@ -50,6 +51,53 @@ module riscv_core
   logic                frontend_prediction_allowed;
   redirect_req_t       sequential_redirect;
   logic                sequential_redirect_valid;
+
+  // 预测器在I-cache之前运行。预测响应与下一次预测请求可以同拍握手；IFU用frontend
+  // 请求上下文保存唯一在途取指的预测元数据；队列 ready 传递容量，响应寄存器切断 next-PC 反馈。
+  program_counter_t    resolved_control_flow_target;
+  execute_result_t     resolved_execute_result;
+
+  assign resolved_control_flow_target =
+      (resolved_execute_result.uop.branch_ctrl.op == CF_JALR) ?
+      resolved_execute_result.next_pc :
+      resolved_execute_result.uop.pc +
+      program_counter_t'(resolved_execute_result.uop.imm);
+
+  logic resolved_execute_result_valid;
+  logic resolved_execute_result_ready;
+
+  riscv_branch_predictor u_branch_predictor (
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .lookup_request_pc_i(next_pc_predictor_lookup_request_pc),
+      .lookup_request_epoch_i(next_pc_predictor_lookup_request_epoch),
+      .lookup_request_valid_i(next_pc_predictor_lookup_request_valid),
+      .lookup_request_ready_o(next_pc_predictor_lookup_request_ready),
+      .lookup_response_pc_o(next_pc_predictor_lookup_response_pc),
+      .lookup_response_epoch_o(next_pc_predictor_lookup_response_epoch),
+      .lookup_prediction_o(next_pc_predictor_prediction),
+      .lookup_next_pc_o(),
+      .lookup_response_valid_o(next_pc_predictor_lookup_response_valid),
+      .lookup_response_ready_i(next_pc_predictor_lookup_response_ready),
+      .resolved_control_flow_pc_i(resolved_execute_result.uop.pc),
+      .resolved_control_flow_target_i(resolved_control_flow_target),
+      .resolved_control_flow_imm_i(resolved_execute_result.uop.imm),
+      .resolved_control_flow_op_i(resolved_execute_result.uop.branch_ctrl.op),
+      .resolved_control_flow_rs1_i(resolved_execute_result.uop.rs1),
+      .resolved_control_flow_rd_i(resolved_execute_result.uop.rd),
+      .resolved_control_flow_event_i  (
+          resolved_execute_result_valid && resolved_execute_result_ready &&
+          (resolved_execute_result.uop.fu_type == FU_BRANCH) &&
+          !resolved_execute_result.uop.exception_valid
+      ),
+      .resolved_control_flow_taken_i(
+          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
+          (resolved_execute_result.next_pc !=
+          (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
+      ),
+      .flush_lookup_i(next_pc_predictor_flush),
+      .invalidate_i(icache_invalidate_req)
+  );
 
   riscv_ifu #(
       .PC_START(RESET_PC)
@@ -129,53 +177,6 @@ module riscv_core
       .flush_i                (frontend_recovery_event)
   );
 
-  // 预测器在I-cache之前运行。预测响应与下一次预测请求可以同拍握手；IFU用frontend
-  // 请求上下文保存唯一在途取指的预测元数据；队列 ready 传递容量，响应寄存器切断 next-PC 反馈。
-  program_counter_t resolved_control_flow_target;
-  execute_result_t  resolved_execute_result;
-
-  assign resolved_control_flow_target =
-      (resolved_execute_result.uop.branch_ctrl.op == CF_JALR) ?
-      resolved_execute_result.next_pc :
-      resolved_execute_result.uop.pc +
-      program_counter_t'(resolved_execute_result.uop.imm);
-
-  logic resolved_execute_result_valid;
-  logic resolved_execute_result_ready;
-
-  riscv_branch_predictor u_branch_predictor (
-      .clk_i(clk_i),
-      .rst_ni(rst_ni),
-      .lookup_request_pc_i(next_pc_predictor_lookup_request_pc),
-      .lookup_request_epoch_i(next_pc_predictor_lookup_request_epoch),
-      .lookup_request_valid_i(next_pc_predictor_lookup_request_valid),
-      .lookup_request_ready_o(next_pc_predictor_lookup_request_ready),
-      .lookup_response_pc_o(next_pc_predictor_lookup_response_pc),
-      .lookup_response_epoch_o(next_pc_predictor_lookup_response_epoch),
-      .lookup_prediction_o(next_pc_predictor_prediction),
-      .lookup_next_pc_o(),
-      .lookup_response_valid_o(next_pc_predictor_lookup_response_valid),
-      .lookup_response_ready_i(next_pc_predictor_lookup_response_ready),
-      .resolved_control_flow_pc_i(resolved_execute_result.uop.pc),
-      .resolved_control_flow_target_i(resolved_control_flow_target),
-      .resolved_control_flow_imm_i(resolved_execute_result.uop.imm),
-      .resolved_control_flow_op_i(resolved_execute_result.uop.branch_ctrl.op),
-      .resolved_control_flow_rs1_i(resolved_execute_result.uop.rs1),
-      .resolved_control_flow_rd_i(resolved_execute_result.uop.rd),
-      .resolved_control_flow_event_i  (
-          resolved_execute_result_valid && resolved_execute_result_ready &&
-          (resolved_execute_result.uop.fu_type == FU_BRANCH) &&
-          !resolved_execute_result.uop.exception_valid
-      ),
-      .resolved_control_flow_taken_i(
-          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
-          (resolved_execute_result.next_pc !=
-          (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
-      ),
-      .flush_lookup_i(next_pc_predictor_flush),
-      .invalidate_i(icache_invalidate_req)
-  );
-
   // 统计真正随fetch entry进入队列的taken预测，不统计尚未完成I-cache响应配对的请求。
   logic fetch_taken_prediction_event;
 
@@ -196,6 +197,7 @@ module riscv_core
       .axi_manager_i      (instruction_axi4_manager_i)
   );
 
+  // 译码与读寄存器：架构值和较老在途结果送入 Issue 的源选择逻辑。
   decoded_uop_t decoded_uop;
   logic         decoded_uop_valid;
   logic         decoded_uop_ready;
@@ -230,7 +232,7 @@ module riscv_core
   commit_t          commit;
   logic             commit_valid;
   xlen_data_t       csr_read_data;
-  logic             csr_read_illegal;
+  logic             csr_access_illegal;
   program_counter_t csr_mtvec;
   program_counter_t csr_mepc;
   logic             retired_instruction_event;
@@ -248,7 +250,7 @@ module riscv_core
       .csr_read_addr_i            (idu_fetch_entry.instruction[31:20]),
       .csr_access_write_enable_i  (decoded_uop_valid && decoded_uop.csr_ctrl.write_enable),
       .csr_read_data_o            (csr_read_data),
-      .csr_read_illegal_o         (csr_read_illegal),
+      .csr_access_illegal_o       (csr_access_illegal),
       .csr_write_valid_i          (commit_valid && commit.csr_write),
       .csr_write_addr_i           (commit.csr_addr),
       .csr_write_data_i           (commit.csr_wdata),
@@ -304,59 +306,59 @@ module riscv_core
   logic multiply_result_present;
   logic divide_result_present;
   logic execute_operands_ready;
-  xlen_data_t arithmetic_operand[2];
-  logic [1:0] issue_operand_pending;
-  scoreboard_index_t issue_operand_index[2];
-  completion_source_e issue_operand_source[2];
-  completion_source_e scoreboard_rs1_source, scoreboard_rs2_source;
-  scoreboard_index_t scoreboard_rs1_index, scoreboard_rs2_index;
-  arithmetic_result_t operand_completion[3];
-  logic [2:0] operand_completion_valid;
+  xlen_data_t muldiv_operand_array[2];
+  logic [1:0] issue_operand_pending_vector;
+  scoreboard_index_t issue_operand_producer_index_array[2];
+  completion_source_e issue_operand_completion_source_array[2];
+  completion_source_e scoreboard_rs1_completion_source, scoreboard_rs2_completion_source;
+  scoreboard_index_t scoreboard_rs1_producer_index, scoreboard_rs2_producer_index;
+  arithmetic_result_t operand_completion_result_array[3];
+  logic [2:0] operand_completion_valid_vector;
   arithmetic_result_t lsu_forward_result;
   logic lsu_forward_valid;
-  assign operand_completion[0] = lsu_forward_result;
-  assign operand_completion[1] = multiply_result;
-  assign operand_completion[2] = divide_result;
+  assign operand_completion_result_array[0] = lsu_forward_result;
+  assign operand_completion_result_array[1] = multiply_result;
+  assign operand_completion_result_array[2] = divide_result;
   // 数据选择只看已保存结果；恢复仍单独阻止发射并清除等待槽。
-  assign operand_completion_valid = {
+  assign operand_completion_valid_vector = {
     divide_result_present, multiply_result_present, lsu_forward_valid
   };
 
   riscv_issue_ctrl u_issue_ctrl (
-      .decoded_uop_i                    (decoded_uop),
-      .decoded_uop_valid_i              (decoded_uop_valid),
-      .register_rs1_i                   (rs1_value),
-      .register_rs2_i                   (rs2_value),
-      .execute_packet_i                 (execute_packet),
-      .execute_packet_valid_i           (execute_packet_valid),
-      .execute_result_i                 (exu_result),
-      .scoreboard_rs1_pending_i         (scoreboard_rs1_pending),
-      .scoreboard_rs1_ready_i           (scoreboard_rs1_ready),
-      .scoreboard_rs1_value_i           (scoreboard_rs1_value),
-      .scoreboard_rs2_pending_i         (scoreboard_rs2_pending),
-      .scoreboard_rs2_ready_i           (scoreboard_rs2_ready),
-      .scoreboard_rs2_value_i           (scoreboard_rs2_value),
-      .scoreboard_serializing_present_i (scoreboard_serializing_present),
-      .scoreboard_empty_i               (scoreboard_empty),
-      .scoreboard_allocate_ready_i      (scoreboard_allocate_ready),
-      .scoreboard_memory_issue_allowed_i(scoreboard_memory_issue_allowed),
-      .recovery_i                       (older_redirect_event),
-      .execute_operands_ready_i         (execute_operands_ready),
-      .allocate_index_i                 (scoreboard_allocate_index),
-      .scoreboard_rs1_source_i          (scoreboard_rs1_source),
-      .scoreboard_rs2_source_i          (scoreboard_rs2_source),
-      .operand_source_o                 (issue_operand_source),
-      .scoreboard_rs1_index_i           (scoreboard_rs1_index),
-      .scoreboard_rs2_index_i           (scoreboard_rs2_index),
-      .operand_pending_o                (issue_operand_pending),
-      .operand_index_o                  (issue_operand_index),
-      .rs1_value_o                      (issue_rs1_value),
-      .rs2_value_o                      (issue_rs2_value),
-      .decode_accept_allowed_o          (decode_accept_allowed),
-      .execute_issue_allowed_o          (execute_issue_allowed),
-      .raw_hazard_present_o             (raw_hazard_present),
-      .serializing_hazard_present_o     (serializing_hazard_present),
-      .structural_hazard_present_o      (structural_hazard_present)
+      .decoded_uop_i                     (decoded_uop),
+      .decoded_uop_valid_i               (decoded_uop_valid),
+      .register_rs1_i                    (rs1_value),
+      .register_rs2_i                    (rs2_value),
+      .execute_packet_i                  (execute_packet),
+      .execute_packet_valid_i            (execute_packet_valid),
+      .execute_result_i                  (exu_result),
+      .scoreboard_rs1_pending_i          (scoreboard_rs1_pending),
+      .scoreboard_rs1_ready_i            (scoreboard_rs1_ready),
+      .scoreboard_rs1_value_i            (scoreboard_rs1_value),
+      .scoreboard_rs2_pending_i          (scoreboard_rs2_pending),
+      .scoreboard_rs2_ready_i            (scoreboard_rs2_ready),
+      .scoreboard_rs2_value_i            (scoreboard_rs2_value),
+      .scoreboard_serializing_present_i  (scoreboard_serializing_present),
+      .scoreboard_empty_i                (scoreboard_empty),
+      .scoreboard_allocate_ready_i       (scoreboard_allocate_ready),
+      .scoreboard_memory_issue_allowed_i (scoreboard_memory_issue_allowed),
+      .recovery_i                        (older_redirect_event),
+      .execute_operands_ready_i          (execute_operands_ready),
+      .allocate_index_i                  (scoreboard_allocate_index),
+      .scoreboard_rs1_completion_source_i(scoreboard_rs1_completion_source),
+      .scoreboard_rs2_completion_source_i(scoreboard_rs2_completion_source),
+      .operand_completion_source_array_o (issue_operand_completion_source_array),
+      .scoreboard_rs1_producer_index_i   (scoreboard_rs1_producer_index),
+      .scoreboard_rs2_producer_index_i   (scoreboard_rs2_producer_index),
+      .operand_pending_vector_o          (issue_operand_pending_vector),
+      .operand_producer_index_array_o    (issue_operand_producer_index_array),
+      .rs1_value_o                       (issue_rs1_value),
+      .rs2_value_o                       (issue_rs2_value),
+      .decode_accept_allowed_o           (decode_accept_allowed),
+      .execute_issue_allowed_o           (execute_issue_allowed),
+      .raw_hazard_present_o              (raw_hazard_present),
+      .serializing_hazard_present_o      (serializing_hazard_present),
+      .structural_hazard_present_o       (structural_hazard_present)
   );
 
   riscv_operand_mux u_operand_mux (
@@ -364,7 +366,7 @@ module riscv_core
       .rs1_value_i             (issue_rs1_value),
       .rs2_value_i             (issue_rs2_value),
       .csr_read_data_i         (csr_read_data),
-      .csr_read_illegal_i      (csr_read_illegal),
+      .csr_access_illegal_i    (csr_access_illegal),
       .decoded_execute_packet_o(decoded_execute_packet)
   );
 
@@ -372,13 +374,13 @@ module riscv_core
   assign execute_handshake = execute_packet_valid && execute_issue_allowed && execute_packet_ready;
   assign decode_execute_flush = older_redirect_event;
   riscv_id_ex_reg u_id_ex_reg (
-      .operand_pending_i(issue_operand_pending),
-      .operand_index_i(issue_operand_index),
-      .operand_source_i(issue_operand_source),
-      .completion_i(operand_completion),
-      .completion_valid_i(operand_completion_valid),
+      .operand_pending_vector_i(issue_operand_pending_vector),
+      .operand_producer_index_array_i(issue_operand_producer_index_array),
+      .operand_completion_source_array_i(issue_operand_completion_source_array),
+      .completion_result_array_i(operand_completion_result_array),
+      .completion_valid_vector_i(operand_completion_valid_vector),
       .operands_ready_o(execute_operands_ready),
-      .arithmetic_operand_o(arithmetic_operand),
+      .muldiv_operand_array_o(muldiv_operand_array),
       .clk_i(clk_i),
       .rst_ni(rst_ni),
       .decoded_execute_packet_i(decoded_execute_packet),
@@ -400,8 +402,9 @@ module riscv_core
   logic     lsu_req_valid;
   logic     lsu_req_ready;
 
+  // 执行与访存：普通结果当拍分配，MUL/DIV/LSU 按槽号返回。
   riscv_exu u_exu (
-      .arithmetic_operand_i          (arithmetic_operand),
+      .muldiv_operand_array_i        (muldiv_operand_array),
       .clk_i                         (clk_i),
       .rst_ni                        (rst_ni),
       .flush_i                       (commit_redirect_event),
@@ -519,10 +522,10 @@ module riscv_core
       .divide_result_i        (divide_result),
       .divide_result_valid_i  (divide_result_valid),
       .query_uop_i            (decoded_uop),
-      .rs1_source_o           (scoreboard_rs1_source),
-      .rs2_source_o           (scoreboard_rs2_source),
-      .rs1_index_o            (scoreboard_rs1_index),
-      .rs2_index_o            (scoreboard_rs2_index),
+      .rs1_completion_source_o(scoreboard_rs1_completion_source),
+      .rs2_completion_source_o(scoreboard_rs2_completion_source),
+      .rs1_producer_index_o   (scoreboard_rs1_producer_index),
+      .rs2_producer_index_o   (scoreboard_rs2_producer_index),
       .rs1_pending_o          (scoreboard_rs1_pending),
       .rs1_ready_o            (scoreboard_rs1_ready),
       .rs1_value_o            (scoreboard_rs1_value),
@@ -761,32 +764,38 @@ module riscv_core
   a_dcache_clean_request_held_until_done :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (dcache_clean_req && !dcache_clean_done) |=> dcache_clean_req)
-  else $error("core withdrew D-cache clean request before completion");
+  else
+    $error("core withdrew D-cache clean request before completion");
 
   a_icache_invalidate_request_held_until_done :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (icache_invalidate_req && !icache_invalidate_done) |=> icache_invalidate_req)
-  else $error("core withdrew I-cache invalidate request before completion");
+  else
+    $error("core withdrew I-cache invalidate request before completion");
 
   a_icache_invalidate_done_has_request :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     icache_invalidate_done |-> icache_invalidate_req)
-  else $error("core observed I-cache invalidate completion without a request");
+  else
+    $error("core observed I-cache invalidate completion without a request");
 
   a_icache_invalidate_request_means_busy :
   assert property (@(posedge clk_i) disable iff (!rst_ni) icache_invalidate_req |-> icache_busy)
-  else $error("I-cache dropped busy while an invalidate transaction was pending");
+  else
+    $error("I-cache dropped busy while an invalidate transaction was pending");
 
   a_dcache_clean_request_means_busy :
   assert property (@(posedge clk_i) disable iff (!rst_ni) dcache_clean_req |-> dcache_busy)
-  else $error("D-cache dropped busy while a clean transaction was pending");
+  else
+    $error("D-cache dropped busy while a clean transaction was pending");
 
   a_failed_clean_keeps_frontend_blocked :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (dcache_clean_req && dcache_clean_done && dcache_clean_access_fault) |=>
       (fence_i_maintenance_active && !icache_invalidate_req &&
        !next_pc_predictor_lookup_request_valid))
-  else $error("FENCE.I resumed after a failed D-cache clean");
+  else
+    $error("FENCE.I resumed after a failed D-cache clean");
 
   // FENCE.I依靠serializing语义排空后端，而不是在提交拍用组合flush补救。该性质成立时，
   // committed_fence_i_event 同拍发起重定向，并启动 cache 维护事务。
@@ -797,14 +806,16 @@ module riscv_core
      (!resolved_execute_result_valid ||
       (resolved_execute_result.uop.pc == commit.pc &&
        resolved_execute_result.uop.system_op == SYS_FENCE_I))))
-  else $error("FENCE.I committed while younger backend work was still present");
+  else
+    $error("FENCE.I committed while younger backend work was still present");
 
   // 老异常在 EX 结果级时就阻止年轻 LSU 请求，不能等到 WB 恢复再取消已接收的访存。
   a_execute_exception_blocks_younger_memory :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (resolved_execute_result_valid && resolved_execute_result.uop.exception_valid) |->
       (!lsu_req_valid))
-  else $error("older EX result exception allowed a younger memory request");
+  else
+    $error("older EX result exception allowed a younger memory request");
 
   // 精确异常在 commit 成为架构事件，此时也不能残留此前接收的年轻 LSU 事务。
   a_committed_exception_flushes_younger_instructions :
@@ -812,20 +823,23 @@ module riscv_core
     (commit_valid && commit.trap_taken) |->
     (commit_redirect_event && decode_execute_flush &&
      !execute_issue_allowed && !lsu_transaction_active))
-  else $error("committed exception did not block and flush younger pipeline work");
+  else
+    $error("committed exception did not block and flush younger pipeline work");
 
   // LSU 只能越过已排除异常的纯运算；前一条访存必须提交后才释放上下文。
   a_memory_issue_is_irrevocable :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (lsu_req_valid && lsu_req_ready) |->
       (scoreboard_memory_issue_allowed && !older_redirect_event))
-  else $error("Memory request bypassed exception or side-effect ordering");
+  else
+    $error("Memory request bypassed exception or side-effect ordering");
 
   a_resolved_execute_redirect_blocks_younger_execute :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (resolved_execute_result_valid && resolved_execute_result.redirect_valid) |->
       (decode_execute_flush && !execute_issue_allowed && !lsu_req_valid))
-  else $error("resolved execute redirect allowed a wrong-path EX side effect");
+  else
+    $error("resolved execute redirect allowed a wrong-path EX side effect");
 
   /* verilator lint_on SYNCASYNCNET */
 `endif

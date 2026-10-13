@@ -483,3 +483,30 @@ Scored 周期 1,634,696 → 1,566,429，IPC 0.204247 → 0.213148；Total 周期
 
 完整测量条件、功能检查、Total 退化限制与原始记录：
 [发射等待与乘除法优化](ISSUE_FU_OPTIMIZATION_2026-09-27.md)。
+
+## 2026-10-04 RV64 电路顺序与命名复核
+
+扫描 core/system/common 共 56 个文件的组织，重点整理 core、Issue、scoreboard、
+ID/EX、EXU、MUL、DIV 共 7 个 RTL 文件，同步 4 个测试文件。名称区分已选择的
+操作数、生产者 scoreboard 索引、完成端口和事件；按数据流及反馈职责调整完整块的位置。
+模块总览的 scoreboard 容量及访存跟踪说明已按当前代码修正。
+
+重命名归一后的标记计数、完整过程体比较通过；没有改变块内赋值优先级。
+`make git_commit= test-operand-wait test-scoreboard test-scoreboard-core test-execution-units test-pipeline lint`
+退出成功。操作数等待 526 项、scoreboard 636 项、整核 scoreboard 7 场景及执行单元、
+流水控制回归通过。完整 SoC lint 与修改前的警告类别、数量和归一诊断内容一致；
+原有警告仍在，不宣称零警告。未运行 train、全 SoC 程序或综合时序。
+
+范围、检查结果、源码哈希与独立补丁见[本轮记录](RTL_READABILITY_2026-10-04.md)。
+
+## 2026-10-04 RV64 前端、访存与系统接口可读性复核
+
+接续第一轮，修改 9 个 RTL 文件及 1 个测试文件。CSR 非法访问名称覆盖读写；
+LSU 区分待发请求和旧响应上下文；位宽转换器区分写数据阶段完成与向下游转发。
+BTB 替换路编号、I-cache 老化增量和数据存储分流/汇合顺序同步整理。
+
+LSU、特权控制、位宽转换、两级缓存、替换策略和流水控制定向回归通过；
+替换策略检查 24,750 次决策。重命名归一后的标记计数与过程体比较通过，
+完整 SoC lint 的警告类别、数量和按文件归一后的诊断与修改前一致。
+未运行 train、全 SoC 程序或 STA；没有改变缓存或设备模型配置。
+证据与边界见[第二轮记录](RTL_READABILITY_FOLLOWUP_2026-10-04.md)。

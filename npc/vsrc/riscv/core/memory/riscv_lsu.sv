@@ -62,7 +62,7 @@ module riscv_lsu
 
   pending_lsu_context_t pending_lsu_context_q;
   lsu_req_t             pending_lsu_req;
-  lsu_req_t             active_lsu_req;
+  lsu_req_t             dispatch_lsu_req;
 
   writeback_result_t    local_writeback;
   writeback_result_t    memory_writeback;
@@ -77,26 +77,26 @@ module riscv_lsu
 
   // store 数据属于核心存储接口，load 结果属于架构寄存器。当前二者均为 64 位，
   // 仍使用各自的语义类型，避免把寄存器位宽与存储传输位宽混为一个参数。
-  logic                     is_load;
-  logic                     is_store;
-  logic                     has_memory_access;
-  logic                     address_misaligned;
-  logic                     complete_locally;
-  core_data_t               store_write_data;
+  logic              dispatch_is_load;
+  logic              dispatch_is_store;
+  logic              dispatch_has_memory_access;
+  logic              dispatch_address_misaligned;
+  logic              dispatch_completes_locally;
+  core_data_t        store_write_data;
   // strobe描述core数据口每个字节通道是否写入，它取决于CORE_DATA_WIDTH，而不是XLEN。
-  core_byte_strobe_t        store_byte_strobe;
-  core_data_t               shifted_load_data;
-  logic              [ 7:0] selected_byte;
-  logic              [15:0] selected_halfword;
-  logic              [31:0] selected_word;
-  xlen_data_t               formatted_load_data;
+  core_byte_strobe_t store_byte_strobe;
+
 
   function automatic logic request_address_misaligned(input lsu_req_t request);
     unique case (request.uop.mem_ctrl.size)
-      MEM_SIZE_HALF:   return request.effective_addr[0];
-      MEM_SIZE_WORD:   return request.effective_addr[1:0] != 2'b00;
-      MEM_SIZE_DOUBLE: return request.effective_addr[2:0] != 3'b000;
-      default:         return 1'b0;
+      MEM_SIZE_HALF:
+        return request.effective_addr[0];
+      MEM_SIZE_WORD:
+        return request.effective_addr[1:0] != 2'b00;
+      MEM_SIZE_DOUBLE:
+        return request.effective_addr[2:0] != 3'b000;
+      default:
+        return 1'b0;
     endcase
   endfunction
 
@@ -105,11 +105,16 @@ module riscv_lsu
     logic [CORE_BYTE_OFFSET_WIDTH-1:0] request_byte_offset;
     request_byte_offset = addr[CORE_BYTE_OFFSET_WIDTH-1:0];
     unique case (size)
-      MEM_SIZE_BYTE:   return core_byte_strobe_t'(1) << request_byte_offset;
-      MEM_SIZE_HALF:   return core_byte_strobe_t'(2'b11) << request_byte_offset;
-      MEM_SIZE_WORD:   return core_byte_strobe_t'(4'b1111) << request_byte_offset;
-      MEM_SIZE_DOUBLE: return '1;
-      default:         return '0;
+      MEM_SIZE_BYTE:
+        return core_byte_strobe_t'(1) << request_byte_offset;
+      MEM_SIZE_HALF:
+        return core_byte_strobe_t'(2'b11) << request_byte_offset;
+      MEM_SIZE_WORD:
+        return core_byte_strobe_t'(4'b1111) << request_byte_offset;
+      MEM_SIZE_DOUBLE:
+        return '1;
+      default:
+        return '0;
     endcase
   endfunction
 
@@ -118,11 +123,16 @@ module riscv_lsu
     logic [CORE_BYTE_OFFSET_WIDTH-1:0] request_byte_offset;
     request_byte_offset = addr[CORE_BYTE_OFFSET_WIDTH-1:0];
     unique case (size)
-      MEM_SIZE_BYTE:   return core_data_t'(store_data[7:0]) << (request_byte_offset * 8);
-      MEM_SIZE_HALF:   return core_data_t'(store_data[15:0]) << (request_byte_offset * 8);
-      MEM_SIZE_WORD:   return core_data_t'(store_data[31:0]) << (request_byte_offset * 8);
-      MEM_SIZE_DOUBLE: return core_data_t'(store_data);
-      default:         return '0;
+      MEM_SIZE_BYTE:
+        return core_data_t'(store_data[7:0]) << (request_byte_offset * 8);
+      MEM_SIZE_HALF:
+        return core_data_t'(store_data[15:0]) << (request_byte_offset * 8);
+      MEM_SIZE_WORD:
+        return core_data_t'(store_data[31:0]) << (request_byte_offset * 8);
+      MEM_SIZE_DOUBLE:
+        return core_data_t'(store_data);
+      default:
+        return '0;
     endcase
   endfunction
 
@@ -136,7 +146,7 @@ module riscv_lsu
   assign data_memory_req_handshake  = data_memory_req_valid_o && data_memory_req_ready_i;
   assign data_memory_resp_handshake = data_memory_resp_valid_i && data_memory_resp_ready_o;
 
-  // 先重建旧上下文，再选择入口直通请求；完成数据始终只读取旧上下文。
+  // 请求侧：重试时重建保存的请求，否则选择入口请求；它不代表旧事务的响应身份。
   always_comb begin
     pending_lsu_req                     = '0;
     pending_lsu_req.scoreboard_index    = pending_lsu_context_q.scoreboard_index;
@@ -156,21 +166,25 @@ module riscv_lsu
   always_comb begin
     // 只有重试状态需要旧请求。等待响应时可预先计算入口数据，valid 单独阻止发出；
     // 不让旧响应的完成/错误条件先经过 payload mux，再进入地址与字节选择。
-    active_lsu_req = (state_q == LSU_DISPATCH_REGISTERED_REQUEST) ? pending_lsu_req : lsu_req_i;
+    dispatch_lsu_req = (state_q == LSU_DISPATCH_REGISTERED_REQUEST) ? pending_lsu_req : lsu_req_i;
 
-    is_load           = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
-    is_store          = active_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
-    has_memory_access = is_load || is_store;
+    dispatch_is_load           = dispatch_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_LOAD;
+    dispatch_is_store          = dispatch_lsu_req.uop.mem_ctrl.cmd == MEM_CMD_STORE;
+    dispatch_has_memory_access = dispatch_is_load || dispatch_is_store;
 
-    address_misaligned = has_memory_access && request_address_misaligned(active_lsu_req);
-    complete_locally   = active_lsu_req.uop.exception_valid ||
-        address_misaligned || !has_memory_access;
+    dispatch_address_misaligned = dispatch_has_memory_access &&
+        request_address_misaligned(dispatch_lsu_req);
+    dispatch_completes_locally  = dispatch_lsu_req.uop.exception_valid ||
+        dispatch_address_misaligned || !dispatch_has_memory_access;
 
     // strobe只覆盖本条store写入的字节。WORD不能使用'1，否则64位存储口会误写8字节。
     store_write_data  = request_store_write_data(
-        active_lsu_req.effective_addr, active_lsu_req.uop.mem_ctrl.size, active_lsu_req.store_data);
-    store_byte_strobe =
-        request_store_byte_strobe(active_lsu_req.effective_addr, active_lsu_req.uop.mem_ctrl.size);
+      dispatch_lsu_req.effective_addr,
+      dispatch_lsu_req.uop.mem_ctrl.size,
+      dispatch_lsu_req.store_data
+    );
+    store_byte_strobe = request_store_byte_strobe(dispatch_lsu_req.effective_addr,
+                                                  dispatch_lsu_req.uop.mem_ctrl.size);
   end
 
   // 本地请求保留字节地址和访问宽度。协议adapter负责把size翻译成AXI4 AxSIZE，
@@ -178,63 +192,29 @@ module riscv_lsu
   // 当前无 MMU；访存地址在这里截取低 32 位，送往物理地址接口。
   always_comb begin
     data_memory_req_o                = '0;
-    data_memory_req_o.addr           = phys_addr_t'(active_lsu_req.effective_addr);
-    data_memory_req_o.cmd            = active_lsu_req.uop.mem_ctrl.cmd;
-    data_memory_req_o.size           = active_lsu_req.uop.mem_ctrl.size;
-    data_memory_req_o.write_data     = is_store ? store_write_data : '0;
-    data_memory_req_o.byte_strobe    = is_store ? store_byte_strobe : '0;
+    data_memory_req_o.addr           = phys_addr_t'(dispatch_lsu_req.effective_addr);
+    data_memory_req_o.cmd            = dispatch_lsu_req.uop.mem_ctrl.cmd;
+    data_memory_req_o.size           = dispatch_lsu_req.uop.mem_ctrl.size;
+    data_memory_req_o.write_data     = dispatch_is_store ? store_write_data : '0;
+    data_memory_req_o.byte_strobe    = dispatch_is_store ? store_byte_strobe : '0;
     data_memory_req_o.transaction_id = '0;
-  end
-
-  // 存储层返回完整数据字。LSU根据原始地址低位选择byte/halfword并完成符号扩展。
-  // RV64下LW将bit 31符号扩展，LWU零扩展；不能把总线返回宽度直接当作load结果宽度。
-  always_comb begin
-    shifted_load_data   = data_memory_resp_i.read_data >>
-        (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8);
-    selected_byte       = 8'(shifted_load_data);
-    selected_halfword   = 16'(shifted_load_data);
-    selected_word       = 32'(shifted_load_data);
-    formatted_load_data = '0;
-
-    unique case (pending_lsu_context_q.mem_ctrl.size)
-      MEM_SIZE_BYTE: begin
-        formatted_load_data = pending_lsu_context_q.mem_ctrl.unsigned_load
-            ? {{(XLEN-8){1'b0}}, selected_byte}
-            : {{(XLEN-8){selected_byte[7]}}, selected_byte};
-      end
-      MEM_SIZE_HALF: begin
-        formatted_load_data = pending_lsu_context_q.mem_ctrl.unsigned_load
-            ? {{(XLEN-16){1'b0}}, selected_halfword}
-            : {{(XLEN-16){selected_halfword[15]}}, selected_halfword};
-      end
-      MEM_SIZE_WORD: begin
-        formatted_load_data = pending_lsu_context_q.mem_ctrl.unsigned_load
-            ? xlen_data_t'(selected_word)
-            : {{(XLEN-32){selected_word[31]}}, selected_word};
-      end
-      MEM_SIZE_DOUBLE: begin
-        // LD 返回完整的 64 位字；显式转换区分存储数据类型与架构寄存器类型。
-        formatted_load_data = xlen_data_t'(data_memory_resp_i.read_data);
-      end
-      default: ;
-    endcase
   end
 
   // 已有异常、未对齐访问和非访存操作不进入存储层。
   always_comb begin
     local_writeback                  = '0;
-    local_writeback.scoreboard_index = active_lsu_req.scoreboard_index;
-    local_writeback.uop              = active_lsu_req.uop;
-    local_writeback.next_pc          = active_lsu_req.next_pc;
-    local_writeback.memory_addr      = active_lsu_req.effective_addr;
-    local_writeback.memory_wdata     = is_store ? store_write_data : '0;
-    local_writeback.memory_wmask     = is_store ? store_byte_strobe : '0;
+    local_writeback.scoreboard_index = dispatch_lsu_req.scoreboard_index;
+    local_writeback.uop              = dispatch_lsu_req.uop;
+    local_writeback.next_pc          = dispatch_lsu_req.next_pc;
+    local_writeback.memory_addr      = dispatch_lsu_req.effective_addr;
+    local_writeback.memory_wdata     = dispatch_is_store ? store_write_data : '0;
+    local_writeback.memory_wmask     = dispatch_is_store ? store_byte_strobe : '0;
 
-    if (!active_lsu_req.uop.exception_valid && address_misaligned) begin
+    if (!dispatch_lsu_req.uop.exception_valid && dispatch_address_misaligned) begin
       local_writeback.uop.exception_valid = 1'b1;
-      local_writeback.uop.exception_cause = is_load
+      local_writeback.uop.exception_cause = dispatch_is_load
           ? EXC_LOAD_ADDR_MISALIGNED : EXC_STORE_ADDR_MISALIGNED;
-      local_writeback.uop.exception_tval  = active_lsu_req.effective_addr;
+      local_writeback.uop.exception_tval  = dispatch_lsu_req.effective_addr;
     end
 
     // 无论异常最初来自IFU、IDU还是本级对齐检查，异常完成包都不得保留正常执行副作用。
@@ -244,6 +224,47 @@ module riscv_lsu
       local_writeback.result        = '0;
       local_writeback.memory_wmask  = '0;
     end
+  end
+
+  core_data_t        shifted_load_data;
+  logic       [ 7:0] load_byte;
+  logic       [15:0] load_halfword;
+  logic       [31:0] load_word;
+  xlen_data_t        load_result_value;
+
+  // 响应侧只读取 pending_lsu_context_q，不使用可能属于下一条指令的 dispatch_lsu_req。
+  // 存储层返回完整数据字。LSU根据原始地址低位选择byte/halfword并完成符号扩展。
+  // RV64下LW将bit 31符号扩展，LWU零扩展；不能把总线返回宽度直接当作load结果宽度。
+  always_comb begin
+    shifted_load_data = data_memory_resp_i.read_data >>
+        (pending_lsu_context_q.effective_addr[CORE_BYTE_OFFSET_WIDTH-1:0] * 8);
+    load_byte         = 8'(shifted_load_data);
+    load_halfword     = 16'(shifted_load_data);
+    load_word         = 32'(shifted_load_data);
+    load_result_value = '0;
+
+    unique case (pending_lsu_context_q.mem_ctrl.size)
+      MEM_SIZE_BYTE: begin
+        load_result_value = pending_lsu_context_q.mem_ctrl.unsigned_load
+            ? {{(XLEN-8){1'b0}}, load_byte}
+            : {{(XLEN-8){load_byte[7]}}, load_byte};
+      end
+      MEM_SIZE_HALF: begin
+        load_result_value = pending_lsu_context_q.mem_ctrl.unsigned_load
+            ? {{(XLEN-16){1'b0}}, load_halfword}
+            : {{(XLEN-16){load_halfword[15]}}, load_halfword};
+      end
+      MEM_SIZE_WORD: begin
+        load_result_value = pending_lsu_context_q.mem_ctrl.unsigned_load
+            ? xlen_data_t'(load_word)
+            : {{(XLEN-32){load_word[31]}}, load_word};
+      end
+      MEM_SIZE_DOUBLE: begin
+        // LD 返回完整的 64 位字；显式转换区分存储数据类型与架构寄存器类型。
+        load_result_value = xlen_data_t'(data_memory_resp_i.read_data);
+      end
+      default: ;
+    endcase
   end
 
   // access_fault来自D-cache、uncached adapter或系统互联，LSU在这里转换成架构异常。
@@ -256,11 +277,11 @@ module riscv_lsu
     memory_writeback.uop.writes_rd    = pending_lsu_context_q.writes_rd;
     memory_writeback.uop.mem_ctrl     = pending_lsu_context_q.mem_ctrl;
     memory_writeback.result           =
-        (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_LOAD) ? formatted_load_data : '0;
+        (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_LOAD) ? load_result_value : '0;
     memory_writeback.next_pc          = pending_lsu_context_q.next_pc;
     memory_writeback.memory_addr      = pending_lsu_context_q.effective_addr;
     memory_writeback.memory_rdata     =
-        (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_LOAD) ? core_data_t'(formatted_load_data) : '0;
+        (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_LOAD) ? core_data_t'(load_result_value) : '0;
     memory_writeback.memory_wdata     =
         (pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_STORE) ?
             request_store_write_data(
@@ -284,7 +305,7 @@ module riscv_lsu
     end
   end
 
-  assign forward_result_o = {pending_lsu_context_q.scoreboard_index, formatted_load_data};
+  assign forward_result_o = {pending_lsu_context_q.scoreboard_index, load_result_value};
   assign forward_valid_o = state_q == LSU_WAIT_MEMORY_RESPONSE &&
       pending_lsu_context_q.mem_ctrl.cmd == MEM_CMD_LOAD &&
       data_memory_resp_valid_i && !data_memory_resp_i.access_fault;
@@ -293,7 +314,7 @@ module riscv_lsu
   assign lsu_req_ready_o = (state_q == LSU_IDLE) ||
       ((state_q == LSU_WAIT_MEMORY_RESPONSE) && data_memory_resp_valid_i &&
        lsu_writeback_ready_i && !data_memory_resp_i.access_fault);
-  assign data_memory_req_valid_o = !complete_locally &&
+  assign data_memory_req_valid_o = !dispatch_completes_locally &&
       ((state_q == LSU_DISPATCH_REGISTERED_REQUEST) ||
        (lsu_req_ready_o && lsu_req_valid_i));
 
@@ -304,7 +325,7 @@ module riscv_lsu
 
     unique case (state_q)
       LSU_DISPATCH_REGISTERED_REQUEST: begin
-        if (complete_locally) begin
+        if (dispatch_completes_locally) begin
           lsu_writeback_o       = local_writeback;
           lsu_writeback_valid_o = 1'b1;
         end
@@ -333,9 +354,9 @@ module riscv_lsu
       end
 
       LSU_DISPATCH_REGISTERED_REQUEST: begin
-        if (complete_locally && lsu_writeback_ready_i) begin
+        if (dispatch_completes_locally && lsu_writeback_ready_i) begin
           state_d = LSU_IDLE;
-        end else if (!complete_locally && data_memory_req_handshake) begin
+        end else if (!dispatch_completes_locally && data_memory_req_handshake) begin
           state_d = LSU_WAIT_MEMORY_RESPONSE;
         end
       end
@@ -359,8 +380,10 @@ module riscv_lsu
 
   // 第三段：状态和紧凑请求上下文分组更新。
   always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) state_q <= LSU_IDLE;
-    else state_q <= state_d;
+    if (!rst_ni)
+      state_q <= LSU_IDLE;
+    else
+      state_q <= state_d;
   end
 
   // pending payload不复位。state_q=IDLE时它没有语义；每次入口握手都覆盖，包括需要
@@ -389,37 +412,43 @@ module riscv_lsu
     (state_q == LSU_DISPATCH_REGISTERED_REQUEST &&
      pending_lsu_context_q.exception_valid)
     |-> !data_memory_req_valid_o)
-  else $error("LSU issued a memory request for an instruction with an older exception");
+  else
+    $error("LSU issued a memory request for an instruction with an older exception");
 
   a_misaligned_access_never_reaches_memory :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (state_q == LSU_DISPATCH_REGISTERED_REQUEST && address_misaligned)
+    (state_q == LSU_DISPATCH_REGISTERED_REQUEST && dispatch_address_misaligned)
     |-> !data_memory_req_valid_o)
-  else $error("LSU issued a memory request for a misaligned access");
+  else
+    $error("LSU issued a memory request for a misaligned access");
 
   a_exception_writeback_has_no_register_write :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (lsu_writeback_valid_o && lsu_writeback_o.uop.exception_valid)
     |-> !lsu_writeback_o.uop.writes_rd)
-  else $error("LSU exception retained a destination-register side effect");
+  else
+    $error("LSU exception retained a destination-register side effect");
 
   a_fault_response_blocks_rollover :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == LSU_WAIT_MEMORY_RESPONSE && data_memory_resp_valid_i &&
      data_memory_resp_i.access_fault) |-> !lsu_req_ready_o)
-  else $error("LSU accepted a younger request while returning a fault");
+  else
+    $error("LSU accepted a younger request while returning a fault");
 
   a_direct_request_is_remembered :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (lsu_req_handshake && data_memory_req_handshake)
     |=> state_q == LSU_WAIT_MEMORY_RESPONSE)
-  else $error("LSU lost a directly dispatched request");
+  else
+    $error("LSU lost a directly dispatched request");
 
   a_dispatch_has_one_completion_route :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (state_q == LSU_DISPATCH_REGISTERED_REQUEST)
     |-> !(data_memory_req_valid_o && lsu_writeback_valid_o))
-  else $error("LSU dispatched one request to memory and local writeback simultaneously");
+  else
+    $error("LSU dispatched one request to memory and local writeback simultaneously");
 
   a_memory_request_stable_while_backpressured :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
@@ -427,7 +456,8 @@ module riscv_lsu
     |=> $stable(
       data_memory_req_o
   ))
-  else $error("LSU memory request changed while the storage subsystem applied backpressure");
+  else
+    $error("LSU memory request changed while the storage subsystem applied backpressure");
   /* verilator lint_on SYNCASYNCNET */
 `endif
 

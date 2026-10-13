@@ -18,7 +18,7 @@ module riscv_divider
     output logic              result_valid_o,
     input  logic              result_ready_i
 );
-  localparam int unsigned COUNT_WIDTH = $clog2(XLEN + 1);
+  localparam int unsigned ITERATION_COUNT_WIDTH = $clog2(XLEN + 1);
   typedef enum logic [2:0] {
     IDLE,
     ABSOLUTE_VALUE,
@@ -31,7 +31,7 @@ module riscv_divider
   xlen_data_t quotient_q, quotient_d;
   xlen_data_t remainder_q, remainder_d;
   xlen_data_t divisor_q, divisor_d;
-  logic [COUNT_WIDTH-1:0] remaining_bits_q, remaining_bits_d;
+  logic [ITERATION_COUNT_WIDTH-1:0] remaining_bits_q, remaining_bits_d;
   logic quotient_negative_q, quotient_negative_d;
   logic remainder_negative_q, remainder_negative_d;
   logic select_remainder_q, select_remainder_d;
@@ -62,11 +62,11 @@ module riscv_divider
   logic [XLEN+1:0] trial_difference;
   logic quotient_bit;
   // 在准备阶段一次定位最高有效位。W 与 XLEN 运算都只处理绝对值的有效位。
-  logic [COUNT_WIDTH-1:0] significant_bit_count;
+  logic [ITERATION_COUNT_WIDTH-1:0] significant_bit_count;
   always_comb begin
-    significant_bit_count = COUNT_WIDTH'(1);
+    significant_bit_count = ITERATION_COUNT_WIDTH'(1);
     for (int bit_index = 0; bit_index < XLEN; bit_index++) begin
-      if (quotient_q[bit_index]) significant_bit_count = COUNT_WIDTH'(bit_index + 1);
+      if (quotient_q[bit_index]) significant_bit_count = ITERATION_COUNT_WIDTH'(bit_index + 1);
     end
   end
   assign shifted_remainder = {remainder_q, quotient_q[XLEN-1]};
@@ -129,8 +129,8 @@ module riscv_divider
       ITERATE: begin
         quotient_d       = {quotient_q[XLEN-2:0], quotient_bit};
         remainder_d      = quotient_bit ? trial_difference[XLEN-1:0] : shifted_remainder[XLEN-1:0];
-        remaining_bits_d = remaining_bits_q - COUNT_WIDTH'(1);
-        if (remaining_bits_q == COUNT_WIDTH'(1)) begin
+        remaining_bits_d = remaining_bits_q - ITERATION_COUNT_WIDTH'(1);
+        if (remaining_bits_q == ITERATION_COUNT_WIDTH'(1)) begin
           state_d = (select_remainder_q ? remainder_negative_q : quotient_negative_q) ?
               CORRECT_SIGN : RESULT;
         end
@@ -149,7 +149,7 @@ module riscv_divider
       quotient_d           = operand_a;
       divisor_d            = operand_b;
       remainder_d          = '0;
-      remaining_bits_d     = request_operation_i.word_operation ? COUNT_WIDTH'(32) : COUNT_WIDTH'(XLEN);
+      remaining_bits_d     = request_operation_i.word_operation ? ITERATION_COUNT_WIDTH'(32) : ITERATION_COUNT_WIDTH'(XLEN);
       quotient_negative_d  = operand_a_negative ^ operand_b_negative;
       remainder_negative_d = operand_a_negative;
       select_remainder_d   = request_operation_i.op inside {MULDIV_REM, MULDIV_REMU};
