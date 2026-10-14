@@ -11,7 +11,9 @@ module riscv32_icache_replacement
     input  logic                                     read_enable_i,
     input  icache_set_index_t                        read_set_i,
     output icache_way_index_t                        read_victim_o,
+    // hit_i 是已交付事件；lookup_hit_i 是 S1 分类，不经过响应 ready。
     input  logic                                     hit_i,
+    input  logic                                     lookup_hit_i,
     input  logic              [ICACHE_WAY_COUNT-1:0] hit_way_vector_i,
     input  logic                                     allocate_i,
     input  icache_way_index_t                        allocate_way_i,
@@ -244,7 +246,7 @@ module riscv32_icache_replacement
                 rrpv_array_d[set_index][way] = rrpv_array_q[set_index][way] + age_amount;
                 if (access_way_index == icache_way_index_t'(way))
                   rrpv_array_d[set_index][way] = insertion;
-              end else if (hit_i && access_way_index == icache_way_index_t'(way) &&
+              end else if (hit_i && hit_way_vector_i[way] &&
                            (!SEGMENT_REUSE || segment_start))
                 rrpv_array_d[set_index][way] = 2'd0;
             end
@@ -255,7 +257,9 @@ module riscv32_icache_replacement
           read_rrpv_array[way] = rrpv_array_d[read_set_i][way];
           if (QUERY_BYPASS) begin
             read_rrpv_array[way] = rrpv_array_q[read_set_i][way];
-            if (hit_i && access_set_index == read_set_i && access_way_index == icache_way_index_t'(way) &&
+            // read_enable 时老 S1 hit 必须同时交付；未交付时不采样本数据。
+            // 用已知分类和独热命中路计算前递，不把下游 ready 串进 victim 比较。
+            if (lookup_hit_i && access_set_index == read_set_i && hit_way_vector_i[way] &&
                 (!SEGMENT_REUSE || segment_start))
               read_rrpv_array[way] = 2'd0;
           end
@@ -329,6 +333,9 @@ module riscv32_icache_replacement
   assert property (@(posedge clk_i) disable iff (!rst_ni) hit_i |-> $onehot(hit_way_vector_i));
   if (POLICY >= 13) begin : g_check_blocking_query
     assert property (@(posedge clk_i) disable iff (!rst_ni) !(read_enable_i && allocate_i));
+    assert property (@(posedge clk_i) disable iff (!rst_ni)
+      (read_enable_i && lookup_hit_i) |-> hit_i)
+    else $error("replacement query sampled an uncommitted hit promotion");
   end
 `endif
 endmodule

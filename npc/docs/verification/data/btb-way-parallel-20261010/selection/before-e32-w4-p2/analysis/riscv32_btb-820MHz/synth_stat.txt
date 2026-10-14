@@ -1,0 +1,70 @@
+
+26. Printing statistics.
+
+=== riscv32_btb ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+    11330        - wires
+    11330        - wire bits
+    11330        - public wires
+    11330        - public wire bits
+      138        - ports
+      138        - port bits
+     9179 1.64E+04 cells
+      102  108.528   AND2_X1
+       96   127.68   AND3_X1
+        4    6.384   AND4_X1
+        3     3.99   AOI211_X1
+      322  342.608   AOI21_X1
+       12   22.344   AOI21_X2
+        1    3.458   AOI21_X4
+        1     1.33   AOI22_X1
+       55    43.89   BUF_X1
+       12     79.8   BUF_X16
+       44   46.816   BUF_X2
+        3   39.102   BUF_X32
+       55   102.41   BUF_X4
+       39  134.862   BUF_X8
+       12    9.576   CLKBUF_X1
+        3    3.192   CLKBUF_X2
+        6     7.98   CLKBUF_X3
+       34  117.572   CLKGATE_X1
+       32   170.24   DFFR_X1
+       64   340.48   DFFS_X1
+     1952 8.83E+03   DFF_X1
+      595   316.54   INV_X1
+        1    4.522   INV_X16
+        7    5.586   INV_X2
+        1    8.778   INV_X32
+        5     6.65   INV_X4
+        4    9.576   INV_X8
+       16   29.792   MUX2_X1
+     2547 2.03E+03   NAND2_X1
+       17    22.61   NAND2_X2
+       10    23.94   NAND2_X4
+      938  998.032   NAND3_X1
+       14   26.068   NAND3_X2
+       20    69.16   NAND3_X4
+       52    69.16   NAND4_X1
+        8   19.152   NAND4_X2
+      561  447.678   NOR2_X1
+        8    10.64   NOR2_X2
+        5    11.97   NOR2_X4
+        7    7.448   NOR3_X1
+        1    1.862   NOR3_X2
+        8    10.64   NOR4_X1
+      131   174.23   OAI211_X1
+      980  1042.72   OAI21_X1
+        1    1.862   OAI21_X2
+       34   54.264   OAI221_X1
+      125   166.25   OAI22_X1
+      161  171.304   OR2_X1
+        2     2.66   OR3_X1
+        2    3.192   OR4_X1
+       66  105.336   XNOR2_X1
+
+   Chip area for module '\riscv32_btb': 16393.314000
+     of which used for sequential elements: 9337.664000 (56.96%)
+

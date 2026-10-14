@@ -29,6 +29,7 @@ module riscv32_core
   logic                icache_lookup_req_valid;
   logic                icache_lookup_req_ready;
   icache_lookup_resp_t icache_lookup_resp;
+  icache_fetch_data_t icache_lookup_word;
   logic                icache_lookup_resp_valid;
   logic                icache_lookup_resp_ready;
   logic                frontend_memory_access_allowed;
@@ -79,6 +80,7 @@ module riscv32_core
       .icache_lookup_req_valid_o                 (icache_lookup_req_valid),
       .icache_lookup_req_ready_i                 (icache_lookup_req_ready && frontend_memory_access_allowed),
       .icache_lookup_resp_i                      (icache_lookup_resp),
+      .icache_lookup_word_i                      (icache_lookup_word),
       .icache_lookup_resp_valid_i                (icache_lookup_resp_valid),
       .icache_lookup_resp_ready_o                (icache_lookup_resp_ready),
       .fetch_entry_o                             (ifu_fetch_entry),
@@ -110,6 +112,7 @@ module riscv32_core
       .lookup_req_valid_i  (icache_lookup_req_valid && frontend_memory_access_allowed),
       .lookup_req_ready_o  (icache_lookup_req_ready),
       .lookup_resp_o       (icache_lookup_resp),
+      .lookup_word_o       (icache_lookup_word),
       .lookup_resp_valid_o (icache_lookup_resp_valid),
       .lookup_resp_ready_i (icache_lookup_resp_ready),
       .invalidate_req_i    (icache_invalidate_req),
@@ -292,6 +295,7 @@ module riscv32_core
   logic              execute_progress_allowed;
   logic              execute_issue_allowed;
   logic              decode_execute_flush;
+  logic              hazard_decode_execute_flush;
   logic              writeback_flush;
   logic              raw_hazard_present;
   logic              serializing_hazard_present;
@@ -329,11 +333,12 @@ module riscv32_core
       .decoded_rs2_i                             (decoded_uop.rs2),
       .decoded_serializing_i                     (decoded_uop.serializing),
       .execute_instruction_present_i             (execute_packet_valid),
+      .execute_uses_lsu_i                        (execute_packet.uop.fu_type == FU_LSU),
       .execute_forwardable_producer_present_i    (execute_forwardable_producer_present),
       .execute_blocking_producer_present_i       (execute_blocking_producer_present),
       .execute_rd_i                              (execute_packet.uop.rd),
       .execute_serializing_instruction_present_i (execute_serializing_instruction_present),
-      .execute_result_valid_i                    (resolved_execute_result_valid),
+      .execute_result_valid_i                    (EXECUTE_RESULT_REGISTERED && resolved_execute_result_valid),
       .execute_result_ready_i                    (resolved_execute_result_ready),
       .execute_result_exception_valid_i          (resolved_execute_result.uop.exception_valid),
       .execute_result_writes_rd_i                (resolved_execute_result.uop.writes_rd),
@@ -353,7 +358,7 @@ module riscv32_core
       .lsu_pending_writes_rd_i    (lsu_pending_writes_rd),
       .lsu_pending_rd_i           (lsu_pending_rd),
       .execute_redirect_present_i (
-          resolved_execute_result_valid &&
+          EXECUTE_RESULT_REGISTERED && resolved_execute_result_valid &&
           resolved_execute_result.redirect_valid
       ),
       .frontend_redirect_applied_i              (older_redirect_event),
@@ -361,7 +366,7 @@ module riscv32_core
       .decode_accept_allowed_o                  (decode_accept_allowed),
       .execute_progress_allowed_o               (execute_progress_allowed),
       .execute_issue_allowed_o                  (execute_issue_allowed),
-      .decode_execute_flush_o                   (decode_execute_flush),
+      .decode_execute_flush_o                   (hazard_decode_execute_flush),
       .writeback_flush_o                        (writeback_flush),
       .raw_hazard_present_o                     (raw_hazard_present),
       .serializing_hazard_present_o             (serializing_hazard_present),
@@ -450,10 +455,15 @@ module riscv32_core
       .sequential_redirect_valid_o   (sequential_redirect_valid)
   );
 
-  // EX1在EXU中计算真实结果，EX2从本寄存级校验控制流预测。普通整数结果可滚动通过；
-  // 本级寄存结果送回操作数准备模块，在下一条消费者进入 ID/EX 时完成前递。
+  // 结果交付边界：RV32默认直接从EX进入完成选择；旧结果级仅显式对照配置使用。
+  // 取消结果级后，WB 被老 LSU 占用时 ready=0，当前指令继续由 ID/EX 持有。
   logic execute_redirect_resolution_event;
 
+`ifdef YSYX_SINGLE_EX
+  assign resolved_execute_result = exu_result;
+  assign resolved_execute_result_valid = exu_result_valid;
+  assign exu_result_ready = resolved_execute_result_ready;
+`else
   riscv32_ex_result_reg u_ex_result_reg (
       .clk_i                                     (clk_i),
       .rst_ni                                    (rst_ni),
@@ -467,6 +477,11 @@ module riscv32_core
       // mret；FENCE.I 依靠串行化排空后端。flush 只清本级 valid。
       .flush_i                (execute_redirect_resolution_event || commit_redirect_event)
   );
+`endif
+
+  // 当前 EX 恢复清除年轻译码项，不能反馈到自己的 issue_allowed。
+  assign decode_execute_flush = hazard_decode_execute_flush ||
+      (!EXECUTE_RESULT_REGISTERED && execute_redirect_resolution_event);
 
   data_memory_req_t  data_memory_req;
   logic              data_memory_req_valid;
@@ -605,7 +620,7 @@ module riscv32_core
       .rst_ni                                    (rst_ni),
       .timer_interrupt_enabled_i (timer_interrupt_enabled),
       .backend_busy_i            (
-          execute_packet_valid || resolved_execute_result_valid ||
+          execute_packet_valid || (EXECUTE_RESULT_REGISTERED && resolved_execute_result_valid) ||
           lsu_transaction_active || writeback_result_valid
       ),
       .maintenance_busy_i (fence_i_maintenance_active || dcache_busy),
@@ -646,7 +661,7 @@ module riscv32_core
   logic [REDIRECT_SOURCE_COUNT-1:0] redirect_req_at_resolution_valid_vector;
 
   // 当前 EXU 非分支纠错只清年轻项，不能反馈阻塞自己的交付或清掉自己的结果。
-  assign older_redirect_event = execute_redirect_resolution_event ||
+  assign older_redirect_event = (EXECUTE_RESULT_REGISTERED && execute_redirect_resolution_event) ||
       committed_fence_i_event || commit_redirect_resolution_event;
   assign redirect_req_at_resolution_array[SEQUENTIAL_REDIRECT_INDEX] = sequential_redirect;
   assign redirect_req_at_resolution_valid_vector[SEQUENTIAL_REDIRECT_INDEX] = sequential_redirect_valid;
@@ -850,7 +865,8 @@ module riscv32_core
   // 老异常在 EX 结果级时就阻止年轻 LSU 请求，不能等到 WB 恢复再取消已接收的访存。
   a_execute_exception_blocks_younger_memory :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (resolved_execute_result_valid && resolved_execute_result.uop.exception_valid) |->
+    (EXECUTE_RESULT_REGISTERED && resolved_execute_result_valid &&
+     resolved_execute_result.uop.exception_valid) |->
       (!execute_progress_allowed && !execute_issue_allowed && !lsu_req_valid))
   else
     $error("older EX result exception allowed a younger memory request");
@@ -875,10 +891,24 @@ module riscv32_core
 
   a_resolved_execute_redirect_blocks_younger_execute :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (resolved_execute_result_valid && resolved_execute_result.redirect_valid) |->
+    (EXECUTE_RESULT_REGISTERED && resolved_execute_result_valid &&
+     resolved_execute_result.redirect_valid) |->
       (decode_execute_flush && !execute_issue_allowed && !lsu_req_valid))
   else
     $error("resolved execute redirect allowed a wrong-path EX side effect");
+
+  a_single_ex_preserves_lsu_completion_order :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (!EXECUTE_RESULT_REGISTERED && lsu_transaction_active) |->
+      !(exu_result_valid && exu_result_ready))
+  else $error("single EX completion overtook an older LSU transaction");
+
+  a_single_ex_recovery_delivers_current_branch :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (!EXECUTE_RESULT_REGISTERED && execute_redirect_resolution_event) |->
+      (decode_execute_flush && exu_result_valid && exu_result_ready &&
+       !lsu_req_valid && !exu_result.uop.exception_valid))
+  else $error("single EX recovery did not deliver its branch and squash younger work");
 
   /* verilator lint_on SYNCASYNCNET */
 `endif

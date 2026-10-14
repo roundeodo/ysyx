@@ -1,0 +1,7 @@
+{
+  "variant": "v3",
+  "model": "passed",
+  "synthesis": "none",
+  "timing": "820 MHz is a mapping target; inspect reports and probe legal frequencies",
+  "active_btb_unchanged": true
+}

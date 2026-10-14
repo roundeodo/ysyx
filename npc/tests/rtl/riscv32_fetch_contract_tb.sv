@@ -14,6 +14,8 @@ module riscv32_fetch_contract_tb;
   logic train_valid=0;
   icache_lookup_req_t cache_request;
   icache_lookup_resp_t cache_response;
+  icache_fetch_data_t cache_lookup_word;
+  int fault_previews=0;
   logic cache_request_valid, cache_response_valid=0, cache_response_ready;
   fetch_entry_t fetched;
   logic fetched_valid;
@@ -35,6 +37,7 @@ module riscv32_fetch_contract_tb;
       .next_pc_predictor_flush_o(flush),
       .icache_lookup_req_o(cache_request), .icache_lookup_req_valid_o(cache_request_valid),
       .icache_lookup_req_ready_i(1'b1), .icache_lookup_resp_i(cache_response),
+      .icache_lookup_word_i(cache_lookup_word),
       .icache_lookup_resp_valid_i(cache_response_valid), .icache_lookup_resp_ready_o(cache_response_ready),
       .fetch_entry_o(fetched), .fetch_entry_valid_o(fetched_valid), .fetch_entry_ready_i(1'b1)
   );
@@ -62,19 +65,27 @@ module riscv32_fetch_contract_tb;
       if(previous_cycle>=0)
         assert(cycle-previous_cycle==1) else $fatal(1,"taken target interval should be one cycle");
       previous_cycle=cycle; requests++;
-      cache_response <= '{fetch_addr:cache_request.fetch_addr, fetch_data:32'h00000013,
+      cache_lookup_word <= requests % 7 == 0 ? 32'h0100006f : 32'h00000013;
+      cache_response <= '{fetch_addr:cache_request.fetch_addr,
+                           fetch_data:requests % 7 == 0 ? 32'h0 : 32'h00000013,
                            frontend_tag:cache_request.frontend_tag,
-                           fetch_epoch:cache_request.fetch_epoch, access_fault:1'b0};
+                           fetch_epoch:cache_request.fetch_epoch, access_fault:requests % 7 == 0};
     end
     if(fetched_valid) begin
       assert(fetched.pc == BASE + program_counter_t'((deliveries%4)*4) &&
              fetched.prediction.predicted_taken && fetched.prediction.predicted_target ==
              BASE + program_counter_t'(((deliveries+1)%4)*4))
         else $fatal(1,"IFU lost predicted identity or target");
+      if (cache_response.access_fault) begin
+        assert(fetched.exception_valid && fetched.instruction == 0 && !flush)
+          else $fatal(1,"faulting JAL preview changed prediction or architectural instruction");
+        fault_previews++;
+      end
       deliveries++;
     end
     if(deliveries==100) begin
-      $display("PASS fetch taken loop: 100 deliveries, target interval 1 cycle");
+      assert(fault_previews == 14) else $fatal(1,"fault preview test was not exercised");
+      $display("PASS fetch taken loop: 100 deliveries, 14 faulting JAL previews, target interval 1 cycle");
       $finish;
     end
   end

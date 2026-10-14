@@ -1,0 +1,5 @@
+PASS early-target seed=5 deliveries=959 overrides=340 response_redirect=19 held_redirect=95
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/early_target_tb.sv:119: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 120ns; walltime 0.017 s; speed 7.009 us/s
+- Verilator: cpu 0.017 s on 1 threads; alloced 6 MB

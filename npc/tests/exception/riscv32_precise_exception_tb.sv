@@ -15,6 +15,23 @@ module riscv32_precise_exception_tb;
     .data_axi4_manager_o(data_request), .data_axi4_manager_i(data_response)
   );
 
+  // 完成边界契约：无结果寄存级时，成功交付的普通结果必须在下一拍直接位于 WB。
+  // 这检查整核实际连接，不能只根据 EXU 的组合输出推断省掉了一个周期。
+  if (!riscv_config_pkg::EXECUTE_RESULT_REGISTERED) begin : g_single_ex_contract
+    assert property (@(posedge clk) disable iff (!rst_n)
+      (dut.exu_result_valid && dut.exu_result_ready) |=>
+        (dut.writeback_result_valid &&
+         dut.writeback_result.uop.pc == $past(dut.execute_packet.uop.pc) &&
+         dut.writeback_result.result == $past(dut.exu_result.result)))
+    else $fatal(1, "single EX result did not reach WB at the next edge");
+
+    assert property (@(posedge clk) disable iff (!rst_n)
+      dut.execute_redirect_resolution_event |->
+        (dut.execute_packet_valid && dut.exu_result_valid && dut.exu_result_ready &&
+         dut.execute_packet.uop.pc == dut.resolved_execute_result.uop.pc))
+    else $fatal(1, "branch correction was delayed beyond its EX delivery");
+  end
+
   integer mode = 1; // 0: NOP, 1: illegal, 2: misaligned JAL, 3: ECALL, 4: FENCE
   integer younger_load = 0;
   integer mmio = 0;
@@ -29,6 +46,7 @@ module riscv32_precise_exception_tb;
   integer young_read_count = 0;
   integer retired_young_loads = 0;
   integer exception_overlap_count = 0;
+  integer writeback_exception_overlap_count = 0;
   logic [31:0] data_base;
   logic [31:0] sentinel = 32'h12345678;
   logic instruction_read_present = 0;
@@ -137,6 +155,10 @@ module riscv32_precise_exception_tb;
       if (dut.resolved_execute_result_valid && dut.resolved_execute_result.uop.exception_valid &&
           dut.execute_packet_valid && dut.execute_packet.uop.pc == 32'h8000001c)
         exception_overlap_count <= exception_overlap_count + 1;
+      // 单级 EX 不再有老 EX 结果槽；风险边界变为 WB 老异常与年轻 ID/EX 访存。
+      if (dut.writeback_result_valid && dut.writeback_result.uop.exception_valid &&
+          dut.execute_packet_valid && dut.execute_packet.uop.pc == 32'h8000001c)
+        writeback_exception_overlap_count <= writeback_exception_overlap_count + 1;
       if (dut.lsu_req_valid && dut.lsu_req_ready && dut.lsu_req.uop.pc == 32'h8000001c) begin
         assert(!data_read_present || (data_response.r_valid && data_request.r_ready))
           else $fatal(1, "younger memory passed the unfinished older access/FENCE");
@@ -176,9 +198,9 @@ module riscv32_precise_exception_tb;
         if (mode == 0 || mode == 4) last_event_cycle <= cycle;
       end
       if (last_event_cycle >= 0 && cycle > last_event_cycle + load_delay + 40) begin
-        $display("RESULT mode=%0d load=%0d mmio=%0d delay=%0d traps=%0d accepted_young=%0d writes=%0d reads=%0d retired_stores=%0d retired_loads=%0d overlap=%0d sentinel=%h",
+        $display("RESULT mode=%0d load=%0d mmio=%0d delay=%0d traps=%0d accepted_young=%0d writes=%0d reads=%0d retired_stores=%0d retired_loads=%0d overlap=%0d wb_overlap=%0d sentinel=%h",
           mode, younger_load, mmio, load_delay, traps, accepted_young_memory, physical_writes,
-          young_read_count, retired_stores, retired_young_loads, exception_overlap_count, sentinel);
+          young_read_count, retired_stores, retired_young_loads, exception_overlap_count, writeback_exception_overlap_count, sentinel);
         if (mode == 0 || mode == 4) begin
           assert (traps == 0 && accepted_young_memory == 1) else $fatal(1, "normal memory control failed");
           if (younger_load) begin
@@ -193,8 +215,14 @@ module riscv32_precise_exception_tb;
                   young_read_count == 0 && retired_stores == 0 && retired_young_loads == 0 &&
                   sentinel == 32'h12345678)
             else $fatal(1, "PRECISE_EXCEPTION_FAILURE: younger memory escaped older trap");
-          if (mode != 3 && load_delay >= 80)
-            assert (exception_overlap_count > 0) else $fatal(1, "missing EX exception / younger memory overlap");
+          if (mode != 3 && load_delay >= 80) begin
+            if (riscv_config_pkg::EXECUTE_RESULT_REGISTERED)
+              assert (exception_overlap_count > 0)
+                else $fatal(1, "missing EX exception / younger memory overlap");
+            else
+              assert (writeback_exception_overlap_count > 0)
+                else $fatal(1, "missing WB exception / younger memory overlap");
+          end
         end
         $display("PASS precise exception mode=%0d load=%0d mmio=%0d delay=%0d", mode, younger_load, mmio, load_delay);
         $finish;

@@ -1,0 +1,8 @@
+{
+  "status": "complete",
+  "command": [
+    "-"
+  ],
+  "workspace": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-candidate",
+  "retention": "compact reports only; generated binaries, source snapshots and netlists are disposable"
+}

@@ -67,6 +67,13 @@ package riscv_config_pkg;
   // 到64位，但物理地址、指令和ysyxSoC AXI仍保持32位。相同数值不表示语义相同。
 
   // 全核共享的微架构容量和构建选择。这些参数描述“选择什么实现”，不是payload类型。
+`ifdef YSYX_EXECUTE_RESULT_REGISTERED
+  localparam bit EXECUTE_RESULT_REGISTERED = `YSYX_EXECUTE_RESULT_REGISTERED;
+`elsif YSYX_SINGLE_EX
+  localparam bit EXECUTE_RESULT_REGISTERED = 1'b0;
+`else
+  localparam bit EXECUTE_RESULT_REGISTERED = 1'b1;
+`endif
   localparam int unsigned FETCH_WIDTH = 1;
   localparam int unsigned DECODE_WIDTH = 1;
   // RENAME_WIDTH / DISPATCH_WIDTH 供保留的实验类型使用，当前核不含重命名。

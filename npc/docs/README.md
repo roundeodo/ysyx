@@ -1,6 +1,6 @@
 # NPC 文档中心
 
-本分支用于 RV32 面试：先读[固定配置与构建](interview/RV32_REMOTE_SNAPSHOT.md)，
+当前 RV32 的配置与构建见[固定配置与构建](interview/RV32_REMOTE_SNAPSHOT.md)，
 研究过程从[前端研究索引](learning/FRONTEND_RESEARCH_INDEX.md)进入。当前配置为
 `rv32-balanced`；RV64、乱序和 AI 扩展路线文档不代表此分支已经实现的硬件。
 
@@ -9,10 +9,9 @@
 每次开始 RTL 设计、修改或评审，先读[开发流程](development/DEVELOPMENT_PROCESS.md)和
 [编码规范](development/NAMING_GUIDE.md)，执行其中的寄存器、等待与旁路检查。
 
-> 本工作树恢复自 `bb03677`，并已新增本地定时中断，用于 RV32 简历核对与面试准备。请先读
-> [RV32 架构与模块说明](interview/RV32_ARCHITECTURE_ATLAS.md) 和
-> [RV32 简历核对与面试准备](interview/RV32_RESUME_AUDIT.md)。历史实验和归档记录中的
-> 默认参数、待办及 PPA 需要按对应版本理解。
+> 历史实验和归档记录中的默认参数、待办及 PPA 需要按对应版本理解。
+> 当前结构以源码和[流水线说明](microarchitecture/PIPELINE_DESIGN_RECORD.md)为准；
+> 最新单级 EX 的验证与时序结果见[执行级合并记录](verification/RV32_EX_MERGE_2026-10-13.md)。
 
 本目录是 NPC 项目的唯一文档入口。RTL 目录只保存源码和紧邻实现位置的局部注释；跨模块
 契约、架构决策、开发规范、实验结果和学习记录统一放在这里。
@@ -23,7 +22,7 @@
 
 | 目录 | 内容 | 主要读者 |
 | --- | --- | --- |
-| [`interview/`](interview/) | 当前 RV32 架构、逐模块说明、参数取舍及简历核对 | 面试准备与当前版本维护者 |
+| [`interview/`](interview/) | RV32 架构、逐模块说明、参数取舍及历史核对记录 | 当前版本维护者 |
 | [`architecture/`](architecture/) | 产品场景、AI 负载模型、体系结构路线和冻结决策 | 全体开发者 |
 | [`development/`](development/) | 命名、参数化、模块化、评审和设计记录模板 | RTL 与验证开发者 |
 | [`interconnect/`](interconnect/) | AXI、APB、片上互连和协议迁移记录 | SoC 与存储子系统开发者 |
@@ -90,4 +89,4 @@
 
 - [MicroBench 计时与比较规则](verification/MICROBENCH_TIMING_RULES.md)：区分宿主耗时、计分时间、PMU 窗口和校准后的 CPU 时间。
 
-- [RV32 面试准备：结构、参数与选择理由](interview/RV32_DESIGN_CHOICES.md)：当前结构、准确参数、选择依据、历史 train 取舍案例和简历表述边界。
+- [RV32 结构、参数与选择理由](interview/RV32_DESIGN_CHOICES.md)：当前结构、准确参数、选择依据、历史 train 取舍案例和实现边界。

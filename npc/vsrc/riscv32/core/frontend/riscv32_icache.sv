@@ -15,6 +15,7 @@ module riscv32_icache
     input  logic                lookup_req_valid_i,
     output logic                lookup_req_ready_o,
     output icache_lookup_resp_t lookup_resp_o,
+    output icache_fetch_data_t lookup_word_o,
     output logic                lookup_resp_valid_o,
     input  logic                lookup_resp_ready_i,
 
@@ -52,6 +53,7 @@ module riscv32_icache
   logic                miss_req_ready;
   icache_lookup_resp_t miss_lookup_resp;
   logic                miss_lookup_resp_valid;
+  icache_fetch_data_t miss_lookup_word;
   logic                miss_lookup_resp_ready;
   logic                miss_transaction_present;
   icache_event_t       miss_unit_events;
@@ -266,6 +268,7 @@ module riscv32_icache
           .read_set_i       (array_read_set_index),
           .read_victim_o    (read_victim),
           .hit_i            (replacement_hit_valid),
+          .lookup_hit_i     (lookup_s1_present_q && lookup_hit),
           .hit_way_vector_i (lookup_way_hit_vector),
           .allocate_i       (miss_req_handshake && miss_req.cacheable),
           .allocate_way_i   (replacement_way_index),
@@ -343,16 +346,21 @@ module riscv32_icache
   // elastic ready/valid推进；阻塞式miss存续期间冻结年轻请求，避免响应越序。
   // critical word可以提前返回IFU，但唯一MSHR仍占用到整条cache line回填结束。
   always_comb begin
-    lookup_resp_o          = local_lookup_resp;
-    lookup_resp_valid_o    = local_lookup_resp_valid;
-    miss_lookup_resp_ready = 1'b0;
+    // payload 与交付条件分开：在途所有者先于 AXI 响应确定，S1 保持请求身份。
+    lookup_resp_o = '0;
+    lookup_resp_o.fetch_addr = lookup_s1_q.fetch_addr;
+    lookup_resp_o.frontend_tag = lookup_s1_q.frontend_tag;
+    lookup_resp_o.fetch_epoch = lookup_s1_q.fetch_epoch;
+    lookup_resp_o.fetch_data = miss_transaction_present ?
+        miss_lookup_resp.fetch_data : local_lookup_resp.fetch_data;
+    lookup_resp_o.access_fault = miss_transaction_present ?
+        miss_lookup_resp.access_fault : local_lookup_resp.access_fault;
+    lookup_resp_valid_o = local_lookup_resp_valid || miss_lookup_resp_valid;
+    miss_lookup_resp_ready = miss_lookup_resp_valid && lookup_resp_ready_i;
 
-    // miss响应优先于本地hit/fault响应；阻塞式设计应保证二者不会同时有效。
-    if (miss_lookup_resp_valid) begin
-      lookup_resp_o          = miss_lookup_resp;
-      lookup_resp_valid_o    = 1'b1;
-      miss_lookup_resp_ready = lookup_resp_ready_i;
-    end
+    // 独立预译码数据通路绕过总线错误清零。成功响应时与公开 fetch_data 相同；
+    // 错误响应的公开 fetch_data 仍为零，IFU 不得用预译码结果更新 PC。
+    lookup_word_o = miss_transaction_present ? miss_lookup_word : local_lookup_resp.fetch_data;
 
     miss_req                       = '0;
     miss_req.lookup_req            = lookup_s1_q;
@@ -376,6 +384,7 @@ module riscv32_icache
       .miss_req_valid_i              (miss_req_valid),
       .miss_req_ready_o              (miss_req_ready),
       .lookup_resp_o                 (miss_lookup_resp),
+      .lookup_word_o                 (miss_lookup_word),
       .lookup_resp_valid_o           (miss_lookup_resp_valid),
       .lookup_resp_ready_i           (miss_lookup_resp_ready),
       .refill_req_o                  (refill_req_o),
@@ -517,6 +526,35 @@ module riscv32_icache
     miss_transaction_present |-> !lookup_req_ready_o)
   else
     $error("blocking I-cache accepted a younger lookup during refill");
+
+  a_successful_response_has_matching_preview :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lookup_resp_valid_o && !lookup_resp_o.access_fault) |->
+      lookup_word_o == lookup_resp_o.fetch_data)
+  else $error("I-cache preview disagrees with a successful instruction response");
+
+  a_new_lookup_observes_old_hit_delivery :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (lookup_req_handshake && lookup_hit) |-> local_lookup_resp_handshake)
+  else $error("I-cache query forwarded a hit that was not delivered");
+
+  a_miss_response_has_registered_owner :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    miss_lookup_resp_valid |-> miss_transaction_present)
+  else $error("I-cache miss response has no registered transaction owner");
+
+  a_miss_response_identity_matches_held_s1 :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    miss_lookup_resp_valid |->
+      (miss_lookup_resp.fetch_addr == lookup_s1_q.fetch_addr &&
+       miss_lookup_resp.frontend_tag == lookup_s1_q.frontend_tag &&
+       miss_lookup_resp.fetch_epoch == lookup_s1_q.fetch_epoch))
+  else $error("blocking I-cache miss response disagrees with held S1 identity");
+
+  a_miss_preserves_s1_request :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    miss_transaction_present |=> $stable(lookup_s1_q))
+  else $error("blocking I-cache replaced its request before the miss completed");
 
   a_miss_dispatch_freezes_s1 :
   assert property (@(posedge clk_i) disable iff (!rst_ni) miss_req_valid |-> !lookup_s1_ready)

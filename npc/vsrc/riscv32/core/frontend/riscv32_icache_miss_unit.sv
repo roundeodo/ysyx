@@ -21,6 +21,8 @@ module riscv32_icache_miss_unit
     // Miss unit通过本通道把critical word及原取指身份返回给Lookup/IFU。
     // valid被反压时，整个lookup_resp_o必须保持不变。
     output icache_lookup_resp_t lookup_resp_o,
+    // 预译码组合数据，不经过错误清零；使用方必须以 valid 和 access_fault 限定。
+    output icache_fetch_data_t lookup_word_o,
     output logic                lookup_resp_valid_o,
     input  logic                lookup_resp_ready_i,
 
@@ -181,6 +183,7 @@ module riscv32_icache_miss_unit
     miss_req_ready_o              = 1'b0;
     lookup_resp_o                 = '0;
     lookup_resp_o.fetch_addr      = miss_context_q.lookup_req.fetch_addr;
+    lookup_word_o = lookup_resp_present_q ? lookup_resp_data_q : refill_resp_i.word_data;
     lookup_resp_o.fetch_data      = lookup_resp_present_q ? lookup_resp_data_q :
         (incoming_response_fault ? '0 : refill_resp_i.word_data);
     lookup_resp_o.frontend_tag    = miss_context_q.lookup_req.frontend_tag;

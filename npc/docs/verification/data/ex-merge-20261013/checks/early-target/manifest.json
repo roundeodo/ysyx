@@ -1,0 +1,116 @@
+{
+  "build_command": [
+    "verilator",
+    "--binary",
+    "--timing",
+    "--assert",
+    "-Wno-fatal",
+    "-j",
+    "2",
+    "+define+YSYX_RV32_BASELINE",
+    "+define+YSYX_SIM_CPU_FREQ_MHZ=700",
+    "+define+YSYX_SINGLE_EX",
+    "+define+YSYX_EXECUTE_RESULT_REGISTERED=0",
+    "+define+YSYX_ICACHE_CAPACITY_BYTES=1024",
+    "+define+YSYX_ICACHE_WAY_COUNT=4",
+    "+define+YSYX_ICACHE_REPLACEMENT_POLICY=13",
+    "+define+YSYX_ICACHE_LINE_BYTES=32",
+    "+define+YSYX_DCACHE_ENABLE=1",
+    "+define+YSYX_DCACHE_CAPACITY_BYTES=256",
+    "+define+YSYX_DCACHE_WAY_COUNT=2",
+    "+define+YSYX_DCACHE_LINE_BYTES=16",
+    "+define+YSYX_BRANCH_HISTORY_ENTRY_COUNT=16",
+    "+define+YSYX_BRANCH_TARGET_ENTRY_COUNT=16",
+    "+define+YSYX_BRANCH_TARGET_WAY_COUNT=2",
+    "+define+YSYX_BRANCH_TARGET_WAY_BITS=0",
+    "+define+YSYX_BRANCH_TARGET_POLICY=0",
+    "+define+YSYX_BRANCH_TARGET_INDEX_POLICY=0",
+    "+define+YSYX_BRANCH_TARGET_ADMISSION_POLICY=0",
+    "+define+YSYX_BRANCH_TAGE_BASE_ENTRIES=32",
+    "+define+YSYX_BRANCH_TAGE_TAGGED_ENTRIES=16",
+    "+define+YSYX_BRANCH_TAGE_TABLE_COUNT=3",
+    "+define+YSYX_BRANCH_TAGE_TAG_BITS=8",
+    "+define+YSYX_BRANCH_TAGE_HISTORY_BITS_0=3",
+    "+define+YSYX_BRANCH_TAGE_HISTORY_BITS_1=7",
+    "+define+YSYX_BRANCH_TAGE_HISTORY_BITS_2=16",
+    "+define+YSYX_BRANCH_SPEC_HISTORY=0",
+    "+define+YSYX_BRANCH_SC_ENABLE=0",
+    "+define+YSYX_BRANCH_LOOP_ENABLE=0",
+    "+define+YSYX_BRANCH_EARLY_RAS=0",
+    "+define+YSYX_BRANCH_EARLY_TARGET=1",
+    "+define+YSYX_BRANCH_STATIC_POLICY=2",
+    "+define+YSYX_BRANCH_DIRECTION_POLICY=0",
+    "+define+YSYX_BRANCH_GLOBAL_HISTORY_BITS=4",
+    "+define+YSYX_RETURN_STACK_ENTRY_COUNT=4",
+    "+define+YSYX_SDRAM_NATIVE_READ_BURST=1",
+    "--top-module",
+    "early_target_tb",
+    "--Mdir",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/ex-merge-checks/early-target/obj",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ras.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/early_target_tb.sv"
+  ],
+  "cases": [
+    {
+      "seed": 1,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/ex-merge-checks/early-target/obj/Vearly_target_tb",
+        "+seed=1"
+      ],
+      "passed": true
+    },
+    {
+      "seed": 2,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/ex-merge-checks/early-target/obj/Vearly_target_tb",
+        "+seed=2"
+      ],
+      "passed": true
+    },
+    {
+      "seed": 3,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/ex-merge-checks/early-target/obj/Vearly_target_tb",
+        "+seed=3"
+      ],
+      "passed": true
+    },
+    {
+      "seed": 4,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/ex-merge-checks/early-target/obj/Vearly_target_tb",
+        "+seed=4"
+      ],
+      "passed": true
+    },
+    {
+      "seed": 5,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/ex-merge-checks/early-target/obj/Vearly_target_tb",
+        "+seed=5"
+      ],
+      "passed": true
+    },
+    {
+      "seed": 6,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/ex-merge-checks/early-target/obj/Vearly_target_tb",
+        "+seed=6"
+      ],
+      "passed": true
+    }
+  ]
+}

@@ -14,6 +14,7 @@ module riscv32_hazard_ctrl
     input  logic          decoded_serializing_i,
 
     input  logic          execute_instruction_present_i,
+    input  logic          execute_uses_lsu_i,
     input  logic          execute_forwardable_producer_present_i,
     input  logic          execute_blocking_producer_present_i,
     input  arch_reg_idx_t execute_rd_i,
@@ -193,7 +194,14 @@ module riscv32_hazard_ctrl
 
   // LSU 成功交付 WB 的同拍，年轻普通指令可以进入空的 EX 结果寄存器。
   // 同拍 load 结果也可前递给译码；故障或反压时继续阻塞相关指令。
+`ifdef YSYX_SINGLE_EX
+  // 单级普通EX没有额外结果槽；老LSU完成仍占用WB，普通EX的交付条件只需看busy。
+  // 仅年轻访存可以在老LSU成功交付时滚动接收；故障不得放行年轻store。
+  assign structural_hazard_present_o = lsu_busy_i &&
+      (!execute_uses_lsu_i || !lsu_completion_succeeded_i);
+`else
   assign structural_hazard_present_o = lsu_busy_i && !lsu_completion_succeeded_i;
+`endif
   assign execute_result_stalled      = execute_result_valid_i && !execute_result_ready_i;
   assign execute_result_exception_present = execute_result_valid_i &&
       execute_result_exception_valid_i;

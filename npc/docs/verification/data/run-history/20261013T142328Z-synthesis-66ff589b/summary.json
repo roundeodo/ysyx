@@ -1,0 +1,11 @@
+{
+  "tool_exit_code": 0,
+  "timing_status": "Inspect retained timing reports; tool success alone does not qualify frequency",
+  "reports": [
+    "analysis/tool-tail.txt",
+    "analysis/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+    "analysis/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "analysis/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt",
+    "analysis/riscv32_core_reset_boundary-820MHz/synth_stat.txt"
+  ]
+}

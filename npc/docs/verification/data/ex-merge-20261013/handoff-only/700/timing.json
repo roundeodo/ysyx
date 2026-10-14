@@ -1,0 +1,35 @@
+{
+  "mhz": 700,
+  "groups": {
+    "data_max": {
+      "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+      "slack_ns": -0.077,
+      "fmax_mhz": 664.503
+    },
+    "gating_max": {
+      "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_NAND3_X1_A2_ZN_INV_X1_A_ZN_CLKGATE_X1_E:E",
+      "slack_ns": -0.038,
+      "fmax_mhz": null
+    },
+    "data_min": {
+      "endpoint": "u_core.u_ifu.lookup_queue_read_index_q_reg_p:D",
+      "slack_ns": 0.06,
+      "fmax_mhz": null
+    },
+    "gating_min": {
+      "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+      "slack_ns": 0.097,
+      "fmax_mhz": null
+    }
+  },
+  "passed": false,
+  "command": [
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+    "-script",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/constr/riscv32_core_reset_boundary.sdc",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-candidate/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+    "riscv32_core_reset_boundary",
+    "nangate45"
+  ]
+}

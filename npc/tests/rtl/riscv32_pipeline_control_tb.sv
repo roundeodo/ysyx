@@ -90,6 +90,7 @@ module riscv32_pipeline_control_tb;
   logic                hazard_execute_uop_valid;
   writeback_result_t   hazard_writeback_result;
   logic                hazard_writeback_result_valid;
+  logic                execute_uses_lsu;
   logic                lsu_busy;
   logic                lsu_completion_succeeded;
   logic                lsu_pending_writes_rd;
@@ -147,6 +148,7 @@ module riscv32_pipeline_control_tb;
       .icache_lookup_req_valid_o     (icache_lookup_req_valid),
       .icache_lookup_req_ready_i     (icache_lookup_req_ready),
       .icache_lookup_resp_i          (icache_lookup_resp),
+      .icache_lookup_word_i(icache_lookup_resp.fetch_data),
       .icache_lookup_resp_valid_i    (icache_lookup_resp_valid),
       .icache_lookup_resp_ready_o    (icache_lookup_resp_ready),
       .fetch_entry_o                 (ifu_fetch_entry),
@@ -276,6 +278,7 @@ module riscv32_pipeline_control_tb;
       .writeback_rd_i                          (hazard_writeback_result.uop.rd),
       .writeback_serializing_i                 (hazard_writeback_result.uop.serializing),
       .writeback_forwarding_available_i        (writeback_forwarding_available),
+      .execute_uses_lsu_i                      (execute_uses_lsu),
       .lsu_busy_i                              (lsu_busy),
       .lsu_completion_succeeded_i              (lsu_completion_succeeded),
       .lsu_pending_writes_rd_i                 (lsu_pending_writes_rd),
@@ -372,6 +375,7 @@ module riscv32_pipeline_control_tb;
     hazard_execute_uop_valid            = 1'b0;
     hazard_writeback_result             = '0;
     hazard_writeback_result_valid       = 1'b0;
+    execute_uses_lsu                    = 1'b1;
     lsu_busy                            = 1'b0;
     lsu_completion_succeeded            = 1'b0;
     lsu_pending_writes_rd               = 1'b0;
@@ -850,6 +854,18 @@ module riscv32_pipeline_control_tb;
     else $fatal(1, "LSU completion overrode execute result backpressure");
     execute_result_valid = 1'b0;
     execute_result_ready = 1'b1;
+
+`ifdef YSYX_SINGLE_EX
+    // 普通EX没有独立结果槽，老LSU占用WB时必须继续保持ID/EX。
+    execute_uses_lsu = 1'b0;
+    #1;
+    assert (structural_hazard_present && !execute_progress_allowed && !execute_issue_allowed)
+    else $fatal(1, "single EX crossed an older LSU completion without a result slot");
+    execute_uses_lsu = 1'b1;
+    #1;
+    assert (execute_progress_allowed && execute_issue_allowed)
+    else $fatal(1, "single EX lost successful LSU-to-LSU handoff");
+`endif
 
     // 成功交付的 load 可直接前递；未完成或故障返回不得解除相关等待。
     lsu_pending_writes_rd       = 1'b1;

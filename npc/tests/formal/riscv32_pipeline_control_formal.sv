@@ -132,6 +132,7 @@ module riscv32_pipeline_control_formal;
   (* anyseq *)arch_reg_idx_t decoded_rs2;
   (* anyseq *)logic          decoded_serializing;
   (* anyseq *)logic          execute_uop_valid;
+  (* anyseq *)logic          execute_uses_lsu;
   (* anyseq *)logic          execute_writes_rd;
   (* anyseq *)arch_reg_idx_t execute_rd;
   (* anyseq *)logic          execute_serializing;
@@ -181,6 +182,7 @@ module riscv32_pipeline_control_formal;
   riscv32_hazard_ctrl u_hazard_ctrl (
       .clk_i                                   (clk_i),
       .rst_ni                                  (rst_ni),
+      .execute_uses_lsu_i                     (execute_uses_lsu),
       .decoded_uop_valid_i                     (decoded_uop_valid),
       .decoded_uses_rs1_i                      (decoded_uses_rs1),
       .decoded_rs1_i                           (decoded_rs1),

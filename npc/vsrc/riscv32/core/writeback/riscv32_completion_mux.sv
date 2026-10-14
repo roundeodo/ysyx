@@ -38,8 +38,8 @@ module riscv32_completion_mux
   assign lsu_writeback_ready_o = writeback_result_ready_i;
   assign exu_result_ready_o    = writeback_result_ready_i && !lsu_writeback_valid_i;
 
-  // LSU 成功结果优先进入 WB；当拍发射的年轻 ALU 结果先进入 EX 结果寄存器，
-  // 最早下一拍才能进入本选择器，因此不会抢在 LSU 结果前提交。
-  // 若未来允许多条指令越过长延迟事务，必须使用带年龄跟踪的顺序完成队列或ROB。
+  // 老 LSU 的完成优先占用 WB，普通 EX 的 ready=0，由 ID/EX 保持当前指令。
+  // 旧结果级配置可先保存年轻普通结果，但仍须等待老 LSU 交付，不能越序提交。
+  // 年龄约束由 hazard_ctrl 保证；允许独立年轻指令越过长延迟事务需要顺序完成队列或 ROB。
 
 endmodule

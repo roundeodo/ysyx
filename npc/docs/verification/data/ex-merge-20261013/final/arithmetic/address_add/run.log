@@ -1,0 +1,5 @@
+PASS AGU: XLEN=32, 100128 independent arithmetic checks
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_address_add_tb.sv:47: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 100ns; walltime 0.029 s; speed 3.425 us/s
+- Verilator: cpu 0.029 s on 1 threads; alloced 6 MB

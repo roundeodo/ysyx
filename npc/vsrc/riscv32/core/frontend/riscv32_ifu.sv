@@ -34,6 +34,8 @@ module riscv32_ifu
     output logic                icache_lookup_req_valid_o,
     input  logic                icache_lookup_req_ready_i,
     input  icache_lookup_resp_t icache_lookup_resp_i,
+    // 仅用于并行预译码；错误返回仍禁止预测覆盖和局部恢复。
+    input  icache_fetch_data_t icache_lookup_word_i,
     input  logic                icache_lookup_resp_valid_i,
     output logic                icache_lookup_resp_ready_o,
 
@@ -70,6 +72,7 @@ module riscv32_ifu
   frontend_tag_t next_frontend_tag_q, next_frontend_tag_d;
 
   logic             predictor_lookup_request_handshake;
+  logic             predictor_lookup_advance_allowed;
   logic             predictor_lookup_response_handshake;
   logic             predictor_lookup_response_is_current;
   logic             predictor_taken_response_event;
@@ -105,6 +108,10 @@ module riscv32_ifu
   assign next_pc_predictor_lookup_request_valid_o =
       lookup_queue_enqueue_ready && !frontend_restart_event && prediction_enable_i;
 
+  // PC下一值中恢复已经优先覆盖；资源允许条件无需再次串入恢复取消。
+  // 对外握手仍包含 !frontend_restart_event，不发送恢复拍的普通请求。
+  assign predictor_lookup_advance_allowed = lookup_queue_enqueue_ready && prediction_enable_i &&
+      next_pc_predictor_lookup_request_ready_i;
   assign predictor_lookup_request_handshake =
       next_pc_predictor_lookup_request_valid_o &&
       next_pc_predictor_lookup_request_ready_i;
@@ -120,7 +127,7 @@ module riscv32_ifu
     if (frontend_restart_event) begin
       current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
       predictor_fetch_pc_d  = redirect_req_valid_i ? redirect_req_i.target_pc : early_next_pc;
-    end else if (predictor_lookup_request_handshake) begin
+    end else if (predictor_lookup_advance_allowed) begin
       predictor_fetch_pc_d = predictor_taken_response_present ?
           (predicted_next_pc + program_counter_t'(INSTRUCTION_BYTES)) :
           (predictor_fetch_pc_q + program_counter_t'(INSTRUCTION_BYTES));
@@ -260,7 +267,7 @@ module riscv32_ifu
   program_counter_t direct_target;
   logic instruction_is_return, return_rs1_link, return_rd_link;
   instruction_t returned_instruction;
-  assign returned_instruction = icache_lookup_resp_i.fetch_data;
+  assign returned_instruction = icache_lookup_word_i;
   assign return_rs1_link = returned_instruction[19:15] inside {5'd1, 5'd5};
   assign return_rd_link = returned_instruction[11:7] inside {5'd1, 5'd5};
   assign instruction_is_return = returned_instruction[6:0] == 7'b1100111 &&
@@ -300,11 +307,12 @@ module riscv32_ifu
     assign selected_return_pc = '0;
   end
   // 3c. 直接目标：指令立即数加PC，沿用请求时的方向计数器快照。
-  program_counter_t early_target, original_next_pc;
+  program_counter_t early_target, fetch_sequential_pc;
+  logic early_next_pc_mismatch;
   if (riscv_config_pkg::BRANCH_EARLY_TARGET) begin : g_early_target
     riscv32_direct_target u_direct_target (
         .pc_i(program_counter_t'(icache_lookup_resp_i.fetch_addr)),
-        .instruction_i(icache_lookup_resp_i.fetch_data),
+        .instruction_i(icache_lookup_word_i),
         .direction_counter_i(pending_prediction_q.raw_direction_counter),
         .known_o(direct_control_flow_present), .taken_o(direct_taken), .target_o(direct_target));
   end else begin : g_no_early_target
@@ -323,13 +331,16 @@ module riscv32_ifu
     end
   end
   // 3d. 下一PC比较：交付当前指令时只取消年轻请求，外部恢复优先。
-  assign early_next_pc = early_taken ? early_target :
-      program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
-  assign original_next_pc = pending_prediction_q.predicted_taken ?
-      pending_prediction_q.predicted_target :
-      program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
+  assign fetch_sequential_pc = program_counter_t'(icache_lookup_resp_i.fetch_addr) +
+      program_counter_t'(INSTRUCTION_BYTES);
+  assign early_next_pc = early_taken ? early_target : fetch_sequential_pc;
+  // 各后继地址先并行比较，再用方向选择一位结果；不串联两个宽地址 mux 与比较器。
+  assign early_next_pc_mismatch = pending_prediction_q.predicted_taken ?
+      (early_taken ? early_target != pending_prediction_q.predicted_target :
+                     fetch_sequential_pc != pending_prediction_q.predicted_target) :
+      (early_taken && early_target != fetch_sequential_pc);
   assign early_redirect_event = early_control_flow_present && !icache_lookup_resp_i.access_fault &&
-      (!early_taken || early_target[1:0] == 2'b00) && early_next_pc != original_next_pc &&
+      (!early_taken || early_target[1:0] == 2'b00) && early_next_pc_mismatch &&
       fetch_entry_valid_o && fetch_entry_ready_i;
 
   // 3e. 响应交付：指令、异常与更新后的预测信息由此处统一打包。
@@ -425,6 +436,12 @@ module riscv32_ifu
     (icache_lookup_req_valid_o && !icache_lookup_req_ready_i)
     |=> (icache_lookup_req_valid_o && $stable(icache_lookup_req_o)))
   else $error("IFU changed an I-cache request while stalled");
+
+  a_valid_instruction_preview_matches_response :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (fetch_entry_valid_o && !icache_lookup_resp_i.access_fault) |->
+      icache_lookup_word_i == icache_lookup_resp_i.fetch_data)
+  else $error("IFU predecode word differs from a successful instruction response");
 
   a_current_icache_response_has_prediction :
   assert property (@(posedge clk_i) disable iff (!rst_ni)

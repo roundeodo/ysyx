@@ -1,0 +1,10 @@
+{
+  "status": "complete",
+  "command": [
+    "npc/scripts/test_ex_merge_difftest.py",
+    "--registered",
+    "0"
+  ],
+  "workspace": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/ex-merge-difftest",
+  "retention": "compact reports only; generated binaries, source snapshots and netlists are disposable"
+}

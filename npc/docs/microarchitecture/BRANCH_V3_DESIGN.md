@@ -6,7 +6,7 @@
 
 请求PC并行查询BHT、BTB、RAS，合并后进入原有一拍预测响应寄存器；IFU预测请求队列和fetch buffer保留空队列直通。模块拆分不增加流水级。
 
-EX的实际条件比较结果随现有结果寄存器保存为`branch_taken`，在解析交付时训练与计数。不能用`next_pc!=pc+4`代替：目标恰为PC+4的taken分支仍须写入taken历史。
+EX的实际条件比较结果以`branch_taken`随结果交付，驱动训练与计数；单级 EX 不增加结果寄存边界。不能用`next_pc!=pc+4`代替：目标恰为PC+4的taken分支仍须写入taken历史。
 
 ## 静态/动态选择
 

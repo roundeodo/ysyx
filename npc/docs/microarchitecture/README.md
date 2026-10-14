@@ -16,7 +16,7 @@
 | --- | --- |
 | `frontend/` | IFU、预测器、I-cache、fetch buffer |
 | `decode/` | IDU、GPR、操作数准备与前递选择 |
-| `execute/` | ID/EX 接收寄存器、EXU、执行结果寄存器 |
+| `execute/` | ID/EX 接收寄存器、组合 EXU；旧结果寄存器仅显式对照使用 |
 | `memory/` | LSU、D-cache、uncached 与数据存储路由 |
 | `writeback/` | 完成选择、WB 寄存器、提交、CSR 与 PMU |
 | `control/` | 冒险、重定向、中断、异常与 FENCE.I 维护 |

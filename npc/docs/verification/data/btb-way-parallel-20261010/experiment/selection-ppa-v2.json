@@ -1,0 +1,314 @@
+[
+  {
+    "variant": "v2",
+    "entries": 16,
+    "ways": 2,
+    "policy": 0,
+    "command": [
+      "python3",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_synthesis.py",
+      "--target",
+      "sta",
+      "--keep-artifacts",
+      "--output",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0",
+      "NPC_CONFIG=rv32-balanced",
+      "STA_DESIGN=riscv32_btb",
+      "STA_FREQUENCY_MHZ=820",
+      "STA_SYNTH_STRATEGY=AREA 3",
+      "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+      "STA_RTL_FILELIST=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/v2-e16-w2-p0.f",
+      "STA_SDC_FILE=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc",
+      "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+      "NPC_BRANCH_TARGET_WAY_COUNT=2",
+      "NPC_BRANCH_TARGET_POLICY=0"
+    ],
+    "source_hashes": {
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv": "156d28f7fdc46f4fe3f8fb370490cdde65d61ae0cae33ddadf26d240ade4ad8b",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "7420d8d4f38b304742835054fcbaf9a0eb879d1321026106c2d48ad70706ef96",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/parallel-v2.sv": "62d497a89a61c090e338dbc4ef51f6d19a90981e553a6343d72ba0f7f319a617"
+    },
+    "area_um2": 7936.908,
+    "training_setup_ns": 0.624,
+    "training_rows": [
+      {
+        "endpoint": "g_full_target.entry_present_array_q_4__reg_p:D",
+        "path_delay": "0.770r",
+        "required_ns": 1.394,
+        "slack_ns": 0.624
+      },
+      {
+        "endpoint": "g_full_target.entry_present_array_q_2__reg_p:D",
+        "path_delay": "0.770r",
+        "required_ns": 1.394,
+        "slack_ns": 0.624
+      },
+      {
+        "endpoint": "g_full_target.entry_present_array_q_2__reg_p:D",
+        "path_delay": "0.770r",
+        "required_ns": 1.394,
+        "slack_ns": 0.624
+      },
+      {
+        "endpoint": "g_full_target.entry_present_array_q_0__reg_p:D",
+        "path_delay": "0.770r",
+        "required_ns": 1.394,
+        "slack_ns": 0.624
+      },
+      {
+        "endpoint": "g_full_target.entry_present_array_q_0__reg_p:D",
+        "path_delay": "0.770r",
+        "required_ns": 1.394,
+        "slack_ns": 0.624
+      }
+    ],
+    "training_command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/v2-e16-w2-p0-training.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+      "riscv32_btb",
+      "nangate45"
+    ],
+    "target_pins": 1000,
+    "netlist_sha256": "702219c1b2f7e679a006ccea0a8f91d2770558453d2b1af9e6319ad592e6531c"
+  },
+  {
+    "variant": "v2",
+    "entries": 32,
+    "ways": 4,
+    "policy": 2,
+    "command": [
+      "python3",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_synthesis.py",
+      "--target",
+      "sta",
+      "--keep-artifacts",
+      "--output",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e32-w4-p2",
+      "NPC_CONFIG=rv32-balanced",
+      "STA_DESIGN=riscv32_btb",
+      "STA_FREQUENCY_MHZ=820",
+      "STA_SYNTH_STRATEGY=AREA 3",
+      "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+      "STA_RTL_FILELIST=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/v2-e32-w4-p2.f",
+      "STA_SDC_FILE=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc",
+      "NPC_BRANCH_TARGET_ENTRY_COUNT=32",
+      "NPC_BRANCH_TARGET_WAY_COUNT=4",
+      "NPC_BRANCH_TARGET_POLICY=2"
+    ],
+    "source_hashes": {
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv": "156d28f7fdc46f4fe3f8fb370490cdde65d61ae0cae33ddadf26d240ade4ad8b",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "7420d8d4f38b304742835054fcbaf9a0eb879d1321026106c2d48ad70706ef96",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/parallel-v2.sv": "62d497a89a61c090e338dbc4ef51f6d19a90981e553a6343d72ba0f7f319a617"
+    },
+    "area_um2": 16636.704,
+    "training_setup_ns": 0.485,
+    "training_rows": [
+      {
+        "endpoint": "g_full_target.reuse_array_q_59__reg_p:D",
+        "path_delay": "0.902f",
+        "required_ns": 1.387,
+        "slack_ns": 0.485
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_59__reg_p:D",
+        "path_delay": "0.902f",
+        "required_ns": 1.387,
+        "slack_ns": 0.485
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_11__reg_p:D",
+        "path_delay": "0.902f",
+        "required_ns": 1.387,
+        "slack_ns": 0.485
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_11__reg_p:D",
+        "path_delay": "0.902f",
+        "required_ns": 1.387,
+        "slack_ns": 0.485
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_9__reg_p:D",
+        "path_delay": "0.902f",
+        "required_ns": 1.387,
+        "slack_ns": 0.485
+      }
+    ],
+    "training_command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/v2-e32-w4-p2-training.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+      "riscv32_btb",
+      "nangate45"
+    ],
+    "target_pins": 2048,
+    "netlist_sha256": "787e16570546dd99184036a32f882923d67cd25bd2ed122eeeb0eee2078e9e9d"
+  },
+  {
+    "variant": "v2",
+    "entries": 32,
+    "ways": 8,
+    "policy": 2,
+    "command": [
+      "python3",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_synthesis.py",
+      "--target",
+      "sta",
+      "--keep-artifacts",
+      "--output",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e32-w8-p2",
+      "NPC_CONFIG=rv32-balanced",
+      "STA_DESIGN=riscv32_btb",
+      "STA_FREQUENCY_MHZ=820",
+      "STA_SYNTH_STRATEGY=AREA 3",
+      "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+      "STA_RTL_FILELIST=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/v2-e32-w8-p2.f",
+      "STA_SDC_FILE=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc",
+      "NPC_BRANCH_TARGET_ENTRY_COUNT=32",
+      "NPC_BRANCH_TARGET_WAY_COUNT=8",
+      "NPC_BRANCH_TARGET_POLICY=2"
+    ],
+    "source_hashes": {
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv": "156d28f7fdc46f4fe3f8fb370490cdde65d61ae0cae33ddadf26d240ade4ad8b",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "7420d8d4f38b304742835054fcbaf9a0eb879d1321026106c2d48ad70706ef96",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/parallel-v2.sv": "62d497a89a61c090e338dbc4ef51f6d19a90981e553a6343d72ba0f7f319a617"
+    },
+    "area_um2": 16945.796,
+    "training_setup_ns": 0.434,
+    "training_rows": [
+      {
+        "endpoint": "g_full_target.reuse_array_q_4__reg_p:D",
+        "path_delay": "0.950f",
+        "required_ns": 1.384,
+        "slack_ns": 0.434
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_4__reg_p:D",
+        "path_delay": "0.950f",
+        "required_ns": 1.384,
+        "slack_ns": 0.434
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_36__reg_p:D",
+        "path_delay": "0.950f",
+        "required_ns": 1.384,
+        "slack_ns": 0.434
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_36__reg_p:D",
+        "path_delay": "0.950f",
+        "required_ns": 1.384,
+        "slack_ns": 0.434
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_19__reg_p:D",
+        "path_delay": "0.946f",
+        "required_ns": 1.384,
+        "slack_ns": 0.439
+      }
+    ],
+    "training_command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/v2-e32-w8-p2-training.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+      "riscv32_btb",
+      "nangate45"
+    ],
+    "target_pins": 2080,
+    "netlist_sha256": "14cbf76cf79cb0927e72f255efc086e5a93c3cb9d38bf47da840de0cf8a31789"
+  },
+  {
+    "variant": "v2",
+    "entries": 32,
+    "ways": 16,
+    "policy": 2,
+    "command": [
+      "python3",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/run_synthesis.py",
+      "--target",
+      "sta",
+      "--keep-artifacts",
+      "--output",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e32-w16-p2",
+      "NPC_CONFIG=rv32-balanced",
+      "STA_DESIGN=riscv32_btb",
+      "STA_FREQUENCY_MHZ=820",
+      "STA_SYNTH_STRATEGY=AREA 3",
+      "STA_TOOL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow",
+      "STA_RTL_FILELIST=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/v2-e32-w16-p2.f",
+      "STA_SDC_FILE=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc",
+      "NPC_BRANCH_TARGET_ENTRY_COUNT=32",
+      "NPC_BRANCH_TARGET_WAY_COUNT=16",
+      "NPC_BRANCH_TARGET_POLICY=2"
+    ],
+    "source_hashes": {
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv_config_pkg.sv": "156d28f7fdc46f4fe3f8fb370490cdde65d61ae0cae33ddadf26d240ade4ad8b",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "7420d8d4f38b304742835054fcbaf9a0eb879d1321026106c2d48ad70706ef96",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/parallel-v2.sv": "62d497a89a61c090e338dbc4ef51f6d19a90981e553a6343d72ba0f7f319a617"
+    },
+    "area_um2": 17409.434,
+    "training_setup_ns": 0.409,
+    "training_rows": [
+      {
+        "endpoint": "g_full_target.reuse_array_q_19__reg_p:D",
+        "path_delay": "0.978f",
+        "required_ns": 1.387,
+        "slack_ns": 0.409
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_19__reg_p:D",
+        "path_delay": "0.978f",
+        "required_ns": 1.387,
+        "slack_ns": 0.409
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_59__reg_p:D",
+        "path_delay": "0.977f",
+        "required_ns": 1.387,
+        "slack_ns": 0.41
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_59__reg_p:D",
+        "path_delay": "0.977f",
+        "required_ns": 1.387,
+        "slack_ns": 0.41
+      },
+      {
+        "endpoint": "g_full_target.reuse_array_q_11__reg_p:D",
+        "path_delay": "0.977f",
+        "required_ns": 1.387,
+        "slack_ns": 0.41
+      }
+    ],
+    "training_command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/v2-e32-w16-p2-training.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+      "riscv32_btb",
+      "nangate45"
+    ],
+    "target_pins": 2112,
+    "netlist_sha256": "e1634ae1dafb03ba07f65d55b48b22d774f30fab63985dbc0b49b469f2801a0b"
+  }
+]

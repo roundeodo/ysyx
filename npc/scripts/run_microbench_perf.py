@@ -175,6 +175,7 @@ def run_logged(command, path, env, echo=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--execute-result-registered', type=int, choices=[0, 1], default=0)
     parser.add_argument('--scale', choices=['test', 'train'], default='train')
     parser.add_argument('--timing-model', choices=['device-clock', 'legacy'], default='device-clock')
     parser.add_argument('--cpu-mhz', type=int, default=820)
@@ -257,6 +258,7 @@ def main():
             command = ['make', '-C', str(NPC), 'git_commit=', 'NPC_CONFIG=rv32-baseline',
                        f'NPC_DEVICE_TIMING_MODE={int(args.timing_model == "device-clock")}',
                        f'NPC_SIM_CPU_FREQ_MHZ={args.cpu_mhz}', f'BUILD_DIR={build}',
+                       f'NPC_EXECUTE_RESULT_REGISTERED={args.execute_result_registered}',
                        f'NPC_ICACHE_CAPACITY_BYTES={args.icache_bytes}', f'NPC_ICACHE_WAY_COUNT={args.icache_ways}',
                        f'NPC_ICACHE_REPLACEMENT_POLICY={args.icache_policy}', f'NPC_ICACHE_LINE_BYTES={args.icache_line}',
                        'NPC_DCACHE_ENABLE=1', 'NPC_DCACHE_CAPACITY_BYTES=256', 'NPC_DCACHE_WAY_COUNT=2',
@@ -306,6 +308,7 @@ def main():
                 for source in sources:
                     archive.add(source, arcname=str(source.relative_to(WORKSPACE)))
             manifest = {'schema': 1, 'scale': args.scale, 'cpu_mhz': args.cpu_mhz,
+                        'execute_result_registered': args.execute_result_registered,
                         'host_opt': args.host_opt,
                         'icache': {'bytes': args.icache_bytes, 'ways': args.icache_ways,
                                    'policy': args.icache_policy, 'line_bytes': args.icache_line},

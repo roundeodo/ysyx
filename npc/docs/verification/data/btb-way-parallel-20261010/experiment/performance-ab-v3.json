@@ -1,0 +1,35 @@
+{
+  "image_sha256": "e8ef4f270c257d6bfe74cf3d1ccdef2d46c151f1522fc1c82104a3813f28c89b",
+  "before_simulator_sha256": "35197ae9b32ed294c49e9651b3eedc1bfb2617ec50610f40ba169a7b7d5d4bd2",
+  "after_simulator_sha256": "771a8e79275cccfb386a2505c494870d1cc3a6943a233e920e2ceb218b09eea4",
+  "changed_sources": [
+    "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv"
+  ],
+  "same_image_same_timing_config": true,
+  "stdout_exactly_equal": true,
+  "architectural_audit": "b4459b6f8277b8fe",
+  "total": {
+    "cycles": 2684531,
+    "retired_instructions": 831627,
+    "ipc": 0.3097848376494814,
+    "timer_ticks": 3835,
+    "timer_seconds": 0.003835,
+    "cycle_seconds": 0.0038350442857142857,
+    "interrupts": 0
+  },
+  "scored": {
+    "cycles": 1048317,
+    "retired_instructions": 430313,
+    "ipc": 0.41047984531396514,
+    "timer_ticks": 1497,
+    "timer_seconds": 0.001497,
+    "cycle_seconds": 0.0014975957142857143,
+    "interrupts": 0
+  },
+  "all_subtests_equal": true,
+  "train_run": false,
+  "variant": "v3",
+  "same_results_as_v1": true,
+  "observer_on_off_verified": true,
+  "note": "700 MHz here is the simulation delay-model parameter; v3 failed actual 700 MHz STA and was not adopted"
+}

@@ -5,6 +5,8 @@ module selection_replacement_tb;
   logic clk = 0;
   always #5 clk = !clk;
   logic reset_n = 0, invalidate = 0, read_enable = 0, hit = 0, allocate = 0;
+  logic lookup_hit = 0;
+  int stalled_hits = 0;
   icache_set_index_t read_set;
   icache_way_index_t read_victim, allocate_way;
   logic [ICACHE_WAY_COUNT-1:0] hit_vector;
@@ -13,7 +15,7 @@ module selection_replacement_tb;
   riscv32_icache_replacement dut (
       .clk_i(clk), .rst_ni(reset_n), .invalidate_i(invalidate),
       .read_enable_i(read_enable), .read_set_i(read_set), .read_victim_o(read_victim),
-      .hit_i(hit), .hit_way_vector_i(hit_vector), .allocate_i(allocate),
+      .hit_i(hit), .lookup_hit_i(lookup_hit), .hit_way_vector_i(hit_vector), .allocate_i(allocate),
       .allocate_way_i(allocate_way), .victim_present_i(victim_present), .access_addr_i(address)
   );
   logic present [ICACHE_SET_COUNT][ICACHE_WAY_COUNT];
@@ -50,6 +52,7 @@ module selection_replacement_tb;
     for (int pass = 0; pass < 2; pass++) begin
       invalidate = 1;
       hit = 0;
+      lookup_hit = 0;
       allocate = 0;
       read_enable = 0;
       for (int s = 0; s < ICACHE_SET_COUNT; s++)
@@ -78,6 +81,11 @@ module selection_replacement_tb;
         if ((index % 29) == 7) begin
           held_victim = read_victim;
           hit = 0;
+          // 分类已经命中，但本拍未交付：不能更新策略或采样 query 前递。
+          lookup_hit = !actual_miss;
+          hit_vector = ICACHE_WAY_COUNT'(1) << actual_way;
+          if (lookup_hit)
+            stalled_hits++;
           allocate = 0;
           read_enable = 0;
           read_set = icache_set_index_t'(index);
@@ -87,6 +95,7 @@ module selection_replacement_tb;
           end
         end
         hit = !actual_miss;
+        lookup_hit = !actual_miss;
         hit_vector = ICACHE_WAY_COUNT'(1) << actual_way;
         allocate = actual_miss;
         allocate_way = icache_way_index_t'(actual_way);
@@ -101,12 +110,15 @@ module selection_replacement_tb;
         if (riscv_config_pkg::ICACHE_REPLACEMENT_POLICY >= 13 && actual_miss && index + 1 < count) begin
           allocate = 0;
           hit = 0;
+          lookup_hit = 0;
           read_enable = 1;
           @(negedge clk);
         end
       end
     end
-    $display("PASS replacement: %0d decisions, invalidate, forwarding, snapshot hold", count * 2);
+    if (stalled_hits == 0) $fatal(1, "no unconsumed hit classification covered");
+    $display("PASS replacement: %0d decisions, %0d stalled hit classifications, invalidate, forwarding, snapshot hold",
+             count * 2, stalled_hits);
     $finish;
   end
 endmodule

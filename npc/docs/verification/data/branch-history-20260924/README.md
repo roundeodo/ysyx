@@ -81,4 +81,4 @@ python3 npc/scripts/reproduce_history_study.py --root npc/result/branch-history-
 
 原始目录：`/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924`。`log-index.json`列出日志路径、大小和哈希；RTL和软件镜像保留在冻结快照中。
 已压缩的原始日志以.log.gz保留；可用gzip -cd读取。artifact-compaction.json记录压缩前哈希及重复STA网表对应的保留文件。
-源代码哈希见`execution-sources.json`，工具与标准单元库哈希见`tool-bindings.json`。此句所述远程状态属于测量完成时；本次面试发布另见版本说明。
+源代码哈希见`execution-sources.json`，工具与标准单元库哈希见`tool-bindings.json`。此句所述远程状态属于测量完成时；后续发布状态另见对应版本说明。

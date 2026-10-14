@@ -1,0 +1,56 @@
+
+26. Printing statistics.
+
+=== riscv32_btb ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+     5617        - wires
+     5617        - wire bits
+     5617        - public wires
+     5617        - public wire bits
+      138        - ports
+      138        - port bits
+     4514 7.94E+03 cells
+        3    3.192   AND2_X1
+        1    2.394   AND2_X4
+        1     1.33   AND3_X1
+      158  168.112   AOI21_X1
+        2     2.66   AOI22_X1
+       31   24.738   BUF_X1
+        5    33.25   BUF_X16
+       16   17.024   BUF_X2
+        2   26.068   BUF_X32
+       24   44.688   BUF_X4
+       33  114.114   BUF_X8
+        2    1.596   CLKBUF_X1
+       25    86.45   CLKGATE_X1
+       24   127.68   DFFR_X1
+      976 4.41E+03   DFF_X1
+      358  190.456   INV_X1
+        1    4.522   INV_X16
+        5     3.99   INV_X2
+        1     1.33   INV_X4
+        2    4.788   INV_X8
+        2    3.724   MUX2_X1
+     1423 1.14E+03   NAND2_X1
+        4     5.32   NAND2_X2
+        3    7.182   NAND2_X4
+      587  624.568   NAND3_X1
+       51    67.83   NAND4_X1
+      183  146.034   NOR2_X1
+        2     2.66   NOR2_X2
+        4    9.576   NOR2_X4
+        3    3.192   NOR3_X1
+       58    77.14   OAI211_X1
+      409  435.176   OAI21_X1
+        3    4.788   OAI221_X1
+       37    49.21   OAI22_X1
+       50     53.2   OR2_X1
+       22   35.112   XNOR2_X1
+        3    4.788   XOR2_X1
+
+   Chip area for module '\riscv32_btb': 7936.908000
+     of which used for sequential elements: 4541.152000 (57.22%)
+

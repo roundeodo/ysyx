@@ -55,7 +55,8 @@ module riscv32_ifu_redirect_tb;
       .clk_i(clk), .rst_ni(rst_n), .redirect_req_i(redirect),
       .redirect_req_valid_i(redirect_valid), .icache_lookup_req_o(request),
       .icache_lookup_req_valid_o(request_valid), .icache_lookup_req_ready_i(request_ready),
-      .icache_lookup_resp_i(response), .icache_lookup_resp_valid_i(response_valid),
+      .icache_lookup_resp_i(response),
+      .icache_lookup_word_i(response.fetch_data), .icache_lookup_resp_valid_i(response_valid),
       .icache_lookup_resp_ready_o(response_ready), .fetch_entry_o(),
       .fetch_entry_valid_o(fetch_valid), .fetch_entry_ready_i(1'b1)
   );

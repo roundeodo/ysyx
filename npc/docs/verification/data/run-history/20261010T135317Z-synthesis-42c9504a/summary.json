@@ -1,0 +1,9 @@
+{
+  "tool_exit_code": 0,
+  "timing_status": "Inspect retained timing reports; tool success alone does not qualify frequency",
+  "reports": [
+    "analysis/tool-tail.txt",
+    "analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "analysis/riscv32_btb-820MHz/synth_stat.txt"
+  ]
+}

@@ -1,0 +1,185 @@
+{
+  "scope": "RV32 balanced; NanGate45 typ; AREA3; post-synthesis core STA",
+  "port_mapping_for_this_configuration": {
+    "data_axi4_manager_i_41_": "b_valid",
+    "data_axi4_manager_o_52_": "w_valid"
+  },
+  "note": "Exact mapped start/end points come from reports; functional path descriptions are interpreted from RTL and cell names. Entries are different candidates, not a single monotonically improving path.",
+  "paths": [
+    {
+      "evidence": "rejected-raw-hit/synthesis/frequency-checks/700/riscv32_core_reset_boundary.rpt",
+      "report_sha256": "a7ba6f119fa448423e78be8de81ba7e35c60ca3cd01f47c509d61777587dc8be",
+      "sta_startpoint": "u_core.execute_packet_175__reg_p:Q (DFF_X1)",
+      "sta_endpoint": "data_axi4_manager_o_52_",
+      "source": "ID/EX执行包寄存输出",
+      "destination": "AXI WVALID",
+      "rtl_path_interpretation": "地址加法→PMA权限/选路→LSU及uncached直通→WVALID",
+      "cause": "进位传播与多层访问控制串接；输出端还需扣除IO延迟",
+      "fix": "AGU分组进位与前缀选择；单项raw-hit未采用",
+      "mhz": 700,
+      "timing_groups": {
+        "data_max": {
+          "endpoint": "data_axi4_manager_o_52_",
+          "slack_ns": -0.253,
+          "fmax_mhz": 595.053
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": -0.221,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": false
+    },
+    {
+      "evidence": "handoff-only/700/riscv32_core_reset_boundary.rpt",
+      "report_sha256": "76a9cea9e78f8d237e7aa9d1d7305bf291f35d97b2259ffcb775a3a9e5ae020d",
+      "sta_startpoint": "data_axi4_manager_i_41_ (port)",
+      "sta_endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+      "source": "数据AXI BVALID",
+      "destination": "I-cache victim快照寄存器",
+      "rtl_path_interpretation": "写回完成/错误→LSU交付→后端/前端推进→hit握手→RRIP同组前递→victim比较",
+      "cause": "迟到的下游ready进入RRPV数据选择后才比较victim，控制与查询深度串接",
+      "fix": "用S1命中分类与独热路提前计算查询；状态只按真实握手更新",
+      "mhz": 700,
+      "timing_groups": {
+        "data_max": {
+          "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+          "slack_ns": -0.077,
+          "fmax_mhz": 664.503
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_reg_p_QN_NAND3_X1_A2_ZN_INV_X1_A_ZN_CLKGATE_X1_E:E",
+          "slack_ns": -0.038,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.u_ifu.lookup_queue_read_index_q_reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": false
+    },
+    {
+      "evidence": "raw-hit-agu4/700/riscv32_core_reset_boundary.rpt",
+      "report_sha256": "ae1e2f16b9671051a245312df201d298037015d1b6392a4148e0091e8ee3bcbf",
+      "sta_startpoint": "u_core.icache_lookup_resp_67__reg_p:Q (DFF_X1)",
+      "sta_endpoint": "u_core.u_ifu.predictor_fetch_pc_q_15__reg_p:D",
+      "source": "I-cache S1地址/响应身份寄存输出",
+      "destination": "IFU PC寄存器",
+      "rtl_path_interpretation": "tag比较→指令字选择→B/J立即数→全宽目标加法→预测比较→PC更新",
+      "cause": "指令选择已经较晚，全宽进位和预测比较继续串接",
+      "fix": "B/J低13/21位相加，高位PC/PC+1/PC-1提前计算",
+      "mhz": 700,
+      "timing_groups": {
+        "data_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_15__reg_p:D",
+          "slack_ns": -0.291,
+          "fmax_mhz": 581.695
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.lookup_queue_write_index_d_OAI21_X1_ZN_B1_NOR2_X1_A2_ZN_CLKGATE_X1_E:E",
+          "slack_ns": -0.281,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": false
+    },
+    {
+      "evidence": "split-target/700/riscv32_core_reset_boundary.rpt",
+      "report_sha256": "0c46a0f0b84979a4831c311e2650cc799e7d4e995738f449b63f6c7d39d8818b",
+      "sta_startpoint": "data_axi4_manager_i_41_ (port)",
+      "sta_endpoint": "u_core.u_ifu.predictor_fetch_pc_q_11__reg_p:D",
+      "source": "数据AXI BVALID",
+      "destination": "IFU PC寄存器",
+      "rtl_path_interpretation": "访存完成→LSU及年轻发射允许→恢复→预测请求取消→PC推进选择",
+      "cause": "PC下一值已有恢复优先级，普通推进条件又串入同一恢复门控",
+      "fix": "内部PC推进只看资源条件，公开握手及最高优先级恢复保持",
+      "mhz": 700,
+      "timing_groups": {
+        "data_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_11__reg_p:D",
+          "slack_ns": -0.04,
+          "fmax_mhz": 681.235
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": -0.025,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": false
+    },
+    {
+      "evidence": "final/candidate/700/riscv32_core_reset_boundary.rpt",
+      "report_sha256": "1e59b32469763a2673a18af2ffb87586454fc49e9648601d094630539182ea1a",
+      "sta_startpoint": "data_axi4_manager_i_41_ (port)",
+      "sta_endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_0__reg_p:D",
+      "source": "数据AXI BVALID",
+      "destination": "I-cache RRPV状态寄存器",
+      "rtl_path_interpretation": "访存完成→后端推进/取指反压→真实hit握手→RRPV状态更新",
+      "cause": "仍需由实际响应交付决定策略更新；最终延迟已满足约束",
+      "fix": "保留正确的更新条件，未提前训练或增加寄存级",
+      "mhz": 700,
+      "timing_groups": {
+        "data_max": {
+          "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_0__reg_p:D",
+          "slack_ns": 0.019,
+          "fmax_mhz": 709.937
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.015,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": true
+    }
+  ]
+}

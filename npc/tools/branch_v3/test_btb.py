@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Independent full-PC C++ oracle against RTL query and every valid state entry."""
-import argparse,hashlib,json,subprocess,resource
+import argparse,hashlib,json,os,shlex,subprocess,resource
 from pathlib import Path
 NPC=Path(__file__).resolve().parents[2];TOOL=Path(__file__).resolve().parent
 parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path,default=NPC/'result/branch-v3/btb-unit-expanded');parser.add_argument('--rtl',type=Path,default=NPC/'vsrc/riscv32');args=parser.parse_args();OUT=args.output.resolve()
@@ -12,6 +12,8 @@ configs += [(16,2,0,p,0) for p in (1,2,3)]
 configs += [(32,4,1,2,2),(64,4,2,2,2)]
 configs += [(16,w,i,4,a) for w in (2,4) for i in (0,1,2) for a in (1,2)]
 configs += [(32,4,2,4,2),(64,4,2,4,2)]
+# Scale the same selection rules through direct-mapped, eight- and sixteen-way tables.
+configs += [(entries,ways,index,policy,2) for entries,ways,index in ((32,1,2),(32,8,1),(64,16,2)) for policy in (0,2,4)]
 assert len(configs) <= 64
 header=f'''module btb_test(input logic clk_i,rst_ni,valid_i,taken_i,invalidate_i,
 input logic [31:0] lookup_i,pc_i,target_i,input logic [1:0] kind_i,
@@ -21,7 +23,7 @@ output logic [63:0] state_o [{len(configs)*128}],
 output logic [1:0] reuse_o [{len(configs)*128}],
 output logic reused_o [{len(configs)*128}],
 output logic [1:0] signature_o [{len(configs)*16}],
-output logic [1:0] next_o [{len(configs)*64}]);
+output logic [3:0] next_o [{len(configs)*64}]);
 import riscv32_pkg::*;
 '''
 for n,(entries,ways,index,policy,admission) in enumerate(configs):
@@ -40,7 +42,7 @@ for n,(entries,ways,index,policy,admission) in enumerate(configs):
     for j in range(16):
         header+=f"assign signature_o[{n*16+j}] = "+(f'u{n}.g_full_target.g_reuse.g_signature.signature_counter_array_q[{j}]' if policy==4 else "2'b0")+';\n'
     for s in range(64):
-        header+=f"assign next_o[{n*64+s}]="+(f'u{n}.g_full_target.replacement_way_array_q[{s}]' if s<entries//ways else "2'b0")+';\n'
+        header+=f"assign next_o[{n*64+s}]="+(f"4'(u{n}.g_full_target.replacement_way_array_q[{s}])" if s<entries//ways else "4'b0")+';\n'
 header+='endmodule\n';(OUT/'test.sv').write_text(header)
 cpp=r'''
 #include "Vbtb_test.h"
@@ -93,13 +95,17 @@ int main(int argc,char**argv) {
 }
 '''.replace('CONFIGURATIONS','{'+','.join('{'+','.join(map(str,c))+'}' for c in configs)+'}')
 (OUT/'test.cpp').write_text(cpp)
-base=json.loads((NPC/'result/branch-v3/builds/B0-victim/manifest.json').read_text())
-defines=[x for x in base['command'] if x.startswith('+define+')]
+# Derive package macros from the maintained Make configuration. Generated results
+# are disposable and must not be prerequisites for reproducing this unit test.
+defines_command=['make','-s','-n','-C',str(NPC),'test-predictor','NPC_CONFIG=rv32-baseline','git_commit=']
+configuration=subprocess.check_output(defines_command,text=True,env={**os.environ,'NPC_HOME':str(NPC)})
+defines=[word for word in shlex.split(configuration) if word.startswith('+define+')]
+assert '+define+YSYX_RV32_BASELINE' in defines
 rtl=args.rtl.resolve()
 sources=[rtl/'common'/f for f in ['riscv_config_pkg.sv','riscv32_addr_map_pkg.sv','riscv32_axi4_pkg.sv','riscv32_pkg.sv']]
 sources += [rtl/'core/frontend'/f for f in ['riscv32_btb.sv','riscv32_compact_btb.sv']]
 command=['verilator','--cc','--exe','--build','--assert','-Wno-fatal','-j','2','--top-module','btb_test','--Mdir',str(OUT/'obj'),'-CFLAGS',f'-std=c++17 -I{TOOL}',*defines,*map(str,sources),str(OUT/'test.sv'),str(OUT/'test.cpp')]
-manifest={'configs':configs,'command':command,'sources':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources+[TOOL/'btb_model.h',Path(__file__),OUT/'test.cpp',OUT/'test.sv']}}
+manifest={'configs':configs,'defines_command':defines_command,'command':command,'sources':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources+[TOOL/'btb_model.h',Path(__file__),OUT/'test.cpp',OUT/'test.sv']}}
 (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 with (OUT/'build.log').open('x') as log:subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,check=True)
 with (OUT/'run.log').open('x') as log:subprocess.run([str(OUT/'obj/Vbtb_test')],stdout=log,stderr=subprocess.STDOUT,check=True)

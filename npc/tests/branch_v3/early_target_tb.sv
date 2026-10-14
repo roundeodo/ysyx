@@ -55,7 +55,8 @@ module early_target_tb #(parameter bit RETURN_TEST = 0);
     .next_pc_predictor_prediction_i(prediction),.next_pc_predictor_lookup_response_valid_i(response_valid),
     .next_pc_predictor_lookup_response_ready_o(response_ready),.next_pc_predictor_flush_o(flush),
     .icache_lookup_req_o(request),.icache_lookup_req_valid_o(request_valid),.icache_lookup_req_ready_i(request_ready),
-    .icache_lookup_resp_i(response),.icache_lookup_resp_valid_i(response_valid_cache),.icache_lookup_resp_ready_o(response_ready_cache),
+    .icache_lookup_resp_i(response),
+      .icache_lookup_word_i(response.fetch_data),.icache_lookup_resp_valid_i(response_valid_cache),.icache_lookup_resp_ready_o(response_ready_cache),
     .fetch_entry_o(fetched),.fetch_entry_valid_o(fetched_valid),.fetch_entry_ready_i(fetched_ready));
   riscv32_branch_predictor predictor (
     .clk_i(clk),.rst_ni(rst_n),.lookup_request_pc_i(query_pc),.lookup_request_epoch_i(query_epoch),

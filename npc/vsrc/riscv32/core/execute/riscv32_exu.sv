@@ -35,6 +35,46 @@ module riscv32_exu
   assign execute_rs1_value = execute_packet_i.source_a_value;
   assign execute_rs2_value = execute_packet_i.source_b_value;
 
+`ifdef YSYX_SINGLE_EX
+  // 条件比较与目标/整数加法并行。先比较各个字节，再按高位优先合并关系。
+  // 复用一位比较结果，不把全宽减法结果选择串入分支恢复路径。
+  localparam int unsigned COMPARE_GROUP_BITS = 8;
+  localparam int unsigned COMPARE_GROUP_COUNT = XLEN / COMPARE_GROUP_BITS;
+  localparam int unsigned COMPARE_LEVELS = $clog2(COMPARE_GROUP_COUNT);
+  logic [COMPARE_LEVELS:0][COMPARE_GROUP_COUNT-1:0] less_prefix_array, equal_prefix_array;
+  logic operands_equal, operands_unsigned_less, operands_signed_less;
+
+  always_comb begin
+    less_prefix_array = '0;
+    equal_prefix_array = '0;
+    for (int group_index = 0; group_index < COMPARE_GROUP_COUNT; group_index++) begin
+      less_prefix_array[0][group_index] =
+          execute_rs1_value[group_index*COMPARE_GROUP_BITS +: COMPARE_GROUP_BITS] <
+          execute_rs2_value[group_index*COMPARE_GROUP_BITS +: COMPARE_GROUP_BITS];
+      equal_prefix_array[0][group_index] =
+          execute_rs1_value[group_index*COMPARE_GROUP_BITS +: COMPARE_GROUP_BITS] ==
+          execute_rs2_value[group_index*COMPARE_GROUP_BITS +: COMPARE_GROUP_BITS];
+    end
+    for (int level = 0; level < COMPARE_LEVELS; level++) begin
+      for (int group_index = 0; group_index < COMPARE_GROUP_COUNT; group_index++) begin
+        less_prefix_array[level+1][group_index] = less_prefix_array[level][group_index];
+        equal_prefix_array[level+1][group_index] = equal_prefix_array[level][group_index];
+        if (group_index >= (1 << level)) begin
+          less_prefix_array[level+1][group_index] |=
+              equal_prefix_array[level][group_index] &
+              less_prefix_array[level][group_index-(1 << level)];
+          equal_prefix_array[level+1][group_index] &=
+              equal_prefix_array[level][group_index-(1 << level)];
+        end
+      end
+    end
+  end
+  assign operands_equal = equal_prefix_array[COMPARE_LEVELS][COMPARE_GROUP_COUNT-1];
+  assign operands_unsigned_less = less_prefix_array[COMPARE_LEVELS][COMPARE_GROUP_COUNT-1];
+  assign operands_signed_less = (execute_rs1_value[XLEN-1] != execute_rs2_value[XLEN-1]) ?
+      execute_rs1_value[XLEN-1] : operands_unsigned_less;
+`endif
+
   // 整数运算：主 ALU 与 32 位 word 运算并行，输出统一为 XLEN。
   xlen_data_t            alu_result;
   logic [WORD_WIDTH-1:0] word_result;
@@ -64,8 +104,13 @@ module riscv32_exu
       ALU_ADD: alu_result = execute_rs1_value + execute_rs2_value;
       ALU_SUB: alu_result = execute_rs1_value - execute_rs2_value;
       ALU_SLL: alu_result = execute_rs1_value << execute_rs2_value[SHIFT_AMOUNT_WIDTH-1:0];
+`ifdef YSYX_SINGLE_EX
+      ALU_SLT: alu_result[0] = operands_signed_less;
+      ALU_SLTU: alu_result[0] = operands_unsigned_less;
+`else
       ALU_SLT: alu_result[0] = $signed(execute_rs1_value) < $signed(execute_rs2_value);
       ALU_SLTU: alu_result[0] = execute_rs1_value < execute_rs2_value;
+`endif
       ALU_XOR: alu_result = execute_rs1_value ^ execute_rs2_value;
       ALU_SRL: alu_result = execute_rs1_value >> execute_rs2_value[SHIFT_AMOUNT_WIDTH-1:0];
       ALU_SRA:
@@ -88,12 +133,21 @@ module riscv32_exu
 
   always_comb begin
     unique case (execute_packet_i.uop.branch_ctrl.condition)
+`ifdef YSYX_SINGLE_EX
+      BR_BEQ:  branch_condition_met = operands_equal;
+      BR_BNE:  branch_condition_met = !operands_equal;
+      BR_BLT:  branch_condition_met = operands_signed_less;
+      BR_BGE:  branch_condition_met = !operands_signed_less;
+      BR_BLTU: branch_condition_met = operands_unsigned_less;
+      BR_BGEU: branch_condition_met = !operands_unsigned_less;
+`else
       BR_BEQ:  branch_condition_met = execute_rs1_value == execute_rs2_value;
       BR_BNE:  branch_condition_met = execute_rs1_value != execute_rs2_value;
       BR_BLT:  branch_condition_met = $signed(execute_rs1_value) < $signed(execute_rs2_value);
       BR_BGE:  branch_condition_met = $signed(execute_rs1_value) >= $signed(execute_rs2_value);
       BR_BLTU: branch_condition_met = execute_rs1_value < execute_rs2_value;
       BR_BGEU: branch_condition_met = execute_rs1_value >= execute_rs2_value;
+`endif
       default: branch_condition_met = 1'b0;
     endcase
   end
@@ -140,8 +194,78 @@ module riscv32_exu
   end
 
   // AGU 独立生成访存地址，不经过整数 ALU 的结果选择。
+  // 每组 4 位并行求两种进位输入；组间用前缀进位选择，避免全宽串行进位。
+  // 这里只改变组合加法结构，保留完整 XLEN 加法和地址截取语义。
+  function automatic xlen_data_t add_address(input xlen_data_t base, offset);
+    localparam int unsigned GROUP_BITS = 4;
+    localparam int unsigned GROUP_COUNT = XLEN / GROUP_BITS;
+    localparam int unsigned PREFIX_LEVELS = $clog2(GROUP_COUNT);
+    logic [GROUP_COUNT-1:0][GROUP_BITS:0] sum_without_carry, sum_with_carry;
+    logic [PREFIX_LEVELS:0][GROUP_COUNT-1:0] generate_prefix, propagate_prefix;
+    xlen_data_t result;
+
+    for (int group_index = 0; group_index < GROUP_COUNT; group_index++) begin
+      sum_without_carry[group_index] =
+          {1'b0, base[group_index*GROUP_BITS +: GROUP_BITS]} +
+          {1'b0, offset[group_index*GROUP_BITS +: GROUP_BITS]};
+      sum_with_carry[group_index] =
+          {1'b0, base[group_index*GROUP_BITS +: GROUP_BITS]} +
+          {1'b0, offset[group_index*GROUP_BITS +: GROUP_BITS]} + (GROUP_BITS+1)'(1);
+      generate_prefix[0][group_index] = sum_without_carry[group_index][GROUP_BITS];
+      propagate_prefix[0][group_index] =
+          &(base[group_index*GROUP_BITS +: GROUP_BITS] ^
+            offset[group_index*GROUP_BITS +: GROUP_BITS]);
+    end
+
+    for (int level = 0; level < PREFIX_LEVELS; level++) begin
+      for (int group_index = 0; group_index < GROUP_COUNT; group_index++) begin
+        generate_prefix[level+1][group_index] = generate_prefix[level][group_index];
+        propagate_prefix[level+1][group_index] = propagate_prefix[level][group_index];
+        if (group_index >= (1 << level)) begin
+          generate_prefix[level+1][group_index] |=
+              propagate_prefix[level][group_index] &
+              generate_prefix[level][group_index-(1 << level)];
+          propagate_prefix[level+1][group_index] &=
+              propagate_prefix[level][group_index-(1 << level)];
+        end
+      end
+    end
+
+    result[0 +: GROUP_BITS] = sum_without_carry[0][GROUP_BITS-1:0];
+    for (int group_index = 1; group_index < GROUP_COUNT; group_index++) begin
+      result[group_index*GROUP_BITS +: GROUP_BITS] =
+          generate_prefix[PREFIX_LEVELS][group_index-1] ?
+          sum_with_carry[group_index][GROUP_BITS-1:0] :
+          sum_without_carry[group_index][GROUP_BITS-1:0];
+    end
+    return result;
+  endfunction
+
   effective_addr_t lsu_effective_addr;
+`ifdef YSYX_SINGLE_EX
+  assign lsu_effective_addr = effective_addr_t'(add_address(execute_rs1_value, execute_packet_i.uop.imm));
+`else
   assign lsu_effective_addr = effective_addr_t'(execute_rs1_value + execute_packet_i.uop.imm);
+`endif
+
+`ifdef YSYX_SINGLE_EX
+  // 单级 EX：真实后继与预测后继均来自当前 ID/EX 指令，不再等待结果寄存级。
+  // redirect_valid 只描述需要恢复；core 在结果交付时产生一次恢复事件。
+  logic branch_next_pc_mismatch;
+  logic branch_history_repair_required;
+
+  // 地址比较并行，方向只选择一位结果；避免先选两个宽 next_pc 再比较。
+  assign branch_next_pc_mismatch = execute_packet_i.uop.prediction.predicted_taken ?
+      (branch_taken ? branch_target != execute_packet_i.uop.prediction.predicted_target :
+                      sequential_next_pc != execute_packet_i.uop.prediction.predicted_target) :
+      (branch_taken && branch_target != sequential_next_pc);
+  assign branch_history_repair_required = riscv_config_pkg::BRANCH_SPEC_HISTORY &&
+      ((execute_packet_i.uop.branch_ctrl.op == CF_BRANCH) ?
+       (!execute_packet_i.uop.prediction.direction.history_inserted ||
+        execute_packet_i.uop.prediction.direction.history_taken != branch_taken) :
+       execute_packet_i.uop.prediction.direction.history_inserted);
+
+`endif
 
   // 非访存结果汇合；异常指令在本出口撤销寄存器和 CSR 写副作用。
   execute_result_t exu_result;
@@ -154,8 +278,7 @@ module riscv32_exu
     exu_result.next_pc   = sequential_next_pc;
     exu_result.csr_wdata = csr_wdata;
     exu_result.branch_taken = (execute_packet_i.uop.fu_type == FU_BRANCH) && branch_taken;
-    // 预测校验位于后继EX/MEM寄存级之后。本级只计算真实next_pc，避免把预测比较继续
-    // 串在分支加法器之后。
+    // 旧边界配置由结果级校验；单级EX在本级形成完整结果并完成校验。
     exu_result.redirect_valid = 1'b0;
     exu_result.redirect_req   = '0;
 
@@ -189,6 +312,16 @@ module riscv32_exu
       FU_CSR:  exu_result.result = execute_packet_i.csr_rdata;
       default: ;
     endcase
+
+`ifdef YSYX_SINGLE_EX
+    if (execute_packet_i.uop.fu_type == FU_BRANCH && !exu_result.uop.exception_valid) begin
+      exu_result.redirect_req.target_pc = actual_next_pc;
+      exu_result.redirect_req.source_pc = execute_packet_i.uop.pc;
+      exu_result.redirect_req.reason = REDIRECT_BRANCH_MISPREDICT;
+      exu_result.redirect_valid = branch_next_pc_mismatch ||
+          branch_history_repair_required;
+    end
+`endif
   end
 
   always_comb begin
