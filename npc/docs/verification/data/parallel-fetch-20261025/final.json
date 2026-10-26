@@ -1,0 +1,547 @@
+{
+  "baseline_commit": "05c2e63a37e2b379b74fc8a785b5e51566f30daf",
+  "status": "parallel frontend retained; RTL, tests and compact evidence versioned together",
+  "scope": "RV32I single EX; post-synthesis reset-buffered core; no SoC or P&R",
+  "conditions_verified": [
+    "scale",
+    "cpu_mhz",
+    "execute_result_registered",
+    "host_opt",
+    "icache",
+    "predictor",
+    "branch_experiments",
+    "timing_model",
+    "device_clock_ratio",
+    "bridge",
+    "device_mhz",
+    "tools",
+    "capstone_sha256"
+  ],
+  "same_image_sha256": "e8ef4f270c257d6bfe74cf3d1ccdef2d46c151f1522fc1c82104a3813f28c89b",
+  "performance": {
+    "baseline": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 700,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2670300,
+        "retired_instructions": 831573,
+        "ipc": 0.3114155712841254,
+        "timer_ticks": 3815,
+        "timer_seconds": 0.003815,
+        "cycle_seconds": 0.003814714285714286,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1048867,
+        "retired_instructions": 430313,
+        "ipc": 0.4102645998015001,
+        "timer_ticks": 1499,
+        "timer_seconds": 0.001499,
+        "cycle_seconds": 0.0014983814285714286,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 24928,
+          "retired_instructions": 9707,
+          "ipc": 0.3894014762516046,
+          "timer_ticks": 35,
+          "timer_seconds": 3.5e-05,
+          "cycle_seconds": 3.561142857142857e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 118125,
+          "retired_instructions": 83537,
+          "ipc": 0.7071915343915344,
+          "timer_ticks": 168,
+          "timer_seconds": 0.000168,
+          "cycle_seconds": 0.00016875,
+          "interrupts": 0
+        },
+        {
+          "cycles": 207410,
+          "retired_instructions": 141943,
+          "ipc": 0.6843594812207705,
+          "timer_ticks": 297,
+          "timer_seconds": 0.000297,
+          "cycle_seconds": 0.0002963,
+          "interrupts": 0
+        },
+        {
+          "cycles": 115070,
+          "retired_instructions": 85308,
+          "ipc": 0.741357434605023,
+          "timer_ticks": 164,
+          "timer_seconds": 0.000164,
+          "cycle_seconds": 0.00016438571428571428,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7612,
+          "retired_instructions": 4742,
+          "ipc": 0.6229637414608513,
+          "timer_ticks": 11,
+          "timer_seconds": 1.1e-05,
+          "cycle_seconds": 1.0874285714285714e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 103859,
+          "retired_instructions": 29136,
+          "ipc": 0.2805341857710935,
+          "timer_ticks": 149,
+          "timer_seconds": 0.000149,
+          "cycle_seconds": 0.00014837,
+          "interrupts": 0
+        },
+        {
+          "cycles": 172984,
+          "retired_instructions": 17979,
+          "ipc": 0.10393446792766961,
+          "timer_ticks": 247,
+          "timer_seconds": 0.000247,
+          "cycle_seconds": 0.00024712,
+          "interrupts": 0
+        },
+        {
+          "cycles": 86394,
+          "retired_instructions": 14661,
+          "ipc": 0.1696992846725467,
+          "timer_ticks": 124,
+          "timer_seconds": 0.000124,
+          "cycle_seconds": 0.00012342,
+          "interrupts": 0
+        },
+        {
+          "cycles": 196980,
+          "retired_instructions": 38348,
+          "ipc": 0.1946796629099401,
+          "timer_ticks": 282,
+          "timer_seconds": 0.000282,
+          "cycle_seconds": 0.0002814,
+          "interrupts": 0
+        },
+        {
+          "cycles": 15505,
+          "retired_instructions": 4952,
+          "ipc": 0.3193808448887456,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.215e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 3293196,
+        "retired_instructions": 910096,
+        "ipc": 0.276356463447666,
+        "cycle_seconds": 0.004704565714285714,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 8.099815132999993,
+      "timing_model": "device-clock-v1",
+      "observer_on_off_verified": false,
+      "manifest_sha256": "89b3d6b96c8756d3a06f2b8cf96afe71a6422b1582bc52a522b89313a1aea5c8"
+    },
+    "candidate": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 700,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2618725,
+        "retired_instructions": 832008,
+        "ipc": 0.31771491851950856,
+        "timer_ticks": 3741,
+        "timer_seconds": 0.003741,
+        "cycle_seconds": 0.003741035714285714,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1020490,
+        "retired_instructions": 430313,
+        "ipc": 0.4216729218316691,
+        "timer_ticks": 1459,
+        "timer_seconds": 0.001459,
+        "cycle_seconds": 0.0014578428571428571,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 24018,
+          "retired_instructions": 9707,
+          "ipc": 0.4041552169206428,
+          "timer_ticks": 35,
+          "timer_seconds": 3.5e-05,
+          "cycle_seconds": 3.4311428571428574e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 115773,
+          "retired_instructions": 83537,
+          "ipc": 0.7215585671961511,
+          "timer_ticks": 165,
+          "timer_seconds": 0.000165,
+          "cycle_seconds": 0.00016539,
+          "interrupts": 0
+        },
+        {
+          "cycles": 199045,
+          "retired_instructions": 141943,
+          "ipc": 0.7131201487100907,
+          "timer_ticks": 285,
+          "timer_seconds": 0.000285,
+          "cycle_seconds": 0.00028435,
+          "interrupts": 0
+        },
+        {
+          "cycles": 107313,
+          "retired_instructions": 85308,
+          "ipc": 0.7949456263453636,
+          "timer_ticks": 153,
+          "timer_seconds": 0.000153,
+          "cycle_seconds": 0.00015330428571428572,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7474,
+          "retired_instructions": 4742,
+          "ipc": 0.6344661493176345,
+          "timer_ticks": 11,
+          "timer_seconds": 1.1e-05,
+          "cycle_seconds": 1.0677142857142858e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 100009,
+          "retired_instructions": 29136,
+          "ipc": 0.29133377995980364,
+          "timer_ticks": 143,
+          "timer_seconds": 0.000143,
+          "cycle_seconds": 0.00014287,
+          "interrupts": 0
+        },
+        {
+          "cycles": 171668,
+          "retired_instructions": 17979,
+          "ipc": 0.10473122538854067,
+          "timer_ticks": 246,
+          "timer_seconds": 0.000246,
+          "cycle_seconds": 0.00024524,
+          "interrupts": 0
+        },
+        {
+          "cycles": 85988,
+          "retired_instructions": 14661,
+          "ipc": 0.17050053495836628,
+          "timer_ticks": 123,
+          "timer_seconds": 0.000123,
+          "cycle_seconds": 0.00012284,
+          "interrupts": 0
+        },
+        {
+          "cycles": 193683,
+          "retired_instructions": 38348,
+          "ipc": 0.1979936287645276,
+          "timer_ticks": 276,
+          "timer_seconds": 0.000276,
+          "cycle_seconds": 0.00027669,
+          "interrupts": 0
+        },
+        {
+          "cycles": 15519,
+          "retired_instructions": 4952,
+          "ipc": 0.31909272504671693,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.217e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 3240514,
+        "retired_instructions": 910813,
+        "ipc": 0.2810705338720956,
+        "cycle_seconds": 0.004629305714285714,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 8.317640957000094,
+      "timing_model": "device-clock-v1",
+      "observer_on_off_verified": true,
+      "manifest_sha256": "1fc89acfd36dc0822f6aad1cacf0512db9aae6fe04997eaea6e548130fd5cd8b"
+    },
+    "scored_cycles_change": -0.02705490781958053,
+    "scored_ipc_change": 0.02780722986016526,
+    "train": "not run"
+  },
+  "ppa": {
+    "baseline": {
+      "provenance": "same RTL retained data/ex-merge-20261013/final.json, records.candidate; not resynthesized this turn",
+      "area": {
+        "area_um2": 100911.09,
+        "dff": 8015,
+        "data_latches": 8192,
+        "clock_gates": 542
+      },
+      "timing": {
+        "mhz": 700,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_0__reg_p:D",
+            "slack_ns": 0.019,
+            "fmax_mhz": 709.937
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.015,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+            "slack_ns": 0.06,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.097,
+            "fmax_mhz": null
+          }
+        },
+        "passed": true,
+        "command": [
+          "npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/constr/riscv32_core_reset_boundary.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-candidate/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      }
+    },
+    "candidate": {
+      "area_um2": 99535.072,
+      "dff": 7873,
+      "data_latches": 8192,
+      "timing": {
+        "mhz": 700,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_ifu.fetch_pc_q_14__reg_p:D",
+            "slack_ns": 0.033,
+            "fmax_mhz": 716.787
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.fetch_pc_d_31__NAND3_X1_ZN_A1_NAND2_X1_ZN_A1_OAI21_X1_A_ZN_CLKGATE_X1_E:E",
+            "slack_ns": 0.048,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+            "slack_ns": 0.06,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.097,
+            "fmax_mhz": null
+          }
+        },
+        "passed": true,
+        "command": [
+          "npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/constr/riscv32_core_reset_boundary.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      }
+    },
+    "mapping_mhz": 820,
+    "mapping_strategy": "AREA 3",
+    "library": "NanGate45 typ",
+    "qualified_mhz": 700
+  },
+  "decode": {
+    "status": "necessary comparison path tested; full ID redirect not implemented or enabled",
+    "timing": {
+      "mhz": 700,
+      "groups": {
+        "data_max": {
+          "endpoint": "u_core.u_exu.branch_condition_met_reg_p:D",
+          "slack_ns": -0.091,
+          "fmax_mhz": 658.347
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.held_request_present_q_reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": -0.015,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+          "slack_ns": 0.06,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": false,
+      "command": [
+        "npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+        "-script",
+        "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/constr/riscv32_core_reset_boundary.sdc",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/decode-branch-probe/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+        "riscv32_core_reset_boundary",
+        "nangate45"
+      ]
+    },
+    "core_cases": 84,
+    "script": "npc/scripts/prepare_decode_branch_probe.py",
+    "initial_setup_ns": -0.08,
+    "final_base_rechecked": true
+  },
+  "validation": {
+    "stress_cycles": 16000,
+    "deliveries": 2663,
+    "faults": 669,
+    "early_corrections": 54,
+    "stale_responses": 32,
+    "request_stall_cycles": 7925,
+    "prediction_hold_cycles": 12952,
+    "recovery_response_same_cycle": 17,
+    "core_cases": 84,
+    "precise_exception_cases": 40,
+    "nemu_cases": 10,
+    "predictor_configs": 9,
+    "icache_cases": 21,
+    "replacement_model_configs": 12,
+    "timer_system_runs": 5,
+    "timer_unit_tests": 3,
+    "research_observer_runs": 30
+  },
+  "source_hashes": {
+    "npc/vsrc/riscv32/core/riscv32_core.sv": "996afa8729f5caca9b93d7893ad3290cf2ecb9cfdcd89401ad05900d5806baa0",
+    "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+    "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": "9e6334b554e27c82abbdadfe85230a3dccdf106ca66bd2afb39134336ba7d549",
+    "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b",
+    "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+    "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+    "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "4cf2bf3898c64f7b3167b4fa46fa751d1be9697139d230a73173de74fb201b4d",
+    "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": "99673cd9c83a2b2c49a663740f1e271d836a7ed2a4f0d569714233290ef7472a",
+    "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31",
+    "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431",
+    "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc",
+    "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": "5259afa135b7b7eecf0149d230e5467bca920db69d57b3485ec582ba46a7b493",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": "255189ae773a86f3c48febf725252521f534a8bc0ec4269f8c1240392d1fd035",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": "a59f052d3070343b41fdde8bab6afd73126dd349e35c4cf8a975d84670f1881b",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": "20e68e75a535813988d63cf5d3dee50c17b7f882328070702bc68e4752d64137",
+    "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+    "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+    "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+    "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": "570398a12b710ae69d76bd1ddabee1428fc1f10df4c452bb5b4425277b9c8594",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": "b77b9109242e8be1a97e0b367caf650ef8b30323753fd7aab49c8f738a0ea982",
+    "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": "c1058cbcc5ef2e69a83a8035511fbafb1b934e71e3f9797ece2e7e8d94793e44",
+    "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+    "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv": "8ba87cccc409ff333b9e51e7bd9516749636404427170810d226e36ddf32c337",
+    "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "0d7b0410ef36012504b4b6c69c1a91e08a4861fe6fdb79bf0cad2ff96d5d0ed1",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+    "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv": "ddfe461d027899d155c8e110a08ab1af583d38c681674e03bbb9e4c8379366a5",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+    "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv": "6070a803e831770fc7ada5abc7ce5a5ef25431f1f5ed702c1bd4eb79c60e8469",
+    "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": "6d0292c1a5b1c7341435905044301df131cda58c7b36f57bf0bc362d4f7849b2",
+    "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": "8ebd3f8529426d3b438a222b82802331e4111c5d62e3e6d7370e10a9d4845f2d",
+    "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "032318681d05596df5b72218024afbbf7553193cd3f5c62f731d14185f16b566",
+    "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+    "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": "7420d8d4f38b304742835054fcbaf9a0eb879d1321026106c2d48ad70706ef96",
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": "44a0d45623fc84d71bb57bcdf7e0dbdc8585f6bfad39382992101b427ef1376a",
+    "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+    "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": "5ef2bb44231840f09b408530a5262da49c0f42687e68133e953d4bb694ffa940",
+    "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+    "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+    "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+    "npc/vsrc/riscv32/sim/riscv32_sim_dcache_monitor.sv": "4ed692a97062a98ca2edbcac92d253c204623d86656f30e0782843cfb2be09fa",
+    "npc/vsrc/riscv32/sim/riscv32_sim_icache_monitor.sv": "b482717c6d24ee7ddc7111558ed3f174822f6fca615647a1d5648d143fc230d1",
+    "npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv": "78f1f6f3b6c426f3d0559a9df522e2e42e0b46c4f4873da2a9a4dc47276fb8ac",
+    "npc/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv": "d9ca11f907e24a533fbc10ae72af843d699ce24d81d90175b3ebf3d4433ac500",
+    "npc/vsrc/riscv32/sim/riscv32_sim_cache_wait_monitor.sv": "55e3ace6ab4bb99bb976edd1f9406d8e8f688b82dc86657f7b516f553f4a2ed8",
+    "npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv": "475454c88fd6082613b7b219efc57dd00fb3b984035aa03c2b7001b69b3f6878",
+    "npc/vsrc/riscv32/sim/top.sv": "800700962fa90981131be90a312daa7c8794fa48f78345ad271ecc7cc8d4faa4",
+    "npc/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv": "48517ffed9dc37e3dae8a37b60a9d1577504e5068e9a31610b85f5cd5db8827d",
+    "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+    "npc/vsrc/riscv32/common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+    "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+    "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+    "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "9927cac1321cc0c839bee6d96a21292e7c11b8191a0baa754f78bdf978c3f365",
+    "npc/vsrc/riscv32/experiments/riscv32_ALU_for_sta.sv": "d744d21a16ee4dbea63e9ffd194f301de25850bae89cc4004afcaa69e64e62fb",
+    "npc/vsrc/riscv32/experiments/shl4_for_sta.sv": "fccdec43003f9ef0b1fa03b6d563c37dc0e0fea2a070d45cec46d27cd1cdc1e6",
+    "npc/vsrc/riscv32/experiments/interconnect/riscv32_axi4_error_target.sv": "2dd85af51f03fe9dabd87156f2e5472ecca9c586c62e0d9256b009e789408004",
+    "npc/vsrc/riscv32/experiments/pipeline/riscv32_decode_stage.sv": "42ceb3c498a9abfcbc258fa1b938b79e37f48e5840c98aa868eb465348970a9e",
+    "npc/vsrc/riscv32/experiments/pipeline/riscv32_register_read_stage.sv": "434b304942f04e382bac84e595acb89417ab5795b7fb3282b468e193a02dbcef",
+    "npc/vsrc/riscv32/experiments/pipeline/riscv32_redirect_arbiter.sv": "a1202077c7959df284c5e736d7e7c0c4614bcfbbff978fbf857a683db92192f4",
+    "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+    "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+    "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac",
+    "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+    "npc/vsrc/riscv32/system/riscv32_npc_system.sv": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+    "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+    "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+    "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672"
+  },
+  "negative_candidates": [
+    {
+      "variant": "first-parallel",
+      "setup_ns": -0.053
+    },
+    {
+      "variant": "paired-response",
+      "setup_ns": -0.025
+    },
+    {
+      "variant": "rrip-mask",
+      "setup_ns": -0.044
+    }
+  ],
+  "logs": {
+    "logs/rv32-decode-core.log": "a3c699feda41817fea952a0f43b0f532225d510cca6954cd2e4920073072665c",
+    "logs/rv32-parallel-remaining.log": "a390c491d11a864ca72f9546c31205353946f952c08ec75b33c0ea3588b4cdbd",
+    "logs/rv32-parallel-observers.log": "34c606f5be7691241bfbf35e73cd6cd8872db8e326713be5a5194352a60f3023",
+    "logs/rv32-decode-final-core.log": "a3c699feda41817fea952a0f43b0f532225d510cca6954cd2e4920073072665c",
+    "logs/rv32-parallel-rrip-final.log": "53532c66a311e0413c1128cccfba52c8bef3ac517ace034a6e79547d85bb11d4",
+    "logs/rv32-parallel-safety.log": "22650c3ec20c53ae013cf415b816a65d2017627d190b6198ce9728ad190ed521",
+    "logs/rv32-parallel-pipeline.log": "f57a58cb946adfe53ba925eda6ba978e9e96f90349fb458207e7290271089640",
+    "logs/rv32-parallel-fetch-test.log": "54263471dbfcbebdd41d5ee13bd449a09cbf6ee51eba1784e9eb797a148c2796",
+    "logs/rv32-parallel-diff.log": "523716939035aff59fe9b8f77bc0526cb45481bf75c5d641be33a07b050fad7d",
+    "logs/rv32-parallel-final-perf.log": "416592a5f560101d31e8b5f75865dafa6b934e828cdfb380bd1b450fc1ad459e",
+    "logs/rv32-decode-final-timing.log": "7a7c9fa344d2e88d6187eea8416c6bf1fe6f61ff1ce96748641427fea8052683",
+    "logs/rv32-parallel-timing.log": "ced1176aa2bfaa1586f6c82ba96269c871863e96202362bf9cbbd07441494b5c"
+  }
+}

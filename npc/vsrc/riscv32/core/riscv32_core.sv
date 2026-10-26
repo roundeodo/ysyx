@@ -144,8 +144,8 @@ module riscv32_core
       .flush_i                 (frontend_recovery_event)
   );
 
-  // 预测器在I-cache之前运行。预测响应与下一次预测请求可以同拍握手；IFU用frontend
-  // tag 保存预测元数据；队列 ready 传递容量，预测结果寄存器切断 next-PC 反馈。
+  // 预测器与I-cache并行读取同一PC；预测响应保持到对应指令交付。
+  // 消费旧响应的同沿可查询下一PC，只有受阻cache请求需要IFU保持。
   program_counter_t resolved_control_flow_target;
   execute_result_t  resolved_execute_result;
 

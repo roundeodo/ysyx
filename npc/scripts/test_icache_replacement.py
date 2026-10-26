@@ -20,7 +20,7 @@ def main():
     out.mkdir(parents=True,exist_ok=False)
     rtl=NPC/'vsrc/riscv32';test=NPC/'tests/frontend_exploration'
     packages=[rtl/'common'/n for n in ['riscv_config_pkg.sv','riscv32_addr_map_pkg.sv','riscv32_axi4_pkg.sv','riscv32_pkg.sv']]
-    base=[x for x in args.defines if not any(k in x for k in ['ICACHE_CAPACITY_BYTES','ICACHE_WAY_COUNT','ICACHE_REPLACEMENT_POLICY'])]
+    base=[x for x in args.defines if not any(k in x for k in ['ICACHE_CAPACITY_BYTES','ICACHE_WAY_COUNT','ICACHE_LINE_BYTES','ICACHE_REPLACEMENT_POLICY'])]
     results=[]
     for policy,capacity in [(1,256),(2,256),(3,256),(3,32),(0,256)]:
         name=f'p{policy}-c{capacity}'
@@ -30,6 +30,7 @@ def main():
         command=['verilator','--binary','--timing','--assert','-Wno-fatal','-j','2',
                  '-MAKEFLAGS','OPT_FAST=-O0 OPT_SLOW=-O0 OPT_GLOBAL=-O0',*base,
                  f'+define+YSYX_ICACHE_CAPACITY_BYTES={capacity}','+define+YSYX_ICACHE_WAY_COUNT=2',
+                 '+define+YSYX_ICACHE_LINE_BYTES=16',
                  f'+define+YSYX_ICACHE_REPLACEMENT_POLICY={policy}','--top-module',top,'--Mdir',str(folder/'obj'),*map(str,sources)]
         record={'build':command,'sources':{str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources},'runs':[]}
         with (folder/'build.log').open('w') as log:

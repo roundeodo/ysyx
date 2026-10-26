@@ -100,6 +100,10 @@ module exploration_core_tb;
 `endif
   always @(posedge clk) if (rst_n) begin
     cycle = cycle + 1;
+    // 单级EX没有后续结果寄存边界，解析观察与当前EXU交付使用同一身份。
+    if (observer && !riscv_config_pkg::EXECUTE_RESULT_REGISTERED &&
+        dut.exu_result_valid && dut.exu_result_ready)
+      result_record = execute_record;
     // Passive cache write events: models cannot decode a word before it arrives.
     // Queries at this edge see old metadata; D/L/V take effect after the edge.
     if (metadata_fd) begin
@@ -120,18 +124,17 @@ module exploration_core_tb;
       if (dut.u_icache.invalidate_done_o)
         $fdisplay(metadata_fd,"V,%0d",cycle);
     end
-    // Track queue order, not a table indexed by the short transport tag. A queued
-    // old-epoch request may remain stalled while discarded predictions wrap tags.
-    // Old response metadata is consumed before a same-cycle new query is saved.
-    if (observer && dut.u_ifu.lookup_queue_enqueue_event) begin
-      new_query.dynamic_id = response_id;
-      new_query.raw_taken = response_raw;
-      new_query.snapshot = response_context;
-      new_query.pc = dut.next_pc_predictor_lookup_response_pc;
-      new_query.epoch = dut.next_pc_predictor_lookup_response_epoch;
+    // Common-PC query and cache request launch together. Save query identity before
+    // processing the same-edge cache handshake; keep a stalled old request through flush.
+    if (observer && dut.next_pc_predictor_lookup_request_valid && dut.next_pc_predictor_lookup_request_ready) begin
+      new_query.dynamic_id = query_id;
+      new_query.raw_taken = dut.u_branch_predictor.history_counter[1];
+      new_query.snapshot = dut.u_branch_predictor.direction_context.tage_scl;
+      new_query.pc = dut.next_pc_predictor_lookup_request_pc;
+      new_query.epoch = dut.next_pc_predictor_lookup_request_epoch;
       new_query.tag = dut.u_ifu.next_frontend_tag_q;
-      new_query.target_present = response_target_present;
-      new_query.query_cycle = response_query_cycle;
+      new_query.target_present = dut.u_branch_predictor.target_present;
+      new_query.query_cycle = cycle;
       query_records.push_back(new_query);
     end
     if (observer && dut.icache_lookup_req_valid && dut.icache_lookup_req_ready &&
@@ -271,7 +274,8 @@ module exploration_core_tb;
     // frontend_tag is only a short transport tag, not a unique backend identity.
     // Mirror actual handoffs with passive context; never infer age from tag wrap.
     if (observer) begin
-      if (dut.exu_result_valid && dut.exu_result_ready) result_record = execute_record;
+      if (riscv_config_pkg::EXECUTE_RESULT_REGISTERED &&
+          dut.exu_result_valid && dut.exu_result_ready) result_record = execute_record;
       if (dut.ifu_fetch_entry_valid && dut.ifu_fetch_entry_ready) begin
         if (pending_record.pc != dut.ifu_fetch_entry.pc) $fatal(1, "observer response pairing");
         fetch_records.push_back(pending_record);

@@ -70,6 +70,10 @@ module riscv32_ifu_redirect_tb;
     repeat (3) @(negedge clk);
     rst_n = 1;
     while (!request_valid) @(negedge clk);
+    // 并行查询可在复位释放后立即展示请求；先让受阻请求经过采样沿，
+    // 再触发恢复。不能在同一delta内撤销尚未采样的查询并伪造其响应。
+    @(posedge clk);
+    @(negedge clk);
     assert (request_valid && request.fetch_addr == 32'h8000_0000)
       else $fatal(1, "missing initial lookup");
     response.fetch_addr = request.fetch_addr;

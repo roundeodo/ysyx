@@ -29,8 +29,6 @@ module exploration_core_tb;
   int observer = 1, trace_fd = 0, fetch_fd = 0;
   int btb_miss_errors = 0, bht_direction_errors = 0, btb_target_errors = 0;
   int lead_sum = 0, lead_samples = 0, lead_max = 0, hints_resident = 0, hints_absent = 0;
-  int response_query_cycle = 0;
-  logic response_target_present = 0;
   typedef struct packed {
     logic [31:0] pc;
     logic target_present;
@@ -53,15 +51,15 @@ module exploration_core_tb;
   end
   always @(posedge clk) if (rst_n) begin
     cycle = cycle + 1;
-    // Old response metadata is consumed before a same-cycle new query is saved.
-    if (observer && dut.u_ifu.lookup_queue_enqueue_event) begin
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].pc = dut.next_pc_predictor_lookup_response_pc;
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].target_present = response_target_present;
-      query_by_tag[dut.u_ifu.next_frontend_tag_q].query_cycle = response_query_cycle;
-    end
+    // 单级EX当沿解析；带结果寄存器的配置在本沿之后才替换结果身份。
+    if (observer && !riscv_config_pkg::EXECUTE_RESULT_REGISTERED &&
+        dut.exu_result_valid && dut.exu_result_ready)
+      result_record = execute_record;
+    // 同一沿启动预测和cache；先保存query元数据，随后cache握手可立即使用它。
     if (observer && dut.next_pc_predictor_lookup_request_valid && dut.next_pc_predictor_lookup_request_ready) begin
-      response_target_present = dut.u_branch_predictor.target_present;
-      response_query_cycle = cycle;
+      query_by_tag[dut.u_ifu.next_frontend_tag_q].pc = dut.next_pc_predictor_lookup_request_pc;
+      query_by_tag[dut.u_ifu.next_frontend_tag_q].target_present = dut.u_branch_predictor.target_present;
+      query_by_tag[dut.u_ifu.next_frontend_tag_q].query_cycle = cycle;
     end
     if (cycle > 20000000) $fatal(1, "workload timeout");
     if (dut.commit_valid) begin
@@ -116,7 +114,7 @@ module exploration_core_tb;
             $fatal(1, "passive prediction identity mismatch");
           if (!result_record.target_present) btb_miss_errors++;
           else if (dut.resolved_execute_result.uop.prediction.predicted_taken !=
-                   (dut.resolved_execute_result.next_pc != dut.resolved_execute_result.uop.pc+4)) bht_direction_errors++;
+                   dut.resolved_execute_result.branch_taken) bht_direction_errors++;
           else btb_target_errors++;
           if (dut.resolved_execute_result.uop.branch_ctrl.op == CF_BRANCH) direction_errors++;
           else begin
@@ -132,7 +130,8 @@ module exploration_core_tb;
     // frontend_tag is only a short transport tag, not a unique backend identity.
     // Mirror actual handoffs with passive context; never infer age from tag wrap.
     if (observer) begin
-      if (dut.exu_result_valid && dut.exu_result_ready) result_record = execute_record;
+      if (riscv_config_pkg::EXECUTE_RESULT_REGISTERED &&
+          dut.exu_result_valid && dut.exu_result_ready) result_record = execute_record;
       if (dut.ifu_fetch_entry_valid && dut.ifu_fetch_entry_ready) begin
         if (pending_record.pc != dut.ifu_fetch_entry.pc) $fatal(1, "observer response pairing");
         fetch_records.push_back(pending_record);

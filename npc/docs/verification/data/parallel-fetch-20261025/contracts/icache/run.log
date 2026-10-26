@@ -1,0 +1,5 @@
+PASS I-cache contract: ways=4 line=32 checks=21 AXI reads=19 responses=21
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_icache_contract_tb.sv:205: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 7ns; walltime 0.001 s; speed 10.777 us/s
+- Verilator: cpu 0.001 s on 1 threads; alloced 6 MB

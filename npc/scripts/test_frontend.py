@@ -12,7 +12,7 @@ NPC = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, default=NPC / 'build/tests/frontend')
-    parser.add_argument('--test', choices=['predictor', 'icache', 'fetch'], default='predictor')
+    parser.add_argument('--test', choices=['predictor', 'icache', 'fetch', 'parallel_fetch'], default='predictor')
     parser.add_argument('defines', nargs='+')
     args = parser.parse_args()
     output = args.output.resolve() / args.test
@@ -20,12 +20,12 @@ def main():
     rtl = NPC / 'vsrc/riscv32'
     sources = [rtl / 'common' / name for name in
                ['riscv_config_pkg.sv', 'riscv32_addr_map_pkg.sv', 'riscv32_pkg.sv', 'riscv32_axi4_pkg.sv']]
-    if args.test in ('predictor', 'fetch'):
+    if args.test in ('predictor', 'fetch', 'parallel_fetch'):
         modules = ['tage', 'tage_scl', 'branch_choice', 'direct_target', 'bht', 'compact_btb', 'btb', 'ras', 'branch_predictor']
     else:
         modules = ['pma', 'icache_tag_array', 'icache_data_array', 'icache_miss_unit', 'icache_replacement', 'icache', 'icache_axi']
     sources += [rtl / 'core/frontend' / f'riscv32_{name}.sv' for name in modules]
-    if args.test == 'fetch':
+    if args.test in ('fetch', 'parallel_fetch'):
         sources.append(rtl / 'core/frontend/riscv32_ifu.sv')
     top = f'riscv32_{args.test}_contract_tb'
     sources += [NPC / 'tests/rtl' / f'{top}.sv']

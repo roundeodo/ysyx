@@ -1,4 +1,4 @@
-// IFU：PC/预测接口 → 两项请求队列 → I-cache响应配对与交付。
+// IFU：同一PC并行查询预测器/I-cache → 响应配对 → 早期纠错与交付。
 module riscv32_ifu
   import riscv32_pkg::*;
   import riscv32_addr_map_pkg::*;
@@ -16,8 +16,7 @@ module riscv32_ifu
     input logic early_return_present_i,
     input program_counter_t early_return_pc_i,
 
-    // IFU顺序产生预测请求；预测器用一级寄存响应切断PC自反馈关键路径。非跳转响应被
-    // 消费时同拍查询下一 PC：顺序时 PC+4，taken 时直接使用响应目标。
+    // 查询与I-cache同拍发出。预测响应保持到对应指令交付，不再串在cache请求之前。
     output program_counter_t   next_pc_predictor_lookup_request_pc_o,
     output fetch_epoch_t       next_pc_predictor_lookup_request_epoch_o,
     output logic               next_pc_predictor_lookup_request_valid_o,
@@ -50,216 +49,103 @@ module riscv32_ifu
   program_counter_t early_next_pc;
   assign frontend_restart_event = redirect_req_valid_i || early_redirect_event;
 
-  // 共享容量反馈：请求队列的占用数决定预测入口是否还能接收结果。
-  localparam int unsigned LOOKUP_QUEUE_ENTRY_COUNT = 2;
-  localparam int unsigned LOOKUP_QUEUE_INDEX_WIDTH = $clog2(LOOKUP_QUEUE_ENTRY_COUNT);
-  localparam int unsigned LOOKUP_QUEUE_COUNT_WIDTH = $clog2(LOOKUP_QUEUE_ENTRY_COUNT + 1);
-
-  typedef logic [LOOKUP_QUEUE_INDEX_WIDTH-1:0] lookup_queue_index_t;
-  typedef logic [LOOKUP_QUEUE_COUNT_WIDTH-1:0] lookup_queue_count_t;
-
-  lookup_queue_count_t lookup_queue_entry_count_q, lookup_queue_entry_count_d;
-  logic lookup_queue_enqueue_ready;
-  logic lookup_queue_enqueue_event;
-
-  assign lookup_queue_enqueue_ready =
-      (lookup_queue_entry_count_q < lookup_queue_count_t'(LOOKUP_QUEUE_ENTRY_COUNT)) ||
-      icache_lookup_req_ready_i;
-
-  // 1. PC 与预测查询：顺序请求每拍前进，taken 或 redirect 更新下一查询地址。
-  program_counter_t predictor_fetch_pc_q, predictor_fetch_pc_d;
-  fetch_epoch_t current_fetch_epoch_q, current_fetch_epoch_d;
-  frontend_tag_t next_frontend_tag_q, next_frontend_tag_d;
-
-  logic             predictor_lookup_request_handshake;
-  logic             predictor_lookup_advance_allowed;
-  logic             predictor_lookup_response_handshake;
-  logic             predictor_lookup_response_is_current;
-  logic             predictor_taken_response_event;
-  logic             predictor_taken_response_present;
+  // 1. 返回配对：阻塞cache只有一个未响应请求，预测响应寄存器直接保存其元数据。
+  // 命中时两路在同一拍返回；miss或下游反压时保持预测，直到对应指令被接收。
+  fetch_epoch_t current_fetch_epoch_q;
+  logic predictor_lookup_response_is_current;
+  logic icache_lookup_response_is_current;
+  logic predictor_lookup_response_handshake;
+  logic icache_lookup_response_handshake;
+  branch_prediction_t response_prediction;
   program_counter_t predicted_next_pc;
-
-  assign lookup_queue_enqueue_event =
-      predictor_lookup_response_handshake && predictor_lookup_response_is_current;
 
   assign predictor_lookup_response_is_current =
       next_pc_predictor_lookup_response_epoch_i == current_fetch_epoch_q;
-  assign predicted_next_pc =
-      next_pc_predictor_prediction_i.predicted_taken ?
-      next_pc_predictor_prediction_i.predicted_target :
-      next_pc_predictor_lookup_response_pc_i + program_counter_t'(INSTRUCTION_BYTES);
-
-  // redirect 取消预测流水；taken 响应直接选择本拍的新查询地址。
-  assign next_pc_predictor_flush_o                 = frontend_restart_event;
-  assign next_pc_predictor_lookup_response_ready_o =
-      !frontend_restart_event &&
-      (!predictor_lookup_response_is_current || lookup_queue_enqueue_ready);
-  assign predictor_taken_response_present =
-      next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
-      next_pc_predictor_prediction_i.predicted_taken;
-  // 数据选择不等待 ready，握手仅决定何时保存已算出的地址。
-  assign next_pc_predictor_lookup_request_pc_o = predictor_taken_response_present ?
-      predicted_next_pc : predictor_fetch_pc_q;
-  assign next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q;
-  assign predictor_taken_response_event        =
-      predictor_lookup_response_handshake &&
-      predictor_lookup_response_is_current &&
-      next_pc_predictor_prediction_i.predicted_taken;
-  assign next_pc_predictor_lookup_request_valid_o =
-      lookup_queue_enqueue_ready && !frontend_restart_event && prediction_enable_i;
-
-  // PC下一值中恢复已经优先覆盖；资源允许条件无需再次串入恢复取消。
-  // 对外握手仍包含 !frontend_restart_event，不发送恢复拍的普通请求。
-  assign predictor_lookup_advance_allowed = lookup_queue_enqueue_ready && prediction_enable_i &&
-      next_pc_predictor_lookup_request_ready_i;
-  assign predictor_lookup_request_handshake =
-      next_pc_predictor_lookup_request_valid_o &&
-      next_pc_predictor_lookup_request_ready_i;
-  assign predictor_lookup_response_handshake =
-      next_pc_predictor_lookup_response_valid_i &&
-      next_pc_predictor_lookup_response_ready_o;
-
-  always_comb begin
-    predictor_fetch_pc_d  = predictor_fetch_pc_q;
-    current_fetch_epoch_d = current_fetch_epoch_q;
-    next_frontend_tag_d   = next_frontend_tag_q;
-
-    if (frontend_restart_event) begin
-      current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
-      predictor_fetch_pc_d  = redirect_req_valid_i ? redirect_req_i.target_pc : early_next_pc;
-    end else if (predictor_lookup_advance_allowed) begin
-      predictor_fetch_pc_d = predictor_taken_response_present ?
-          (predicted_next_pc + program_counter_t'(INSTRUCTION_BYTES)) :
-          (predictor_fetch_pc_q + program_counter_t'(INSTRUCTION_BYTES));
-    end else if (predictor_taken_response_event) begin
-      predictor_fetch_pc_d = predicted_next_pc;
-    end
-
-    if (lookup_queue_enqueue_event) begin
-      next_frontend_tag_d = next_frontend_tag_q + frontend_tag_t'(1);
-    end
-  end
-
-  // PC、epoch与下一请求tag只在本沿更新，分别由上方的推进条件控制。
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      predictor_fetch_pc_q  <= PC_START;
-      current_fetch_epoch_q <= '0;
-      next_frontend_tag_q   <= '0;
-    end else begin
-      predictor_fetch_pc_q  <= predictor_fetch_pc_d;
-      current_fetch_epoch_q <= current_fetch_epoch_d;
-      next_frontend_tag_q   <= next_frontend_tag_d;
-    end
-  end
-
-  // 2. 两项请求队列：先读队首并驱动I-cache，再计算指针/数量，最后更新状态。
-  // 请求一旦呈现在I-cache端口上，redirect也不能撤销被反压的valid。
-  icache_lookup_req_t lookup_queue_request_array_q[LOOKUP_QUEUE_ENTRY_COUNT];
-  branch_prediction_t lookup_queue_prediction_array_q[LOOKUP_QUEUE_ENTRY_COUNT];
-  lookup_queue_index_t lookup_queue_read_index_q, lookup_queue_read_index_d;
-  lookup_queue_index_t lookup_queue_write_index_q, lookup_queue_write_index_d;
-
-  icache_lookup_req_t lookup_queue_front_request;
-  branch_prediction_t lookup_queue_front_prediction;
-  logic               lookup_queue_dequeue_event;
-
-  logic icache_lookup_request_handshake;
-
-  always_comb begin
-    // 空队列直接展示预测响应，反压时在本沿保存，随后由队首保持。
-    lookup_queue_front_request = '0;
-    lookup_queue_front_request.fetch_addr = phys_addr_t'(next_pc_predictor_lookup_response_pc_i);
-    lookup_queue_front_request.frontend_tag = next_frontend_tag_q;
-    lookup_queue_front_request.fetch_epoch = next_pc_predictor_lookup_response_epoch_i;
-    lookup_queue_front_prediction = next_pc_predictor_prediction_i;
-    if (lookup_queue_entry_count_q != '0) begin
-      lookup_queue_front_request    = lookup_queue_request_array_q[lookup_queue_read_index_q];
-      lookup_queue_front_prediction = lookup_queue_prediction_array_q[lookup_queue_read_index_q];
-    end
-  end
-
-  assign icache_lookup_req_o = lookup_queue_front_request;
-  // 一旦请求已经呈现在ready/valid通道上，即使redirect到来，也不能撤销valid。
-  // 旧epoch请求可以继续握手，返回时按epoch丢弃；这比破坏协议稳定性更可控。
-  assign icache_lookup_req_valid_o = (lookup_queue_entry_count_q != '0) ||
-      (next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
-       !frontend_restart_event);
-  assign icache_lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
-
-  assign lookup_queue_dequeue_event = icache_lookup_request_handshake;
-
-  always_comb begin
-    lookup_queue_read_index_d  = lookup_queue_read_index_q;
-    lookup_queue_write_index_d = lookup_queue_write_index_q;
-    lookup_queue_entry_count_d = lookup_queue_entry_count_q;
-
-    if (frontend_restart_event) begin
-      // 当前已经呈现在I-cache端口的front不能在反压时撤销；其后的旧epoch请求尚未
-      // 对外可见，可以立即删除。若front本拍握手，则旧队列全部清空。
-      if (lookup_queue_entry_count_q == '0) begin
-        lookup_queue_entry_count_d = '0;
-      end else if (lookup_queue_dequeue_event) begin
-        lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
-        lookup_queue_write_index_d = lookup_queue_read_index_q + lookup_queue_index_t'(1);
-        lookup_queue_entry_count_d = '0;
-      end else begin
-        lookup_queue_write_index_d = lookup_queue_read_index_q + lookup_queue_index_t'(1);
-        lookup_queue_entry_count_d = lookup_queue_count_t'(1);
-      end
-    end else begin
-      unique case ({lookup_queue_enqueue_event, lookup_queue_dequeue_event})
-        2'b01: begin
-          lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
-          lookup_queue_entry_count_d = lookup_queue_entry_count_q - lookup_queue_count_t'(1);
-        end
-        2'b10: begin
-          lookup_queue_write_index_d = lookup_queue_write_index_q + lookup_queue_index_t'(1);
-          lookup_queue_entry_count_d = lookup_queue_entry_count_q + lookup_queue_count_t'(1);
-        end
-        2'b11: begin
-          lookup_queue_read_index_d  = lookup_queue_read_index_q + lookup_queue_index_t'(1);
-          lookup_queue_write_index_d = lookup_queue_write_index_q + lookup_queue_index_t'(1);
-        end
-        default: ;
-      endcase
-    end
-  end
-
-  always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      lookup_queue_read_index_q  <= '0;
-      lookup_queue_write_index_q <= '0;
-      lookup_queue_entry_count_q <= '0;
-    end else begin
-      lookup_queue_read_index_q  <= lookup_queue_read_index_d;
-      lookup_queue_write_index_q <= lookup_queue_write_index_d;
-      lookup_queue_entry_count_q <= lookup_queue_entry_count_d;
-      if (lookup_queue_enqueue_event &&
-          !((lookup_queue_entry_count_q == '0) && lookup_queue_dequeue_event)) begin
-        lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_addr <=
-            phys_addr_t'(next_pc_predictor_lookup_response_pc_i);
-        lookup_queue_request_array_q[lookup_queue_write_index_q].frontend_tag <=
-            next_frontend_tag_q;
-        lookup_queue_request_array_q[lookup_queue_write_index_q].fetch_epoch <=
-            next_pc_predictor_lookup_response_epoch_i;
-        lookup_queue_prediction_array_q[lookup_queue_write_index_q] <=
-            next_pc_predictor_prediction_i;
-      end
-    end
-  end
-
-  // 3. 阻塞 I-cache 至多有一个已接受且未响应的 lookup。
-  // 同沿旧响应/新请求交接时，旧响应读取旧预测，沿后保存新预测；redirect 不清上下文。
-  branch_prediction_t pending_prediction_q;
-
-  logic icache_lookup_response_handshake;
-  logic icache_lookup_response_is_current;
-
   assign icache_lookup_response_is_current =
       icache_lookup_resp_i.fetch_epoch == current_fetch_epoch_q;
+  assign response_prediction = next_pc_predictor_prediction_i;
+  assign predicted_next_pc = response_prediction.predicted_taken ?
+      response_prediction.predicted_target :
+      next_pc_predictor_lookup_response_pc_i + program_counter_t'(INSTRUCTION_BYTES);
   assign icache_lookup_response_handshake =
       icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
+  assign next_pc_predictor_lookup_response_ready_o = !frontend_restart_event &&
+      (!predictor_lookup_response_is_current ||
+       (icache_lookup_response_handshake && icache_lookup_response_is_current));
+  assign predictor_lookup_response_handshake =
+      next_pc_predictor_lookup_response_valid_i && next_pc_predictor_lookup_response_ready_o;
+  assign next_pc_predictor_flush_o = frontend_restart_event;
+
+  // 2. 请求分发：预测表与cache读取同一个PC，互相不等待查询结果。
+  // 预测器ready允许替换已消费的响应；cache暂不ready时，只保存已展示请求。
+  // 该请求的预测已经被接收，不能再次查询或因redirect而撤销cache端的valid。
+  program_counter_t fetch_pc_q, fetch_pc_d;
+  frontend_tag_t next_frontend_tag_q;
+  icache_lookup_req_t held_request_q;
+  logic held_request_present_q;
+  logic new_request_valid;
+  logic predictor_lookup_request_handshake;
+  logic icache_lookup_request_handshake;
+
+  assign new_request_valid = !held_request_present_q && prediction_enable_i &&
+      !frontend_restart_event && next_pc_predictor_lookup_request_ready_i;
+  assign next_pc_predictor_lookup_request_pc_o =
+      (next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current) ?
+      predicted_next_pc : fetch_pc_q;
+  assign next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q;
+  assign next_pc_predictor_lookup_request_valid_o = new_request_valid;
+  assign predictor_lookup_request_handshake = new_request_valid &&
+      next_pc_predictor_lookup_request_ready_i;
+
+  always_comb begin
+    icache_lookup_req_o = '0;
+    icache_lookup_req_o.fetch_addr = phys_addr_t'(next_pc_predictor_lookup_request_pc_o);
+    icache_lookup_req_o.frontend_tag = next_frontend_tag_q;
+    icache_lookup_req_o.fetch_epoch = current_fetch_epoch_q;
+    if (held_request_present_q)
+      icache_lookup_req_o = held_request_q;
+  end
+  assign icache_lookup_req_valid_o = held_request_present_q || new_request_valid;
+  assign icache_lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
+
+  always_comb begin
+    fetch_pc_d = fetch_pc_q;
+    if (predictor_lookup_response_handshake && predictor_lookup_response_is_current)
+      fetch_pc_d = predicted_next_pc;
+    if (predictor_lookup_request_handshake)
+      fetch_pc_d = next_pc_predictor_lookup_request_pc_o + program_counter_t'(INSTRUCTION_BYTES);
+    if (frontend_restart_event)
+      fetch_pc_d = redirect_req_valid_i ? redirect_req_i.target_pc : early_next_pc;
+  end
+
+  // PC仅随新预测推进；旧epoch的cache请求迟到握手不能覆盖恢复PC。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni) begin
+      fetch_pc_q <= PC_START;
+      current_fetch_epoch_q <= '0;
+      next_frontend_tag_q <= '0;
+    end else begin
+      fetch_pc_q <= fetch_pc_d;
+      if (frontend_restart_event)
+        current_fetch_epoch_q <= current_fetch_epoch_q + fetch_epoch_t'(1);
+      if (predictor_lookup_request_handshake)
+        next_frontend_tag_q <= next_frontend_tag_q + frontend_tag_t'(1);
+    end
+  end
+
+  // 空时直通，首次受阻才保存；包括维护/恢复在内，只有cache握手能释放已展示请求。
+  always_ff @(posedge clk_i or negedge rst_ni) begin
+    if (!rst_ni)
+      held_request_present_q <= 1'b0;
+    else if (icache_lookup_request_handshake)
+      held_request_present_q <= 1'b0;
+    else if (new_request_valid)
+      held_request_present_q <= 1'b1;
+  end
+  always_ff @(posedge clk_i) begin
+    if (new_request_valid && !icache_lookup_req_ready_i)
+      held_request_q <= icache_lookup_req_o;
+  end
 
   // 3a. 返回指令译码：B/J直接目标与可选返回地址预测并行。
   logic early_control_flow_present, early_taken;
@@ -313,7 +199,7 @@ module riscv32_ifu
     riscv32_direct_target u_direct_target (
         .pc_i(program_counter_t'(icache_lookup_resp_i.fetch_addr)),
         .instruction_i(icache_lookup_word_i),
-        .direction_counter_i(pending_prediction_q.raw_direction_counter),
+        .direction_counter_i(response_prediction.raw_direction_counter),
         .known_o(direct_control_flow_present), .taken_o(direct_taken), .target_o(direct_target));
   end else begin : g_no_early_target
     assign direct_control_flow_present = 1'b0;
@@ -335,9 +221,9 @@ module riscv32_ifu
       program_counter_t'(INSTRUCTION_BYTES);
   assign early_next_pc = early_taken ? early_target : fetch_sequential_pc;
   // 各后继地址先并行比较，再用方向选择一位结果；不串联两个宽地址 mux 与比较器。
-  assign early_next_pc_mismatch = pending_prediction_q.predicted_taken ?
-      (early_taken ? early_target != pending_prediction_q.predicted_target :
-                     fetch_sequential_pc != pending_prediction_q.predicted_target) :
+  assign early_next_pc_mismatch = response_prediction.predicted_taken ?
+      (early_taken ? early_target != response_prediction.predicted_target :
+                     fetch_sequential_pc != response_prediction.predicted_target) :
       (early_taken && early_target != fetch_sequential_pc);
   assign early_redirect_event = early_control_flow_present && !icache_lookup_resp_i.access_fault &&
       (!early_taken || early_target[1:0] == 2'b00) && early_next_pc_mismatch &&
@@ -349,7 +235,7 @@ module riscv32_ifu
     fetch_entry_o.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
     fetch_entry_o.instruction     = icache_lookup_resp_i.fetch_data;
     fetch_entry_o.frontend_tag    = icache_lookup_resp_i.frontend_tag;
-    fetch_entry_o.prediction      = pending_prediction_q;
+    fetch_entry_o.prediction      = response_prediction;
     if (early_control_flow_present && !icache_lookup_resp_i.access_fault &&
         (!early_taken || early_target[1:0] == 2'b00)) begin
       fetch_entry_o.prediction.predicted_taken = early_taken;
@@ -367,102 +253,65 @@ module riscv32_ifu
         1'b1 : fetch_entry_ready_i;
   end
 
-  // 只在请求被 I-cache 接收时替换这份预测上下文。
-  always_ff @(posedge clk_i) begin
-    if (icache_lookup_request_handshake)
-      pending_prediction_q <=
-          lookup_queue_front_prediction;
-  end
-
 `ifndef SYNTHESIS
-  // 以下存在位和 epoch 副本只用于验证 tag 生命周期，不属于芯片功能状态。
-  fetch_epoch_t                  prediction_epoch_by_frontend_tag_array_q[FRONTEND_TAG_COUNT];
-  logic [FRONTEND_TAG_COUNT-1:0] prediction_present_vector_q;
-
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    icache_lookup_request_handshake |->
-      ((prediction_present_vector_q == '0) || icache_lookup_response_handshake))
-  else $error("Blocking I-cache accepted a second outstanding lookup");
-
+  // 仅验证请求身份与在途数；不为芯片添加tag表或重复预测状态。
+  icache_lookup_req_t accepted_request_q;
+  logic accepted_request_present_q;
   always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) begin
-      prediction_present_vector_q <= '0;
-    end else begin
+    if (!rst_ni)
+      accepted_request_present_q <= 1'b0;
+    else begin
       if (icache_lookup_response_handshake)
-        prediction_present_vector_q[icache_lookup_resp_i.frontend_tag] <= 1'b0;
+        accepted_request_present_q <= 1'b0;
       if (icache_lookup_request_handshake) begin
-        prediction_epoch_by_frontend_tag_array_q[lookup_queue_front_request.frontend_tag] <=
-            lookup_queue_front_request.fetch_epoch;
-        prediction_present_vector_q[lookup_queue_front_request.frontend_tag] <= 1'b1;
+        accepted_request_q <= icache_lookup_req_o;
+        accepted_request_present_q <= 1'b1;
       end
     end
   end
 
-  a_nontaken_predictor_response_keeps_request_throughput :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (prediction_enable_i && predictor_lookup_response_handshake &&
-     predictor_lookup_response_is_current && !next_pc_predictor_prediction_i.predicted_taken)
-    |-> predictor_lookup_request_handshake)
-  else $error("IFU inserted a bubble after a current non-taken prediction");
+    icache_lookup_request_handshake |->
+      (!accepted_request_present_q || icache_lookup_response_handshake))
+  else $error("Blocking I-cache accepted a second outstanding lookup");
 
-  // 维护暂停允许排空旧预测响应，同时禁止产生新的预测请求。
-  a_disabled_prediction_does_not_query :
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    icache_lookup_resp_valid_i |->
+      (accepted_request_present_q && icache_lookup_resp_i.fetch_addr == accepted_request_q.fetch_addr &&
+       icache_lookup_resp_i.fetch_epoch == accepted_request_q.fetch_epoch &&
+       icache_lookup_resp_i.frontend_tag == accepted_request_q.frontend_tag))
+  else $error("I-cache response changed request identity");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    (icache_lookup_resp_valid_i && icache_lookup_response_is_current && !redirect_req_valid_i) |->
+      (next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
+       next_pc_predictor_lookup_response_pc_i == program_counter_t'(icache_lookup_resp_i.fetch_addr)))
+  else $error("Parallel cache and predictor responses lost pairing");
+
+  assert property (@(posedge clk_i) disable iff (!rst_ni)
+    predictor_lookup_request_handshake |->
+      (icache_lookup_req_valid_o && !held_request_present_q &&
+       icache_lookup_req_o.fetch_addr == phys_addr_t'(next_pc_predictor_lookup_request_pc_o) &&
+       icache_lookup_req_o.fetch_epoch == next_pc_predictor_lookup_request_epoch_o))
+  else $error("Prediction query did not launch with the same cache request");
+
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     !prediction_enable_i |-> !next_pc_predictor_lookup_request_valid_o)
   else $error("IFU queried while prediction was disabled");
 
-  a_taken_response_queries_target :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    predictor_taken_response_event |->
-      (next_pc_predictor_lookup_request_pc_o == predicted_next_pc))
-  else $error("IFU failed to query the taken prediction target");
-
-  a_predictor_request_stable_while_stalled :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (next_pc_predictor_lookup_request_valid_o &&
-     !next_pc_predictor_lookup_request_ready_i && !frontend_restart_event)
-    |=> (frontend_restart_event || (next_pc_predictor_lookup_request_valid_o &&
-         $stable(next_pc_predictor_lookup_request_pc_o) && $stable(next_pc_predictor_lookup_request_epoch_o))))
-  else $error("IFU changed a predictor request while stalled");
-
-  a_fetch_entry_stable_while_stalled :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (fetch_entry_valid_o && !fetch_entry_ready_i && !redirect_req_valid_i)
     |=> (redirect_req_valid_i || (fetch_entry_valid_o && $stable(fetch_entry_o))))
   else $error("IFU changed a presented fetch entry while stalled");
 
-  a_icache_request_stable_while_stalled :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (icache_lookup_req_valid_o && !icache_lookup_req_ready_i)
     |=> (icache_lookup_req_valid_o && $stable(icache_lookup_req_o)))
   else $error("IFU changed an I-cache request while stalled");
 
-  a_valid_instruction_preview_matches_response :
   assert property (@(posedge clk_i) disable iff (!rst_ni)
     (fetch_entry_valid_o && !icache_lookup_resp_i.access_fault) |->
       icache_lookup_word_i == icache_lookup_resp_i.fetch_data)
   else $error("IFU predecode word differs from a successful instruction response");
-
-  a_current_icache_response_has_prediction :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    (icache_lookup_resp_valid_i && icache_lookup_response_is_current)
-    |-> (prediction_present_vector_q[icache_lookup_resp_i.frontend_tag] &&
-         (prediction_epoch_by_frontend_tag_array_q[icache_lookup_resp_i.frontend_tag] ==
-          icache_lookup_resp_i.fetch_epoch)))
-  else $error("IFU received a current I-cache response without matching prediction metadata");
-
-  a_frontend_tag_not_reused_while_present :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    icache_lookup_request_handshake
-    |-> (!prediction_present_vector_q[lookup_queue_front_request.frontend_tag] ||
-         (icache_lookup_response_handshake &&
-          (icache_lookup_resp_i.frontend_tag == lookup_queue_front_request.frontend_tag))))
-  else $error("IFU reused a frontend tag before the older response completed");
-
-  a_lookup_queue_count_bounded :
-  assert property (@(posedge clk_i) disable iff (!rst_ni)
-    lookup_queue_entry_count_q <= lookup_queue_count_t'(LOOKUP_QUEUE_ENTRY_COUNT))
-  else $error("IFU predicted lookup queue overflowed");
 `endif
-
 endmodule

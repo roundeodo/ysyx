@@ -728,6 +728,11 @@ test-predictor:
 test-fetch:
 	python3 scripts/test_frontend.py --test fetch --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
 
+# 真实预测器与变延迟cache模型，覆盖并行发出、恢复及维护期间的配对。
+.PHONY: test-parallel-fetch
+test-parallel-fetch:
+	python3 scripts/test_frontend.py --test parallel_fetch --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
+
 test-icache:
 	python3 scripts/test_frontend.py --test icache --output "$(FRONTEND_TEST_OUTPUT)" $(NPC_CONFIG_DEFINE)
 

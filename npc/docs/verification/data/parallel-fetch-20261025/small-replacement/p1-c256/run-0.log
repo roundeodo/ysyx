@@ -1,0 +1,5 @@
+PASS replacement identity and priority policy=1 sets=8
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/frontend_exploration/replacement_tb.sv:72: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 245ps; walltime 0.000 s; speed 1.335 us/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 6 MB

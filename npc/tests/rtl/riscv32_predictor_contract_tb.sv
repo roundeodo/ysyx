@@ -76,11 +76,19 @@ module predictor_contract_case
     int row, kind;
     value='0;
     row=int'((addr >> 2) % SETS);
+    value.raw_direction_counter = riscv_config_pkg::BRANCH_EARLY_TARGET ? counters[(addr >> 2) % BHT] : 0;
     for (int i=0; i<WAYS; i++) begin
       if (table_valid[row*WAYS+i] && (table_pc[row*WAYS+i] >> 2) == (addr >> 2)) begin
         kind=table_kind[row*WAYS+i];
         kind_hits[kind]++;
         value.predicted_taken = kind != 0 || counters[(addr >> 2) % BHT] >= 2;
+        if (kind == 0 && riscv_config_pkg::BRANCH_STATIC_POLICY != 0) begin
+          logic [12:0] displacement;
+          displacement = table_target[row*WAYS+i][12:0] - addr[12:0];
+          if (riscv_config_pkg::BRANCH_STATIC_POLICY == 1 ||
+              counters[(addr >> 2) % BHT] inside {1, 2})
+            value.predicted_taken = displacement[12];
+        end
         value.predicted_target = table_target[row*WAYS+i];
         if (kind == 3 && stack_size != 0) value.predicted_target=stack[stack_size-1];
         if (value.predicted_target[1:0] != 0) value.predicted_taken=0;

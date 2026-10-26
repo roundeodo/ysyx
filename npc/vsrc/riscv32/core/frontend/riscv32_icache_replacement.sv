@@ -244,12 +244,16 @@ module riscv32_icache_replacement
             if (access_set_index == icache_set_index_t'(set_index)) begin
               if (allocate_i) begin
                 rrpv_array_d[set_index][way] = rrpv_array_q[set_index][way] + age_amount;
-                if (access_way_index == icache_way_index_t'(way))
+                // 分配路号已经确定，不经过由迟到hit握手控制的命中/分配路号选择。
+                if (allocate_way_i == icache_way_index_t'(way))
                   rrpv_array_d[set_index][way] = insertion;
-              end else if (hit_i && hit_way_vector_i[way] &&
-                           (!SEGMENT_REUSE || segment_start))
-                rrpv_array_d[set_index][way] = 2'd0;
+              end
             end
+            // hit与allocate互斥。提前算好行/路/访问段选择，迟到的真实hit握手只清零，
+            // 不再经过“分配或命中”优先mux；所有状态更新仍严格按交付事件发生。
+            rrpv_array_d[set_index][way] &= {2{!(hit_i && hit_way_vector_i[way] &&
+                access_set_index == icache_set_index_t'(set_index) &&
+                (!SEGMENT_REUSE || segment_start))}};
           end
         end
         // 阻塞式cache的miss分配与新查询互斥；13～16只保留真实的同组hit前递。

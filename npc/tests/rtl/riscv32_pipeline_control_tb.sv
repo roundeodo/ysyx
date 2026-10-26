@@ -1197,161 +1197,117 @@ module riscv32_pipeline_control_tb;
 
   task automatic check_ifu_zero_bubble_lookup;
     icache_lookup_req_t accepted_request;
-    icache_lookup_req_t response_request;
-    redirect_req_t      redirect_request;
-    fetch_epoch_t       initial_epoch;
-    logic               response_request_present;
-    program_counter_t   predictor_response_request_pc;
-    fetch_epoch_t       predictor_response_request_epoch;
-    program_counter_t   next_predictor_response_request_pc;
-    fetch_epoch_t       next_predictor_response_request_epoch;
+    redirect_req_t redirect_request;
+    fetch_epoch_t initial_epoch;
 
-    // 先接受复位PC的预测查询。预测器位于I-cache之前，因此此时还不应有cache请求。
     @(negedge clk);
     ifu_predictor_lookup_request_ready = 1'b1;
-    icache_lookup_req_ready            = 1'b1;
-    ifu_fetch_entry_ready              = 1'b1;
+    icache_lookup_req_ready = 1'b1;
+    ifu_fetch_entry_ready = 1'b1;
     #1;
-    assert (ifu_predictor_lookup_request_valid &&
-            (ifu_predictor_lookup_request_pc == IFU_TEST_START_PC) &&
-            !icache_lookup_req_valid)
-    else $fatal(1, "IFU did not start predictor lookup from the reset vector");
-    initial_epoch = ifu_predictor_lookup_request_epoch;
-    predictor_response_request_pc    = ifu_predictor_lookup_request_pc;
-    predictor_response_request_epoch = ifu_predictor_lookup_request_epoch;
+    assert (ifu_predictor_lookup_request_valid && icache_lookup_req_valid &&
+            ifu_predictor_lookup_request_pc == IFU_TEST_START_PC &&
+            icache_lookup_req.fetch_addr == phys_addr_t'(IFU_TEST_START_PC))
+    else $fatal(1, "reset PC did not launch cache and predictor in parallel");
+    accepted_request = icache_lookup_req;
     @(posedge clk);
 
-    // 模拟一拍延迟、吞吐一拍一条的预测器，以及一拍返回的命中I-cache。流水填满后，
-    // predictor query、I-cache request、I-cache response和fetch delivery应每拍同时发生。
-    response_request_present = 1'b0;
-    for (int unsigned instruction_index = 0; instruction_index < 8; instruction_index++) begin
+    // 两路都一拍返回；第一拍即交付，之后每拍消费旧响应并同时发出下一对查询。
+    for (int unsigned index = 0; index < 8; index++) begin
       @(negedge clk);
-      ifu_predictor_lookup_response_pc    = predictor_response_request_pc;
-      ifu_predictor_lookup_response_epoch = predictor_response_request_epoch;
+      ifu_predictor_lookup_response_pc = program_counter_t'(accepted_request.fetch_addr);
+      ifu_predictor_lookup_response_epoch = accepted_request.fetch_epoch;
       ifu_predictor_lookup_response_valid = 1'b1;
-      ifu_predictor_prediction            = '0;
-
-      icache_lookup_resp_valid = response_request_present;
-      if (response_request_present) begin
-        icache_lookup_resp = make_lookup_response(
-            response_request, instruction_t'(32'h0000_0013 + instruction_index)
-        );
-      end
-
+      ifu_predictor_prediction = '0;
+      icache_lookup_resp = make_lookup_response(accepted_request, instruction_t'(32'h13));
+      icache_lookup_resp_valid = 1'b1;
       #1;
-      assert (ifu_predictor_lookup_response_ready &&
-              ifu_predictor_lookup_request_valid &&
-              (ifu_predictor_lookup_request_pc ==
-               IFU_TEST_START_PC +
-               program_counter_t'((instruction_index + 1) * INSTRUCTION_BYTES)) &&
-              (ifu_predictor_lookup_request_pc ==
-               ifu_predictor_lookup_response_pc + program_counter_t'(INSTRUCTION_BYTES)))
-      else $fatal(1, "IFU predictor stream did not advance without a bubble");
-
-      next_predictor_response_request_pc    = ifu_predictor_lookup_request_pc;
-      next_predictor_response_request_epoch = ifu_predictor_lookup_request_epoch;
-
-      begin
-        assert (icache_lookup_req_valid &&
-                (icache_lookup_req.fetch_addr ==
-                 phys_addr_t'(IFU_TEST_START_PC) +
-                 phys_addr_t'(instruction_index * INSTRUCTION_BYTES)))
-        else $fatal(1, "IFU predicted lookup queue inserted an I-cache request bubble");
-        accepted_request = icache_lookup_req;
-      end
-
-      if (response_request_present) begin
-        assert (ifu_fetch_entry_valid && icache_lookup_resp_ready &&
-                (ifu_fetch_entry.pc == program_counter_t'(response_request.fetch_addr)))
-        else $fatal(1, "IFU did not deliver one instruction per cycle after frontend warmup");
-      end
-
+      assert (ifu_fetch_entry_valid && icache_lookup_resp_ready &&
+              ifu_fetch_entry.pc == program_counter_t'(accepted_request.fetch_addr) &&
+              ifu_predictor_lookup_response_ready && ifu_predictor_lookup_request_valid &&
+              icache_lookup_req_valid && icache_lookup_req.fetch_addr ==
+              phys_addr_t'(IFU_TEST_START_PC) + phys_addr_t'((index + 1) * INSTRUCTION_BYTES) &&
+              icache_lookup_req.fetch_addr == phys_addr_t'(ifu_predictor_lookup_request_pc))
+      else $fatal(1, "parallel frontend added latency, lost pairing, or inserted a hit bubble");
+      accepted_request = icache_lookup_req;
       @(posedge clk);
-      predictor_response_request_pc    = next_predictor_response_request_pc;
-      predictor_response_request_epoch = next_predictor_response_request_epoch;
-      begin
-        response_request         = accepted_request;
-        response_request_present = 1'b1;
-      end
     end
 
-    // 独立复位后构造一个旧epoch在途请求，验证redirect不会撤销ready/valid请求，
-    // 但旧响应会被丢弃，预测流则从新epoch的target PC重新启动。
     @(negedge clk);
     rst_ni = 1'b0;
     clear_ifu_inputs();
     @(posedge clk);
     @(negedge clk);
-    rst_ni                              = 1'b1;
-    ifu_predictor_lookup_request_ready  = 1'b1;
-    icache_lookup_req_ready             = 1'b0;
-    ifu_fetch_entry_ready               = 1'b1;
+    rst_ni = 1'b1;
+    ifu_predictor_lookup_request_ready = 1'b1;
+    icache_lookup_req_ready = 1'b0;
+    ifu_fetch_entry_ready = 1'b1;
     #1;
-    initial_epoch = ifu_predictor_lookup_request_epoch;
+    accepted_request = icache_lookup_req;
+    initial_epoch = accepted_request.fetch_epoch;
+    assert (icache_lookup_req_valid && ifu_predictor_lookup_request_valid)
+      else $fatal(1, "cache backpressure incorrectly blocked the parallel prediction");
     @(posedge clk);
-
     @(negedge clk);
-    ifu_predictor_lookup_response_pc    = IFU_TEST_START_PC;
+    ifu_predictor_lookup_response_pc = IFU_TEST_START_PC;
     ifu_predictor_lookup_response_epoch = initial_epoch;
     ifu_predictor_lookup_response_valid = 1'b1;
-    #1;
-    assert (ifu_predictor_lookup_response_ready)
-    else $fatal(1, "IFU rejected the reset-vector prediction response");
-    @(posedge clk);
+    repeat (3) begin
+      #1;
+      assert (!ifu_predictor_lookup_response_ready && !ifu_predictor_lookup_request_valid &&
+              icache_lookup_req_valid && icache_lookup_req == accepted_request)
+      else $fatal(1, "stalled cache request lost its single held prediction");
+      @(posedge clk);
+      @(negedge clk);
+    end
 
-    @(negedge clk);
-    ifu_predictor_lookup_response_valid = 1'b0;
-    #1;
-    assert (icache_lookup_req_valid)
-    else $fatal(1, "IFU did not issue the predicted reset-vector request");
-    accepted_request = icache_lookup_req;
-    icache_lookup_req_ready = 1'b1;
-    @(posedge clk);
-
-    @(negedge clk);
-    redirect_request           = '0;
+    redirect_request = '0;
     redirect_request.target_pc = program_counter_t'('h8000_1000);
-    redirect_request.source_pc = program_counter_t'(accepted_request.fetch_addr);
-    redirect_request.reason    = REDIRECT_BRANCH_MISPREDICT;
-    ifu_redirect_req           = redirect_request;
-    ifu_redirect_req_valid     = 1'b1;
+    ifu_redirect_req = redirect_request;
+    ifu_redirect_req_valid = 1'b1;
     #1;
-    assert (ifu_predictor_flush)
-    else $fatal(1, "IFU did not flush predictor lookup on redirect");
+    assert (ifu_predictor_flush && icache_lookup_req_valid && icache_lookup_req == accepted_request)
+      else $fatal(1, "redirect withdrew the stalled cache request");
     @(posedge clk);
-
     @(negedge clk);
-    ifu_redirect_req_valid     = 1'b0;
-    icache_lookup_resp         = make_lookup_response(accepted_request, instruction_t'(32'h13));
-    icache_lookup_resp_valid   = 1'b1;
+    ifu_predictor_lookup_response_valid = 1'b0; // 模拟预测器flush。
+    redirect_request.target_pc = program_counter_t'('h8000_2000);
+    ifu_redirect_req = redirect_request;
+    @(posedge clk);
+    @(negedge clk);
+    ifu_redirect_req_valid = 1'b0;
+    icache_lookup_req_ready = 1'b1;
+    #1;
+    assert (icache_lookup_req == accepted_request && !ifu_predictor_lookup_request_valid)
+      else $fatal(1, "late old request was re-predicted or replaced");
+    @(posedge clk);
+    @(negedge clk);
+    icache_lookup_resp = make_lookup_response(accepted_request, instruction_t'(32'h13));
+    icache_lookup_resp_valid = 1'b1;
     #1;
     assert (!ifu_fetch_entry_valid && icache_lookup_resp_ready &&
-            ifu_predictor_lookup_request_valid &&
-            (ifu_predictor_lookup_request_pc == redirect_request.target_pc) &&
-            (ifu_predictor_lookup_request_epoch != initial_epoch))
-    else $fatal(1, "IFU did not discard stale response and restart redirected prediction");
+            ifu_predictor_lookup_request_valid && icache_lookup_req_valid &&
+            icache_lookup_req.fetch_addr == phys_addr_t'(redirect_request.target_pc) &&
+            icache_lookup_req.fetch_epoch != initial_epoch)
+      else $fatal(1, "stale response did not drain beside a new parallel request");
+    accepted_request = icache_lookup_req;
     @(posedge clk);
-
     @(negedge clk);
-    icache_lookup_req_ready                 = 1'b0;
-    icache_lookup_resp_valid                = 1'b0;
-    ifu_predictor_lookup_response_pc        = redirect_request.target_pc;
-    ifu_predictor_lookup_response_epoch     = ifu_predictor_lookup_request_epoch;
-    ifu_predictor_lookup_response_valid     = 1'b1;
+    icache_lookup_resp = make_lookup_response(accepted_request, instruction_t'(32'h13));
+    ifu_predictor_lookup_response_pc = program_counter_t'(accepted_request.fetch_addr);
+    ifu_predictor_lookup_response_epoch = accepted_request.fetch_epoch;
+    ifu_predictor_lookup_response_valid = 1'b1;
     #1;
-    assert (ifu_predictor_lookup_response_ready)
-    else $fatal(1, "IFU did not accept the redirected prediction response");
-    @(posedge clk);
-
+    assert (ifu_fetch_entry_valid && ifu_fetch_entry.pc == redirect_request.target_pc &&
+            ifu_predictor_lookup_response_ready)
+      else $fatal(1, "redirected cache and prediction responses failed to join");
     @(negedge clk);
-    ifu_predictor_lookup_response_valid = 1'b0;
-    #1;
-    assert (icache_lookup_req_valid &&
-            (icache_lookup_req.fetch_addr == phys_addr_t'(redirect_request.target_pc)) &&
-            (icache_lookup_req.fetch_epoch != initial_epoch))
-    else $fatal(1, "IFU did not issue the redirected I-cache request");
-
+    rst_ni = 1'b0;
     clear_ifu_inputs();
+    @(posedge clk);
+    @(negedge clk);
+    rst_ni = 1'b1;
+    $display("PASS parallel IFU: first-hit latency, rolling hits, held prediction and consecutive redirects");
   endtask
 
   initial begin
