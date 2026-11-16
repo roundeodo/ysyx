@@ -1,0 +1,120 @@
+NPC: No MROM image supplied
+NPC: loaded 23768 bytes into flash
+======= Running MicroBench [input *test*] =======
+[qsort] Quick sort: * Passed.
+[queen] Queen placement: * Passed.
+[bf] Brainf**k interpreter: * Passed.
+[fib] Fibonacci number: * Passed.
+[sieve] Eratosthenes sieve: * Passed.
+[15pz] A* 15-puzzle search: * Passed.
+[dinic] Dinic's maxflow algorithm: * Passed.
+[lzip] Lzip compression: * Passed.
+[ssort] Suffix sort: * Passed.
+[md5] MD5 digest: * Passed.
+==================================================
+MicroBench PASS
+Scored time: 1.496 ms
+Total  time: 3.835 ms
+[1;32mNPC: HIT GOOD TRAP[0m at pc = 0xa0003b14
+NPC performance statistics:
+ retired instructions = 910159
+ CPU cycle            = 3293484
+ IPC                  = 0.276351
+CACHE_WAIT I-cache: completions=2405 next_waiting_same_set=2234 next_waiting_other_set=171
+CACHE_WAIT D-cache: completions=12188 next_waiting_same_set=0 next_waiting_other_set=0
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 3293472
+decoded instructions               : 962455
+retired instructions               : 910159
+IPC                                : 0.276352
+
+instruction class        count       ratio       average execution cycles
+integer                  520321    54.062%         1.808
+branch/jump              277417    28.824%         1.182
+load/store               164713    17.114%         5.507
+  load                   106131    11.027%
+  store                   58582     6.087%
+CSR                            0     0.000%         0.000
+system                         4     0.000%         1.500
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 1022192 / 1022192 / 962455
+IFU average response latency           : 3.032 cycles
+IFU AR backpressure cycles             : 2176861 (66.096%)
+IFU response-wait cycles               : 3098863 (94.091%)
+IFU downstream-backpressure cycles     : 1969653 (59.805%)
+IFU discarded wrong-path responses     : 49239
+
+LSU requests / completions             : 158801 / 158801
+LSU load operation average latency     : 9.048 cycles (95394 operations)
+LSU store operation average latency    : 9.629 cycles (43752 operations)
+LSU AXI read average latency           : 12.054 cycles (65600 transactions)
+LSU AXI write-response average latency : 15.903 cycles (30734 transactions)
+EXU / LSU completions                  : 751359 / 158801
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 962455 (29.223%)
+  control recovery stalls             : 166737 (5.063%)
+  LSU structural stalls               : 1903767 (57.804%)
+  unresolved RAW stalls               : 65335 (1.984%)
+  serializing stalls                  : 2 (0.000%)
+  frontend supply stalls              : 173769 (5.276%)
+    request backpressure              : 158949 (4.826%)
+    I-cache miss service              : 60 (0.002%)
+    lookup response in flight         : 10242 (0.311%)
+    request launch or delivery gap    : 4518 (0.137%)
+  other empty issue slots             : 21407 (0.650%)
+recovery redirects / taken fetch predictions / EX corrections: 41300 / 198744 / 41298
+actual EX corrections by branch / JAL / JALR          : 33460 / 0 / 7838
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 222617 / 154765 (69.521% taken)
+  backward / taken                  : 126984 / 106172 (83.611% taken)
+  forward / taken                   : 95633 / 48593 (50.812% taken)
+direct / indirect jumps             : 35379 / 15211
+always-not-taken prediction errors  : 205355 (75.165% of control flow)
+BTFNT+JAL prediction errors          : 84616 (30.971% of control flow)
+16-entry BHT+JAL errors              : 49327 (conditional 34116 + JALR 15211)
+64-entry BHT+JAL errors              : 47960 (conditional 32749 + JALR 15211)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 742422.000
+I-cache critical miss excess cycles   : 155657.000
+oracle 1-cycle data memory / speedup   : 2551050.000 / 1.291x
+ideal single-issue pipeline cycles     : 1808238.000 / 1.821x
+ideal pipeline + oracle data memory    : 1065816.000 / 3.090x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 1022192 / 1019787 / 2405
+I-cache hit rate                            : 99.765%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 65.722 cycles
+average miss penalty                        : 64.722 cycles
+I-cache AMAT                                : 1.152 cycles
+average complete refill latency             : 105.843 cycles
+lookup request waiting cycles               : 2176861
+successful line installs / refill finishes  : 2405 / 2405
+discarded stale responses                   : 0
+==========================================================
+
+================ D-cache performance counters ============
+lookups / hits / misses                    : 79008 / 66820 / 12188
+D-cache hit rate                           : 84.574%
+load lookups / hits / misses               : 43654 / 38566 / 5088
+store lookups / hits / misses              : 35354 / 28254 / 7100
+average hit response latency               : 1.000 cycles
+average miss response latency              : 125.787 cycles
+  clean-victim miss latency                : 82.973 cycles (4092)
+  dirty-victim miss latency                : 147.426 cycles (8096)
+average miss penalty                       : 124.787 cycles
+D-cache AMAT                               : 20.250 cycles
+dirty victim misses                        : 8096 (66.426% of misses)
+refill requests / words / completions      : 12188 / 48752 / 12188
+line installs / writeback requests/responses: 12188 / 8110 / 8110
+lookup request waiting cycles              : 0
+store-hit same-cycle next lookups          : 5929
+==========================================================

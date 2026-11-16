@@ -1,0 +1,38 @@
+digraph architecture {
+  graph [fontname="Noto Sans CJK SC", fontsize=20, labelloc=t, bgcolor="white", rankdir=LR, nodesep=0.38, ranksep=0.55, pad=0.25, compound=true];
+  node [fontname="Noto Sans CJK SC", fontsize=12, shape=box, style="rounded,filled", fillcolor="#ffffff", color="#526175", penwidth=1.2, margin="0.14,0.10"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#506278", arrowsize=0.7];
+  label="03  IFU、预测器与取指配对\n请求队列与完成指令缓冲分开；预测表更新来自执行结果接收事件";
+  subgraph cluster_predictor {
+    label="fetch_control_flow_predictor"; color="#9aabc0"; style=rounded;
+    tables [label="BHT：16 × 2 bit\nBTB：8 组 × 2 路\nRAS：4 项", fillcolor="#e8f5e9"];
+    p1 [label="查询一级\nPC / epoch / 表项快照", fillcolor="#eaf2ff", peripheries=2];
+    p2 [label="查询二级\ntag 比较 / 方向 / 目标\n预测响应寄存", fillcolor="#eaf2ff", peripheries=2];
+    train [label="训练寄存与更新\nBTB：解析 / set 快照 / 写事务\nBHT / RAS 各自更新", fillcolor="#eaf2ff", peripheries=2];
+    tables -> p1; p1 -> p2; train -> tables [label="更新"];
+  }
+  subgraph cluster_ifu {
+    label="riscv32_ifu"; color="#9aabc0"; style=rounded;
+    pc [label="查询 PC / epoch 状态\n顺序 PC+4 或预测目标", fillcolor="#eaf2ff", peripheries=2];
+    rq [label="待发 I-cache 请求队列\n2 项 PC / tag / epoch / 预测", fillcolor="#eaf2ff", peripheries=2];
+    meta [label="预测元数据\n4 个 frontend tag", fillcolor="#eaf2ff", peripheries=2];
+    join [label="按 tag 配对预测\n按 epoch 过滤旧响应"];
+  }
+  icache [label="I-cache\n指令字 / 异常 / tag / epoch", fillcolor="#e8f5e9"];
+  fq [label="fetch_buffer\n两项环形 FIFO\n寄存读指针选择输出", fillcolor="#eaf2ff", peripheries=2];
+  backend [label="IDU / 后端"];
+  resolved [label="分支结果被接收\n且无异常"];
+  redirect [label="已寄存重定向", fillcolor="#fff1dd", peripheries=2];
+  pc -> p1 [label="预测查询"];
+  p2 -> rq [label="预测响应"];
+  p2 -> pc [label="taken：目标 PC\n清年轻查询", style=dashed, color="#b76e13", constraint=false];
+  rq -> icache [label="lookup + tag"];
+  rq -> meta [label="送出请求时保存预测"];
+  icache -> join [label="lookup 响应"];
+  meta -> join [label="对应预测"];
+  join -> fq -> backend;
+  resolved -> train;
+  redirect -> pc [label="目标 / 新 epoch", style=dashed, color="#b76e13"];
+  redirect -> join [label="旧响应只接收并丢弃", style=dashed, color="#b76e13"];
+  redirect -> p1 [label="flush 查询", style=dashed, color="#b76e13", constraint=false];
+}

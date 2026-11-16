@@ -1,0 +1,8 @@
+RESULT cycles=131774 retired=37121 total_cycles=131925 all_retired=37125 digest=bce38497 checksum=8a0fb605
+COUNTERS retire=37121 data_wait=26045 frontend_wait=57653 other=10955 lookups=43925 misses=503 i_bursts=503 i_beats=4029 d_beats=1276 d_wait=2183 branches=12993 conditional_errors=1704 target_errors=635 indirect_errors=118 return_errors=517 nonbranch_errors=0 queries=48726 idle_bus=48865
+DETAIL btb_missing=1213 direction=1126 target=0 lead_sum=312865 lead_samples=43925 lead_max=452 hints_resident=36746 hints_absent=375
+PASS proxy
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:334: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 1us; walltime 0.574 s; speed 2.300 us/s
+- Verilator: cpu 0.574 s on 1 threads; alloced 8 MB

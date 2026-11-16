@@ -1,0 +1,10 @@
+{
+  "status": "old delayed-history comparison invalidated",
+  "reason": "resolved and oracle-prefix modes failed to replay younger queries after an error, unlike speculative mode",
+  "unaffected": "immediate-training accuracy screen and all RTL execution/performance results",
+  "old_source_sha256": "08c811175eb06e09cda7bbd8c859847c1aadfabfa8fdc3c1a48134f1eb07a30a",
+  "new_source_sha256": "a47c1b96f9ec2ad5d94ae58831ef522cf0b18696c32093188d36aa8352c6f9d3",
+  "old_result": "history-model-before-recovery-fix.json",
+  "replacement_result": "history-model.json",
+  "independent_tests": "history-timing-tests.log"
+}

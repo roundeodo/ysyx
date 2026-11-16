@@ -1,0 +1,5 @@
+{
+  "area_um2": 101453.198,
+  "passed_mhz": 550,
+  "grid_note": "5 MHz upward from 700; conservative lower point after failure, not necessarily the maximum; require all four STA groups"
+}

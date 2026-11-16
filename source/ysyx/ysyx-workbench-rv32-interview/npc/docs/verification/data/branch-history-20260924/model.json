@@ -1,0 +1,2422 @@
+{
+  "engine": "cpp",
+  "provenance": {
+    "python_sha256": "e8ad1d9d37cd5dd3e16419c2ac443d4a3f25fe4a9be99b9d7128a67ae6694c0d",
+    "trace_sha256": {
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/json_bpe-dev-331.trace": "f8ae4a9288a768561f90355e403fd8187cef4df8f4647ee9ca43fcf01142ad88",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/json_bpe-dev-733.trace": "ce1232b7c5736b1f6256764129d36dc3ade5c801e54bf95bd193b7a240ff1ff0",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/quant_loader-dev-331.trace": "f6fa2b88df760cb637736fce7f693041d7f71e0f513f3c28b99449a032c83c83",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/quant_loader-dev-733.trace": "d6e42022c810fd03a0a8f7dc585f2c2837037fa6fd0e82256e8167a4b48a6ce1",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/runtime_graph-dev-331.trace": "81c8c6a0a9a94d33ec71abe49cce705b789517b26883ae104c2748b89b08f6c0",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/runtime_graph-dev-733.trace": "7929313abab87550500d29a868fe7bf7a1b1be33ffefc48001c594ad5cf507a6",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/regex_tokenizer-dev-331.trace": "d5bca9d8ca625b0c58d676e5022d1fe28335e2fd952d5a4b1a131ecf95cb7b02",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/regex_tokenizer-dev-733.trace": "da611ee22d1be259a4ef6455b1d63e83b054cb5c2cf768ed008fba4a6e403144",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/ini_config-dev-331.trace": "ed8cb51fa0cba3c6fdf5ab1d7f5c9788e9bce772ae84a90cbb47896f50aec925",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/rtl/dev-common/B0/ini_config-dev-733.trace": "c452ad51a6cfa9bd5a598b17468ef6be5c560ab7a9d1595357cf8be6997428ca"
+    },
+    "source_sha256": "0ba09a6e0916f114b74cd071cd3197582cfa2bfece8db0d3eba8f437d2cdae6b",
+    "command": [
+      "g++",
+      "-std=c++17",
+      "-O2",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tools/branch_explore/direction_model.cpp",
+      "-o",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-history-20260924/direction_model"
+    ],
+    "compiler": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "binary_sha256": "9072dd570e190ae74cd27a73b7a05528f88a4f0cfa935f1fd4c82efe6461d579"
+  },
+  "scope": "correct-path immediate-training conditional accuracy; excludes BTB, wrong paths, pipeline and checkpoint costs; not IPC",
+  "cases": {
+    "json_bpe-dev-331": {
+      "bimodal16": {
+        "errors": 1570,
+        "false_taken": 781,
+        "branches": 15292,
+        "state_bits": 32,
+        "mpki": 33.03593973571248
+      },
+      "gshare16": {
+        "errors": 2541,
+        "false_taken": 1292,
+        "branches": 15292,
+        "state_bits": 36,
+        "mpki": 53.46772157225823
+      },
+      "bimodal64": {
+        "errors": 1204,
+        "false_taken": 670,
+        "branches": 15292,
+        "state_bits": 128,
+        "mpki": 25.33456779732346
+      },
+      "gshare64": {
+        "errors": 1917,
+        "false_taken": 845,
+        "branches": 15292,
+        "state_bits": 134,
+        "mpki": 40.33751367729989
+      },
+      "bimodal128": {
+        "errors": 1099,
+        "false_taken": 603,
+        "branches": 15292,
+        "state_bits": 256,
+        "mpki": 23.125157814998737
+      },
+      "gshare128": {
+        "errors": 1758,
+        "false_taken": 827,
+        "branches": 15292,
+        "state_bits": 263,
+        "mpki": 36.991835704065316
+      },
+      "bimodal256": {
+        "errors": 1043,
+        "false_taken": 572,
+        "branches": 15292,
+        "state_bits": 512,
+        "mpki": 21.946805824425553
+      },
+      "gshare256": {
+        "errors": 1585,
+        "false_taken": 712,
+        "branches": 15292,
+        "state_bits": 520,
+        "mpki": 33.35156973318744
+      },
+      "bimodal512": {
+        "errors": 1030,
+        "false_taken": 564,
+        "branches": 15292,
+        "state_bits": 1024,
+        "mpki": 21.673259826613922
+      },
+      "gshare512": {
+        "errors": 1484,
+        "false_taken": 661,
+        "branches": 15292,
+        "state_bits": 1033,
+        "mpki": 31.226327750189377
+      },
+      "bimodal1024": {
+        "errors": 1017,
+        "false_taken": 532,
+        "branches": 15292,
+        "state_bits": 2048,
+        "mpki": 21.39971382880229
+      },
+      "gshare1024": {
+        "errors": 1375,
+        "false_taken": 601,
+        "branches": 15292,
+        "state_bits": 2058,
+        "mpki": 28.932749768538002
+      },
+      "tage8": {
+        "errors": 3360,
+        "false_taken": 2446,
+        "branches": 15292,
+        "state_bits": 344,
+        "mpki": 70.70111943439105
+      },
+      "tage8-alt": {
+        "errors": 3441,
+        "false_taken": 2362,
+        "branches": 15292,
+        "state_bits": 344,
+        "mpki": 72.40552142075583
+      },
+      "tage8-selective": {
+        "errors": 3499,
+        "false_taken": 2611,
+        "branches": 15292,
+        "state_bits": 344,
+        "mpki": 73.62595741099234
+      },
+      "tage16": {
+        "errors": 1310,
+        "false_taken": 667,
+        "branches": 15292,
+        "state_bits": 672,
+        "mpki": 27.56501977947984
+      },
+      "tage16-alt": {
+        "errors": 1383,
+        "false_taken": 745,
+        "branches": 15292,
+        "state_bits": 672,
+        "mpki": 29.101085767191314
+      },
+      "tage16-selective": {
+        "errors": 1293,
+        "false_taken": 668,
+        "branches": 15292,
+        "state_bits": 672,
+        "mpki": 27.207305782341553
+      },
+      "tage32": {
+        "errors": 1185,
+        "false_taken": 589,
+        "branches": 15292,
+        "state_bits": 1328,
+        "mpki": 24.934769800521842
+      },
+      "tage32-alt": {
+        "errors": 1196,
+        "false_taken": 625,
+        "branches": 15292,
+        "state_bits": 1328,
+        "mpki": 25.166231798670147
+      },
+      "tage32-selective": {
+        "errors": 1182,
+        "false_taken": 600,
+        "branches": 15292,
+        "state_bits": 1328,
+        "mpki": 24.87164380102685
+      },
+      "local16-h4": {
+        "errors": 1616,
+        "false_taken": 785,
+        "branches": 15292,
+        "state_bits": 96,
+        "mpki": 34.00387172796903
+      },
+      "local16-h8": {
+        "errors": 1493,
+        "false_taken": 682,
+        "branches": 15292,
+        "state_bits": 640,
+        "mpki": 31.415705748674355
+      },
+      "local32-h4": {
+        "errors": 1436,
+        "false_taken": 756,
+        "branches": 15292,
+        "state_bits": 160,
+        "mpki": 30.216311758269505
+      },
+      "local32-h8": {
+        "errors": 1352,
+        "false_taken": 623,
+        "branches": 15292,
+        "state_bits": 768,
+        "mpki": 28.44878377240973
+      },
+      "local64-h4": {
+        "errors": 1182,
+        "false_taken": 633,
+        "branches": 15292,
+        "state_bits": 288,
+        "mpki": 24.87164380102685
+      },
+      "local64-h8": {
+        "errors": 1188,
+        "false_taken": 570,
+        "branches": 15292,
+        "state_bits": 1024,
+        "mpki": 24.997895800016835
+      },
+      "perceptron4": {
+        "errors": 1591,
+        "false_taken": 689,
+        "branches": 15292,
+        "state_bits": 560,
+        "mpki": 33.477821732177425
+      },
+      "perceptron8": {
+        "errors": 1504,
+        "false_taken": 707,
+        "branches": 15292,
+        "state_bits": 1104,
+        "mpki": 31.647167746822657
+      },
+      "perceptron16": {
+        "errors": 1290,
+        "false_taken": 683,
+        "branches": 15292,
+        "state_bits": 2192,
+        "mpki": 27.14417978284656
+      },
+      "loop4": {
+        "errors": 1204,
+        "false_taken": 670,
+        "branches": 15292,
+        "state_bits": 330,
+        "mpki": 25.33456779732346
+      },
+      "loop8": {
+        "errors": 1204,
+        "false_taken": 670,
+        "branches": 15292,
+        "state_bits": 531,
+        "mpki": 25.33456779732346
+      }
+    },
+    "json_bpe-dev-733": {
+      "bimodal16": {
+        "errors": 1490,
+        "false_taken": 707,
+        "branches": 14492,
+        "state_bits": 32,
+        "mpki": 32.73861838635964
+      },
+      "gshare16": {
+        "errors": 2439,
+        "false_taken": 1208,
+        "branches": 14492,
+        "state_bits": 36,
+        "mpki": 53.59026190894709
+      },
+      "bimodal64": {
+        "errors": 1136,
+        "false_taken": 600,
+        "branches": 14492,
+        "state_bits": 128,
+        "mpki": 24.96044999121111
+      },
+      "gshare64": {
+        "errors": 1866,
+        "false_taken": 824,
+        "branches": 14492,
+        "state_bits": 134,
+        "mpki": 41.00017577781684
+      },
+      "bimodal128": {
+        "errors": 1031,
+        "false_taken": 533,
+        "branches": 14492,
+        "state_bits": 256,
+        "mpki": 22.653366145192475
+      },
+      "gshare128": {
+        "errors": 1700,
+        "false_taken": 799,
+        "branches": 14492,
+        "state_bits": 263,
+        "mpki": 37.3527860783969
+      },
+      "bimodal256": {
+        "errors": 975,
+        "false_taken": 502,
+        "branches": 14492,
+        "state_bits": 512,
+        "mpki": 21.422921427315874
+      },
+      "gshare256": {
+        "errors": 1489,
+        "false_taken": 686,
+        "branches": 14492,
+        "state_bits": 520,
+        "mpki": 32.7166461592547
+      },
+      "bimodal512": {
+        "errors": 962,
+        "false_taken": 494,
+        "branches": 14492,
+        "state_bits": 1024,
+        "mpki": 21.13728247495166
+      },
+      "gshare512": {
+        "errors": 1379,
+        "false_taken": 638,
+        "branches": 14492,
+        "state_bits": 1033,
+        "mpki": 30.299701177711373
+      },
+      "bimodal1024": {
+        "errors": 949,
+        "false_taken": 476,
+        "branches": 14492,
+        "state_bits": 2048,
+        "mpki": 20.851643522587448
+      },
+      "gshare1024": {
+        "errors": 1271,
+        "false_taken": 567,
+        "branches": 14492,
+        "state_bits": 2058,
+        "mpki": 27.92670065037792
+      },
+      "tage8": {
+        "errors": 3091,
+        "false_taken": 2071,
+        "branches": 14492,
+        "state_bits": 344,
+        "mpki": 67.91615398136756
+      },
+      "tage8-alt": {
+        "errors": 3208,
+        "false_taken": 2103,
+        "branches": 14492,
+        "state_bits": 344,
+        "mpki": 70.48690455264546
+      },
+      "tage8-selective": {
+        "errors": 3210,
+        "false_taken": 2210,
+        "branches": 14492,
+        "state_bits": 344,
+        "mpki": 70.53084900685533
+      },
+      "tage16": {
+        "errors": 1252,
+        "false_taken": 645,
+        "branches": 14492,
+        "state_bits": 672,
+        "mpki": 27.509228335384076
+      },
+      "tage16-alt": {
+        "errors": 1288,
+        "false_taken": 672,
+        "branches": 14492,
+        "state_bits": 672,
+        "mpki": 28.30022851116189
+      },
+      "tage16-selective": {
+        "errors": 1222,
+        "false_taken": 625,
+        "branches": 14492,
+        "state_bits": 672,
+        "mpki": 26.850061522235894
+      },
+      "tage32": {
+        "errors": 1121,
+        "false_taken": 574,
+        "branches": 14492,
+        "state_bits": 1328,
+        "mpki": 24.63086658463702
+      },
+      "tage32-alt": {
+        "errors": 1144,
+        "false_taken": 595,
+        "branches": 14492,
+        "state_bits": 1328,
+        "mpki": 25.136227808050624
+      },
+      "tage32-selective": {
+        "errors": 1130,
+        "false_taken": 586,
+        "branches": 14492,
+        "state_bits": 1328,
+        "mpki": 24.82861662858147
+      },
+      "local16-h4": {
+        "errors": 1544,
+        "false_taken": 743,
+        "branches": 14492,
+        "state_bits": 96,
+        "mpki": 33.92511865002637
+      },
+      "local16-h8": {
+        "errors": 1413,
+        "false_taken": 646,
+        "branches": 14492,
+        "state_bits": 640,
+        "mpki": 31.046756899279313
+      },
+      "local32-h4": {
+        "errors": 1400,
+        "false_taken": 714,
+        "branches": 14492,
+        "state_bits": 160,
+        "mpki": 30.7611179469151
+      },
+      "local32-h8": {
+        "errors": 1286,
+        "false_taken": 595,
+        "branches": 14492,
+        "state_bits": 768,
+        "mpki": 28.256284056952012
+      },
+      "local64-h4": {
+        "errors": 1150,
+        "false_taken": 599,
+        "branches": 14492,
+        "state_bits": 288,
+        "mpki": 25.26806117068026
+      },
+      "local64-h8": {
+        "errors": 1117,
+        "false_taken": 540,
+        "branches": 14492,
+        "state_bits": 1024,
+        "mpki": 24.542977676217262
+      },
+      "perceptron4": {
+        "errors": 1521,
+        "false_taken": 657,
+        "branches": 14492,
+        "state_bits": 560,
+        "mpki": 33.41975742661276
+      },
+      "perceptron8": {
+        "errors": 1429,
+        "false_taken": 657,
+        "branches": 14492,
+        "state_bits": 1104,
+        "mpki": 31.39831253295834
+      },
+      "perceptron16": {
+        "errors": 1232,
+        "false_taken": 651,
+        "branches": 14492,
+        "state_bits": 2192,
+        "mpki": 27.06978379328529
+      },
+      "loop4": {
+        "errors": 1136,
+        "false_taken": 600,
+        "branches": 14492,
+        "state_bits": 330,
+        "mpki": 24.96044999121111
+      },
+      "loop8": {
+        "errors": 1136,
+        "false_taken": 600,
+        "branches": 14492,
+        "state_bits": 531,
+        "mpki": 24.96044999121111
+      }
+    },
+    "quant_loader-dev-331": {
+      "bimodal16": {
+        "errors": 5305,
+        "false_taken": 3602,
+        "branches": 50864,
+        "state_bits": 32,
+        "mpki": 20.942305035232813
+      },
+      "gshare16": {
+        "errors": 5501,
+        "false_taken": 3786,
+        "branches": 50864,
+        "state_bits": 36,
+        "mpki": 21.71604524011606
+      },
+      "bimodal64": {
+        "errors": 3984,
+        "false_taken": 2941,
+        "branches": 50864,
+        "state_bits": 128,
+        "mpki": 15.727453960483983
+      },
+      "gshare64": {
+        "errors": 4595,
+        "false_taken": 2759,
+        "branches": 50864,
+        "state_bits": 134,
+        "mpki": 18.139470619584312
+      },
+      "bimodal128": {
+        "errors": 3837,
+        "false_taken": 2928,
+        "branches": 50864,
+        "state_bits": 256,
+        "mpki": 15.147148806821546
+      },
+      "gshare128": {
+        "errors": 4000,
+        "false_taken": 2677,
+        "branches": 50864,
+        "state_bits": 263,
+        "mpki": 15.790616426188738
+      },
+      "bimodal256": {
+        "errors": 3739,
+        "false_taken": 2883,
+        "branches": 50864,
+        "state_bits": 512,
+        "mpki": 14.760278704379923
+      },
+      "gshare256": {
+        "errors": 3044,
+        "false_taken": 1792,
+        "branches": 50864,
+        "state_bits": 520,
+        "mpki": 12.01665910032963
+      },
+      "bimodal512": {
+        "errors": 3731,
+        "false_taken": 2880,
+        "branches": 50864,
+        "state_bits": 1024,
+        "mpki": 14.728697471527544
+      },
+      "gshare512": {
+        "errors": 3009,
+        "false_taken": 1559,
+        "branches": 50864,
+        "state_bits": 1033,
+        "mpki": 11.878491206600478
+      },
+      "bimodal1024": {
+        "errors": 3725,
+        "false_taken": 2876,
+        "branches": 50864,
+        "state_bits": 2048,
+        "mpki": 14.705011546888262
+      },
+      "gshare1024": {
+        "errors": 2732,
+        "false_taken": 1287,
+        "branches": 50864,
+        "state_bits": 2058,
+        "mpki": 10.784991019086908
+      },
+      "tage8": {
+        "errors": 3940,
+        "false_taken": 2299,
+        "branches": 50864,
+        "state_bits": 344,
+        "mpki": 15.553757179795907
+      },
+      "tage8-alt": {
+        "errors": 3987,
+        "false_taken": 2401,
+        "branches": 50864,
+        "state_bits": 344,
+        "mpki": 15.739296922803623
+      },
+      "tage8-selective": {
+        "errors": 3954,
+        "false_taken": 2278,
+        "branches": 50864,
+        "state_bits": 344,
+        "mpki": 15.609024337287567
+      },
+      "tage16": {
+        "errors": 2817,
+        "false_taken": 1503,
+        "branches": 50864,
+        "state_bits": 672,
+        "mpki": 11.120541618143418
+      },
+      "tage16-alt": {
+        "errors": 2861,
+        "false_taken": 1540,
+        "branches": 50864,
+        "state_bits": 672,
+        "mpki": 11.294238398831494
+      },
+      "tage16-selective": {
+        "errors": 2901,
+        "false_taken": 1549,
+        "branches": 50864,
+        "state_bits": 672,
+        "mpki": 11.452144563093382
+      },
+      "tage32": {
+        "errors": 2381,
+        "false_taken": 1327,
+        "branches": 50864,
+        "state_bits": 1328,
+        "mpki": 9.399364427688846
+      },
+      "tage32-alt": {
+        "errors": 2359,
+        "false_taken": 1324,
+        "branches": 50864,
+        "state_bits": 1328,
+        "mpki": 9.312516037344809
+      },
+      "tage32-selective": {
+        "errors": 2486,
+        "false_taken": 1308,
+        "branches": 50864,
+        "state_bits": 1328,
+        "mpki": 9.813868108876301
+      },
+      "local16-h4": {
+        "errors": 5037,
+        "false_taken": 3412,
+        "branches": 50864,
+        "state_bits": 96,
+        "mpki": 19.88433373467817
+      },
+      "local16-h8": {
+        "errors": 2861,
+        "false_taken": 1591,
+        "branches": 50864,
+        "state_bits": 640,
+        "mpki": 11.294238398831494
+      },
+      "local32-h4": {
+        "errors": 4492,
+        "false_taken": 2970,
+        "branches": 50864,
+        "state_bits": 160,
+        "mpki": 17.73286224660995
+      },
+      "local32-h8": {
+        "errors": 2762,
+        "false_taken": 1621,
+        "branches": 50864,
+        "state_bits": 768,
+        "mpki": 10.903420642283324
+      },
+      "local64-h4": {
+        "errors": 4086,
+        "false_taken": 2730,
+        "branches": 50864,
+        "state_bits": 288,
+        "mpki": 16.130114679351795
+      },
+      "local64-h8": {
+        "errors": 2423,
+        "false_taken": 1466,
+        "branches": 50864,
+        "state_bits": 1024,
+        "mpki": 9.565165900163828
+      },
+      "perceptron4": {
+        "errors": 3537,
+        "false_taken": 2355,
+        "branches": 50864,
+        "state_bits": 560,
+        "mpki": 13.962852574857392
+      },
+      "perceptron8": {
+        "errors": 3138,
+        "false_taken": 2115,
+        "branches": 50864,
+        "state_bits": 1104,
+        "mpki": 12.387738586345064
+      },
+      "perceptron16": {
+        "errors": 2580,
+        "false_taken": 1692,
+        "branches": 50864,
+        "state_bits": 2192,
+        "mpki": 10.184947594891735
+      },
+      "loop4": {
+        "errors": 3136,
+        "false_taken": 2075,
+        "branches": 50864,
+        "state_bits": 330,
+        "mpki": 12.37984327813197
+      },
+      "loop8": {
+        "errors": 3136,
+        "false_taken": 2075,
+        "branches": 50864,
+        "state_bits": 531,
+        "mpki": 12.37984327813197
+      }
+    },
+    "quant_loader-dev-733": {
+      "bimodal16": {
+        "errors": 5332,
+        "false_taken": 3609,
+        "branches": 50886,
+        "state_bits": 32,
+        "mpki": 21.0208434357173
+      },
+      "gshare16": {
+        "errors": 5471,
+        "false_taken": 3762,
+        "branches": 50886,
+        "state_bits": 36,
+        "mpki": 21.56883616594324
+      },
+      "bimodal64": {
+        "errors": 3978,
+        "false_taken": 2962,
+        "branches": 50886,
+        "state_bits": 128,
+        "mpki": 15.682842308192688
+      },
+      "gshare64": {
+        "errors": 4688,
+        "false_taken": 2851,
+        "branches": 50886,
+        "state_bits": 134,
+        "mpki": 18.48194186546187
+      },
+      "bimodal128": {
+        "errors": 3828,
+        "false_taken": 2945,
+        "branches": 50886,
+        "state_bits": 256,
+        "mpki": 15.091483246797791
+      },
+      "gshare128": {
+        "errors": 4591,
+        "false_taken": 2703,
+        "branches": 50886,
+        "state_bits": 263,
+        "mpki": 18.099529672426502
+      },
+      "bimodal256": {
+        "errors": 3733,
+        "false_taken": 2902,
+        "branches": 50886,
+        "state_bits": 512,
+        "mpki": 14.716955841247689
+      },
+      "gshare256": {
+        "errors": 3187,
+        "false_taken": 1860,
+        "branches": 50886,
+        "state_bits": 520,
+        "mpki": 12.56440885777026
+      },
+      "bimodal512": {
+        "errors": 3726,
+        "false_taken": 2899,
+        "branches": 50886,
+        "state_bits": 1024,
+        "mpki": 14.68935908504926
+      },
+      "gshare512": {
+        "errors": 3050,
+        "false_taken": 1592,
+        "branches": 50886,
+        "state_bits": 1033,
+        "mpki": 12.024300915029588
+      },
+      "bimodal1024": {
+        "errors": 3720,
+        "false_taken": 2895,
+        "branches": 50886,
+        "state_bits": 2048,
+        "mpki": 14.665704722593464
+      },
+      "gshare1024": {
+        "errors": 2753,
+        "false_taken": 1304,
+        "branches": 50886,
+        "state_bits": 2058,
+        "mpki": 10.85340997346769
+      },
+      "tage8": {
+        "errors": 4208,
+        "false_taken": 2453,
+        "branches": 50886,
+        "state_bits": 344,
+        "mpki": 16.5895928689982
+      },
+      "tage8-alt": {
+        "errors": 4011,
+        "false_taken": 2505,
+        "branches": 50886,
+        "state_bits": 344,
+        "mpki": 15.812941301699565
+      },
+      "tage8-selective": {
+        "errors": 4036,
+        "false_taken": 2407,
+        "branches": 50886,
+        "state_bits": 344,
+        "mpki": 15.911501145265381
+      },
+      "tage16": {
+        "errors": 2861,
+        "false_taken": 1551,
+        "branches": 50886,
+        "state_bits": 672,
+        "mpki": 11.279188497672017
+      },
+      "tage16-alt": {
+        "errors": 3002,
+        "false_taken": 1733,
+        "branches": 50886,
+        "state_bits": 672,
+        "mpki": 11.835066015383221
+      },
+      "tage16-selective": {
+        "errors": 2869,
+        "false_taken": 1489,
+        "branches": 50886,
+        "state_bits": 672,
+        "mpki": 11.310727647613078
+      },
+      "tage32": {
+        "errors": 2470,
+        "false_taken": 1393,
+        "branches": 50886,
+        "state_bits": 1328,
+        "mpki": 9.73771254430265
+      },
+      "tage32-alt": {
+        "errors": 2444,
+        "false_taken": 1334,
+        "branches": 50886,
+        "state_bits": 1328,
+        "mpki": 9.635210306994201
+      },
+      "tage32-selective": {
+        "errors": 2460,
+        "false_taken": 1318,
+        "branches": 50886,
+        "state_bits": 1328,
+        "mpki": 9.698288606876323
+      },
+      "local16-h4": {
+        "errors": 4987,
+        "false_taken": 3370,
+        "branches": 50886,
+        "state_bits": 96,
+        "mpki": 19.660717594509034
+      },
+      "local16-h8": {
+        "errors": 2888,
+        "false_taken": 1598,
+        "branches": 50886,
+        "state_bits": 640,
+        "mpki": 11.385633128723098
+      },
+      "local32-h4": {
+        "errors": 4510,
+        "false_taken": 2949,
+        "branches": 50886,
+        "state_bits": 160,
+        "mpki": 17.78019577927326
+      },
+      "local32-h8": {
+        "errors": 2706,
+        "false_taken": 1584,
+        "branches": 50886,
+        "state_bits": 768,
+        "mpki": 10.668117467563956
+      },
+      "local64-h4": {
+        "errors": 4105,
+        "false_taken": 2746,
+        "branches": 50886,
+        "state_bits": 288,
+        "mpki": 16.183526313507034
+      },
+      "local64-h8": {
+        "errors": 2431,
+        "false_taken": 1480,
+        "branches": 50886,
+        "state_bits": 1024,
+        "mpki": 9.583959188339977
+      },
+      "perceptron4": {
+        "errors": 3583,
+        "false_taken": 2404,
+        "branches": 50886,
+        "state_bits": 560,
+        "mpki": 14.12559677985279
+      },
+      "perceptron8": {
+        "errors": 3157,
+        "false_taken": 2128,
+        "branches": 50886,
+        "state_bits": 1104,
+        "mpki": 12.446137045491282
+      },
+      "perceptron16": {
+        "errors": 2634,
+        "false_taken": 1726,
+        "branches": 50886,
+        "state_bits": 2192,
+        "mpki": 10.384265118094405
+      },
+      "loop4": {
+        "errors": 3230,
+        "false_taken": 2192,
+        "branches": 50886,
+        "state_bits": 330,
+        "mpki": 12.733931788703465
+      },
+      "loop8": {
+        "errors": 3230,
+        "false_taken": 2192,
+        "branches": 50886,
+        "state_bits": 531,
+        "mpki": 12.733931788703465
+      }
+    },
+    "runtime_graph-dev-331": {
+      "bimodal16": {
+        "errors": 7686,
+        "false_taken": 3456,
+        "branches": 38946,
+        "state_bits": 32,
+        "mpki": 59.535705156507795
+      },
+      "gshare16": {
+        "errors": 7636,
+        "false_taken": 3468,
+        "branches": 38946,
+        "state_bits": 36,
+        "mpki": 59.14840548726171
+      },
+      "bimodal64": {
+        "errors": 5969,
+        "false_taken": 2917,
+        "branches": 38946,
+        "state_bits": 128,
+        "mpki": 46.23583451459732
+      },
+      "gshare64": {
+        "errors": 5619,
+        "false_taken": 2582,
+        "branches": 38946,
+        "state_bits": 134,
+        "mpki": 43.52473682987475
+      },
+      "bimodal128": {
+        "errors": 5666,
+        "false_taken": 3452,
+        "branches": 38946,
+        "state_bits": 256,
+        "mpki": 43.88879851896606
+      },
+      "gshare128": {
+        "errors": 4375,
+        "false_taken": 2254,
+        "branches": 38946,
+        "state_bits": 263,
+        "mpki": 33.888721059032214
+      },
+      "bimodal256": {
+        "errors": 5095,
+        "false_taken": 3215,
+        "branches": 38946,
+        "state_bits": 512,
+        "mpki": 39.4658362961758
+      },
+      "gshare256": {
+        "errors": 3043,
+        "false_taken": 1657,
+        "branches": 38946,
+        "state_bits": 520,
+        "mpki": 23.57105787031658
+      },
+      "bimodal512": {
+        "errors": 4773,
+        "false_taken": 3016,
+        "branches": 38946,
+        "state_bits": 1024,
+        "mpki": 36.97162642623103
+      },
+      "gshare512": {
+        "errors": 2070,
+        "false_taken": 1108,
+        "branches": 38946,
+        "state_bits": 1033,
+        "mpki": 16.034206306787816
+      },
+      "bimodal1024": {
+        "errors": 4776,
+        "false_taken": 3016,
+        "branches": 38946,
+        "state_bits": 2048,
+        "mpki": 36.994864406385794
+      },
+      "gshare1024": {
+        "errors": 1693,
+        "false_taken": 887,
+        "branches": 38946,
+        "state_bits": 2058,
+        "mpki": 13.113966800672353
+      },
+      "tage8": {
+        "errors": 3795,
+        "false_taken": 1786,
+        "branches": 38946,
+        "state_bits": 344,
+        "mpki": 29.39604489577766
+      },
+      "tage8-alt": {
+        "errors": 4137,
+        "false_taken": 1901,
+        "branches": 38946,
+        "state_bits": 344,
+        "mpki": 32.045174633420864
+      },
+      "tage8-selective": {
+        "errors": 5268,
+        "false_taken": 1539,
+        "branches": 38946,
+        "state_bits": 344,
+        "mpki": 40.80589315176725
+      },
+      "tage16": {
+        "errors": 2899,
+        "false_taken": 1611,
+        "branches": 38946,
+        "state_bits": 672,
+        "mpki": 22.455634822887863
+      },
+      "tage16-alt": {
+        "errors": 2989,
+        "false_taken": 1579,
+        "branches": 38946,
+        "state_bits": 672,
+        "mpki": 23.15277422753081
+      },
+      "tage16-selective": {
+        "errors": 2728,
+        "false_taken": 1443,
+        "branches": 38946,
+        "state_bits": 672,
+        "mpki": 21.13106995406626
+      },
+      "tage32": {
+        "errors": 1548,
+        "false_taken": 1049,
+        "branches": 38946,
+        "state_bits": 1328,
+        "mpki": 11.990797759858713
+      },
+      "tage32-alt": {
+        "errors": 1510,
+        "false_taken": 1019,
+        "branches": 38946,
+        "state_bits": 1328,
+        "mpki": 11.69645001123169
+      },
+      "tage32-selective": {
+        "errors": 1430,
+        "false_taken": 912,
+        "branches": 38946,
+        "state_bits": 1328,
+        "mpki": 11.076770540437959
+      },
+      "local16-h4": {
+        "errors": 5357,
+        "false_taken": 2362,
+        "branches": 38946,
+        "state_bits": 96,
+        "mpki": 41.495286563025275
+      },
+      "local16-h8": {
+        "errors": 3360,
+        "false_taken": 1774,
+        "branches": 38946,
+        "state_bits": 640,
+        "mpki": 26.02653777333674
+      },
+      "local32-h4": {
+        "errors": 5221,
+        "false_taken": 2314,
+        "branches": 38946,
+        "state_bits": 160,
+        "mpki": 40.44183146267593
+      },
+      "local32-h8": {
+        "errors": 2994,
+        "false_taken": 1495,
+        "branches": 38946,
+        "state_bits": 768,
+        "mpki": 23.19150419445542
+      },
+      "local64-h4": {
+        "errors": 3573,
+        "false_taken": 1893,
+        "branches": 38946,
+        "state_bits": 288,
+        "mpki": 27.676434364325054
+      },
+      "local64-h8": {
+        "errors": 2079,
+        "false_taken": 1213,
+        "branches": 38946,
+        "state_bits": 1024,
+        "mpki": 16.10392024725211
+      },
+      "perceptron4": {
+        "errors": 3130,
+        "false_taken": 1592,
+        "branches": 38946,
+        "state_bits": 560,
+        "mpki": 24.24495929480476
+      },
+      "perceptron8": {
+        "errors": 2221,
+        "false_taken": 1173,
+        "branches": 38946,
+        "state_bits": 1104,
+        "mpki": 17.203851307910984
+      },
+      "perceptron16": {
+        "errors": 1697,
+        "false_taken": 978,
+        "branches": 38946,
+        "state_bits": 2192,
+        "mpki": 13.144950774212038
+      },
+      "loop4": {
+        "errors": 5959,
+        "false_taken": 2907,
+        "branches": 38946,
+        "state_bits": 330,
+        "mpki": 46.15837458074811
+      },
+      "loop8": {
+        "errors": 5959,
+        "false_taken": 2907,
+        "branches": 38946,
+        "state_bits": 531,
+        "mpki": 46.15837458074811
+      }
+    },
+    "runtime_graph-dev-733": {
+      "bimodal16": {
+        "errors": 7525,
+        "false_taken": 3351,
+        "branches": 38206,
+        "state_bits": 32,
+        "mpki": 59.12208612575523
+      },
+      "gshare16": {
+        "errors": 7544,
+        "false_taken": 3413,
+        "branches": 38206,
+        "state_bits": 36,
+        "mpki": 59.27136448275049
+      },
+      "bimodal64": {
+        "errors": 5842,
+        "false_taken": 2831,
+        "branches": 38206,
+        "state_bits": 128,
+        "mpki": 45.899166398227514
+      },
+      "gshare64": {
+        "errors": 5471,
+        "false_taken": 2445,
+        "branches": 38206,
+        "state_bits": 134,
+        "mpki": 42.98431005900424
+      },
+      "bimodal128": {
+        "errors": 5556,
+        "false_taken": 3346,
+        "branches": 38206,
+        "state_bits": 256,
+        "mpki": 43.65213428766725
+      },
+      "gshare128": {
+        "errors": 4330,
+        "false_taken": 2128,
+        "branches": 38206,
+        "state_bits": 263,
+        "mpki": 34.019751883657165
+      },
+      "bimodal256": {
+        "errors": 4984,
+        "false_taken": 3110,
+        "branches": 38206,
+        "state_bits": 512,
+        "mpki": 39.15807006654672
+      },
+      "gshare256": {
+        "errors": 3037,
+        "false_taken": 1600,
+        "branches": 38206,
+        "state_bits": 520,
+        "mpki": 23.860966852347993
+      },
+      "bimodal512": {
+        "errors": 4662,
+        "false_taken": 2911,
+        "branches": 38206,
+        "state_bits": 1024,
+        "mpki": 36.62819475325859
+      },
+      "gshare512": {
+        "errors": 2092,
+        "false_taken": 1111,
+        "branches": 38206,
+        "state_bits": 1033,
+        "mpki": 16.43633278074152
+      },
+      "bimodal1024": {
+        "errors": 4665,
+        "false_taken": 2911,
+        "branches": 38206,
+        "state_bits": 2048,
+        "mpki": 36.65176502015258
+      },
+      "gshare1024": {
+        "errors": 1719,
+        "false_taken": 894,
+        "branches": 38206,
+        "state_bits": 2058,
+        "mpki": 13.50576293025558
+      },
+      "tage8": {
+        "errors": 3831,
+        "false_taken": 1820,
+        "branches": 38206,
+        "state_bits": 344,
+        "mpki": 30.099230823623692
+      },
+      "tage8-alt": {
+        "errors": 4051,
+        "false_taken": 1837,
+        "branches": 38206,
+        "state_bits": 344,
+        "mpki": 31.827717062516204
+      },
+      "tage8-selective": {
+        "errors": 5138,
+        "false_taken": 1548,
+        "branches": 38206,
+        "state_bits": 344,
+        "mpki": 40.36801043377148
+      },
+      "tage16": {
+        "errors": 2674,
+        "false_taken": 1364,
+        "branches": 38206,
+        "state_bits": 672,
+        "mpki": 21.008964558175347
+      },
+      "tage16-alt": {
+        "errors": 2856,
+        "false_taken": 1514,
+        "branches": 38206,
+        "state_bits": 672,
+        "mpki": 22.438894083077333
+      },
+      "tage16-selective": {
+        "errors": 2602,
+        "false_taken": 1340,
+        "branches": 38206,
+        "state_bits": 672,
+        "mpki": 20.443278152719618
+      },
+      "tage32": {
+        "errors": 1437,
+        "false_taken": 945,
+        "branches": 38206,
+        "state_bits": 1328,
+        "mpki": 11.290157842220633
+      },
+      "tage32-alt": {
+        "errors": 1516,
+        "false_taken": 966,
+        "branches": 38206,
+        "state_bits": 1328,
+        "mpki": 11.910841537095672
+      },
+      "tage32-selective": {
+        "errors": 1458,
+        "false_taken": 946,
+        "branches": 38206,
+        "state_bits": 1328,
+        "mpki": 11.455149710478555
+      },
+      "local16-h4": {
+        "errors": 5336,
+        "false_taken": 2329,
+        "branches": 38206,
+        "state_bits": 96,
+        "mpki": 41.92364804877474
+      },
+      "local16-h8": {
+        "errors": 3391,
+        "false_taken": 1786,
+        "branches": 38206,
+        "state_bits": 640,
+        "mpki": 26.64225834583867
+      },
+      "local32-h4": {
+        "errors": 5267,
+        "false_taken": 2307,
+        "branches": 38206,
+        "state_bits": 160,
+        "mpki": 41.381531910213
+      },
+      "local32-h8": {
+        "errors": 3003,
+        "false_taken": 1502,
+        "branches": 38206,
+        "state_bits": 768,
+        "mpki": 23.593837160882785
+      },
+      "local64-h4": {
+        "errors": 3563,
+        "false_taken": 1871,
+        "branches": 38206,
+        "state_bits": 288,
+        "mpki": 27.99362031442736
+      },
+      "local64-h8": {
+        "errors": 2150,
+        "false_taken": 1252,
+        "branches": 38206,
+        "state_bits": 1024,
+        "mpki": 16.89202460735864
+      },
+      "perceptron4": {
+        "errors": 3114,
+        "false_taken": 1584,
+        "branches": 38206,
+        "state_bits": 560,
+        "mpki": 24.46593703596037
+      },
+      "perceptron8": {
+        "errors": 2227,
+        "false_taken": 1191,
+        "branches": 38206,
+        "state_bits": 1104,
+        "mpki": 17.496994790971016
+      },
+      "perceptron16": {
+        "errors": 1719,
+        "false_taken": 1003,
+        "branches": 38206,
+        "state_bits": 2192,
+        "mpki": 13.50576293025558
+      },
+      "loop4": {
+        "errors": 5832,
+        "false_taken": 2821,
+        "branches": 38206,
+        "state_bits": 330,
+        "mpki": 45.82059884191422
+      },
+      "loop8": {
+        "errors": 5832,
+        "false_taken": 2821,
+        "branches": 38206,
+        "state_bits": 531,
+        "mpki": 45.82059884191422
+      }
+    },
+    "regex_tokenizer-dev-331": {
+      "bimodal16": {
+        "errors": 7791,
+        "false_taken": 2353,
+        "branches": 40602,
+        "state_bits": 32,
+        "mpki": 40.60963977253181
+      },
+      "gshare16": {
+        "errors": 9614,
+        "false_taken": 3572,
+        "branches": 40602,
+        "state_bits": 36,
+        "mpki": 50.11180551573877
+      },
+      "bimodal64": {
+        "errors": 6082,
+        "false_taken": 2289,
+        "branches": 40602,
+        "state_bits": 128,
+        "mpki": 31.701685161922533
+      },
+      "gshare64": {
+        "errors": 7333,
+        "false_taken": 2846,
+        "branches": 40602,
+        "state_bits": 134,
+        "mpki": 38.2223704854288
+      },
+      "bimodal128": {
+        "errors": 4619,
+        "false_taken": 1955,
+        "branches": 40602,
+        "state_bits": 256,
+        "mpki": 24.075975626918808
+      },
+      "gshare128": {
+        "errors": 4960,
+        "false_taken": 1886,
+        "branches": 40602,
+        "state_bits": 263,
+        "mpki": 25.853396646355765
+      },
+      "bimodal256": {
+        "errors": 4464,
+        "false_taken": 1949,
+        "branches": 40602,
+        "state_bits": 512,
+        "mpki": 23.26805698172019
+      },
+      "gshare256": {
+        "errors": 3934,
+        "false_taken": 1605,
+        "branches": 40602,
+        "state_bits": 520,
+        "mpki": 20.50549645297653
+      },
+      "bimodal512": {
+        "errors": 4441,
+        "false_taken": 1971,
+        "branches": 40602,
+        "state_bits": 1024,
+        "mpki": 23.148172279529426
+      },
+      "gshare512": {
+        "errors": 2742,
+        "false_taken": 1259,
+        "branches": 40602,
+        "state_bits": 1033,
+        "mpki": 14.292341452481352
+      },
+      "bimodal1024": {
+        "errors": 4481,
+        "false_taken": 1962,
+        "branches": 40602,
+        "state_bits": 2048,
+        "mpki": 23.356667413774233
+      },
+      "gshare1024": {
+        "errors": 2294,
+        "false_taken": 1285,
+        "branches": 40602,
+        "state_bits": 2058,
+        "mpki": 11.95719594893954
+      },
+      "tage8": {
+        "errors": 4881,
+        "false_taken": 1763,
+        "branches": 40602,
+        "state_bits": 344,
+        "mpki": 25.441618756222276
+      },
+      "tage8-alt": {
+        "errors": 4795,
+        "false_taken": 1875,
+        "branches": 40602,
+        "state_bits": 344,
+        "mpki": 24.993354217595947
+      },
+      "tage8-selective": {
+        "errors": 5252,
+        "false_taken": 1931,
+        "branches": 40602,
+        "state_bits": 344,
+        "mpki": 27.37541112634284
+      },
+      "tage16": {
+        "errors": 3348,
+        "false_taken": 1488,
+        "branches": 40602,
+        "state_bits": 672,
+        "mpki": 17.45104273629014
+      },
+      "tage16-alt": {
+        "errors": 3520,
+        "false_taken": 1596,
+        "branches": 40602,
+        "state_bits": 672,
+        "mpki": 18.347571813542803
+      },
+      "tage16-selective": {
+        "errors": 3309,
+        "false_taken": 1503,
+        "branches": 40602,
+        "state_bits": 672,
+        "mpki": 17.247759980401458
+      },
+      "tage32": {
+        "errors": 2010,
+        "false_taken": 1101,
+        "branches": 40602,
+        "state_bits": 1328,
+        "mpki": 10.47688049580143
+      },
+      "tage32-alt": {
+        "errors": 2026,
+        "false_taken": 1064,
+        "branches": 40602,
+        "state_bits": 1328,
+        "mpki": 10.560278549499351
+      },
+      "tage32-selective": {
+        "errors": 2059,
+        "false_taken": 1052,
+        "branches": 40602,
+        "state_bits": 1328,
+        "mpki": 10.732287035251314
+      },
+      "local16-h4": {
+        "errors": 8300,
+        "false_taken": 3043,
+        "branches": 40602,
+        "state_bits": 96,
+        "mpki": 43.26274035579695
+      },
+      "local16-h8": {
+        "errors": 6267,
+        "false_taken": 1797,
+        "branches": 40602,
+        "state_bits": 640,
+        "mpki": 32.66597515780475
+      },
+      "local32-h4": {
+        "errors": 8177,
+        "false_taken": 3341,
+        "branches": 40602,
+        "state_bits": 160,
+        "mpki": 42.62161781799417
+      },
+      "local32-h8": {
+        "errors": 5075,
+        "false_taken": 2184,
+        "branches": 40602,
+        "state_bits": 768,
+        "mpki": 26.452820157309578
+      },
+      "local64-h4": {
+        "errors": 6564,
+        "false_taken": 2788,
+        "branches": 40602,
+        "state_bits": 288,
+        "mpki": 34.21405152957243
+      },
+      "local64-h8": {
+        "errors": 4932,
+        "false_taken": 1992,
+        "branches": 40602,
+        "state_bits": 1024,
+        "mpki": 25.707450052384402
+      },
+      "perceptron4": {
+        "errors": 5926,
+        "false_taken": 1980,
+        "branches": 40602,
+        "state_bits": 560,
+        "mpki": 30.888554138367795
+      },
+      "perceptron8": {
+        "errors": 3160,
+        "false_taken": 1444,
+        "branches": 40602,
+        "state_bits": 1104,
+        "mpki": 16.47111560533956
+      },
+      "perceptron16": {
+        "errors": 2006,
+        "false_taken": 1082,
+        "branches": 40602,
+        "state_bits": 2192,
+        "mpki": 10.456030982376948
+      },
+      "loop4": {
+        "errors": 6082,
+        "false_taken": 2289,
+        "branches": 40602,
+        "state_bits": 330,
+        "mpki": 31.701685161922533
+      },
+      "loop8": {
+        "errors": 6082,
+        "false_taken": 2289,
+        "branches": 40602,
+        "state_bits": 531,
+        "mpki": 31.701685161922533
+      }
+    },
+    "regex_tokenizer-dev-733": {
+      "bimodal16": {
+        "errors": 7656,
+        "false_taken": 2207,
+        "branches": 38176,
+        "state_bits": 32,
+        "mpki": 40.411931443290804
+      },
+      "gshare16": {
+        "errors": 8782,
+        "false_taken": 3411,
+        "branches": 38176,
+        "state_bits": 36,
+        "mpki": 46.35548353382705
+      },
+      "bimodal64": {
+        "errors": 5691,
+        "false_taken": 2028,
+        "branches": 38176,
+        "state_bits": 128,
+        "mpki": 30.039746844797282
+      },
+      "gshare64": {
+        "errors": 6977,
+        "false_taken": 2778,
+        "branches": 38176,
+        "state_bits": 134,
+        "mpki": 36.82785340645768
+      },
+      "bimodal128": {
+        "errors": 4118,
+        "false_taken": 1672,
+        "branches": 38176,
+        "state_bits": 256,
+        "mpki": 21.736720700557935
+      },
+      "gshare128": {
+        "errors": 4526,
+        "false_taken": 1630,
+        "branches": 38176,
+        "state_bits": 263,
+        "mpki": 23.89033460192453
+      },
+      "bimodal256": {
+        "errors": 3954,
+        "false_taken": 1664,
+        "branches": 38176,
+        "state_bits": 512,
+        "mpki": 20.871052367655675
+      },
+      "gshare256": {
+        "errors": 3810,
+        "false_taken": 1615,
+        "branches": 38176,
+        "state_bits": 520,
+        "mpki": 20.110953343643935
+      },
+      "bimodal512": {
+        "errors": 3949,
+        "false_taken": 1695,
+        "branches": 38176,
+        "state_bits": 1024,
+        "mpki": 20.844660040433045
+      },
+      "gshare512": {
+        "errors": 2630,
+        "false_taken": 1262,
+        "branches": 38176,
+        "state_bits": 1033,
+        "mpki": 13.882364119103295
+      },
+      "bimodal1024": {
+        "errors": 3989,
+        "false_taken": 1688,
+        "branches": 38176,
+        "state_bits": 2048,
+        "mpki": 21.055798658214083
+      },
+      "gshare1024": {
+        "errors": 2255,
+        "false_taken": 1309,
+        "branches": 38176,
+        "state_bits": 2058,
+        "mpki": 11.902939577406057
+      },
+      "tage8": {
+        "errors": 4891,
+        "false_taken": 1709,
+        "branches": 38176,
+        "state_bits": 344,
+        "mpki": 25.816974489176506
+      },
+      "tage8-alt": {
+        "errors": 4851,
+        "false_taken": 1688,
+        "branches": 38176,
+        "state_bits": 344,
+        "mpki": 25.605835871395467
+      },
+      "tage8-selective": {
+        "errors": 5029,
+        "false_taken": 1889,
+        "branches": 38176,
+        "state_bits": 344,
+        "mpki": 26.54540272052109
+      },
+      "tage16": {
+        "errors": 3306,
+        "false_taken": 1457,
+        "branches": 38176,
+        "state_bits": 672,
+        "mpki": 17.45060675960285
+      },
+      "tage16-alt": {
+        "errors": 3257,
+        "false_taken": 1457,
+        "branches": 38176,
+        "state_bits": 672,
+        "mpki": 17.191961952821075
+      },
+      "tage16-selective": {
+        "errors": 2921,
+        "false_taken": 1413,
+        "branches": 38176,
+        "state_bits": 672,
+        "mpki": 15.418397563460351
+      },
+      "tage32": {
+        "errors": 2019,
+        "false_taken": 1094,
+        "branches": 38176,
+        "state_bits": 1328,
+        "mpki": 10.657221732497929
+      },
+      "tage32-alt": {
+        "errors": 1999,
+        "false_taken": 1098,
+        "branches": 38176,
+        "state_bits": 1328,
+        "mpki": 10.55165242360741
+      },
+      "tage32-selective": {
+        "errors": 1831,
+        "false_taken": 1124,
+        "branches": 38176,
+        "state_bits": 1328,
+        "mpki": 9.664870228927047
+      },
+      "local16-h4": {
+        "errors": 8541,
+        "false_taken": 3075,
+        "branches": 38176,
+        "state_bits": 96,
+        "mpki": 45.08337336169629
+      },
+      "local16-h8": {
+        "errors": 6277,
+        "false_taken": 1826,
+        "branches": 38176,
+        "state_bits": 640,
+        "mpki": 33.132927595289495
+      },
+      "local32-h4": {
+        "errors": 8392,
+        "false_taken": 3448,
+        "branches": 38176,
+        "state_bits": 160,
+        "mpki": 44.29688201046192
+      },
+      "local32-h8": {
+        "errors": 5005,
+        "false_taken": 2185,
+        "branches": 38176,
+        "state_bits": 768,
+        "mpki": 26.418719549852465
+      },
+      "local64-h4": {
+        "errors": 6462,
+        "false_taken": 2680,
+        "branches": 38176,
+        "state_bits": 288,
+        "mpki": 34.109443702526804
+      },
+      "local64-h8": {
+        "errors": 4878,
+        "false_taken": 2019,
+        "branches": 38176,
+        "state_bits": 1024,
+        "mpki": 25.74835443839767
+      },
+      "perceptron4": {
+        "errors": 5946,
+        "false_taken": 2028,
+        "branches": 38176,
+        "state_bits": 560,
+        "mpki": 31.385755533151404
+      },
+      "perceptron8": {
+        "errors": 2971,
+        "false_taken": 1312,
+        "branches": 38176,
+        "state_bits": 1104,
+        "mpki": 15.68232083568665
+      },
+      "perceptron16": {
+        "errors": 1904,
+        "false_taken": 1085,
+        "branches": 38176,
+        "state_bits": 2192,
+        "mpki": 10.050198206377441
+      },
+      "loop4": {
+        "errors": 5691,
+        "false_taken": 2028,
+        "branches": 38176,
+        "state_bits": 330,
+        "mpki": 30.039746844797282
+      },
+      "loop8": {
+        "errors": 5691,
+        "false_taken": 2028,
+        "branches": 38176,
+        "state_bits": 531,
+        "mpki": 30.039746844797282
+      }
+    },
+    "ini_config-dev-331": {
+      "bimodal16": {
+        "errors": 2296,
+        "false_taken": 953,
+        "branches": 10192,
+        "state_bits": 32,
+        "mpki": 62.032258936049494
+      },
+      "gshare16": {
+        "errors": 2807,
+        "false_taken": 1640,
+        "branches": 10192,
+        "state_bits": 36,
+        "mpki": 75.83821900413368
+      },
+      "bimodal64": {
+        "errors": 1853,
+        "false_taken": 717,
+        "branches": 10192,
+        "state_bits": 128,
+        "mpki": 50.06349120579256
+      },
+      "gshare64": {
+        "errors": 1700,
+        "false_taken": 1019,
+        "branches": 10192,
+        "state_bits": 134,
+        "mpki": 45.929808445681246
+      },
+      "bimodal128": {
+        "errors": 1390,
+        "false_taken": 554,
+        "branches": 10192,
+        "state_bits": 256,
+        "mpki": 37.55437278793937
+      },
+      "gshare128": {
+        "errors": 1220,
+        "false_taken": 714,
+        "branches": 10192,
+        "state_bits": 263,
+        "mpki": 32.96139194337125
+      },
+      "bimodal256": {
+        "errors": 1350,
+        "false_taken": 542,
+        "branches": 10192,
+        "state_bits": 512,
+        "mpki": 36.473671412746874
+      },
+      "gshare256": {
+        "errors": 859,
+        "false_taken": 534,
+        "branches": 10192,
+        "state_bits": 520,
+        "mpki": 23.208062032258937
+      },
+      "bimodal512": {
+        "errors": 1350,
+        "false_taken": 542,
+        "branches": 10192,
+        "state_bits": 1024,
+        "mpki": 36.473671412746874
+      },
+      "gshare512": {
+        "errors": 639,
+        "false_taken": 339,
+        "branches": 10192,
+        "state_bits": 1033,
+        "mpki": 17.264204468700186
+      },
+      "bimodal1024": {
+        "errors": 1350,
+        "false_taken": 542,
+        "branches": 10192,
+        "state_bits": 2048,
+        "mpki": 36.473671412746874
+      },
+      "gshare1024": {
+        "errors": 543,
+        "false_taken": 225,
+        "branches": 10192,
+        "state_bits": 2058,
+        "mpki": 14.670521168238187
+      },
+      "tage8": {
+        "errors": 1915,
+        "false_taken": 992,
+        "branches": 10192,
+        "state_bits": 344,
+        "mpki": 51.73857833734093
+      },
+      "tage8-alt": {
+        "errors": 1927,
+        "false_taken": 956,
+        "branches": 10192,
+        "state_bits": 344,
+        "mpki": 52.06278874989869
+      },
+      "tage8-selective": {
+        "errors": 1993,
+        "false_taken": 1066,
+        "branches": 10192,
+        "state_bits": 344,
+        "mpki": 53.84594601896631
+      },
+      "tage16": {
+        "errors": 1184,
+        "false_taken": 572,
+        "branches": 10192,
+        "state_bits": 672,
+        "mpki": 31.988760705698
+      },
+      "tage16-alt": {
+        "errors": 1162,
+        "false_taken": 567,
+        "branches": 10192,
+        "state_bits": 672,
+        "mpki": 31.394374949342122
+      },
+      "tage16-selective": {
+        "errors": 1478,
+        "false_taken": 848,
+        "branches": 10192,
+        "state_bits": 672,
+        "mpki": 39.93191581336287
+      },
+      "tage32": {
+        "errors": 673,
+        "false_taken": 320,
+        "branches": 10192,
+        "state_bits": 1328,
+        "mpki": 18.182800637613813
+      },
+      "tage32-alt": {
+        "errors": 673,
+        "false_taken": 324,
+        "branches": 10192,
+        "state_bits": 1328,
+        "mpki": 18.182800637613813
+      },
+      "tage32-selective": {
+        "errors": 927,
+        "false_taken": 620,
+        "branches": 10192,
+        "state_bits": 1328,
+        "mpki": 25.045254370086187
+      },
+      "local16-h4": {
+        "errors": 2286,
+        "false_taken": 1158,
+        "branches": 10192,
+        "state_bits": 96,
+        "mpki": 61.76208359225137
+      },
+      "local16-h8": {
+        "errors": 1550,
+        "false_taken": 775,
+        "branches": 10192,
+        "state_bits": 640,
+        "mpki": 41.87717828870937
+      },
+      "local32-h4": {
+        "errors": 1819,
+        "false_taken": 902,
+        "branches": 10192,
+        "state_bits": 160,
+        "mpki": 49.144895036878935
+      },
+      "local32-h8": {
+        "errors": 1224,
+        "false_taken": 586,
+        "branches": 10192,
+        "state_bits": 768,
+        "mpki": 33.069462080890496
+      },
+      "local64-h4": {
+        "errors": 1578,
+        "false_taken": 798,
+        "branches": 10192,
+        "state_bits": 288,
+        "mpki": 42.63366925134412
+      },
+      "local64-h8": {
+        "errors": 1020,
+        "false_taken": 476,
+        "branches": 10192,
+        "state_bits": 1024,
+        "mpki": 27.557885067408748
+      },
+      "perceptron4": {
+        "errors": 1392,
+        "false_taken": 621,
+        "branches": 10192,
+        "state_bits": 560,
+        "mpki": 37.608407856698996
+      },
+      "perceptron8": {
+        "errors": 1009,
+        "false_taken": 441,
+        "branches": 10192,
+        "state_bits": 1104,
+        "mpki": 27.26069218923081
+      },
+      "perceptron16": {
+        "errors": 596,
+        "false_taken": 310,
+        "branches": 10192,
+        "state_bits": 2192,
+        "mpki": 16.10245049036825
+      },
+      "loop4": {
+        "errors": 1853,
+        "false_taken": 717,
+        "branches": 10192,
+        "state_bits": 330,
+        "mpki": 50.06349120579256
+      },
+      "loop8": {
+        "errors": 1853,
+        "false_taken": 717,
+        "branches": 10192,
+        "state_bits": 531,
+        "mpki": 50.06349120579256
+      }
+    },
+    "ini_config-dev-733": {
+      "bimodal16": {
+        "errors": 2298,
+        "false_taken": 957,
+        "branches": 10216,
+        "state_bits": 32,
+        "mpki": 61.93903129295706
+      },
+      "gshare16": {
+        "errors": 2799,
+        "false_taken": 1636,
+        "branches": 10216,
+        "state_bits": 36,
+        "mpki": 75.44271043907172
+      },
+      "bimodal64": {
+        "errors": 1853,
+        "false_taken": 717,
+        "branches": 10216,
+        "state_bits": 128,
+        "mpki": 49.94474542465163
+      },
+      "gshare64": {
+        "errors": 1699,
+        "false_taken": 1027,
+        "branches": 10216,
+        "state_bits": 134,
+        "mpki": 45.79391391067626
+      },
+      "bimodal128": {
+        "errors": 1390,
+        "false_taken": 554,
+        "branches": 10216,
+        "state_bits": 256,
+        "mpki": 37.46529743133608
+      },
+      "gshare128": {
+        "errors": 1226,
+        "false_taken": 722,
+        "branches": 10216,
+        "state_bits": 263,
+        "mpki": 33.044931403466215
+      },
+      "bimodal256": {
+        "errors": 1350,
+        "false_taken": 542,
+        "branches": 10216,
+        "state_bits": 512,
+        "mpki": 36.38715937575807
+      },
+      "gshare256": {
+        "errors": 866,
+        "false_taken": 542,
+        "branches": 10216,
+        "state_bits": 520,
+        "mpki": 23.341688903264064
+      },
+      "bimodal512": {
+        "errors": 1350,
+        "false_taken": 542,
+        "branches": 10216,
+        "state_bits": 1024,
+        "mpki": 36.38715937575807
+      },
+      "gshare512": {
+        "errors": 637,
+        "false_taken": 340,
+        "branches": 10216,
+        "state_bits": 1033,
+        "mpki": 17.169348535079916
+      },
+      "bimodal1024": {
+        "errors": 1350,
+        "false_taken": 542,
+        "branches": 10216,
+        "state_bits": 2048,
+        "mpki": 36.38715937575807
+      },
+      "gshare1024": {
+        "errors": 551,
+        "false_taken": 229,
+        "branches": 10216,
+        "state_bits": 2058,
+        "mpki": 14.851351715587182
+      },
+      "tage8": {
+        "errors": 2008,
+        "false_taken": 1037,
+        "branches": 10216,
+        "state_bits": 344,
+        "mpki": 54.12253039001644
+      },
+      "tage8-alt": {
+        "errors": 1946,
+        "false_taken": 991,
+        "branches": 10216,
+        "state_bits": 344,
+        "mpki": 52.45141640387052
+      },
+      "tage8-selective": {
+        "errors": 2009,
+        "false_taken": 1089,
+        "branches": 10216,
+        "state_bits": 344,
+        "mpki": 54.14948384140589
+      },
+      "tage16": {
+        "errors": 1140,
+        "false_taken": 549,
+        "branches": 10216,
+        "state_bits": 672,
+        "mpki": 30.726934583973478
+      },
+      "tage16-alt": {
+        "errors": 1166,
+        "false_taken": 582,
+        "branches": 10216,
+        "state_bits": 672,
+        "mpki": 31.427724320099188
+      },
+      "tage16-selective": {
+        "errors": 1458,
+        "false_taken": 827,
+        "branches": 10216,
+        "state_bits": 672,
+        "mpki": 39.29813212581871
+      },
+      "tage32": {
+        "errors": 669,
+        "false_taken": 321,
+        "branches": 10216,
+        "state_bits": 1328,
+        "mpki": 18.03185897954233
+      },
+      "tage32-alt": {
+        "errors": 666,
+        "false_taken": 323,
+        "branches": 10216,
+        "state_bits": 1328,
+        "mpki": 17.95099862537398
+      },
+      "tage32-selective": {
+        "errors": 915,
+        "false_taken": 618,
+        "branches": 10216,
+        "state_bits": 1328,
+        "mpki": 24.662408021347133
+      },
+      "local16-h4": {
+        "errors": 2280,
+        "false_taken": 1156,
+        "branches": 10216,
+        "state_bits": 96,
+        "mpki": 61.453869167946955
+      },
+      "local16-h8": {
+        "errors": 1549,
+        "false_taken": 763,
+        "branches": 10216,
+        "state_bits": 640,
+        "mpki": 41.7508962022587
+      },
+      "local32-h4": {
+        "errors": 1819,
+        "false_taken": 900,
+        "branches": 10216,
+        "state_bits": 160,
+        "mpki": 49.028328077410315
+      },
+      "local32-h8": {
+        "errors": 1213,
+        "false_taken": 575,
+        "branches": 10216,
+        "state_bits": 768,
+        "mpki": 32.69453653540336
+      },
+      "local64-h4": {
+        "errors": 1576,
+        "false_taken": 794,
+        "branches": 10216,
+        "state_bits": 288,
+        "mpki": 42.47863938977386
+      },
+      "local64-h8": {
+        "errors": 1014,
+        "false_taken": 470,
+        "branches": 10216,
+        "state_bits": 1024,
+        "mpki": 27.330799708902724
+      },
+      "perceptron4": {
+        "errors": 1397,
+        "false_taken": 620,
+        "branches": 10216,
+        "state_bits": 560,
+        "mpki": 37.65397159106224
+      },
+      "perceptron8": {
+        "errors": 991,
+        "false_taken": 427,
+        "branches": 10216,
+        "state_bits": 1104,
+        "mpki": 26.710870326945365
+      },
+      "perceptron16": {
+        "errors": 591,
+        "false_taken": 303,
+        "branches": 10216,
+        "state_bits": 2192,
+        "mpki": 15.929489771165198
+      },
+      "loop4": {
+        "errors": 1853,
+        "false_taken": 717,
+        "branches": 10216,
+        "state_bits": 330,
+        "mpki": 49.94474542465163
+      },
+      "loop8": {
+        "errors": 1853,
+        "false_taken": 717,
+        "branches": 10216,
+        "state_bits": 531,
+        "mpki": 49.94474542465163
+      }
+    }
+  },
+  "summary": {
+    "bimodal16": {
+      "error_ratio_gm": 1.0,
+      "state_bits": 32
+    },
+    "gshare16": {
+      "error_ratio_gm": 1.1945793180984179,
+      "state_bits": 36
+    },
+    "bimodal64": {
+      "error_ratio_gm": 0.7713744552183425,
+      "state_bits": 128
+    },
+    "gshare64": {
+      "error_ratio_gm": 0.883759296874092,
+      "state_bits": 134
+    },
+    "bimodal128": {
+      "error_ratio_gm": 0.6612622685619239,
+      "state_bits": 256
+    },
+    "gshare128": {
+      "error_ratio_gm": 0.7018046130316791,
+      "state_bits": 263
+    },
+    "bimodal256": {
+      "error_ratio_gm": 0.6285600313107483,
+      "state_bits": 512
+    },
+    "gshare256": {
+      "error_ratio_gm": 0.536041289905284,
+      "state_bits": 520
+    },
+    "bimodal512": {
+      "error_ratio_gm": 0.6180582633292413,
+      "state_bits": 1024
+    },
+    "gshare512": {
+      "error_ratio_gm": 0.42629774346653965,
+      "state_bits": 1033
+    },
+    "bimodal1024": {
+      "error_ratio_gm": 0.6174891762935082,
+      "state_bits": 2048
+    },
+    "gshare1024": {
+      "error_ratio_gm": 0.37081509136927965,
+      "state_bits": 2058
+    },
+    "tage8": {
+      "error_ratio_gm": 0.8473420816298392,
+      "state_bits": 344
+    },
+    "tage8-alt": {
+      "error_ratio_gm": 0.8572203568959412,
+      "state_bits": 344
+    },
+    "tage8-selective": {
+      "error_ratio_gm": 0.9182025363325922,
+      "state_bits": 344
+    },
+    "tage16": {
+      "error_ratio_gm": 0.5133516270591157,
+      "state_bits": 672
+    },
+    "tage16-alt": {
+      "error_ratio_gm": 0.5280110892032406,
+      "state_bits": 672
+    },
+    "tage16-selective": {
+      "error_ratio_gm": 0.5257720044301727,
+      "state_bits": 672
+    },
+    "tage32": {
+      "error_ratio_gm": 0.3484172288921621,
+      "state_bits": 1328
+    },
+    "tage32-alt": {
+      "error_ratio_gm": 0.34952791410885925,
+      "state_bits": 1328
+    },
+    "tage32-selective": {
+      "error_ratio_gm": 0.3677295972208118,
+      "state_bits": 1328
+    },
+    "local16-h4": {
+      "error_ratio_gm": 0.94190043066687,
+      "state_bits": 96
+    },
+    "local16-h8": {
+      "error_ratio_gm": 0.6595373047365239,
+      "state_bits": 640
+    },
+    "local32-h4": {
+      "error_ratio_gm": 0.8559640552993923,
+      "state_bits": 160
+    },
+    "local32-h8": {
+      "error_ratio_gm": 0.5705941609136976,
+      "state_bits": 768
+    },
+    "local64-h4": {
+      "error_ratio_gm": 0.6926580797910218,
+      "state_bits": 288
+    },
+    "local64-h8": {
+      "error_ratio_gm": 0.4851118188400414,
+      "state_bits": 1024
+    },
+    "perceptron4": {
+      "error_ratio_gm": 0.6653621670420171,
+      "state_bits": 560
+    },
+    "perceptron8": {
+      "error_ratio_gm": 0.4913880090741618,
+      "state_bits": 1104
+    },
+    "perceptron16": {
+      "error_ratio_gm": 0.3586278276887134,
+      "state_bits": 2192
+    },
+    "loop4": {
+      "error_ratio_gm": 0.7373564378201262,
+      "state_bits": 330
+    },
+    "loop8": {
+      "error_ratio_gm": 0.7373564378201262,
+      "state_bits": 531
+    }
+  }
+}

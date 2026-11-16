@@ -1,0 +1,258 @@
+{
+  "scope": "actual pre-edge query paired through existing handoffs; capacity/mapping labels relative to same-capacity training-updated fully-associative LRU; not pure conflict attribution",
+  "observer_preserved_all_results_and_counters": true,
+  "binary_sha256": "0b7aa2881ef2e4eba947e95a9f69e29308746b76352c9da5c4262821d76f4da6",
+  "reference_sha256": "a0e9a75c46ec954c8a8c826ac3491d153ba6a3a0dafd0eb0865d9c140a4988a4",
+  "results": [
+    {
+      "case": "json_bpe-dev-131",
+      "family": "json_bpe",
+      "classification": {
+        "untrained": 126,
+        "mapping_or_replacement": 74,
+        "capacity": 1133,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/json_bpe-dev-131/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=396d15c5",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "ad4b27f719755f546b0671a8a94f7d6faef5255885ce21ba0a0294d671dc3153"
+    },
+    {
+      "case": "json_bpe-dev-257",
+      "family": "json_bpe",
+      "classification": {
+        "untrained": 126,
+        "mapping_or_replacement": 82,
+        "capacity": 1133,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/json_bpe-dev-257/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=258e9845",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "00089e5ca31b9fe74fb2201ad12a9359a200beeb3ba0b13a79c1b66b22ac30fd"
+    },
+    {
+      "case": "quant_loader-dev-131",
+      "family": "quant_loader",
+      "classification": {
+        "untrained": 117,
+        "mapping_or_replacement": 462,
+        "capacity": 3184,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/quant_loader-dev-131/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=59feb405",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "efa938e0abc0a2ebcecba7707141f2b4b5e903b815fc45b9f0a76c04c5b978e6"
+    },
+    {
+      "case": "quant_loader-dev-257",
+      "family": "quant_loader",
+      "classification": {
+        "untrained": 116,
+        "mapping_or_replacement": 416,
+        "capacity": 3191,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/quant_loader-dev-257/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=2b58d105",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "9d1b9c611093235d32d6a43adbdbc1b7e08089d7c7533fdc3f9381905048d71d"
+    },
+    {
+      "case": "runtime_graph-dev-131",
+      "family": "runtime_graph",
+      "classification": {
+        "untrained": 137,
+        "mapping_or_replacement": 726,
+        "capacity": 6032,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/runtime_graph-dev-131/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=e52d2685",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "888da40d0b15acf43aa7394b0155295310915e8ef69efeb075b5f24c5cd76dae"
+    },
+    {
+      "case": "runtime_graph-dev-257",
+      "family": "runtime_graph",
+      "classification": {
+        "untrained": 134,
+        "mapping_or_replacement": 726,
+        "capacity": 6021,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/runtime_graph-dev-257/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=ae8ba3c5",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "122716f4b3352fddeff20d75406f3afc60aad793d5a9952137873cd467e7139a"
+    },
+    {
+      "case": "regex_tokenizer-dev-131",
+      "family": "regex_tokenizer",
+      "classification": {
+        "untrained": 54,
+        "mapping_or_replacement": 1346,
+        "capacity": 12383,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/regex_tokenizer-dev-131/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=3d7a0ba5",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "e3212d0d7bc3d4d8d743952574dfbecfdf73064199f04fef1f8184a87be007b4"
+    },
+    {
+      "case": "regex_tokenizer-dev-257",
+      "family": "regex_tokenizer",
+      "classification": {
+        "untrained": 55,
+        "mapping_or_replacement": 1486,
+        "capacity": 12110,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/regex_tokenizer-dev-257/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=3ce71a05",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "617cc43d74cf8023cc075a950328f508f6d250fe627ac5e9e65a07c4c0415868"
+    },
+    {
+      "case": "ini_config-dev-131",
+      "family": "ini_config",
+      "classification": {
+        "untrained": 54,
+        "mapping_or_replacement": 111,
+        "capacity": 2138,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/ini_config-dev-131/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=a9d6205",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "5daa27fae27c8cbba835e4c6455fd457fc84dfa1991d30e06ca86f91c8d12f10"
+    },
+    {
+      "case": "ini_config-dev-257",
+      "family": "ini_config",
+      "classification": {
+        "untrained": 54,
+        "mapping_or_replacement": 111,
+        "capacity": 2138,
+        "untrained_then_trained": 0
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/target-observer/build/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/images/ini_config-dev-257/image.hex",
+        "+begin_pc=80000008",
+        "+end_pc=80000010",
+        "+expected=8e4f2e45",
+        "+cpu_mhz=720",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "log_sha256": "a30e887a01f3096567f3541ba7a6fad0b766da3811d1b3a01b004329940f7fb1"
+    }
+  ]
+}

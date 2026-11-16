@@ -1,0 +1,79 @@
++incdir+${NPC_HOME}/vsrc/riscv/sim
+// 仅仿真时实例化性能监视模块。STA filelist不定义此开关，因此综合设计中不存在该实例。
++define+NPC_ENABLE_SIM_MONITOR
+
+// 正式配置宏由Makefile通过NPC_CONFIG唯一传入，filelist不得硬编码RV32/RV64。
+// package必须位于所有import它们的模块之前。
+${NPC_HOME}/vsrc/riscv/common/riscv_config_pkg.sv
+${NPC_HOME}/vsrc/riscv/common/riscv_addr_map_pkg.sv
+${NPC_HOME}/vsrc/riscv/common/riscv_axi4_pkg.sv
+${NPC_HOME}/vsrc/riscv/common/riscv_ysyx_soc_axi4_pkg.sv
+${NPC_HOME}/vsrc/riscv/common/riscv_pkg.sv
+
+// 前端存储阵列、miss处理和AXI4 refill路径。
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_pma.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_tag_array.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_data_array.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_axi.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_miss_unit.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache_replacement.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_icache.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_fetch_buffer.sv
+
+// 数据存储子系统：同步阵列、write-back miss路径、PMA路由和uncached旁路。
+${NPC_HOME}/vsrc/riscv/core/memory/riscv_dcache_tag_array.sv
+${NPC_HOME}/vsrc/riscv/core/memory/riscv_dcache_data_array.sv
+${NPC_HOME}/vsrc/riscv/core/memory/riscv_dcache_axi.sv
+${NPC_HOME}/vsrc/riscv/core/memory/riscv_dcache_miss_unit.sv
+${NPC_HOME}/vsrc/riscv/core/memory/riscv_dcache.sv
+${NPC_HOME}/vsrc/riscv/core/memory/riscv_uncached_axi.sv
+${NPC_HOME}/vsrc/riscv/core/memory/riscv_data_mem.sv
+
+// 处理器核。
+${NPC_HOME}/vsrc/riscv/core/decode/riscv_regfile.sv
+${NPC_HOME}/vsrc/riscv/core/writeback/riscv_pmu.sv
+${NPC_HOME}/vsrc/riscv/core/writeback/riscv_csr_file.sv
+${NPC_HOME}/vsrc/riscv/core/decode/riscv_idu.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_bht.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_btb.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_ras.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_branch_predictor.sv
+${NPC_HOME}/vsrc/riscv/core/execute/riscv_id_ex_reg.sv
+${NPC_HOME}/vsrc/riscv/core/control/riscv_redirect_mux.sv
+${NPC_HOME}/vsrc/riscv/core/control/riscv_hazard_ctrl.sv
+${NPC_HOME}/vsrc/riscv/core/execute/riscv_alu.sv
+${NPC_HOME}/vsrc/riscv/core/execute/riscv_branch_unit.sv
+${NPC_HOME}/vsrc/riscv/core/execute/riscv_multiplier.sv
+${NPC_HOME}/vsrc/riscv/core/execute/riscv_divider.sv
+${NPC_HOME}/vsrc/riscv/core/execute/riscv_exu.sv
+${NPC_HOME}/vsrc/riscv/core/execute/riscv_ex_result_reg.sv
+${NPC_HOME}/vsrc/riscv/core/memory/riscv_lsu.sv
+${NPC_HOME}/vsrc/riscv/core/writeback/riscv_completion_mux.sv
+${NPC_HOME}/vsrc/riscv/core/writeback/riscv_wb_reg.sv
+${NPC_HOME}/vsrc/riscv/core/writeback/riscv_commit.sv
+${NPC_HOME}/vsrc/riscv/core/control/riscv_trap_ctrl.sv
+${NPC_HOME}/vsrc/riscv/core/frontend/riscv_ifu.sv
+${NPC_HOME}/vsrc/riscv/core/decode/riscv_operand_mux.sv
+${NPC_HOME}/vsrc/riscv/core/control/riscv_fence_i_ctrl.sv
+${NPC_HOME}/vsrc/riscv/core/issue/riscv_scoreboard.sv
+${NPC_HOME}/vsrc/riscv/core/issue/riscv_issue_ctrl.sv
+${NPC_HOME}/vsrc/riscv/core/riscv_core.sv
+
+// 完整AXI4系统集成。
+${NPC_HOME}/vsrc/riscv/system/riscv_axi4_arbiter.sv
+${NPC_HOME}/vsrc/riscv/system/riscv_axi4_router.sv
+${NPC_HOME}/vsrc/riscv/system/peripheral/riscv_axi4_clint.sv
+${NPC_HOME}/vsrc/riscv/system/riscv_reset_controller.sv
+${NPC_HOME}/vsrc/riscv/system/riscv_core_reset_boundary.sv
+${NPC_HOME}/vsrc/riscv/system/riscv_npc_system.sv
+${NPC_HOME}/vsrc/riscv/system/riscv_axi4_soc_width_converter.sv
+${NPC_HOME}/vsrc/riscv/system/riscv_npc_axi.sv
+
+// 仅仿真使用的监视模块和AXI4 target。
+${NPC_HOME}/vsrc/riscv/sim/riscv_sim_statistics_pkg.sv
+${NPC_HOME}/vsrc/riscv/sim/riscv_sim_perf_monitor.sv
+${NPC_HOME}/vsrc/riscv/sim/riscv_sim_icache_monitor.sv
+${NPC_HOME}/vsrc/riscv/sim/riscv_sim_dcache_monitor.sv
+${NPC_HOME}/vsrc/riscv/sim/riscv_axi4_uart_sim.sv
+${NPC_HOME}/vsrc/riscv/sim/riscv_axi4_sim_mem.sv
+${NPC_HOME}/vsrc/riscv/sim/top.sv

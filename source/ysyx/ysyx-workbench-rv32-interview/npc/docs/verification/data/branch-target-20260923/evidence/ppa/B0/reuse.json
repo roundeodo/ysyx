@@ -1,0 +1,6 @@
+{
+  "source": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/ppa/B0current",
+  "all_compiled_source_hashes_matched": true,
+  "source_hash_manifest_sha256": "2e9ed07e9a9b4f2ada0e1c5bdfaf0f74433088ed3952d1c2ebf69b24c512cea3",
+  "mapping": "AREA3 820MHz target; unchanged Nangate45 and four-group STA flow"
+}

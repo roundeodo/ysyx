@@ -1,0 +1,135 @@
+{
+  "status": "passed",
+  "measurement": "native timer windows, passive retirement counting",
+  "cpu_mhz": 700,
+  "device_mhz": 100,
+  "timer_hz": 1000000,
+  "total": {
+    "cycles": 2674178,
+    "retired_instructions": 831993,
+    "ipc": 0.3111210248532446,
+    "timer_ticks": 3821,
+    "timer_seconds": 0.003821,
+    "cycle_seconds": 0.003820254285714286,
+    "interrupts": 0
+  },
+  "scored": {
+    "cycles": 1040425,
+    "retired_instructions": 430313,
+    "ipc": 0.4135934834322512,
+    "timer_ticks": 1488,
+    "timer_seconds": 0.001488,
+    "cycle_seconds": 0.0014863214285714286,
+    "interrupts": 0
+  },
+  "subtests": [
+    {
+      "cycles": 23954,
+      "retired_instructions": 9707,
+      "ipc": 0.40523503381481174,
+      "timer_ticks": 34,
+      "timer_seconds": 3.4e-05,
+      "cycle_seconds": 3.422e-05,
+      "interrupts": 0
+    },
+    {
+      "cycles": 112315,
+      "retired_instructions": 83537,
+      "ipc": 0.7437742064728665,
+      "timer_ticks": 161,
+      "timer_seconds": 0.000161,
+      "cycle_seconds": 0.00016045,
+      "interrupts": 0
+    },
+    {
+      "cycles": 207865,
+      "retired_instructions": 141943,
+      "ipc": 0.6828614725903832,
+      "timer_ticks": 297,
+      "timer_seconds": 0.000297,
+      "cycle_seconds": 0.00029695,
+      "interrupts": 0
+    },
+    {
+      "cycles": 119910,
+      "retired_instructions": 85308,
+      "ipc": 0.7114335751813861,
+      "timer_ticks": 171,
+      "timer_seconds": 0.000171,
+      "cycle_seconds": 0.0001713,
+      "interrupts": 0
+    },
+    {
+      "cycles": 7463,
+      "retired_instructions": 4742,
+      "ipc": 0.6354013131448479,
+      "timer_ticks": 11,
+      "timer_seconds": 1.1e-05,
+      "cycle_seconds": 1.0661428571428571e-05,
+      "interrupts": 0
+    },
+    {
+      "cycles": 106029,
+      "retired_instructions": 29136,
+      "ipc": 0.2747927453809807,
+      "timer_ticks": 152,
+      "timer_seconds": 0.000152,
+      "cycle_seconds": 0.00015147,
+      "interrupts": 0
+    },
+    {
+      "cycles": 168259,
+      "retired_instructions": 17979,
+      "ipc": 0.10685312524144325,
+      "timer_ticks": 240,
+      "timer_seconds": 0.00024,
+      "cycle_seconds": 0.00024037,
+      "interrupts": 0
+    },
+    {
+      "cycles": 83013,
+      "retired_instructions": 14661,
+      "ipc": 0.17661089226988544,
+      "timer_ticks": 119,
+      "timer_seconds": 0.000119,
+      "cycle_seconds": 0.00011859,
+      "interrupts": 0
+    },
+    {
+      "cycles": 196665,
+      "retired_instructions": 38348,
+      "ipc": 0.1949914829786693,
+      "timer_ticks": 281,
+      "timer_seconds": 0.000281,
+      "cycle_seconds": 0.00028095,
+      "interrupts": 0
+    },
+    {
+      "cycles": 14952,
+      "retired_instructions": 4952,
+      "ipc": 0.33119315141787053,
+      "timer_ticks": 22,
+      "timer_seconds": 2.2e-05,
+      "cycle_seconds": 2.136e-05,
+      "interrupts": 0
+    }
+  ],
+  "whole_program": {
+    "cycles": 3284118,
+    "retired_instructions": 910609,
+    "ipc": 0.2772765777599952,
+    "cycle_seconds": 0.004691597142857143,
+    "interrupts": 0
+  },
+  "timer_contexts": {
+    "total_begin": 2684362372,
+    "score_begin": 2684362976,
+    "score_end": 2684363008,
+    "total_end": 2684362584
+  },
+  "scale": "test",
+  "host_wall_seconds": 13.039534603998618,
+  "timing_model": "device-clock-v1",
+  "observer_on_off_verified": false,
+  "manifest_sha256": "89d3216e8f4adf0034570c99e43803acef3749242683a03b18879df4cdaf3707"
+}

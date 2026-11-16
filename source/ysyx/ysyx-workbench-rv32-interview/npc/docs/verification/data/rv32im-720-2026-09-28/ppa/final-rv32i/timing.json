@@ -1,0 +1,184 @@
+{
+  "780": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_17__reg_p:D",
+        "slack_ns": 0.0,
+        "fmax_mhz": 780.146
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.012,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+        "slack_ns": 0.094,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 5,
+    "passed": false
+  },
+  "480": {
+    "groups": {
+      "data_max": {
+        "endpoint": "data_axi4_manager_o_1_",
+        "slack_ns": 0.518,
+        "fmax_mhz": 638.781
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.561,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+        "slack_ns": 0.094,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  },
+  "620": {
+    "groups": {
+      "data_max": {
+        "endpoint": "data_axi4_manager_o_1_",
+        "slack_ns": 0.235,
+        "fmax_mhz": 726.053
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.252,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+        "slack_ns": 0.094,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  },
+  "700": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_17__reg_p:D",
+        "slack_ns": 0.117,
+        "fmax_mhz": 762.71
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.105,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+        "slack_ns": 0.094,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  },
+  "740": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_17__reg_p:D",
+        "slack_ns": 0.055,
+        "fmax_mhz": 771.801
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.043,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+        "slack_ns": 0.094,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  },
+  "760": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_17__reg_p:D",
+        "slack_ns": 0.026,
+        "fmax_mhz": 776.061
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.015,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+        "slack_ns": 0.094,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  },
+  "720": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_17__reg_p:D",
+        "slack_ns": 0.085,
+        "fmax_mhz": 767.355
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.073,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+        "slack_ns": 0.094,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  }
+}

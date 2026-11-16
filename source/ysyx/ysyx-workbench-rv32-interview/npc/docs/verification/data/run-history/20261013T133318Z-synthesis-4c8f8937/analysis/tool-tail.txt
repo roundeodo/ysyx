@@ -1,0 +1,492 @@
+17551 total 17753 start
+I20261013 15:32:56.031411    66 StaAnalyze.cc:599] analyze timing path end vertex 17551 total 17753 end
+I20261013 15:32:56.031484    66 StaAnalyze.cc:565] analyze timing path end vertex 17561 total 17753 start
+I20261013 15:32:56.031527    66 StaAnalyze.cc:599] analyze timing path end vertex 17561 total 17753 end
+I20261013 15:32:56.031597    66 StaAnalyze.cc:565] analyze timing path end vertex 17571 total 17753 start
+I20261013 15:32:56.031622    66 StaAnalyze.cc:599] analyze timing path end vertex 17571 total 17753 end
+I20261013 15:32:56.031654    66 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[4]_25__reg_p:D
+I20261013 15:32:56.031697    66 StaAnalyze.cc:565] analyze timing path end vertex 17581 total 17753 start
+I20261013 15:32:56.031721    66 StaAnalyze.cc:599] analyze timing path end vertex 17581 total 17753 end
+I20261013 15:32:56.031788    66 StaAnalyze.cc:565] analyze timing path end vertex 17591 total 17753 start
+I20261013 15:32:56.031816    66 StaAnalyze.cc:599] analyze timing path end vertex 17591 total 17753 end
+I20261013 15:32:56.031880    66 StaAnalyze.cc:565] analyze timing path end vertex 17601 total 17753 start
+I20261013 15:32:56.031905    66 StaAnalyze.cc:599] analyze timing path end vertex 17601 total 17753 end
+I20261013 15:32:56.031973    66 StaAnalyze.cc:565] analyze timing path end vertex 17611 total 17753 start
+I20261013 15:32:56.031996    66 StaAnalyze.cc:599] analyze timing path end vertex 17611 total 17753 end
+I20261013 15:32:56.032060    66 StaAnalyze.cc:565] analyze timing path end vertex 17621 total 17753 start
+I20261013 15:32:56.032084    66 StaAnalyze.cc:599] analyze timing path end vertex 17621 total 17753 end
+I20261013 15:32:56.032117    66 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[6]_12__reg_p:D
+I20261013 15:32:56.032158    66 StaAnalyze.cc:565] analyze timing path end vertex 17631 total 17753 start
+I20261013 15:32:56.032182    66 StaAnalyze.cc:599] analyze timing path end vertex 17631 total 17753 end
+I20261013 15:32:56.032250    66 StaAnalyze.cc:565] analyze timing path end vertex 17641 total 17753 start
+I20261013 15:32:56.032275    66 StaAnalyze.cc:599] analyze timing path end vertex 17641 total 17753 end
+I20261013 15:32:56.032342    66 StaAnalyze.cc:565] analyze timing path end vertex 17651 total 17753 start
+I20261013 15:32:56.032366    66 StaAnalyze.cc:599] analyze timing path end vertex 17651 total 17753 end
+I20261013 15:32:56.032431    66 StaAnalyze.cc:565] analyze timing path end vertex 17661 total 17753 start
+I20261013 15:32:56.032454    66 StaAnalyze.cc:599] analyze timing path end vertex 17661 total 17753 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.032526    66 StaAnalyze.cc:565] analyze timing path end vertex 17671 total 17753 start
+I20261013 15:32:56.032558    66 StaAnalyze.cc:599] analyze timing path end vertex 17671 total 17753 end
+I20261013 15:32:56.032590    66 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[7]_29__reg_p:D
+I20261013 15:32:56.032635    66 StaAnalyze.cc:565] analyze timing path end vertex 17681 total 17753 start
+I20261013 15:32:56.032657    66 StaAnalyze.cc:599] analyze timing path end vertex 17681 total 17753 end
+I20261013 15:32:56.032729    66 StaAnalyze.cc:565] analyze timing path end vertex 17691 total 17753 start
+I20261013 15:32:56.032757    66 StaAnalyze.cc:599] analyze timing path end vertex 17691 total 17753 end
+I20261013 15:32:56.032838    66 StaAnalyze.cc:565] analyze timing path end vertex 17701 total 17753 start
+I20261013 15:32:56.032862    66 StaAnalyze.cc:599] analyze timing path end vertex 17701 total 17753 end
+I20261013 15:32:56.032927    66 StaAnalyze.cc:565] analyze timing path end vertex 17711 total 17753 start
+I20261013 15:32:56.032949    66 StaAnalyze.cc:599] analyze timing path end vertex 17711 total 17753 end
+I20261013 15:32:56.033017    66 StaAnalyze.cc:565] analyze timing path end vertex 17721 total 17753 start
+I20261013 15:32:56.033048    66 StaAnalyze.cc:599] analyze timing path end vertex 17721 total 17753 end
+I20261013 15:32:56.033084    66 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[9]_16__reg_p:D
+I20261013 15:32:56.033139    66 StaAnalyze.cc:565] analyze timing path end vertex 17731 total 17753 start
+I20261013 15:32:56.033164    66 StaAnalyze.cc:599] analyze timing path end vertex 17731 total 17753 end
+I20261013 15:32:56.033231    66 StaAnalyze.cc:565] analyze timing path end vertex 17741 total 17753 start
+I20261013 15:32:56.033255    66 StaAnalyze.cc:599] analyze timing path end vertex 17741 total 17753 end
+I20261013 15:32:56.033314    66 StaAnalyze.cc:565] analyze timing path end vertex 17751 total 17753 start
+I20261013 15:32:56.033329    66 StaAnalyze.cc:599] analyze timing path end vertex 17751 total 17753 end
+I20261013 15:32:56.033342    66 StaAnalyze.cc:603] analyze timing path end
+I20261013 15:32:56.033352    66 StaApplySdc.cc:698] apply sdc start
+I20261013 15:32:56.033357    66 StaApplySdc.cc:729] apply sdc end
+I20261013 15:32:56.033362    66 StaDataPropagation.cc:698] data bwd propagation start
+I20261013 15:32:56.034619    66 StaDataPropagation.cc:249] propagate start vertex instruction_axi4_manager_i_5_
+I20261013 15:32:56.034669    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.execute_packet_433__reg_p:D
+I20261013 15:32:56.034694    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.u_fetch_buffer.entry_array_q[0]_239__reg_p:D
+I20261013 15:32:56.034704    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.u_fetch_buffer.entry_array_q[1]_239__reg_p:D
+I20261013 15:32:56.034721    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.execute_packet_464__reg_p:D
+I20261013 15:32:56.034732    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.u_fetch_buffer.entry_array_q[0]_270__reg_p:D
+I20261013 15:32:56.034739    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.u_fetch_buffer.entry_array_q[1]_270__reg_p:D
+I20261013 15:32:56.034758    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_13__reg_p:D
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.034765    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_13__reg_p:D has negative slack
+I20261013 15:32:56.034792    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_15__reg_p:D
+I20261013 15:32:56.034808    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_16__reg_p:D
+I20261013 15:32:56.034840    66 StaDataPropagation.cc:172] Thread 125246265630848 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_17__reg_p:D
+I20261013 15:32:56.034865    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_20__reg_p:D has negative slack
+I20261013 15:32:56.034912    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_26__reg_p:D has negative slack
+I20261013 15:32:56.034988    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.lookup_queue_entry_count_q_1__reg_p:D has negative slack
+I20261013 15:32:56.035070    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.lookup_queue_read_index_q_reg_p_CK_CLKGATE_X1_GCK_E_NAND2_X1_A1_1_ZN_INV_X1_A_ZN_NOR2_X1_A2_ZN_DFF_X1_D:D has negative slack
+I20261013 15:32:56.035161    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.lookup_queue_write_index_q_reg_p:D has negative slack
+I20261013 15:32:56.035239    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_18__reg_p:D has negative slack
+I20261013 15:32:56.035317    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_3__reg_p:D has negative slack
+I20261013 15:32:56.035456    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_1__reg_p:D has negative slack
+I20261013 15:32:56.035723    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_452__reg_p:D has negative slack
+I20261013 15:32:56.035770    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fetch_buffer.entry_array_q[0]_260__reg_p:D has negative slack
+I20261013 15:32:56.035811    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_456__reg_p:D has negative slack
+I20261013 15:32:56.035849    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fetch_buffer.entry_array_q[1]_263__reg_p:D has negative slack
+I20261013 15:32:56.035883    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fetch_buffer.entry_array_q[0]_265__reg_p:D has negative slack
+I20261013 15:32:56.035916    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_461__reg_p:D has negative slack
+I20261013 15:32:56.035941    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fetch_buffer.entry_array_q[1]_268__reg_p:D has negative slack
+I20261013 15:32:56.037530    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_forwardable_producer_present_reg_p:D has negative slack
+I20261013 15:32:56.037688    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_0__reg_p:D has negative slack
+I20261013 15:32:56.037736    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[6]_0__reg_p:D has negative slack
+I20261013 15:32:56.037822    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_2__reg_p:D has negative slack
+I20261013 15:32:56.037869    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_1__reg_p:D has negative slack
+I20261013 15:32:56.037921    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_4__reg_p:D has negative slack
+I20261013 15:32:56.037971    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D has negative slack
+I20261013 15:32:56.038091    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_5__reg_p:D has negative slack
+I20261013 15:32:56.038182    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_1__reg_p:D has negative slack
+I20261013 15:32:56.038235    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_3__reg_p:D has negative slack
+I20261013 15:32:56.038362    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_6__reg_p:D has negative slack
+I20261013 15:32:56.038400    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_6__reg_p:D has negative slack
+I20261013 15:32:56.038451    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[2]_7__reg_p:D has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.038522    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_7__reg_p:D has negative slack
+I20261013 15:32:56.038769    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.u_riscv32_icache_miss_unit.lookup_resp_present_q_reg_p:D has negative slack
+I20261013 15:32:56.038900    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_102__reg_p:D has negative slack
+I20261013 15:32:56.038964    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_107__reg_p:D has negative slack
+I20261013 15:32:56.039022    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_117__reg_p:D has negative slack
+I20261013 15:32:56.039085    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_125__reg_p:D has negative slack
+I20261013 15:32:56.039143    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_99__reg_p:D has negative slack
+I20261013 15:32:56.039219    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_114__reg_p:D has negative slack
+I20261013 15:32:56.039258    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_121__reg_p:D has negative slack
+I20261013 15:32:56.039407    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_39__reg_p:D has negative slack
+I20261013 15:32:56.039520    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_45__reg_p:D has negative slack
+I20261013 15:32:56.039614    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_51__reg_p:D has negative slack
+I20261013 15:32:56.039695    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_56__reg_p:D has negative slack
+I20261013 15:32:56.039777    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_63__reg_p:D has negative slack
+I20261013 15:32:56.039883    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_37__reg_p:D has negative slack
+I20261013 15:32:56.040007    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_80__reg_p:D has negative slack
+I20261013 15:32:56.040095    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_87__reg_p:D has negative slack
+I20261013 15:32:56.040177    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_69__reg_p:D has negative slack
+I20261013 15:32:56.040258    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_77__reg_p:D has negative slack
+I20261013 15:32:56.040340    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_90__reg_p:D has negative slack
+I20261013 15:32:56.040422    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_70__reg_p:D has negative slack
+I20261013 15:32:56.040513    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_96__reg_p:D has negative slack
+I20261013 15:32:56.040753    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_12__reg_p:D has negative slack
+I20261013 15:32:56.040803    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_17__reg_p:D has negative slack
+I20261013 15:32:56.040856    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_21__reg_p:D has negative slack
+I20261013 15:32:56.040896    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_3__reg_p:D has negative slack
+I20261013 15:32:56.040935    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_8__reg_p:D has negative slack
+I20261013 15:32:56.040980    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_28__reg_p:D has negative slack
+I20261013 15:32:56.056660    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_53__reg_p:D has negative slack
+I20261013 15:32:56.057570    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_24__reg_p:D has negative slack
+I20261013 15:32:56.057968    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_58__reg_p:D has negative slack
+I20261013 15:32:56.058493    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_29__reg_p:D has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.058840    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_63__reg_p:D has negative slack
+I20261013 15:32:56.059491    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_33__reg_p:D has negative slack
+I20261013 15:32:56.059567    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_29__reg_p:D has negative slack
+I20261013 15:32:56.059595    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_36__reg_p:D has negative slack
+I20261013 15:32:56.059620    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_41__reg_p:D has negative slack
+I20261013 15:32:56.059645    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_46__reg_p:D has negative slack
+I20261013 15:32:56.059758    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_8__reg_p:D has negative slack
+I20261013 15:32:56.059808    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_13__reg_p:D has negative slack
+I20261013 15:32:56.059832    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_18__reg_p:D has negative slack
+I20261013 15:32:56.059855    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_22__reg_p:D has negative slack
+I20261013 15:32:56.059888    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_4__reg_p:D has negative slack
+I20261013 15:32:56.061837    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_lsu.state_q_0__reg_p:D has negative slack
+I20261013 15:32:56.061923    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_11__reg_p:D has negative slack
+I20261013 15:32:56.061960    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_1__reg_p:D has negative slack
+I20261013 15:32:56.062009    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_6__reg_p:D has negative slack
+I20261013 15:32:56.062073    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_18__reg_p:D has negative slack
+I20261013 15:32:56.062173    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_33__reg_p:D has negative slack
+I20261013 15:32:56.062220    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_38__reg_p:D has negative slack
+I20261013 15:32:56.062265    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_43__reg_p:D has negative slack
+I20261013 15:32:56.062341    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_49__reg_p:D has negative slack
+I20261013 15:32:56.062436    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.lookup_s1_present_q_reg_p:D has negative slack
+I20261013 15:32:56.062538    66 StaDataPropagation.cc:61] the endpoint vertex data_axi4_manager_o_90_ has negative slack
+I20261013 15:32:56.068811    66 StaDataPropagation.cc:61] the endpoint vertex u_core.commit_valid_reg_p:RN has negative slack
+I20261013 15:32:56.068869    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_14__reg_p:RN has negative slack
+I20261013 15:32:56.068892    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_19__reg_p:RN has negative slack
+I20261013 15:32:56.068909    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_24__reg_p:RN has negative slack
+I20261013 15:32:56.068928    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_29__reg_p:RN has negative slack
+I20261013 15:32:56.068944    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_4__reg_p:RN has negative slack
+I20261013 15:32:56.068958    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_9__reg_p:RN has negative slack
+I20261013 15:32:56.068974    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_14__reg_p:RN has negative slack
+I20261013 15:32:56.068986    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_19__reg_p:RN has negative slack
+I20261013 15:32:56.068997    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_24__reg_p:RN has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.069011    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_29__reg_p:RN has negative slack
+I20261013 15:32:56.069047    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_4__reg_p:RN has negative slack
+I20261013 15:32:56.069060    66 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_9__reg_p:RN has negative slack
+I20261013 15:32:56.069074    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_serializing_instruction_present_reg_p:RN has negative slack
+I20261013 15:32:56.069088    66 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_12__reg_p:RN has negative slack
+I20261013 15:32:56.069100    66 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_17__reg_p:RN has negative slack
+I20261013 15:32:56.069113    66 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_22__reg_p:RN has negative slack
+I20261013 15:32:56.069126    66 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_27__reg_p:RN has negative slack
+I20261013 15:32:56.069139    66 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_31__reg_p:RN has negative slack
+I20261013 15:32:56.069152    66 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_7__reg_p:RN has negative slack
+I20261013 15:32:56.069165    66 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_lookup_response_valid_reg_p:RN has negative slack
+I20261013 15:32:56.069180    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_13__reg_p:RN has negative slack
+I20261013 15:32:56.069193    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_18__reg_p:SN has negative slack
+I20261013 15:32:56.069206    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_22__reg_p:SN has negative slack
+I20261013 15:32:56.069219    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_27__reg_p:RN has negative slack
+I20261013 15:32:56.069236    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_31__reg_p:RN has negative slack
+I20261013 15:32:56.069252    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_7__reg_p:RN has negative slack
+I20261013 15:32:56.069265    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_11__reg_p:RN has negative slack
+I20261013 15:32:56.069278    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_1__reg_p:RN has negative slack
+I20261013 15:32:56.069293    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_6__reg_p:RN has negative slack
+I20261013 15:32:56.069306    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.replacement_way_array_q_1__reg_p:RN has negative slack
+I20261013 15:32:56.069321    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.replacement_way_array_q_6__reg_p:RN has negative slack
+I20261013 15:32:56.069334    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_ras.write_index_q_0__reg_p:RN has negative slack
+I20261013 15:32:56.069348    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mcause_code_q_3__reg_p:RN has negative slack
+I20261013 15:32:56.069361    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_11__reg_p:RN has negative slack
+I20261013 15:32:56.069374    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_16__reg_p:RN has negative slack
+I20261013 15:32:56.069386    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_20__reg_p:RN has negative slack
+I20261013 15:32:56.069397    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_25__reg_p:RN has negative slack
+I20261013 15:32:56.069410    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_2__reg_p:RN has negative slack
+I20261013 15:32:56.069422    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_5__reg_p:RN has negative slack
+I20261013 15:32:56.069434    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mstatus_mie_q_reg_p:RN has negative slack
+I20261013 15:32:56.069447    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_12__reg_p:RN has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.069458    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_17__reg_p:RN has negative slack
+I20261013 15:32:56.069479    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_21__reg_p:RN has negative slack
+I20261013 15:32:56.069492    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_26__reg_p:RN has negative slack
+I20261013 15:32:56.069511    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_30__reg_p:RN has negative slack
+I20261013 15:32:56.069523    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_6__reg_p:RN has negative slack
+I20261013 15:32:56.069536    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_10__reg_p:RN has negative slack
+I20261013 15:32:56.069551    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_15__reg_p:RN has negative slack
+I20261013 15:32:56.069563    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_1__reg_p:RN has negative slack
+I20261013 15:32:56.069576    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_24__reg_p:RN has negative slack
+I20261013 15:32:56.069587    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_29__reg_p:RN has negative slack
+I20261013 15:32:56.069599    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_4__reg_p:RN has negative slack
+I20261013 15:32:56.069610    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_9__reg_p:RN has negative slack
+I20261013 15:32:56.069623    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_12__reg_p:RN has negative slack
+I20261013 15:32:56.069636    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_17__reg_p:RN has negative slack
+I20261013 15:32:56.069649    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_21__reg_p:RN has negative slack
+I20261013 15:32:56.069662    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_26__reg_p:RN has negative slack
+I20261013 15:32:56.069674    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_30__reg_p:RN has negative slack
+I20261013 15:32:56.069686    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_6__reg_p:RN has negative slack
+I20261013 15:32:56.069698    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_10__reg_p:RN has negative slack
+I20261013 15:32:56.069710    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_15__reg_p:RN has negative slack
+I20261013 15:32:56.069720    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_1__reg_p:RN has negative slack
+I20261013 15:32:56.069737    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_24__reg_p:RN has negative slack
+I20261013 15:32:56.069751    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_29__reg_p:RN has negative slack
+I20261013 15:32:56.069762    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_4__reg_p:RN has negative slack
+I20261013 15:32:56.069773    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_9__reg_p:RN has negative slack
+I20261013 15:32:56.069787    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_12__reg_p:RN has negative slack
+I20261013 15:32:56.069797    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_17__reg_p:RN has negative slack
+I20261013 15:32:56.069808    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_21__reg_p:RN has negative slack
+I20261013 15:32:56.069820    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_26__reg_p:RN has negative slack
+I20261013 15:32:56.069830    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_30__reg_p:RN has negative slack
+I20261013 15:32:56.069840    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_6__reg_p:RN has negative slack
+I20261013 15:32:56.069854    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.clean_state_q_0__reg_p:RN has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.069866    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.replacement_way_index_array_q_1__reg_p:RN has negative slack
+I20261013 15:32:56.069901    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.replacement_way_index_array_q_6__reg_p:RN has negative slack
+I20261013 15:32:56.069917    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.write_data_pending_q_reg_p:RN has negative slack
+I20261013 15:32:56.069931    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.clean_access_fault_q_reg_p:RN has negative slack
+I20261013 15:32:56.069943    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.transaction_access_fault_q_reg_p:RN has negative slack
+I20261013 15:32:56.069973    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.u_uncached_axi.state_q_0__reg_p:SN has negative slack
+I20261013 15:32:56.069985    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fence_i_ctrl.fence_i_maintenance_state_q_0__reg_p:RN has negative slack
+I20261013 15:32:56.069998    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fetch_buffer.entry_count_q_1__reg_p:RN has negative slack
+I20261013 15:32:56.070036    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_11__reg_p:D has negative slack
+I20261013 15:32:56.070092    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_8__reg_p:D has negative slack
+I20261013 15:32:56.070130    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_15__reg_p:D has negative slack
+I20261013 15:32:56.070159    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_20__reg_p:D has negative slack
+I20261013 15:32:56.070186    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_25__reg_p:D has negative slack
+I20261013 15:32:56.070227    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_31__reg_p:D has negative slack
+I20261013 15:32:56.070258    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_7__reg_p:D has negative slack
+I20261013 15:32:56.070297    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.u_riscv32_icache_miss_unit.lookup_resp_present_q_reg_p:RN has negative slack
+I20261013 15:32:56.070322    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache_axi.state_q_2__reg_p:RN has negative slack
+I20261013 15:32:56.070340    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_0__reg_p:RN has negative slack
+I20261013 15:32:56.070354    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_14__reg_p:RN has negative slack
+I20261013 15:32:56.070365    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_19__reg_p:RN has negative slack
+I20261013 15:32:56.070375    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_23__reg_p:RN has negative slack
+I20261013 15:32:56.070385    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_28__reg_p:SN has negative slack
+I20261013 15:32:56.070395    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_3__reg_p:RN has negative slack
+I20261013 15:32:56.070405    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_8__reg_p:RN has negative slack
+I20261013 15:32:56.077492    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_28__reg_p:D has negative slack
+I20261013 15:32:56.080719    66 StaDataPropagation.cc:249] propagate start vertex u_core.commit_259__reg_p:CK
+I20261013 15:32:56.088857    66 StaDataPropagation.cc:61] the endpoint vertex u_core.g_registered_execute_result.u_ex_result_reg.execute_result_q_195__reg_p:D has negative slack
+I20261013 15:32:56.088930    66 StaDataPropagation.cc:61] the endpoint vertex u_core.g_registered_execute_result.u_ex_result_reg.execute_result_q_200__reg_p:D has negative slack
+I20261013 15:32:56.089452    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_redirect_req_at_resolution_68__reg_p:D has negative slack
+I20261013 15:32:56.089586    66 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_redirect_req_at_resolution_73__reg_p:D has negative slack
+I20261013 15:32:56.090636    66 StaDataPropagation.cc:61] the endpoint vertex u_core.g_registered_execute_result.u_ex_result_reg.execute_result_q_167__reg_p:D has negative slack
+I20261013 15:32:56.092590    66 StaDataPropagation.cc:249] propagate start vertex u_core.execute_packet_134__reg_p:CK
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.093622    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[0]_30__reg_p:D has negative slack
+I20261013 15:32:56.093696    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[2]_91__reg_p:D has negative slack
+I20261013 15:32:56.093714    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[5]_30__reg_p:D has negative slack
+I20261013 15:32:56.093729    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[7]_91__reg_p:D has negative slack
+I20261013 15:32:56.093972    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[4]_25__reg_p:D has negative slack
+I20261013 15:32:56.094013    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[1]_26__reg_p:D has negative slack
+I20261013 15:32:56.094035    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[6]_26__reg_p:D has negative slack
+I20261013 15:32:56.094061    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[3]_27__reg_p:D has negative slack
+I20261013 15:32:56.094097    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[0]_28__reg_p:D has negative slack
+I20261013 15:32:56.094120    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[5]_28__reg_p:D has negative slack
+I20261013 15:32:56.094144    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[1]_29__reg_p:D has negative slack
+I20261013 15:32:56.094167    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[3]_90__reg_p:D has negative slack
+I20261013 15:32:56.094182    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[6]_29__reg_p:D has negative slack
+I20261013 15:32:56.094198    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[0]_92__reg_p:D has negative slack
+I20261013 15:32:56.094210    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[3]_31__reg_p:D has negative slack
+I20261013 15:32:56.094223    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[5]_92__reg_p:D has negative slack
+I20261013 15:32:56.094674    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[0]_24__reg_p:D has negative slack
+I20261013 15:32:56.094719    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[5]_24__reg_p:D has negative slack
+I20261013 15:32:56.094774    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[1]_32__reg_p:D has negative slack
+I20261013 15:32:56.094797    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[3]_93__reg_p:D has negative slack
+I20261013 15:32:56.094811    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[6]_32__reg_p:D has negative slack
+I20261013 15:32:56.094827    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[0]_94__reg_p:D has negative slack
+I20261013 15:32:56.094841    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[3]_33__reg_p:D has negative slack
+I20261013 15:32:56.094852    66 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[5]_94__reg_p:D has negative slack
+I20261013 15:32:56.114378    66 StaDataPropagation.cc:61] the endpoint vertex data_axi4_manager_o_132_ has negative slack
+I20261013 15:32:56.114725    66 StaDataPropagation.cc:61] the endpoint vertex data_axi4_manager_o_49_ has negative slack
+I20261013 15:32:56.114904    66 StaDataPropagation.cc:61] the endpoint vertex data_axi4_manager_o_45_ has negative slack
+I20261013 15:32:56.123142    66 StaDataPropagation.cc:249] propagate start vertex u_core.execute_packet_498__reg_p:CK
+I20261013 15:32:56.123294    66 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_208__reg_p:D has negative slack
+I20261013 15:32:56.123344    66 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_213__reg_p:D has negative slack
+I20261013 15:32:56.123394    66 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_218__reg_p:D has negative slack
+I20261013 15:32:56.123441    66 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_223__reg_p:D has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.123488    66 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_228__reg_p:D has negative slack
+I20261013 15:32:56.123564    66 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_233__reg_p:D has negative slack
+I20261013 15:32:56.130098    66 StaDataPropagation.cc:249] propagate start vertex u_core.g_registered_execute_result.u_ex_result_reg.execute_result_q_142__reg_p:CK
+I20261013 15:32:56.131856    66 StaDataPropagation.cc:249] propagate start vertex u_core.g_registered_execute_result.u_ex_result_reg.predicted_next_pc_q_3__reg_p:CK
+I20261013 15:32:56.206197    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[0]_35__reg_p:CK
+I20261013 15:32:56.207216    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[2]_105__reg_p:CK
+I20261013 15:32:56.208175    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_301__reg_p:CK
+I20261013 15:32:56.209192    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[4]_75__reg_p:CK
+I20261013 15:32:56.210146    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[6]_35__reg_p:CK
+I20261013 15:32:56.212558    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_line_data_i_27__reg_p:CK
+I20261013 15:32:56.213984    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_csr_file.mscratch_q_2__reg_p:CK
+I20261013 15:32:56.217037    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_2__reg_p:CK
+I20261013 15:32:56.220239    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_1017__reg_p:CK
+I20261013 15:32:56.221021    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_276__reg_p:CK
+I20261013 15:32:56.221853    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_456__reg_p:CK
+I20261013 15:32:56.222674    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_636__reg_p:CK
+I20261013 15:32:56.223599    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_816__reg_p:CK
+I20261013 15:32:56.224480    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_997__reg_p:CK
+I20261013 15:32:56.225302    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4441__$_DLATCH_P__Q:G
+I20261013 15:32:56.226004    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4621__$_DLATCH_P__Q:G
+I20261013 15:32:56.226836    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_473__reg_p:CK
+I20261013 15:32:56.227726    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_653__reg_p:CK
+I20261013 15:32:56.228585    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_833__reg_p:CK
+I20261013 15:32:56.229485    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_context_q_24__reg_p:CK
+I20261013 15:32:56.230301    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5636__$_DLATCH_P__Q:G
+I20261013 15:32:56.232707    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.miss_context_q_85__reg_p:CK
+I20261013 15:32:56.235184    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.tag_array_q[0]_177__reg_p:CK
+I20261013 15:32:56.236604    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.tag_array_q[1]_177__reg_p:CK
+I20261013 15:32:56.238627    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_fetch_buffer.entry_array_q[0]_240__reg_p:CK
+I20261013 15:32:56.240324    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_hazard_ctrl.execute_result_writes_rd_i_reg_p:CK
+I20261013 15:32:56.244190    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.array_read_word_data_array_72__reg_p:CK
+I20261013 15:32:56.248261    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1000__$_DLATCH_P__Q:G
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.249004    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1181__$_DLATCH_P__Q:G
+I20261013 15:32:56.249891    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1361__$_DLATCH_P__Q:G
+I20261013 15:32:56.250494    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1541__$_DLATCH_P__Q:G
+I20261013 15:32:56.251179    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1721__$_DLATCH_P__Q:G
+I20261013 15:32:56.251911    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1901__$_DLATCH_P__Q:G
+I20261013 15:32:56.252537    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2081__$_DLATCH_P__Q:G
+I20261013 15:32:56.253268    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2261__$_DLATCH_P__Q:G
+I20261013 15:32:56.253901    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2441__$_DLATCH_P__Q:G
+I20261013 15:32:56.254558    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2621__$_DLATCH_P__Q:G
+I20261013 15:32:56.255232    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2801__$_DLATCH_P__Q:G
+I20261013 15:32:56.255923    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2982__$_DLATCH_P__Q:G
+I20261013 15:32:56.256661    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3161__$_DLATCH_P__Q:G
+I20261013 15:32:56.257336    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3341__$_DLATCH_P__Q:G
+I20261013 15:32:56.258014    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3521__$_DLATCH_P__Q:G
+I20261013 15:32:56.258773    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3701__$_DLATCH_P__Q:G
+I20261013 15:32:56.260156    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3882__$_DLATCH_P__Q:G
+I20261013 15:32:56.260896    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4061__$_DLATCH_P__Q:G
+I20261013 15:32:56.261585    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4241__$_DLATCH_P__Q:G
+I20261013 15:32:56.262244    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4421__$_DLATCH_P__Q:G
+I20261013 15:32:56.262979    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4845__$_DLATCH_P__Q:G
+I20261013 15:32:56.263654    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5024__$_DLATCH_P__Q:G
+I20261013 15:32:56.264338    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5204__$_DLATCH_P__Q:G
+I20261013 15:32:56.264998    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5385__$_DLATCH_P__Q:G
+I20261013 15:32:56.265733    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5777__$_DLATCH_P__Q:G
+I20261013 15:32:56.266511    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5957__$_DLATCH_P__Q:G
+I20261013 15:32:56.267177    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6136__$_DLATCH_P__Q:G
+I20261013 15:32:56.267904    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6316__$_DLATCH_P__Q:G
+I20261013 15:32:56.268620    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6497__$_DLATCH_P__Q:G
+I20261013 15:32:56.269268    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6677__$_DLATCH_P__Q:G
+I20261013 15:32:56.269959    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6857__$_DLATCH_P__Q:G
+I20261013 15:32:56.270682    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7036__$_DLATCH_P__Q:G
+I20261013 15:32:56.271323    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7216__$_DLATCH_P__Q:G
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.272063    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7397__$_DLATCH_P__Q:G
+I20261013 15:32:56.272725    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7577__$_DLATCH_P__Q:G
+I20261013 15:32:56.273377    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7757__$_DLATCH_P__Q:G
+I20261013 15:32:56.274102    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7937__$_DLATCH_P__Q:G
+I20261013 15:32:56.274775    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_8116__$_DLATCH_P__Q:G
+I20261013 15:32:56.275489    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_923__$_DLATCH_P__Q:G
+I20261013 15:32:56.288267    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[0]_101__reg_p:CK
+I20261013 15:32:56.289215    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[1]_109__reg_p:CK
+I20261013 15:32:56.290084    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[2]_116__reg_p:CK
+I20261013 15:32:56.291031    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[3]_123__reg_p:CK
+I20261013 15:32:56.292054    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache_axi.refill_transaction_context_q_4__reg_p:CK
+I20261013 15:32:56.294973    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_ifu.predictor_fetch_pc_q_28__reg_p:CK
+I20261013 15:32:56.296622    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[10]_27__reg_p:CK
+I20261013 15:32:56.297684    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[16]_5__reg_p:CK
+I20261013 15:32:56.298844    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[22]_12__reg_p:CK
+I20261013 15:32:56.299986    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[28]_1__reg_p:CK
+I20261013 15:32:56.301146    66 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[4]_27__reg_p:CK
+I20261013 15:32:56.303143    66 StaDataPropagation.cc:703] data bwd propagation end
+I20261013 15:32:56.303180    66 Sta.cc:2895] update timing end
+I20261013 15:32:56.303229    66 Sta.cc:2898] update timing memory usage 1570.3MB
+I20261013 15:32:56.303244    66 Sta.cc:2900] update timing time elapsed 2.66919s
+I20261013 15:32:56.303582    66 Sta.cc:2998] start write sta report.
+I20261013 15:32:56.303617    66 Sta.cc:2999] output sta report path: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz
+I20261013 15:32:56.320060    66 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261013 15:32:56.320504    66 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261013 15:32:56.340165    66 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261013 15:32:56.341202    66 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261013 15:32:56.373543    66 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261013 15:32:56.373926    66 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261013 15:32:56.386548    66 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261013 15:32:56.386968    66 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261013 15:32:56.402530    66 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261013-153256.66'!
+I20261013 15:32:56.403535    66 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261013 15:32:56.429358    66 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261013 15:32:56.429797    66 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261013 15:32:56.429824    66 Sta.cc:1885] 
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| Endpoint                                                                                             | Clock Group              | Delay Type | Path Delay | Path Required | CPPR  | Slack  | Freq(MHz) |
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_6__reg_p:D                      | core_clock               | max        | 3.044r     | 1.184         | 0.000 | -1.860 | 324.791   |
+| u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_6__reg_p:D                      | core_clock               | max        | 3.044r     | 1.184         | 0.000 | -1.860 | 324.791   |
+| u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_3__reg_p:D                      | core_clock               | max        | 3.044r     | 1.184         | 0.000 | -1.860 | 324.791   |
+| u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_3__reg_p:D                      | core_clock               | max        | 3.044r     | 1.184         | 0.000 | -1.860 | 324.791   |
+| u_core.u_icache.g_replacement_experiment.u_replacement.access_addr_i_4__reg_p:D                      | core_clock               | max        | 3.044r     | 1.184         | 0.000 | -1.860 | 324.791   |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.068f     | 1.167         | 0.000 | -1.901 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.068f     | 1.167         | 0.000 | -1.901 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.068f     | 1.167         | 0.000 | -1.901 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_2__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.068f     | 1.167         | 0.000 | -1.901 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_4__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.068f     | 1.167         | 0.000 | -1.901 | NA        |
+| u_core.u_lsu.memory_writeback_135__reg_p:D                                                           | core_clock               | min        | 0.066r     | 0.007         | 0.000 | 0.059  | NA        |
+| u_core.u_lsu.memory_writeback_135__reg_p:D                                                           | core_clock               | min        | 0.066r     | 0.007         | 0.000 | 0.059  | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D                                                       | core_clock               | min        | 0.069r     | 0.007         | 0.000 | 0.062  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E  | **clock_gating_default** | min        | 0.096r     | -0.001        | 0.000 | 0.097  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E  | **clock_gating_default** | min        | 0.084f     | -0.015        | 0.000 | 0.100  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.clean_access_fault_q_reg_p_CK_CLKGATE_X1_GCK:E                 | **clock_gating_default** | min        | 0.101r     | -0.001        | 0.000 | 0.101  | NA        |
+| u_core.u_ifu.lookup_queue_write_index_d_OAI21_X1_ZN_B1_NOR2_X1_A2_ZN_CLKGATE_X1_E:E                  | **clock_gating_default** | min        | 0.101r     | -0.001        | 0.000 | 0.102  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.clean_access_fault_q_reg_p_CK_CLKGATE_X1_GCK:E     | **clock_gating_default** | min        | 0.103r     | -0.000        | 0.000 | 0.103  | NA        |
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+I20261013 15:32:56.430009    66 Sta.cc:1886] 
++------------+------------+-----------+
+| Clock      | Delay Type | TNS       |
++------------+------------+-----------+
+| core_clock | max        | -2703.986 |
+| core_clock | min        | 0.000     |
++------------+------------+-----------+
+I20261013 15:32:56.989059    66 NetlistWriter.cc:52] start write verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.v
+I20261013 15:32:57.555548    66 NetlistWriter.cc:71] finish write verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.v
+I20261013 15:32:57.565294    66 Sta.cc:3111] used lib: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib
+I20261013 15:32:57.565356    66 Sta.cc:3096] The timing engine run success.
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow'
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+python3 scripts/build_reset_tree.py \
+	--netlist /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v \
+	--liberty /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_typ.lib \
+	--output-dir /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz-buffered
+{
+  "source_netlist": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v",
+  "top": "riscv32_core_reset_boundary",
+  "buffer_cell": "BUF_X4",
+  "buffer_count": 48,
+  "reset_load_count": 458,
+  "maximum_inserted_tree_fanout": 16,
+  "structural_equivalence": "passed",
+  "scope": "Mapped-cell buffering only; placement and routed parasitics not included"
+}
+python3 scripts/check_reset_netlist.py /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz-buffered/buffered.json \
+	--output /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json
+{
+  "raw_reset_sinks": [
+    [
+      "core_rst_n_reg_n",
+      "RN"
+    ],
+    [
+      "u_reset_controller.reset_release_sync_q_0__reg_p",
+      "RN"
+    ],
+    [
+      "u_reset_controller.reset_release_sync_q_1__reg_p",
+      "RN"
+    ]
+  ],
+  "release_driver": [
+    [
+      "core_rst_n_reg_n",
+      "Q"
+    ]
+  ],
+  "core_reset_sink_count": 428,
+  "qualified_reset_net_count": 49,
+  "status": "passed"
+}
+cp constr/riscv32_core_reset_boundary.sdc /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc
+NPC_STA_NETLIST_FILE=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v \
+	CLK_FREQ_MHZ=820 RUN_POWER_ANALYSIS=0 \
+	/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA -script /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl \
+	/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc \
+	/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v \
+	riscv32_core_reset_boundary nangate45 > /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/ex-merge-baseline/sta/riscv32_core_reset_boundary-820MHz-buffered/sta.log 2>&1
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'

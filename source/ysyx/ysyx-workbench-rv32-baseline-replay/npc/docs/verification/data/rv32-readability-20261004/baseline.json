@@ -1,0 +1,301 @@
+{
+  "base_commit": "99022745468c6a3d0def7273424cb82163ee8223",
+  "files": {
+    "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv": {
+      "sha256": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+      "lines": 92
+    },
+    "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv": {
+      "sha256": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+      "lines": 92
+    },
+    "npc/vsrc/riscv32/common/riscv32_pkg.sv": {
+      "sha256": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+      "lines": 778
+    },
+    "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv": {
+      "sha256": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d",
+      "lines": 71
+    },
+    "npc/vsrc/riscv32/common/riscv_config_pkg.sv": {
+      "sha256": "156d28f7fdc46f4fe3f8fb370490cdde65d61ae0cae33ddadf26d240ade4ad8b",
+      "lines": 221
+    },
+    "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv": {
+      "sha256": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6",
+      "lines": 104
+    },
+    "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv": {
+      "sha256": "f51d0f777b7ab1b63978574c6a827bea9f61583e71a7420266373e41995737ad",
+      "lines": 304
+    },
+    "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv": {
+      "sha256": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f",
+      "lines": 41
+    },
+    "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv": {
+      "sha256": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4",
+      "lines": 18
+    },
+    "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv": {
+      "sha256": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c",
+      "lines": 66
+    },
+    "npc/vsrc/riscv32/core/decode/riscv32_idu.sv": {
+      "sha256": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc",
+      "lines": 477
+    },
+    "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv": {
+      "sha256": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431",
+      "lines": 73
+    },
+    "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv": {
+      "sha256": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061",
+      "lines": 35
+    },
+    "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv": {
+      "sha256": "99673cd9c83a2b2c49a663740f1e271d836a7ed2a4f0d569714233290ef7472a",
+      "lines": 113
+    },
+    "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": {
+      "sha256": "71e63b1a9cf57d48cbce91f18f01020b3089ce06710d1c6aa194651886956dbb",
+      "lines": 244
+    },
+    "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv": {
+      "sha256": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31",
+      "lines": 103
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv": {
+      "sha256": "1d5d719f040f8a121ab719c30cf35da9819c717f5111cdd002d3776b75e8da48",
+      "lines": 198
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv": {
+      "sha256": "e7af3ecae1f2f9074997cfdb0a7ab78579c7c15f7b1001b09e852a04a216c6da",
+      "lines": 28
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": {
+      "sha256": "0d7b0410ef36012504b4b6c69c1a91e08a4861fe6fdb79bf0cad2ff96d5d0ed1",
+      "lines": 265
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv": {
+      "sha256": "6974ac0b49e63f7ca574b7cad77d4ed67086bde2bc634031163abf9da1f243c0",
+      "lines": 297
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv": {
+      "sha256": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0",
+      "lines": 168
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv": {
+      "sha256": "5e8f71270aca28ada0a96946b75e5c1bfbe44a03b2ffd23456f72664ce349d7a",
+      "lines": 30
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv": {
+      "sha256": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001",
+      "lines": 99
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv": {
+      "sha256": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde",
+      "lines": 530
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv": {
+      "sha256": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1",
+      "lines": 194
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv": {
+      "sha256": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4",
+      "lines": 109
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv": {
+      "sha256": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510",
+      "lines": 519
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv": {
+      "sha256": "28d4cfc9257690badcca38be10f566f1cd72c23b343de503a0453637d2d1089b",
+      "lines": 330
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv": {
+      "sha256": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3",
+      "lines": 154
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": {
+      "sha256": "5e744e224e53d949d19ae5dd328a6ac765b440e676ef13dee0fa104cbdc64c96",
+      "lines": 445
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv": {
+      "sha256": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f",
+      "lines": 134
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv": {
+      "sha256": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40",
+      "lines": 156
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv": {
+      "sha256": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03",
+      "lines": 176
+    },
+    "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv": {
+      "sha256": "bcbc2f8b8c4782390cfc397a59989ce2ef58774ce4a266ef6f119cc29b96e3e1",
+      "lines": 400
+    },
+    "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv": {
+      "sha256": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820",
+      "lines": 277
+    },
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv": {
+      "sha256": "255189ae773a86f3c48febf725252521f534a8bc0ec4269f8c1240392d1fd035",
+      "lines": 570
+    },
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv": {
+      "sha256": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810",
+      "lines": 307
+    },
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv": {
+      "sha256": "20e68e75a535813988d63cf5d3dee50c17b7f882328070702bc68e4752d64137",
+      "lines": 73
+    },
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv": {
+      "sha256": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf",
+      "lines": 477
+    },
+    "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv": {
+      "sha256": "a59f052d3070343b41fdde8bab6afd73126dd349e35c4cf8a975d84670f1881b",
+      "lines": 90
+    },
+    "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv": {
+      "sha256": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650",
+      "lines": 425
+    },
+    "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv": {
+      "sha256": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766",
+      "lines": 275
+    },
+    "npc/vsrc/riscv32/core/riscv32_core.sv": {
+      "sha256": "3068ab9ffdd2c77187ff362dd1208ace446499d4490356770c9d0498ac0f9d0a",
+      "lines": 886
+    },
+    "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv": {
+      "sha256": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102",
+      "lines": 68
+    },
+    "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv": {
+      "sha256": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848",
+      "lines": 45
+    },
+    "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv": {
+      "sha256": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b",
+      "lines": 217
+    },
+    "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv": {
+      "sha256": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad",
+      "lines": 208
+    },
+    "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv": {
+      "sha256": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b",
+      "lines": 76
+    },
+    "npc/vsrc/riscv32/experiments/bcd7seg.v": {
+      "sha256": "a3171c3cb3451e051682d5acafbacd39ec0c39148eccafb87430f465ae25836a",
+      "lines": 28
+    },
+    "npc/vsrc/riscv32/experiments/interconnect/riscv32_axi4_error_target.sv": {
+      "sha256": "2dd85af51f03fe9dabd87156f2e5472ecca9c586c62e0d9256b009e789408004",
+      "lines": 126
+    },
+    "npc/vsrc/riscv32/experiments/pipeline/riscv32_decode_stage.sv": {
+      "sha256": "42ceb3c498a9abfcbc258fa1b938b79e37f48e5840c98aa868eb465348970a9e",
+      "lines": 65
+    },
+    "npc/vsrc/riscv32/experiments/pipeline/riscv32_redirect_arbiter.sv": {
+      "sha256": "a1202077c7959df284c5e736d7e7c0c4614bcfbbff978fbf857a683db92192f4",
+      "lines": 25
+    },
+    "npc/vsrc/riscv32/experiments/pipeline/riscv32_register_read_stage.sv": {
+      "sha256": "434b304942f04e382bac84e595acb89417ab5795b7fb3282b468e193a02dbcef",
+      "lines": 81
+    },
+    "npc/vsrc/riscv32/experiments/riscv32_ALU_for_sta.sv": {
+      "sha256": "d744d21a16ee4dbea63e9ffd194f301de25850bae89cc4004afcaa69e64e62fb",
+      "lines": 27
+    },
+    "npc/vsrc/riscv32/experiments/shl4_for_sta.sv": {
+      "sha256": "fccdec43003f9ef0b1fa03b6d563c37dc0e0fea2a070d45cec46d27cd1cdc1e6",
+      "lines": 10
+    },
+    "npc/vsrc/riscv32/filelist/filelist.f": {
+      "sha256": "13b03b6eff1867c418bf3ad21fee47ac06f3cf5215fa7a9e4c6ea30512f490a5",
+      "lines": 81
+    },
+    "npc/vsrc/riscv32/filelist/filelist_sta.f": {
+      "sha256": "e5a186773a27153cfeecfac7a2e30cd54e045d6fc1a2910b84614bcdaa825011",
+      "lines": 65
+    },
+    "npc/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv": {
+      "sha256": "48517ffed9dc37e3dae8a37b60a9d1577504e5068e9a31610b85f5cd5db8827d",
+      "lines": 459
+    },
+    "npc/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv": {
+      "sha256": "d9ca11f907e24a533fbc10ae72af843d699ce24d81d90175b3ebf3d4433ac500",
+      "lines": 237
+    },
+    "npc/vsrc/riscv32/sim/riscv32_perf_dpi.svh": {
+      "sha256": "401226b3ad8c83f074cc08559d378d7d37a75a9f3799d5951e17e02a4d623fc3",
+      "lines": 77
+    },
+    "npc/vsrc/riscv32/sim/riscv32_sim_cache_wait_monitor.sv": {
+      "sha256": "55e3ace6ab4bb99bb976edd1f9406d8e8f688b82dc86657f7b516f553f4a2ed8",
+      "lines": 64
+    },
+    "npc/vsrc/riscv32/sim/riscv32_sim_dcache_monitor.sv": {
+      "sha256": "4ed692a97062a98ca2edbcac92d253c204623d86656f30e0782843cfb2be09fa",
+      "lines": 293
+    },
+    "npc/vsrc/riscv32/sim/riscv32_sim_icache_monitor.sv": {
+      "sha256": "b482717c6d24ee7ddc7111558ed3f174822f6fca615647a1d5648d143fc230d1",
+      "lines": 256
+    },
+    "npc/vsrc/riscv32/sim/riscv32_sim_issue_window_monitor.sv": {
+      "sha256": "475454c88fd6082613b7b219efc57dd00fb3b984035aa03c2b7001b69b3f6878",
+      "lines": 122
+    },
+    "npc/vsrc/riscv32/sim/riscv32_sim_perf_monitor.sv": {
+      "sha256": "78f1f6f3b6c426f3d0559a9df522e2e42e0b46c4f4873da2a9a4dc47276fb8ac",
+      "lines": 929
+    },
+    "npc/vsrc/riscv32/sim/top.sv": {
+      "sha256": "800700962fa90981131be90a312daa7c8794fa48f78345ad271ecc7cc8d4faa4",
+      "lines": 177
+    },
+    "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv": {
+      "sha256": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672",
+      "lines": 391
+    },
+    "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv": {
+      "sha256": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413",
+      "lines": 184
+    },
+    "npc/vsrc/riscv32/system/riscv32_axi4_router.sv": {
+      "sha256": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd",
+      "lines": 240
+    },
+    "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv": {
+      "sha256": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62",
+      "lines": 640
+    },
+    "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv": {
+      "sha256": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539",
+      "lines": 33
+    },
+    "npc/vsrc/riscv32/system/riscv32_npc_axi.sv": {
+      "sha256": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac",
+      "lines": 261
+    },
+    "npc/vsrc/riscv32/system/riscv32_npc_system.sv": {
+      "sha256": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588",
+      "lines": 123
+    },
+    "npc/vsrc/riscv32/system/riscv32_reset_controller.sv": {
+      "sha256": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344",
+      "lines": 28
+    }
+  }
+}

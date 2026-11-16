@@ -1,0 +1,20 @@
+{
+  "B0I": {
+    "original_loads": {
+      "u_core.u_branch_predictor.u_bht.g_counter_table.training_counter_0_": 16,
+      "u_core.u_branch_predictor.u_bht.g_counter_table.training_counter_1_": 16
+    },
+    "unchanged_netlist_sha256": "3ce62bb5192462a38f7b358cfb95bdf1fef1cbc632b3432ada9a032552a9106f",
+    "inserted_buffers": 0
+  },
+  "T16": {
+    "original_loads": {},
+    "unchanged_netlist_sha256": "fe87bf8800364c2addb87c0c79b9abe7e8d6b01c664760910f298d3b6e0aa3d4",
+    "inserted_buffers": 0
+  },
+  "T32": {
+    "original_loads": {},
+    "unchanged_netlist_sha256": "9f95f12115b860768d1c4742f8407911dda8e1b483765458eca738f73a9b8539",
+    "inserted_buffers": 0
+  }
+}

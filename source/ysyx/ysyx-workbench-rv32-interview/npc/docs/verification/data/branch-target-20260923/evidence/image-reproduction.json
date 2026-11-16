@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "cases": 22,
+  "seeds": {
+    "development": [
+      131,
+      257
+    ],
+    "held": [
+      2053,
+      4099
+    ]
+  },
+  "binary_input_and_hex_equal": true,
+  "elf_readelf_equal_except_STT_FILE_temporary_names": true,
+  "note": "Raw ELF hashes differ only because GCC assembler temporary file names appear in non-loaded STT_FILE symbols; both raw files retained"
+}

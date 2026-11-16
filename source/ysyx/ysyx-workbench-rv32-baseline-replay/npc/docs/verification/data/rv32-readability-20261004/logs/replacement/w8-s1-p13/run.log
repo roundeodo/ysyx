@@ -1,0 +1,5 @@
+PASS replacement: 24874 decisions, invalidate, forwarding, snapshot hold
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/frontend_selection/replacement_tb.sv:110: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 311ns; walltime 0.117 s; speed 2.717 us/s
+- Verilator: cpu 0.114 s on 1 threads; alloced 7 MB

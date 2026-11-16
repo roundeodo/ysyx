@@ -1,0 +1,25 @@
+{
+  "status": "completed",
+  "items": {
+    "compiler-intermediates": {
+      "files": 649,
+      "bytes": 2959668374
+    },
+    "old-mapped-netlists": {
+      "files": 239,
+      "bytes": 3148963684
+    },
+    "verilator-intermediates": {
+      "files": 855,
+      "bytes": 80596448
+    },
+    "current-study-compaction": {
+      "compressed_files": 20,
+      "duplicate_netlists_removed": 20,
+      "bytes": 2159413292
+    }
+  },
+  "bytes_released": 8348641798,
+  "available_bytes": 83757096960,
+  "preserved": "Source, software images, runnable binaries, tools/libraries, compact results, key logs, canonical mapped netlists and Git history"
+}

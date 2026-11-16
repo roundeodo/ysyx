@@ -1,0 +1,65 @@
+
+26. Printing statistics.
+
+=== riscv32_btb ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+    11679        - wires
+    11679        - wire bits
+    11679        - public wires
+    11679        - public wire bits
+      138        - ports
+      138        - port bits
+     9464 1.74E+04 cells
+       74   78.736   AND2_X1
+        4     5.32   AND2_X2
+        9    11.97   AND3_X1
+       24   38.304   AND4_X1
+        9    11.97   AOI211_X1
+      145   154.28   AOI21_X1
+        3    5.586   AOI21_X2
+       50     39.9   BUF_X1
+       12     79.8   BUF_X16
+       43   45.752   BUF_X2
+        3   39.102   BUF_X32
+       21   39.102   BUF_X4
+       25    86.45   BUF_X8
+        8    6.384   CLKBUF_X1
+        5     6.65   CLKBUF_X3
+       34  117.572   CLKGATE_X1
+       32   170.24   DFFR_X1
+       64   340.48   DFFS_X1
+     2016 9.12E+03   DFF_X1
+      411  218.652   INV_X1
+        1    4.522   INV_X16
+        9    7.182   INV_X2
+        5     6.65   INV_X4
+      326  607.012   MUX2_X1
+     2860  2282.28   NAND2_X1
+       33    43.89   NAND2_X2
+        4    9.576   NAND2_X4
+      354  376.656   NAND3_X1
+       30    55.86   NAND3_X2
+      242   321.86   NAND4_X1
+      363  289.674   NOR2_X1
+       10     13.3   NOR2_X2
+       11   26.334   NOR2_X4
+       65    69.16   NOR3_X1
+        2    3.724   NOR3_X2
+       18    23.94   NOR4_X1
+      593   788.69   OAI211_X1
+      283  301.112   OAI21_X1
+        1    1.862   OAI21_X2
+        1    1.596   OAI221_X1
+       12    15.96   OAI22_X1
+      832  885.248   OR2_X1
+       18    23.94   OR3_X1
+       21   33.516   OR4_X1
+      374  596.904   XNOR2_X1
+        4    6.384   XOR2_X1
+
+   Chip area for module '\riscv32_btb': 17409.434000
+     of which used for sequential elements: 9627.072000 (55.30%)
+

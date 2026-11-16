@@ -1,0 +1,655 @@
+{
+  "scope": "Diagnostic branch-event pipeline; perfect branch identity/correct-path PC supply.\n\nNot CPU timing: no BTB, I-cache, wrong-path instructions or lookup bandwidth cost.\nResolved history, oracle prefix history and speculative history are separate axes.\nEvery mode discards and replays younger lookups after a misprediction.\nRecovery has no extra CPU-cycle model; all modes use the same event schedule.\n",
+  "cases": {
+    "json_bpe-dev-331": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 15292,
+        "resolved": 15292,
+        "errors": 1310,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 15292,
+        "resolved": 15292,
+        "errors": 1310,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 15292,
+        "resolved": 15292,
+        "errors": 1310,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 14553,
+        "queries": 16679,
+        "resolved": 15292,
+        "errors": 1388,
+        "replayed_queries": 1387
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 16607,
+        "resolved": 15292,
+        "errors": 1316,
+        "replayed_queries": 1315
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 1315,
+        "queries": 16607,
+        "resolved": 15292,
+        "errors": 1316,
+        "replayed_queries": 1315
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 17541,
+        "queries": 19922,
+        "resolved": 15292,
+        "errors": 1545,
+        "replayed_queries": 4630
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 19295,
+        "resolved": 15292,
+        "errors": 1336,
+        "replayed_queries": 4003
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 4003,
+        "queries": 19295,
+        "resolved": 15292,
+        "errors": 1336,
+        "replayed_queries": 4003
+      }
+    },
+    "json_bpe-dev-733": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 14492,
+        "resolved": 14492,
+        "errors": 1252,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 14492,
+        "resolved": 14492,
+        "errors": 1252,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 14492,
+        "resolved": 14492,
+        "errors": 1252,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 13755,
+        "queries": 15885,
+        "resolved": 14492,
+        "errors": 1394,
+        "replayed_queries": 1393
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 15730,
+        "resolved": 14492,
+        "errors": 1239,
+        "replayed_queries": 1238
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 1238,
+        "queries": 15730,
+        "resolved": 14492,
+        "errors": 1239,
+        "replayed_queries": 1238
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 16571,
+        "queries": 18828,
+        "resolved": 14492,
+        "errors": 1447,
+        "replayed_queries": 4336
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 18351,
+        "resolved": 14492,
+        "errors": 1288,
+        "replayed_queries": 3859
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 3859,
+        "queries": 18351,
+        "resolved": 14492,
+        "errors": 1288,
+        "replayed_queries": 3859
+      }
+    },
+    "quant_loader-dev-331": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 50864,
+        "resolved": 50864,
+        "errors": 2817,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 50864,
+        "resolved": 50864,
+        "errors": 2817,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 50864,
+        "resolved": 50864,
+        "errors": 2817,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 25012,
+        "queries": 53859,
+        "resolved": 50864,
+        "errors": 2995,
+        "replayed_queries": 2995
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 53797,
+        "resolved": 50864,
+        "errors": 2933,
+        "replayed_queries": 2933
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 2933,
+        "queries": 53797,
+        "resolved": 50864,
+        "errors": 2933,
+        "replayed_queries": 2933
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 31665,
+        "queries": 60584,
+        "resolved": 50864,
+        "errors": 3241,
+        "replayed_queries": 9720
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 59459,
+        "resolved": 50864,
+        "errors": 2866,
+        "replayed_queries": 8595
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 8595,
+        "queries": 59459,
+        "resolved": 50864,
+        "errors": 2866,
+        "replayed_queries": 8595
+      }
+    },
+    "quant_loader-dev-733": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 50886,
+        "resolved": 50886,
+        "errors": 2861,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 50886,
+        "resolved": 50886,
+        "errors": 2861,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 50886,
+        "resolved": 50886,
+        "errors": 2861,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 25140,
+        "queries": 53908,
+        "resolved": 50886,
+        "errors": 3022,
+        "replayed_queries": 3022
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 53770,
+        "resolved": 50886,
+        "errors": 2884,
+        "replayed_queries": 2884
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 2884,
+        "queries": 53770,
+        "resolved": 50886,
+        "errors": 2884,
+        "replayed_queries": 2884
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 32039,
+        "queries": 60987,
+        "resolved": 50886,
+        "errors": 3368,
+        "replayed_queries": 10101
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 59262,
+        "resolved": 50886,
+        "errors": 2793,
+        "replayed_queries": 8376
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 8376,
+        "queries": 59262,
+        "resolved": 50886,
+        "errors": 2793,
+        "replayed_queries": 8376
+      }
+    },
+    "runtime_graph-dev-331": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38946,
+        "resolved": 38946,
+        "errors": 2899,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38946,
+        "resolved": 38946,
+        "errors": 2899,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38946,
+        "resolved": 38946,
+        "errors": 2899,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 34143,
+        "queries": 42345,
+        "resolved": 38946,
+        "errors": 3400,
+        "replayed_queries": 3399
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 41901,
+        "resolved": 38946,
+        "errors": 2956,
+        "replayed_queries": 2955
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 2955,
+        "queries": 41901,
+        "resolved": 38946,
+        "errors": 2956,
+        "replayed_queries": 2955
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 42679,
+        "queries": 51435,
+        "resolved": 38946,
+        "errors": 4164,
+        "replayed_queries": 12489
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 48210,
+        "resolved": 38946,
+        "errors": 3089,
+        "replayed_queries": 9264
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 9264,
+        "queries": 48210,
+        "resolved": 38946,
+        "errors": 3089,
+        "replayed_queries": 9264
+      }
+    },
+    "runtime_graph-dev-733": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38206,
+        "resolved": 38206,
+        "errors": 2674,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38206,
+        "resolved": 38206,
+        "errors": 2674,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38206,
+        "resolved": 38206,
+        "errors": 2674,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 33401,
+        "queries": 41409,
+        "resolved": 38206,
+        "errors": 3204,
+        "replayed_queries": 3203
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 40997,
+        "resolved": 38206,
+        "errors": 2792,
+        "replayed_queries": 2791
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 2791,
+        "queries": 40997,
+        "resolved": 38206,
+        "errors": 2792,
+        "replayed_queries": 2791
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 41659,
+        "queries": 50290,
+        "resolved": 38206,
+        "errors": 4029,
+        "replayed_queries": 12084
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 47238,
+        "resolved": 38206,
+        "errors": 3012,
+        "replayed_queries": 9032
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 9032,
+        "queries": 47238,
+        "resolved": 38206,
+        "errors": 3012,
+        "replayed_queries": 9032
+      }
+    },
+    "regex_tokenizer-dev-331": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 40602,
+        "resolved": 40602,
+        "errors": 3348,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 40602,
+        "resolved": 40602,
+        "errors": 3348,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 40602,
+        "resolved": 40602,
+        "errors": 3348,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 40585,
+        "queries": 44153,
+        "resolved": 40602,
+        "errors": 3552,
+        "replayed_queries": 3551
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 43949,
+        "resolved": 40602,
+        "errors": 3348,
+        "replayed_queries": 3347
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 3347,
+        "queries": 43949,
+        "resolved": 40602,
+        "errors": 3348,
+        "replayed_queries": 3347
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 49508,
+        "queries": 53981,
+        "resolved": 40602,
+        "errors": 4461,
+        "replayed_queries": 13379
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 50540,
+        "resolved": 40602,
+        "errors": 3314,
+        "replayed_queries": 9938
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 9938,
+        "queries": 50540,
+        "resolved": 40602,
+        "errors": 3314,
+        "replayed_queries": 9938
+      }
+    },
+    "regex_tokenizer-dev-733": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38176,
+        "resolved": 38176,
+        "errors": 3306,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38176,
+        "resolved": 38176,
+        "errors": 3306,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 38176,
+        "resolved": 38176,
+        "errors": 3306,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 38173,
+        "queries": 41803,
+        "resolved": 38176,
+        "errors": 3628,
+        "replayed_queries": 3627
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 41481,
+        "resolved": 38176,
+        "errors": 3306,
+        "replayed_queries": 3305
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 3305,
+        "queries": 41481,
+        "resolved": 38176,
+        "errors": 3306,
+        "replayed_queries": 3305
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 47088,
+        "queries": 51549,
+        "resolved": 38176,
+        "errors": 4459,
+        "replayed_queries": 13373
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 48267,
+        "resolved": 38176,
+        "errors": 3365,
+        "replayed_queries": 10091
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 10091,
+        "queries": 48267,
+        "resolved": 38176,
+        "errors": 3365,
+        "replayed_queries": 10091
+      }
+    },
+    "ini_config-dev-331": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 10192,
+        "resolved": 10192,
+        "errors": 1184,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 10192,
+        "resolved": 10192,
+        "errors": 1184,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 10192,
+        "resolved": 10192,
+        "errors": 1184,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 9336,
+        "queries": 11541,
+        "resolved": 10192,
+        "errors": 1349,
+        "replayed_queries": 1349
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 11400,
+        "resolved": 10192,
+        "errors": 1208,
+        "replayed_queries": 1208
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 1208,
+        "queries": 11400,
+        "resolved": 10192,
+        "errors": 1208,
+        "replayed_queries": 1208
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 10994,
+        "queries": 14603,
+        "resolved": 10192,
+        "errors": 1471,
+        "replayed_queries": 4411
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 14114,
+        "resolved": 10192,
+        "errors": 1308,
+        "replayed_queries": 3922
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 3922,
+        "queries": 14114,
+        "resolved": 10192,
+        "errors": 1308,
+        "replayed_queries": 3922
+      }
+    },
+    "ini_config-dev-733": {
+      "resolved-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 10216,
+        "resolved": 10216,
+        "errors": 1140,
+        "replayed_queries": 0
+      },
+      "oracle-prefix-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 10216,
+        "resolved": 10216,
+        "errors": 1140,
+        "replayed_queries": 0
+      },
+      "speculative-d1": {
+        "history_differs_from_prefix": 0,
+        "queries": 10216,
+        "resolved": 10216,
+        "errors": 1140,
+        "replayed_queries": 0
+      },
+      "resolved-d2": {
+        "history_differs_from_prefix": 9356,
+        "queries": 11599,
+        "resolved": 10216,
+        "errors": 1383,
+        "replayed_queries": 1383
+      },
+      "oracle-prefix-d2": {
+        "history_differs_from_prefix": 0,
+        "queries": 11429,
+        "resolved": 10216,
+        "errors": 1213,
+        "replayed_queries": 1213
+      },
+      "speculative-d2": {
+        "history_differs_from_prefix": 1213,
+        "queries": 11429,
+        "resolved": 10216,
+        "errors": 1213,
+        "replayed_queries": 1213
+      },
+      "resolved-d4": {
+        "history_differs_from_prefix": 10840,
+        "queries": 14384,
+        "resolved": 10216,
+        "errors": 1390,
+        "replayed_queries": 4168
+      },
+      "oracle-prefix-d4": {
+        "history_differs_from_prefix": 0,
+        "queries": 14095,
+        "resolved": 10216,
+        "errors": 1294,
+        "replayed_queries": 3879
+      },
+      "speculative-d4": {
+        "history_differs_from_prefix": 3879,
+        "queries": 14095,
+        "resolved": 10216,
+        "errors": 1294,
+        "replayed_queries": 3879
+      }
+    }
+  }
+}

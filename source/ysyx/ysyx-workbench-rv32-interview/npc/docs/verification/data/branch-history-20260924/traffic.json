@@ -1,0 +1,92 @@
+{
+  "B0": {
+    "queries": 1679779,
+    "i_bursts": 45465,
+    "i_beats": 363700,
+    "d_beats": 245080,
+    "btb_missing": 54849,
+    "direction": 26401,
+    "target": 1244
+  },
+  "B0I": {
+    "queries": 1679779,
+    "i_bursts": 45465,
+    "i_beats": 363700,
+    "d_beats": 245080,
+    "btb_missing": 54849,
+    "direction": 26401,
+    "target": 1244
+  },
+  "B512": {
+    "queries": 1667348,
+    "i_bursts": 45596,
+    "i_beats": 364748,
+    "d_beats": 245080,
+    "btb_missing": 54865,
+    "direction": 23019,
+    "target": 1244
+  },
+  "G256": {
+    "queries": 1655925,
+    "i_bursts": 45603,
+    "i_beats": 364804,
+    "d_beats": 245080,
+    "btb_missing": 54877,
+    "direction": 18607,
+    "target": 1234
+  },
+  "G512": {
+    "queries": 1647181,
+    "i_bursts": 45569,
+    "i_beats": 364532,
+    "d_beats": 245080,
+    "btb_missing": 54865,
+    "direction": 16053,
+    "target": 1237
+  },
+  "T16": {
+    "queries": 1640072,
+    "i_bursts": 45625,
+    "i_beats": 364980,
+    "d_beats": 245080,
+    "btb_missing": 54878,
+    "direction": 14255,
+    "target": 1244
+  },
+  "T32": {
+    "queries": 1631094,
+    "i_bursts": 45639,
+    "i_beats": 365092,
+    "d_beats": 245080,
+    "btb_missing": 54890,
+    "direction": 11682,
+    "target": 1244
+  },
+  "G256F": {
+    "queries": 1655925,
+    "i_bursts": 45603,
+    "i_beats": 364804,
+    "d_beats": 245080,
+    "btb_missing": 54877,
+    "direction": 18607,
+    "target": 1234
+  },
+  "G512F": {
+    "queries": 1647181,
+    "i_bursts": 45569,
+    "i_beats": 364532,
+    "d_beats": 245080,
+    "btb_missing": 54865,
+    "direction": 16053,
+    "target": 1237
+  },
+  "B512F": {
+    "queries": 1667348,
+    "i_bursts": 45596,
+    "i_beats": 364748,
+    "d_beats": 245080,
+    "btb_missing": 54865,
+    "direction": 23019,
+    "target": 1244
+  }
+}

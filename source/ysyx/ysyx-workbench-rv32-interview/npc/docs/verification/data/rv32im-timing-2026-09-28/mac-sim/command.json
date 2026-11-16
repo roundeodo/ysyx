@@ -1,0 +1,13 @@
+[
+  "make",
+  "-C",
+  "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+  "git_commit=",
+  "NPC_CONFIG=rv32im-balanced",
+  "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+  "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/build",
+  "RTL_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32",
+  "RTL_FILELIST=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/filelist.f",
+  "VERILATOR_FLAGS=-MMD --build -cc -Wall -Wno-fatal -O3 --x-assign fast --x-initial fast --trace --autoflush --timescale 1ns/1ns --no-timing --assert -j 2 -MAKEFLAGS OPT_FAST=-O1",
+  "build-npc"
+]

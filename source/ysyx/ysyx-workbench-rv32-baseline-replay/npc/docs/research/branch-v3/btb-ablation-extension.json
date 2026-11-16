@@ -1,0 +1,29 @@
+{
+  "BT16-lru": {
+    "target_policy": 3,
+    "target_admission": 2
+  },
+  "BT16-lru-all": {
+    "target_policy": 3,
+    "target_admission": 1
+  },
+  "BT32-select-linear": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_policy": 2,
+    "target_admission": 2
+  },
+  "BT32-select-fold": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2
+  },
+  "BT64-select-linear": {
+    "btb": 64,
+    "btb_ways": 4,
+    "target_policy": 2,
+    "target_admission": 2
+  }
+}

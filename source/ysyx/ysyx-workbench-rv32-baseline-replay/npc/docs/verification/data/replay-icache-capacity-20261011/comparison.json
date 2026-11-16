@@ -1,0 +1,281 @@
+{
+  "train_predictor_comparison": {
+    "before": "no-predictor-train",
+    "after": "hybrid-train",
+    "scale": "train",
+    "cpu_mhz": 700,
+    "timing_model": "device-clock-v1",
+    "image_sha256": "2d200997d01ec6417e1443f122f8b966a6000ea252399ddadb490aadf1e86bb6",
+    "changed_sources": [
+      "npc/Makefile",
+      "npc/scripts/run_microbench_perf.py",
+      "npc/vsrc/riscv32/common/riscv32_pkg.sv",
+      "npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+      "npc/vsrc/riscv32/core/execute/riscv32_exu.sv",
+      "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv",
+      "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv",
+      "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv",
+      "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv",
+      "npc/vsrc/riscv32/core/riscv32_core.sv"
+    ],
+    "comparison_scope": "historical replay versus hybrid integration; wrappers reviewed",
+    "whole_program_pmu": {
+      "before": {
+        "scope": "whole-program PMU, not native Total or Scored windows",
+        "active_cycles": 1898474205,
+        "exclusive_issue_cycles": {
+          "issued instructions": 338225683,
+          "control recovery stalls": 584293195,
+          "LSU structural stalls": 635980137,
+          "unresolved RAW stalls": 3932488,
+          "serializing stalls": 53,
+          "frontend supply stalls": 262104259,
+          "other empty issue slots": 73938390
+        },
+        "exclusive_issue_percent": {
+          "issued instructions": 17.815658601482024,
+          "control recovery stalls": 30.7769888819743,
+          "LSU structural stalls": 33.49954059554894,
+          "unresolved RAW stalls": 0.2071393959234753,
+          "serializing stalls": 2.7917155714001394e-06,
+          "frontend supply stalls": 13.80604794680368,
+          "other empty issue slots": 3.8946217865520065
+        },
+        "icache": {
+          "lookups": 420829175,
+          "hits": 411424014,
+          "misses": 9405161
+        },
+        "ex_corrections": {
+          "branch": 56034184,
+          "jal": 6450143,
+          "jalr": 3260192
+        },
+        "wrong_path_responses": 75904660
+      },
+      "after": {
+        "scope": "whole-program PMU, not native Total or Scored windows",
+        "active_cycles": 1522086501,
+        "exclusive_issue_cycles": {
+          "issued instructions": 285679671,
+          "control recovery stalls": 116121722,
+          "LSU structural stalls": 634622420,
+          "unresolved RAW stalls": 4133726,
+          "serializing stalls": 0,
+          "frontend supply stalls": 414143119,
+          "other empty issue slots": 67385843
+        },
+        "exclusive_issue_percent": {
+          "issued instructions": 18.768951095243963,
+          "control recovery stalls": 7.629114503263044,
+          "LSU structural stalls": 41.69424139712543,
+          "unresolved RAW stalls": 0.2715828566434412,
+          "serializing stalls": 0.0,
+          "frontend supply stalls": 27.20890821434333,
+          "other empty issue slots": 4.427201933380789
+        },
+        "icache": {
+          "lookups": 308859348,
+          "hits": 301823086,
+          "misses": 7036262
+        },
+        "ex_corrections": {
+          "branch": 15449185,
+          "jal": 0,
+          "jalr": 1161102
+        },
+        "wrong_path_responses": 20940046
+      }
+    },
+    "total": {
+      "before": {
+        "cycles": 1897823221,
+        "retired_instructions": 266883367,
+        "ipc": 0.1406260414810258,
+        "timer_ticks": 2711176,
+        "timer_seconds": 2.711176,
+        "cycle_seconds": 2.71117603,
+        "interrupts": 0
+      },
+      "after": {
+        "cycles": 1521484888,
+        "retired_instructions": 266921222,
+        "ipc": 0.17543468496152426,
+        "timer_ticks": 2173550,
+        "timer_seconds": 2.17355,
+        "cycle_seconds": 2.17354984,
+        "interrupts": 0
+      },
+      "cycle_reduction_percent": 19.829999382223807,
+      "same_frequency_speedup": 1.2473493729501965,
+      "ipc_increase_percent": 24.752629821550553,
+      "retired_instruction_delta": 37855
+    },
+    "scored": {
+      "before": {
+        "cycles": 1329933355,
+        "retired_instructions": 186810325,
+        "ipc": 0.14046592958787774,
+        "timer_ticks": 1899904,
+        "timer_seconds": 1.899904,
+        "cycle_seconds": 1.8999047928571429,
+        "interrupts": 0
+      },
+      "after": {
+        "cycles": 1078887224,
+        "retired_instructions": 186810325,
+        "ipc": 0.1731509288870771,
+        "timer_ticks": 1541265,
+        "timer_seconds": 1.541265,
+        "cycle_seconds": 1.5412674628571428,
+        "interrupts": 0
+      },
+      "cycle_reduction_percent": 18.876594835084802,
+      "same_frequency_speedup": 1.2326898728759068,
+      "ipc_increase_percent": 23.268987287590683,
+      "retired_instruction_delta": 0
+    },
+    "icache_miss_reduction_percent": 25.187224333533475,
+    "ex_correction_reduction_percent": 74.7350999708432
+  },
+  "test_capacity_comparison": {
+    "before": "icache256-test",
+    "after": "icache1k-test",
+    "scale": "test",
+    "cpu_mhz": 700,
+    "timing_model": "device-clock-v1",
+    "image_sha256": "1c82ab8021d028996426a6d48ada19766bbf2b26c0be6cb2a84c7efbb2f88f73",
+    "changed_sources": [],
+    "comparison_scope": "identical current source, capacity only",
+    "whole_program_pmu": {
+      "before": {
+        "scope": "whole-program PMU, not native Total or Scored windows",
+        "active_cycles": 7418514,
+        "exclusive_issue_cycles": {
+          "issued instructions": 1118193,
+          "control recovery stalls": 1879209,
+          "LSU structural stalls": 3285781,
+          "unresolved RAW stalls": 49799,
+          "serializing stalls": 53,
+          "frontend supply stalls": 822387,
+          "other empty issue slots": 263092
+        },
+        "exclusive_issue_percent": {
+          "issued instructions": 15.073005186753035,
+          "control recovery stalls": 25.33133994220406,
+          "LSU structural stalls": 44.291633068293734,
+          "unresolved RAW stalls": 0.6712799894965488,
+          "serializing stalls": 0.0007144287926126445,
+          "frontend supply stalls": 11.085602857930848,
+          "other empty issue slots": 3.5464245265291674
+        },
+        "icache": {
+          "lookups": 1455399,
+          "hits": 1422727,
+          "misses": 32672
+        },
+        "ex_corrections": {
+          "branch": 139856,
+          "jal": 35388,
+          "jalr": 15211
+        },
+        "wrong_path_responses": 269463
+      },
+      "after": {
+        "scope": "whole-program PMU, not native Total or Scored windows",
+        "active_cycles": 5618359,
+        "exclusive_issue_cycles": {
+          "issued instructions": 1125215,
+          "control recovery stalls": 943503,
+          "LSU structural stalls": 3175347,
+          "unresolved RAW stalls": 50338,
+          "serializing stalls": 53,
+          "frontend supply stalls": 254308,
+          "other empty issue slots": 69595
+        },
+        "exclusive_issue_percent": {
+          "issued instructions": 20.02746709492932,
+          "control recovery stalls": 16.79321310724359,
+          "LSU structural stalls": 56.51733895964996,
+          "unresolved RAW stalls": 0.895955562825373,
+          "serializing stalls": 0.0009433359456026217,
+          "frontend supply stalls": 4.5263750500813495,
+          "other empty issue slots": 1.238706889324801
+        },
+        "icache": {
+          "lookups": 1462320,
+          "hits": 1451463,
+          "misses": 10857
+        },
+        "ex_corrections": {
+          "branch": 139873,
+          "jal": 35388,
+          "jalr": 15211
+        },
+        "wrong_path_responses": 265729
+      }
+    },
+    "total": {
+      "before": {
+        "cycles": 6785149,
+        "retired_instructions": 801960,
+        "ipc": 0.11819342508174839,
+        "timer_ticks": 9693,
+        "timer_seconds": 0.009693,
+        "cycle_seconds": 0.00969307,
+        "interrupts": 0
+      },
+      "after": {
+        "cycles": 5009725,
+        "retired_instructions": 802050,
+        "ipc": 0.1600986082070373,
+        "timer_ticks": 7156,
+        "timer_seconds": 0.007156,
+        "cycle_seconds": 0.00715675,
+        "interrupts": 0
+      },
+      "cycle_reduction_percent": 26.16632295031399,
+      "same_frequency_speedup": 1.3543955007510393,
+      "ipc_increase_percent": 35.45474978519763,
+      "retired_instruction_delta": 90
+    },
+    "scored": {
+      "before": {
+        "cycles": 3601628,
+        "retired_instructions": 430311,
+        "ipc": 0.11947680326785554,
+        "timer_ticks": 5146,
+        "timer_seconds": 0.005146,
+        "cycle_seconds": 0.0051451828571428574,
+        "interrupts": 0
+      },
+      "after": {
+        "cycles": 2747871,
+        "retired_instructions": 430307,
+        "ipc": 0.15659650689570218,
+        "timer_ticks": 3923,
+        "timer_seconds": 0.003923,
+        "cycle_seconds": 0.00392553,
+        "interrupts": 0
+      },
+      "cycle_reduction_percent": 23.704752406411767,
+      "same_frequency_speedup": 1.3106976273631477,
+      "ipc_increase_percent": 31.068544363902852,
+      "retired_instruction_delta": -4
+    },
+    "icache_miss_reduction_percent": 66.7697110675808,
+    "ex_correction_reduction_percent": -0.00892599301671737
+  },
+  "not_measured": [
+    "1 KiB no-predictor train",
+    "new synthesis/STA",
+    "NEMU DiffTest"
+  ],
+  "cautions": [
+    "Do not extrapolate test speedup to train.",
+    "Exclusive issue categories are prioritized attribution, not independent costs.",
+    "IFU wait counters and miss penalties overlap other stalls; do not add them.",
+    "700 MHz is a simulation parameter here, not a new timing qualification.",
+    "Capacity test Scored retires 430311 versus 430307 instructions; native sample boundaries are timer read effects, not fixed retirement indices. The four-instruction difference has not been traced instruction by instruction."
+  ]
+}

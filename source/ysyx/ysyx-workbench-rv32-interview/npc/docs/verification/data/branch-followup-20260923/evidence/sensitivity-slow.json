@@ -1,0 +1,287 @@
+{
+  "B0": {
+    "time_ratio_gm": 1.0,
+    "area_ratio": 1.0,
+    "adp_ratio": 1.0,
+    "max_input_time_ratio": 1.0,
+    "families": {
+      "json_bpe": 1.0,
+      "quant_loader": 1.0,
+      "runtime_graph": 1.0,
+      "regex_tokenizer": 1.0,
+      "ini_config": 1.0
+    },
+    "cases": {
+      "json_bpe-dev-131": {
+        "time_ratio": 1.0,
+        "cycles": 379827,
+        "seconds": 0.0006782625,
+        "ipc": 0.11898574877510024,
+        "i_beats": 8125,
+        "d_transfer_cycles": 5176
+      },
+      "json_bpe-dev-257": {
+        "time_ratio": 1.0,
+        "cycles": 385687,
+        "seconds": 0.0006887267857142857,
+        "ipc": 0.12217679102484658,
+        "i_beats": 8165,
+        "d_transfer_cycles": 5256
+      },
+      "quant_loader-dev-131": {
+        "time_ratio": 1.0,
+        "cycles": 1751990,
+        "seconds": 0.0031285535714285716,
+        "ipc": 0.14437239938584123,
+        "i_beats": 7381,
+        "d_transfer_cycles": 58332
+      },
+      "quant_loader-dev-257": {
+        "time_ratio": 1.0,
+        "cycles": 1762822,
+        "seconds": 0.0031478964285714286,
+        "ipc": 0.14389711496679755,
+        "i_beats": 7253,
+        "d_transfer_cycles": 58836
+      },
+      "runtime_graph-dev-131": {
+        "time_ratio": 1.0,
+        "cycles": 1858379,
+        "seconds": 0.0033185339285714288,
+        "ipc": 0.0696881529548063,
+        "i_beats": 44693,
+        "d_transfer_cycles": 25052
+      },
+      "runtime_graph-dev-257": {
+        "time_ratio": 1.0,
+        "cycles": 1868217,
+        "seconds": 0.003336101785714286,
+        "ipc": 0.06867564099887755,
+        "i_beats": 45117,
+        "d_transfer_cycles": 25092
+      },
+      "regex_tokenizer-dev-131": {
+        "time_ratio": 1.0,
+        "cycles": 3970781,
+        "seconds": 0.007090680357142857,
+        "ipc": 0.05012489986226891,
+        "i_beats": 124885,
+        "d_transfer_cycles": 28020
+      },
+      "regex_tokenizer-dev-257": {
+        "time_ratio": 1.0,
+        "cycles": 3826849,
+        "seconds": 0.006833658928571428,
+        "ipc": 0.05156487752717706,
+        "i_beats": 118725,
+        "d_transfer_cycles": 30492
+      },
+      "ini_config-dev-131": {
+        "time_ratio": 1.0,
+        "cycles": 201930,
+        "seconds": 0.0003605892857142857,
+        "ipc": 0.18297925023523004,
+        "i_beats": 4797,
+        "d_transfer_cycles": 1156
+      },
+      "ini_config-dev-257": {
+        "time_ratio": 1.0,
+        "cycles": 202668,
+        "seconds": 0.00036190714285714285,
+        "ipc": 0.1819971579134348,
+        "i_beats": 4757,
+        "d_transfer_cycles": 1228
+      }
+    }
+  },
+  "G128": {
+    "time_ratio_gm": 1.0096630886690416,
+    "area_ratio": 1.024784502539815,
+    "adp_ratio": 1.034687086054517,
+    "max_input_time_ratio": 1.0299208557838435,
+    "families": {
+      "json_bpe": 1.0014902987922634,
+      "quant_loader": 1.0157504352487363,
+      "runtime_graph": 1.0062236090481589,
+      "regex_tokenizer": 0.9959331706294569,
+      "ini_config": 1.0292572477264188
+    },
+    "cases": {
+      "json_bpe-dev-131": {
+        "time_ratio": 1.0014638243200193,
+        "cycles": 380383,
+        "seconds": 0.0006792553571428571,
+        "ipc": 0.1188118291301136,
+        "i_beats": 8141,
+        "d_transfer_cycles": 5176
+      },
+      "json_bpe-dev-257": {
+        "time_ratio": 1.0015167739643804,
+        "cycles": 386272,
+        "seconds": 0.0006897714285714286,
+        "ipc": 0.1219917571038025,
+        "i_beats": 8181,
+        "d_transfer_cycles": 5256
+      },
+      "quant_loader-dev-131": {
+        "time_ratio": 1.0126102317935604,
+        "cycles": 1774083,
+        "seconds": 0.003168005357142857,
+        "ipc": 0.14257450186941648,
+        "i_beats": 8373,
+        "d_transfer_cycles": 58332
+      },
+      "quant_loader-dev-257": {
+        "time_ratio": 1.0189003767822276,
+        "cycles": 1796140,
+        "seconds": 0.003207392857142857,
+        "ipc": 0.14122785528967674,
+        "i_beats": 8733,
+        "d_transfer_cycles": 58836
+      },
+      "runtime_graph-dev-131": {
+        "time_ratio": 1.006111778060342,
+        "cycles": 1869737,
+        "seconds": 0.0033388160714285715,
+        "ipc": 0.06926482173696087,
+        "i_beats": 45597,
+        "d_transfer_cycles": 25052
+      },
+      "runtime_graph-dev-257": {
+        "time_ratio": 1.006335452466175,
+        "cycles": 1880053,
+        "seconds": 0.0033572375,
+        "ipc": 0.06824328888600481,
+        "i_beats": 46029,
+        "d_transfer_cycles": 25092
+      },
+      "regex_tokenizer-dev-131": {
+        "time_ratio": 0.9982474480461149,
+        "cycles": 3963822,
+        "seconds": 0.007078253571428572,
+        "ipc": 0.050212900579289385,
+        "i_beats": 124829,
+        "d_transfer_cycles": 28020
+      },
+      "regex_tokenizer-dev-257": {
+        "time_ratio": 0.993624258495697,
+        "cycles": 3802450,
+        "seconds": 0.006790089285714286,
+        "ipc": 0.05189575142342437,
+        "i_beats": 117949,
+        "d_transfer_cycles": 30492
+      },
+      "ini_config-dev-131": {
+        "time_ratio": 1.0285940672510274,
+        "cycles": 207704,
+        "seconds": 0.0003709,
+        "ipc": 0.17789257789931825,
+        "i_beats": 5101,
+        "d_transfer_cycles": 1156
+      },
+      "ini_config-dev-257": {
+        "time_ratio": 1.0299208557838435,
+        "cycles": 208732,
+        "seconds": 0.0003727357142857143,
+        "ipc": 0.1767098480348006,
+        "i_beats": 5069,
+        "d_transfer_cycles": 1228
+      }
+    }
+  },
+  "R32": {
+    "time_ratio_gm": 0.9799534445711063,
+    "area_ratio": 1.0833798813092175,
+    "adp_ratio": 1.061661846468004,
+    "max_input_time_ratio": 0.9923096567647902,
+    "families": {
+      "json_bpe": 0.9913849860955357,
+      "quant_loader": 0.976615073950659,
+      "runtime_graph": 0.9857633199043523,
+      "regex_tokenizer": 0.9684214134527325,
+      "ini_config": 0.9777423356795867
+    },
+    "cases": {
+      "json_bpe-dev-131": {
+        "time_ratio": 0.9923096567647902,
+        "cycles": 376906,
+        "seconds": 0.0006730464285714286,
+        "ipc": 0.11990788154075552,
+        "i_beats": 8101,
+        "d_transfer_cycles": 5176
+      },
+      "json_bpe-dev-257": {
+        "time_ratio": 0.9904611770684518,
+        "cycles": 382008,
+        "seconds": 0.0006821571428571429,
+        "ipc": 0.12335343762434295,
+        "i_beats": 8109,
+        "d_transfer_cycles": 5256
+      },
+      "quant_loader-dev-131": {
+        "time_ratio": 0.9770512388769341,
+        "cycles": 1711784,
+        "seconds": 0.003056757142857143,
+        "ipc": 0.1477633860346866,
+        "i_beats": 6157,
+        "d_transfer_cycles": 58332
+      },
+      "quant_loader-dev-257": {
+        "time_ratio": 0.9761791037325379,
+        "cycles": 1720830,
+        "seconds": 0.0030729107142857142,
+        "ipc": 0.1474085179826014,
+        "i_beats": 5965,
+        "d_transfer_cycles": 58836
+      },
+      "runtime_graph-dev-131": {
+        "time_ratio": 0.9886573190936834,
+        "cycles": 1837300,
+        "seconds": 0.0032808928571428572,
+        "ipc": 0.07048767212757852,
+        "i_beats": 44333,
+        "d_transfer_cycles": 25052
+      },
+      "runtime_graph-dev-257": {
+        "time_ratio": 0.9828777920337948,
+        "cycles": 1836229,
+        "seconds": 0.0032789803571428573,
+        "ipc": 0.06987200398207413,
+        "i_beats": 44301,
+        "d_transfer_cycles": 25092
+      },
+      "regex_tokenizer-dev-131": {
+        "time_ratio": 0.9677499212371571,
+        "cycles": 3842723,
+        "seconds": 0.006862005357142857,
+        "ipc": 0.0517953024456876,
+        "i_beats": 120301,
+        "d_transfer_cycles": 28020
+      },
+      "regex_tokenizer-dev-257": {
+        "time_ratio": 0.9690933715963185,
+        "cycles": 3708574,
+        "seconds": 0.0066224535714285715,
+        "ipc": 0.053209400702264535,
+        "i_beats": 114557,
+        "d_transfer_cycles": 30492
+      },
+      "ini_config-dev-131": {
+        "time_ratio": 0.9800871589164563,
+        "cycles": 197909,
+        "seconds": 0.00035340892857142856,
+        "ipc": 0.186696916259493,
+        "i_beats": 4781,
+        "d_transfer_cycles": 1156
+      },
+      "ini_config-dev-257": {
+        "time_ratio": 0.9754031223478793,
+        "cycles": 197683,
+        "seconds": 0.00035300535714285716,
+        "ipc": 0.18658660582852343,
+        "i_beats": 4701,
+        "d_transfer_cycles": 1228
+      }
+    }
+  }
+}

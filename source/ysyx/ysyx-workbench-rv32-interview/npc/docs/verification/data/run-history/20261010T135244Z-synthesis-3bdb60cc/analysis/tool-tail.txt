@@ -1,0 +1,624 @@
+urrent data queue vertexes number is 58
+I20261010 15:52:42.973338 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 196
+I20261010 15:52:42.991380 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 99
+I20261010 15:52:43.006400 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 161
+I20261010 15:52:43.022365 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 112
+I20261010 15:52:43.038117 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 112
+I20261010 15:52:43.052143 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 48
+I20261010 15:52:43.064002 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 48
+I20261010 15:52:43.074687 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 16
+I20261010 15:52:43.086999 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 16
+I20261010 15:52:43.096206 10135 StaDataPropagationBFS.cc:229] data fwd propagation bfs end
+I20261010 15:52:43.096554 10135 StaDataPropagationBFS.cc:232] data fwd propagation bfs memory usage 804.392MB
+I20261010 15:52:43.096686 10135 StaDataPropagationBFS.cc:234] data fwd propagation bfs time elapsed 2.01433s
+I20261010 15:52:43.096732 10135 StaDataPropagation.cc:695] data fwd propagation end
+I20261010 15:52:43.096761 10135 StaDataPropagation.cc:676] data fwd propagation start
+I20261010 15:52:43.096844 10135 StaDataPropagationBFS.cc:166] data fwd propagation bfs start
+I20261010 15:52:43.102301 10135 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 0
+I20261010 15:52:43.110111 10135 StaDataPropagationBFS.cc:229] data fwd propagation bfs end
+I20261010 15:52:43.110388 10135 StaDataPropagationBFS.cc:232] data fwd propagation bfs memory usage 0MB
+I20261010 15:52:43.110574 10135 StaDataPropagationBFS.cc:234] data fwd propagation bfs time elapsed 0.013729s
+I20261010 15:52:43.110721 10135 StaDataPropagation.cc:695] data fwd propagation end
+I20261010 15:52:43.110800 10135 StaAnalyze.cc:557] analyze timing path start
+I20261010 15:52:43.110865 10135 StaAnalyze.cc:565] analyze timing path end vertex 1 total 2213 start
+I20261010 15:52:43.110965 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[0]_0__reg_p:D
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.111104 10135 StaAnalyze.cc:599] analyze timing path end vertex 1 total 2213 end
+I20261010 15:52:43.111521 10135 StaAnalyze.cc:565] analyze timing path end vertex 11 total 2213 start
+I20261010 15:52:43.111688 10135 StaAnalyze.cc:599] analyze timing path end vertex 11 total 2213 end
+I20261010 15:52:43.111871 10135 StaAnalyze.cc:565] analyze timing path end vertex 21 total 2213 start
+I20261010 15:52:43.112004 10135 StaAnalyze.cc:599] analyze timing path end vertex 21 total 2213 end
+I20261010 15:52:43.112285 10135 StaAnalyze.cc:565] analyze timing path end vertex 31 total 2213 start
+I20261010 15:52:43.112460 10135 StaAnalyze.cc:599] analyze timing path end vertex 31 total 2213 end
+I20261010 15:52:43.112828 10135 StaAnalyze.cc:565] analyze timing path end vertex 41 total 2213 start
+I20261010 15:52:43.113023 10135 StaAnalyze.cc:599] analyze timing path end vertex 41 total 2213 end
+I20261010 15:52:43.113464 10135 StaAnalyze.cc:565] analyze timing path end vertex 51 total 2213 start
+I20261010 15:52:43.113688 10135 StaAnalyze.cc:599] analyze timing path end vertex 51 total 2213 end
+I20261010 15:52:43.114092 10135 StaAnalyze.cc:565] analyze timing path end vertex 61 total 2213 start
+I20261010 15:52:43.114173 10135 StaAnalyze.cc:599] analyze timing path end vertex 61 total 2213 end
+I20261010 15:52:43.114336 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[0]_144__reg_p:D
+I20261010 15:52:43.114383 10135 StaAnalyze.cc:565] analyze timing path end vertex 71 total 2213 start
+I20261010 15:52:43.114418 10135 StaAnalyze.cc:599] analyze timing path end vertex 71 total 2213 end
+I20261010 15:52:43.114701 10135 StaAnalyze.cc:565] analyze timing path end vertex 81 total 2213 start
+I20261010 15:52:43.114755 10135 StaAnalyze.cc:599] analyze timing path end vertex 81 total 2213 end
+I20261010 15:52:43.114878 10135 StaAnalyze.cc:565] analyze timing path end vertex 91 total 2213 start
+I20261010 15:52:43.114902 10135 StaAnalyze.cc:599] analyze timing path end vertex 91 total 2213 end
+I20261010 15:52:43.114979 10135 StaAnalyze.cc:565] analyze timing path end vertex 101 total 2213 start
+I20261010 15:52:43.115002 10135 StaAnalyze.cc:599] analyze timing path end vertex 101 total 2213 end
+I20261010 15:52:43.115172 10135 StaAnalyze.cc:565] analyze timing path end vertex 111 total 2213 start
+I20261010 15:52:43.115207 10135 StaAnalyze.cc:599] analyze timing path end vertex 111 total 2213 end
+I20261010 15:52:43.115381 10135 StaAnalyze.cc:565] analyze timing path end vertex 121 total 2213 start
+I20261010 15:52:43.115417 10135 StaAnalyze.cc:599] analyze timing path end vertex 121 total 2213 end
+I20261010 15:52:43.115651 10135 StaAnalyze.cc:565] analyze timing path end vertex 131 total 2213 start
+I20261010 15:52:43.115700 10135 StaAnalyze.cc:599] analyze timing path end vertex 131 total 2213 end
+I20261010 15:52:43.115818 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[0]_186__reg_p:D
+I20261010 15:52:43.115897 10135 StaAnalyze.cc:565] analyze timing path end vertex 141 total 2213 start
+I20261010 15:52:43.115931 10135 StaAnalyze.cc:599] analyze timing path end vertex 141 total 2213 end
+I20261010 15:52:43.116147 10135 StaAnalyze.cc:565] analyze timing path end vertex 151 total 2213 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.116196 10135 StaAnalyze.cc:599] analyze timing path end vertex 151 total 2213 end
+I20261010 15:52:43.116460 10135 StaAnalyze.cc:565] analyze timing path end vertex 161 total 2213 start
+I20261010 15:52:43.116523 10135 StaAnalyze.cc:599] analyze timing path end vertex 161 total 2213 end
+I20261010 15:52:43.116732 10135 StaAnalyze.cc:565] analyze timing path end vertex 171 total 2213 start
+I20261010 15:52:43.116786 10135 StaAnalyze.cc:599] analyze timing path end vertex 171 total 2213 end
+I20261010 15:52:43.117000 10135 StaAnalyze.cc:565] analyze timing path end vertex 181 total 2213 start
+I20261010 15:52:43.117043 10135 StaAnalyze.cc:599] analyze timing path end vertex 181 total 2213 end
+I20261010 15:52:43.117178 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[0]_231__reg_p:D
+I20261010 15:52:43.117275 10135 StaAnalyze.cc:565] analyze timing path end vertex 191 total 2213 start
+I20261010 15:52:43.117316 10135 StaAnalyze.cc:599] analyze timing path end vertex 191 total 2213 end
+I20261010 15:52:43.117550 10135 StaAnalyze.cc:565] analyze timing path end vertex 201 total 2213 start
+I20261010 15:52:43.117606 10135 StaAnalyze.cc:599] analyze timing path end vertex 201 total 2213 end
+I20261010 15:52:43.117820 10135 StaAnalyze.cc:565] analyze timing path end vertex 211 total 2213 start
+I20261010 15:52:43.117861 10135 StaAnalyze.cc:599] analyze timing path end vertex 211 total 2213 end
+I20261010 15:52:43.118124 10135 StaAnalyze.cc:565] analyze timing path end vertex 221 total 2213 start
+I20261010 15:52:43.118189 10135 StaAnalyze.cc:599] analyze timing path end vertex 221 total 2213 end
+I20261010 15:52:43.118639 10135 StaAnalyze.cc:565] analyze timing path end vertex 231 total 2213 start
+I20261010 15:52:43.118786 10135 StaAnalyze.cc:599] analyze timing path end vertex 231 total 2213 end
+I20261010 15:52:43.119069 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[0]_56__reg_p:D
+I20261010 15:52:43.119326 10135 StaAnalyze.cc:565] analyze timing path end vertex 241 total 2213 start
+I20261010 15:52:43.119560 10135 StaAnalyze.cc:599] analyze timing path end vertex 241 total 2213 end
+I20261010 15:52:43.119944 10135 StaAnalyze.cc:565] analyze timing path end vertex 251 total 2213 start
+I20261010 15:52:43.120193 10135 StaAnalyze.cc:599] analyze timing path end vertex 251 total 2213 end
+I20261010 15:52:43.120730 10135 StaAnalyze.cc:565] analyze timing path end vertex 261 total 2213 start
+I20261010 15:52:43.120954 10135 StaAnalyze.cc:599] analyze timing path end vertex 261 total 2213 end
+I20261010 15:52:43.121353 10135 StaAnalyze.cc:565] analyze timing path end vertex 271 total 2213 start
+I20261010 15:52:43.121492 10135 StaAnalyze.cc:599] analyze timing path end vertex 271 total 2213 end
+I20261010 15:52:43.121794 10135 StaAnalyze.cc:565] analyze timing path end vertex 281 total 2213 start
+I20261010 15:52:43.121939 10135 StaAnalyze.cc:599] analyze timing path end vertex 281 total 2213 end
+I20261010 15:52:43.122277 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[2]_172__reg_p:D
+I20261010 15:52:43.122648 10135 StaAnalyze.cc:565] analyze timing path end vertex 291 total 2213 start
+I20261010 15:52:43.122866 10135 StaAnalyze.cc:599] analyze timing path end vertex 291 total 2213 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.123255 10135 StaAnalyze.cc:565] analyze timing path end vertex 301 total 2213 start
+I20261010 15:52:43.123618 10135 StaAnalyze.cc:599] analyze timing path end vertex 301 total 2213 end
+I20261010 15:52:43.123997 10135 StaAnalyze.cc:565] analyze timing path end vertex 311 total 2213 start
+I20261010 15:52:43.124224 10135 StaAnalyze.cc:599] analyze timing path end vertex 311 total 2213 end
+I20261010 15:52:43.124648 10135 StaAnalyze.cc:565] analyze timing path end vertex 321 total 2213 start
+I20261010 15:52:43.124846 10135 StaAnalyze.cc:599] analyze timing path end vertex 321 total 2213 end
+I20261010 15:52:43.125142 10135 StaAnalyze.cc:565] analyze timing path end vertex 331 total 2213 start
+I20261010 15:52:43.125308 10135 StaAnalyze.cc:599] analyze timing path end vertex 331 total 2213 end
+I20261010 15:52:43.125509 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[1]_13__reg_p:D
+I20261010 15:52:43.125662 10135 StaAnalyze.cc:565] analyze timing path end vertex 341 total 2213 start
+I20261010 15:52:43.125730 10135 StaAnalyze.cc:599] analyze timing path end vertex 341 total 2213 end
+I20261010 15:52:43.125898 10135 StaAnalyze.cc:565] analyze timing path end vertex 351 total 2213 start
+I20261010 15:52:43.125998 10135 StaAnalyze.cc:599] analyze timing path end vertex 351 total 2213 end
+I20261010 15:52:43.126200 10135 StaAnalyze.cc:565] analyze timing path end vertex 361 total 2213 start
+I20261010 15:52:43.126302 10135 StaAnalyze.cc:599] analyze timing path end vertex 361 total 2213 end
+I20261010 15:52:43.126529 10135 StaAnalyze.cc:565] analyze timing path end vertex 371 total 2213 start
+I20261010 15:52:43.126639 10135 StaAnalyze.cc:599] analyze timing path end vertex 371 total 2213 end
+I20261010 15:52:43.126852 10135 StaAnalyze.cc:565] analyze timing path end vertex 381 total 2213 start
+I20261010 15:52:43.126890 10135 StaAnalyze.cc:599] analyze timing path end vertex 381 total 2213 end
+I20261010 15:52:43.126973 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[1]_185__reg_p:D
+I20261010 15:52:43.127029 10135 StaAnalyze.cc:565] analyze timing path end vertex 391 total 2213 start
+I20261010 15:52:43.127056 10135 StaAnalyze.cc:599] analyze timing path end vertex 391 total 2213 end
+I20261010 15:52:43.127177 10135 StaAnalyze.cc:565] analyze timing path end vertex 401 total 2213 start
+I20261010 15:52:43.127200 10135 StaAnalyze.cc:599] analyze timing path end vertex 401 total 2213 end
+I20261010 15:52:43.127327 10135 StaAnalyze.cc:565] analyze timing path end vertex 411 total 2213 start
+I20261010 15:52:43.127352 10135 StaAnalyze.cc:599] analyze timing path end vertex 411 total 2213 end
+I20261010 15:52:43.127632 10135 StaAnalyze.cc:565] analyze timing path end vertex 421 total 2213 start
+I20261010 15:52:43.127741 10135 StaAnalyze.cc:599] analyze timing path end vertex 421 total 2213 end
+I20261010 15:52:43.127915 10135 StaAnalyze.cc:565] analyze timing path end vertex 431 total 2213 start
+I20261010 15:52:43.128013 10135 StaAnalyze.cc:599] analyze timing path end vertex 431 total 2213 end
+I20261010 15:52:43.128182 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[1]_22__reg_p:D
+I20261010 15:52:43.128331 10135 StaAnalyze.cc:565] analyze timing path end vertex 441 total 2213 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.128464 10135 StaAnalyze.cc:599] analyze timing path end vertex 441 total 2213 end
+I20261010 15:52:43.128882 10135 StaAnalyze.cc:565] analyze timing path end vertex 451 total 2213 start
+I20261010 15:52:43.129055 10135 StaAnalyze.cc:599] analyze timing path end vertex 451 total 2213 end
+I20261010 15:52:43.129408 10135 StaAnalyze.cc:565] analyze timing path end vertex 461 total 2213 start
+I20261010 15:52:43.129498 10135 StaAnalyze.cc:599] analyze timing path end vertex 461 total 2213 end
+I20261010 15:52:43.129740 10135 StaAnalyze.cc:565] analyze timing path end vertex 471 total 2213 start
+I20261010 15:52:43.129786 10135 StaAnalyze.cc:599] analyze timing path end vertex 471 total 2213 end
+I20261010 15:52:43.130009 10135 StaAnalyze.cc:565] analyze timing path end vertex 481 total 2213 start
+I20261010 15:52:43.130051 10135 StaAnalyze.cc:599] analyze timing path end vertex 481 total 2213 end
+I20261010 15:52:43.130247 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[4]_166__reg_p:D
+I20261010 15:52:43.130369 10135 StaAnalyze.cc:565] analyze timing path end vertex 491 total 2213 start
+I20261010 15:52:43.130457 10135 StaAnalyze.cc:599] analyze timing path end vertex 491 total 2213 end
+I20261010 15:52:43.130679 10135 StaAnalyze.cc:565] analyze timing path end vertex 501 total 2213 start
+I20261010 15:52:43.130728 10135 StaAnalyze.cc:599] analyze timing path end vertex 501 total 2213 end
+I20261010 15:52:43.130971 10135 StaAnalyze.cc:565] analyze timing path end vertex 511 total 2213 start
+I20261010 15:52:43.131016 10135 StaAnalyze.cc:599] analyze timing path end vertex 511 total 2213 end
+I20261010 15:52:43.131254 10135 StaAnalyze.cc:565] analyze timing path end vertex 521 total 2213 start
+I20261010 15:52:43.131301 10135 StaAnalyze.cc:599] analyze timing path end vertex 521 total 2213 end
+I20261010 15:52:43.131604 10135 StaAnalyze.cc:565] analyze timing path end vertex 531 total 2213 start
+I20261010 15:52:43.131683 10135 StaAnalyze.cc:599] analyze timing path end vertex 531 total 2213 end
+I20261010 15:52:43.131817 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[1]_8__reg_p:D
+I20261010 15:52:43.132032 10135 StaAnalyze.cc:565] analyze timing path end vertex 541 total 2213 start
+I20261010 15:52:43.132266 10135 StaAnalyze.cc:599] analyze timing path end vertex 541 total 2213 end
+I20261010 15:52:43.132752 10135 StaAnalyze.cc:565] analyze timing path end vertex 551 total 2213 start
+I20261010 15:52:43.132961 10135 StaAnalyze.cc:599] analyze timing path end vertex 551 total 2213 end
+I20261010 15:52:43.133342 10135 StaAnalyze.cc:565] analyze timing path end vertex 561 total 2213 start
+I20261010 15:52:43.133632 10135 StaAnalyze.cc:599] analyze timing path end vertex 561 total 2213 end
+I20261010 15:52:43.133883 10135 StaAnalyze.cc:565] analyze timing path end vertex 571 total 2213 start
+I20261010 15:52:43.133929 10135 StaAnalyze.cc:599] analyze timing path end vertex 571 total 2213 end
+I20261010 15:52:43.134155 10135 StaAnalyze.cc:565] analyze timing path end vertex 581 total 2213 start
+I20261010 15:52:43.134250 10135 StaAnalyze.cc:599] analyze timing path end vertex 581 total 2213 end
+I20261010 15:52:43.134492 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[2]_134__reg_p:D
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.134631 10135 StaAnalyze.cc:565] analyze timing path end vertex 591 total 2213 start
+I20261010 15:52:43.134719 10135 StaAnalyze.cc:599] analyze timing path end vertex 591 total 2213 end
+I20261010 15:52:43.134945 10135 StaAnalyze.cc:565] analyze timing path end vertex 601 total 2213 start
+I20261010 15:52:43.134997 10135 StaAnalyze.cc:599] analyze timing path end vertex 601 total 2213 end
+I20261010 15:52:43.135218 10135 StaAnalyze.cc:565] analyze timing path end vertex 611 total 2213 start
+I20261010 15:52:43.135272 10135 StaAnalyze.cc:599] analyze timing path end vertex 611 total 2213 end
+I20261010 15:52:43.135602 10135 StaAnalyze.cc:565] analyze timing path end vertex 621 total 2213 start
+I20261010 15:52:43.135787 10135 StaAnalyze.cc:599] analyze timing path end vertex 621 total 2213 end
+I20261010 15:52:43.136168 10135 StaAnalyze.cc:565] analyze timing path end vertex 631 total 2213 start
+I20261010 15:52:43.136411 10135 StaAnalyze.cc:599] analyze timing path end vertex 631 total 2213 end
+I20261010 15:52:43.136765 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[5]_133__reg_p:D
+I20261010 15:52:43.137033 10135 StaAnalyze.cc:565] analyze timing path end vertex 641 total 2213 start
+I20261010 15:52:43.137123 10135 StaAnalyze.cc:599] analyze timing path end vertex 641 total 2213 end
+I20261010 15:52:43.137351 10135 StaAnalyze.cc:565] analyze timing path end vertex 651 total 2213 start
+I20261010 15:52:43.137396 10135 StaAnalyze.cc:599] analyze timing path end vertex 651 total 2213 end
+I20261010 15:52:43.137727 10135 StaAnalyze.cc:565] analyze timing path end vertex 661 total 2213 start
+I20261010 15:52:43.137822 10135 StaAnalyze.cc:599] analyze timing path end vertex 661 total 2213 end
+I20261010 15:52:43.138078 10135 StaAnalyze.cc:565] analyze timing path end vertex 671 total 2213 start
+I20261010 15:52:43.138123 10135 StaAnalyze.cc:599] analyze timing path end vertex 671 total 2213 end
+I20261010 15:52:43.138455 10135 StaAnalyze.cc:565] analyze timing path end vertex 681 total 2213 start
+I20261010 15:52:43.138518 10135 StaAnalyze.cc:599] analyze timing path end vertex 681 total 2213 end
+I20261010 15:52:43.138778 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[2]_200__reg_p:D
+I20261010 15:52:43.138904 10135 StaAnalyze.cc:565] analyze timing path end vertex 691 total 2213 start
+I20261010 15:52:43.138960 10135 StaAnalyze.cc:599] analyze timing path end vertex 691 total 2213 end
+I20261010 15:52:43.139200 10135 StaAnalyze.cc:565] analyze timing path end vertex 701 total 2213 start
+I20261010 15:52:43.139245 10135 StaAnalyze.cc:599] analyze timing path end vertex 701 total 2213 end
+I20261010 15:52:43.139680 10135 StaAnalyze.cc:565] analyze timing path end vertex 711 total 2213 start
+I20261010 15:52:43.139909 10135 StaAnalyze.cc:599] analyze timing path end vertex 711 total 2213 end
+I20261010 15:52:43.140377 10135 StaAnalyze.cc:565] analyze timing path end vertex 721 total 2213 start
+I20261010 15:52:43.140602 10135 StaAnalyze.cc:599] analyze timing path end vertex 721 total 2213 end
+I20261010 15:52:43.140913 10135 StaAnalyze.cc:565] analyze timing path end vertex 731 total 2213 start
+I20261010 15:52:43.141086 10135 StaAnalyze.cc:599] analyze timing path end vertex 731 total 2213 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.141324 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[2]_26__reg_p:D
+I20261010 15:52:43.141865 10135 StaAnalyze.cc:565] analyze timing path end vertex 741 total 2213 start
+I20261010 15:52:43.142087 10135 StaAnalyze.cc:599] analyze timing path end vertex 741 total 2213 end
+I20261010 15:52:43.142558 10135 StaAnalyze.cc:565] analyze timing path end vertex 751 total 2213 start
+I20261010 15:52:43.142784 10135 StaAnalyze.cc:599] analyze timing path end vertex 751 total 2213 end
+I20261010 15:52:43.143599 10135 StaAnalyze.cc:565] analyze timing path end vertex 761 total 2213 start
+I20261010 15:52:43.143821 10135 StaAnalyze.cc:599] analyze timing path end vertex 761 total 2213 end
+I20261010 15:52:43.144207 10135 StaAnalyze.cc:565] analyze timing path end vertex 771 total 2213 start
+I20261010 15:52:43.144477 10135 StaAnalyze.cc:599] analyze timing path end vertex 771 total 2213 end
+I20261010 15:52:43.144909 10135 StaAnalyze.cc:565] analyze timing path end vertex 781 total 2213 start
+I20261010 15:52:43.144977 10135 StaAnalyze.cc:599] analyze timing path end vertex 781 total 2213 end
+I20261010 15:52:43.145144 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[2]_71__reg_p:D
+I20261010 15:52:43.145263 10135 StaAnalyze.cc:565] analyze timing path end vertex 791 total 2213 start
+I20261010 15:52:43.145323 10135 StaAnalyze.cc:599] analyze timing path end vertex 791 total 2213 end
+I20261010 15:52:43.145709 10135 StaAnalyze.cc:565] analyze timing path end vertex 801 total 2213 start
+I20261010 15:52:43.145782 10135 StaAnalyze.cc:599] analyze timing path end vertex 801 total 2213 end
+I20261010 15:52:43.146030 10135 StaAnalyze.cc:565] analyze timing path end vertex 811 total 2213 start
+I20261010 15:52:43.146086 10135 StaAnalyze.cc:599] analyze timing path end vertex 811 total 2213 end
+I20261010 15:52:43.146396 10135 StaAnalyze.cc:565] analyze timing path end vertex 821 total 2213 start
+I20261010 15:52:43.146488 10135 StaAnalyze.cc:599] analyze timing path end vertex 821 total 2213 end
+I20261010 15:52:43.146744 10135 StaAnalyze.cc:565] analyze timing path end vertex 831 total 2213 start
+I20261010 15:52:43.146804 10135 StaAnalyze.cc:599] analyze timing path end vertex 831 total 2213 end
+I20261010 15:52:43.146970 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[3]_116__reg_p:D
+I20261010 15:52:43.147083 10135 StaAnalyze.cc:565] analyze timing path end vertex 841 total 2213 start
+I20261010 15:52:43.147143 10135 StaAnalyze.cc:599] analyze timing path end vertex 841 total 2213 end
+I20261010 15:52:43.147385 10135 StaAnalyze.cc:565] analyze timing path end vertex 851 total 2213 start
+I20261010 15:52:43.147650 10135 StaAnalyze.cc:599] analyze timing path end vertex 851 total 2213 end
+I20261010 15:52:43.147979 10135 StaAnalyze.cc:565] analyze timing path end vertex 861 total 2213 start
+I20261010 15:52:43.148168 10135 StaAnalyze.cc:599] analyze timing path end vertex 861 total 2213 end
+I20261010 15:52:43.148613 10135 StaAnalyze.cc:565] analyze timing path end vertex 871 total 2213 start
+I20261010 15:52:43.148823 10135 StaAnalyze.cc:599] analyze timing path end vertex 871 total 2213 end
+I20261010 15:52:43.149216 10135 StaAnalyze.cc:565] analyze timing path end vertex 881 total 2213 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.149411 10135 StaAnalyze.cc:599] analyze timing path end vertex 881 total 2213 end
+I20261010 15:52:43.149807 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[3]_161__reg_p:D
+I20261010 15:52:43.149935 10135 StaAnalyze.cc:565] analyze timing path end vertex 891 total 2213 start
+I20261010 15:52:43.149995 10135 StaAnalyze.cc:599] analyze timing path end vertex 891 total 2213 end
+I20261010 15:52:43.150238 10135 StaAnalyze.cc:565] analyze timing path end vertex 901 total 2213 start
+I20261010 15:52:43.150285 10135 StaAnalyze.cc:599] analyze timing path end vertex 901 total 2213 end
+I20261010 15:52:43.150688 10135 StaAnalyze.cc:565] analyze timing path end vertex 911 total 2213 start
+I20261010 15:52:43.150781 10135 StaAnalyze.cc:599] analyze timing path end vertex 911 total 2213 end
+I20261010 15:52:43.151196 10135 StaAnalyze.cc:565] analyze timing path end vertex 921 total 2213 start
+I20261010 15:52:43.151266 10135 StaAnalyze.cc:599] analyze timing path end vertex 921 total 2213 end
+I20261010 15:52:43.151659 10135 StaAnalyze.cc:565] analyze timing path end vertex 931 total 2213 start
+I20261010 15:52:43.151746 10135 StaAnalyze.cc:599] analyze timing path end vertex 931 total 2213 end
+I20261010 15:52:43.152055 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[3]_206__reg_p:D
+I20261010 15:52:43.152221 10135 StaAnalyze.cc:565] analyze timing path end vertex 941 total 2213 start
+I20261010 15:52:43.152372 10135 StaAnalyze.cc:599] analyze timing path end vertex 941 total 2213 end
+I20261010 15:52:43.152629 10135 StaAnalyze.cc:565] analyze timing path end vertex 951 total 2213 start
+I20261010 15:52:43.152714 10135 StaAnalyze.cc:599] analyze timing path end vertex 951 total 2213 end
+I20261010 15:52:43.152973 10135 StaAnalyze.cc:565] analyze timing path end vertex 961 total 2213 start
+I20261010 15:52:43.153155 10135 StaAnalyze.cc:599] analyze timing path end vertex 961 total 2213 end
+I20261010 15:52:43.153503 10135 StaAnalyze.cc:565] analyze timing path end vertex 971 total 2213 start
+I20261010 15:52:43.153679 10135 StaAnalyze.cc:599] analyze timing path end vertex 971 total 2213 end
+I20261010 15:52:43.154019 10135 StaAnalyze.cc:565] analyze timing path end vertex 981 total 2213 start
+I20261010 15:52:43.154076 10135 StaAnalyze.cc:599] analyze timing path end vertex 981 total 2213 end
+I20261010 15:52:43.154211 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[3]_31__reg_p:D
+I20261010 15:52:43.154302 10135 StaAnalyze.cc:565] analyze timing path end vertex 991 total 2213 start
+I20261010 15:52:43.154348 10135 StaAnalyze.cc:599] analyze timing path end vertex 991 total 2213 end
+I20261010 15:52:43.154584 10135 StaAnalyze.cc:565] analyze timing path end vertex 1001 total 2213 start
+I20261010 15:52:43.154624 10135 StaAnalyze.cc:599] analyze timing path end vertex 1001 total 2213 end
+I20261010 15:52:43.154825 10135 StaAnalyze.cc:565] analyze timing path end vertex 1011 total 2213 start
+I20261010 15:52:43.155015 10135 StaAnalyze.cc:599] analyze timing path end vertex 1011 total 2213 end
+I20261010 15:52:43.155257 10135 StaAnalyze.cc:565] analyze timing path end vertex 1021 total 2213 start
+I20261010 15:52:43.155308 10135 StaAnalyze.cc:599] analyze timing path end vertex 1021 total 2213 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.155718 10135 StaAnalyze.cc:565] analyze timing path end vertex 1031 total 2213 start
+I20261010 15:52:43.155993 10135 StaAnalyze.cc:599] analyze timing path end vertex 1031 total 2213 end
+I20261010 15:52:43.156251 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[3]_77__reg_p:D
+I20261010 15:52:43.156492 10135 StaAnalyze.cc:565] analyze timing path end vertex 1041 total 2213 start
+I20261010 15:52:43.156677 10135 StaAnalyze.cc:599] analyze timing path end vertex 1041 total 2213 end
+I20261010 15:52:43.157148 10135 StaAnalyze.cc:565] analyze timing path end vertex 1051 total 2213 start
+I20261010 15:52:43.157310 10135 StaAnalyze.cc:599] analyze timing path end vertex 1051 total 2213 end
+I20261010 15:52:43.157666 10135 StaAnalyze.cc:565] analyze timing path end vertex 1061 total 2213 start
+I20261010 15:52:43.157840 10135 StaAnalyze.cc:599] analyze timing path end vertex 1061 total 2213 end
+I20261010 15:52:43.158192 10135 StaAnalyze.cc:565] analyze timing path end vertex 1071 total 2213 start
+I20261010 15:52:43.158356 10135 StaAnalyze.cc:599] analyze timing path end vertex 1071 total 2213 end
+I20261010 15:52:43.158721 10135 StaAnalyze.cc:565] analyze timing path end vertex 1081 total 2213 start
+I20261010 15:52:43.158932 10135 StaAnalyze.cc:599] analyze timing path end vertex 1081 total 2213 end
+I20261010 15:52:43.159209 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[4]_121__reg_p:D
+I20261010 15:52:43.159456 10135 StaAnalyze.cc:565] analyze timing path end vertex 1091 total 2213 start
+I20261010 15:52:43.159531 10135 StaAnalyze.cc:599] analyze timing path end vertex 1091 total 2213 end
+I20261010 15:52:43.159785 10135 StaAnalyze.cc:565] analyze timing path end vertex 1101 total 2213 start
+I20261010 15:52:43.159829 10135 StaAnalyze.cc:599] analyze timing path end vertex 1101 total 2213 end
+I20261010 15:52:43.160068 10135 StaAnalyze.cc:565] analyze timing path end vertex 1111 total 2213 start
+I20261010 15:52:43.160413 10135 StaAnalyze.cc:599] analyze timing path end vertex 1111 total 2213 end
+I20261010 15:52:43.161024 10135 StaAnalyze.cc:565] analyze timing path end vertex 1121 total 2213 start
+I20261010 15:52:43.161192 10135 StaAnalyze.cc:599] analyze timing path end vertex 1121 total 2213 end
+I20261010 15:52:43.161490 10135 StaAnalyze.cc:565] analyze timing path end vertex 1131 total 2213 start
+I20261010 15:52:43.161665 10135 StaAnalyze.cc:599] analyze timing path end vertex 1131 total 2213 end
+I20261010 15:52:43.161881 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.reuse_array_q_9__reg_p:D
+I20261010 15:52:43.162091 10135 StaAnalyze.cc:565] analyze timing path end vertex 1141 total 2213 start
+I20261010 15:52:43.162256 10135 StaAnalyze.cc:599] analyze timing path end vertex 1141 total 2213 end
+I20261010 15:52:43.162631 10135 StaAnalyze.cc:565] analyze timing path end vertex 1151 total 2213 start
+I20261010 15:52:43.162825 10135 StaAnalyze.cc:599] analyze timing path end vertex 1151 total 2213 end
+I20261010 15:52:43.163188 10135 StaAnalyze.cc:565] analyze timing path end vertex 1161 total 2213 start
+I20261010 15:52:43.163246 10135 StaAnalyze.cc:599] analyze timing path end vertex 1161 total 2213 end
+I20261010 15:52:43.163535 10135 StaAnalyze.cc:565] analyze timing path end vertex 1171 total 2213 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.163605 10135 StaAnalyze.cc:599] analyze timing path end vertex 1171 total 2213 end
+I20261010 15:52:43.163889 10135 StaAnalyze.cc:565] analyze timing path end vertex 1181 total 2213 start
+I20261010 15:52:43.163932 10135 StaAnalyze.cc:599] analyze timing path end vertex 1181 total 2213 end
+I20261010 15:52:43.164076 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[4]_210__reg_p:D
+I20261010 15:52:43.164179 10135 StaAnalyze.cc:565] analyze timing path end vertex 1191 total 2213 start
+I20261010 15:52:43.164223 10135 StaAnalyze.cc:599] analyze timing path end vertex 1191 total 2213 end
+I20261010 15:52:43.164521 10135 StaAnalyze.cc:565] analyze timing path end vertex 1201 total 2213 start
+I20261010 15:52:43.164690 10135 StaAnalyze.cc:599] analyze timing path end vertex 1201 total 2213 end
+I20261010 15:52:43.165102 10135 StaAnalyze.cc:565] analyze timing path end vertex 1211 total 2213 start
+I20261010 15:52:43.165266 10135 StaAnalyze.cc:599] analyze timing path end vertex 1211 total 2213 end
+I20261010 15:52:43.165632 10135 StaAnalyze.cc:565] analyze timing path end vertex 1221 total 2213 start
+I20261010 15:52:43.165824 10135 StaAnalyze.cc:599] analyze timing path end vertex 1221 total 2213 end
+I20261010 15:52:43.166180 10135 StaAnalyze.cc:565] analyze timing path end vertex 1231 total 2213 start
+I20261010 15:52:43.166338 10135 StaAnalyze.cc:599] analyze timing path end vertex 1231 total 2213 end
+I20261010 15:52:43.166755 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[4]_36__reg_p:D
+I20261010 15:52:43.167042 10135 StaAnalyze.cc:565] analyze timing path end vertex 1241 total 2213 start
+I20261010 15:52:43.167105 10135 StaAnalyze.cc:599] analyze timing path end vertex 1241 total 2213 end
+I20261010 15:52:43.167339 10135 StaAnalyze.cc:565] analyze timing path end vertex 1251 total 2213 start
+I20261010 15:52:43.167395 10135 StaAnalyze.cc:599] analyze timing path end vertex 1251 total 2213 end
+I20261010 15:52:43.167654 10135 StaAnalyze.cc:565] analyze timing path end vertex 1261 total 2213 start
+I20261010 15:52:43.167698 10135 StaAnalyze.cc:599] analyze timing path end vertex 1261 total 2213 end
+I20261010 15:52:43.167928 10135 StaAnalyze.cc:565] analyze timing path end vertex 1271 total 2213 start
+I20261010 15:52:43.167984 10135 StaAnalyze.cc:599] analyze timing path end vertex 1271 total 2213 end
+I20261010 15:52:43.168210 10135 StaAnalyze.cc:565] analyze timing path end vertex 1281 total 2213 start
+I20261010 15:52:43.168252 10135 StaAnalyze.cc:599] analyze timing path end vertex 1281 total 2213 end
+I20261010 15:52:43.168398 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[4]_81__reg_p:D
+I20261010 15:52:43.168752 10135 StaAnalyze.cc:565] analyze timing path end vertex 1291 total 2213 start
+I20261010 15:52:43.168937 10135 StaAnalyze.cc:599] analyze timing path end vertex 1291 total 2213 end
+I20261010 15:52:43.169339 10135 StaAnalyze.cc:565] analyze timing path end vertex 1301 total 2213 start
+I20261010 15:52:43.169569 10135 StaAnalyze.cc:599] analyze timing path end vertex 1301 total 2213 end
+I20261010 15:52:43.169996 10135 StaAnalyze.cc:565] analyze timing path end vertex 1311 total 2213 start
+I20261010 15:52:43.170209 10135 StaAnalyze.cc:599] analyze timing path end vertex 1311 total 2213 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.170670 10135 StaAnalyze.cc:565] analyze timing path end vertex 1321 total 2213 start
+I20261010 15:52:43.171032 10135 StaAnalyze.cc:599] analyze timing path end vertex 1321 total 2213 end
+I20261010 15:52:43.171389 10135 StaAnalyze.cc:565] analyze timing path end vertex 1331 total 2213 start
+I20261010 15:52:43.171681 10135 StaAnalyze.cc:599] analyze timing path end vertex 1331 total 2213 end
+I20261010 15:52:43.171964 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[5]_158__reg_p:D
+I20261010 15:52:43.172196 10135 StaAnalyze.cc:565] analyze timing path end vertex 1341 total 2213 start
+I20261010 15:52:43.172257 10135 StaAnalyze.cc:599] analyze timing path end vertex 1341 total 2213 end
+I20261010 15:52:43.172506 10135 StaAnalyze.cc:565] analyze timing path end vertex 1351 total 2213 start
+I20261010 15:52:43.172559 10135 StaAnalyze.cc:599] analyze timing path end vertex 1351 total 2213 end
+I20261010 15:52:43.172875 10135 StaAnalyze.cc:565] analyze timing path end vertex 1361 total 2213 start
+I20261010 15:52:43.172932 10135 StaAnalyze.cc:599] analyze timing path end vertex 1361 total 2213 end
+I20261010 15:52:43.173234 10135 StaAnalyze.cc:565] analyze timing path end vertex 1371 total 2213 start
+I20261010 15:52:43.173367 10135 StaAnalyze.cc:599] analyze timing path end vertex 1371 total 2213 end
+I20261010 15:52:43.173647 10135 StaAnalyze.cc:565] analyze timing path end vertex 1381 total 2213 start
+I20261010 15:52:43.173703 10135 StaAnalyze.cc:599] analyze timing path end vertex 1381 total 2213 end
+I20261010 15:52:43.173861 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[5]_202__reg_p:D
+I20261010 15:52:43.174038 10135 StaAnalyze.cc:565] analyze timing path end vertex 1391 total 2213 start
+I20261010 15:52:43.174155 10135 StaAnalyze.cc:599] analyze timing path end vertex 1391 total 2213 end
+I20261010 15:52:43.174481 10135 StaAnalyze.cc:565] analyze timing path end vertex 1401 total 2213 start
+I20261010 15:52:43.174619 10135 StaAnalyze.cc:599] analyze timing path end vertex 1401 total 2213 end
+I20261010 15:52:43.174944 10135 StaAnalyze.cc:565] analyze timing path end vertex 1411 total 2213 start
+I20261010 15:52:43.175077 10135 StaAnalyze.cc:599] analyze timing path end vertex 1411 total 2213 end
+I20261010 15:52:43.175343 10135 StaAnalyze.cc:565] analyze timing path end vertex 1421 total 2213 start
+I20261010 15:52:43.175486 10135 StaAnalyze.cc:599] analyze timing path end vertex 1421 total 2213 end
+I20261010 15:52:43.175796 10135 StaAnalyze.cc:565] analyze timing path end vertex 1431 total 2213 start
+I20261010 15:52:43.175911 10135 StaAnalyze.cc:599] analyze timing path end vertex 1431 total 2213 end
+I20261010 15:52:43.176151 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[5]_28__reg_p:D
+I20261010 15:52:43.176334 10135 StaAnalyze.cc:565] analyze timing path end vertex 1441 total 2213 start
+I20261010 15:52:43.176466 10135 StaAnalyze.cc:599] analyze timing path end vertex 1441 total 2213 end
+I20261010 15:52:43.176733 10135 StaAnalyze.cc:565] analyze timing path end vertex 1451 total 2213 start
+I20261010 15:52:43.176862 10135 StaAnalyze.cc:599] analyze timing path end vertex 1451 total 2213 end
+I20261010 15:52:43.177269 10135 StaAnalyze.cc:565] analyze timing path end vertex 1461 total 2213 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.177390 10135 StaAnalyze.cc:599] analyze timing path end vertex 1461 total 2213 end
+I20261010 15:52:43.177783 10135 StaAnalyze.cc:565] analyze timing path end vertex 1471 total 2213 start
+I20261010 15:52:43.177918 10135 StaAnalyze.cc:599] analyze timing path end vertex 1471 total 2213 end
+I20261010 15:52:43.178254 10135 StaAnalyze.cc:565] analyze timing path end vertex 1481 total 2213 start
+I20261010 15:52:43.178369 10135 StaAnalyze.cc:599] analyze timing path end vertex 1481 total 2213 end
+I20261010 15:52:43.178618 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[5]_73__reg_p:D
+I20261010 15:52:43.178795 10135 StaAnalyze.cc:565] analyze timing path end vertex 1491 total 2213 start
+I20261010 15:52:43.178915 10135 StaAnalyze.cc:599] analyze timing path end vertex 1491 total 2213 end
+I20261010 15:52:43.179268 10135 StaAnalyze.cc:565] analyze timing path end vertex 1501 total 2213 start
+I20261010 15:52:43.179400 10135 StaAnalyze.cc:599] analyze timing path end vertex 1501 total 2213 end
+I20261010 15:52:43.179713 10135 StaAnalyze.cc:565] analyze timing path end vertex 1511 total 2213 start
+I20261010 15:52:43.179831 10135 StaAnalyze.cc:599] analyze timing path end vertex 1511 total 2213 end
+I20261010 15:52:43.180106 10135 StaAnalyze.cc:565] analyze timing path end vertex 1521 total 2213 start
+I20261010 15:52:43.180231 10135 StaAnalyze.cc:599] analyze timing path end vertex 1521 total 2213 end
+I20261010 15:52:43.180733 10135 StaAnalyze.cc:565] analyze timing path end vertex 1531 total 2213 start
+I20261010 15:52:43.180848 10135 StaAnalyze.cc:599] analyze timing path end vertex 1531 total 2213 end
+I20261010 15:52:43.181016 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[6]_118__reg_p:D
+I20261010 15:52:43.181234 10135 StaAnalyze.cc:565] analyze timing path end vertex 1541 total 2213 start
+I20261010 15:52:43.181349 10135 StaAnalyze.cc:599] analyze timing path end vertex 1541 total 2213 end
+I20261010 15:52:43.181684 10135 StaAnalyze.cc:565] analyze timing path end vertex 1551 total 2213 start
+I20261010 15:52:43.181818 10135 StaAnalyze.cc:599] analyze timing path end vertex 1551 total 2213 end
+I20261010 15:52:43.182127 10135 StaAnalyze.cc:565] analyze timing path end vertex 1561 total 2213 start
+I20261010 15:52:43.182245 10135 StaAnalyze.cc:599] analyze timing path end vertex 1561 total 2213 end
+I20261010 15:52:43.182577 10135 StaAnalyze.cc:565] analyze timing path end vertex 1571 total 2213 start
+I20261010 15:52:43.182708 10135 StaAnalyze.cc:599] analyze timing path end vertex 1571 total 2213 end
+I20261010 15:52:43.183017 10135 StaAnalyze.cc:565] analyze timing path end vertex 1581 total 2213 start
+I20261010 15:52:43.183169 10135 StaAnalyze.cc:599] analyze timing path end vertex 1581 total 2213 end
+I20261010 15:52:43.183398 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[6]_163__reg_p:D
+I20261010 15:52:43.183591 10135 StaAnalyze.cc:565] analyze timing path end vertex 1591 total 2213 start
+I20261010 15:52:43.183710 10135 StaAnalyze.cc:599] analyze timing path end vertex 1591 total 2213 end
+I20261010 15:52:43.183961 10135 StaAnalyze.cc:565] analyze timing path end vertex 1601 total 2213 start
+I20261010 15:52:43.184088 10135 StaAnalyze.cc:599] analyze timing path end vertex 1601 total 2213 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.184402 10135 StaAnalyze.cc:565] analyze timing path end vertex 1611 total 2213 start
+I20261010 15:52:43.184571 10135 StaAnalyze.cc:599] analyze timing path end vertex 1611 total 2213 end
+I20261010 15:52:43.184892 10135 StaAnalyze.cc:565] analyze timing path end vertex 1621 total 2213 start
+I20261010 15:52:43.185020 10135 StaAnalyze.cc:599] analyze timing path end vertex 1621 total 2213 end
+I20261010 15:52:43.185353 10135 StaAnalyze.cc:565] analyze timing path end vertex 1631 total 2213 start
+I20261010 15:52:43.185490 10135 StaAnalyze.cc:599] analyze timing path end vertex 1631 total 2213 end
+I20261010 15:52:43.185738 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[6]_208__reg_p:D
+I20261010 15:52:43.185945 10135 StaAnalyze.cc:565] analyze timing path end vertex 1641 total 2213 start
+I20261010 15:52:43.186061 10135 StaAnalyze.cc:599] analyze timing path end vertex 1641 total 2213 end
+I20261010 15:52:43.186371 10135 StaAnalyze.cc:565] analyze timing path end vertex 1651 total 2213 start
+I20261010 15:52:43.186524 10135 StaAnalyze.cc:599] analyze timing path end vertex 1651 total 2213 end
+I20261010 15:52:43.186784 10135 StaAnalyze.cc:565] analyze timing path end vertex 1661 total 2213 start
+I20261010 15:52:43.186897 10135 StaAnalyze.cc:599] analyze timing path end vertex 1661 total 2213 end
+I20261010 15:52:43.187280 10135 StaAnalyze.cc:565] analyze timing path end vertex 1671 total 2213 start
+I20261010 15:52:43.187409 10135 StaAnalyze.cc:599] analyze timing path end vertex 1671 total 2213 end
+I20261010 15:52:43.187808 10135 StaAnalyze.cc:565] analyze timing path end vertex 1681 total 2213 start
+I20261010 15:52:43.187922 10135 StaAnalyze.cc:599] analyze timing path end vertex 1681 total 2213 end
+I20261010 15:52:43.188104 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[6]_33__reg_p:D
+I20261010 15:52:43.188283 10135 StaAnalyze.cc:565] analyze timing path end vertex 1691 total 2213 start
+I20261010 15:52:43.188406 10135 StaAnalyze.cc:599] analyze timing path end vertex 1691 total 2213 end
+I20261010 15:52:43.188730 10135 StaAnalyze.cc:565] analyze timing path end vertex 1701 total 2213 start
+I20261010 15:52:43.188866 10135 StaAnalyze.cc:599] analyze timing path end vertex 1701 total 2213 end
+I20261010 15:52:43.189256 10135 StaAnalyze.cc:565] analyze timing path end vertex 1711 total 2213 start
+I20261010 15:52:43.189368 10135 StaAnalyze.cc:599] analyze timing path end vertex 1711 total 2213 end
+I20261010 15:52:43.189725 10135 StaAnalyze.cc:565] analyze timing path end vertex 1721 total 2213 start
+I20261010 15:52:43.189855 10135 StaAnalyze.cc:599] analyze timing path end vertex 1721 total 2213 end
+I20261010 15:52:43.190171 10135 StaAnalyze.cc:565] analyze timing path end vertex 1731 total 2213 start
+I20261010 15:52:43.190287 10135 StaAnalyze.cc:599] analyze timing path end vertex 1731 total 2213 end
+I20261010 15:52:43.190542 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[6]_79__reg_p:D
+I20261010 15:52:43.190733 10135 StaAnalyze.cc:565] analyze timing path end vertex 1741 total 2213 start
+I20261010 15:52:43.190848 10135 StaAnalyze.cc:599] analyze timing path end vertex 1741 total 2213 end
+I20261010 15:52:43.191211 10135 StaAnalyze.cc:565] analyze timing path end vertex 1751 total 2213 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.191345 10135 StaAnalyze.cc:599] analyze timing path end vertex 1751 total 2213 end
+I20261010 15:52:43.191659 10135 StaAnalyze.cc:565] analyze timing path end vertex 1761 total 2213 start
+I20261010 15:52:43.191771 10135 StaAnalyze.cc:599] analyze timing path end vertex 1761 total 2213 end
+I20261010 15:52:43.192103 10135 StaAnalyze.cc:565] analyze timing path end vertex 1771 total 2213 start
+I20261010 15:52:43.192220 10135 StaAnalyze.cc:599] analyze timing path end vertex 1771 total 2213 end
+I20261010 15:52:43.192596 10135 StaAnalyze.cc:565] analyze timing path end vertex 1781 total 2213 start
+I20261010 15:52:43.192716 10135 StaAnalyze.cc:599] analyze timing path end vertex 1781 total 2213 end
+I20261010 15:52:43.192970 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[7]_123__reg_p:D
+I20261010 15:52:43.193225 10135 StaAnalyze.cc:565] analyze timing path end vertex 1791 total 2213 start
+I20261010 15:52:43.193343 10135 StaAnalyze.cc:599] analyze timing path end vertex 1791 total 2213 end
+I20261010 15:52:43.193675 10135 StaAnalyze.cc:565] analyze timing path end vertex 1801 total 2213 start
+I20261010 15:52:43.193807 10135 StaAnalyze.cc:599] analyze timing path end vertex 1801 total 2213 end
+I20261010 15:52:43.194140 10135 StaAnalyze.cc:565] analyze timing path end vertex 1811 total 2213 start
+I20261010 15:52:43.194255 10135 StaAnalyze.cc:599] analyze timing path end vertex 1811 total 2213 end
+I20261010 15:52:43.194589 10135 StaAnalyze.cc:565] analyze timing path end vertex 1821 total 2213 start
+I20261010 15:52:43.194705 10135 StaAnalyze.cc:599] analyze timing path end vertex 1821 total 2213 end
+I20261010 15:52:43.194975 10135 StaAnalyze.cc:565] analyze timing path end vertex 1831 total 2213 start
+I20261010 15:52:43.195093 10135 StaAnalyze.cc:599] analyze timing path end vertex 1831 total 2213 end
+I20261010 15:52:43.195340 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[7]_169__reg_p:D
+I20261010 15:52:43.195544 10135 StaAnalyze.cc:565] analyze timing path end vertex 1841 total 2213 start
+I20261010 15:52:43.195657 10135 StaAnalyze.cc:599] analyze timing path end vertex 1841 total 2213 end
+I20261010 15:52:43.195972 10135 StaAnalyze.cc:565] analyze timing path end vertex 1851 total 2213 start
+I20261010 15:52:43.196105 10135 StaAnalyze.cc:599] analyze timing path end vertex 1851 total 2213 end
+I20261010 15:52:43.196372 10135 StaAnalyze.cc:565] analyze timing path end vertex 1861 total 2213 start
+I20261010 15:52:43.196506 10135 StaAnalyze.cc:599] analyze timing path end vertex 1861 total 2213 end
+I20261010 15:52:43.196765 10135 StaAnalyze.cc:565] analyze timing path end vertex 1871 total 2213 start
+I20261010 15:52:43.196877 10135 StaAnalyze.cc:599] analyze timing path end vertex 1871 total 2213 end
+I20261010 15:52:43.197273 10135 StaAnalyze.cc:565] analyze timing path end vertex 1881 total 2213 start
+I20261010 15:52:43.197389 10135 StaAnalyze.cc:599] analyze timing path end vertex 1881 total 2213 end
+I20261010 15:52:43.197583 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[7]_213__reg_p:D
+I20261010 15:52:43.197762 10135 StaAnalyze.cc:565] analyze timing path end vertex 1891 total 2213 start
+I20261010 15:52:43.197881 10135 StaAnalyze.cc:599] analyze timing path end vertex 1891 total 2213 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.198202 10135 StaAnalyze.cc:565] analyze timing path end vertex 1901 total 2213 start
+I20261010 15:52:43.198369 10135 StaAnalyze.cc:599] analyze timing path end vertex 1901 total 2213 end
+I20261010 15:52:43.198655 10135 StaAnalyze.cc:565] analyze timing path end vertex 1911 total 2213 start
+I20261010 15:52:43.198778 10135 StaAnalyze.cc:599] analyze timing path end vertex 1911 total 2213 end
+I20261010 15:52:43.199044 10135 StaAnalyze.cc:565] analyze timing path end vertex 1921 total 2213 start
+I20261010 15:52:43.199155 10135 StaAnalyze.cc:599] analyze timing path end vertex 1921 total 2213 end
+I20261010 15:52:43.199549 10135 StaAnalyze.cc:565] analyze timing path end vertex 1931 total 2213 start
+I20261010 15:52:43.199671 10135 StaAnalyze.cc:599] analyze timing path end vertex 1931 total 2213 end
+I20261010 15:52:43.199851 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[7]_39__reg_p:D
+I20261010 15:52:43.200037 10135 StaAnalyze.cc:565] analyze timing path end vertex 1941 total 2213 start
+I20261010 15:52:43.200153 10135 StaAnalyze.cc:599] analyze timing path end vertex 1941 total 2213 end
+I20261010 15:52:43.200628 10135 StaAnalyze.cc:565] analyze timing path end vertex 1951 total 2213 start
+I20261010 15:52:43.200763 10135 StaAnalyze.cc:599] analyze timing path end vertex 1951 total 2213 end
+I20261010 15:52:43.201097 10135 StaAnalyze.cc:565] analyze timing path end vertex 1961 total 2213 start
+I20261010 15:52:43.201256 10135 StaAnalyze.cc:599] analyze timing path end vertex 1961 total 2213 end
+I20261010 15:52:43.201607 10135 StaAnalyze.cc:565] analyze timing path end vertex 1971 total 2213 start
+I20261010 15:52:43.201725 10135 StaAnalyze.cc:599] analyze timing path end vertex 1971 total 2213 end
+I20261010 15:52:43.202145 10135 StaAnalyze.cc:565] analyze timing path end vertex 1981 total 2213 start
+I20261010 15:52:43.202265 10135 StaAnalyze.cc:599] analyze timing path end vertex 1981 total 2213 end
+I20261010 15:52:43.202488 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[7]_84__reg_p:D
+I20261010 15:52:43.202872 10135 StaAnalyze.cc:565] analyze timing path end vertex 1991 total 2213 start
+I20261010 15:52:43.203032 10135 StaAnalyze.cc:599] analyze timing path end vertex 1991 total 2213 end
+I20261010 15:52:43.203732 10135 StaAnalyze.cc:565] analyze timing path end vertex 2001 total 2213 start
+I20261010 15:52:43.203975 10135 StaAnalyze.cc:599] analyze timing path end vertex 2001 total 2213 end
+I20261010 15:52:43.204378 10135 StaAnalyze.cc:565] analyze timing path end vertex 2011 total 2213 start
+I20261010 15:52:43.204595 10135 StaAnalyze.cc:599] analyze timing path end vertex 2011 total 2213 end
+I20261010 15:52:43.204823 10135 StaAnalyze.cc:565] analyze timing path end vertex 2021 total 2213 start
+I20261010 15:52:43.204907 10135 StaAnalyze.cc:599] analyze timing path end vertex 2021 total 2213 end
+I20261010 15:52:43.205078 10135 StaAnalyze.cc:565] analyze timing path end vertex 2031 total 2213 start
+I20261010 15:52:43.205178 10135 StaAnalyze.cc:599] analyze timing path end vertex 2031 total 2213 end
+I20261010 15:52:43.205381 10135 StaAnalyze.cc:565] analyze timing path end vertex 2041 total 2213 start
+I20261010 15:52:43.205636 10135 StaAnalyze.cc:599] analyze timing path end vertex 2041 total 2213 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.205790 10135 StaAnalyze.cc:565] analyze timing path end vertex 2051 total 2213 start
+I20261010 15:52:43.205845 10135 StaAnalyze.cc:599] analyze timing path end vertex 2051 total 2213 end
+I20261010 15:52:43.205889 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_present_array_q_24__reg_p:D
+I20261010 15:52:43.205992 10135 StaAnalyze.cc:565] analyze timing path end vertex 2061 total 2213 start
+I20261010 15:52:43.206081 10135 StaAnalyze.cc:599] analyze timing path end vertex 2061 total 2213 end
+I20261010 15:52:43.206272 10135 StaAnalyze.cc:565] analyze timing path end vertex 2071 total 2213 start
+I20261010 15:52:43.206373 10135 StaAnalyze.cc:599] analyze timing path end vertex 2071 total 2213 end
+I20261010 15:52:43.206540 10135 StaAnalyze.cc:565] analyze timing path end vertex 2081 total 2213 start
+I20261010 15:52:43.206571 10135 StaAnalyze.cc:599] analyze timing path end vertex 2081 total 2213 end
+I20261010 15:52:43.206692 10135 StaAnalyze.cc:565] analyze timing path end vertex 2091 total 2213 start
+I20261010 15:52:43.206732 10135 StaAnalyze.cc:599] analyze timing path end vertex 2091 total 2213 end
+I20261010 15:52:43.206861 10135 StaAnalyze.cc:565] analyze timing path end vertex 2101 total 2213 start
+I20261010 15:52:43.206907 10135 StaAnalyze.cc:599] analyze timing path end vertex 2101 total 2213 end
+I20261010 15:52:43.207007 10135 StaAnalyze.cc:565] analyze timing path end vertex 2111 total 2213 start
+I20261010 15:52:43.207059 10135 StaAnalyze.cc:599] analyze timing path end vertex 2111 total 2213 end
+I20261010 15:52:43.207154 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.reuse_array_q_18__reg_p:D
+I20261010 15:52:43.207227 10135 StaAnalyze.cc:565] analyze timing path end vertex 2121 total 2213 start
+I20261010 15:52:43.207285 10135 StaAnalyze.cc:599] analyze timing path end vertex 2121 total 2213 end
+I20261010 15:52:43.207404 10135 StaAnalyze.cc:565] analyze timing path end vertex 2131 total 2213 start
+I20261010 15:52:43.207464 10135 StaAnalyze.cc:599] analyze timing path end vertex 2131 total 2213 end
+I20261010 15:52:43.207569 10135 StaAnalyze.cc:565] analyze timing path end vertex 2141 total 2213 start
+I20261010 15:52:43.207618 10135 StaAnalyze.cc:599] analyze timing path end vertex 2141 total 2213 end
+I20261010 15:52:43.207726 10135 StaAnalyze.cc:565] analyze timing path end vertex 2151 total 2213 start
+I20261010 15:52:43.207763 10135 StaAnalyze.cc:599] analyze timing path end vertex 2151 total 2213 end
+I20261010 15:52:43.207875 10135 StaAnalyze.cc:565] analyze timing path end vertex 2161 total 2213 start
+I20261010 15:52:43.207914 10135 StaAnalyze.cc:599] analyze timing path end vertex 2161 total 2213 end
+I20261010 15:52:43.208016 10135 StaAnalyze.cc:303] add path data num 4 to g_full_target.reuse_array_q_40__reg_p:D
+I20261010 15:52:43.208055 10135 StaAnalyze.cc:565] analyze timing path end vertex 2171 total 2213 start
+I20261010 15:52:43.208094 10135 StaAnalyze.cc:599] analyze timing path end vertex 2171 total 2213 end
+I20261010 15:52:43.208195 10135 StaAnalyze.cc:565] analyze timing path end vertex 2181 total 2213 start
+I20261010 15:52:43.208259 10135 StaAnalyze.cc:599] analyze timing path end vertex 2181 total 2213 end
+I20261010 15:52:43.208371 10135 StaAnalyze.cc:565] analyze timing path end vertex 2191 total 2213 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.208410 10135 StaAnalyze.cc:599] analyze timing path end vertex 2191 total 2213 end
+I20261010 15:52:43.208580 10135 StaAnalyze.cc:565] analyze timing path end vertex 2201 total 2213 start
+I20261010 15:52:43.208621 10135 StaAnalyze.cc:599] analyze timing path end vertex 2201 total 2213 end
+I20261010 15:52:43.208716 10135 StaAnalyze.cc:565] analyze timing path end vertex 2211 total 2213 start
+I20261010 15:52:43.208761 10135 StaAnalyze.cc:599] analyze timing path end vertex 2211 total 2213 end
+I20261010 15:52:43.208796 10135 StaAnalyze.cc:603] analyze timing path end
+I20261010 15:52:43.208815 10135 StaApplySdc.cc:698] apply sdc start
+I20261010 15:52:43.208832 10135 StaApplySdc.cc:729] apply sdc end
+I20261010 15:52:43.208848 10135 StaDataPropagation.cc:698] data bwd propagation start
+I20261010 15:52:43.215209 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[0]_0__reg_p:CK
+I20261010 15:52:43.215384 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.lookup_target_kind_o_0_
+I20261010 15:52:43.215629 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.entry_array_q[0]_160__reg_p:D
+I20261010 15:52:43.215684 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.entry_array_q[0]_221__reg_p:D
+I20261010 15:52:43.215713 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.entry_array_q[0]_38__reg_p:D
+I20261010 15:52:43.215758 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.entry_present_array_q_0__reg_p:D
+I20261010 15:52:43.215792 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.entry_present_array_q_0__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E
+I20261010 15:52:43.215821 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.reuse_array_q_6__reg_p:D
+I20261010 15:52:43.215862 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.reuse_array_q_7__reg_p:D
+I20261010 15:52:43.215900 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.entry_present_array_q_12__reg_p:D
+I20261010 15:52:43.215931 10135 StaDataPropagation.cc:172] Thread 123290878488704 data bwd propagate found end vertex.g_full_target.entry_present_array_q_12__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E
+I20261010 15:52:43.284185 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[0]_185__reg_p:CK
+I20261010 15:52:43.286379 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[1]_139__reg_p:CK
+I20261010 15:52:43.288542 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[1]_89__reg_p:CK
+I20261010 15:52:43.290390 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[2]_25__reg_p:CK
+I20261010 15:52:43.292135 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[3]_205__reg_p:CK
+I20261010 15:52:43.293879 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[4]_172__reg_p:CK
+I20261010 15:52:43.296213 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[5]_164__reg_p:CK
+I20261010 15:52:43.299130 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[6]_124__reg_p:CK
+I20261010 15:52:43.302809 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[6]_85__reg_p:CK
+I20261010 15:52:43.305655 10135 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[7]_45__reg_p:CK
+I20261010 15:52:43.312053 10135 StaDataPropagation.cc:703] data bwd propagation end
+I20261010 15:52:43.312175 10135 Sta.cc:2895] update timing end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155243.10135'!
+I20261010 15:52:43.312306 10135 Sta.cc:2898] update timing memory usage 804.392MB
+I20261010 15:52:43.312456 10135 Sta.cc:2900] update timing time elapsed 2.32925s
+I20261010 15:52:43.313606 10135 Sta.cc:2998] start write sta report.
+I20261010 15:52:43.313694 10135 Sta.cc:2999] output sta report path: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/after-e32-w4-p2/sta/riscv32_btb-820MHz
+I20261010 15:52:43.317577 10135 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261010 15:52:43.317689 10135 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261010 15:52:43.323889 10135 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261010 15:52:43.328037 10135 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261010 15:52:43.333599 10135 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261010 15:52:43.333725 10135 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261010 15:52:43.336326 10135 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261010 15:52:43.336567 10135 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261010 15:52:43.339556 10135 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261010 15:52:43.342140 10135 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261010 15:52:43.346174 10135 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261010 15:52:43.346254 10135 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261010 15:52:43.346278 10135 Sta.cc:1885] 
++---------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+-------+-----------+
+| Endpoint                                                                                    | Clock Group              | Delay Type | Path Delay | Path Required | CPPR  | Slack | Freq(MHz) |
++---------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+-------+-----------+
+| lookup_target_pc_o_10_                                                                      | core_clock               | max        | 0.822r     | 0.975         | 0.000 | 0.153 | 937.877   |
+| lookup_target_pc_o_13_                                                                      | core_clock               | max        | 0.822r     | 0.975         | 0.000 | 0.153 | 937.877   |
+| lookup_target_kind_o_0_                                                                     | core_clock               | max        | 0.822r     | 0.975         | 0.000 | 0.153 | 937.877   |
+| lookup_target_pc_o_20_                                                                      | core_clock               | max        | 0.822r     | 0.975         | 0.000 | 0.153 | 937.877   |
+| lookup_target_pc_o_31_                                                                      | core_clock               | max        | 0.822r     | 0.975         | 0.000 | 0.153 | 937.877   |
+| g_full_target.entry_present_array_q_6__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E  | **clock_gating_default** | max        | 0.852r     | 1.168         | 0.000 | 0.316 | NA        |
+| g_full_target.entry_present_array_q_2__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E  | **clock_gating_default** | max        | 0.852r     | 1.168         | 0.000 | 0.316 | NA        |
+| g_full_target.entry_present_array_q_14__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E | **clock_gating_default** | max        | 0.852r     | 1.168         | 0.000 | 0.317 | NA        |
+| g_full_target.entry_present_array_q_10__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E | **clock_gating_default** | max        | 0.852r     | 1.168         | 0.000 | 0.317 | NA        |
+| g_full_target.entry_present_array_q_26__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E | **clock_gating_default** | max        | 0.852r     | 1.168         | 0.000 | 0.317 | NA        |
+| g_full_target.entry_present_array_q_9__reg_p:D                                              | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.entry_present_array_q_9__reg_p:D                                              | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.entry_present_array_q_2__reg_p:D                                              | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.entry_present_array_q_23__reg_p:D                                             | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.entry_present_array_q_20__reg_p:D                                             | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| training_taken_i_NOR2_X1_A2_ZN_OAI21_X1_B2_ZN_CLKGATE_X1_E:E                                | **clock_gating_default** | min        | 0.288r     | -0.000        | 0.000 | 0.288 | NA        |
+| g_full_target.entry_present_array_q_0__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E  | **clock_gating_default** | min        | 0.295f     | -0.016        | 0.000 | 0.311 | NA        |
+| g_full_target.entry_present_array_q_28__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E | **clock_gating_default** | min        | 0.295f     | -0.016        | 0.000 | 0.311 | NA        |
+| g_full_target.entry_present_array_q_12__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E | **clock_gating_default** | min        | 0.295f     | -0.016        | 0.000 | 0.311 | NA        |
+| g_full_target.entry_present_array_q_8__reg_p_D_AOI21_X1_ZN_B1_NOR2_X1_A1_ZN_CLKGATE_X1_E:E  | **clock_gating_default** | min        | 0.295f     | -0.016        | 0.000 | 0.311 | NA        |
++---------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+-------+-----------+
+I20261010 15:52:43.346872 10135 Sta.cc:1886] 
++------------+------------+-------+
+| Clock      | Delay Type | TNS   |
++------------+------------+-------+
+| core_clock | max        | 0.000 |
+| core_clock | min        | 0.000 |
++------------+------------+-------+
+I20261010 15:52:43.607041 10135 NetlistWriter.cc:52] start write verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.v
+I20261010 15:52:43.977622 10135 NetlistWriter.cc:71] finish write verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.v
+I20261010 15:52:43.979435 10135 Sta.cc:3111] used lib: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib
+I20261010 15:52:43.979511 10135 Sta.cc:3096] The timing engine run success.
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow'
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'

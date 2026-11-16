@@ -1,0 +1,613 @@
+{
+  "common_mhz": 680,
+  "configurations": {
+    "B0": {
+      "ppa": {
+        "mhz": 720,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 101617.852,
+        "wall_seconds": 3467.915550470352,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:720"
+      },
+      "own": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "common": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      }
+    },
+    "B0off": {
+      "ppa": {
+        "mhz": 720,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 101617.852,
+        "wall_seconds": 199.98587584495544,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:720"
+      },
+      "own": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "common": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 1.0,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      }
+    },
+    "F16": {
+      "ppa": {
+        "mhz": 720,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 101396.008,
+        "wall_seconds": 200.5496211051941,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:720"
+      },
+      "own": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 0.9978168796561455,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "common": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 0.9978168796561455,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      }
+    },
+    "F32": {
+      "ppa": {
+        "mhz": 680,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 108621.898,
+        "wall_seconds": 204.3017816543579,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:680"
+      },
+      "own": {
+        "time_ratio_gm": 1.0066826171638223,
+        "adp_ratio": 1.0760685687387073,
+        "families": {
+          "json_bpe": 1.0096820683327627,
+          "quant_loader": 1.0205692582166879,
+          "runtime_graph": 1.006511689333688,
+          "regex_tokenizer": 0.9874583441191926,
+          "ini_config": 1.0094809201588728
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.009053556382573,
+          "json_bpe-dev-257": 1.010310971765911,
+          "quant_loader-dev-131": 1.0202386240644599,
+          "quant_loader-dev-257": 1.0208999995192825,
+          "runtime_graph-dev-131": 1.0062662939208438,
+          "runtime_graph-dev-257": 1.0067571445904415,
+          "regex_tokenizer-dev-131": 0.9857009038605387,
+          "regex_tokenizer-dev-257": 0.9892189177789125,
+          "ini_config-dev-131": 1.0071278862241615,
+          "ini_config-dev-257": 1.011839451676139
+        },
+        "max_input_time_ratio": 1.0208999995192825,
+        "i_beats_ratio_gm": 1.009040056832885,
+        "i_beats_families": {
+          "json_bpe": 0.9941038670426121,
+          "quant_loader": 1.0754680005021449,
+          "runtime_graph": 1.0030260252980392,
+          "regex_tokenizer": 0.9770681202745988,
+          "ini_config": 0.9983337073895595
+        }
+      },
+      "common": {
+        "time_ratio_gm": 0.9934895562398964,
+        "adp_ratio": 1.061966171475021,
+        "families": {
+          "json_bpe": 0.9957642510013778,
+          "quant_loader": 1.0040023966330813,
+          "runtime_graph": 0.997801174124658,
+          "regex_tokenizer": 0.9816234775317731,
+          "ini_config": 0.9884081159235365
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 0.995305752508623,
+          "json_bpe-dev-257": 0.9962229607064834,
+          "quant_loader-dev-131": 1.0036626592601983,
+          "quant_loader-dev-257": 1.0043422490062401,
+          "runtime_graph-dev-131": 0.9974956406211077,
+          "runtime_graph-dev-257": 0.9981068012133006,
+          "regex_tokenizer-dev-131": 0.9799940889108523,
+          "regex_tokenizer-dev-257": 0.9832555752580937,
+          "ini_config-dev-131": 0.9860737929697239,
+          "ini_config-dev-257": 0.9907479648975026
+        },
+        "max_input_time_ratio": 1.0043422490062401,
+        "i_beats_ratio_gm": 1.009040056832885,
+        "i_beats_families": {
+          "json_bpe": 0.9941038670426121,
+          "quant_loader": 1.0754680005021449,
+          "runtime_graph": 1.0030260252980392,
+          "regex_tokenizer": 0.9770681202745988,
+          "ini_config": 0.9983337073895595
+        }
+      }
+    },
+    "F32W4": {
+      "ppa": {
+        "mhz": 700,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 108477.726,
+        "wall_seconds": 204.03138899803162,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:700"
+      },
+      "own": {
+        "time_ratio_gm": 1.0070030506615526,
+        "adp_ratio": 1.0749823860755099,
+        "families": {
+          "json_bpe": 0.9938086261250556,
+          "quant_loader": 1.0242615542964029,
+          "runtime_graph": 0.9974540999407209,
+          "regex_tokenizer": 1.0208475344912973,
+          "ini_config": 0.9990483187927529
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 0.9934141731996725,
+          "json_bpe-dev-257": 0.9942032356750515,
+          "quant_loader-dev-131": 1.0235164002657293,
+          "quant_loader-dev-257": 1.0250072508240302,
+          "runtime_graph-dev-131": 0.9972844838644382,
+          "runtime_graph-dev-257": 0.997623744864954,
+          "regex_tokenizer-dev-131": 1.0193891668421977,
+          "regex_tokenizer-dev-257": 1.0223079885233695,
+          "ini_config-dev-131": 0.9967115622083492,
+          "ini_config-dev-257": 1.001390553824023
+        },
+        "max_input_time_ratio": 1.0250072508240302,
+        "i_beats_ratio_gm": 1.055305515015779,
+        "i_beats_families": {
+          "json_bpe": 0.983792291629619,
+          "quant_loader": 1.287051988278868,
+          "runtime_graph": 1.0008890451265937,
+          "regex_tokenizer": 1.0327660277955506,
+          "ini_config": 1.0000084138842238
+        }
+      },
+      "common": {
+        "time_ratio_gm": 1.0040674875807023,
+        "adp_ratio": 1.071848653160744,
+        "families": {
+          "json_bpe": 0.9906474525653218,
+          "quant_loader": 1.019804703934966,
+          "runtime_graph": 0.9970984110852863,
+          "regex_tokenizer": 1.021807872969691,
+          "ini_config": 0.9914506823236712
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 0.9903452758017218,
+          "json_bpe-dev-257": 0.9909497215298932,
+          "quant_loader-dev-131": 1.0190587561733395,
+          "quant_loader-dev-257": 1.0205511977279764,
+          "runtime_graph-dev-131": 0.9968952918707963,
+          "runtime_graph-dev-257": 0.9973015716856827,
+          "regex_tokenizer-dev-131": 1.020420557771005,
+          "regex_tokenizer-dev-257": 1.0231970742960579,
+          "ini_config-dev-131": 0.989134650009695,
+          "ini_config-dev-257": 0.9937721375653339
+        },
+        "max_input_time_ratio": 1.0231970742960579,
+        "i_beats_ratio_gm": 1.055305515015779,
+        "i_beats_families": {
+          "json_bpe": 0.983792291629619,
+          "quant_loader": 1.287051988278868,
+          "runtime_graph": 1.0008890451265937,
+          "regex_tokenizer": 1.0327660277955506,
+          "ini_config": 1.0000084138842238
+        }
+      }
+    },
+    "U16": {
+      "ppa": {
+        "mhz": 700,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 100406.754,
+        "wall_seconds": 186.05205035209656,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:700"
+      },
+      "own": {
+        "time_ratio_gm": 1.0028012332460716,
+        "adp_ratio": 0.9908496859137992,
+        "families": {
+          "json_bpe": 1.0032101887181366,
+          "quant_loader": 1.004054427254913,
+          "runtime_graph": 1.0002852311762178,
+          "regex_tokenizer": 0.9989482382811833,
+          "ini_config": 1.007530646708663
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0031192413912395,
+          "json_bpe-dev-257": 1.0033011442907298,
+          "quant_loader-dev-131": 1.004064737557754,
+          "quant_loader-dev-257": 1.0040441170579442,
+          "runtime_graph-dev-131": 1.0003196812364654,
+          "runtime_graph-dev-257": 1.0002507823023976,
+          "regex_tokenizer-dev-131": 0.998886806260014,
+          "regex_tokenizer-dev-257": 0.9990096740804516,
+          "ini_config-dev-131": 1.007553673297618,
+          "ini_config-dev-257": 1.0075076206459568
+        },
+        "max_input_time_ratio": 1.007553673297618,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      },
+      "common": {
+        "time_ratio_gm": 1.0,
+        "adp_ratio": 0.9880818382187413,
+        "families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0,
+          "json_bpe-dev-257": 1.0,
+          "quant_loader-dev-131": 1.0,
+          "quant_loader-dev-257": 1.0,
+          "runtime_graph-dev-131": 1.0,
+          "runtime_graph-dev-257": 1.0,
+          "regex_tokenizer-dev-131": 1.0,
+          "regex_tokenizer-dev-257": 1.0,
+          "ini_config-dev-131": 1.0,
+          "ini_config-dev-257": 1.0
+        },
+        "max_input_time_ratio": 1.0,
+        "i_beats_ratio_gm": 1.0,
+        "i_beats_families": {
+          "json_bpe": 1.0,
+          "quant_loader": 1.0,
+          "runtime_graph": 1.0,
+          "regex_tokenizer": 1.0,
+          "ini_config": 1.0
+        }
+      }
+    },
+    "U32W4": {
+      "ppa": {
+        "mhz": 720,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 106423.94,
+        "wall_seconds": 199.65727710723877,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:720"
+      },
+      "own": {
+        "time_ratio_gm": 1.0043383668733665,
+        "adp_ratio": 1.0518392584782166,
+        "families": {
+          "json_bpe": 0.9906142745848392,
+          "quant_loader": 1.020489463761844,
+          "runtime_graph": 0.9972632763435446,
+          "regex_tokenizer": 1.022053941981997,
+          "ini_config": 0.9917529856046996
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 0.9903096052991651,
+          "json_bpe-dev-257": 0.9909190376021838,
+          "quant_loader-dev-131": 1.0197301719066079,
+          "quant_loader-dev-257": 1.0212493209863684,
+          "runtime_graph-dev-131": 0.9970586071341832,
+          "runtime_graph-dev-257": 0.9974679875659682,
+          "regex_tokenizer-dev-131": 1.020645462940586,
+          "regex_tokenizer-dev-257": 1.023464364708343,
+          "ini_config-dev-131": 0.9893788994135014,
+          "ini_config-dev-257": 0.9941327685873359
+        },
+        "max_input_time_ratio": 1.023464364708343,
+        "i_beats_ratio_gm": 1.055305515015779,
+        "i_beats_families": {
+          "json_bpe": 0.983792291629619,
+          "quant_loader": 1.287051988278868,
+          "runtime_graph": 1.0008890451265937,
+          "regex_tokenizer": 1.0327660277955506,
+          "ini_config": 1.0000084138842238
+        }
+      },
+      "common": {
+        "time_ratio_gm": 1.0040674875807023,
+        "adp_ratio": 1.051555567758305,
+        "families": {
+          "json_bpe": 0.9906474525653218,
+          "quant_loader": 1.019804703934966,
+          "runtime_graph": 0.9970984110852863,
+          "regex_tokenizer": 1.021807872969691,
+          "ini_config": 0.9914506823236712
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 0.9903452758017218,
+          "json_bpe-dev-257": 0.9909497215298932,
+          "quant_loader-dev-131": 1.0190587561733395,
+          "quant_loader-dev-257": 1.0205511977279764,
+          "runtime_graph-dev-131": 0.9968952918707963,
+          "runtime_graph-dev-257": 0.9973015716856827,
+          "regex_tokenizer-dev-131": 1.020420557771005,
+          "regex_tokenizer-dev-257": 1.0231970742960579,
+          "ini_config-dev-131": 0.989134650009695,
+          "ini_config-dev-257": 0.9937721375653339
+        },
+        "max_input_time_ratio": 1.0231970742960579,
+        "i_beats_ratio_gm": 1.055305515015779,
+        "i_beats_families": {
+          "json_bpe": 0.983792291629619,
+          "quant_loader": 1.287051988278868,
+          "runtime_graph": 1.0008890451265937,
+          "regex_tokenizer": 1.0327660277955506,
+          "ini_config": 1.0000084138842238
+        }
+      }
+    },
+    "H32": {
+      "ppa": {
+        "mhz": 700,
+        "grid_mhz": 20,
+        "search_upper_mhz": 800,
+        "all_groups_passed": true,
+        "area_um2": 106168.58,
+        "wall_seconds": 196.79522371292114,
+        "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+        "source": "timing.json:700"
+      },
+      "own": {
+        "time_ratio_gm": 1.0057370462524553,
+        "adp_ratio": 1.0507767282270197,
+        "families": {
+          "json_bpe": 1.0013140355365977,
+          "quant_loader": 1.0125463874850105,
+          "runtime_graph": 0.9995233983588481,
+          "regex_tokenizer": 1.0108481701306415,
+          "ini_config": 1.0045188976470507
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 1.0007633428354004,
+          "json_bpe-dev-257": 1.0018650312689297,
+          "quant_loader-dev-131": 1.0111615065517015,
+          "quant_loader-dev-257": 1.0139331651432115,
+          "runtime_graph-dev-131": 1.0002814361221262,
+          "runtime_graph-dev-257": 0.9987659350551469,
+          "regex_tokenizer-dev-131": 1.0100874491145528,
+          "regex_tokenizer-dev-257": 1.0116094640639217,
+          "ini_config-dev-131": 1.0045167828657695,
+          "ini_config-dev-257": 1.0045210124327841
+        },
+        "max_input_time_ratio": 1.0139331651432115,
+        "i_beats_ratio_gm": 1.0356441160102985,
+        "i_beats_families": {
+          "json_bpe": 0.999997105841589,
+          "quant_loader": 1.1547305166509398,
+          "runtime_graph": 1.0039251633492088,
+          "regex_tokenizer": 1.0191791163867623,
+          "ini_config": 1.008373602312901
+        }
+      },
+      "common": {
+        "time_ratio_gm": 1.0028165325264067,
+        "adp_ratio": 1.0477254258321895,
+        "families": {
+          "json_bpe": 0.9980750568432761,
+          "quant_loader": 1.0082446480728646,
+          "runtime_graph": 0.9991678082943717,
+          "regex_tokenizer": 1.0118249965017763,
+          "ini_config": 0.996860667928282
+        },
+        "input_time_ratios": {
+          "json_bpe-dev-131": 0.997619597602371,
+          "json_bpe-dev-257": 0.9985307240222777,
+          "quant_loader-dev-131": 1.0068669614367227,
+          "quant_loader-dev-257": 1.0096242197847318,
+          "runtime_graph-dev-131": 0.999886240969858,
+          "runtime_graph-dev-257": 0.9984498918231174,
+          "regex_tokenizer-dev-131": 1.0111333425389117,
+          "regex_tokenizer-dev-257": 1.0125171235824624,
+          "ini_config-dev-131": 0.9968352677211157,
+          "ini_config-dev-257": 0.996886068782667
+        },
+        "max_input_time_ratio": 1.0125171235824624,
+        "i_beats_ratio_gm": 1.0356441160102985,
+        "i_beats_families": {
+          "json_bpe": 0.999997105841589,
+          "quant_loader": 1.1547305166509398,
+          "runtime_graph": 1.0039251633492088,
+          "regex_tokenizer": 1.0191791163867623,
+          "ini_config": 1.008373602312901
+        }
+      }
+    }
+  }
+}

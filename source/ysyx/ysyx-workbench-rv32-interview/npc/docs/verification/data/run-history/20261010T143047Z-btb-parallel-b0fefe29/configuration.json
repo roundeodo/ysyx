@@ -1,0 +1,25 @@
+{
+  "variant": "v3",
+  "git_head": "316d1d2ecb72ef3de4fd5f8e9034754ae545c03f",
+  "active_btb_sha256": "570398a12b710ae69d76bd1ddabee1428fc1f10df4c452bb5b4425277b9c8594",
+  "prototype_sha256": "452b26bf8e88f0843233fc592e4e9ec4de28c2f873a2d8793b4b0ba921c8eeec",
+  "model_sources": {
+    "common/riscv_config_pkg.sv": "156d28f7fdc46f4fe3f8fb370490cdde65d61ae0cae33ddadf26d240ade4ad8b",
+    "common/riscv32_addr_map_pkg.sv": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c",
+    "common/riscv32_axi4_pkg.sv": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda",
+    "common/riscv32_pkg.sv": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df",
+    "core/frontend/riscv32_btb.sv": "452b26bf8e88f0843233fc592e4e9ec4de28c2f873a2d8793b4b0ba921c8eeec",
+    "core/frontend/riscv32_compact_btb.sv": "7420d8d4f38b304742835054fcbaf9a0eb879d1321026106c2d48ad70706ef96"
+  },
+  "commands": [
+    [
+      "/usr/bin/python3",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tools/branch_v3/test_btb.py",
+      "--rtl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel-replay/source",
+      "--output",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel-replay/model"
+    ]
+  ],
+  "scope": "Frozen BTB with current packages/core; compare full source identity before reusing old PPA"
+}

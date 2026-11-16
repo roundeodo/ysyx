@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "phases": 37,
+  "measurements": 386,
+  "checks": "raw logs, binary/source/image bindings, exact inputs, qualified frequencies, counters, time/IPC, independent weighted aggregation, frozen selection and held acceptance"
+}

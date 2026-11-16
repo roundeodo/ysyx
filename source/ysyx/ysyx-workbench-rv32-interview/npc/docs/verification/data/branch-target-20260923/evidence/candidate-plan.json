@@ -1,0 +1,26 @@
+{
+  "utc": "2026-09-23T14:47:08.058594+00:00",
+  "basis": "model-strong/results.json and passive target-observer/results.json",
+  "candidates": [
+    "U16",
+    "U32W4",
+    "H32"
+  ],
+  "controls": [
+    "B0",
+    "B0off",
+    "F16",
+    "F32",
+    "F32W4"
+  ],
+  "mechanisms": "uniform short target and heterogeneous per-way target widths, complete tags, unchanged BHT/RAS",
+  "layout_sensitivity": {
+    "function_text_addresses": [
+      "0x80003f00",
+      "0x8000ff00"
+    ],
+    "start_code_address": "0x80000000",
+    "policy": "selected candidate and B0, all 10 development inputs; no retuning from layout results; reject default recommendation if any case exceeds 3 percent regression"
+  },
+  "selection": "min area*time over original ten development inputs, per-input3% guard; then held2053/4099 and layout checks, fallback baseline on failure"
+}

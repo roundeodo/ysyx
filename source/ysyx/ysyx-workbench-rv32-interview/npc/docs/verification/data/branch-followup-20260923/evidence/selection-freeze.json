@@ -1,0 +1,58 @@
+{
+  "utc": "2026-09-23T12:06:19.266523+00:00",
+  "selected": "B0",
+  "development_summary_sha256": "4a2b29c5039a5f116205e61da91bbadde6aabef00a4776bee28919b171be47b5",
+  "image_manifest_sha256": "205bb674e9554a11fcc2954e08ee99bacfdb582114eef440c3a8b57627f58f1c",
+  "configuration_sha256": "110c1854e1201e5644624e6d140cd48ef2878d0dba7ac4987f40d0b97d911b03",
+  "held_configs": [
+    "B0",
+    "B64",
+    "B128",
+    "G64",
+    "G128",
+    "M64",
+    "S32",
+    "A32",
+    "R32"
+  ],
+  "held_policy": "all frozen candidates; report all; never retune or choose another experimental candidate after held evaluation",
+  "held_acceptance": "development winner must also have held ADP below baseline and no held input over 3 percent slower; otherwise retain B0",
+  "diagnostic_history_choice": "G128 is the pre-held immediate-training model winner",
+  "eligible": [
+    "B0",
+    "B64",
+    "S32",
+    "A32",
+    "R32"
+  ],
+  "integration_default": {
+    "mhz": 720,
+    "grid_mhz": 20,
+    "search_upper_mhz": 800,
+    "all_groups_passed": true,
+    "area_um2": 101617.852,
+    "wall_seconds": 3467.915550470352,
+    "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+    "source": "timing.json:720"
+  },
+  "raw_input_hashes": {
+    "rtl/dev-common-560/B0/results.json": "80647fb1eb5f59d8daa66bc96c3fe3bdfb52c07d2d2f841d745fe2ff6f3128b9",
+    "rtl/dev-common-560/B64/results.json": "9d15dddfc19e3acffb495dc2378ddeed03e2b8e93bd4bf39b803901af1153bca",
+    "rtl/dev-common-560/B128/results.json": "9adbdf035bca17b49720c559da719db4e7b65e34cd4d2811f9ddf803adaf9304",
+    "rtl/dev-common-560/G64/results.json": "c9f842dfe18f518b733562a5fbf760898a9aa737b5fb2cb47a1fc90dfc02c9b8",
+    "rtl/dev-common-560/G128/results.json": "c7f1a97090e69af4b0f662a0c493742835d0480d764a9794778aff8f016d19c1",
+    "rtl/dev-common-560/M64/results.json": "895cd75f108270d893720f6f8a56fceaec4ed1571691a1bdc19ded2e547b2f10",
+    "rtl/dev-common-560/S32/results.json": "588010677bbc3a8c025dcf4b00e9f97d9a0d12126c3efe2e4645015abf1458f5",
+    "rtl/dev-common-560/A32/results.json": "979d008d6c6ce5db7e57218a3ab95b2c4925681367dc040239bd71b686893124",
+    "rtl/dev-common-560/R32/results.json": "e83fd9cfde9ce10ead9bd2166580aae74da4f94ab44954f5b2e42e75accf71dd",
+    "rtl/dev-own/B0/results.json": "7aea7332b9f323839e3b6fe9dbf60b814baac68f71f74908509ea6545bb83566",
+    "rtl/dev-own/B64/results.json": "b3c0cd6c687f7e37fe578a34ef7811988315ef659127abfde1fb34cf6dd8452d",
+    "rtl/dev-own/B128/results.json": "9adbdf035bca17b49720c559da719db4e7b65e34cd4d2811f9ddf803adaf9304",
+    "rtl/dev-own/G64/results.json": "4f50316671bac4d15e0239a9aca7cf9503801275e7369e73b9025e12ce177fe6",
+    "rtl/dev-own/G128/results.json": "c7f1a97090e69af4b0f662a0c493742835d0480d764a9794778aff8f016d19c1",
+    "rtl/dev-own/M64/results.json": "b76693d615285f44c27c2feee5cbcc978954766c125a38e83eeb46f8f30e6b45",
+    "rtl/dev-own/S32/results.json": "b05153c1c837f444f1e82ef7043ebdc6cd5c31cee28972ba924b1bb86383da0b",
+    "rtl/dev-own/A32/results.json": "d7cf86fdce24c404fba7205f1b0854babafbde080c4634cf4a863aae8e7d0dcc",
+    "rtl/dev-own/R32/results.json": "738dfe9c109e860420cce240d89d7ead695084e7ee97f7e243802058c917fdbe"
+  }
+}

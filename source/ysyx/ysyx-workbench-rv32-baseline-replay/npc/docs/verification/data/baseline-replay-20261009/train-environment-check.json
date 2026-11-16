@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "train_executed": false,
+  "baseline": "/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/performance/replay-train",
+  "current": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/performance/replay-current-train",
+  "shared_image_sha256": "2d200997d01ec6417e1443f122f8b966a6000ea252399ddadb490aadf1e86bb6",
+  "non_rtl_sources_identical": true,
+  "all_artifact_hashes_verified": true,
+  "cpu_mhz": 700,
+  "device_mhz": 100,
+  "timing_model": "device-clock-v1",
+  "canonicalization": {
+    "source": "/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/performance/replay-train",
+    "original_artifacts": {
+      "microbench.bin": "a21f6962097ee338c9c5985d176a4b5656cfd1b69151dda0395c6cda88c7f56d",
+      "microbench.elf": "fab8cb33c169ed9bbaff5fe153aaf3cb50e340a279bc2ff3078aca1d7f70f179",
+      "microbench.txt": "256df810bd5f2169cb978d93f64310e34ae0b96c9f86d6454b137a8153d7f7e2"
+    },
+    "reason": "Worktree-dependent absolute __FILE__ strings changed rodata and linked addresses. Both simulators use the frozen baseline-built train image."
+  }
+}

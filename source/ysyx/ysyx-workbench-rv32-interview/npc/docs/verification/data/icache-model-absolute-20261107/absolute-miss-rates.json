@@ -1,0 +1,721 @@
+{
+  "geometry": {
+    "bytes": 1024,
+    "ways": 4,
+    "line_bytes": 32
+  },
+  "measurement": "Historical retired-PC functional model, cold cache; not RTL queries",
+  "input_sha256": {
+    "json_bpe-dev-41.csv": "34d2ee2f5752807363a4381a95183084b4dd39578e3e0136304b117b69ac642f",
+    "json_bpe-dev-73.csv": "9dc925db132b8df8215f29780049068ea9d419e76767607af736d6c4fc5e8052",
+    "quant_loader-dev-41.csv": "76d6985f427b25000b91fbeed2dd37e6e0bdeab675cf7be439fc72bbf4c315cf",
+    "quant_loader-dev-73.csv": "f6b71f5a2aad0a5ff1570113485d5bc21c36becf4f185982df7597ca2d198f7f",
+    "runtime_graph-dev-41.csv": "73a501e925d4c208d28400718f73c250d29ce794fef19b91b9583b282b0f9202",
+    "runtime_graph-dev-73.csv": "c09ddc1530b550e893fd3954295b64117c7d80f7cf6d5cb8a14456dbba4a4cb6"
+  },
+  "historical_relative_summary_matches": true,
+  "summary": [
+    {
+      "policy": "fifo",
+      "accesses": 855188,
+      "misses": 16712,
+      "pooled_miss_rate_percent": 1.9541901897594447,
+      "equal_workload_mean_miss_rate_percent": 2.4957782622948277,
+      "relative_miss_geomean_vs_plru": 1.1728346384313473
+    },
+    {
+      "policy": "lru",
+      "accesses": 855188,
+      "misses": 15424,
+      "pooled_miss_rate_percent": 1.803580031525232,
+      "equal_workload_mean_miss_rate_percent": 2.312019842944644,
+      "relative_miss_geomean_vs_plru": 1.0643767514381812
+    },
+    {
+      "policy": "plru",
+      "accesses": 855188,
+      "misses": 14704,
+      "pooled_miss_rate_percent": 1.7193880176054857,
+      "equal_workload_mean_miss_rate_percent": 2.2314713003036863,
+      "relative_miss_geomean_vs_plru": 1.0
+    },
+    {
+      "policy": "random",
+      "accesses": 855188,
+      "misses": 14469,
+      "pooled_miss_rate_percent": 1.6919086797289018,
+      "equal_workload_mean_miss_rate_percent": 2.1997549437345025,
+      "relative_miss_geomean_vs_plru": 1.02210798090367
+    },
+    {
+      "policy": "lip",
+      "accesses": 855188,
+      "misses": 15586,
+      "pooled_miss_rate_percent": 1.8225232346571747,
+      "equal_workload_mean_miss_rate_percent": 2.3563031071078844,
+      "relative_miss_geomean_vs_plru": 1.0001038778478162
+    },
+    {
+      "policy": "bip",
+      "accesses": 855188,
+      "misses": 15490,
+      "pooled_miss_rate_percent": 1.8112976328012087,
+      "equal_workload_mean_miss_rate_percent": 2.3489578017666357,
+      "relative_miss_geomean_vs_plru": 0.9806988081259715
+    },
+    {
+      "policy": "srrip",
+      "accesses": 855188,
+      "misses": 15599,
+      "pooled_miss_rate_percent": 1.8240433682418369,
+      "equal_workload_mean_miss_rate_percent": 2.358907520672632,
+      "relative_miss_geomean_vs_plru": 0.9993309571005818
+    },
+    {
+      "policy": "insert3",
+      "accesses": 855188,
+      "misses": 15160,
+      "pooled_miss_rate_percent": 1.772709626421325,
+      "equal_workload_mean_miss_rate_percent": 2.2894289594609485,
+      "relative_miss_geomean_vs_plru": 0.9844794935747179
+    },
+    {
+      "policy": "brrip",
+      "accesses": 855188,
+      "misses": 15095,
+      "pooled_miss_rate_percent": 1.7651089584980144,
+      "equal_workload_mean_miss_rate_percent": 2.2865350591307885,
+      "relative_miss_geomean_vs_plru": 0.965139426692321
+    },
+    {
+      "policy": "drrip",
+      "accesses": 855188,
+      "misses": 15253,
+      "pooled_miss_rate_percent": 1.783584428219292,
+      "equal_workload_mean_miss_rate_percent": 2.313538448505541,
+      "relative_miss_geomean_vs_plru": 0.9778004043623417
+    },
+    {
+      "policy": "burst_rrip",
+      "accesses": 855188,
+      "misses": 12904,
+      "pooled_miss_rate_percent": 1.5089079828061198,
+      "equal_workload_mean_miss_rate_percent": 1.994039512715496,
+      "relative_miss_geomean_vs_plru": 0.9043487382735841
+    },
+    {
+      "policy": "burst_pc",
+      "accesses": 855188,
+      "misses": 19097,
+      "pooled_miss_rate_percent": 2.2330762358686043,
+      "equal_workload_mean_miss_rate_percent": 2.3562336852194963,
+      "relative_miss_geomean_vs_plru": 1.5584830661149145
+    },
+    {
+      "policy": "burst_history",
+      "accesses": 855188,
+      "misses": 13518,
+      "pooled_miss_rate_percent": 1.5807050613432367,
+      "equal_workload_mean_miss_rate_percent": 2.0241248405564045,
+      "relative_miss_geomean_vs_plru": 0.9842170456661354
+    },
+    {
+      "policy": "opt",
+      "accesses": 855188,
+      "misses": 9077,
+      "pooled_miss_rate_percent": 1.061404042152135,
+      "equal_workload_mean_miss_rate_percent": 1.371548834302211,
+      "relative_miss_geomean_vs_plru": 0.6590388711635837
+    }
+  ],
+  "per_workload": [
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "fifo",
+      "accesses": 50132,
+      "misses": 963,
+      "miss_rate_percent": 1.9209287481050028
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "fifo",
+      "accesses": 42712,
+      "misses": 963,
+      "miss_rate_percent": 2.254635699569208
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "fifo",
+      "accesses": 254247,
+      "misses": 1036,
+      "miss_rate_percent": 0.40747776768260785
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "fifo",
+      "accesses": 253407,
+      "misses": 1040,
+      "miss_rate_percent": 0.41040697376157725
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "fifo",
+      "accesses": 126481,
+      "misses": 6355,
+      "miss_rate_percent": 5.0244700785098155
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "fifo",
+      "accesses": 128209,
+      "misses": 6355,
+      "miss_rate_percent": 4.956750306140754
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "lru",
+      "accesses": 50132,
+      "misses": 891,
+      "miss_rate_percent": 1.7773079071251894
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "lru",
+      "accesses": 42712,
+      "misses": 891,
+      "miss_rate_percent": 2.0860648061434723
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "lru",
+      "accesses": 254247,
+      "misses": 898,
+      "miss_rate_percent": 0.35319984109940333
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "lru",
+      "accesses": 253407,
+      "misses": 902,
+      "miss_rate_percent": 0.35594912532013717
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "lru",
+      "accesses": 126481,
+      "misses": 5923,
+      "miss_rate_percent": 4.682916801733067
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "lru",
+      "accesses": 128209,
+      "misses": 5919,
+      "miss_rate_percent": 4.616680576246597
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "plru",
+      "accesses": 50132,
+      "misses": 887,
+      "miss_rate_percent": 1.7693289715151999
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "plru",
+      "accesses": 42712,
+      "misses": 887,
+      "miss_rate_percent": 2.0766997565087095
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "plru",
+      "accesses": 254247,
+      "misses": 780,
+      "miss_rate_percent": 0.3067882806876777
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "plru",
+      "accesses": 253407,
+      "misses": 782,
+      "miss_rate_percent": 0.3085944745014937
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "plru",
+      "accesses": 126481,
+      "misses": 5691,
+      "miss_rate_percent": 4.49949004198259
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "plru",
+      "accesses": 128209,
+      "misses": 5677,
+      "miss_rate_percent": 4.4279262766264464
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "random",
+      "accesses": 50132,
+      "misses": 904,
+      "miss_rate_percent": 1.8032394478576557
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "random",
+      "accesses": 42712,
+      "misses": 904,
+      "miss_rate_percent": 2.116501217456453
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "random",
+      "accesses": 254247,
+      "misses": 837,
+      "miss_rate_percent": 0.32920742427639266
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "random",
+      "accesses": 253407,
+      "misses": 860,
+      "miss_rate_percent": 0.33937499753361194
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "random",
+      "accesses": 126481,
+      "misses": 5494,
+      "miss_rate_percent": 4.3437354227117115
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "random",
+      "accesses": 128209,
+      "misses": 5470,
+      "miss_rate_percent": 4.266471152571192
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "lip",
+      "accesses": 50132,
+      "misses": 889,
+      "miss_rate_percent": 1.7733184393201946
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "lip",
+      "accesses": 42712,
+      "misses": 889,
+      "miss_rate_percent": 2.081382281326091
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "lip",
+      "accesses": 254247,
+      "misses": 714,
+      "miss_rate_percent": 0.2808292723217973
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "lip",
+      "accesses": 253407,
+      "misses": 718,
+      "miss_rate_percent": 0.2833386607315504
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "lip",
+      "accesses": 126481,
+      "misses": 6190,
+      "miss_rate_percent": 4.8940157019631405
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "lip",
+      "accesses": 128209,
+      "misses": 6186,
+      "miss_rate_percent": 4.824934286984533
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "bip",
+      "accesses": 50132,
+      "misses": 889,
+      "miss_rate_percent": 1.7733184393201946
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "bip",
+      "accesses": 42712,
+      "misses": 889,
+      "miss_rate_percent": 2.081382281326091
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "bip",
+      "accesses": 254247,
+      "misses": 674,
+      "miss_rate_percent": 0.2650965399788395
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "bip",
+      "accesses": 253407,
+      "misses": 678,
+      "miss_rate_percent": 0.26755377712533596
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "bip",
+      "accesses": 126481,
+      "misses": 6183,
+      "miss_rate_percent": 4.888481273867221
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "bip",
+      "accesses": 128209,
+      "misses": 6177,
+      "miss_rate_percent": 4.817914498982131
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "srrip",
+      "accesses": 50132,
+      "misses": 890,
+      "miss_rate_percent": 1.7753131732226919
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "srrip",
+      "accesses": 42712,
+      "misses": 890,
+      "miss_rate_percent": 2.0837235437347816
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "srrip",
+      "accesses": 254247,
+      "misses": 712,
+      "miss_rate_percent": 0.28004263570464943
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "srrip",
+      "accesses": 253407,
+      "misses": 713,
+      "miss_rate_percent": 0.2813655502807736
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "srrip",
+      "accesses": 126481,
+      "misses": 6191,
+      "miss_rate_percent": 4.894806334548272
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "srrip",
+      "accesses": 128209,
+      "misses": 6203,
+      "miss_rate_percent": 4.838193886544627
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "insert3",
+      "accesses": 50132,
+      "misses": 867,
+      "miss_rate_percent": 1.7294342934652516
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "insert3",
+      "accesses": 42712,
+      "misses": 867,
+      "miss_rate_percent": 2.029874508334894
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "insert3",
+      "accesses": 254247,
+      "misses": 723,
+      "miss_rate_percent": 0.28436913709896283
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "insert3",
+      "accesses": 253407,
+      "misses": 724,
+      "miss_rate_percent": 0.2857063932724826
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "insert3",
+      "accesses": 126481,
+      "misses": 5992,
+      "miss_rate_percent": 4.73747045010713
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "insert3",
+      "accesses": 128209,
+      "misses": 5987,
+      "miss_rate_percent": 4.669718974486971
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "brrip",
+      "accesses": 50132,
+      "misses": 867,
+      "miss_rate_percent": 1.7294342934652516
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "brrip",
+      "accesses": 42712,
+      "misses": 867,
+      "miss_rate_percent": 2.029874508334894
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "brrip",
+      "accesses": 254247,
+      "misses": 680,
+      "miss_rate_percent": 0.26745644983028316
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "brrip",
+      "accesses": 253407,
+      "misses": 681,
+      "miss_rate_percent": 0.26873764339580203
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "brrip",
+      "accesses": 126481,
+      "misses": 6005,
+      "miss_rate_percent": 4.747748673713838
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "brrip",
+      "accesses": 128209,
+      "misses": 5995,
+      "miss_rate_percent": 4.675958786044662
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "drrip",
+      "accesses": 50132,
+      "misses": 883,
+      "miss_rate_percent": 1.76135003590521
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "drrip",
+      "accesses": 42712,
+      "misses": 883,
+      "miss_rate_percent": 2.0673347068739463
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "drrip",
+      "accesses": 254247,
+      "misses": 688,
+      "miss_rate_percent": 0.27060299629887474
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "drrip",
+      "accesses": 253407,
+      "misses": 689,
+      "miss_rate_percent": 0.2718946201170449
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "drrip",
+      "accesses": 126481,
+      "misses": 6056,
+      "miss_rate_percent": 4.788070935555537
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "drrip",
+      "accesses": 128209,
+      "misses": 6054,
+      "miss_rate_percent": 4.721977396282632
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "burst_rrip",
+      "accesses": 50132,
+      "misses": 858,
+      "miss_rate_percent": 1.7114816883427748
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "burst_rrip",
+      "accesses": 42712,
+      "misses": 858,
+      "miss_rate_percent": 2.0088031466566774
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "burst_rrip",
+      "accesses": 254247,
+      "misses": 692,
+      "miss_rate_percent": 0.2721762695331705
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "burst_rrip",
+      "accesses": 253407,
+      "misses": 693,
+      "miss_rate_percent": 0.27347310847766637
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "burst_rrip",
+      "accesses": 126481,
+      "misses": 4898,
+      "miss_rate_percent": 3.872518401973419
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "burst_rrip",
+      "accesses": 128209,
+      "misses": 4905,
+      "miss_rate_percent": 3.8257844613092686
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "burst_pc",
+      "accesses": 50132,
+      "misses": 787,
+      "miss_rate_percent": 1.5698555812654593
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "burst_pc",
+      "accesses": 42712,
+      "misses": 787,
+      "miss_rate_percent": 1.8425735156396328
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "burst_pc",
+      "accesses": 254247,
+      "misses": 3891,
+      "miss_rate_percent": 1.530401538661223
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "burst_pc",
+      "accesses": 253407,
+      "misses": 3867,
+      "miss_rate_percent": 1.5260036226307876
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "burst_pc",
+      "accesses": 126481,
+      "misses": 4889,
+      "miss_rate_percent": 3.8654027087072365
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "burst_pc",
+      "accesses": 128209,
+      "misses": 4876,
+      "miss_rate_percent": 3.8031651444126386
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "burst_history",
+      "accesses": 50132,
+      "misses": 813,
+      "miss_rate_percent": 1.621718662730392
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "burst_history",
+      "accesses": 42712,
+      "misses": 813,
+      "miss_rate_percent": 1.9034463382655928
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "burst_history",
+      "accesses": 254247,
+      "misses": 925,
+      "miss_rate_percent": 0.3638194354308999
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "burst_history",
+      "accesses": 253407,
+      "misses": 912,
+      "miss_rate_percent": 0.3598953462216908
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "burst_history",
+      "accesses": 126481,
+      "misses": 4993,
+      "miss_rate_percent": 3.947628497560898
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "burst_history",
+      "accesses": 128209,
+      "misses": 5062,
+      "miss_rate_percent": 3.948240763128953
+    },
+    {
+      "workload": "json_bpe-dev-41",
+      "policy": "opt",
+      "accesses": 50132,
+      "misses": 565,
+      "miss_rate_percent": 1.1270246549110348
+    },
+    {
+      "workload": "json_bpe-dev-73",
+      "policy": "opt",
+      "accesses": 42712,
+      "misses": 565,
+      "miss_rate_percent": 1.322813260910283
+    },
+    {
+      "workload": "quant_loader-dev-41",
+      "policy": "opt",
+      "accesses": 254247,
+      "misses": 588,
+      "miss_rate_percent": 0.23127116544148013
+    },
+    {
+      "workload": "quant_loader-dev-73",
+      "policy": "opt",
+      "accesses": 253407,
+      "misses": 591,
+      "miss_rate_percent": 0.23322165528181937
+    },
+    {
+      "workload": "runtime_graph-dev-41",
+      "policy": "opt",
+      "accesses": 126481,
+      "misses": 3386,
+      "miss_rate_percent": 2.6770819332547973
+    },
+    {
+      "workload": "runtime_graph-dev-73",
+      "policy": "opt",
+      "accesses": 128209,
+      "misses": 3382,
+      "miss_rate_percent": 2.6378803360138523
+    }
+  ]
+}

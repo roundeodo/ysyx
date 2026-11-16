@@ -1,0 +1,8 @@
+..Analysis: /tmp/tmpuudhrt2_/npc/docs/verification/data/run-history/20261001T083656Z-test-0ef282aa
+....Analysis: /tmp/tmpua5nx7cs/npc/docs/verification/data/run-history/20261001T083656Z-test-a8907ccb
+Analysis: /tmp/tmpua5nx7cs/npc/docs/verification/data/run-history/20261001T083656Z-test-5ffda4dd
+..
+----------------------------------------------------------------------
+Ran 8 tests in 0.090s
+
+OK

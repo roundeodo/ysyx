@@ -1,0 +1,318 @@
+diff --git a/npc/tests/rtl/riscv32_fetch_contract_tb.sv b/npc/tests/rtl/riscv32_fetch_contract_tb.sv
+index 433d3c9..44288d6 100644
+--- a/npc/tests/rtl/riscv32_fetch_contract_tb.sv
++++ b/npc/tests/rtl/riscv32_fetch_contract_tb.sv
+@@ -15,14 +15,17 @@ module riscv32_fetch_contract_tb;
+   icache_lookup_req_t cache_request;
+   icache_lookup_resp_t cache_response;
+   logic cache_request_valid, cache_response_valid=0, cache_response_ready;
++  logic cache_request_ready=1, fetched_ready=1, prediction_enabled=1;
++  logic redirect_valid=0, loop_test_active=1;
++  redirect_req_t redirect_request;
+   fetch_entry_t fetched;
+   logic fetched_valid;
+   int cycle=0, requests=0, deliveries=0, previous_cycle=-1;
+ 
+   riscv32_ifu #(.PC_START(BASE)) ifu (
+-      .prediction_enable_i(1'b1),
++      .prediction_enable_i(prediction_enabled),
+       .early_return_present_i(early_return_present),.early_return_pc_i(early_return_pc),
+-      .clk_i(clk), .rst_ni(ifu_reset_n), .redirect_req_i('0), .redirect_req_valid_i(1'b0),
++      .clk_i(clk), .rst_ni(ifu_reset_n), .redirect_req_i(redirect_request), .redirect_req_valid_i(redirect_valid),
+       .next_pc_predictor_lookup_request_pc_o(query_pc),
+       .next_pc_predictor_lookup_request_epoch_o(query_epoch),
+       .next_pc_predictor_lookup_request_valid_o(query_valid),
+@@ -34,9 +37,9 @@ module riscv32_fetch_contract_tb;
+       .next_pc_predictor_lookup_response_ready_o(response_ready),
+       .next_pc_predictor_flush_o(flush),
+       .icache_lookup_req_o(cache_request), .icache_lookup_req_valid_o(cache_request_valid),
+-      .icache_lookup_req_ready_i(1'b1), .icache_lookup_resp_i(cache_response),
++      .icache_lookup_req_ready_i(cache_request_ready), .icache_lookup_resp_i(cache_response),
+       .icache_lookup_resp_valid_i(cache_response_valid), .icache_lookup_resp_ready_o(cache_response_ready),
+-      .fetch_entry_o(fetched), .fetch_entry_valid_o(fetched_valid), .fetch_entry_ready_i(1'b1)
++      .fetch_entry_o(fetched), .fetch_entry_valid_o(fetched_valid), .fetch_entry_ready_i(fetched_ready)
+   );
+   riscv32_branch_predictor predictor (
+       .resolved_control_flow_prediction_i('0),
+@@ -55,8 +58,9 @@ module riscv32_fetch_contract_tb;
+ 
+   always @(posedge clk) begin
+     cycle++;
+-    cache_response_valid <= ifu_reset_n && cache_request_valid;
+-    if (ifu_reset_n && cache_request_valid) begin
++    if (loop_test_active) begin
++    cache_response_valid <= ifu_reset_n && cache_request_valid && cache_request_ready;
++    if (ifu_reset_n && cache_request_valid && cache_request_ready) begin
+       assert(cache_request.fetch_addr == BASE + program_counter_t'((requests%4)*4))
+         else $fatal(1,"IFU sent an incorrect predicted PC");
+       if(previous_cycle>=0)
+@@ -66,19 +70,92 @@ module riscv32_fetch_contract_tb;
+                            frontend_tag:cache_request.frontend_tag,
+                            fetch_epoch:cache_request.fetch_epoch, access_fault:1'b0};
+     end
+-    if(fetched_valid) begin
++    if(fetched_valid && fetched_ready) begin
+       assert(fetched.pc == BASE + program_counter_t'((deliveries%4)*4) &&
+              fetched.prediction.predicted_taken && fetched.prediction.predicted_target ==
+              BASE + program_counter_t'(((deliveries+1)%4)*4))
+         else $fatal(1,"IFU lost predicted identity or target");
+       deliveries++;
+     end
+-    if(deliveries==100) begin
+-      $display("PASS fetch taken loop: 100 deliveries, target interval 1 cycle");
+-      $finish;
+     end
+   end
++
++  task automatic reset_frontend;
++    @(negedge clk);
++    predictor_reset_n=0; ifu_reset_n=0;
++    redirect_valid=0; prediction_enabled=1; fetched_ready=1;
++    cache_request_ready=0; cache_response_valid=0;
++    repeat(2) @(negedge clk);
++    predictor_reset_n=1; ifu_reset_n=1;
++  endtask
++
++  task automatic return_request(input icache_lookup_req_t request, input instruction_t insn);
++    cache_response='{fetch_addr:request.fetch_addr, fetch_data:insn,
++                     frontend_tag:request.frontend_tag, fetch_epoch:request.fetch_epoch,
++                     access_fault:1'b0};
++    cache_response_valid=1;
++  endtask
++
++  // 真实IFU/预测器连接：旧请求受阻、连续恢复及旧响应与恢复同拍。
++  task automatic check_restart(input int stalls, input bit repeated_restart);
++    icache_lookup_req_t held, accepted;
++    program_counter_t target;
++    fetch_epoch_t new_epoch;
++    bit target_delivered;
++    reset_frontend();
++    while(!cache_request_valid) @(negedge clk);
++    held=cache_request;
++    repeat(3) @(negedge clk); // 填满请求队列及预测响应槽。
++    target=BASE+program_counter_t'('h100);
++    redirect_request='0; redirect_request.target_pc=target; redirect_valid=1;
++    #1;
++    new_epoch=query_epoch;
++    assert(flush && query_valid && query_ready && query_pc==target && new_epoch!=held.fetch_epoch)
++      else $fatal(1,"redirect did not replace a stalled prediction with the new epoch target");
++    @(negedge clk); redirect_valid=0;
++    repeat(stalls) begin
++      #1;
++      assert(cache_request_valid && cache_request===held)
++        else $fatal(1,"restart changed the stalled old I-cache request");
++      @(negedge clk);
++    end
++    cache_request_ready=1;
++    @(negedge clk); cache_request_ready=0;
++    return_request(held,32'h13);
++    if(repeated_restart) begin
++      target=BASE+program_counter_t'('h200);
++      redirect_request.target_pc=target; redirect_valid=1;
++    end
++    #1;
++    assert(!fetched_valid && cache_response_ready)
++      else $fatal(1,"old epoch response was delivered after restart");
++    if(repeated_restart) begin
++      new_epoch=query_epoch;
++      assert(query_valid && query_ready && query_pc==target)
++        else $fatal(1,"restart and stale response did not permit a new target query");
++    end
++    @(negedge clk); cache_response_valid=0; redirect_valid=0;
++    target_delivered=0;
++    for(int attempt=0;attempt<8 && !target_delivered;attempt++) begin
++      while(!cache_request_valid) @(negedge clk);
++      accepted=cache_request; cache_request_ready=1;
++      @(negedge clk); cache_request_ready=0;
++      return_request(accepted,32'h13);
++      #1;
++      if(accepted.fetch_epoch==new_epoch) begin
++        assert(fetched_valid && fetched.pc==target)
++          else $fatal(1,"first new epoch instruction did not match the recovery target");
++        target_delivered=1;
++      end else begin
++        assert(!fetched_valid && cache_response_ready)
++          else $fatal(1,"queued stale request escaped epoch filtering");
++      end
++      @(negedge clk); cache_response_valid=0;
++    end
++    assert(target_delivered) else $fatal(1,"new epoch target never arrived");
++  endtask
+   initial begin
++    redirect_request='0;
+     train_pc=BASE; train_target=BASE+4;
+     repeat(3) @(negedge clk); predictor_reset_n=1;
+     for(int i=0;i<4;i++) begin
+@@ -89,6 +166,21 @@ module riscv32_fetch_contract_tb;
+     end
+     train_valid=0;
+     repeat(3) @(negedge clk); ifu_reset_n=1;
++    wait(deliveries>=100);
++    @(negedge clk); loop_test_active=0;
++    $display("PASS fetch taken loop: 100 deliveries, target interval 1 cycle");
++    if(!riscv_config_pkg::BRANCH_SPEC_HISTORY) begin
++      for(int stalls=0;stalls<4;stalls++) begin
++        check_restart(stalls,0);
++        check_restart(stalls,1);
++      end
++      reset_frontend(); prediction_enabled=0;
++      redirect_request.target_pc=BASE+32'h400; redirect_valid=1;
++      #1;
++      assert(!query_valid) else $fatal(1,"maintenance pause was bypassed by restart");
++      $display("PASS fetch restart: 8 stalled/overlapping recovery cases and maintenance pause");
++    end
++    $finish;
+   end
+   initial begin #10000; $fatal(1,"taken-loop timeout"); end
+ endmodule
+diff --git a/npc/tests/rtl/riscv32_pipeline_control_tb.sv b/npc/tests/rtl/riscv32_pipeline_control_tb.sv
+index 67b053b..adcf54d 100644
+--- a/npc/tests/rtl/riscv32_pipeline_control_tb.sv
++++ b/npc/tests/rtl/riscv32_pipeline_control_tb.sv
+@@ -487,11 +487,7 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    // BTB训练依次经过解析事件、set快照和写事务寄存器，再写入数组。这里等待写入
+-    // 真正可见；训练延迟不改变预测查询吞吐，也不参与精确控制流恢复。
+-    @(posedge clk);
+-    @(posedge clk);
+-    @(posedge clk);
++    // 解析事件直接在训练沿更新表；下一次查询即可观察，不增加训练等待拍。
+     query_predictor(JAL_PC);
+     assert (predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_prediction.predicted_target == JAL_TARGET) &&
+@@ -508,20 +504,23 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    @(posedge clk);
+-    @(posedge clk);
+-    @(posedge clk);
+     query_predictor(BRANCH_PC);
+-    assert (predictor_lookup_prediction.predicted_taken &&
+-            (predictor_lookup_prediction.predicted_target == BRANCH_TARGET))
+-    else $fatal(1, "trained BHT entry did not predict the branch taken");
++    // 01经一次taken训练成为10。纯动态预测taken；静态/弱态混合对前向分支预测不跳。
++    if (riscv_config_pkg::BRANCH_STATIC_POLICY == 0) begin
++      assert (predictor_lookup_prediction.predicted_taken &&
++              predictor_lookup_prediction.predicted_target == BRANCH_TARGET)
++      else $fatal(1, "dynamic BHT weak-taken state did not predict taken");
++    end else begin
++      assert (!predictor_lookup_prediction.predicted_taken &&
++              predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES))
++      else $fatal(1, "forward weak branch did not use BTFNT");
++    end
+ 
+     predictor_resolved_control_flow_occurred = 1'b1;
+     predictor_resolved_control_flow_taken    = 1'b0;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    @(posedge clk);
+     query_predictor(BRANCH_PC);
+     assert (!predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES)))
+@@ -545,10 +544,7 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    // RAS先接收已译码训练事务，再由独立写口更新数组；BTB还经过set快照级。
+-    // 预测状态不是架构状态，允许训练延迟，EX仍对尚未训练的return做精确恢复。
+-    @(posedge clk);
+-    @(posedge clk);
++    // call解析沿已更新RAS；紧随其后的查询就必须使用新的栈顶。
+     query_predictor(RETURN_PC);
+     assert (predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_next_pc == CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+@@ -566,6 +562,58 @@ module riscv32_pipeline_control_tb;
+     clear_predictor_inputs();
+   endtask
+ 
++  // 从实际解析训练建立四种状态；检查同一条件分支的前/后向静态与动态选择。
++  task automatic check_conditional_prediction_states;
++    localparam program_counter_t PC = program_counter_t'('h8000_0600);
++    program_counter_t target;
++    bit expected_taken;
++    for (int backward = 0; backward < 2; backward++) begin
++      target = backward ? PC - program_counter_t'(8) : PC + program_counter_t'(8);
++      // 三次not-taken保证任何初始两位状态都饱和到00，同时安装当前目标。
++      @(negedge clk);
++      predictor_resolved_control_flow_pc = PC;
++      predictor_resolved_control_flow_target = target;
++      predictor_resolved_control_flow_op = CF_BRANCH;
++      predictor_resolved_control_flow_rd = '0;
++      predictor_resolved_control_flow_rs1 = '0;
++      predictor_resolved_control_flow_taken = 1'b0;
++      predictor_resolved_control_flow_occurred = 1'b1;
++      repeat (3) @(posedge clk);
++      @(negedge clk);
++      predictor_resolved_control_flow_occurred = 1'b0;
++      for (int counter = 0; counter < 4; counter++) begin
++        if (counter != 0) begin
++          predictor_resolved_control_flow_taken = 1'b1;
++          predictor_resolved_control_flow_occurred = 1'b1;
++          @(posedge clk);
++          @(negedge clk);
++          predictor_resolved_control_flow_occurred = 1'b0;
++        end
++        query_predictor(PC);
++        case (riscv_config_pkg::BRANCH_STATIC_POLICY)
++          0: expected_taken = counter >= 2;
++          1: expected_taken = backward != 0;
++          2: begin
++            case (counter)
++              0: expected_taken = 1'b0;
++              3: expected_taken = 1'b1;
++              default: expected_taken = backward != 0;
++            endcase
++          end
++          default: $fatal(1, "unsupported branch choice in pipeline test");
++        endcase
++        assert (predictor_lookup_prediction.predicted_taken == expected_taken &&
++                predictor_lookup_next_pc == (expected_taken ? target :
++                    PC + program_counter_t'(INSTRUCTION_BYTES)))
++        else $fatal(1, "conditional choice mismatch: policy=%0d backward=%0d state=%0d",
++                    riscv_config_pkg::BRANCH_STATIC_POLICY, backward, counter);
++      end
++    end
++    clear_predictor_inputs();
++    $display("PASS conditional choice: 8 direction/state combinations, policy=%0d",
++             riscv_config_pkg::BRANCH_STATIC_POLICY);
++  endtask
++
+   task automatic check_decode_execute_stage;
+     execute_packet_t held_packet;
+     execute_packet_t buffered_packet;
+@@ -1254,6 +1302,12 @@ module riscv32_pipeline_control_tb;
+     #1;
+     assert (ifu_predictor_flush)
+     else $fatal(1, "IFU did not flush predictor lookup on redirect");
++    if (!riscv_config_pkg::BRANCH_SPEC_HISTORY) begin
++      assert (ifu_predictor_lookup_request_valid &&
++              ifu_predictor_lookup_request_pc == redirect_request.target_pc &&
++              ifu_predictor_lookup_request_epoch != initial_epoch)
++      else $fatal(1, "IFU did not query the new epoch target in the redirect cycle");
++    end
+     @(posedge clk);
+ 
+     @(negedge clk);
+@@ -1263,7 +1317,9 @@ module riscv32_pipeline_control_tb;
+     #1;
+     assert (!ifu_fetch_entry_valid && icache_lookup_resp_ready &&
+             ifu_predictor_lookup_request_valid &&
+-            (ifu_predictor_lookup_request_pc == redirect_request.target_pc) &&
++            (ifu_predictor_lookup_request_pc == redirect_request.target_pc +
++              (riscv_config_pkg::BRANCH_SPEC_HISTORY ? program_counter_t'(0) :
++               program_counter_t'(INSTRUCTION_BYTES))) &&
+             (ifu_predictor_lookup_request_epoch != initial_epoch))
+     else $fatal(1, "IFU did not discard stale response and restart redirected prediction");
+     @(posedge clk);
+@@ -1316,6 +1372,7 @@ module riscv32_pipeline_control_tb;
+     check_fetch_buffer();
+     check_fetch_buffer_wrap_and_flush();
+     check_fetch_control_flow_predictor();
++    check_conditional_prediction_states();
+     check_precise_exception_age_priority();
+     check_ifu_zero_bubble_lookup();
+ 

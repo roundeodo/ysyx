@@ -1,0 +1,25 @@
+{
+  "am-kernels": {
+    "head": "c4088239e2425ffcb3cccd0fd603872d6c745fbb",
+    "status": "M benchmarks/microbench/Makefile\n M benchmarks/microbench/src/bench.c",
+    "diff_sha256": "02aad6771e399f4c2c74593b5bdcf4f1e06c42599ead7aded25ebe0e99b38191"
+  },
+  "ysyxSoC": {
+    "head": "a9fe2e0421291c40c2ae38e7507a399b6617a859",
+    "status": "M perip/amba/apb_delayer.v\n M perip/amba/axi4_delayer.v\n M perip/gpio/gpio_top_apb.v\n M perip/ps2/ps2_top_apb.v\n M perip/psram/efabless/EF_PSRAM_CTRL.v\n M perip/psram/efabless/EF_PSRAM_CTRL_wb.v\n M perip/psram/psram.v\n M perip/sdram/core_sdram_axi4/sdram_axi.v\n M perip/sdram/core_sdram_axi4/sdram_axi_core.v\n M perip/sdram/core_sdram_axi4/sdram_axi_pmem.v\n M perip/sdram/sdram.v\n M perip/sdram/sdram_top_apb.v\n M perip/sdram/sdram_top_axi.v\n M perip/spi/rtl/spi_top_apb.v\n M perip/uart16550/rtl/uart_top_apb.v\n M perip/vga/vga_top_apb.v\n M src/CPU.scala\n M src/Top.scala\n M src/device/SDRAM.scala",
+    "diff_sha256": "df66807cf31a517905723f0c2531c7bb5d2801a6fa71cec0d1c5484b345e474f"
+  },
+  "abstract-machine": {
+    "head": "47c852e12b9ce086b872095f59cf54fbe5a6fda6",
+    "status": "m ../am-kernels\n M ../npc/Makefile\n M ../npc/docs/README.md\n M ../npc/docs/development/DEVELOPMENT_PROCESS.md\n M ../npc/docs/learning/LEARNING_JOURNAL.md\n M ../npc/docs/microarchitecture/ICACHE_DESIGN_RECORD.md\n M ../npc/scripts/run_microbench_perf.py\n M ../npc/scripts/test_frontend.py\n M ../npc/tests/interrupt/riscv32_timer_system_tb.sv\n M ../npc/tests/interrupt/run.py\n M ../npc/tests/rtl/riscv32_icache_contract_tb.sv\n M ../npc/tests/rtl/riscv32_predictor_contract_tb.sv\n M ../npc/vsrc/riscv32/common/riscv_config_pkg.sv\n M ../npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv\n M ../npc/vsrc/riscv32/core/frontend/riscv32_btb.sv\n M ../npc/vsrc/riscv32/core/frontend/riscv32_icache.sv\n M ../npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv\n M ../npc/vsrc/riscv32/core/riscv32_core.sv\n M ../npc/vsrc/riscv32/filelist/filelist.f\n M ../npc/vsrc/riscv32/filelist/filelist_sta.f\n m ../ysyxSoC",
+    "diff_sha256": "ba014658fd235062abc9e2dd3e3f3b74c38687a0b5d6934640b927844fb54522"
+  },
+  "toolflow_sources": {
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/yosys.tcl": "d5a626fc1d1a9590586a3bc113feec94a5d1baef56ca84e6454eedc53270a4ea",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/default.sdc": "373f5a6f604274ceb522890d23a185251d409d4cfc6913c1a3502bce96134b99",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl": "fcb14879d0be86119c17a3fb2e6b531020fb12e3a91e0bd5615a39ad111ba55d",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/common.tcl": "9e6b02f172d2d3b5f04cfb6d5ab0d185b35390aa32a006be6109b59da7ca4659",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/pdk/icsprout55.tcl": "6102182a0eae5504dedfb1ffd3fc138dbdcd257d819096bf50c7cb755c603d81",
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/pdk/nangate45.tcl": "c816ed4213a11a356495d3d4b70f2e2ca6f049a442d8307909e1c5919d8e21bc"
+  }
+}

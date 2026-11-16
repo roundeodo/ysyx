@@ -1,0 +1,79 @@
+{
+  "B0": {
+    "bht": 16,
+    "btb": 16,
+    "ways": 2,
+    "ras": 4,
+    "policy": 0
+  },
+  "H64": {
+    "bht": 64,
+    "btb": 16,
+    "ways": 2,
+    "ras": 4,
+    "policy": 0
+  },
+  "S32": {
+    "bht": 64,
+    "btb": 32,
+    "ways": 2,
+    "ras": 4,
+    "policy": 0
+  },
+  "S64": {
+    "bht": 64,
+    "btb": 64,
+    "ways": 2,
+    "ras": 4,
+    "policy": 0
+  },
+  "A16": {
+    "bht": 64,
+    "btb": 16,
+    "ways": 2,
+    "ras": 4,
+    "policy": 1
+  },
+  "A32": {
+    "bht": 64,
+    "btb": 32,
+    "ways": 2,
+    "ras": 4,
+    "policy": 1
+  },
+  "L16": {
+    "bht": 64,
+    "btb": 16,
+    "ways": 2,
+    "ras": 4,
+    "policy": 3
+  },
+  "L32": {
+    "bht": 64,
+    "btb": 32,
+    "ways": 2,
+    "ras": 4,
+    "policy": 3
+  },
+  "R16": {
+    "bht": 64,
+    "btb": 16,
+    "ways": 2,
+    "ras": 4,
+    "policy": 2
+  },
+  "R32": {
+    "bht": 64,
+    "btb": 32,
+    "ways": 2,
+    "ras": 4,
+    "policy": 2
+  },
+  "B0current": {
+    "bht": 16,
+    "btb": 16,
+    "ways": 2,
+    "ras": 4,
+    "policy": 0
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "commit": "316d1d2ecb72ef3de4fd5f8e9034754ae545c03f",
+  "source_hashes": {
+    "npc/Makefile": "b2824c815215982806ac0ab4ea80d358e76d8e3930bcf7afd9e6afd301caa2af",
+    "npc/scripts/run_microbench_perf.py": "a8f42eab9f94478955948a477362394b9789d5364393433cf1186a911c1134e0",
+    "npc/vsrc/riscv32/common/riscv_config_pkg.sv": "5182fe8ac18b28ba66d311b16644687c98abea2b73f4f46f0207e0b6cc7015f5",
+    "npc/vsrc/riscv32/common/riscv32_pkg.sv": "f46a5df7b824ae068d178fc0faa073cb1f5477b0d8627884b64d55ebdefc12f3",
+    "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv": "4c38f32e76d3b4c4e9b197b2b797772196d4e126b8321292886b1efa87f03945",
+    "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv": "66cc0311da9d3505f45b58f1ae69b025ad1f595182f1ac5469431cda0121a362",
+    "npc/vsrc/riscv32/core/execute/riscv32_exu.sv": "baf36143aa65b07b5410124cde8b5a10632b662993d992903d6a0aeb698bde51",
+    "npc/vsrc/riscv32/core/riscv32_core.sv": "4f51737a3fa020375f8baa7c1b7696d691f1e1926b35046be0d48c29a079a248",
+    "npc/vsrc/riscv32/filelist/filelist.f": "69c001d16808b59c920a34e8675dfd9d556caafde04960d0037cc3c926fe289c",
+    "npc/vsrc/riscv32/filelist/filelist_sta.f": "ade1ffa71fda48b2ad84a87e43ea3f013a77b511b942aa119d9eca40ebe974a8",
+    "npc/docs/microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md": "989c2ff046265db773f1941065d621901e011bd66a9904bc6c5b50b37ee7a89f"
+  }
+}

@@ -1,0 +1,2 @@
+bytes,ways,line_bytes,policy,accesses,misses,unique_lines,refill_bytes,table_reads,table_writes
+1024,4,32,burst_pc,12364,2772,128,88704,2772,2763

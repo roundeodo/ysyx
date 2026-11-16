@@ -1,0 +1,37 @@
+digraph architecture {
+  graph [fontname="Noto Sans CJK SC", fontsize=20, labelloc=t, bgcolor="white", rankdir=LR, nodesep=0.38, ranksep=0.55, pad=0.25, compound=true];
+  node [fontname="Noto Sans CJK SC", fontsize=12, shape=box, style="rounded,filled", fillcolor="#ffffff", color="#526175", penwidth=1.2, margin="0.14,0.10"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#506278", arrowsize=0.7];
+  label="01  RV32 处理器与 SoC 系统边界\nrv32-baseline · 实线：总线/数据，虚线：控制";
+  subgraph cluster_cpu_socket {
+    label="riscv32_npc_axi：CPU 插槽封装"; color="#9aabc0"; style="rounded";
+    subgraph cluster_local {
+      label="riscv32_npc_system：本地系统"; color="#9aabc0"; style="rounded";
+      core [label="riscv32_core\nRV32I 顺序流水线\nI-cache / D-cache / CSR", fillcolor="#eaf2ff", peripheries=2];
+      merge [label="axi4_core_merge\nI/D 读请求轮询\n一个读 burst 在途", fillcolor="#f2edff"];
+      router [label="axi4_address_router\nCLINT / 外部 SoC", fillcolor="#f2edff"];
+      clint [label="axi4_clint\n分频计数 + mtime / mtimecmp\n比较产生定时中断", fillcolor="#fff1dd", peripheries=2];
+      reset [label="reset_controller\n异步复位 / 同步释放", fillcolor="#fff1dd", peripheries=2];
+      clock [label="同一 clk_i", shape=ellipse, fillcolor="#f5f6f8"];
+      core -> merge [label="instruction AXI：AR / R", dir=both];
+      core -> merge [label="data AXI：五通道", dir=both];
+      merge -> router [label="合并 AXI32", dir=both];
+      router -> clint [label="0x02000000–0x0200ffff", dir=both];
+      clint -> core [label="timer_interrupt", style=dashed, color="#b76e13", constraint=false];
+      clock -> core [style=dashed, color="#9b9b9b"];
+      clock -> clint [style=dashed, color="#9b9b9b"];
+      clock -> reset [style=dashed, color="#9b9b9b"];
+      reset -> core [label="system_rst_n", style=dashed, color="#b76e13", constraint=false];
+    }
+    width [label="axi4_soc_width_converter\nRV32：32 → 32 位组合映射\n不增加流水级", fillcolor="#f2edff"];
+    router -> width [label="其余地址", dir=both];
+  }
+  subgraph cluster_soc {
+    label="ysyxSoC 外部互连与设备"; color="#9aabc0"; style="rounded";
+    fabric [label="SoC 互连\nAXI / APB 等", fillcolor="#f2edff"];
+    memory [label="SRAM / MROM\nSPI Flash / PSRAM / SDRAM", fillcolor="#e8f5e9"];
+    mmio [label="UART / GPIO / 其他外设", fillcolor="#e8f5e9"];
+    fabric -> memory [dir=both]; fabric -> mmio [dir=both];
+  }
+  width -> fabric [label="SoC AXI32 插槽", dir=both];
+}

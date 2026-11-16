@@ -1,0 +1,32 @@
+[options]
+mode bmc
+depth 20
+expect pass
+
+[engines]
+smtbmc boolector
+
+[script]
+plugin -i slang
+read_slang --top riscv_pipeline_control_formal \
+  -DYSYX_ICACHE_CAPACITY_BYTES=1024 \
+  -DYSYX_ICACHE_REPLACEMENT_POLICY=0 \
+  -DYSYX_ICACHE_WAY_COUNT=2 -DYSYX_ICACHE_LINE_BYTES=8 \
+  -DYSYX_DCACHE_ENABLE=1 -DYSYX_DCACHE_CAPACITY_BYTES=256 \
+  -DYSYX_DCACHE_WAY_COUNT=2 -DYSYX_DCACHE_LINE_BYTES=16 \
+  -DYSYX_BRANCH_HISTORY_ENTRY_COUNT=16 \
+  -DYSYX_BRANCH_TARGET_ENTRY_COUNT=16 -DYSYX_BRANCH_TARGET_WAY_COUNT=2 \
+  -DYSYX_RETURN_STACK_ENTRY_COUNT=4 \
+  -DYSYX_SDRAM_NATIVE_READ_BURST=1 \
+  riscv_config_pkg.sv riscv_addr_map_pkg.sv riscv_pkg.sv \
+  riscv_fetch_buffer.sv riscv_hazard_ctrl.sv \
+  riscv_pipeline_control_formal.sv
+prep -top riscv_pipeline_control_formal
+
+[files]
+vsrc/riscv/common/riscv_config_pkg.sv
+vsrc/riscv/common/riscv_addr_map_pkg.sv
+vsrc/riscv/common/riscv_pkg.sv
+vsrc/riscv/core/frontend/riscv_fetch_buffer.sv
+vsrc/riscv/core/control/riscv_hazard_ctrl.sv
+tests/formal/riscv_pipeline_control_formal.sv

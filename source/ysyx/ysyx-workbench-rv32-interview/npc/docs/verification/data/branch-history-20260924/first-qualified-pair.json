@@ -1,0 +1,139 @@
+{
+  "common_700": {
+    "time_ratio_gm": 0.9968779593631306,
+    "area_time_ratio_gm": 1.065807317611025,
+    "area_ratio": 1.0691452324735224,
+    "worst_time_ratio": 1.0070010501575237,
+    "cases": [
+      {
+        "case": "json_bpe-dev-331",
+        "time_ratio": 1.005142270748289,
+        "cycle_ratio": 1.005142270748289,
+        "i_beats_ratio": 1.0088181261481934
+      },
+      {
+        "case": "json_bpe-dev-733",
+        "time_ratio": 1.0070010501575237,
+        "cycle_ratio": 1.0070010501575237,
+        "i_beats_ratio": 1.0118153846153846
+      },
+      {
+        "case": "quant_loader-dev-331",
+        "time_ratio": 0.995217670177698,
+        "cycle_ratio": 0.995217670177698,
+        "i_beats_ratio": 1.0
+      },
+      {
+        "case": "quant_loader-dev-733",
+        "time_ratio": 0.9956363111408586,
+        "cycle_ratio": 0.9956363111408586,
+        "i_beats_ratio": 1.001094540976878
+      },
+      {
+        "case": "runtime_graph-dev-331",
+        "time_ratio": 0.9894020468595771,
+        "cycle_ratio": 0.9894020468595771,
+        "i_beats_ratio": 1.0003556424903866
+      },
+      {
+        "case": "runtime_graph-dev-733",
+        "time_ratio": 0.9899554132178496,
+        "cycle_ratio": 0.9899554132178496,
+        "i_beats_ratio": 1.000886741005121
+      },
+      {
+        "case": "regex_tokenizer-dev-331",
+        "time_ratio": 1.0011405590773166,
+        "cycle_ratio": 1.0011405590773166,
+        "i_beats_ratio": 1.0049417641740002
+      },
+      {
+        "case": "regex_tokenizer-dev-733",
+        "time_ratio": 1.0012333000906066,
+        "cycle_ratio": 1.0012333000906066,
+        "i_beats_ratio": 1.0036278187739622
+      },
+      {
+        "case": "ini_config-dev-331",
+        "time_ratio": 0.9916517115320705,
+        "cycle_ratio": 0.9916517115320704,
+        "i_beats_ratio": 1.004937255708702
+      },
+      {
+        "case": "ini_config-dev-733",
+        "time_ratio": 0.9925804728195539,
+        "cycle_ratio": 0.9925804728195539,
+        "i_beats_ratio": 1.0066047471620228
+      }
+    ]
+  },
+  "own_700_vs_720": {
+    "time_ratio_gm": 0.9996360720346403,
+    "area_time_ratio_gm": 1.0687561406243944,
+    "area_ratio": 1.0691452324735224,
+    "worst_time_ratio": 1.01016866307581,
+    "cases": [
+      {
+        "case": "json_bpe-dev-331",
+        "time_ratio": 1.0084865639830733,
+        "cycle_ratio": 0.9804730483168769,
+        "i_beats_ratio": 1.0088181261481934
+      },
+      {
+        "case": "json_bpe-dev-733",
+        "time_ratio": 1.01016866307581,
+        "cycle_ratio": 0.9821084224348152,
+        "i_beats_ratio": 1.0118153846153846
+      },
+      {
+        "case": "quant_loader-dev-331",
+        "time_ratio": 0.9994153223720776,
+        "cycle_ratio": 0.97165378563952,
+        "i_beats_ratio": 1.0
+      },
+      {
+        "case": "quant_loader-dev-733",
+        "time_ratio": 0.9996556402379567,
+        "cycle_ratio": 0.9718874280091245,
+        "i_beats_ratio": 1.001094540976878
+      },
+      {
+        "case": "runtime_graph-dev-331",
+        "time_ratio": 0.9896888242724534,
+        "cycle_ratio": 0.9621974680426629,
+        "i_beats_ratio": 1.0003556424903866
+      },
+      {
+        "case": "runtime_graph-dev-733",
+        "time_ratio": 0.9901707930999196,
+        "cycle_ratio": 0.962666048847144,
+        "i_beats_ratio": 1.000886741005121
+      },
+      {
+        "case": "regex_tokenizer-dev-331",
+        "time_ratio": 1.0002586668018127,
+        "cycle_ratio": 0.9724737038350958,
+        "i_beats_ratio": 1.0049417641740002
+      },
+      {
+        "case": "regex_tokenizer-dev-733",
+        "time_ratio": 0.9999677039620533,
+        "cycle_ratio": 0.9721908232964407,
+        "i_beats_ratio": 1.0036278187739622
+      },
+      {
+        "case": "ini_config-dev-331",
+        "time_ratio": 0.9988653703633104,
+        "cycle_ratio": 0.9711191100754405,
+        "i_beats_ratio": 1.004937255708702
+      },
+      {
+        "case": "ini_config-dev-733",
+        "time_ratio": 0.9998727417975923,
+        "cycle_ratio": 0.9720984989698813,
+        "i_beats_ratio": 1.0066047471620228
+      }
+    ]
+  },
+  "scope": "first qualified pair, full selection and held comparison pending"
+}

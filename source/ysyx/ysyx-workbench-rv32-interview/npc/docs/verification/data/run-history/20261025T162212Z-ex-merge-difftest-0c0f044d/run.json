@@ -1,0 +1,12 @@
+{
+  "status": "complete",
+  "command": [
+    "npc/scripts/test_ex_merge_difftest.py",
+    "--registered",
+    "0",
+    "--output",
+    "npc/result/parallel-fetch-difftest"
+  ],
+  "workspace": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-difftest",
+  "retention": "compact reports only; generated binaries, source snapshots and netlists are disposable"
+}

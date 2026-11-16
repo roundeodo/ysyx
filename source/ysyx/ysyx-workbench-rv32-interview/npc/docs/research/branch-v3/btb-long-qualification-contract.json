@@ -1,0 +1,42 @@
+{
+  "points": {
+    "BT0-long": [
+      "BT0",
+      735
+    ],
+    "BT16-admit-long": [
+      "BT16-admit",
+      730
+    ],
+    "BT16-rrip-all-long": [
+      "BT16-rrip-all",
+      740
+    ],
+    "H2E-victim-long": [
+      "H2E-victim",
+      700
+    ],
+    "BT32-fold-long": [
+      "BT32-select-fold",
+      720
+    ],
+    "NSL-BT32-fold": [
+      "NSL-BT32-fold",
+      720
+    ],
+    "NSL-BT64": [
+      "NSL-BT64",
+      715
+    ]
+  },
+  "input_scales": [
+    128
+  ],
+  "weights": "jsmn/miniz equal; cold/warm equal within family, reported separately from short proxy score",
+  "selection": "current development cost/time candidates, including earlier strong simple control; no new parameter search",
+  "validation_input_ranges": [
+    17408,
+    26112
+  ],
+  "final_not_used": true
+}

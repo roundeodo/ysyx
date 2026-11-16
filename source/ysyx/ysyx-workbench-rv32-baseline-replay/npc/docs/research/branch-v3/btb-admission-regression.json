@@ -1,0 +1,25 @@
+{
+  "case": "quant_loader-held-2442",
+  "same_mhz": 730,
+  "baseline": {
+    "cycles": "1717625",
+    "retired": "402227",
+    "conditional_errors": "10837",
+    "target_errors": "1504",
+    "misses": "833",
+    "i_beats": "6661",
+    "data_wait": "1169503",
+    "frontend_wait": "104468"
+  },
+  "taken_admission": {
+    "cycles": "1782348",
+    "retired": "402227",
+    "conditional_errors": "10183",
+    "target_errors": "1020",
+    "misses": "1390",
+    "i_beats": "11117",
+    "data_wait": "1177096",
+    "frontend_wait": "164154"
+  },
+  "cycle_ratio": 1.0376816825558548
+}

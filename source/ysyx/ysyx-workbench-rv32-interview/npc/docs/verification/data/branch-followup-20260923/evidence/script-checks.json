@@ -1,0 +1,31 @@
+{
+  "syntax_files": [
+    "audit_branch_followup",
+    "report_branch_followup",
+    "reproduce_branch_followup",
+    "derive_branch_diagnostics",
+    "finalize_branch_followup",
+    "run_branch_clock_matrix",
+    "build_branch_workloads",
+    "followup_branch",
+    "followup_branch_ppa",
+    "model_branch_followup",
+    "profile_branch_followup",
+    "test_direction_rtl",
+    "observe_direction_history",
+    "build_prediction_diagnostic",
+    "run_prediction_diagnostic",
+    "verify_direction_difftest",
+    "reuse_branch_artifacts",
+    "run_microbench_perf",
+    "verify_branch",
+    "test_followup_measurement"
+  ],
+  "test_exit_codes": {
+    "test_direction_model": 0,
+    "test_branch_model": 0,
+    "test_branch_measurement": 0,
+    "test_followup_measurement": 0
+  },
+  "git_diff_check": "passed"
+}

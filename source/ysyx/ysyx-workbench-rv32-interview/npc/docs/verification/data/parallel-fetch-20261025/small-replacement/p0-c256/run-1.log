@@ -1,0 +1,9 @@
+BEAT ar=10 cycle=20 index=0
+BEAT ar=10 cycle=21 index=1
+BEAT ar=10 cycle=22 index=2
+BEAT ar=10 cycle=23 index=3
+PASS memory service probe
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/frontend_exploration/memory_probe_tb.sv:40: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 290ps; walltime 0.000 s; speed 995.080 ns/s
+- Verilator: cpu 0.000 s on 1 threads; alloced 7 MB

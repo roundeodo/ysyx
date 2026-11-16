@@ -1,0 +1,61 @@
+{
+  "runs": [
+    {
+      "command": [
+        "npc/result/frontend-selection-20260921/model",
+        "npc/result/frontend-selection-20260921/dev-B0-580/json_bpe-dev-41.trace",
+        "npc/result/frontend-selection-20260921/model-grid.csv",
+        "npc/result/frontend-selection-20260921/model-dev/json_bpe-dev-41.csv"
+      ],
+      "trace_sha256": "800ef8295582a01863ecc70060e753e89fe42e2f4abfb0b556ff132114ff7802"
+    },
+    {
+      "command": [
+        "npc/result/frontend-selection-20260921/model",
+        "npc/result/frontend-selection-20260921/dev-B0-580/json_bpe-dev-73.trace",
+        "npc/result/frontend-selection-20260921/model-grid.csv",
+        "npc/result/frontend-selection-20260921/model-dev/json_bpe-dev-73.csv"
+      ],
+      "trace_sha256": "65f0ad4fb972b9f095c4653d203a80e020a38f930a850c216f8d3488fbc0bb7e"
+    },
+    {
+      "command": [
+        "npc/result/frontend-selection-20260921/model",
+        "npc/result/frontend-selection-20260921/dev-B0-580/quant_loader-dev-41.trace",
+        "npc/result/frontend-selection-20260921/model-grid.csv",
+        "npc/result/frontend-selection-20260921/model-dev/quant_loader-dev-41.csv"
+      ],
+      "trace_sha256": "3c91049caf3613c97d82ac15f147d80f831b96c997e3f6b61b15803502149405"
+    },
+    {
+      "command": [
+        "npc/result/frontend-selection-20260921/model",
+        "npc/result/frontend-selection-20260921/dev-B0-580/quant_loader-dev-73.trace",
+        "npc/result/frontend-selection-20260921/model-grid.csv",
+        "npc/result/frontend-selection-20260921/model-dev/quant_loader-dev-73.csv"
+      ],
+      "trace_sha256": "6e71c54f3f35d041bb8f087159bd7a72540fb7b2c7b33a51eecd965bf877794d"
+    },
+    {
+      "command": [
+        "npc/result/frontend-selection-20260921/model",
+        "npc/result/frontend-selection-20260921/dev-B0-580/runtime_graph-dev-41.trace",
+        "npc/result/frontend-selection-20260921/model-grid.csv",
+        "npc/result/frontend-selection-20260921/model-dev/runtime_graph-dev-41.csv"
+      ],
+      "trace_sha256": "30a550c23481579854d823c61f01d73bfed2a008d063363153dc56bf26f9db2e"
+    },
+    {
+      "command": [
+        "npc/result/frontend-selection-20260921/model",
+        "npc/result/frontend-selection-20260921/dev-B0-580/runtime_graph-dev-73.trace",
+        "npc/result/frontend-selection-20260921/model-grid.csv",
+        "npc/result/frontend-selection-20260921/model-dev/runtime_graph-dev-73.csv"
+      ],
+      "trace_sha256": "cf00d2f83fd4f2cb4c512e049788655cf12afc6f66985dca0e94871add3e0e26"
+    }
+  ],
+  "grid_sha256": "11d36949e225cd05c7003a923cca5dbfd16b700084e0f8a773b87f9d47471fd6",
+  "model_sha256": "600a975078fd2cdb8eed307ebae9c0d4d2b2f10252e102589253c9bd1d05e7ec",
+  "source_sha256": "a67ce871c2bc98d908e640d85074940f59725d711775203ede10d5260af6f800"
+}

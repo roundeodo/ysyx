@@ -1,0 +1,151 @@
+diff --git a/Makefile b/Makefile
+index b5fbb03..9969a32 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,17 +1,26 @@
+ PROJ_PATH = $(shell pwd)
++NPC_HOME ?= $(abspath ../npc)
++PROJECT ?= riscv32
++FILE_LIST ?= $(NPC_HOME)/vsrc/$(PROJECT)/filelist/filelist_sta.f
+ SHELL := /bin/bash
++YOSYS ?= yosys
++YOSYS_PLUGIN_FLAGS ?= -m slang
++SLANG_FLAGS ?=
+ 
+-O ?= $(PROJ_PATH)/result
+-DESIGN ?= gcd
+-SDC_FILE ?= $(PROJ_PATH)/scripts/default.sdc
+-RTL_FILES ?= $(shell find $(PROJ_PATH)/example -name "*.v")
++O ?= $(NPC_HOME)/result
++DESIGN ?= $(PROJECT)_npc_system
++SDC_FILE ?= $(NPC_HOME)/constr/$(DESIGN).sdc
++RTL_FILES ?= $(shell cat $(FILE_LIST) | envsubst | grep -v '^\s*//' | grep -v '^\s*\#' | xargs)
+ export CLK_FREQ_MHZ ?= 500
+ export CLK_PORT_NAME ?= clk
++export SYNTH_STRATEGY ?= DELAY 0
++export RUN_POWER_ANALYSIS ?= 0
+ PDK = icsprout55
+ 
+ RESULT_DIR = $(O)/$(DESIGN)-$(CLK_FREQ_MHZ)MHz
+ SCRIPT_DIR = $(PROJ_PATH)/scripts
+ NETLIST_SYN_V   = $(RESULT_DIR)/$(DESIGN).netlist.v
++NETLIST_STA_V   = $(NETLIST_SYN_V)
+ TIMING_RPT = $(RESULT_DIR)/$(DESIGN).rpt
+ 
+ init:
+@@ -22,13 +31,13 @@ init:
+ syn: $(NETLIST_SYN_V)
+ $(NETLIST_SYN_V): $(RTL_FILES) $(SCRIPT_DIR)/yosys.tcl
+ 	mkdir -p $(@D)
+-	echo tcl $(SCRIPT_DIR)/yosys.tcl $(DESIGN) $(PDK) \"$(RTL_FILES)\" $@ | yosys -g -l $(@D)/yosys.log -s -
++	echo tcl $(SCRIPT_DIR)/yosys.tcl $(DESIGN) $(PDK) \"$(SLANG_FLAGS) $(RTL_FILES)\" $@ | $(YOSYS) $(YOSYS_PLUGIN_FLAGS) -g -l $(@D)/yosys.log -s -
+ 
+ sta: $(TIMING_RPT)
+ $(TIMING_RPT): $(SCRIPT_DIR)/sta.tcl $(SDC_FILE) $(NETLIST_SYN_V)
+-	set -o pipefail && ./bin/iEDA -script $^ $(DESIGN) $(PDK) 2>&1 | tee $(RESULT_DIR)/sta.log
++	set -o pipefail && ./bin/iEDA -script $(SCRIPT_DIR)/sta.tcl $(SDC_FILE) $(NETLIST_STA_V) $(DESIGN) $(PDK) 2>&1 | tee $(RESULT_DIR)/sta.log
+ 
+ clean:
+-	-rm -rf result/
++	-rm -rf $(O)
+ 
+ .PHONY: init syn sta clean
+diff --git a/scripts/sta.tcl b/scripts/sta.tcl
+index d02db34..03aedc1 100644
+--- a/scripts/sta.tcl
++++ b/scripts/sta.tcl
+@@ -12,4 +12,14 @@ read_liberty [concat $LIB_FILES]
+ link_design $DESIGN
+ read_sdc  $SDC_FILE
+ report_timing -max_path 5
+-report_power -toggle 0.1
++
++# Power graph construction is substantially more expensive than timing on the
++# complete NPC. Keep the reproducible timing baseline fast, and enable the
++# vectorless power estimate explicitly when it is the measurement objective.
++set RUN_POWER_ANALYSIS 0
++if {[info exists env(RUN_POWER_ANALYSIS)]} {
++  set RUN_POWER_ANALYSIS $::env(RUN_POWER_ANALYSIS)
++}
++if {$RUN_POWER_ANALYSIS} {
++  report_power -toggle 0.1
++}
+diff --git a/scripts/yosys.tcl b/scripts/yosys.tcl
+index 235cbef..f31e508 100644
+--- a/scripts/yosys.tcl
++++ b/scripts/yosys.tcl
+@@ -40,7 +40,10 @@ set EXCLUDE_CELLS [concat {*}[lmap cell $DONT_USE_CELLS {concat "-dont_use" $cel
+ #   set parameter for ABC
+ #===========================================================
+ 
+-set SYNTH_STRATEGY "DELAY 4"
++set SYNTH_STRATEGY "DELAY 0"
++if {[info exists env(SYNTH_STRATEGY)]} {
++  set SYNTH_STRATEGY $::env(SYNTH_STRATEGY)
++}
+ 
+ set buffering 1
+ set sizing 1
+@@ -175,15 +178,20 @@ if { $strategy_type == "DELAY" } {
+ #===========================================================
+ yosys -import
+ 
+-# read verilog files
+-foreach file $VERILOG_FILES {
+-  read_verilog -sv $file
+-}
++# Read the complete SystemVerilog compilation unit through Slang. The NPC uses
++# packages, packed structs, enum-typed ports, and SVA that the builtin Verilog
++# frontend cannot parse reliably. Assertions remain active in simulation but do
++# not contribute hardware to this synthesis checkpoint.
++read_slang --top $DESIGN --ignore-assertions {*}$VERILOG_FILES
+ 
+ # generic synthesis (coarse)
+ synth -top $DESIGN -flatten -run :fine
+ 
+-share -aggressive
++# Full-core checkpoints use the bounded resource-sharing pass.  The aggressive
++# SAT mode is useful for small operator experiments, but its all-pairs search
++# grows pathologically after flattening the complete cache/core hierarchy and
++# makes the STA flow non-reproducible in wall-clock time.
++share
+ onehot
+ muxpack
+ opt_demorgan
+@@ -206,6 +214,13 @@ autoname t:*DFF* %n
+ # technology mapping for clockgate
+ clockgate {*}$LIBS {*}$EXCLUDE_CELLS
+ 
++# Map inferred level-sensitive storage before ABC.  Leaving $_DLATCH_* cells
++# generic turns their feedback muxes into combinational logic and makes both
++# area and timing reports invalid.  Each PDK provides the corresponding map.
++if {[info exists LATCH_MAP_FILE] && [file exists $LATCH_MAP_FILE]} {
++  techmap -map $LATCH_MAP_FILE
++}
++
+ # technology mapping for flip-flops
+ dfflibmap {*}$LIBS {*}$EXCLUDE_CELLS
+ 
+@@ -239,8 +254,15 @@ opt_clean -purge
+ #     sc_mcu7t5v0__and3_1_A3_Z_gf180mcu_fd_sc_mcu7t5v0__buf_1_I_Z
+ autoname
+ 
++# iEDA's compact Verilog reader does not accept parameterized blackbox instances.
++# These parameters only describe the SRAM macro geometry and do not affect the
++# already-elaborated port widths, so remove them from the two abstract array cells.
++setparam -unset SET_COUNT -unset WAY_COUNT -unset way_index t:riscv32_icache_tag_array
++setparam -unset SET_COUNT -unset WAY_COUNT -unset WORDS_PER_LINE -unset way_index \
++  t:riscv32_icache_data_array
++
+ # write synthesized design for netlist simulation without splitting module ports
+-write_verilog -noattr -noexpr -nohex -nodec -defparam $NETLIST_SYN_V.sim
++write_verilog -noattr -noexpr -nohex -nodec $NETLIST_SYN_V.sim
+ 
+ # splitting nets resolves unwanted compound assign statements in netlist (assign {..} = {..}
+ splitnets -format __v -ports
+@@ -256,4 +278,4 @@ tee -o $RESULT_DIR/synth_check.txt check -mapped
+ tee -o $RESULT_DIR/synth_stat.txt stat {*}$LIBS
+ 
+ # write synthesized design
+-write_verilog -noattr -noexpr -nohex -nodec -defparam $NETLIST_SYN_V
++write_verilog -noattr -noexpr -nohex -nodec $NETLIST_SYN_V

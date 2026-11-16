@@ -1,0 +1,13 @@
+{
+  "source_commit": "fd4ea6e",
+  "soc_commit": "9b9682ed14bbed95f064f8351eaad6239c555089",
+  "cpu_rtl_unchanged_from": "fbe7824",
+  "matched_sources": {
+    "perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+    "perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+    "perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+    "src/SoC.scala": "64639d7e6b37bd1c577efe3430d693cf73bc470a1b52b503eb5b6e7087668736",
+    "src/amba/APBDelayer.scala": "c472b911adba4abbb9b5605b7565f819b5b862a3387bef67dbeea2dc304dd35c",
+    "src/amba/AXI4Delayer.scala": "54a6c3dfd8a13c7b04c40d6965f41ed515aaa21e676d676ea192078a17d617ba"
+  }
+}

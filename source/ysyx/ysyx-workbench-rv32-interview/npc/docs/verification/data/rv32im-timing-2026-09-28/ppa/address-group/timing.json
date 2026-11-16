@@ -1,0 +1,54 @@
+{
+  "640": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+        "slack_ns": -0.007,
+        "fmax_mhz": 637.492
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.004,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 4,
+    "passed": false
+  },
+  "620": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+        "slack_ns": 0.033,
+        "fmax_mhz": 633.421
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.044,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  }
+}

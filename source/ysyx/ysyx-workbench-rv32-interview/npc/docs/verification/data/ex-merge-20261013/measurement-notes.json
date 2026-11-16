@@ -1,0 +1,7 @@
+{
+  "intermediate_perf_invalid_for_source_identity": [
+    "ex-merge-candidate-final.log: EXU source changed after Verilator build began; functional result kept, not final RTL evidence"
+  ],
+  "final_goal": "single EX, all four STA groups at 700MHz",
+  "unchanged": "NanGate45 library, AREA3 mapping at820MHz, reset boundary, SDC, device clock model"
+}

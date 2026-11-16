@@ -1,0 +1,127 @@
+diff --git a/npc/tests/rtl/riscv32_pipeline_control_tb.sv b/npc/tests/rtl/riscv32_pipeline_control_tb.sv
+index 67b053b..30fe9a4 100644
+--- a/npc/tests/rtl/riscv32_pipeline_control_tb.sv
++++ b/npc/tests/rtl/riscv32_pipeline_control_tb.sv
+@@ -487,11 +487,7 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    // BTB训练依次经过解析事件、set快照和写事务寄存器，再写入数组。这里等待写入
+-    // 真正可见；训练延迟不改变预测查询吞吐，也不参与精确控制流恢复。
+-    @(posedge clk);
+-    @(posedge clk);
+-    @(posedge clk);
++    // 解析事件直接在训练沿更新表；下一次查询即可观察，不增加训练等待拍。
+     query_predictor(JAL_PC);
+     assert (predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_prediction.predicted_target == JAL_TARGET) &&
+@@ -508,20 +504,23 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    @(posedge clk);
+-    @(posedge clk);
+-    @(posedge clk);
+     query_predictor(BRANCH_PC);
+-    assert (predictor_lookup_prediction.predicted_taken &&
+-            (predictor_lookup_prediction.predicted_target == BRANCH_TARGET))
+-    else $fatal(1, "trained BHT entry did not predict the branch taken");
++    // 01经一次taken训练成为10。纯动态预测taken；静态/弱态混合对前向分支预测不跳。
++    if (riscv_config_pkg::BRANCH_STATIC_POLICY == 0) begin
++      assert (predictor_lookup_prediction.predicted_taken &&
++              predictor_lookup_prediction.predicted_target == BRANCH_TARGET)
++      else $fatal(1, "dynamic BHT weak-taken state did not predict taken");
++    end else begin
++      assert (!predictor_lookup_prediction.predicted_taken &&
++              predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES))
++      else $fatal(1, "forward weak branch did not use BTFNT");
++    end
+ 
+     predictor_resolved_control_flow_occurred = 1'b1;
+     predictor_resolved_control_flow_taken    = 1'b0;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    @(posedge clk);
+     query_predictor(BRANCH_PC);
+     assert (!predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_next_pc == BRANCH_PC + program_counter_t'(INSTRUCTION_BYTES)))
+@@ -545,10 +544,7 @@ module riscv32_pipeline_control_tb;
+     @(posedge clk);
+     @(negedge clk);
+     predictor_resolved_control_flow_occurred = 1'b0;
+-    // RAS先接收已译码训练事务，再由独立写口更新数组；BTB还经过set快照级。
+-    // 预测状态不是架构状态，允许训练延迟，EX仍对尚未训练的return做精确恢复。
+-    @(posedge clk);
+-    @(posedge clk);
++    // call解析沿已更新RAS；紧随其后的查询就必须使用新的栈顶。
+     query_predictor(RETURN_PC);
+     assert (predictor_lookup_prediction.predicted_taken &&
+             (predictor_lookup_next_pc == CALL_PC + program_counter_t'(INSTRUCTION_BYTES)))
+@@ -566,6 +562,58 @@ module riscv32_pipeline_control_tb;
+     clear_predictor_inputs();
+   endtask
+ 
++  // 从实际解析训练建立四种状态；检查同一条件分支的前/后向静态与动态选择。
++  task automatic check_conditional_prediction_states;
++    localparam program_counter_t PC = program_counter_t'('h8000_0600);
++    program_counter_t target;
++    bit expected_taken;
++    for (int backward = 0; backward < 2; backward++) begin
++      target = backward ? PC - program_counter_t'(8) : PC + program_counter_t'(8);
++      // 三次not-taken保证任何初始两位状态都饱和到00，同时安装当前目标。
++      @(negedge clk);
++      predictor_resolved_control_flow_pc = PC;
++      predictor_resolved_control_flow_target = target;
++      predictor_resolved_control_flow_op = CF_BRANCH;
++      predictor_resolved_control_flow_rd = '0;
++      predictor_resolved_control_flow_rs1 = '0;
++      predictor_resolved_control_flow_taken = 1'b0;
++      predictor_resolved_control_flow_occurred = 1'b1;
++      repeat (3) @(posedge clk);
++      @(negedge clk);
++      predictor_resolved_control_flow_occurred = 1'b0;
++      for (int counter = 0; counter < 4; counter++) begin
++        if (counter != 0) begin
++          predictor_resolved_control_flow_taken = 1'b1;
++          predictor_resolved_control_flow_occurred = 1'b1;
++          @(posedge clk);
++          @(negedge clk);
++          predictor_resolved_control_flow_occurred = 1'b0;
++        end
++        query_predictor(PC);
++        case (riscv_config_pkg::BRANCH_STATIC_POLICY)
++          0: expected_taken = counter >= 2;
++          1: expected_taken = backward != 0;
++          2: begin
++            case (counter)
++              0: expected_taken = 1'b0;
++              3: expected_taken = 1'b1;
++              default: expected_taken = backward != 0;
++            endcase
++          end
++          default: $fatal(1, "unsupported branch choice in pipeline test");
++        endcase
++        assert (predictor_lookup_prediction.predicted_taken == expected_taken &&
++                predictor_lookup_next_pc == (expected_taken ? target :
++                    PC + program_counter_t'(INSTRUCTION_BYTES)))
++        else $fatal(1, "conditional choice mismatch: policy=%0d backward=%0d state=%0d",
++                    riscv_config_pkg::BRANCH_STATIC_POLICY, backward, counter);
++      end
++    end
++    clear_predictor_inputs();
++    $display("PASS conditional choice: 8 direction/state combinations, policy=%0d",
++             riscv_config_pkg::BRANCH_STATIC_POLICY);
++  endtask
++
+   task automatic check_decode_execute_stage;
+     execute_packet_t held_packet;
+     execute_packet_t buffered_packet;
+@@ -1316,6 +1364,7 @@ module riscv32_pipeline_control_tb;
+     check_fetch_buffer();
+     check_fetch_buffer_wrap_and_flush();
+     check_fetch_control_flow_predictor();
++    check_conditional_prediction_states();
+     check_precise_exception_age_priority();
+     check_ifu_zero_bubble_lookup();
+ 

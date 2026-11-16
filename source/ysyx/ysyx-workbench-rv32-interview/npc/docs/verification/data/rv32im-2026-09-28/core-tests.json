@@ -1,0 +1,19 @@
+{
+  "arithmetic_cases": 2803,
+  "difftest": true,
+  "misa_and_precise_trap": true,
+  "commands": [
+    [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-20260927/core-build/top_sim",
+      "--batch",
+      "--diff",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-20260927/core-tests/arithmetic.bin"
+    ],
+    [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-20260927/core-build/top_sim",
+      "--batch",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-20260927/core-tests/traps.bin"
+    ]
+  ]
+}

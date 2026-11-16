@@ -1,0 +1,8796 @@
+{
+  "scope": "cold resolved-order direction screening; no pipeline, wrong path or CPU timing",
+  "btb_policy": "taken admission, round robin; fixed two ways and RAS4",
+  "configs": {
+    "bimodal-64": {
+      "kind": "counter",
+      "entries": 64
+    },
+    "gshare-high-16-h2": {
+      "kind": "counter",
+      "entries": 16,
+      "history_bits": 2,
+      "history_shift": 2
+    },
+    "gshare-high-64-h2": {
+      "kind": "counter",
+      "entries": 64,
+      "history_bits": 2,
+      "history_shift": 4
+    },
+    "gshare-high-64-h4": {
+      "kind": "counter",
+      "entries": 64,
+      "history_bits": 4,
+      "history_shift": 2
+    },
+    "gshare-high-128-h2": {
+      "kind": "counter",
+      "entries": 128,
+      "history_bits": 2,
+      "history_shift": 5
+    },
+    "gshare-high-128-h4": {
+      "kind": "counter",
+      "entries": 128,
+      "history_bits": 4,
+      "history_shift": 3
+    },
+    "gshare-high-256-h2": {
+      "kind": "counter",
+      "entries": 256,
+      "history_bits": 2,
+      "history_shift": 6
+    },
+    "gshare-high-256-h4": {
+      "kind": "counter",
+      "entries": 256,
+      "history_bits": 4,
+      "history_shift": 4
+    }
+  },
+  "cases": {
+    "json_bpe-dev-61": {
+      "btb16-bimodal-64": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 4068,
+          "errors": 2095,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2844,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 859,
+          "direction_errors": 865,
+          "false_taken": 498,
+          "target_errors": 6
+        },
+        "mpki": 41.54273250049574,
+        "state_bits_estimate": 1261,
+        "hot_error_pc": [
+          [
+            2147483860,
+            272
+          ],
+          [
+            2147483852,
+            264
+          ],
+          [
+            2147488348,
+            88
+          ],
+          [
+            2147483892,
+            62
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147483872,
+            48
+          ],
+          [
+            2147488192,
+            45
+          ],
+          [
+            2147484012,
+            42
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147488228,
+            32
+          ],
+          [
+            2147483760,
+            32
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb16-gshare-high-16-h2": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 4068,
+          "errors": 2488,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2844,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 1324,
+          "direction_errors": 1258,
+          "false_taken": 426,
+          "target_errors": 6
+        },
+        "mpki": 49.335712869323814,
+        "state_bits_estimate": 1167,
+        "hot_error_pc": [
+          [
+            2147483852,
+            276
+          ],
+          [
+            2147483860,
+            272
+          ],
+          [
+            2147483872,
+            140
+          ],
+          [
+            2147488192,
+            101
+          ],
+          [
+            2147484944,
+            96
+          ],
+          [
+            2147485508,
+            82
+          ],
+          [
+            2147483892,
+            74
+          ],
+          [
+            2147484012,
+            72
+          ],
+          [
+            2147483760,
+            70
+          ],
+          [
+            2147484844,
+            60
+          ],
+          [
+            2147488348,
+            60
+          ],
+          [
+            2147488228,
+            45
+          ],
+          [
+            2147483952,
+            42
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147487964,
+            28
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb16-gshare-high-64-h2": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 4068,
+          "errors": 2186,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2844,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 949,
+          "direction_errors": 956,
+          "false_taken": 499,
+          "target_errors": 6
+        },
+        "mpki": 43.347213959944476,
+        "state_bits_estimate": 1263,
+        "hot_error_pc": [
+          [
+            2147483860,
+            270
+          ],
+          [
+            2147483852,
+            264
+          ],
+          [
+            2147488348,
+            74
+          ],
+          [
+            2147488192,
+            73
+          ],
+          [
+            2147483892,
+            73
+          ],
+          [
+            2147484012,
+            64
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147488228,
+            53
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483872,
+            48
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147483760,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147484844,
+            27
+          ],
+          [
+            2147483952,
+            27
+          ],
+          [
+            2147484720,
+            24
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb16-gshare-high-64-h4": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 4068,
+          "errors": 2274,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2844,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 1122,
+          "direction_errors": 1044,
+          "false_taken": 414,
+          "target_errors": 6
+        },
+        "mpki": 45.092207019631175,
+        "state_bits_estimate": 1265,
+        "hot_error_pc": [
+          [
+            2147483852,
+            266
+          ],
+          [
+            2147483860,
+            244
+          ],
+          [
+            2147488192,
+            94
+          ],
+          [
+            2147485508,
+            82
+          ],
+          [
+            2147483872,
+            76
+          ],
+          [
+            2147483760,
+            73
+          ],
+          [
+            2147484944,
+            72
+          ],
+          [
+            2147484012,
+            68
+          ],
+          [
+            2147483892,
+            64
+          ],
+          [
+            2147483952,
+            45
+          ],
+          [
+            2147488228,
+            44
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147487964,
+            34
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb16-gshare-high-128-h2": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 4068,
+          "errors": 2104,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2844,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 862,
+          "direction_errors": 874,
+          "false_taken": 504,
+          "target_errors": 6
+        },
+        "mpki": 41.721197699781875,
+        "state_bits_estimate": 1391,
+        "hot_error_pc": [
+          [
+            2147483860,
+            274
+          ],
+          [
+            2147483852,
+            264
+          ],
+          [
+            2147483892,
+            63
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147488348,
+            60
+          ],
+          [
+            2147488192,
+            49
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147483872,
+            47
+          ],
+          [
+            2147484012,
+            41
+          ],
+          [
+            2147488228,
+            38
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147483760,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147483952,
+            27
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb16-gshare-high-128-h4": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 4068,
+          "errors": 2077,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2844,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 930,
+          "direction_errors": 847,
+          "false_taken": 409,
+          "target_errors": 6
+        },
+        "mpki": 41.18580210192346,
+        "state_bits_estimate": 1393,
+        "hot_error_pc": [
+          [
+            2147483852,
+            266
+          ],
+          [
+            2147483860,
+            242
+          ],
+          [
+            2147488192,
+            69
+          ],
+          [
+            2147483892,
+            68
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147484012,
+            54
+          ],
+          [
+            2147488228,
+            52
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483872,
+            46
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147483760,
+            33
+          ],
+          [
+            2147484844,
+            31
+          ],
+          [
+            2147487964,
+            24
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb16-gshare-high-256-h2": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 4068,
+          "errors": 2094,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2844,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 885,
+          "direction_errors": 864,
+          "false_taken": 471,
+          "target_errors": 6
+        },
+        "mpki": 41.522903033908385,
+        "state_bits_estimate": 1647,
+        "hot_error_pc": [
+          [
+            2147483860,
+            270
+          ],
+          [
+            2147483852,
+            264
+          ],
+          [
+            2147488348,
+            74
+          ],
+          [
+            2147483892,
+            64
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147488192,
+            49
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147483872,
+            48
+          ],
+          [
+            2147484012,
+            43
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147488228,
+            34
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147483760,
+            32
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb16-gshare-high-256-h4": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 4068,
+          "errors": 2067,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2844,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 921,
+          "direction_errors": 837,
+          "false_taken": 408,
+          "target_errors": 6
+        },
+        "mpki": 40.98750743604997,
+        "state_bits_estimate": 1649,
+        "hot_error_pc": [
+          [
+            2147483852,
+            264
+          ],
+          [
+            2147483860,
+            232
+          ],
+          [
+            2147483892,
+            74
+          ],
+          [
+            2147488192,
+            71
+          ],
+          [
+            2147484012,
+            67
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483872,
+            48
+          ],
+          [
+            2147488228,
+            46
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147483760,
+            35
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ],
+          [
+            2147484804,
+            24
+          ]
+        ],
+        "direction_state_bits": 516
+      },
+      "btb32-bimodal-64": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 3444,
+          "errors": 1856,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2538,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 760,
+          "direction_errors": 944,
+          "false_taken": 518,
+          "target_errors": 6
+        },
+        "mpki": 36.803489986119374,
+        "state_bits_estimate": 2229,
+        "hot_error_pc": [
+          [
+            2147483860,
+            264
+          ],
+          [
+            2147483852,
+            264
+          ],
+          [
+            2147488348,
+            88
+          ],
+          [
+            2147483892,
+            62
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147488192,
+            43
+          ],
+          [
+            2147483872,
+            38
+          ],
+          [
+            2147485508,
+            33
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147483760,
+            32
+          ],
+          [
+            2147488228,
+            30
+          ],
+          [
+            2147484012,
+            28
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ],
+          [
+            2147484804,
+            24
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb32-gshare-high-16-h2": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 3444,
+          "errors": 2304,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2538,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 1284,
+          "direction_errors": 1392,
+          "false_taken": 442,
+          "target_errors": 6
+        },
+        "mpki": 45.68709101725164,
+        "state_bits_estimate": 2135,
+        "hot_error_pc": [
+          [
+            2147483852,
+            278
+          ],
+          [
+            2147483860,
+            260
+          ],
+          [
+            2147483872,
+            132
+          ],
+          [
+            2147488192,
+            101
+          ],
+          [
+            2147484944,
+            96
+          ],
+          [
+            2147485508,
+            82
+          ],
+          [
+            2147483892,
+            74
+          ],
+          [
+            2147483760,
+            70
+          ],
+          [
+            2147484012,
+            66
+          ],
+          [
+            2147484844,
+            60
+          ],
+          [
+            2147488348,
+            60
+          ],
+          [
+            2147488228,
+            43
+          ],
+          [
+            2147483952,
+            42
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147487964,
+            28
+          ],
+          [
+            2147488016,
+            26
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb32-gshare-high-64-h2": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 3444,
+          "errors": 1956,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2538,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 853,
+          "direction_errors": 1044,
+          "false_taken": 525,
+          "target_errors": 6
+        },
+        "mpki": 38.786436644854255,
+        "state_bits_estimate": 2231,
+        "hot_error_pc": [
+          [
+            2147483852,
+            268
+          ],
+          [
+            2147483860,
+            258
+          ],
+          [
+            2147488348,
+            74
+          ],
+          [
+            2147488192,
+            73
+          ],
+          [
+            2147483892,
+            65
+          ],
+          [
+            2147484012,
+            52
+          ],
+          [
+            2147488228,
+            51
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483872,
+            38
+          ],
+          [
+            2147483760,
+            36
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147485508,
+            29
+          ],
+          [
+            2147484844,
+            27
+          ],
+          [
+            2147483952,
+            27
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb32-gshare-high-64-h4": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 3444,
+          "errors": 2054,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2538,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 1040,
+          "direction_errors": 1142,
+          "false_taken": 436,
+          "target_errors": 6
+        },
+        "mpki": 40.72972437041444,
+        "state_bits_estimate": 2233,
+        "hot_error_pc": [
+          [
+            2147483852,
+            268
+          ],
+          [
+            2147483860,
+            232
+          ],
+          [
+            2147485508,
+            82
+          ],
+          [
+            2147488192,
+            79
+          ],
+          [
+            2147483760,
+            73
+          ],
+          [
+            2147484944,
+            72
+          ],
+          [
+            2147483872,
+            66
+          ],
+          [
+            2147484012,
+            58
+          ],
+          [
+            2147483892,
+            56
+          ],
+          [
+            2147483952,
+            45
+          ],
+          [
+            2147488228,
+            42
+          ],
+          [
+            2147487964,
+            34
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484844,
+            25
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb32-gshare-high-128-h2": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 3444,
+          "errors": 1844,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2538,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 744,
+          "direction_errors": 932,
+          "false_taken": 522,
+          "target_errors": 6
+        },
+        "mpki": 36.56553638707119,
+        "state_bits_estimate": 2359,
+        "hot_error_pc": [
+          [
+            2147483852,
+            264
+          ],
+          [
+            2147483860,
+            262
+          ],
+          [
+            2147488348,
+            60
+          ],
+          [
+            2147483892,
+            55
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147488192,
+            37
+          ],
+          [
+            2147483872,
+            37
+          ],
+          [
+            2147488228,
+            36
+          ],
+          [
+            2147483760,
+            36
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147485508,
+            30
+          ],
+          [
+            2147484012,
+            28
+          ],
+          [
+            2147483952,
+            27
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb32-gshare-high-128-h4": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 3444,
+          "errors": 1836,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2538,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 829,
+          "direction_errors": 924,
+          "false_taken": 429,
+          "target_errors": 6
+        },
+        "mpki": 36.4069006543724,
+        "state_bits_estimate": 2361,
+        "hot_error_pc": [
+          [
+            2147483852,
+            266
+          ],
+          [
+            2147483860,
+            236
+          ],
+          [
+            2147483892,
+            60
+          ],
+          [
+            2147488192,
+            56
+          ],
+          [
+            2147484012,
+            54
+          ],
+          [
+            2147488228,
+            50
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483872,
+            36
+          ],
+          [
+            2147483760,
+            33
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147485508,
+            31
+          ],
+          [
+            2147484844,
+            30
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147487964,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb32-gshare-high-256-h2": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 3444,
+          "errors": 1823,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2538,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 757,
+          "direction_errors": 911,
+          "false_taken": 488,
+          "target_errors": 6
+        },
+        "mpki": 36.149117588736864,
+        "state_bits_estimate": 2615,
+        "hot_error_pc": [
+          [
+            2147483852,
+            264
+          ],
+          [
+            2147483860,
+            258
+          ],
+          [
+            2147488348,
+            74
+          ],
+          [
+            2147483892,
+            56
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147483872,
+            38
+          ],
+          [
+            2147488192,
+            35
+          ],
+          [
+            2147488228,
+            32
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147483760,
+            32
+          ],
+          [
+            2147484012,
+            29
+          ],
+          [
+            2147485508,
+            28
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ],
+          [
+            2147484804,
+            24
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb32-gshare-high-256-h4": {
+        "counts": {
+          "branches": 17538,
+          "jumps": 621,
+          "btb_misses": 3444,
+          "errors": 1847,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 16472,
+          "suppressed_allocations": 2538,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 835,
+          "direction_errors": 935,
+          "false_taken": 434,
+          "target_errors": 6
+        },
+        "mpki": 36.62502478683324,
+        "state_bits_estimate": 2617,
+        "hot_error_pc": [
+          [
+            2147483852,
+            268
+          ],
+          [
+            2147483860,
+            220
+          ],
+          [
+            2147488192,
+            71
+          ],
+          [
+            2147483892,
+            66
+          ],
+          [
+            2147484012,
+            55
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147488228,
+            44
+          ],
+          [
+            2147485508,
+            41
+          ],
+          [
+            2147483872,
+            38
+          ],
+          [
+            2147483760,
+            35
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484844,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ],
+          [
+            2147484804,
+            24
+          ]
+        ],
+        "direction_state_bits": 516
+      }
+    },
+    "json_bpe-dev-97": {
+      "btb16-bimodal-64": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 4030,
+          "errors": 2053,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2806,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 803,
+          "direction_errors": 823,
+          "false_taken": 512,
+          "target_errors": 6
+        },
+        "mpki": 42.93901112691375,
+        "state_bits_estimate": 1261,
+        "hot_error_pc": [
+          [
+            2147483860,
+            256
+          ],
+          [
+            2147483852,
+            246
+          ],
+          [
+            2147488348,
+            88
+          ],
+          [
+            2147483892,
+            62
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147488192,
+            45
+          ],
+          [
+            2147483872,
+            42
+          ],
+          [
+            2147484012,
+            42
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147488228,
+            32
+          ],
+          [
+            2147483760,
+            32
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb16-gshare-high-16-h2": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 4030,
+          "errors": 2414,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2806,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 1240,
+          "direction_errors": 1184,
+          "false_taken": 436,
+          "target_errors": 6
+        },
+        "mpki": 50.489416882790934,
+        "state_bits_estimate": 1167,
+        "hot_error_pc": [
+          [
+            2147483860,
+            256
+          ],
+          [
+            2147483852,
+            256
+          ],
+          [
+            2147483872,
+            110
+          ],
+          [
+            2147488192,
+            101
+          ],
+          [
+            2147484944,
+            96
+          ],
+          [
+            2147485508,
+            82
+          ],
+          [
+            2147483892,
+            76
+          ],
+          [
+            2147484012,
+            72
+          ],
+          [
+            2147483760,
+            62
+          ],
+          [
+            2147484844,
+            60
+          ],
+          [
+            2147488348,
+            60
+          ],
+          [
+            2147488228,
+            45
+          ],
+          [
+            2147483952,
+            40
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147487964,
+            28
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb16-gshare-high-64-h2": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 4030,
+          "errors": 2145,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2806,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 895,
+          "direction_errors": 915,
+          "false_taken": 512,
+          "target_errors": 6
+        },
+        "mpki": 44.86321425583535,
+        "state_bits_estimate": 1263,
+        "hot_error_pc": [
+          [
+            2147483860,
+            254
+          ],
+          [
+            2147483852,
+            246
+          ],
+          [
+            2147488348,
+            74
+          ],
+          [
+            2147488192,
+            73
+          ],
+          [
+            2147483892,
+            72
+          ],
+          [
+            2147484012,
+            64
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147488228,
+            53
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483872,
+            42
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147483760,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147483952,
+            29
+          ],
+          [
+            2147484844,
+            27
+          ],
+          [
+            2147484720,
+            24
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb16-gshare-high-64-h4": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 4030,
+          "errors": 2298,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2806,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 1131,
+          "direction_errors": 1068,
+          "false_taken": 429,
+          "target_errors": 6
+        },
+        "mpki": 48.0632477202376,
+        "state_bits_estimate": 1265,
+        "hot_error_pc": [
+          [
+            2147483860,
+            282
+          ],
+          [
+            2147483852,
+            254
+          ],
+          [
+            2147488192,
+            94
+          ],
+          [
+            2147485508,
+            82
+          ],
+          [
+            2147484944,
+            72
+          ],
+          [
+            2147483872,
+            72
+          ],
+          [
+            2147483760,
+            71
+          ],
+          [
+            2147484012,
+            68
+          ],
+          [
+            2147483892,
+            66
+          ],
+          [
+            2147483952,
+            49
+          ],
+          [
+            2147488228,
+            44
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147487964,
+            34
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb16-gshare-high-128-h2": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 4030,
+          "errors": 2073,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2806,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 817,
+          "direction_errors": 843,
+          "false_taken": 518,
+          "target_errors": 6
+        },
+        "mpki": 43.35731615494018,
+        "state_bits_estimate": 1391,
+        "hot_error_pc": [
+          [
+            2147483860,
+            266
+          ],
+          [
+            2147483852,
+            246
+          ],
+          [
+            2147483892,
+            64
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147488348,
+            60
+          ],
+          [
+            2147488192,
+            49
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147483872,
+            41
+          ],
+          [
+            2147484012,
+            41
+          ],
+          [
+            2147488228,
+            38
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147483760,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147483952,
+            29
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb16-gshare-high-128-h4": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 4030,
+          "errors": 2092,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2806,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 930,
+          "direction_errors": 862,
+          "false_taken": 424,
+          "target_errors": 6
+        },
+        "mpki": 43.7547059315653,
+        "state_bits_estimate": 1393,
+        "hot_error_pc": [
+          [
+            2147483860,
+            278
+          ],
+          [
+            2147483852,
+            254
+          ],
+          [
+            2147488192,
+            69
+          ],
+          [
+            2147483892,
+            66
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147484012,
+            54
+          ],
+          [
+            2147488228,
+            52
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483872,
+            38
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147483760,
+            33
+          ],
+          [
+            2147484844,
+            31
+          ],
+          [
+            2147483952,
+            26
+          ],
+          [
+            2147487964,
+            24
+          ],
+          [
+            2147484720,
+            24
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb16-gshare-high-256-h2": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 4030,
+          "errors": 2069,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2806,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 846,
+          "direction_errors": 839,
+          "false_taken": 485,
+          "target_errors": 6
+        },
+        "mpki": 43.27365514933489,
+        "state_bits_estimate": 1647,
+        "hot_error_pc": [
+          [
+            2147483860,
+            262
+          ],
+          [
+            2147483852,
+            246
+          ],
+          [
+            2147488348,
+            74
+          ],
+          [
+            2147483892,
+            71
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147488192,
+            49
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147484012,
+            43
+          ],
+          [
+            2147483872,
+            42
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147488228,
+            34
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147483760,
+            32
+          ],
+          [
+            2147483952,
+            26
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb16-gshare-high-256-h4": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 4030,
+          "errors": 2074,
+          "missing_errors": 1224,
+          "allocations": 1224,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2806,
+          "evictions": 1208,
+          "unused_victims": 824,
+          "false_not_taken": 913,
+          "direction_errors": 844,
+          "false_taken": 423,
+          "target_errors": 6
+        },
+        "mpki": 43.378231406341506,
+        "state_bits_estimate": 1649,
+        "hot_error_pc": [
+          [
+            2147483860,
+            264
+          ],
+          [
+            2147483852,
+            252
+          ],
+          [
+            2147483892,
+            72
+          ],
+          [
+            2147488192,
+            71
+          ],
+          [
+            2147484012,
+            67
+          ],
+          [
+            2147485508,
+            60
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147488228,
+            46
+          ],
+          [
+            2147483872,
+            40
+          ],
+          [
+            2147488016,
+            36
+          ],
+          [
+            2147483760,
+            35
+          ],
+          [
+            2147485544,
+            34
+          ],
+          [
+            2147483952,
+            25
+          ],
+          [
+            2147484720,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 516
+      },
+      "btb32-bimodal-64": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 3404,
+          "errors": 1816,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2498,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 704,
+          "direction_errors": 904,
+          "false_taken": 534,
+          "target_errors": 6
+        },
+        "mpki": 37.98209654480047,
+        "state_bits_estimate": 2229,
+        "hot_error_pc": [
+          [
+            2147483860,
+            248
+          ],
+          [
+            2147483852,
+            246
+          ],
+          [
+            2147488348,
+            88
+          ],
+          [
+            2147483892,
+            62
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147488192,
+            43
+          ],
+          [
+            2147483872,
+            34
+          ],
+          [
+            2147485508,
+            33
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147483760,
+            32
+          ],
+          [
+            2147488228,
+            30
+          ],
+          [
+            2147484012,
+            28
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ],
+          [
+            2147484804,
+            24
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb32-gshare-high-16-h2": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 3404,
+          "errors": 2232,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2498,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 1200,
+          "direction_errors": 1320,
+          "false_taken": 454,
+          "target_errors": 6
+        },
+        "mpki": 46.68284112775036,
+        "state_bits_estimate": 2135,
+        "hot_error_pc": [
+          [
+            2147483852,
+            258
+          ],
+          [
+            2147483860,
+            244
+          ],
+          [
+            2147483872,
+            106
+          ],
+          [
+            2147488192,
+            101
+          ],
+          [
+            2147484944,
+            96
+          ],
+          [
+            2147485508,
+            82
+          ],
+          [
+            2147483892,
+            74
+          ],
+          [
+            2147484012,
+            66
+          ],
+          [
+            2147483760,
+            62
+          ],
+          [
+            2147484844,
+            60
+          ],
+          [
+            2147488348,
+            60
+          ],
+          [
+            2147488228,
+            43
+          ],
+          [
+            2147483952,
+            40
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147487964,
+            28
+          ],
+          [
+            2147488016,
+            26
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb32-gshare-high-64-h2": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 3404,
+          "errors": 1917,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2498,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 799,
+          "direction_errors": 1005,
+          "false_taken": 540,
+          "target_errors": 6
+        },
+        "mpki": 40.094536936333974,
+        "state_bits_estimate": 2231,
+        "hot_error_pc": [
+          [
+            2147483852,
+            250
+          ],
+          [
+            2147483860,
+            242
+          ],
+          [
+            2147488348,
+            74
+          ],
+          [
+            2147488192,
+            73
+          ],
+          [
+            2147483892,
+            66
+          ],
+          [
+            2147484012,
+            52
+          ],
+          [
+            2147488228,
+            51
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483760,
+            36
+          ],
+          [
+            2147483872,
+            34
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147485508,
+            29
+          ],
+          [
+            2147483952,
+            29
+          ],
+          [
+            2147484844,
+            27
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb32-gshare-high-64-h4": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 3404,
+          "errors": 2078,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2498,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 1047,
+          "direction_errors": 1166,
+          "false_taken": 453,
+          "target_errors": 6
+        },
+        "mpki": 43.46189241194679,
+        "state_bits_estimate": 2233,
+        "hot_error_pc": [
+          [
+            2147483860,
+            270
+          ],
+          [
+            2147483852,
+            256
+          ],
+          [
+            2147485508,
+            82
+          ],
+          [
+            2147488192,
+            79
+          ],
+          [
+            2147484944,
+            72
+          ],
+          [
+            2147483760,
+            71
+          ],
+          [
+            2147483872,
+            64
+          ],
+          [
+            2147483892,
+            58
+          ],
+          [
+            2147484012,
+            56
+          ],
+          [
+            2147483952,
+            49
+          ],
+          [
+            2147488228,
+            42
+          ],
+          [
+            2147487964,
+            34
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484844,
+            25
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb32-gshare-high-128-h2": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 3404,
+          "errors": 1813,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2498,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 697,
+          "direction_errors": 901,
+          "false_taken": 538,
+          "target_errors": 6
+        },
+        "mpki": 37.9193507905965,
+        "state_bits_estimate": 2359,
+        "hot_error_pc": [
+          [
+            2147483860,
+            254
+          ],
+          [
+            2147483852,
+            246
+          ],
+          [
+            2147488348,
+            60
+          ],
+          [
+            2147483892,
+            56
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147488192,
+            37
+          ],
+          [
+            2147488228,
+            36
+          ],
+          [
+            2147483760,
+            36
+          ],
+          [
+            2147483872,
+            33
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147485508,
+            30
+          ],
+          [
+            2147483952,
+            29
+          ],
+          [
+            2147484012,
+            28
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb32-gshare-high-128-h4": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 3404,
+          "errors": 1853,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2498,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 829,
+          "direction_errors": 941,
+          "false_taken": 446,
+          "target_errors": 6
+        },
+        "mpki": 38.75596084664938,
+        "state_bits_estimate": 2361,
+        "hot_error_pc": [
+          [
+            2147483860,
+            272
+          ],
+          [
+            2147483852,
+            254
+          ],
+          [
+            2147483892,
+            60
+          ],
+          [
+            2147488192,
+            56
+          ],
+          [
+            2147484012,
+            54
+          ],
+          [
+            2147488228,
+            50
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147483760,
+            33
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147485508,
+            31
+          ],
+          [
+            2147484844,
+            30
+          ],
+          [
+            2147483872,
+            30
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147483952,
+            26
+          ],
+          [
+            2147487964,
+            24
+          ],
+          [
+            2147484840,
+            24
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb32-gshare-high-256-h2": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 3404,
+          "errors": 1800,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2498,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 718,
+          "direction_errors": 888,
+          "false_taken": 504,
+          "target_errors": 6
+        },
+        "mpki": 37.64745252237932,
+        "state_bits_estimate": 2615,
+        "hot_error_pc": [
+          [
+            2147483860,
+            250
+          ],
+          [
+            2147483852,
+            246
+          ],
+          [
+            2147488348,
+            74
+          ],
+          [
+            2147483892,
+            65
+          ],
+          [
+            2147484944,
+            49
+          ],
+          [
+            2147488192,
+            35
+          ],
+          [
+            2147483872,
+            34
+          ],
+          [
+            2147488228,
+            32
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147483760,
+            32
+          ],
+          [
+            2147484012,
+            29
+          ],
+          [
+            2147485508,
+            28
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147483952,
+            26
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb32-gshare-high-256-h4": {
+        "counts": {
+          "branches": 16520,
+          "jumps": 621,
+          "btb_misses": 3404,
+          "errors": 1856,
+          "missing_errors": 906,
+          "allocations": 906,
+          "returns": 445,
+          "conditional": 15454,
+          "suppressed_allocations": 2498,
+          "evictions": 874,
+          "unused_victims": 500,
+          "false_not_taken": 827,
+          "direction_errors": 944,
+          "false_taken": 451,
+          "target_errors": 6
+        },
+        "mpki": 38.81870660085334,
+        "state_bits_estimate": 2617,
+        "hot_error_pc": [
+          [
+            2147483852,
+            256
+          ],
+          [
+            2147483860,
+            252
+          ],
+          [
+            2147488192,
+            71
+          ],
+          [
+            2147483892,
+            66
+          ],
+          [
+            2147484012,
+            55
+          ],
+          [
+            2147484944,
+            50
+          ],
+          [
+            2147488228,
+            44
+          ],
+          [
+            2147485508,
+            41
+          ],
+          [
+            2147483760,
+            35
+          ],
+          [
+            2147485544,
+            32
+          ],
+          [
+            2147483872,
+            32
+          ],
+          [
+            2147488016,
+            26
+          ],
+          [
+            2147484844,
+            26
+          ],
+          [
+            2147483952,
+            25
+          ],
+          [
+            2147484840,
+            24
+          ],
+          [
+            2147484868,
+            24
+          ]
+        ],
+        "direction_state_bits": 516
+      }
+    },
+    "quant_loader-dev-61": {
+      "btb16-bimodal-64": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 6403,
+          "errors": 6006,
+          "missing_errors": 2948,
+          "allocations": 2948,
+          "conditional": 50804,
+          "suppressed_allocations": 3455,
+          "false_not_taken": 2846,
+          "evictions": 2932,
+          "unused_victims": 1678,
+          "direction_errors": 3058,
+          "false_taken": 2437,
+          "returns": 107
+        },
+        "mpki": 23.744479981655946,
+        "state_bits_estimate": 1261,
+        "hot_error_pc": [
+          [
+            2147483968,
+            515
+          ],
+          [
+            2147483884,
+            370
+          ],
+          [
+            2147491196,
+            318
+          ],
+          [
+            2147487860,
+            316
+          ],
+          [
+            2147486608,
+            301
+          ],
+          [
+            2147483876,
+            271
+          ],
+          [
+            2147486024,
+            228
+          ],
+          [
+            2147485800,
+            226
+          ],
+          [
+            2147486536,
+            226
+          ],
+          [
+            2147487796,
+            194
+          ],
+          [
+            2147485812,
+            160
+          ],
+          [
+            2147486624,
+            146
+          ],
+          [
+            2147485968,
+            142
+          ],
+          [
+            2147491820,
+            138
+          ],
+          [
+            2147485780,
+            132
+          ],
+          [
+            2147486292,
+            130
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb16-gshare-high-16-h2": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 6403,
+          "errors": 6499,
+          "missing_errors": 2948,
+          "allocations": 2948,
+          "conditional": 50804,
+          "suppressed_allocations": 3455,
+          "false_not_taken": 3048,
+          "evictions": 2932,
+          "unused_victims": 1678,
+          "direction_errors": 3551,
+          "false_taken": 2728,
+          "returns": 107
+        },
+        "mpki": 25.6935356977659,
+        "state_bits_estimate": 1167,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            331
+          ],
+          [
+            2147487796,
+            324
+          ],
+          [
+            2147483876,
+            324
+          ],
+          [
+            2147491196,
+            318
+          ],
+          [
+            2147486608,
+            292
+          ],
+          [
+            2147483884,
+            278
+          ],
+          [
+            2147486024,
+            226
+          ],
+          [
+            2147485800,
+            226
+          ],
+          [
+            2147486536,
+            226
+          ],
+          [
+            2147483908,
+            182
+          ],
+          [
+            2147483900,
+            172
+          ],
+          [
+            2147486240,
+            166
+          ],
+          [
+            2147491820,
+            163
+          ],
+          [
+            2147485812,
+            160
+          ],
+          [
+            2147486624,
+            140
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb16-gshare-high-64-h2": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 6403,
+          "errors": 6477,
+          "missing_errors": 2948,
+          "allocations": 2948,
+          "conditional": 50804,
+          "suppressed_allocations": 3455,
+          "false_not_taken": 3111,
+          "evictions": 2932,
+          "unused_victims": 1678,
+          "direction_errors": 3529,
+          "false_taken": 2643,
+          "returns": 107
+        },
+        "mpki": 25.606559580616977,
+        "state_bits_estimate": 1263,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147487860,
+            338
+          ],
+          [
+            2147491196,
+            319
+          ],
+          [
+            2147487796,
+            314
+          ],
+          [
+            2147486944,
+            282
+          ],
+          [
+            2147483884,
+            278
+          ],
+          [
+            2147483876,
+            272
+          ],
+          [
+            2147486608,
+            264
+          ],
+          [
+            2147486024,
+            230
+          ],
+          [
+            2147485800,
+            226
+          ],
+          [
+            2147486536,
+            226
+          ],
+          [
+            2147485812,
+            162
+          ],
+          [
+            2147491820,
+            158
+          ],
+          [
+            2147483900,
+            154
+          ],
+          [
+            2147486624,
+            148
+          ],
+          [
+            2147483908,
+            141
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb16-gshare-high-64-h4": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 6403,
+          "errors": 6281,
+          "missing_errors": 2948,
+          "allocations": 2948,
+          "conditional": 50804,
+          "suppressed_allocations": 3455,
+          "false_not_taken": 3188,
+          "evictions": 2932,
+          "unused_victims": 1678,
+          "direction_errors": 3333,
+          "false_taken": 2370,
+          "returns": 107
+        },
+        "mpki": 24.831681446017484,
+        "state_bits_estimate": 1265,
+        "hot_error_pc": [
+          [
+            2147483968,
+            526
+          ],
+          [
+            2147487860,
+            333
+          ],
+          [
+            2147487796,
+            329
+          ],
+          [
+            2147483884,
+            296
+          ],
+          [
+            2147483876,
+            273
+          ],
+          [
+            2147485800,
+            228
+          ],
+          [
+            2147486024,
+            226
+          ],
+          [
+            2147486536,
+            226
+          ],
+          [
+            2147491196,
+            194
+          ],
+          [
+            2147486624,
+            192
+          ],
+          [
+            2147485812,
+            190
+          ],
+          [
+            2147486292,
+            180
+          ],
+          [
+            2147486608,
+            178
+          ],
+          [
+            2147483908,
+            171
+          ],
+          [
+            2147491820,
+            164
+          ],
+          [
+            2147486240,
+            164
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb16-gshare-high-128-h2": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 6403,
+          "errors": 6195,
+          "missing_errors": 2948,
+          "allocations": 2948,
+          "conditional": 50804,
+          "suppressed_allocations": 3455,
+          "false_not_taken": 2968,
+          "evictions": 2932,
+          "unused_victims": 1678,
+          "direction_errors": 3247,
+          "false_taken": 2504,
+          "returns": 107
+        },
+        "mpki": 24.491683897162602,
+        "state_bits_estimate": 1391,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147486608,
+            350
+          ],
+          [
+            2147487860,
+            323
+          ],
+          [
+            2147491196,
+            323
+          ],
+          [
+            2147483876,
+            272
+          ],
+          [
+            2147483884,
+            272
+          ],
+          [
+            2147486024,
+            237
+          ],
+          [
+            2147485800,
+            227
+          ],
+          [
+            2147486536,
+            226
+          ],
+          [
+            2147486292,
+            180
+          ],
+          [
+            2147487796,
+            168
+          ],
+          [
+            2147485812,
+            160
+          ],
+          [
+            2147491820,
+            158
+          ],
+          [
+            2147483900,
+            154
+          ],
+          [
+            2147486624,
+            148
+          ],
+          [
+            2147485968,
+            142
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb16-gshare-high-128-h4": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 6403,
+          "errors": 5973,
+          "missing_errors": 2948,
+          "allocations": 2948,
+          "conditional": 50804,
+          "suppressed_allocations": 3455,
+          "false_not_taken": 3087,
+          "evictions": 2932,
+          "unused_victims": 1678,
+          "direction_errors": 3025,
+          "false_taken": 2163,
+          "returns": 107
+        },
+        "mpki": 23.614015805932564,
+        "state_bits_estimate": 1393,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            339
+          ],
+          [
+            2147483884,
+            300
+          ],
+          [
+            2147483876,
+            251
+          ],
+          [
+            2147486024,
+            226
+          ],
+          [
+            2147485800,
+            226
+          ],
+          [
+            2147486536,
+            226
+          ],
+          [
+            2147491196,
+            204
+          ],
+          [
+            2147486292,
+            180
+          ],
+          [
+            2147491820,
+            171
+          ],
+          [
+            2147485812,
+            166
+          ],
+          [
+            2147486608,
+            166
+          ],
+          [
+            2147483908,
+            161
+          ],
+          [
+            2147483900,
+            160
+          ],
+          [
+            2147487796,
+            159
+          ],
+          [
+            2147485968,
+            155
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb16-gshare-high-256-h2": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 6403,
+          "errors": 6170,
+          "missing_errors": 2948,
+          "allocations": 2948,
+          "conditional": 50804,
+          "suppressed_allocations": 3455,
+          "false_not_taken": 2957,
+          "evictions": 2932,
+          "unused_victims": 1678,
+          "direction_errors": 3222,
+          "false_taken": 2490,
+          "returns": 107
+        },
+        "mpki": 24.392847400402463,
+        "state_bits_estimate": 1647,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147486608,
+            349
+          ],
+          [
+            2147487860,
+            323
+          ],
+          [
+            2147491196,
+            320
+          ],
+          [
+            2147483876,
+            272
+          ],
+          [
+            2147483884,
+            272
+          ],
+          [
+            2147485800,
+            227
+          ],
+          [
+            2147486024,
+            226
+          ],
+          [
+            2147486536,
+            226
+          ],
+          [
+            2147486292,
+            180
+          ],
+          [
+            2147487796,
+            168
+          ],
+          [
+            2147485812,
+            160
+          ],
+          [
+            2147491820,
+            158
+          ],
+          [
+            2147483900,
+            157
+          ],
+          [
+            2147486624,
+            148
+          ],
+          [
+            2147485968,
+            144
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb16-gshare-high-256-h4": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 6403,
+          "errors": 5974,
+          "missing_errors": 2948,
+          "allocations": 2948,
+          "conditional": 50804,
+          "suppressed_allocations": 3455,
+          "false_not_taken": 3166,
+          "evictions": 2932,
+          "unused_victims": 1678,
+          "direction_errors": 3026,
+          "false_taken": 2085,
+          "returns": 107
+        },
+        "mpki": 23.617969265802966,
+        "state_bits_estimate": 1649,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            320
+          ],
+          [
+            2147483884,
+            306
+          ],
+          [
+            2147483876,
+            250
+          ],
+          [
+            2147486024,
+            232
+          ],
+          [
+            2147485800,
+            227
+          ],
+          [
+            2147486536,
+            226
+          ],
+          [
+            2147491196,
+            194
+          ],
+          [
+            2147485812,
+            180
+          ],
+          [
+            2147487796,
+            174
+          ],
+          [
+            2147491820,
+            171
+          ],
+          [
+            2147483908,
+            163
+          ],
+          [
+            2147483900,
+            160
+          ],
+          [
+            2147486608,
+            158
+          ],
+          [
+            2147486292,
+            154
+          ],
+          [
+            2147485968,
+            136
+          ]
+        ],
+        "direction_state_bits": 516
+      },
+      "btb32-bimodal-64": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 3582,
+          "errors": 4690,
+          "missing_errors": 1053,
+          "allocations": 1053,
+          "conditional": 50804,
+          "suppressed_allocations": 2529,
+          "false_not_taken": 1515,
+          "evictions": 1021,
+          "unused_victims": 506,
+          "direction_errors": 3637,
+          "false_taken": 2768,
+          "returns": 107
+        },
+        "mpki": 18.541726792202194,
+        "state_bits_estimate": 2229,
+        "hot_error_pc": [
+          [
+            2147483968,
+            515
+          ],
+          [
+            2147483884,
+            370
+          ],
+          [
+            2147486608,
+            327
+          ],
+          [
+            2147487860,
+            318
+          ],
+          [
+            2147491196,
+            318
+          ],
+          [
+            2147483876,
+            271
+          ],
+          [
+            2147487796,
+            194
+          ],
+          [
+            2147485812,
+            142
+          ],
+          [
+            2147486624,
+            131
+          ],
+          [
+            2147486292,
+            130
+          ],
+          [
+            2147485880,
+            129
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485816,
+            128
+          ],
+          [
+            2147485968,
+            122
+          ],
+          [
+            2147485824,
+            118
+          ],
+          [
+            2147486240,
+            100
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb32-gshare-high-16-h2": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 3582,
+          "errors": 5212,
+          "missing_errors": 1053,
+          "allocations": 1053,
+          "conditional": 50804,
+          "suppressed_allocations": 2529,
+          "false_not_taken": 1921,
+          "evictions": 1021,
+          "unused_victims": 506,
+          "direction_errors": 4159,
+          "false_taken": 2884,
+          "returns": 107
+        },
+        "mpki": 20.60543284455391,
+        "state_bits_estimate": 2135,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            333
+          ],
+          [
+            2147483876,
+            324
+          ],
+          [
+            2147487796,
+            322
+          ],
+          [
+            2147491196,
+            318
+          ],
+          [
+            2147486608,
+            292
+          ],
+          [
+            2147483884,
+            278
+          ],
+          [
+            2147483908,
+            182
+          ],
+          [
+            2147483900,
+            172
+          ],
+          [
+            2147485812,
+            152
+          ],
+          [
+            2147486240,
+            144
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485880,
+            128
+          ],
+          [
+            2147485816,
+            128
+          ],
+          [
+            2147486624,
+            122
+          ],
+          [
+            2147486464,
+            120
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb32-gshare-high-64-h2": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 3582,
+          "errors": 5213,
+          "missing_errors": 1053,
+          "allocations": 1053,
+          "conditional": 50804,
+          "suppressed_allocations": 2529,
+          "false_not_taken": 1865,
+          "evictions": 1021,
+          "unused_victims": 506,
+          "direction_errors": 4160,
+          "false_taken": 2941,
+          "returns": 107
+        },
+        "mpki": 20.609386304424316,
+        "state_bits_estimate": 2231,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147487860,
+            342
+          ],
+          [
+            2147491196,
+            319
+          ],
+          [
+            2147487796,
+            314
+          ],
+          [
+            2147486944,
+            282
+          ],
+          [
+            2147483884,
+            278
+          ],
+          [
+            2147483876,
+            272
+          ],
+          [
+            2147486608,
+            240
+          ],
+          [
+            2147485812,
+            230
+          ],
+          [
+            2147483900,
+            154
+          ],
+          [
+            2147486464,
+            142
+          ],
+          [
+            2147483908,
+            141
+          ],
+          [
+            2147486624,
+            132
+          ],
+          [
+            2147486292,
+            130
+          ],
+          [
+            2147485880,
+            129
+          ],
+          [
+            2147485752,
+            128
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb32-gshare-high-64-h4": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 3582,
+          "errors": 4790,
+          "missing_errors": 1053,
+          "allocations": 1053,
+          "conditional": 50804,
+          "suppressed_allocations": 2529,
+          "false_not_taken": 1823,
+          "evictions": 1021,
+          "unused_victims": 506,
+          "direction_errors": 3737,
+          "false_taken": 2560,
+          "returns": 107
+        },
+        "mpki": 18.937072779242754,
+        "state_bits_estimate": 2233,
+        "hot_error_pc": [
+          [
+            2147483968,
+            526
+          ],
+          [
+            2147487860,
+            337
+          ],
+          [
+            2147487796,
+            327
+          ],
+          [
+            2147483884,
+            296
+          ],
+          [
+            2147483876,
+            273
+          ],
+          [
+            2147491196,
+            194
+          ],
+          [
+            2147485812,
+            188
+          ],
+          [
+            2147486624,
+            182
+          ],
+          [
+            2147483908,
+            171
+          ],
+          [
+            2147483900,
+            156
+          ],
+          [
+            2147486608,
+            154
+          ],
+          [
+            2147486240,
+            144
+          ],
+          [
+            2147485880,
+            134
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485816,
+            128
+          ],
+          [
+            2147485968,
+            125
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb32-gshare-high-128-h2": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 3582,
+          "errors": 4780,
+          "missing_errors": 1053,
+          "allocations": 1053,
+          "conditional": 50804,
+          "suppressed_allocations": 2529,
+          "false_not_taken": 1565,
+          "evictions": 1021,
+          "unused_victims": 506,
+          "direction_errors": 3727,
+          "false_taken": 2808,
+          "returns": 107
+        },
+        "mpki": 18.8975381805387,
+        "state_bits_estimate": 2359,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147487860,
+            327
+          ],
+          [
+            2147486608,
+            326
+          ],
+          [
+            2147491196,
+            323
+          ],
+          [
+            2147483876,
+            272
+          ],
+          [
+            2147483884,
+            272
+          ],
+          [
+            2147487796,
+            166
+          ],
+          [
+            2147486464,
+            162
+          ],
+          [
+            2147483900,
+            154
+          ],
+          [
+            2147485812,
+            142
+          ],
+          [
+            2147483908,
+            141
+          ],
+          [
+            2147486624,
+            134
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485880,
+            128
+          ],
+          [
+            2147485816,
+            128
+          ],
+          [
+            2147485968,
+            122
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb32-gshare-high-128-h4": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 3582,
+          "errors": 4408,
+          "missing_errors": 1053,
+          "allocations": 1053,
+          "conditional": 50804,
+          "suppressed_allocations": 2529,
+          "false_not_taken": 1640,
+          "evictions": 1021,
+          "unused_victims": 506,
+          "direction_errors": 3355,
+          "false_taken": 2361,
+          "returns": 107
+        },
+        "mpki": 17.426851108747822,
+        "state_bits_estimate": 2361,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            343
+          ],
+          [
+            2147483884,
+            300
+          ],
+          [
+            2147483876,
+            251
+          ],
+          [
+            2147491196,
+            204
+          ],
+          [
+            2147483908,
+            161
+          ],
+          [
+            2147483900,
+            160
+          ],
+          [
+            2147487796,
+            157
+          ],
+          [
+            2147485968,
+            143
+          ],
+          [
+            2147485812,
+            142
+          ],
+          [
+            2147486608,
+            142
+          ],
+          [
+            2147485752,
+            132
+          ],
+          [
+            2147486624,
+            130
+          ],
+          [
+            2147485880,
+            128
+          ],
+          [
+            2147485816,
+            128
+          ],
+          [
+            2147491820,
+            120
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb32-gshare-high-256-h2": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 3582,
+          "errors": 4722,
+          "missing_errors": 1053,
+          "allocations": 1053,
+          "conditional": 50804,
+          "suppressed_allocations": 2529,
+          "false_not_taken": 1526,
+          "evictions": 1021,
+          "unused_victims": 506,
+          "direction_errors": 3669,
+          "false_taken": 2789,
+          "returns": 107
+        },
+        "mpki": 18.668237508055174,
+        "state_bits_estimate": 2615,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147487860,
+            327
+          ],
+          [
+            2147486608,
+            325
+          ],
+          [
+            2147491196,
+            320
+          ],
+          [
+            2147483876,
+            272
+          ],
+          [
+            2147483884,
+            272
+          ],
+          [
+            2147487796,
+            166
+          ],
+          [
+            2147483900,
+            157
+          ],
+          [
+            2147486464,
+            143
+          ],
+          [
+            2147485812,
+            142
+          ],
+          [
+            2147483908,
+            138
+          ],
+          [
+            2147486624,
+            133
+          ],
+          [
+            2147485880,
+            129
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485816,
+            128
+          ],
+          [
+            2147485968,
+            124
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb32-gshare-high-256-h4": {
+        "counts": {
+          "branches": 52727,
+          "jumps": 1816,
+          "btb_misses": 3582,
+          "errors": 4458,
+          "missing_errors": 1053,
+          "allocations": 1053,
+          "conditional": 50804,
+          "suppressed_allocations": 2529,
+          "false_not_taken": 1807,
+          "evictions": 1021,
+          "unused_victims": 506,
+          "direction_errors": 3405,
+          "false_taken": 2244,
+          "returns": 107
+        },
+        "mpki": 17.6245241022681,
+        "state_bits_estimate": 2617,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            324
+          ],
+          [
+            2147483884,
+            306
+          ],
+          [
+            2147483876,
+            250
+          ],
+          [
+            2147491196,
+            194
+          ],
+          [
+            2147487796,
+            172
+          ],
+          [
+            2147483908,
+            163
+          ],
+          [
+            2147483900,
+            160
+          ],
+          [
+            2147486292,
+            154
+          ],
+          [
+            2147485812,
+            134
+          ],
+          [
+            2147486608,
+            134
+          ],
+          [
+            2147485752,
+            129
+          ],
+          [
+            2147485880,
+            128
+          ],
+          [
+            2147485816,
+            128
+          ],
+          [
+            2147485968,
+            120
+          ],
+          [
+            2147491820,
+            119
+          ]
+        ],
+        "direction_state_bits": 516
+      }
+    },
+    "quant_loader-dev-97": {
+      "btb16-bimodal-64": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 6329,
+          "errors": 5925,
+          "missing_errors": 2872,
+          "allocations": 2872,
+          "conditional": 50756,
+          "suppressed_allocations": 3457,
+          "false_not_taken": 2808,
+          "evictions": 2856,
+          "unused_victims": 1586,
+          "direction_errors": 3053,
+          "false_taken": 2416,
+          "returns": 107
+        },
+        "mpki": 23.463395123573882,
+        "state_bits_estimate": 1261,
+        "hot_error_pc": [
+          [
+            2147483968,
+            515
+          ],
+          [
+            2147483884,
+            372
+          ],
+          [
+            2147491196,
+            320
+          ],
+          [
+            2147487860,
+            317
+          ],
+          [
+            2147486608,
+            295
+          ],
+          [
+            2147483876,
+            265
+          ],
+          [
+            2147486024,
+            226
+          ],
+          [
+            2147485800,
+            224
+          ],
+          [
+            2147486536,
+            224
+          ],
+          [
+            2147487796,
+            184
+          ],
+          [
+            2147485812,
+            158
+          ],
+          [
+            2147486624,
+            144
+          ],
+          [
+            2147491820,
+            140
+          ],
+          [
+            2147485968,
+            136
+          ],
+          [
+            2147486292,
+            130
+          ],
+          [
+            2147485880,
+            129
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb16-gshare-high-16-h2": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 6329,
+          "errors": 6443,
+          "missing_errors": 2872,
+          "allocations": 2872,
+          "conditional": 50756,
+          "suppressed_allocations": 3457,
+          "false_not_taken": 3030,
+          "evictions": 2856,
+          "unused_victims": 1586,
+          "direction_errors": 3571,
+          "false_taken": 2712,
+          "returns": 107
+        },
+        "mpki": 25.514709667710804,
+        "state_bits_estimate": 1167,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            329
+          ],
+          [
+            2147491196,
+            320
+          ],
+          [
+            2147487796,
+            318
+          ],
+          [
+            2147483876,
+            318
+          ],
+          [
+            2147486608,
+            298
+          ],
+          [
+            2147483884,
+            294
+          ],
+          [
+            2147486024,
+            224
+          ],
+          [
+            2147485800,
+            224
+          ],
+          [
+            2147486536,
+            224
+          ],
+          [
+            2147483900,
+            184
+          ],
+          [
+            2147483908,
+            178
+          ],
+          [
+            2147491820,
+            177
+          ],
+          [
+            2147486240,
+            162
+          ],
+          [
+            2147485812,
+            158
+          ],
+          [
+            2147486624,
+            140
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb16-gshare-high-64-h2": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 6329,
+          "errors": 6329,
+          "missing_errors": 2872,
+          "allocations": 2872,
+          "conditional": 50756,
+          "suppressed_allocations": 3457,
+          "false_not_taken": 3017,
+          "evictions": 2856,
+          "unused_victims": 1586,
+          "direction_errors": 3457,
+          "false_taken": 2611,
+          "returns": 107
+        },
+        "mpki": 25.06326206533318,
+        "state_bits_estimate": 1263,
+        "hot_error_pc": [
+          [
+            2147483968,
+            518
+          ],
+          [
+            2147487860,
+            355
+          ],
+          [
+            2147491196,
+            321
+          ],
+          [
+            2147487796,
+            314
+          ],
+          [
+            2147483884,
+            284
+          ],
+          [
+            2147483876,
+            266
+          ],
+          [
+            2147486608,
+            248
+          ],
+          [
+            2147486024,
+            230
+          ],
+          [
+            2147486944,
+            228
+          ],
+          [
+            2147485800,
+            224
+          ],
+          [
+            2147486536,
+            224
+          ],
+          [
+            2147491820,
+            164
+          ],
+          [
+            2147485812,
+            158
+          ],
+          [
+            2147483900,
+            156
+          ],
+          [
+            2147486624,
+            144
+          ],
+          [
+            2147483908,
+            141
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb16-gshare-high-64-h4": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 6329,
+          "errors": 6197,
+          "missing_errors": 2872,
+          "allocations": 2872,
+          "conditional": 50756,
+          "suppressed_allocations": 3457,
+          "false_not_taken": 3134,
+          "evictions": 2856,
+          "unused_victims": 1586,
+          "direction_errors": 3325,
+          "false_taken": 2362,
+          "returns": 107
+        },
+        "mpki": 24.54053326258014,
+        "state_bits_estimate": 1265,
+        "hot_error_pc": [
+          [
+            2147483968,
+            526
+          ],
+          [
+            2147487860,
+            333
+          ],
+          [
+            2147487796,
+            324
+          ],
+          [
+            2147483884,
+            294
+          ],
+          [
+            2147483876,
+            280
+          ],
+          [
+            2147485800,
+            226
+          ],
+          [
+            2147486024,
+            224
+          ],
+          [
+            2147486536,
+            224
+          ],
+          [
+            2147486624,
+            192
+          ],
+          [
+            2147485812,
+            188
+          ],
+          [
+            2147491196,
+            183
+          ],
+          [
+            2147486292,
+            178
+          ],
+          [
+            2147486608,
+            172
+          ],
+          [
+            2147483908,
+            169
+          ],
+          [
+            2147491820,
+            166
+          ],
+          [
+            2147483900,
+            166
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb16-gshare-high-128-h2": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 6329,
+          "errors": 6123,
+          "missing_errors": 2872,
+          "allocations": 2872,
+          "conditional": 50756,
+          "suppressed_allocations": 3457,
+          "false_not_taken": 2927,
+          "evictions": 2856,
+          "unused_victims": 1586,
+          "direction_errors": 3251,
+          "false_taken": 2495,
+          "returns": 107
+        },
+        "mpki": 24.24748832770344,
+        "state_bits_estimate": 1391,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147486608,
+            348
+          ],
+          [
+            2147491196,
+            325
+          ],
+          [
+            2147487860,
+            320
+          ],
+          [
+            2147483884,
+            276
+          ],
+          [
+            2147483876,
+            266
+          ],
+          [
+            2147486024,
+            242
+          ],
+          [
+            2147485800,
+            225
+          ],
+          [
+            2147486536,
+            224
+          ],
+          [
+            2147487796,
+            192
+          ],
+          [
+            2147486292,
+            180
+          ],
+          [
+            2147491820,
+            164
+          ],
+          [
+            2147485812,
+            160
+          ],
+          [
+            2147483900,
+            156
+          ],
+          [
+            2147486624,
+            144
+          ],
+          [
+            2147483908,
+            142
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb16-gshare-high-128-h4": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 6329,
+          "errors": 5900,
+          "missing_errors": 2872,
+          "allocations": 2872,
+          "conditional": 50756,
+          "suppressed_allocations": 3457,
+          "false_not_taken": 3033,
+          "evictions": 2856,
+          "unused_victims": 1586,
+          "direction_errors": 3028,
+          "false_taken": 2166,
+          "returns": 107
+        },
+        "mpki": 23.364393456385805,
+        "state_bits_estimate": 1393,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            343
+          ],
+          [
+            2147483884,
+            298
+          ],
+          [
+            2147483876,
+            250
+          ],
+          [
+            2147486024,
+            224
+          ],
+          [
+            2147485800,
+            224
+          ],
+          [
+            2147486536,
+            224
+          ],
+          [
+            2147491196,
+            195
+          ],
+          [
+            2147487796,
+            186
+          ],
+          [
+            2147486292,
+            178
+          ],
+          [
+            2147491820,
+            168
+          ],
+          [
+            2147485812,
+            164
+          ],
+          [
+            2147485968,
+            162
+          ],
+          [
+            2147483908,
+            161
+          ],
+          [
+            2147486608,
+            158
+          ],
+          [
+            2147483900,
+            158
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb16-gshare-high-256-h2": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 6329,
+          "errors": 6100,
+          "missing_errors": 2872,
+          "allocations": 2872,
+          "conditional": 50756,
+          "suppressed_allocations": 3457,
+          "false_not_taken": 2919,
+          "evictions": 2856,
+          "unused_victims": 1586,
+          "direction_errors": 3228,
+          "false_taken": 2480,
+          "returns": 107
+        },
+        "mpki": 24.156406793890408,
+        "state_bits_estimate": 1647,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147486608,
+            347
+          ],
+          [
+            2147491196,
+            322
+          ],
+          [
+            2147487860,
+            320
+          ],
+          [
+            2147483884,
+            276
+          ],
+          [
+            2147483876,
+            266
+          ],
+          [
+            2147485800,
+            225
+          ],
+          [
+            2147486024,
+            224
+          ],
+          [
+            2147486536,
+            224
+          ],
+          [
+            2147487796,
+            192
+          ],
+          [
+            2147486292,
+            180
+          ],
+          [
+            2147491820,
+            164
+          ],
+          [
+            2147485812,
+            160
+          ],
+          [
+            2147483900,
+            160
+          ],
+          [
+            2147486624,
+            144
+          ],
+          [
+            2147483908,
+            138
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb16-gshare-high-256-h4": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 6329,
+          "errors": 5906,
+          "missing_errors": 2872,
+          "allocations": 2872,
+          "conditional": 50756,
+          "suppressed_allocations": 3457,
+          "false_not_taken": 3098,
+          "evictions": 2856,
+          "unused_victims": 1586,
+          "direction_errors": 3034,
+          "false_taken": 2107,
+          "returns": 107
+        },
+        "mpki": 23.388153856510943,
+        "state_bits_estimate": 1649,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            323
+          ],
+          [
+            2147483884,
+            304
+          ],
+          [
+            2147483876,
+            250
+          ],
+          [
+            2147486024,
+            230
+          ],
+          [
+            2147485800,
+            225
+          ],
+          [
+            2147486536,
+            224
+          ],
+          [
+            2147487796,
+            200
+          ],
+          [
+            2147485812,
+            188
+          ],
+          [
+            2147491196,
+            184
+          ],
+          [
+            2147491820,
+            168
+          ],
+          [
+            2147483908,
+            162
+          ],
+          [
+            2147486608,
+            158
+          ],
+          [
+            2147483900,
+            156
+          ],
+          [
+            2147486292,
+            154
+          ],
+          [
+            2147485968,
+            141
+          ]
+        ],
+        "direction_state_bits": 516
+      },
+      "btb32-bimodal-64": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 3558,
+          "errors": 4678,
+          "missing_errors": 1045,
+          "allocations": 1045,
+          "conditional": 50756,
+          "suppressed_allocations": 2513,
+          "false_not_taken": 1516,
+          "evictions": 1013,
+          "unused_victims": 500,
+          "direction_errors": 3633,
+          "false_taken": 2759,
+          "returns": 107
+        },
+        "mpki": 18.52519196423268,
+        "state_bits_estimate": 2229,
+        "hot_error_pc": [
+          [
+            2147483968,
+            515
+          ],
+          [
+            2147483884,
+            372
+          ],
+          [
+            2147486608,
+            327
+          ],
+          [
+            2147491196,
+            320
+          ],
+          [
+            2147487860,
+            319
+          ],
+          [
+            2147483876,
+            265
+          ],
+          [
+            2147487796,
+            184
+          ],
+          [
+            2147486624,
+            131
+          ],
+          [
+            2147486292,
+            130
+          ],
+          [
+            2147485880,
+            129
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485812,
+            128
+          ],
+          [
+            2147485816,
+            126
+          ],
+          [
+            2147485968,
+            124
+          ],
+          [
+            2147485824,
+            114
+          ],
+          [
+            2147486240,
+            102
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb32-gshare-high-16-h2": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 3558,
+          "errors": 5200,
+          "missing_errors": 1045,
+          "allocations": 1045,
+          "conditional": 50756,
+          "suppressed_allocations": 2513,
+          "false_not_taken": 1925,
+          "evictions": 1013,
+          "unused_victims": 500,
+          "direction_errors": 4155,
+          "false_taken": 2872,
+          "returns": 107
+        },
+        "mpki": 20.592346775119694,
+        "state_bits_estimate": 2135,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            331
+          ],
+          [
+            2147491196,
+            320
+          ],
+          [
+            2147483876,
+            318
+          ],
+          [
+            2147487796,
+            316
+          ],
+          [
+            2147486608,
+            298
+          ],
+          [
+            2147483884,
+            294
+          ],
+          [
+            2147483900,
+            184
+          ],
+          [
+            2147483908,
+            178
+          ],
+          [
+            2147485812,
+            150
+          ],
+          [
+            2147486240,
+            144
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485880,
+            128
+          ],
+          [
+            2147485816,
+            126
+          ],
+          [
+            2147486624,
+            124
+          ],
+          [
+            2147491820,
+            121
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb32-gshare-high-64-h2": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 3558,
+          "errors": 5123,
+          "missing_errors": 1045,
+          "allocations": 1045,
+          "conditional": 50756,
+          "suppressed_allocations": 2513,
+          "false_not_taken": 1816,
+          "evictions": 1013,
+          "unused_victims": 500,
+          "direction_errors": 4078,
+          "false_taken": 2904,
+          "returns": 107
+        },
+        "mpki": 20.28742164018042,
+        "state_bits_estimate": 2231,
+        "hot_error_pc": [
+          [
+            2147483968,
+            518
+          ],
+          [
+            2147487860,
+            359
+          ],
+          [
+            2147491196,
+            321
+          ],
+          [
+            2147487796,
+            314
+          ],
+          [
+            2147483884,
+            284
+          ],
+          [
+            2147483876,
+            266
+          ],
+          [
+            2147485812,
+            230
+          ],
+          [
+            2147486944,
+            228
+          ],
+          [
+            2147486608,
+            226
+          ],
+          [
+            2147483900,
+            156
+          ],
+          [
+            2147483908,
+            141
+          ],
+          [
+            2147486292,
+            130
+          ],
+          [
+            2147486624,
+            130
+          ],
+          [
+            2147485880,
+            129
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485816,
+            126
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb32-gshare-high-64-h4": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 3558,
+          "errors": 4765,
+          "missing_errors": 1045,
+          "allocations": 1045,
+          "conditional": 50756,
+          "suppressed_allocations": 2513,
+          "false_not_taken": 1822,
+          "evictions": 1013,
+          "unused_victims": 500,
+          "direction_errors": 3720,
+          "false_taken": 2540,
+          "returns": 107
+        },
+        "mpki": 18.86971776604718,
+        "state_bits_estimate": 2233,
+        "hot_error_pc": [
+          [
+            2147483968,
+            526
+          ],
+          [
+            2147487860,
+            337
+          ],
+          [
+            2147487796,
+            322
+          ],
+          [
+            2147483884,
+            294
+          ],
+          [
+            2147483876,
+            280
+          ],
+          [
+            2147486624,
+            188
+          ],
+          [
+            2147491196,
+            183
+          ],
+          [
+            2147485812,
+            180
+          ],
+          [
+            2147483908,
+            169
+          ],
+          [
+            2147483900,
+            166
+          ],
+          [
+            2147486608,
+            150
+          ],
+          [
+            2147486240,
+            146
+          ],
+          [
+            2147485880,
+            132
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485816,
+            126
+          ],
+          [
+            2147491820,
+            111
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb32-gshare-high-128-h2": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 3558,
+          "errors": 4756,
+          "missing_errors": 1045,
+          "allocations": 1045,
+          "conditional": 50756,
+          "suppressed_allocations": 2513,
+          "false_not_taken": 1558,
+          "evictions": 1013,
+          "unused_victims": 500,
+          "direction_errors": 3711,
+          "false_taken": 2795,
+          "returns": 107
+        },
+        "mpki": 18.834077165859473,
+        "state_bits_estimate": 2359,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147486608,
+            326
+          ],
+          [
+            2147491196,
+            325
+          ],
+          [
+            2147487860,
+            324
+          ],
+          [
+            2147483884,
+            276
+          ],
+          [
+            2147483876,
+            266
+          ],
+          [
+            2147487796,
+            190
+          ],
+          [
+            2147483900,
+            156
+          ],
+          [
+            2147483908,
+            142
+          ],
+          [
+            2147486464,
+            132
+          ],
+          [
+            2147486624,
+            132
+          ],
+          [
+            2147485812,
+            130
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485880,
+            128
+          ],
+          [
+            2147485816,
+            126
+          ],
+          [
+            2147485968,
+            124
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb32-gshare-high-128-h4": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 3558,
+          "errors": 4400,
+          "missing_errors": 1045,
+          "allocations": 1045,
+          "conditional": 50756,
+          "suppressed_allocations": 2513,
+          "false_not_taken": 1631,
+          "evictions": 1013,
+          "unused_victims": 500,
+          "direction_errors": 3355,
+          "false_taken": 2366,
+          "returns": 107
+        },
+        "mpki": 17.42429342510128,
+        "state_bits_estimate": 2361,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            347
+          ],
+          [
+            2147483884,
+            298
+          ],
+          [
+            2147483876,
+            250
+          ],
+          [
+            2147491196,
+            195
+          ],
+          [
+            2147487796,
+            184
+          ],
+          [
+            2147483908,
+            161
+          ],
+          [
+            2147483900,
+            158
+          ],
+          [
+            2147485968,
+            146
+          ],
+          [
+            2147486608,
+            136
+          ],
+          [
+            2147485752,
+            132
+          ],
+          [
+            2147486624,
+            130
+          ],
+          [
+            2147485880,
+            128
+          ],
+          [
+            2147485812,
+            126
+          ],
+          [
+            2147485816,
+            126
+          ],
+          [
+            2147491820,
+            115
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb32-gshare-high-256-h2": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 3558,
+          "errors": 4702,
+          "missing_errors": 1045,
+          "allocations": 1045,
+          "conditional": 50756,
+          "suppressed_allocations": 2513,
+          "false_not_taken": 1526,
+          "evictions": 1013,
+          "unused_victims": 500,
+          "direction_errors": 3657,
+          "false_taken": 2773,
+          "returns": 107
+        },
+        "mpki": 18.62023356473323,
+        "state_bits_estimate": 2615,
+        "hot_error_pc": [
+          [
+            2147483968,
+            516
+          ],
+          [
+            2147486608,
+            325
+          ],
+          [
+            2147487860,
+            324
+          ],
+          [
+            2147491196,
+            322
+          ],
+          [
+            2147483884,
+            276
+          ],
+          [
+            2147483876,
+            266
+          ],
+          [
+            2147487796,
+            190
+          ],
+          [
+            2147483900,
+            160
+          ],
+          [
+            2147483908,
+            138
+          ],
+          [
+            2147486624,
+            131
+          ],
+          [
+            2147485812,
+            130
+          ],
+          [
+            2147485880,
+            129
+          ],
+          [
+            2147485752,
+            128
+          ],
+          [
+            2147485816,
+            126
+          ],
+          [
+            2147485968,
+            125
+          ],
+          [
+            2147485824,
+            114
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb32-gshare-high-256-h4": {
+        "counts": {
+          "branches": 52637,
+          "jumps": 1774,
+          "btb_misses": 3558,
+          "errors": 4458,
+          "missing_errors": 1045,
+          "allocations": 1045,
+          "conditional": 50756,
+          "suppressed_allocations": 2513,
+          "false_not_taken": 1777,
+          "evictions": 1013,
+          "unused_victims": 500,
+          "direction_errors": 3413,
+          "false_taken": 2278,
+          "returns": 107
+        },
+        "mpki": 17.653977292977615,
+        "state_bits_estimate": 2617,
+        "hot_error_pc": [
+          [
+            2147483968,
+            520
+          ],
+          [
+            2147487860,
+            327
+          ],
+          [
+            2147483884,
+            304
+          ],
+          [
+            2147483876,
+            250
+          ],
+          [
+            2147487796,
+            198
+          ],
+          [
+            2147491196,
+            184
+          ],
+          [
+            2147483908,
+            162
+          ],
+          [
+            2147483900,
+            156
+          ],
+          [
+            2147486292,
+            154
+          ],
+          [
+            2147486608,
+            136
+          ],
+          [
+            2147485812,
+            130
+          ],
+          [
+            2147485752,
+            129
+          ],
+          [
+            2147485880,
+            128
+          ],
+          [
+            2147485816,
+            126
+          ],
+          [
+            2147485968,
+            125
+          ],
+          [
+            2147491820,
+            114
+          ]
+        ],
+        "direction_state_bits": 516
+      }
+    },
+    "runtime_graph-dev-61": {
+      "btb16-bimodal-64": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 19671,
+          "errors": 9849,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 4324,
+          "direction_errors": 3939,
+          "false_taken": 1918,
+          "evictions": 5890,
+          "unused_victims": 4048,
+          "target_errors": 4
+        },
+        "mpki": 77.66676392426524,
+        "state_bits_estimate": 1261,
+        "hot_error_pc": [
+          [
+            2147488820,
+            3114
+          ],
+          [
+            2147488840,
+            268
+          ],
+          [
+            2147488576,
+            255
+          ],
+          [
+            2147485724,
+            251
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488812,
+            249
+          ],
+          [
+            2147485160,
+            204
+          ],
+          [
+            2147486744,
+            200
+          ],
+          [
+            2147488660,
+            142
+          ],
+          [
+            2147485992,
+            142
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb16-gshare-high-16-h2": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 19671,
+          "errors": 10484,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 6197,
+          "direction_errors": 4574,
+          "false_taken": 680,
+          "evictions": 5890,
+          "unused_victims": 4048,
+          "target_errors": 4
+        },
+        "mpki": 82.67421595918336,
+        "state_bits_estimate": 1167,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2192
+          ],
+          [
+            2147488840,
+            628
+          ],
+          [
+            2147488576,
+            559
+          ],
+          [
+            2147488812,
+            462
+          ],
+          [
+            2147485724,
+            453
+          ],
+          [
+            2147485160,
+            274
+          ],
+          [
+            2147485060,
+            266
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488348,
+            226
+          ],
+          [
+            2147485992,
+            202
+          ],
+          [
+            2147488640,
+            146
+          ],
+          [
+            2147486744,
+            140
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb16-gshare-high-64-h2": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 19671,
+          "errors": 9249,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 4969,
+          "direction_errors": 3339,
+          "false_taken": 673,
+          "evictions": 5890,
+          "unused_victims": 4048,
+          "target_errors": 4
+        },
+        "mpki": 72.93531318261034,
+        "state_bits_estimate": 1263,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2174
+          ],
+          [
+            2147488576,
+            487
+          ],
+          [
+            2147488812,
+            271
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488840,
+            250
+          ],
+          [
+            2147485160,
+            247
+          ],
+          [
+            2147485724,
+            230
+          ],
+          [
+            2147488660,
+            185
+          ],
+          [
+            2147486744,
+            169
+          ],
+          [
+            2147485060,
+            155
+          ],
+          [
+            2147488640,
+            146
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb16-gshare-high-64-h4": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 19671,
+          "errors": 8077,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 3772,
+          "direction_errors": 2167,
+          "false_taken": 698,
+          "evictions": 5890,
+          "unused_victims": 4048,
+          "target_errors": 4
+        },
+        "mpki": 63.693212733911096,
+        "state_bits_estimate": 1265,
+        "hot_error_pc": [
+          [
+            2147488840,
+            635
+          ],
+          [
+            2147485724,
+            454
+          ],
+          [
+            2147488820,
+            426
+          ],
+          [
+            2147488812,
+            422
+          ],
+          [
+            2147488576,
+            338
+          ],
+          [
+            2147485060,
+            264
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147485160,
+            228
+          ],
+          [
+            2147486744,
+            154
+          ],
+          [
+            2147488348,
+            127
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb16-gshare-high-128-h2": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 19671,
+          "errors": 9092,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 4819,
+          "direction_errors": 3182,
+          "false_taken": 666,
+          "evictions": 5890,
+          "unused_victims": 4048,
+          "target_errors": 4
+        },
+        "mpki": 71.69725023854397,
+        "state_bits_estimate": 1391,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2172
+          ],
+          [
+            2147488576,
+            361
+          ],
+          [
+            2147488812,
+            328
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488840,
+            250
+          ],
+          [
+            2147485160,
+            245
+          ],
+          [
+            2147485724,
+            231
+          ],
+          [
+            2147488348,
+            176
+          ],
+          [
+            2147486744,
+            169
+          ],
+          [
+            2147488640,
+            140
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb16-gshare-high-128-h4": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 19671,
+          "errors": 7310,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 3117,
+          "direction_errors": 1400,
+          "false_taken": 586,
+          "evictions": 5890,
+          "unused_victims": 4048,
+          "target_errors": 4
+        },
+        "mpki": 57.64484153582891,
+        "state_bits_estimate": 1393,
+        "hot_error_pc": [
+          [
+            2147488576,
+            445
+          ],
+          [
+            2147488812,
+            368
+          ],
+          [
+            2147488840,
+            289
+          ],
+          [
+            2147485060,
+            263
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147485724,
+            230
+          ],
+          [
+            2147485160,
+            206
+          ],
+          [
+            2147486744,
+            160
+          ],
+          [
+            2147488820,
+            147
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb16-gshare-high-256-h2": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 19671,
+          "errors": 8908,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 4634,
+          "direction_errors": 2998,
+          "false_taken": 667,
+          "evictions": 5890,
+          "unused_victims": 4048,
+          "target_errors": 4
+        },
+        "mpki": 70.24627201110314,
+        "state_bits_estimate": 1647,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2174
+          ],
+          [
+            2147488576,
+            278
+          ],
+          [
+            2147488840,
+            277
+          ],
+          [
+            2147488812,
+            251
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147485160,
+            245
+          ],
+          [
+            2147485724,
+            230
+          ],
+          [
+            2147486744,
+            169
+          ],
+          [
+            2147488640,
+            142
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb16-gshare-high-256-h4": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 19671,
+          "errors": 6770,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 2550,
+          "direction_errors": 860,
+          "false_taken": 613,
+          "evictions": 5890,
+          "unused_victims": 4048,
+          "target_errors": 4
+        },
+        "mpki": 53.3865358683395,
+        "state_bits_estimate": 1649,
+        "hot_error_pc": [
+          [
+            2147488576,
+            276
+          ],
+          [
+            2147488840,
+            253
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488812,
+            250
+          ],
+          [
+            2147485724,
+            231
+          ],
+          [
+            2147485160,
+            209
+          ],
+          [
+            2147486744,
+            156
+          ],
+          [
+            2147488820,
+            147
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147485060,
+            125
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ]
+        ],
+        "direction_state_bits": 516
+      },
+      "btb32-bimodal-64": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 17479,
+          "errors": 8431,
+          "missing_errors": 4036,
+          "allocations": 4036,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13443,
+          "false_not_taken": 3876,
+          "direction_errors": 4391,
+          "false_taken": 2038,
+          "evictions": 4004,
+          "unused_victims": 2530,
+          "target_errors": 4
+        },
+        "mpki": 66.48476867148749,
+        "state_bits_estimate": 2229,
+        "hot_error_pc": [
+          [
+            2147488820,
+            3114
+          ],
+          [
+            2147488840,
+            268
+          ],
+          [
+            2147485724,
+            249
+          ],
+          [
+            2147488576,
+            233
+          ],
+          [
+            2147488660,
+            224
+          ],
+          [
+            2147485160,
+            204
+          ],
+          [
+            2147486744,
+            200
+          ],
+          [
+            2147488812,
+            151
+          ],
+          [
+            2147485992,
+            142
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147485760,
+            116
+          ],
+          [
+            2147487200,
+            102
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb32-gshare-high-16-h2": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 17479,
+          "errors": 9160,
+          "missing_errors": 4036,
+          "allocations": 4036,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13443,
+          "false_not_taken": 5927,
+          "direction_errors": 5120,
+          "false_taken": 716,
+          "evictions": 4004,
+          "unused_victims": 2530,
+          "target_errors": 4
+        },
+        "mpki": 72.2334813225982,
+        "state_bits_estimate": 2135,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2192
+          ],
+          [
+            2147488840,
+            628
+          ],
+          [
+            2147488576,
+            537
+          ],
+          [
+            2147488812,
+            462
+          ],
+          [
+            2147485724,
+            451
+          ],
+          [
+            2147485160,
+            274
+          ],
+          [
+            2147485060,
+            266
+          ],
+          [
+            2147488348,
+            226
+          ],
+          [
+            2147488640,
+            146
+          ],
+          [
+            2147486744,
+            140
+          ],
+          [
+            2147485992,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147485760,
+            116
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb32-gshare-high-64-h2": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 17479,
+          "errors": 7720,
+          "missing_errors": 4036,
+          "allocations": 4036,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13443,
+          "false_not_taken": 4504,
+          "direction_errors": 3680,
+          "false_taken": 699,
+          "evictions": 4004,
+          "unused_victims": 2530,
+          "target_errors": 4
+        },
+        "mpki": 60.877999542626426,
+        "state_bits_estimate": 2231,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2174
+          ],
+          [
+            2147488576,
+            485
+          ],
+          [
+            2147488812,
+            271
+          ],
+          [
+            2147485160,
+            247
+          ],
+          [
+            2147485724,
+            228
+          ],
+          [
+            2147488660,
+            189
+          ],
+          [
+            2147488840,
+            172
+          ],
+          [
+            2147486744,
+            169
+          ],
+          [
+            2147485060,
+            155
+          ],
+          [
+            2147488640,
+            146
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147485760,
+            116
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb32-gshare-high-64-h4": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 17479,
+          "errors": 6706,
+          "missing_errors": 4036,
+          "allocations": 4036,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13443,
+          "false_not_taken": 3425,
+          "direction_errors": 2666,
+          "false_taken": 764,
+          "evictions": 4004,
+          "unused_victims": 2530,
+          "target_errors": 4
+        },
+        "mpki": 52.88184778922964,
+        "state_bits_estimate": 2233,
+        "hot_error_pc": [
+          [
+            2147488840,
+            635
+          ],
+          [
+            2147485724,
+            452
+          ],
+          [
+            2147488820,
+            426
+          ],
+          [
+            2147488812,
+            422
+          ],
+          [
+            2147488576,
+            317
+          ],
+          [
+            2147485060,
+            264
+          ],
+          [
+            2147485160,
+            228
+          ],
+          [
+            2147486744,
+            154
+          ],
+          [
+            2147488660,
+            136
+          ],
+          [
+            2147488348,
+            127
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147485760,
+            116
+          ],
+          [
+            2147488640,
+            114
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb32-gshare-high-128-h2": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 17479,
+          "errors": 7432,
+          "missing_errors": 4036,
+          "allocations": 4036,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13443,
+          "false_not_taken": 4230,
+          "direction_errors": 3392,
+          "false_taken": 685,
+          "evictions": 4004,
+          "unused_victims": 2530,
+          "target_errors": 4
+        },
+        "mpki": 58.606903186632074,
+        "state_bits_estimate": 2359,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2172
+          ],
+          [
+            2147488576,
+            340
+          ],
+          [
+            2147485160,
+            245
+          ],
+          [
+            2147488812,
+            231
+          ],
+          [
+            2147485724,
+            229
+          ],
+          [
+            2147488348,
+            176
+          ],
+          [
+            2147488840,
+            170
+          ],
+          [
+            2147486744,
+            169
+          ],
+          [
+            2147488640,
+            140
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147488660,
+            118
+          ],
+          [
+            2147485760,
+            116
+          ],
+          [
+            2147487200,
+            102
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb32-gshare-high-128-h4": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 17479,
+          "errors": 5697,
+          "missing_errors": 4036,
+          "allocations": 4036,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13443,
+          "false_not_taken": 2534,
+          "direction_errors": 1657,
+          "false_taken": 646,
+          "evictions": 4004,
+          "unused_victims": 2530,
+          "target_errors": 4
+        },
+        "mpki": 44.925124792013314,
+        "state_bits_estimate": 2361,
+        "hot_error_pc": [
+          [
+            2147488576,
+            424
+          ],
+          [
+            2147488812,
+            270
+          ],
+          [
+            2147485724,
+            228
+          ],
+          [
+            2147488840,
+            211
+          ],
+          [
+            2147485160,
+            206
+          ],
+          [
+            2147485060,
+            183
+          ],
+          [
+            2147486744,
+            160
+          ],
+          [
+            2147488820,
+            147
+          ],
+          [
+            2147488660,
+            144
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147485760,
+            116
+          ],
+          [
+            2147488640,
+            108
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb32-gshare-high-256-h2": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 17479,
+          "errors": 7192,
+          "missing_errors": 4036,
+          "allocations": 4036,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13443,
+          "false_not_taken": 3964,
+          "direction_errors": 3152,
+          "false_taken": 711,
+          "evictions": 4004,
+          "unused_victims": 2530,
+          "target_errors": 4
+        },
+        "mpki": 56.71432288997011,
+        "state_bits_estimate": 2615,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2174
+          ],
+          [
+            2147488576,
+            258
+          ],
+          [
+            2147485160,
+            245
+          ],
+          [
+            2147485724,
+            228
+          ],
+          [
+            2147488840,
+            197
+          ],
+          [
+            2147486744,
+            169
+          ],
+          [
+            2147488812,
+            153
+          ],
+          [
+            2147488660,
+            146
+          ],
+          [
+            2147488640,
+            142
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147485760,
+            116
+          ],
+          [
+            2147487200,
+            102
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb32-gshare-high-256-h4": {
+        "counts": {
+          "branches": 44039,
+          "jumps": 3690,
+          "btb_misses": 17479,
+          "errors": 5065,
+          "missing_errors": 4036,
+          "allocations": 4036,
+          "returns": 2363,
+          "conditional": 37986,
+          "suppressed_allocations": 13443,
+          "false_not_taken": 1888,
+          "direction_errors": 1025,
+          "false_taken": 660,
+          "evictions": 4004,
+          "unused_victims": 2530,
+          "target_errors": 4
+        },
+        "mpki": 39.941330010803476,
+        "state_bits_estimate": 2617,
+        "hot_error_pc": [
+          [
+            2147488576,
+            256
+          ],
+          [
+            2147485724,
+            229
+          ],
+          [
+            2147485160,
+            209
+          ],
+          [
+            2147488840,
+            173
+          ],
+          [
+            2147486744,
+            156
+          ],
+          [
+            2147488812,
+            152
+          ],
+          [
+            2147488820,
+            147
+          ],
+          [
+            2147488660,
+            147
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147485760,
+            116
+          ],
+          [
+            2147488640,
+            104
+          ],
+          [
+            2147487200,
+            102
+          ]
+        ],
+        "direction_state_bits": 516
+      }
+    },
+    "runtime_graph-dev-97": {
+      "btb16-bimodal-64": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 19671,
+          "errors": 9845,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 4264,
+          "direction_errors": 3935,
+          "false_taken": 1968,
+          "evictions": 5890,
+          "unused_victims": 4065,
+          "target_errors": 4
+        },
+        "mpki": 77.81685966090977,
+        "state_bits_estimate": 1261,
+        "hot_error_pc": [
+          [
+            2147488820,
+            3110
+          ],
+          [
+            2147488840,
+            268
+          ],
+          [
+            2147488576,
+            255
+          ],
+          [
+            2147485724,
+            251
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488812,
+            249
+          ],
+          [
+            2147485160,
+            204
+          ],
+          [
+            2147486744,
+            200
+          ],
+          [
+            2147488660,
+            142
+          ],
+          [
+            2147485992,
+            142
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb16-gshare-high-16-h2": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 19671,
+          "errors": 10464,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 6189,
+          "direction_errors": 4554,
+          "false_taken": 662,
+          "evictions": 5890,
+          "unused_victims": 4065,
+          "target_errors": 4
+        },
+        "mpki": 82.70956013120974,
+        "state_bits_estimate": 1167,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2192
+          ],
+          [
+            2147488840,
+            620
+          ],
+          [
+            2147488576,
+            561
+          ],
+          [
+            2147488812,
+            466
+          ],
+          [
+            2147485724,
+            453
+          ],
+          [
+            2147485160,
+            274
+          ],
+          [
+            2147485060,
+            266
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488348,
+            226
+          ],
+          [
+            2147485992,
+            202
+          ],
+          [
+            2147488640,
+            146
+          ],
+          [
+            2147486744,
+            140
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb16-gshare-high-64-h2": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 19671,
+          "errors": 9246,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 4969,
+          "direction_errors": 3336,
+          "false_taken": 664,
+          "evictions": 5890,
+          "unused_victims": 4065,
+          "target_errors": 4
+        },
+        "mpki": 73.08224321226731,
+        "state_bits_estimate": 1263,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2174
+          ],
+          [
+            2147488576,
+            479
+          ],
+          [
+            2147488812,
+            278
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488840,
+            250
+          ],
+          [
+            2147485160,
+            247
+          ],
+          [
+            2147485724,
+            230
+          ],
+          [
+            2147488660,
+            185
+          ],
+          [
+            2147486744,
+            168
+          ],
+          [
+            2147485060,
+            154
+          ],
+          [
+            2147488640,
+            146
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb16-gshare-high-64-h4": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 19671,
+          "errors": 8032,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 3743,
+          "direction_errors": 2122,
+          "false_taken": 676,
+          "evictions": 5890,
+          "unused_victims": 4065,
+          "target_errors": 4
+        },
+        "mpki": 63.4865430976564,
+        "state_bits_estimate": 1265,
+        "hot_error_pc": [
+          [
+            2147488840,
+            635
+          ],
+          [
+            2147485724,
+            454
+          ],
+          [
+            2147488812,
+            426
+          ],
+          [
+            2147488820,
+            398
+          ],
+          [
+            2147488576,
+            331
+          ],
+          [
+            2147485060,
+            264
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147485160,
+            228
+          ],
+          [
+            2147486744,
+            156
+          ],
+          [
+            2147488348,
+            127
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb16-gshare-high-128-h2": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 19671,
+          "errors": 9086,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 4817,
+          "direction_errors": 3176,
+          "false_taken": 656,
+          "evictions": 5890,
+          "unused_victims": 4065,
+          "target_errors": 4
+        },
+        "mpki": 71.81757103900723,
+        "state_bits_estimate": 1391,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2172
+          ],
+          [
+            2147488576,
+            361
+          ],
+          [
+            2147488812,
+            321
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488840,
+            250
+          ],
+          [
+            2147485160,
+            245
+          ],
+          [
+            2147485724,
+            231
+          ],
+          [
+            2147488348,
+            176
+          ],
+          [
+            2147486744,
+            167
+          ],
+          [
+            2147488640,
+            140
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb16-gshare-high-128-h4": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 19671,
+          "errors": 7282,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 3089,
+          "direction_errors": 1372,
+          "false_taken": 580,
+          "evictions": 5890,
+          "unused_victims": 4065,
+          "target_errors": 4
+        },
+        "mpki": 57.55839228549974,
+        "state_bits_estimate": 1393,
+        "hot_error_pc": [
+          [
+            2147488576,
+            449
+          ],
+          [
+            2147488812,
+            368
+          ],
+          [
+            2147488840,
+            292
+          ],
+          [
+            2147485060,
+            262
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147485724,
+            230
+          ],
+          [
+            2147485160,
+            206
+          ],
+          [
+            2147486744,
+            164
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147488820,
+            123
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb16-gshare-high-256-h2": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 19671,
+          "errors": 8906,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 4636,
+          "direction_errors": 2996,
+          "false_taken": 657,
+          "evictions": 5890,
+          "unused_victims": 4065,
+          "target_errors": 4
+        },
+        "mpki": 70.39481484408964,
+        "state_bits_estimate": 1647,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2174
+          ],
+          [
+            2147488576,
+            278
+          ],
+          [
+            2147488840,
+            275
+          ],
+          [
+            2147488812,
+            251
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147485160,
+            245
+          ],
+          [
+            2147485724,
+            230
+          ],
+          [
+            2147486744,
+            167
+          ],
+          [
+            2147488640,
+            142
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb16-gshare-high-256-h4": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 19671,
+          "errors": 6743,
+          "missing_errors": 5906,
+          "allocations": 5906,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13765,
+          "false_not_taken": 2525,
+          "direction_errors": 833,
+          "false_taken": 605,
+          "evictions": 5890,
+          "unused_victims": 4065,
+          "target_errors": 4
+        },
+        "mpki": 53.29802790182982,
+        "state_bits_estimate": 1649,
+        "hot_error_pc": [
+          [
+            2147488576,
+            276
+          ],
+          [
+            2147488840,
+            254
+          ],
+          [
+            2147485760,
+            250
+          ],
+          [
+            2147488812,
+            250
+          ],
+          [
+            2147485724,
+            231
+          ],
+          [
+            2147485160,
+            209
+          ],
+          [
+            2147486744,
+            166
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488580,
+            126
+          ],
+          [
+            2147488736,
+            126
+          ],
+          [
+            2147488700,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147488820,
+            123
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147485060,
+            120
+          ]
+        ],
+        "direction_state_bits": 516
+      },
+      "btb32-bimodal-64": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 17521,
+          "errors": 8463,
+          "missing_errors": 4082,
+          "allocations": 4082,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13439,
+          "false_not_taken": 3826,
+          "direction_errors": 4377,
+          "false_taken": 2090,
+          "evictions": 4050,
+          "unused_victims": 2548,
+          "target_errors": 4
+        },
+        "mpki": 66.89325376437577,
+        "state_bits_estimate": 2229,
+        "hot_error_pc": [
+          [
+            2147488820,
+            3110
+          ],
+          [
+            2147488840,
+            268
+          ],
+          [
+            2147485724,
+            249
+          ],
+          [
+            2147488576,
+            233
+          ],
+          [
+            2147488660,
+            224
+          ],
+          [
+            2147485160,
+            204
+          ],
+          [
+            2147486744,
+            200
+          ],
+          [
+            2147488812,
+            151
+          ],
+          [
+            2147485992,
+            142
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147485760,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147487200,
+            102
+          ]
+        ],
+        "direction_state_bits": 128
+      },
+      "btb32-gshare-high-16-h2": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 17521,
+          "errors": 9180,
+          "missing_errors": 4082,
+          "allocations": 4082,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13439,
+          "false_not_taken": 5937,
+          "direction_errors": 5094,
+          "false_taken": 696,
+          "evictions": 4050,
+          "unused_victims": 2548,
+          "target_errors": 4
+        },
+        "mpki": 72.56056594079753,
+        "state_bits_estimate": 2135,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2192
+          ],
+          [
+            2147488840,
+            620
+          ],
+          [
+            2147488576,
+            539
+          ],
+          [
+            2147488812,
+            466
+          ],
+          [
+            2147485724,
+            451
+          ],
+          [
+            2147485160,
+            274
+          ],
+          [
+            2147485060,
+            266
+          ],
+          [
+            2147488348,
+            226
+          ],
+          [
+            2147488640,
+            146
+          ],
+          [
+            2147486744,
+            140
+          ],
+          [
+            2147485992,
+            134
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147485760,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ]
+        ],
+        "direction_state_bits": 34
+      },
+      "btb32-gshare-high-64-h2": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 17521,
+          "errors": 7757,
+          "missing_errors": 4082,
+          "allocations": 4082,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13439,
+          "false_not_taken": 4523,
+          "direction_errors": 3671,
+          "false_taken": 687,
+          "evictions": 4050,
+          "unused_victims": 2548,
+          "target_errors": 4
+        },
+        "mpki": 61.31288779986563,
+        "state_bits_estimate": 2231,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2174
+          ],
+          [
+            2147488576,
+            477
+          ],
+          [
+            2147488812,
+            278
+          ],
+          [
+            2147485160,
+            247
+          ],
+          [
+            2147485724,
+            228
+          ],
+          [
+            2147488660,
+            189
+          ],
+          [
+            2147488840,
+            172
+          ],
+          [
+            2147486744,
+            168
+          ],
+          [
+            2147485060,
+            154
+          ],
+          [
+            2147488640,
+            146
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147485760,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ]
+        ],
+        "direction_state_bits": 130
+      },
+      "btb32-gshare-high-64-h4": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 17521,
+          "errors": 6695,
+          "missing_errors": 4082,
+          "allocations": 4082,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13439,
+          "false_not_taken": 3424,
+          "direction_errors": 2609,
+          "false_taken": 724,
+          "evictions": 4050,
+          "unused_victims": 2548,
+          "target_errors": 4
+        },
+        "mpki": 52.9186262498518,
+        "state_bits_estimate": 2233,
+        "hot_error_pc": [
+          [
+            2147488840,
+            635
+          ],
+          [
+            2147485724,
+            452
+          ],
+          [
+            2147488812,
+            426
+          ],
+          [
+            2147488820,
+            398
+          ],
+          [
+            2147488576,
+            310
+          ],
+          [
+            2147485060,
+            264
+          ],
+          [
+            2147485160,
+            228
+          ],
+          [
+            2147486744,
+            156
+          ],
+          [
+            2147488660,
+            128
+          ],
+          [
+            2147488348,
+            127
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147485760,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147488640,
+            108
+          ]
+        ],
+        "direction_state_bits": 132
+      },
+      "btb32-gshare-high-128-h2": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 17521,
+          "errors": 7469,
+          "missing_errors": 4082,
+          "allocations": 4082,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13439,
+          "false_not_taken": 4250,
+          "direction_errors": 3383,
+          "false_taken": 672,
+          "evictions": 4050,
+          "unused_victims": 2548,
+          "target_errors": 4
+        },
+        "mpki": 59.03647788799747,
+        "state_bits_estimate": 2359,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2172
+          ],
+          [
+            2147488576,
+            340
+          ],
+          [
+            2147485160,
+            245
+          ],
+          [
+            2147485724,
+            229
+          ],
+          [
+            2147488812,
+            224
+          ],
+          [
+            2147488348,
+            176
+          ],
+          [
+            2147488840,
+            170
+          ],
+          [
+            2147486744,
+            167
+          ],
+          [
+            2147488640,
+            140
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147485760,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147488660,
+            118
+          ],
+          [
+            2147487200,
+            102
+          ]
+        ],
+        "direction_state_bits": 258
+      },
+      "btb32-gshare-high-128-h4": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 17521,
+          "errors": 5711,
+          "missing_errors": 4082,
+          "allocations": 4082,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13439,
+          "false_not_taken": 2526,
+          "direction_errors": 1625,
+          "false_taken": 638,
+          "evictions": 4050,
+          "unused_victims": 2548,
+          "target_errors": 4
+        },
+        "mpki": 45.140892384302255,
+        "state_bits_estimate": 2361,
+        "hot_error_pc": [
+          [
+            2147488576,
+            428
+          ],
+          [
+            2147488812,
+            270
+          ],
+          [
+            2147485724,
+            228
+          ],
+          [
+            2147488840,
+            214
+          ],
+          [
+            2147485160,
+            206
+          ],
+          [
+            2147485060,
+            182
+          ],
+          [
+            2147486744,
+            164
+          ],
+          [
+            2147488660,
+            144
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147485760,
+            124
+          ],
+          [
+            2147486296,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147488820,
+            123
+          ],
+          [
+            2147488640,
+            108
+          ]
+        ],
+        "direction_state_bits": 260
+      },
+      "btb32-gshare-high-256-h2": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 17521,
+          "errors": 7234,
+          "missing_errors": 4082,
+          "allocations": 4082,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13439,
+          "false_not_taken": 3986,
+          "direction_errors": 3148,
+          "false_taken": 701,
+          "evictions": 4050,
+          "unused_victims": 2548,
+          "target_errors": 4
+        },
+        "mpki": 57.178990633521714,
+        "state_bits_estimate": 2615,
+        "hot_error_pc": [
+          [
+            2147488820,
+            2174
+          ],
+          [
+            2147488576,
+            258
+          ],
+          [
+            2147485160,
+            245
+          ],
+          [
+            2147485724,
+            228
+          ],
+          [
+            2147488840,
+            195
+          ],
+          [
+            2147486744,
+            167
+          ],
+          [
+            2147488812,
+            153
+          ],
+          [
+            2147488660,
+            146
+          ],
+          [
+            2147488640,
+            142
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147485760,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147487200,
+            102
+          ]
+        ],
+        "direction_state_bits": 514
+      },
+      "btb32-gshare-high-256-h4": {
+        "counts": {
+          "branches": 43975,
+          "jumps": 3704,
+          "btb_misses": 17521,
+          "errors": 5078,
+          "missing_errors": 4082,
+          "allocations": 4082,
+          "returns": 2363,
+          "conditional": 37908,
+          "suppressed_allocations": 13439,
+          "false_not_taken": 1882,
+          "direction_errors": 992,
+          "false_taken": 649,
+          "evictions": 4050,
+          "unused_victims": 2548,
+          "target_errors": 4
+        },
+        "mpki": 40.137533098842034,
+        "state_bits_estimate": 2617,
+        "hot_error_pc": [
+          [
+            2147488576,
+            256
+          ],
+          [
+            2147485724,
+            229
+          ],
+          [
+            2147485160,
+            209
+          ],
+          [
+            2147488840,
+            174
+          ],
+          [
+            2147486744,
+            166
+          ],
+          [
+            2147488812,
+            152
+          ],
+          [
+            2147488660,
+            147
+          ],
+          [
+            2147488348,
+            126
+          ],
+          [
+            2147488736,
+            124
+          ],
+          [
+            2147485760,
+            124
+          ],
+          [
+            2147486496,
+            124
+          ],
+          [
+            2147486556,
+            124
+          ],
+          [
+            2147488820,
+            123
+          ],
+          [
+            2147486296,
+            122
+          ],
+          [
+            2147488640,
+            104
+          ],
+          [
+            2147487200,
+            102
+          ]
+        ],
+        "direction_state_bits": 516
+      }
+    }
+  },
+  "working_sets": {
+    "json_bpe-dev-61": {
+      "0": {
+        "unique_contexts": 126,
+        "working_set_95": 43,
+        "covered_branches": 15658,
+        "conditional_branches": 16472,
+        "retrospective_bias": 0.9486524460339762
+      },
+      "4": {
+        "unique_contexts": 277,
+        "working_set_95": 108,
+        "covered_branches": 15651,
+        "conditional_branches": 16472,
+        "retrospective_bias": 0.9523353140374416
+      },
+      "8": {
+        "unique_contexts": 521,
+        "working_set_95": 227,
+        "covered_branches": 15651,
+        "conditional_branches": 16472,
+        "retrospective_bias": 0.9529742508465913
+      },
+      "16": {
+        "unique_contexts": 1059,
+        "working_set_95": 632,
+        "covered_branches": 15649,
+        "conditional_branches": 16472,
+        "retrospective_bias": 0.9572496645153045
+      },
+      "24": {
+        "unique_contexts": 1661,
+        "working_set_95": 1226,
+        "covered_branches": 15650,
+        "conditional_branches": 16472,
+        "retrospective_bias": 0.9644728434504792
+      }
+    },
+    "json_bpe-dev-97": {
+      "0": {
+        "unique_contexts": 126,
+        "working_set_95": 45,
+        "covered_branches": 14684,
+        "conditional_branches": 15454,
+        "retrospective_bias": 0.9449741214927813
+      },
+      "4": {
+        "unique_contexts": 281,
+        "working_set_95": 116,
+        "covered_branches": 14689,
+        "conditional_branches": 15454,
+        "retrospective_bias": 0.9488052284022057
+      },
+      "8": {
+        "unique_contexts": 547,
+        "working_set_95": 258,
+        "covered_branches": 14685,
+        "conditional_branches": 15454,
+        "retrospective_bias": 0.9515151515151515
+      },
+      "16": {
+        "unique_contexts": 1168,
+        "working_set_95": 766,
+        "covered_branches": 14682,
+        "conditional_branches": 15454,
+        "retrospective_bias": 0.9569540934477592
+      },
+      "24": {
+        "unique_contexts": 1779,
+        "working_set_95": 1369,
+        "covered_branches": 14682,
+        "conditional_branches": 15454,
+        "retrospective_bias": 0.9617218362620896
+      }
+    },
+    "quant_loader-dev-61": {
+      "0": {
+        "unique_contexts": 125,
+        "working_set_95": 39,
+        "covered_branches": 48430,
+        "conditional_branches": 50804,
+        "retrospective_bias": 0.9283088994424943
+      },
+      "4": {
+        "unique_contexts": 323,
+        "working_set_95": 111,
+        "covered_branches": 48264,
+        "conditional_branches": 50804,
+        "retrospective_bias": 0.9361014420686226
+      },
+      "8": {
+        "unique_contexts": 750,
+        "working_set_95": 261,
+        "covered_branches": 48276,
+        "conditional_branches": 50804,
+        "retrospective_bias": 0.967602949705858
+      },
+      "16": {
+        "unique_contexts": 2180,
+        "working_set_95": 1043,
+        "covered_branches": 48264,
+        "conditional_branches": 50804,
+        "retrospective_bias": 0.9759240842035471
+      },
+      "24": {
+        "unique_contexts": 3736,
+        "working_set_95": 2442,
+        "covered_branches": 48264,
+        "conditional_branches": 50804,
+        "retrospective_bias": 0.9838388861263053
+      }
+    },
+    "quant_loader-dev-97": {
+      "0": {
+        "unique_contexts": 125,
+        "working_set_95": 39,
+        "covered_branches": 48370,
+        "conditional_branches": 50756,
+        "retrospective_bias": 0.9282199710564399
+      },
+      "4": {
+        "unique_contexts": 326,
+        "working_set_95": 111,
+        "covered_branches": 48224,
+        "conditional_branches": 50756,
+        "retrospective_bias": 0.9355507631055077
+      },
+      "8": {
+        "unique_contexts": 754,
+        "working_set_95": 263,
+        "covered_branches": 48224,
+        "conditional_branches": 50756,
+        "retrospective_bias": 0.966821499668215
+      },
+      "16": {
+        "unique_contexts": 2226,
+        "working_set_95": 1076,
+        "covered_branches": 48220,
+        "conditional_branches": 50756,
+        "retrospective_bias": 0.975114060555786
+      },
+      "24": {
+        "unique_contexts": 3828,
+        "working_set_95": 2536,
+        "covered_branches": 48220,
+        "conditional_branches": 50756,
+        "retrospective_bias": 0.9834093737038573
+      }
+    },
+    "runtime_graph-dev-61": {
+      "0": {
+        "unique_contexts": 138,
+        "working_set_95": 64,
+        "covered_branches": 36172,
+        "conditional_branches": 37986,
+        "retrospective_bias": 0.9063916841756054
+      },
+      "4": {
+        "unique_contexts": 272,
+        "working_set_95": 115,
+        "covered_branches": 36122,
+        "conditional_branches": 37986,
+        "retrospective_bias": 0.9710979458501744
+      },
+      "8": {
+        "unique_contexts": 458,
+        "working_set_95": 196,
+        "covered_branches": 36094,
+        "conditional_branches": 37986,
+        "retrospective_bias": 0.9747880534160802
+      },
+      "16": {
+        "unique_contexts": 814,
+        "working_set_95": 372,
+        "covered_branches": 36096,
+        "conditional_branches": 37986,
+        "retrospective_bias": 0.9788896276595744
+      },
+      "24": {
+        "unique_contexts": 1164,
+        "working_set_95": 550,
+        "covered_branches": 36096,
+        "conditional_branches": 37986,
+        "retrospective_bias": 0.980718085106383
+      }
+    },
+    "runtime_graph-dev-97": {
+      "0": {
+        "unique_contexts": 137,
+        "working_set_95": 63,
+        "covered_branches": 36076,
+        "conditional_branches": 37908,
+        "retrospective_bias": 0.906918727131611
+      },
+      "4": {
+        "unique_contexts": 267,
+        "working_set_95": 114,
+        "covered_branches": 36030,
+        "conditional_branches": 37908,
+        "retrospective_bias": 0.9708021093533167
+      },
+      "8": {
+        "unique_contexts": 450,
+        "working_set_95": 192,
+        "covered_branches": 36014,
+        "conditional_branches": 37908,
+        "retrospective_bias": 0.973954573221525
+      },
+      "16": {
+        "unique_contexts": 793,
+        "working_set_95": 364,
+        "covered_branches": 36024,
+        "conditional_branches": 37908,
+        "retrospective_bias": 0.9780701754385965
+      },
+      "24": {
+        "unique_contexts": 1121,
+        "working_set_95": 536,
+        "covered_branches": 36016,
+        "conditional_branches": 37908,
+        "retrospective_bias": 0.9799533540648601
+      }
+    }
+  },
+  "traces": {
+    "json_bpe-dev-61": "8d87dba357b81e0ced1e2348e5d556eaf3f1331be061329f35761d236e4f3fe2",
+    "json_bpe-dev-97": "846cfaf9aabf784a5f147c5558ad002b0339f0e2dc8221b2f5c26ba10e1876f9",
+    "quant_loader-dev-61": "68c9161eb038a2ff8e456f64122637029f216bb599c54347cb2aa5644308ae46",
+    "quant_loader-dev-97": "ae895e69dd051c03334d52c58676bb0eae7b99069fd1915ca588e08138e55bf5",
+    "runtime_graph-dev-61": "7b50ee3d27e6b30795a5a3a1ad939015d24e4a42ae8b5b471891f2ee7abd4831",
+    "runtime_graph-dev-97": "a29f2baa444503a6bdcc72b0f4c067fea3e68242efcbfa06b2ebcec74862f326"
+  },
+  "summary": {
+    "btb16-bimodal-64": {
+      "error_ratio_gm": 1.0,
+      "max_error_ratio": 1.0,
+      "direction_state_bits": 128
+    },
+    "btb16-gshare-high-16-h2": {
+      "error_ratio_gm": 1.1088737159925068,
+      "max_error_ratio": 1.1875894988066826,
+      "direction_state_bits": 34
+    },
+    "btb16-gshare-high-64-h2": {
+      "error_ratio_gm": 1.017177550067258,
+      "max_error_ratio": 1.0784215784215785,
+      "direction_state_bits": 130
+    },
+    "btb16-gshare-high-64-h4": {
+      "error_ratio_gm": 0.9806070395785779,
+      "max_error_ratio": 1.1193375547978568,
+      "direction_state_bits": 132
+    },
+    "btb16-gshare-high-128-h2": {
+      "error_ratio_gm": 0.9863658817955671,
+      "max_error_ratio": 1.0334177215189873,
+      "direction_state_bits": 258
+    },
+    "btb16-gshare-high-128-h4": {
+      "error_ratio_gm": 0.904953032276108,
+      "max_error_ratio": 1.018996590355577,
+      "direction_state_bits": 260
+    },
+    "btb16-gshare-high-256-h2": {
+      "error_ratio_gm": 0.977372446538792,
+      "max_error_ratio": 1.029535864978903,
+      "direction_state_bits": 514
+    },
+    "btb16-gshare-high-256-h4": {
+      "error_ratio_gm": 0.880269930363339,
+      "max_error_ratio": 1.0102289332683878,
+      "direction_state_bits": 516
+    },
+    "btb32-bimodal-64": {
+      "error_ratio_gm": 1.0,
+      "max_error_ratio": 1.0,
+      "direction_state_bits": 128
+    },
+    "btb32-gshare-high-16-h2": {
+      "error_ratio_gm": 1.142261074540927,
+      "max_error_ratio": 1.2413793103448276,
+      "direction_state_bits": 34
+    },
+    "btb32-gshare-high-64-h2": {
+      "error_ratio_gm": 1.0215602167345024,
+      "max_error_ratio": 1.1115138592750533,
+      "direction_state_bits": 130
+    },
+    "btb32-gshare-high-64-h4": {
+      "error_ratio_gm": 0.9692177761546316,
+      "max_error_ratio": 1.144273127753304,
+      "direction_state_bits": 132
+    },
+    "btb32-gshare-high-128-h2": {
+      "error_ratio_gm": 0.9634097848297842,
+      "max_error_ratio": 1.019189765458422,
+      "direction_state_bits": 258
+    },
+    "btb32-gshare-high-128-h4": {
+      "error_ratio_gm": 0.8608187907680063,
+      "max_error_ratio": 1.020374449339207,
+      "direction_state_bits": 260
+    },
+    "btb32-gshare-high-256-h2": {
+      "error_ratio_gm": 0.9463699527809578,
+      "max_error_ratio": 1.0068230277185501,
+      "direction_state_bits": 514
+    },
+    "btb32-gshare-high-256-h4": {
+      "error_ratio_gm": 0.83216824472763,
+      "max_error_ratio": 1.0220264317180616,
+      "direction_state_bits": 516
+    }
+  }
+}

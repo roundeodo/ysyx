@@ -1,0 +1,76 @@
+{
+  "mhz": 700,
+  "target_pins": 69,
+  "summary_rows": [
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_234__reg_p:D",
+      "type": "max",
+      "slack_ns": 0.002,
+      "path_delay": "1.395r"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_234__reg_p:D",
+      "type": "max",
+      "slack_ns": 0.002,
+      "path_delay": "1.395r"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_234__reg_p:D",
+      "type": "max",
+      "slack_ns": 0.005,
+      "path_delay": "1.384f"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_234__reg_p:D",
+      "type": "max",
+      "slack_ns": 0.005,
+      "path_delay": "1.384f"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_235__reg_p:D",
+      "type": "max",
+      "slack_ns": 0.007,
+      "path_delay": "1.382f"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_0__reg_p:D",
+      "type": "min",
+      "slack_ns": 0.094,
+      "path_delay": "0.096f"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_0__reg_p:D",
+      "type": "min",
+      "slack_ns": 0.094,
+      "path_delay": "0.096f"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_1__reg_p:D",
+      "type": "min",
+      "slack_ns": 0.094,
+      "path_delay": "0.096f"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_1__reg_p:D",
+      "type": "min",
+      "slack_ns": 0.094,
+      "path_delay": "0.096f"
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_0__reg_p:D",
+      "type": "min",
+      "slack_ns": 0.106,
+      "path_delay": "0.116r"
+    }
+  ],
+  "worst_setup_ns": 0.002,
+  "command": [
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+    "-script",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v2/prediction-response/scope.tcl",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v2/prediction-response/constraints.sdc",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v2/prediction-response/riscv32_core_reset_boundary.netlist.v",
+    "riscv32_core_reset_boundary",
+    "nangate45"
+  ]
+}

@@ -1,0 +1,824 @@
+diff --git a/npc/Makefile b/npc/Makefile
+index fecb16b..14438b1 100644
+--- a/npc/Makefile
++++ b/npc/Makefile
+@@ -35,13 +35,24 @@ else
+ NPC_ICACHE_WAY_COUNT      ?= 1
+ NPC_ICACHE_CAPACITY_BYTES ?= 256
+ NPC_ICACHE_LINE_BYTES     ?= 16
++# 本 replay 工作区默认关闭数据缓存；原始硬件用 NPC_DCACHE_ENABLE=1 恢复。
++ifeq ($(NPC_CONFIG),rv32-baseline)
++NPC_DCACHE_ENABLE         ?= 0
++else
+ NPC_DCACHE_ENABLE         ?= 1
++endif
+ NPC_DCACHE_WAY_COUNT      ?= 2
+ NPC_DCACHE_CAPACITY_BYTES ?= 256
+ NPC_DCACHE_LINE_BYTES     ?= 16
+ endif
+ NPC_ICACHE_REPLACEMENT_POLICY ?= 0
+ NPC_SDRAM_NATIVE_READ_BURST ?= 1
++# Replay 默认启用正式混合预测；设为0同时关闭预测表和早期目标。
++ifeq ($(NPC_CONFIG),rv32-baseline)
++NPC_BRANCH_PREDICTOR_ENABLE ?= 1
++else
++NPC_BRANCH_PREDICTOR_ENABLE ?= 1
++endif
+ NPC_BRANCH_HISTORY_ENTRY_COUNT ?= 16
+ # MicroBench A/B中，16项2路BTB与32项2路性能等价，但预测状态接近减半。
+ NPC_BRANCH_TARGET_ENTRY_COUNT  ?= 16
+@@ -54,8 +65,8 @@ NPC_BRANCH_DIRECTION_POLICY    ?= 0
+ NPC_BRANCH_GLOBAL_HISTORY_BITS ?= 4
+ NPC_RETURN_STACK_ENTRY_COUNT   ?= 4
+ 
+-# 无预设时保持基础预测；rv32-balanced在上方启用已选定的混合方向与早期目标。
+-NPC_BRANCH_STATIC_POLICY ?= 0
++# Replay 接入正式的弱态 BTFNT 和早期直接目标；显式设为0可复现旧策略。
++NPC_BRANCH_STATIC_POLICY ?= 2
+ NPC_BRANCH_TAGE_BASE_ENTRIES ?= 32
+ NPC_BRANCH_TAGE_TAGGED_ENTRIES ?= 16
+ NPC_BRANCH_TAGE_TABLE_COUNT ?= 3
+@@ -67,7 +78,7 @@ NPC_BRANCH_SPEC_HISTORY ?= 0
+ NPC_BRANCH_SC_ENABLE ?= 0
+ NPC_BRANCH_LOOP_ENABLE ?= 0
+ NPC_BRANCH_EARLY_RAS ?= 0
+-NPC_BRANCH_EARLY_TARGET ?= 0
++NPC_BRANCH_EARLY_TARGET ?= 1
+ # 显式频率同时控制 CLINT 微秒和设备延迟。空值仅用于复现历史计时环境。
+ NPC_DEVICE_TIMING_MODE ?= 1
+ ifeq ($(filter $(NPC_DEVICE_TIMING_MODE),0 1),)
+@@ -113,6 +124,7 @@ NPC_SLANG_ARCH_DEFINE := -DYSYX_RV64_SEQUENTIAL
+ endif
+ 
+ NPC_CONFIG_DEFINE := $(NPC_ARCH_DEFINE) $(NPC_SIM_TIMING_DEFINE) \
++	+define+YSYX_BRANCH_PREDICTOR_ENABLE=$(NPC_BRANCH_PREDICTOR_ENABLE) \
+ 	+define+YSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
+ 	+define+YSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
+ 	+define+YSYX_ICACHE_REPLACEMENT_POLICY=$(NPC_ICACHE_REPLACEMENT_POLICY) \
+@@ -147,6 +159,7 @@ NPC_CONFIG_DEFINE := $(NPC_ARCH_DEFINE) $(NPC_SIM_TIMING_DEFINE) \
+ 	+define+YSYX_SDRAM_NATIVE_READ_BURST=$(NPC_SDRAM_NATIVE_READ_BURST)
+ 
+ NPC_SLANG_DEFINE := $(NPC_SLANG_ARCH_DEFINE) \
++	-DYSYX_BRANCH_PREDICTOR_ENABLE=$(NPC_BRANCH_PREDICTOR_ENABLE) \
+ 	-DYSYX_ICACHE_CAPACITY_BYTES=$(NPC_ICACHE_CAPACITY_BYTES) \
+ 	-DYSYX_ICACHE_WAY_COUNT=$(NPC_ICACHE_WAY_COUNT) \
+ 	-DYSYX_ICACHE_REPLACEMENT_POLICY=$(NPC_ICACHE_REPLACEMENT_POLICY) \
+diff --git a/npc/docs/microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md b/npc/docs/microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md
+index 1992f57..ca1bb67 100644
+--- a/npc/docs/microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md
++++ b/npc/docs/microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md
+@@ -1,68 +1,57 @@
+-# 取指预测器：原理与电路结构
++# Replay 取指预测器：原理与电路
+ 
+-当前实现，2026-09-23。查询只有一个响应寄存级；与 IFU 的连接见
+-[前端总览](FRONTEND_REWRITE_DESIGN_RECORD.md)。
++当前实现，2026-10-11。旧顺序核接入正式版本选定的预测方案；I-cache 保持
++256 B/单路/16 B 行/policy0，D-cache 关闭。配置与测量见
++[接入记录](../verification/RV32_REPLAY_HYBRID_2026-10-11.md)。
+ 
+-## 模块职责
++## 电路和状态
+ 
+-| 模块 | 拥有的状态与功能 |
++| 模块 | 功能与状态 |
+ | --- | --- |
+-| `riscv32_branch_predictor` | 解析事件组合分类；并行查询结果选择；唯一响应寄存器及统一握手 |
+-| `riscv32_bht` | 两位饱和计数器数组、组合查询、条件分支同步训练 |
+-| `riscv32_btb` | tag/target/kind、有效位、替换状态；组合查询与训练选路、同步写入 |
+-| `riscv32_ras` | 返回地址数组、写指针、数量；组合读取栈顶 |
+-
+-父模块源码先列训练入口，再列共享的三个表、查询选择与响应寄存器。
+-训练和查询是并行路径，BHT、BTB、RAS 之间没有串联寄存级。
+-BHT 默认按 PC 索引两位饱和计数器；BTB 按组并行比较各路 tag；RAS 保存已解析调用的返回地址。
+-可选 gshare/Bi-mode 的历史和查询快照见[方向预测原型](DIRECTION_PREDICTOR_DESIGN.md)，
+-由 `BRANCH_DIRECTION_POLICY=1/2` 启用，默认0；查询仍只有一个响应寄存级。
+-
+-## 查询时序
+-
+-BHT、BTB、RAS 同时对当前请求给出组合结果。BTB miss 选择不跳转；条件分支取 BHT 最高位；
+-直接/间接跳转预测 taken；返回优先使用非空 RAS，否则使用 BTB 目标。目标不满足四字节对齐时禁止 taken。
+-父模块在请求握手沿 E0 保存 PC、epoch 和完整预测，E1 可由 IFU 消费。
+-响应可在同沿被消费和替换，反压期间保持完整载荷。flush 优先清有效位并拒绝新请求。
+-`next_pc` 由已保存的 PC 和预测组合产生，不另存一份重复地址。
+-
+-当前 IFU 消费 taken 响应时直接查询目标，连续命中跳转的目标请求间隔为一拍。
+-这是前端接口间隔，不等于每次分支的退休停顿。
+-
+-## 训练时序与清除
+-
+-训练来源为 EX 结果寄存器中无异常控制流指令的交付事件。解析信息直接驱动三个单元，
+-在交付沿更新表项或栈；不再保存一份训练 payload，也不等待 commit。
+-BTB 当拍直接读取当前数组，优先同 tag，再空 way，默认最后轮转替换；连续同 set 写入不需要
+-待写事务旁路。查询和训练同沿时仍使用旧表值，不把 EX 结果组合旁路到查询端。
+-
+-`BRANCH_TARGET_POLICY=0` 保持原行为；实验策略1/2/3分别测试准入过滤、taken 复用 RRIP
+-和两路 LRU，均不增加查询寄存级或训练等待，BHT/RAS 训练也不由 BTB 准入关闭。
+-具体状态和更新规则只在[BTB 策略说明](BTB_POLICY_DESIGN.md)维护；实验机制默认关闭。
+-
+-默认策略复位使 BHT 计数器为 01，清 BTB 有效位和替换指针，清 RAS 数量与指针。
+-invalidate 清 BTB、RAS，BHT 保留计数器；启用历史预测时另清已解析历史，该沿不接受新训练。
+-flush 只取消查询响应，不清训练状态。系统发起 fence.i 时负责协调两类清除。
+-表项和响应的无效载荷不复位；查询有效位、表项有效位和 RAS 数量决定何时可以使用载荷。
+-
+-## 关键取舍
+-
+-组合查表减少查询延迟，但索引、比较和目标选择必须在一个周期内完成。
+-训练路径从 EX 结果寄存器开始；RAS 只根据已解析结果更新，不需要推测检查点，
+-代价是新调用/返回不会在查询时立即改变栈。满栈 push 覆盖最旧项，空栈 pop 无操作。
+-
+-## 验证入口
+-
+-- `make -C npc git_commit= NPC_CONFIG=rv32-baseline test-predictor`：当前 RTL 与独立模型比较。
+-- `make -C npc git_commit= NPC_CONFIG=rv32-baseline test-fetch`：真实 IFU 与预测器的 taken 间隔。
+-- `test-predictor-equivalence`：回放两个冻结提交的历史拆分等价测试，不验证当前单级实现。
+-- 分支实验见[首轮记录](../verification/BRANCH_EXPLORATION_2026-09-22.md)和[负载与历史预测补充](../verification/BRANCH_FOLLOWUP_2026-09-23.md)。
+-- 此前流水线优化的全核、缓存、计时和 PPA 见[历史验证记录](../verification/RV32_CYCLE_OPT_2026-09-19.md)。
+-
+-
+-## 目标地址编码实验入口（2026-09-23）
+-
+-默认BTB结构保持不变。`BRANCH_TARGET_WAY_BITS=0`走原实现；非0时实例化按路保存目标低位的
+-`riscv32_compact_btb`，接口与响应级不变。电路、范围限制和恢复规则见
+-[目标存储设计](BTB_TARGET_STORAGE_DESIGN.md)，实测取舍见
+-[本轮实验](../verification/BRANCH_TARGET_EXPLORATION_2026-09-23.md)。原型不默认启用。
++| `branch_predictor` | 解析分类、并行查表结果选择、唯一预测响应寄存器与握手 |
++| `bht` | BHT16 两位饱和计数器，PC 索引，组合查询、条件分支训练 |
++| `btb` | BTB16/两路，完整 tag/目标/类型、有效位与轮转指针 |
++| `ras` | RAS4 返回地址栈、写指针与占用数，仅按已解析调用/返回更新 |
++| `branch_choice` | 强态使用动态方向，弱态使用 BTFNT，无寄存器 |
++| `direct_target` | I-cache 返回后的 B/J 识别、立即数解码、PC 加法与方向选择，无寄存器 |
++| `ifu` | 请求/预测配对、方向快照、返回交付和早期恢复，沿用原请求队列及 epoch |
++
++源码顺序：训练分类 → 并行 BHT/BTB/RAS → 混合方向与目标选择 → 单级响应寄存器；
++IFU 按 PC 请求 → 两项请求队列 → I-cache 响应配对 → B/J 早期计算 → 恢复与交付组织。
++原缓存、后端、前递及寄存边界保留，不引入其他预测实验。
++
++## 查询与早期修正
++
++BHT、BTB、RAS 同拍给出组合结果；BTB miss 先选择 PC+4。
++BTB 命中的条件分支：BHT 为 01/10 时使用目标位移的后向 taken、前向 not-taken；
++00/11 按最高位。JAL/JALR 预测 taken，返回优先用非空 RAS，否则用 BTB 目标。
++不对齐目标禁止 taken。请求握手沿保存 PC、epoch、预测及两位 BHT 计数器，下一拍可消费；
++响应反压时保持，消费旧响应的同沿可接收新请求，没有各表自己的寄存级。
++
++I-cache 返回后，`direct_target` 从真实指令取得 B/J 立即数，复用请求时计数器快照。
++计算出的下一 PC 与原预测不同且当前指令交付时，IFU 仅清年轻预测，递增 epoch 并重新取指；
++当前指令与已进入 fetch buffer 的老指令继续交付，并携带修正后的预测供 EX 校验。
++已展示而受阻的 I-cache 请求不能撤销；保留并按原握手排空，其旧 epoch 响应不交付。
++外部恢复优先于早期修正。JALR 不在返回后重新计算目标，仍由 BTB/RAS 和 EX 处理。
++
++## 训练、恢复和旁路
++
++训练来源为无异常控制流 EX 结果的交付事件，沿前读旧表、交付沿更新。
++BTB 同 tag 优先，再最低编号空路，最后轮转；连续训练下一拍直接观察写入结果。
++EX 结果显式携带真实 `branch_taken`，目标恰好为 PC+4 也能正确训练。
++训练不加队列或寄存级，不向查询组合旁路 EX 结果。
++
++复位将 BHT 置 01，清 BTB 有效位、轮转指针及 RAS 占用数/指针。
++维护失效清 BTB/RAS，BHT 保留；该沿不训练。维护期间暂停新预测查询，旧响应和请求排空。
++flush 清预测响应，保持表状态；既有 FENCE.I、异常和总线错误恢复规则保留。
++
++## 开关与验证
++
++默认 `BRANCH_PREDICTOR_ENABLED=1`、`BRANCH_STATIC_POLICY=2`、`BRANCH_EARLY_TARGET=1`。
++使能为 0 时，BHT/BTB/RAS 与早期目标均不实例化，元数据恒零，顺序取指并由 EX 恢复；
++原 PC/epoch/valid 响应级和握手保留。策略0、早期目标0提供旧纯动态对照。
++TAGE/SC/Loop、推测历史、早期 RAS、compact BTB 及其他替换策略没有在本工作区接入。
++
++`python3 npc/scripts/test_replay_predictor.py` 验证独立模型、强弱方向、目标边界、随机恢复和
++无预测模式。整核维护/错误回归与原生 MicroBench test 的结果只在上述接入记录维护。
++interview 工作区不修改；当前 replay 是旧硬件加正式预测方案，不再是逐字旧 RTL。
+diff --git a/npc/scripts/run_microbench_perf.py b/npc/scripts/run_microbench_perf.py
+index d0f3d47..7a9877c 100644
+--- a/npc/scripts/run_microbench_perf.py
++++ b/npc/scripts/run_microbench_perf.py
+@@ -180,6 +180,10 @@ def main():
+     parser.add_argument('--cpu-mhz', type=int, default=820)
+     parser.add_argument('--output', type=Path)
+     parser.add_argument('--keep-artifacts', action='store_true')
++    parser.add_argument('--predictor-enable', type=int, choices=[0, 1], default=1,
++                        help='Replay uses the adopted hybrid predictor; 0 also disables early targets')
++    parser.add_argument('--dcache-enable', type=int, choices=[0, 1], default=0,
++                        help='Replay defaults to no D-cache; use 1 for the original snapshot')
+     parser.add_argument('--icache-bytes', type=int, default=256)
+     parser.add_argument('--icache-ways', type=int, default=1)
+     parser.add_argument('--icache-policy', type=int, choices=range(17), default=0)
+@@ -195,8 +199,8 @@ def main():
+     parser.add_argument('--ras-entries', type=int, default=4)
+     parser.add_argument('--direction-policy', type=int, choices=range(6), default=0)
+     parser.add_argument('--history-bits', type=int, default=4)
+-    parser.add_argument('--branch-static', type=int, choices=range(3), default=0)
+-    parser.add_argument('--early-target', type=int, choices=[0, 1], default=0)
++    parser.add_argument('--branch-static', type=int, choices=range(3), default=2)
++    parser.add_argument('--early-target', type=int, choices=[0, 1], default=1)
+     parser.add_argument('--early-ras', type=int, choices=[0, 1], default=0)
+     parser.add_argument('--branch-sc', type=int, choices=[0, 1], default=0)
+     parser.add_argument('--branch-loop', type=int, choices=[0, 1], default=0)
+@@ -211,6 +215,15 @@ def main():
+     parser.add_argument('--verify-observer', action='store_true', help='Run identical image on/off and compare audit')
+     parser.add_argument('--resume', type=Path, help='Run an existing prepare-only directory, checking hashes')
+     args = parser.parse_args()
++    if not args.resume:
++        require(args.direction_policy == 0 and args.btb_policy == 0 and
++                args.btb_index == 0 and args.btb_admission == 0 and
++                args.btb_target_bits is None and not args.early_ras and
++                not args.branch_sc and not args.branch_loop and not args.spec_history,
++                'Replay supports legacy BHT/BTB/RAS with BTFNT and direct targets; '
++                'use the interview worktree for experimental predictor policies')
++        require(args.icache_policy == 0,
++                'Replay retains the original I-cache replacement policy0')
+     require(len(args.tage_lengths) in (2, 3), 'Scaled TAGE needs two or three history lengths')
+     require(not args.spec_history or (args.direction_policy == 5 and
+             not args.early_target and not args.early_ras),
+@@ -259,7 +272,7 @@ def main():
+                        f'NPC_SIM_CPU_FREQ_MHZ={args.cpu_mhz}', f'BUILD_DIR={build}',
+                        f'NPC_ICACHE_CAPACITY_BYTES={args.icache_bytes}', f'NPC_ICACHE_WAY_COUNT={args.icache_ways}',
+                        f'NPC_ICACHE_REPLACEMENT_POLICY={args.icache_policy}', f'NPC_ICACHE_LINE_BYTES={args.icache_line}',
+-                       'NPC_DCACHE_ENABLE=1', 'NPC_DCACHE_CAPACITY_BYTES=256', 'NPC_DCACHE_WAY_COUNT=2',
++                       f'NPC_BRANCH_PREDICTOR_ENABLE={args.predictor_enable}', f'NPC_DCACHE_ENABLE={args.dcache_enable}', 'NPC_DCACHE_CAPACITY_BYTES=256', 'NPC_DCACHE_WAY_COUNT=2',
+                        'NPC_DCACHE_LINE_BYTES=16', f'NPC_BRANCH_HISTORY_ENTRY_COUNT={args.bht_entries}',
+                        f'NPC_BRANCH_TARGET_ENTRY_COUNT={args.btb_entries}',
+                        f'NPC_BRANCH_TARGET_WAY_COUNT={args.btb_ways}',
+@@ -307,9 +320,11 @@ def main():
+                     archive.add(source, arcname=str(source.relative_to(WORKSPACE)))
+             manifest = {'schema': 1, 'scale': args.scale, 'cpu_mhz': args.cpu_mhz,
+                         'host_opt': args.host_opt,
++                        'dcache': {'enabled': bool(args.dcache_enable), 'bytes': 256,
++                                   'ways': 2, 'line_bytes': 16},
+                         'icache': {'bytes': args.icache_bytes, 'ways': args.icache_ways,
+                                    'policy': args.icache_policy, 'line_bytes': args.icache_line},
+-                        'predictor': {'bht_entries': args.bht_entries, 'btb_entries': args.btb_entries,
++                        'predictor': {'enabled': bool(args.predictor_enable), 'bht_entries': args.bht_entries, 'btb_entries': args.btb_entries,
+                                       'btb_ways': args.btb_ways, 'btb_policy': args.btb_policy,
+                                       'btb_index': args.btb_index, 'btb_admission': args.btb_admission,
+                                       'ras_entries': args.ras_entries,
+diff --git a/npc/tests/exception/riscv32_fence_i_tb.sv b/npc/tests/exception/riscv32_fence_i_tb.sv
+index d9c7428..5d856bc 100644
+--- a/npc/tests/exception/riscv32_fence_i_tb.sv
++++ b/npc/tests/exception/riscv32_fence_i_tb.sv
+@@ -37,9 +37,11 @@ module riscv32_fence_i_tb;
+   // Normal cases train the predictor exclusively by executing software.
+   always_comb begin
+     injected_prediction = '0;
+-    injected_prediction.predicted_taken = dut.u_branch_predictor.selected_taken;
+-    injected_prediction.predicted_target = dut.u_branch_predictor.selected_taken ?
+-        dut.u_branch_predictor.selected_target_pc : '0;
++    injected_prediction.raw_direction_counter = riscv_config_pkg::BRANCH_EARLY_TARGET ?
++        dut.u_branch_predictor.g_predictor.history_counter : 2'b00;
++    injected_prediction.predicted_taken = dut.u_branch_predictor.g_predictor.selected_taken;
++    injected_prediction.predicted_target = dut.u_branch_predictor.g_predictor.selected_taken ?
++        dut.u_branch_predictor.g_predictor.selected_target_pc : '0;
+     if (fences != 0 && dut.next_pc_predictor_lookup_request_pc == 32'h80000080) begin
+       injected_prediction.predicted_taken  = 1;
+       injected_prediction.predicted_target = 32'h80000100;
+diff --git a/npc/vsrc/riscv32/common/riscv32_pkg.sv b/npc/vsrc/riscv32/common/riscv32_pkg.sv
+index dcd33a9..327a94b 100644
+--- a/npc/vsrc/riscv32/common/riscv32_pkg.sv
++++ b/npc/vsrc/riscv32/common/riscv32_pkg.sv
+@@ -539,6 +539,8 @@ package riscv32_pkg;
+   // 即使B/J目标可重新计算，也不能用重算结果替代predicted_target，否则BTB旧目标或别名
+   // 无法触发恢复。未来引入TAGE checkpoint时，再增加有明确消费者的metadata。
+   typedef struct packed {
++    // 请求时方向快照供 I-cache 返回后的 B/J 预测使用，反压期间保持不变。
++    logic [1:0]       raw_direction_counter;
+     logic             predicted_taken;
+     program_counter_t predicted_target;
+   } branch_prediction_t;
+@@ -735,6 +737,7 @@ package riscv32_pkg;
+     decoded_uop_t  uop;
+     xlen_data_t    result;
+     program_counter_t next_pc;
++    logic             branch_taken;
+     xlen_data_t  csr_wdata;
+     logic          redirect_valid;
+     redirect_req_t redirect_req;
+diff --git a/npc/vsrc/riscv32/common/riscv_config_pkg.sv b/npc/vsrc/riscv32/common/riscv_config_pkg.sv
+index 6dab9d4..20fd446 100644
+--- a/npc/vsrc/riscv32/common/riscv_config_pkg.sv
++++ b/npc/vsrc/riscv32/common/riscv_config_pkg.sv
+@@ -86,10 +86,25 @@ package riscv_config_pkg;
+   localparam int unsigned FRONTEND_TAG_COUNT = 4;
+   // 请求侧next-PC predictor的容量也属于命名配置。BTB_ENTRY_COUNT是总表项数，
+   // BTB_WAY_COUNT是每个set的路数；改变二者不能改变IFU携带prediction的协议。
++`ifdef YSYX_BRANCH_PREDICTOR_ENABLE
++  localparam bit BRANCH_PREDICTOR_ENABLED = `YSYX_BRANCH_PREDICTOR_ENABLE;
++`else
++  localparam bit BRANCH_PREDICTOR_ENABLED = 1'b1;
++`endif
+   localparam int unsigned BRANCH_HISTORY_ENTRY_COUNT = `YSYX_BRANCH_HISTORY_ENTRY_COUNT;
+   localparam int unsigned BRANCH_TARGET_ENTRY_COUNT  = `YSYX_BRANCH_TARGET_ENTRY_COUNT;
+   localparam int unsigned BRANCH_TARGET_WAY_COUNT    = `YSYX_BRANCH_TARGET_WAY_COUNT;
+   localparam int unsigned RETURN_STACK_ENTRY_COUNT   = `YSYX_RETURN_STACK_ENTRY_COUNT;
++`ifdef YSYX_BRANCH_STATIC_POLICY
++  localparam int unsigned BRANCH_STATIC_POLICY = `YSYX_BRANCH_STATIC_POLICY;
++`else
++  localparam int unsigned BRANCH_STATIC_POLICY = 0;
++`endif
++`ifdef YSYX_BRANCH_EARLY_TARGET
++  localparam bit BRANCH_EARLY_TARGET = `YSYX_BRANCH_EARLY_TARGET;
++`else
++  localparam bit BRANCH_EARLY_TARGET = 1'b0;
++`endif
+   //
+   // I-cache容量、路数与line大小由Makefile唯一选择；set数量、tag/offset宽度、
+   // data array深度和AXI4 burst长度全部由下游派生，禁止逐模块修改。
+diff --git a/npc/vsrc/riscv32/core/execute/riscv32_exu.sv b/npc/vsrc/riscv32/core/execute/riscv32_exu.sv
+index d5e3df6..596d9b1 100644
+--- a/npc/vsrc/riscv32/core/execute/riscv32_exu.sv
++++ b/npc/vsrc/riscv32/core/execute/riscv32_exu.sv
+@@ -178,6 +178,7 @@ module riscv32_exu
+     if (execute_packet_i.uop.fu_type == FU_BRANCH) begin
+       // next_pc始终记录真实架构后继；redirect只表示预测后继与它不一致。
+       exu_result.next_pc = actual_next_pc;
++      exu_result.branch_taken = branch_taken;
+     end
+ 
+     unique case (execute_packet_i.uop.fu_type)
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv b/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+index 89dba4e..0217342 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+@@ -3,6 +3,7 @@
+ module riscv32_branch_predictor
+   import riscv32_pkg::*;
+ #(
++    parameter bit ENABLED = riscv_config_pkg::BRANCH_PREDICTOR_ENABLED,
+     parameter int unsigned BHT_ENTRY_COUNT = riscv_config_pkg::BRANCH_HISTORY_ENTRY_COUNT,
+     parameter int unsigned BTB_ENTRY_COUNT = riscv_config_pkg::BRANCH_TARGET_ENTRY_COUNT,
+     parameter int unsigned BTB_WAY_COUNT   = riscv_config_pkg::BRANCH_TARGET_WAY_COUNT,
+@@ -36,129 +37,148 @@ module riscv32_branch_predictor
+     input logic invalidate_i
+ );
+ 
+-  // 1. 训练入口：已寄存的解析结果直接驱动写表，不再增加训练流水级。
+-  typedef struct packed {
+-    program_counter_t    pc;
+-    program_counter_t    target_pc;
+-    branch_target_kind_e kind;
+-    logic                taken;
+-  } training_entry_t;
+-
+-  training_entry_t training;
+-  logic training_valid;
+-  logic resolved_rd_is_link;
+-  logic resolved_rs1_is_link;
+-  logic resolved_is_return;
+-
+-  assign resolved_rd_is_link =
+-      (resolved_control_flow_rd_i == arch_reg_idx_t'(1)) ||
+-      (resolved_control_flow_rd_i == arch_reg_idx_t'(5));
+-  assign resolved_rs1_is_link =
+-      (resolved_control_flow_rs1_i == arch_reg_idx_t'(1)) ||
+-      (resolved_control_flow_rs1_i == arch_reg_idx_t'(5));
+-  assign resolved_is_return =
+-      (resolved_control_flow_op_i == CF_JALR) && resolved_rs1_is_link &&
+-      (!resolved_rd_is_link ||
+-       (resolved_control_flow_rd_i != resolved_control_flow_rs1_i)) &&
+-      (resolved_control_flow_imm_i == '0);
+-
+-  // payload 从解析寄存器直接产生；valid 只控制表写使能，不先把地址数据清零。
+-  always_comb begin
+-    training.pc        = resolved_control_flow_pc_i;
+-    training.target_pc = resolved_control_flow_target_i;
+-    training.taken     = resolved_control_flow_taken_i;
+-    training.kind      = TARGET_KIND_CONDITIONAL_BRANCH;
+-    unique case (resolved_control_flow_op_i)
+-      CF_JAL: training.kind = TARGET_KIND_DIRECT_JUMP;
+-      CF_JALR:
+-        training.kind = resolved_is_return ? TARGET_KIND_RETURN : TARGET_KIND_INDIRECT_JUMP;
+-      default: ;
+-    endcase
+-  end
+-  assign training_valid = resolved_control_flow_event_i && !invalidate_i;
+-
+-  // 2. 并行查表：三个单元都读取当前请求，没有各自的查询流水或握手状态。
+-  logic [1:0]          history_counter;
+-  logic                target_present;
+-  program_counter_t    target_pc;
+-  branch_target_kind_e target_kind;
+-  logic                return_present;
+-  program_counter_t    return_pc;
+-
+-  riscv32_bht #(
+-      .BHT_ENTRY_COUNT(BHT_ENTRY_COUNT)
+-  ) u_bht (
+-      .clk_i            (clk_i),
+-      .rst_ni           (rst_ni),
+-      .lookup_pc_i      (lookup_request_pc_i),
+-      .lookup_counter_o (history_counter),
+-      .training_pc_i    (training.pc),
+-      .training_valid_i (training_valid && (training.kind == TARGET_KIND_CONDITIONAL_BRANCH)),
+-      .training_taken_i (training.taken)
+-  );
+-
+-  riscv32_btb #(
+-      .BTB_ENTRY_COUNT (BTB_ENTRY_COUNT),
+-      .BTB_WAY_COUNT   (BTB_WAY_COUNT)
+-  ) u_btb (
+-      .clk_i                   (clk_i),
+-      .rst_ni                  (rst_ni),
+-      .lookup_pc_i             (lookup_request_pc_i),
+-      .lookup_target_present_o (target_present),
+-      .lookup_target_pc_o      (target_pc),
+-      .lookup_target_kind_o    (target_kind),
+-      .training_pc_i           (training.pc),
+-      .training_target_pc_i    (training.target_pc),
+-      .training_kind_i         (training.kind),
+-      .training_valid_i        (training_valid),
+-      .invalidate_i            (invalidate_i)
+-  );
+-
+-  riscv32_ras #(
+-      .RAS_ENTRY_COUNT(RAS_ENTRY_COUNT)
+-  ) u_ras (
+-      .clk_i                         (clk_i),
+-      .rst_ni                        (rst_ni),
+-      .lookup_target_present_o       (return_present),
+-      .lookup_target_pc_o            (return_pc),
+-      .resolved_control_flow_pc_i    (resolved_control_flow_pc_i),
+-      .resolved_control_flow_imm_i   (resolved_control_flow_imm_i),
+-      .resolved_control_flow_op_i    (resolved_control_flow_op_i),
+-      .resolved_control_flow_rs1_i   (resolved_control_flow_rs1_i),
+-      .resolved_control_flow_rd_i    (resolved_control_flow_rd_i),
+-      .resolved_control_flow_event_i (resolved_control_flow_event_i),
+-      .resolved_control_flow_taken_i (resolved_control_flow_taken_i),
+-      .invalidate_i                  (invalidate_i)
+-  );
+-
+-  // 3. 预测选择：BTB 决定指令种类，BHT 决定条件分支方向，RAS 提供返回目标。
+   branch_prediction_t selected_prediction;
+-  program_counter_t   selected_target_pc;
+-  logic               selected_taken;
+ 
+-  always_comb begin
+-    selected_taken     = 1'b0;
+-    selected_target_pc = target_pc;
+-    if (target_present) begin
+-      unique case (target_kind)
+-        TARGET_KIND_CONDITIONAL_BRANCH:
+-          selected_taken = history_counter[1];
+-        TARGET_KIND_DIRECT_JUMP, TARGET_KIND_INDIRECT_JUMP:
+-          selected_taken = 1'b1;
+-        TARGET_KIND_RETURN: begin
+-          selected_taken = 1'b1;
+-          if (return_present)
+-            selected_target_pc = return_pc;
+-        end
++  // 关闭时不实例化任何预测表；PC/epoch响应寄存器仍负责请求身份和反压。
++  if (ENABLED) begin : g_predictor
++    // 1. 训练入口：已寄存的解析结果直接驱动写表，不再增加训练流水级。
++    typedef struct packed {
++      program_counter_t    pc;
++      program_counter_t    target_pc;
++      branch_target_kind_e kind;
++      logic                taken;
++    } training_entry_t;
++
++    training_entry_t training;
++    logic training_valid;
++    logic resolved_rd_is_link;
++    logic resolved_rs1_is_link;
++    logic resolved_is_return;
++
++    assign resolved_rd_is_link =
++        (resolved_control_flow_rd_i == arch_reg_idx_t'(1)) ||
++        (resolved_control_flow_rd_i == arch_reg_idx_t'(5));
++    assign resolved_rs1_is_link =
++        (resolved_control_flow_rs1_i == arch_reg_idx_t'(1)) ||
++        (resolved_control_flow_rs1_i == arch_reg_idx_t'(5));
++    assign resolved_is_return =
++        (resolved_control_flow_op_i == CF_JALR) && resolved_rs1_is_link &&
++        (!resolved_rd_is_link ||
++         (resolved_control_flow_rd_i != resolved_control_flow_rs1_i)) &&
++        (resolved_control_flow_imm_i == '0);
++
++    // payload 从解析寄存器直接产生；valid 只控制表写使能，不先把地址数据清零。
++    always_comb begin
++      training.pc        = resolved_control_flow_pc_i;
++      training.target_pc = resolved_control_flow_target_i;
++      training.taken     = resolved_control_flow_taken_i;
++      training.kind      = TARGET_KIND_CONDITIONAL_BRANCH;
++      unique case (resolved_control_flow_op_i)
++        CF_JAL: training.kind = TARGET_KIND_DIRECT_JUMP;
++        CF_JALR:
++          training.kind = resolved_is_return ? TARGET_KIND_RETURN : TARGET_KIND_INDIRECT_JUMP;
+         default: ;
+       endcase
+     end
+-    // 本核没有 C 扩展，预测目标必须四字节对齐。
+-    if (selected_target_pc[1:0] != 2'b00)
+-      selected_taken = 1'b0;
+-    selected_prediction                  = '0;
+-    selected_prediction.predicted_taken  = selected_taken;
+-    selected_prediction.predicted_target = selected_taken ? selected_target_pc : '0;
++    assign training_valid = resolved_control_flow_event_i && !invalidate_i;
++
++    // 2. 并行查表：三个单元都读取当前请求，没有各自的查询流水或握手状态。
++    logic [1:0]          history_counter;
++    logic                target_present;
++    program_counter_t    target_pc;
++    branch_target_kind_e target_kind;
++    logic                return_present;
++    program_counter_t    return_pc;
++
++    riscv32_bht #(
++        .BHT_ENTRY_COUNT(BHT_ENTRY_COUNT)
++    ) u_bht (
++        .clk_i            (clk_i),
++        .rst_ni           (rst_ni),
++        .lookup_pc_i      (lookup_request_pc_i),
++        .lookup_counter_o (history_counter),
++        .training_pc_i    (training.pc),
++        .training_valid_i (training_valid && (training.kind == TARGET_KIND_CONDITIONAL_BRANCH)),
++        .training_taken_i (training.taken)
++    );
++
++    riscv32_btb #(
++        .BTB_ENTRY_COUNT (BTB_ENTRY_COUNT),
++        .BTB_WAY_COUNT   (BTB_WAY_COUNT)
++    ) u_btb (
++        .clk_i                   (clk_i),
++        .rst_ni                  (rst_ni),
++        .lookup_pc_i             (lookup_request_pc_i),
++        .lookup_target_present_o (target_present),
++        .lookup_target_pc_o      (target_pc),
++        .lookup_target_kind_o    (target_kind),
++        .training_pc_i           (training.pc),
++        .training_target_pc_i    (training.target_pc),
++        .training_kind_i         (training.kind),
++        .training_valid_i        (training_valid),
++        .invalidate_i            (invalidate_i)
++    );
++
++    riscv32_ras #(
++        .RAS_ENTRY_COUNT(RAS_ENTRY_COUNT)
++    ) u_ras (
++        .clk_i                         (clk_i),
++        .rst_ni                        (rst_ni),
++        .lookup_target_present_o       (return_present),
++        .lookup_target_pc_o            (return_pc),
++        .resolved_control_flow_pc_i    (resolved_control_flow_pc_i),
++        .resolved_control_flow_imm_i   (resolved_control_flow_imm_i),
++        .resolved_control_flow_op_i    (resolved_control_flow_op_i),
++        .resolved_control_flow_rs1_i   (resolved_control_flow_rs1_i),
++        .resolved_control_flow_rd_i    (resolved_control_flow_rd_i),
++        .resolved_control_flow_event_i (resolved_control_flow_event_i),
++        .resolved_control_flow_taken_i (resolved_control_flow_taken_i),
++        .invalidate_i                  (invalidate_i)
++    );
++
++    // 3. 预测选择：BTB 决定指令种类，BHT 决定条件分支方向，RAS 提供返回目标。
++    program_counter_t   selected_target_pc;
++    logic               selected_taken;
++    logic               conditional_taken;
++    logic [12:0]        conditional_displacement;
++
++    assign conditional_displacement = target_pc[12:0] - lookup_request_pc_i[12:0];
++    riscv32_branch_choice u_branch_choice (
++        .backward_i        (conditional_displacement[12]),
++        .metadata_valid_i  (target_present && target_kind == TARGET_KIND_CONDITIONAL_BRANCH),
++        .dynamic_counter_i (history_counter),
++        .taken_o           (conditional_taken)
++    );
++
++    always_comb begin
++      selected_taken     = 1'b0;
++      selected_target_pc = target_pc;
++      if (target_present) begin
++        unique case (target_kind)
++          TARGET_KIND_CONDITIONAL_BRANCH:
++            selected_taken = conditional_taken;
++          TARGET_KIND_DIRECT_JUMP, TARGET_KIND_INDIRECT_JUMP:
++            selected_taken = 1'b1;
++          TARGET_KIND_RETURN: begin
++            selected_taken = 1'b1;
++            if (return_present)
++              selected_target_pc = return_pc;
++          end
++          default: ;
++        endcase
++      end
++      // 本核没有 C 扩展，预测目标必须四字节对齐。
++      if (selected_target_pc[1:0] != 2'b00)
++        selected_taken = 1'b0;
++      selected_prediction                  = '0;
++      selected_prediction.raw_direction_counter =
++          riscv_config_pkg::BRANCH_EARLY_TARGET ? history_counter : 2'b00;
++      selected_prediction.predicted_taken  = selected_taken;
++      selected_prediction.predicted_target = selected_taken ? selected_target_pc : '0;
++    end
++
++  end else begin : g_no_predictor
++    assign selected_prediction = '0;
+   end
+ 
+   // 4. 唯一查询寄存级：完整响应在反压时保持，消费旧响应的同沿可接收新请求。
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv b/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
+index 01ba0fc..cfbbc9e 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
+@@ -39,6 +39,12 @@ module riscv32_ifu
+     input  logic         fetch_entry_ready_i
+ );
+ 
++  // 内部早期恢复只丢年轻取指；当前fetch_entry与已进入fetch buffer的老指令继续交付。
++  logic early_redirect_event;
++  logic frontend_restart_event;
++  program_counter_t early_next_pc;
++  assign frontend_restart_event = redirect_req_valid_i || early_redirect_event;
++
+   // 共享容量反馈：请求队列的占用数决定预测入口是否还能接收结果。
+   localparam int unsigned LOOKUP_QUEUE_ENTRY_COUNT = 2;
+   localparam int unsigned LOOKUP_QUEUE_INDEX_WIDTH = $clog2(LOOKUP_QUEUE_ENTRY_COUNT);
+@@ -78,9 +84,9 @@ module riscv32_ifu
+       next_pc_predictor_lookup_response_pc_i + program_counter_t'(INSTRUCTION_BYTES);
+ 
+   // redirect 取消预测流水；taken 响应直接选择本拍的新查询地址。
+-  assign next_pc_predictor_flush_o                 = redirect_req_valid_i;
++  assign next_pc_predictor_flush_o                 = frontend_restart_event;
+   assign next_pc_predictor_lookup_response_ready_o =
+-      !redirect_req_valid_i &&
++      !frontend_restart_event &&
+       (!predictor_lookup_response_is_current || lookup_queue_enqueue_ready);
+   assign predictor_taken_response_present =
+       next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
+@@ -94,7 +100,7 @@ module riscv32_ifu
+       predictor_lookup_response_is_current &&
+       next_pc_predictor_prediction_i.predicted_taken;
+   assign next_pc_predictor_lookup_request_valid_o =
+-      lookup_queue_enqueue_ready && !redirect_req_valid_i && prediction_enable_i;
++      lookup_queue_enqueue_ready && !frontend_restart_event && prediction_enable_i;
+ 
+   assign predictor_lookup_request_handshake =
+       next_pc_predictor_lookup_request_valid_o &&
+@@ -108,9 +114,9 @@ module riscv32_ifu
+     current_fetch_epoch_d = current_fetch_epoch_q;
+     next_frontend_tag_d   = next_frontend_tag_q;
+ 
+-    if (redirect_req_valid_i) begin
++    if (frontend_restart_event) begin
+       current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
+-      predictor_fetch_pc_d  = redirect_req_i.target_pc;
++      predictor_fetch_pc_d  = redirect_req_valid_i ? redirect_req_i.target_pc : early_next_pc;
+     end else if (predictor_lookup_request_handshake) begin
+       predictor_fetch_pc_d = predictor_taken_response_present ?
+           (predicted_next_pc + program_counter_t'(INSTRUCTION_BYTES)) :
+@@ -168,7 +174,7 @@ module riscv32_ifu
+   // 旧epoch请求可以继续握手，返回时按epoch丢弃；这比破坏协议稳定性更可控。
+   assign icache_lookup_req_valid_o = (lookup_queue_entry_count_q != '0) ||
+       (next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
+-       !redirect_req_valid_i);
++       !frontend_restart_event);
+   assign icache_lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
+ 
+   assign lookup_queue_dequeue_event = icache_lookup_request_handshake;
+@@ -178,7 +184,7 @@ module riscv32_ifu
+     lookup_queue_write_index_d = lookup_queue_write_index_q;
+     lookup_queue_entry_count_d = lookup_queue_entry_count_q;
+ 
+-    if (redirect_req_valid_i) begin
++    if (frontend_restart_event) begin
+       // 当前已经呈现在I-cache端口的front不能在反压时撤销；其后的旧epoch请求尚未
+       // 对外可见，可以立即删除。若front本拍握手，则旧队列全部清空。
+       if (lookup_queue_entry_count_q == '0) begin
+@@ -245,12 +251,46 @@ module riscv32_ifu
+   assign icache_lookup_response_handshake =
+       icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
+ 
++  // 3a. 返回指令的 B/J 译码、目标加法与混合方向选择；不新增寄存级。
++  logic early_control_flow_present, early_taken;
++  program_counter_t early_target, original_next_pc;
++  if (riscv_config_pkg::BRANCH_PREDICTOR_ENABLED &&
++      riscv_config_pkg::BRANCH_EARLY_TARGET) begin : g_early_target
++    riscv32_direct_target u_direct_target (
++        .pc_i                  (program_counter_t'(icache_lookup_resp_i.fetch_addr)),
++        .instruction_i         (icache_lookup_resp_i.fetch_data),
++        .direction_counter_i   (pending_prediction_q.raw_direction_counter),
++        .known_o               (early_control_flow_present),
++        .taken_o               (early_taken),
++        .target_o              (early_target)
++    );
++  end else begin : g_no_early_target
++    assign early_control_flow_present = 1'b0;
++    assign early_taken = 1'b0;
++    assign early_target = '0;
++  end
++  // 3d. 下一PC比较：交付当前指令时只取消年轻请求，外部恢复优先。
++  assign early_next_pc = early_taken ? early_target :
++      program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
++  assign original_next_pc = pending_prediction_q.predicted_taken ?
++      pending_prediction_q.predicted_target :
++      program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
++  assign early_redirect_event = early_control_flow_present && !icache_lookup_resp_i.access_fault &&
++      (!early_taken || early_target[1:0] == 2'b00) && early_next_pc != original_next_pc &&
++      fetch_entry_valid_o && fetch_entry_ready_i;
++
++  // 3e. 响应交付：指令、异常与更新后的预测信息由此处统一打包。
+   always_comb begin
+     fetch_entry_o                 = '0;
+     fetch_entry_o.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
+     fetch_entry_o.instruction     = icache_lookup_resp_i.fetch_data;
+     fetch_entry_o.frontend_tag    = icache_lookup_resp_i.frontend_tag;
+     fetch_entry_o.prediction      = pending_prediction_q;
++    if (early_control_flow_present && !icache_lookup_resp_i.access_fault &&
++        (!early_taken || early_target[1:0] == 2'b00)) begin
++      fetch_entry_o.prediction.predicted_taken = early_taken;
++      fetch_entry_o.prediction.predicted_target = early_taken ? early_target : '0;
++    end
+     fetch_entry_o.exception_valid = icache_lookup_resp_i.access_fault;
+     fetch_entry_o.exception_cause = EXC_INSTR_ACCESS_FAULT;
+     fetch_entry_o.exception_tval  = xlen_data_t'(icache_lookup_resp_i.fetch_addr);
+@@ -296,11 +336,17 @@ module riscv32_ifu
+ 
+   a_nontaken_predictor_response_keeps_request_throughput :
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+-    (predictor_lookup_response_handshake && predictor_lookup_response_is_current &&
+-     !next_pc_predictor_prediction_i.predicted_taken)
++    (prediction_enable_i && predictor_lookup_response_handshake &&
++     predictor_lookup_response_is_current && !next_pc_predictor_prediction_i.predicted_taken)
+     |-> predictor_lookup_request_handshake)
+   else $error("IFU inserted a bubble after a current non-taken prediction");
+ 
++  // 维护暂停允许排空旧预测响应，同时禁止产生新的预测请求。
++  a_disabled_prediction_does_not_query :
++  assert property (@(posedge clk_i) disable iff (!rst_ni)
++    !prediction_enable_i |-> !next_pc_predictor_lookup_request_valid_o)
++  else $error("IFU queried while prediction was disabled");
++
+   a_taken_response_queries_target :
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+     predictor_taken_response_event |->
+@@ -310,11 +356,17 @@ module riscv32_ifu
+   a_predictor_request_stable_while_stalled :
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+     (next_pc_predictor_lookup_request_valid_o &&
+-     !next_pc_predictor_lookup_request_ready_i && !redirect_req_valid_i)
+-    |=> (next_pc_predictor_lookup_request_valid_o &&
+-         $stable(next_pc_predictor_lookup_request_pc_o) && $stable(next_pc_predictor_lookup_request_epoch_o)))
++     !next_pc_predictor_lookup_request_ready_i && !frontend_restart_event)
++    |=> (frontend_restart_event || (next_pc_predictor_lookup_request_valid_o &&
++         $stable(next_pc_predictor_lookup_request_pc_o) && $stable(next_pc_predictor_lookup_request_epoch_o))))
+   else $error("IFU changed a predictor request while stalled");
+ 
++  a_fetch_entry_stable_while_stalled :
++  assert property (@(posedge clk_i) disable iff (!rst_ni)
++    (fetch_entry_valid_o && !fetch_entry_ready_i && !redirect_req_valid_i)
++    |=> (redirect_req_valid_i || (fetch_entry_valid_o && $stable(fetch_entry_o))))
++  else $error("IFU changed a presented fetch entry while stalled");
++
+   a_icache_request_stable_while_stalled :
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+     (icache_lookup_req_valid_o && !icache_lookup_req_ready_i)
+diff --git a/npc/vsrc/riscv32/core/riscv32_core.sv b/npc/vsrc/riscv32/core/riscv32_core.sv
+index c851b7b..c0f316f 100644
+--- a/npc/vsrc/riscv32/core/riscv32_core.sv
++++ b/npc/vsrc/riscv32/core/riscv32_core.sv
+@@ -169,9 +169,7 @@ module riscv32_core
+           !resolved_execute_result.uop.exception_valid
+       ),
+       .resolved_control_flow_taken_i(
+-          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
+-          (resolved_execute_result.next_pc !=
+-          (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
++          resolved_execute_result.branch_taken
+       ),
+       .flush_lookup_i (next_pc_predictor_flush),
+       .invalidate_i   (icache_invalidate_req)
+@@ -739,9 +737,7 @@ module riscv32_core
+       .resolved_control_flow_op_i     (resolved_execute_result.uop.branch_ctrl.op),
+       .resolved_control_flow_pc_i     (resolved_execute_result.uop.pc),
+       .resolved_control_flow_taken_i(
+-          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
+-          (resolved_execute_result.next_pc !=
+-          (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
++          resolved_execute_result.branch_taken
+       ),
+       .resolved_control_flow_immediate_i        (resolved_execute_result.uop.imm),
+       .lsu_request_event_i                      (lsu_req_valid && lsu_req_ready),
+diff --git a/npc/vsrc/riscv32/filelist/filelist.f b/npc/vsrc/riscv32/filelist/filelist.f
+index 6514923..f4d9a02 100644
+--- a/npc/vsrc/riscv32/filelist/filelist.f
++++ b/npc/vsrc/riscv32/filelist/filelist.f
+@@ -36,6 +36,8 @@ ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_idu.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_bht.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_btb.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_ras.sv
++${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv
++${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_direct_target.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+ ${NPC_HOME}/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv
+ ${NPC_HOME}/vsrc/riscv32/core/control/riscv32_redirect_mux.sv
+diff --git a/npc/vsrc/riscv32/filelist/filelist_sta.f b/npc/vsrc/riscv32/filelist/filelist_sta.f
+index 9bf94fa..d04b954 100644
+--- a/npc/vsrc/riscv32/filelist/filelist_sta.f
++++ b/npc/vsrc/riscv32/filelist/filelist_sta.f
+@@ -31,6 +31,8 @@ ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_idu.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_bht.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_btb.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_ras.sv
++${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv
++${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_direct_target.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+ ${NPC_HOME}/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv
+ ${NPC_HOME}/vsrc/riscv32/core/control/riscv32_redirect_mux.sv

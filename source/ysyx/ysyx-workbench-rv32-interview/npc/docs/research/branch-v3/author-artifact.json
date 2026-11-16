@@ -1,0 +1,7 @@
+{
+  "url": "https://jilp.org/cbp2016/code/AndreSeznecLimited.tar.gz",
+  "sha256": "5ed93324d8b06f1fc53f47a75f9e445b07c10573a49a08d1e4621dacd5ace181",
+  "configuration": "cbp8KB (unmodified predictor.h)",
+  "license": "No distribution grant found in predictor.h; original tarball retained locally, not vendored into Git. Adapter is ours.",
+  "adaptation": "Only unused CBP trace-reader include stubs and OpType symbol declarations; PC byte addresses unchanged. M0 immediate update, not speculative CPU timing."
+}

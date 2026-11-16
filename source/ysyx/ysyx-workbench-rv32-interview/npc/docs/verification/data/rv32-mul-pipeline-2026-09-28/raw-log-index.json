@@ -1,0 +1,157 @@
+[
+  {
+    "path": "npc/result/mul-pipeline-20260928/initial-status.txt",
+    "bytes": 129213,
+    "sha256": "b623422adf42c96612782c43761f972cfa3cee51b509050fc4967832bad1b30f"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/baseline-hashes.json",
+    "bytes": 25829,
+    "sha256": "94fb9a01f4bbb81d1cb2e2a141c3d0d0407877f9b2005bbc6229c1cc55ebffb0"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/format-check.json",
+    "bytes": 578,
+    "sha256": "b9d22fcec551dfb4987600b36b29b491fa0f56a5b2e1f543ce76f886b10d4a75"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa-duplicate-attempts.txt",
+    "bytes": 166,
+    "sha256": "4e1affb4ac01cf4bc9d0fd960f2a161f0c7262fef1d2315ca3ade90637327047"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa/pipeline-v1/qualified.json",
+    "bytes": 283,
+    "sha256": "392e5d27ce51d2a0bcc88b0f8311ac407e4253c1ef6745edcb35b8e5fd99bb12"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa/pipeline-v1/timing.json",
+    "bytes": 2331,
+    "sha256": "5f36dbf954a365d96fde31c7347121bb11c2a8d2f11e78b948a0b094b836e29e"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa/pipeline-isolated/qualified.json",
+    "bytes": 283,
+    "sha256": "03097284f65e2905f1f3470ee20b938cad2962ff1c255a542041dbbe068b3a95"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa/pipeline-isolated/timing.json",
+    "bytes": 1642,
+    "sha256": "050a7bc876789291b535ae33a8ad0eb4693ef9e4567e8a336ce878b619f96646"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa/pipeline-isolated/command.json",
+    "bytes": 9780,
+    "sha256": "7f76856636cb91ac9d425459b68e1720ef8625c31b4b921567cc4e4b90e424ee"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa/pipeline-isolated/synthesis.log",
+    "bytes": 101677231,
+    "sha256": "f5c321b559e57f61cdf5650c0809ea60da6cca5b36e36a7aed5c63b610b7d679"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/unit-isolated/run.log",
+    "bytes": 391,
+    "sha256": "472003d117d36d573dc5d2abf440e2b4dca798a944100c567fdf23fbe8504953"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/final-assertions/unit/run.log",
+    "bytes": 391,
+    "sha256": "9f1ab517e3272b17a63be08799aaef4762a349decd100f8933b068301fd5de97"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/final-assertions/unit/build.log",
+    "bytes": 4521,
+    "sha256": "82e950a9853cb2c706492a384ac82976742d12598e03054c89fad8bd6bf56e4c"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/final-assertions/exception-driver.log",
+    "bytes": 32,
+    "sha256": "8ef1067b99aef1071efbe22079a8e1a3c9ba6c18fea6ef3e44c34b71a01833cb"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/final-assertions/fence-driver.log",
+    "bytes": 21,
+    "sha256": "15fc5dd0270b701dbfa16b0e83a9e58674581a2be401a785fcf3e6870ac51f4c"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/final-assertions/interrupt-driver.log",
+    "bytes": 14023,
+    "sha256": "3b517509a18fb6cc5bbac2f6d8a34cee20431a668f454be988d1dce057d805a7"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/arithmetic-isolated/report.json",
+    "bytes": 1564,
+    "sha256": "45467d91371692035d79cc473a6e380a79ae1ab414c42099cadde4abd4408231"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/core-isolated/report.json",
+    "bytes": 825,
+    "sha256": "f99bf58afd58ba73faa41ee38c1736ce665fb89bbbdfa62f3f9547f1a3814e84"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/core-iter/report.json",
+    "bytes": 809,
+    "sha256": "799f5d253c1a185177617dc796b8b2597c556bf6cc8026148a9526a131c5487f"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/legacy-unit/report.json",
+    "bytes": 5729,
+    "sha256": "1fdeab0f9c9b66cf8b9ba78559f8f939314cadcf00e8d65a316da7fbc69ed606"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/kernel-iter/report.json",
+    "bytes": 3578,
+    "sha256": "e0c7f6e73592ae46eb02c36406c21c2f5c7403055e30ad481adf66ad43a79b72"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/final/kernel/report.json",
+    "bytes": 3634,
+    "sha256": "cb5f98c9ec12c6adf66ebca63fea2dd2a2fc2febe7ee10f0a7a0fb481ab2a0e9"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/microbench-pipe-680/report.json",
+    "bytes": 3544,
+    "sha256": "effbfe5a7152210b63e49b368acf191200ad152bfbb58f66f0aadcb5a32063ba"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/microbench-pipe-680/manifest.json",
+    "bytes": 43317,
+    "sha256": "cf3054b5aee851a071034e8854b852f2f7b8318822e4983ed0f9432d8ba6a30c"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/microbench-iter-680/report.json",
+    "bytes": 3544,
+    "sha256": "099aa4500b572ec3a00f37e7ad404ad2968a95b0bf2551687a32414c597cc078"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/microbench-iter-680/manifest.json",
+    "bytes": 43309,
+    "sha256": "77419bc7dd236c8cdbc240edb625391884dba054e5231eb5c0e23b7e83520e48"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/microbench-iter/report.json",
+    "bytes": 3474,
+    "sha256": "a4c299cc9df227bbdffa33fd6737e7f599f5a9204cfe6b62bc8de867078afe36"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa/pipeline-v1/sta.tar.gz",
+    "bytes": 39488691,
+    "sha256": "c74c3946b91c0bc64836539732ed8438a7c85eae6a3acb7fcbb6ec2dd80cec5e"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/ppa/pipeline-isolated/sta.tar.gz",
+    "bytes": 34873606,
+    "sha256": "498a17d28303ddc6df5ccac503f691c52ba2435c045211b6eec0558df2eb05f8"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/final-review.json",
+    "bytes": 1991,
+    "sha256": "b0b7e45f5fb5e11b46240d45fb3bc228df4bc5c8d95affb70114ab4c143a62f0"
+  },
+  {
+    "path": "npc/result/mul-pipeline-20260928/cleanup.json",
+    "bytes": 2056,
+    "sha256": "d10cb785fbfe950a400007ab9fa81b15a02b22832ba8593080b8f423369b9da9"
+  }
+]

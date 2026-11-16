@@ -1,0 +1,121 @@
+{
+  "status": "passed",
+  "matrices": {
+    "dev-common": {
+      "B0": 10,
+      "B0off": 10,
+      "F16": 10,
+      "F32": 10,
+      "F32W4": 10,
+      "H32": 10,
+      "U16": 10,
+      "U32W4": 10
+    },
+    "dev-legal-common": {
+      "B0": 10,
+      "B0off": 10,
+      "F16": 10,
+      "F32": 10,
+      "F32W4": 10,
+      "H32": 10,
+      "U16": 10,
+      "U32W4": 10
+    },
+    "dev-own": {
+      "B0": 10,
+      "B0off": 10,
+      "F16": 10,
+      "F32": 10,
+      "F32W4": 10,
+      "H32": 10,
+      "U16": 10,
+      "U32W4": 10
+    },
+    "far-calls": {
+      "B0": 1,
+      "H32": 1,
+      "U16": 1
+    },
+    "fast": {
+      "B0": 10,
+      "H32": 10,
+      "U16": 10
+    },
+    "held-own": {
+      "B0": 12,
+      "B0off": 12,
+      "F16": 12,
+      "F32": 12,
+      "F32W4": 12,
+      "H32": 12,
+      "U16": 12,
+      "U32W4": 12
+    },
+    "layout-3f00": {
+      "B0": 10,
+      "H32": 10,
+      "U16": 10
+    },
+    "layout-ff00": {
+      "B0": 10,
+      "H32": 10,
+      "U16": 10
+    },
+    "random": {
+      "B0": 10,
+      "H32": 10,
+      "U16": 10
+    },
+    "slow": {
+      "B0": 10,
+      "H32": 10,
+      "U16": 10
+    }
+  },
+  "core_program_runs": 489,
+  "observer_program_runs": 10,
+  "module_random_cycles": 200650,
+  "nemu_program_runs": 40,
+  "safety_cases": {
+    "U16": {
+      "recovery/core": 84,
+      "recovery/cache": 75,
+      "exception": 40
+    },
+    "H32": {
+      "recovery/core": 84,
+      "recovery/cache": 75,
+      "exception": 40
+    },
+    "U32W4": {
+      "recovery/core": 84,
+      "recovery/cache": 75,
+      "exception": 40
+    },
+    "B0off": {
+      "recovery/core": 84,
+      "recovery/cache": 75,
+      "exception": 40
+    },
+    "F16": {
+      "recovery/core": 84,
+      "recovery/cache": 75,
+      "exception": 40
+    }
+  },
+  "microbench_configurations": 4,
+  "default_off_area_clock_cycle_and_counter_equal": true,
+  "decision": {
+    "development_choice": "U16",
+    "recommendation": "B0",
+    "held_accepted": true,
+    "default_enabled": false,
+    "note": "No retuning or selection of another winner after held evaluation; general-default fallback only",
+    "profile_recommendation": "U16",
+    "boundary_probe": {
+      "time_ratio": 2.1076923076923078,
+      "excluded_from_profile_weighting": true
+    },
+    "reason": "Selected prototype passes held/layout profiles, but repeated cross-64KiB calls exceed the regression guard; retain as an opt-in area experiment"
+  }
+}

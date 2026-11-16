@@ -1,0 +1,80 @@
+{
+  "640": {
+    "groups": {
+      "data_max": {
+        "endpoint": "data_axi4_manager_o_1_",
+        "slack_ns": -0.054,
+        "fmax_mhz": 618.826
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.019,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_exu.gen_muldiv.u_muldiv.state_q_0__reg_p_QN_NOR3_X1_A2_ZN_CLKGATE_X1_E:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 5,
+    "passed": false
+  },
+  "600": {
+    "groups": {
+      "data_max": {
+        "endpoint": "data_axi4_manager_o_1_",
+        "slack_ns": 0.029,
+        "fmax_mhz": 610.949
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.102,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_exu.gen_muldiv.u_muldiv.state_q_0__reg_p_QN_NOR3_X1_A2_ZN_CLKGATE_X1_E:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  },
+  "620": {
+    "groups": {
+      "data_max": {
+        "endpoint": "data_axi4_manager_o_1_",
+        "slack_ns": -0.014,
+        "fmax_mhz": 614.99
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_exu.gen_muldiv.u_muldiv.state_q_0__reg_p_QN_NOR3_X1_A2_ZN_CLKGATE_X1_E:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 1,
+    "passed": false
+  }
+}

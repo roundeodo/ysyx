@@ -1,0 +1,683 @@
+ay_q[7]_61__reg_p_CK.
+Renamed 7993 objects in module riscv32_btb (30 iterations).
+
+21. Executing Verilog backend.
+Dumping module `\riscv32_btb'.
+
+22. Executing SPLITNETS pass (splitting up multi-bit signals).
+
+23. Executing OPT_CLEAN pass (remove unused cells and wires).
+Finding unused cells or wires in module \riscv32_btb..
+
+24. Executing Liberty frontend: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib
+Imported 134 cell types from liberty file.
+
+25. Executing CHECK pass (checking for obvious problems).
+Checking module riscv32_btb...
+Found and reported 0 problems.
+
+26. Printing statistics.
+
+=== riscv32_btb ===
+
+        +----------Local Count, excluding submodules.
+        |        +-Local Area, excluding submodules.
+        |        | 
+     5617        - wires
+     5617        - wire bits
+     5617        - public wires
+     5617        - public wire bits
+      138        - ports
+      138        - port bits
+     4514 7.94E+03 cells
+        3    3.192   AND2_X1
+        1    2.394   AND2_X4
+        1     1.33   AND3_X1
+      158  168.112   AOI21_X1
+        2     2.66   AOI22_X1
+       31   24.738   BUF_X1
+        5    33.25   BUF_X16
+       16   17.024   BUF_X2
+        2   26.068   BUF_X32
+       24   44.688   BUF_X4
+       33  114.114   BUF_X8
+        2    1.596   CLKBUF_X1
+       25    86.45   CLKGATE_X1
+       24   127.68   DFFR_X1
+      976 4.41E+03   DFF_X1
+      358  190.456   INV_X1
+        1    4.522   INV_X16
+        5     3.99   INV_X2
+        1     1.33   INV_X4
+        2    4.788   INV_X8
+        2    3.724   MUX2_X1
+     1423 1.14E+03   NAND2_X1
+        4     5.32   NAND2_X2
+        3    7.182   NAND2_X4
+      587  624.568   NAND3_X1
+       51    67.83   NAND4_X1
+      183  146.034   NOR2_X1
+        2     2.66   NOR2_X2
+        4    9.576   NOR2_X4
+        3    3.192   NOR3_X1
+       58    77.14   OAI211_X1
+      409  435.176   OAI21_X1
+        3    4.788   OAI221_X1
+       37    49.21   OAI22_X1
+       50     53.2   OR2_X1
+       22   35.112   XNOR2_X1
+        3    4.788   XOR2_X1
+
+   Chip area for module '\riscv32_btb': 7936.908000
+     of which used for sequential elements: 4541.152000 (57.22%)
+
+27. Executing Verilog backend.
+Dumping module `\riscv32_btb'.
+
+End of script. Logfile hash: 339c2412e2, CPU: user 3.01s system 0.22s, MEM: 57.95 MB peak
+Yosys 0.60+70 (git sha1 8101c87fa, clang++ 18.1.8 -fPIC -O3)
+Time spent: 43% 2x abc (2 sec), 12% 4x write_verilog (0 sec), ...
+set -o pipefail && ./bin/iEDA -script /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v riscv32_btb nangate45 2>&1 | tee /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/sta.log
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155726.56'!
+I20261010 15:57:26.495090    56 Sta.cc:383] read verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v start
+I20261010 15:57:26.495570    56 VerilogParserRustC.cc:41] load verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v
+r str /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v
+I20261010 15:57:26.630537    56 Sta.cc:391] read verilog end
+I20261010 15:57:26.630736    56 Sta.cc:309] load lib start
+I20261010 15:57:26.634637    89 Sta.cc:287] read liberty /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib start 
+I20261010 15:57:26.635933    89 LibParserRustC.cc:1285] load liberty file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib
+rust read lib file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib
+I20261010 15:57:28.105379    89 LibParserRustC.cc:1294] load liberty file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib success.
+I20261010 15:57:28.105515    89 Sta.cc:297] read liberty /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib end 
+I20261010 15:57:28.105904    56 Sta.cc:328] load lib end
+I20261010 15:57:28.106030    56 Sta.cc:417] link design riscv32_btb start
+I20261010 15:57:28.115737   119 LibParserRustC.cc:1304] link liberty file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib start.
+I20261010 15:57:28.119055   119 LibParserRustC.cc:666] unkown attri name: technology in /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib line no 45
+I20261010 15:57:31.624498   119 LibParserRustC.cc:1310] link liberty file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib success.
+I20261010 15:57:31.978374    56 Sta.cc:1106] link design riscv32_btb end
+I20261010 15:57:31.978577    56 Sta.cc:1108] design riscv32_btb inst num: 4514
+I20261010 15:57:31.978632    56 Sta.cc:1110] design riscv32_btb net num: 5617
+I20261010 15:57:31.978655    56 Sta.cc:1112] design riscv32_btb port num: 138
+I20261010 15:57:31.978711    56 Sta.cc:181] read sdc /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc start 
+I20261010 15:57:31.990211    56 CmdCreateClock.cc:124] create clock core_clock for pin/port: clk_i
+I20261010 15:57:31.990479    56 CmdAllPorts.cc:59] exec all_inputs cmd.
+I20261010 15:57:31.990587    56 CmdSetInputTransition.cc:110] pin_port_name: @ptr0x572049162030
+I20261010 15:57:31.990803    56 CmdAllPorts.cc:94] exec all_outputs cmd.
+I20261010 15:57:31.990970    56 CmdSetIODelay.cc:222] set output delay sdc line no : 1
+I20261010 15:57:32.002754    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.002990    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.003098    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.003189    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.003345    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.003472    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.003564    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.003660    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.003750    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155732.56'!
+I20261010 15:57:32.003917    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004114    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004215    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004375    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004516    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004616    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004704    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004796    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004889    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.004979    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005069    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005156    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005306    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005411    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005522    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005614    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005707    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005792    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005884    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.005975    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.006107    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.006203    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.006299    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.006539    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.006698    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.006800    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.006886    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.006978    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.007067    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.007158    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.007279    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.007401    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155732.56'!
+I20261010 15:57:32.007508    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.007630    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.007781    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.007879    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.007968    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.008060    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.008153    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.008333    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.008687    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.008935    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.009076    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.009147    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.009271    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.009351    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.009483    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.009641    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.009793    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.010008    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.010226    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.010493    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.010712    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.010874    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.011019    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.011158    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.011489    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.011755    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.011996    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.012250    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.012553    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.012808    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.013051    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.013342    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155732.56'!
+I20261010 15:57:32.013630    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.013917    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.014173    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.014446    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.014691    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.014883    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.015038    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.015182    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.015445    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.015691    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.015916    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.016079    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.016228    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.016371    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.016535    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.016676    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.016811    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.016948    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.017081    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.017365    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.017670    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.017839    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.018078    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.018333    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.018599    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.018764    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.018906    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+I20261010 15:57:32.019112    56 CmdSetIODelay.cc:191] set input delay sdc line no : 1
+Reset-boundary STA: constrained 101 data inputs; raw rst_ni is asynchronous
+I20261010 15:57:32.083595    56 Sta.cc:198] read sdc /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/btb.sdc end 
+I20261010 15:57:32.083738    56 StaBuildGraph.cc:315] build graph start
+I20261010 15:57:32.176752    56 StaBuildGraph.cc:216] net lookup_pc_i_0_ has no driver.
+I20261010 15:57:32.176882    56 StaBuildGraph.cc:216] net lookup_pc_i_1_ has no driver.
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155732.56'!
+I20261010 15:57:32.177171    56 StaBuildGraph.cc:216] net training_pc_i_0_ has no driver.
+I20261010 15:57:32.177356    56 StaBuildGraph.cc:216] net training_pc_i_1_ has no driver.
+I20261010 15:57:32.179293    56 StaBuildGraph.cc:216] net training_taken_i has no driver.
+I20261010 15:57:32.219067    56 StaBuildGraph.cc:332] build graph end
+I20261010 15:57:32.219364    56 Sta.cc:2834] update timing start
+I20261010 15:57:32.221982    56 StaApplySdc.cc:698] apply sdc start
+I20261010 15:57:32.222620    56 StaApplySdc.cc:729] apply sdc end
+I20261010 15:57:32.222730    56 StaClockPropagation.cc:324] ideal clock propagation start
+I20261010 15:57:32.222767    56 StaClockPropagation.cc:354] clock propagation clock num: 1
+I20261010 15:57:32.222824    56 StaClockPropagation.cc:203] clock propagate end to vertex g_full_target.entry_array_q[2]_100__reg_p:CK
+I20261010 15:57:32.231367    56 StaClockPropagation.cc:422] ideal clock propagation end
+I20261010 15:57:32.231513    56 StaCheck.cc:129] found loop fwd start
+I20261010 15:57:32.238090    56 StaCheck.cc:148] found loop fwd end
+I20261010 15:57:32.238195    56 StaCheck.cc:150] found loop bwd start
+I20261010 15:57:32.243379    56 StaCheck.cc:172] found loop bwd end
+I20261010 15:57:32.243603    56 StaClockSlewDelayPropagation.cc:112] clock slew delay propagation start
+I20261010 15:57:32.243659    56 StaClockSlewDelayPropagation.cc:130] propagating current clock queue vertexes number is 1
+I20261010 15:57:32.243778    56 StaClockSlewDelayPropagation.cc:130] propagating current clock queue vertexes number is 25
+I20261010 15:57:32.244028    56 StaClockSlewDelayPropagation.cc:130] propagating current clock queue vertexes number is 25
+I20261010 15:57:32.247201    56 StaClockSlewDelayPropagation.cc:130] propagating current clock queue vertexes number is 1000
+I20261010 15:57:32.256467    56 StaClockSlewDelayPropagation.cc:163] clock slew delay propagation end
+I20261010 15:57:32.256687    56 StaClockSlewDelayPropagation.cc:166] clock slew delay propagation memory usage 0MB
+I20261010 15:57:32.256776    56 StaClockSlewDelayPropagation.cc:169] clock slew delay propagation time elapsed 0.013173s
+I20261010 15:57:32.262569    56 StaClockPropagation.cc:326] propagated(kNormal) clock propagation start
+I20261010 15:57:32.262679    56 StaClockPropagation.cc:354] clock propagation clock num: 1
+I20261010 15:57:32.262713    56 StaClockPropagation.cc:424] propagated(kNormal) clock propagation end
+I20261010 15:57:32.262735    56 StaApplySdc.cc:698] apply sdc start
+I20261010 15:57:32.262755    56 StaApplySdc.cc:729] apply sdc end
+I20261010 15:57:32.262773    56 StaClockPropagation.cc:328] propagated(kGenerated) clock propagation start
+I20261010 15:57:32.262789    56 StaClockPropagation.cc:354] clock propagation clock num: 1
+I20261010 15:57:32.262804    56 StaClockPropagation.cc:426] propagated(kGenerated) clock propagation end
+I20261010 15:57:32.262827    56 StaApplySdc.cc:698] apply sdc start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155732.56'!
+I20261010 15:57:32.262845    56 StaApplySdc.cc:729] apply sdc end
+I20261010 15:57:32.262908    56 StaBuildPropTag.cc:325] build propagation tag start
+I20261010 15:57:32.262928    56 StaBuildPropTag.cc:338] build propagation tag end
+I20261010 15:57:32.262967    56 StaDataPropagation.cc:676] data fwd propagation start
+I20261010 15:57:32.263070    56 StaDataPropagationBFS.cc:166] data fwd propagation bfs start
+I20261010 15:57:32.265659    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 1097
+I20261010 15:57:32.271621   153 StaDataPropagationBFS.cc:82] Thread 128181929436736 date fwd propagate found start vertex.rst_ni
+I20261010 15:57:32.271687   122 StaDataPropagationBFS.cc:82] Thread 128181963007552 date fwd propagate found start vertex.lookup_pc_i_2_
+I20261010 15:57:32.271723   123 StaDataPropagationBFS.cc:82] Thread 128181971400256 date fwd propagate found start vertex.lookup_pc_i_3_
+I20261010 15:57:32.271817   125 StaDataPropagationBFS.cc:82] Thread 128181988185664 date fwd propagate found start vertex.lookup_pc_i_4_
+I20261010 15:57:32.271890   126 StaDataPropagationBFS.cc:82] Thread 128182191646272 date fwd propagate found start vertex.lookup_pc_i_5_
+I20261010 15:57:32.271917   127 StaDataPropagationBFS.cc:82] Thread 128182183253568 date fwd propagate found start vertex.lookup_pc_i_6_
+I20261010 15:57:32.271938   129 StaDataPropagationBFS.cc:82] Thread 128182166468160 date fwd propagate found start vertex.lookup_pc_i_7_
+I20261010 15:57:32.272109   122 StaDataPropagationBFS.cc:82] Thread 128181963007552 date fwd propagate found start vertex.lookup_pc_i_10_
+I20261010 15:57:32.272109   132 StaDataPropagationBFS.cc:82] Thread 128182141290048 date fwd propagate found start vertex.lookup_pc_i_9_
+I20261010 15:57:32.272007   130 StaDataPropagationBFS.cc:82] Thread 128182158075456 date fwd propagate found start vertex.lookup_pc_i_8_
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155732.56'!
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155732.56'!
+E20261010 15:57:32.276443   128 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276639   128 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276623   122 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276677   128 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276616   129 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276445   149 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276614   142 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276458   151 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276506   146 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+E20261010 15:57:32.276561   126 Lib.cc:181] Warning: val outside table ranges:  val = 0; min_val = 0.00117378; max_val = 0.198535
+I20261010 15:57:32.295778    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 2206
+I20261010 15:57:32.402397    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 1352
+I20261010 15:57:32.473122    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 616
+I20261010 15:57:32.502250    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 468
+I20261010 15:57:32.515357    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 765
+I20261010 15:57:32.554774    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 386
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155732.56'!
+I20261010 15:57:32.579284    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 988
+I20261010 15:57:32.629151    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 486
+I20261010 15:57:32.656986    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 1086
+I20261010 15:57:32.723011    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 636
+I20261010 15:57:32.761122    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 982
+I20261010 15:57:32.809191    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 475
+I20261010 15:57:32.836911    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 544
+I20261010 15:57:32.871379    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 426
+I20261010 15:57:32.903580    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 461
+I20261010 15:57:32.939018    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 250
+I20261010 15:57:32.963286    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 279
+I20261010 15:57:32.980983    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 133
+I20261010 15:57:32.996805    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 136
+I20261010 15:57:33.012260    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 57
+I20261010 15:57:33.022770    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 57
+I20261010 15:57:33.036037    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 43
+I20261010 15:57:33.048164    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 44
+I20261010 15:57:33.060822    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 23
+I20261010 15:57:33.068463    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 23
+I20261010 15:57:33.077251    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 14
+I20261010 15:57:33.085374    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 58
+I20261010 15:57:33.097949    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 32
+I20261010 15:57:33.107616    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 124
+I20261010 15:57:33.123828    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 62
+I20261010 15:57:33.132583    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 64
+I20261010 15:57:33.145352    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 28
+I20261010 15:57:33.156296    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 29
+I20261010 15:57:33.166215    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 2
+I20261010 15:57:33.175232    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 3
+I20261010 15:57:33.186254    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 2
+I20261010 15:57:33.193169    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 10
+I20261010 15:57:33.200870    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 10
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.208666    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 18
+I20261010 15:57:33.218611    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 10
+I20261010 15:57:33.227787    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 33
+I20261010 15:57:33.236975    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 33
+I20261010 15:57:33.247219    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 33
+I20261010 15:57:33.255997    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 9
+I20261010 15:57:33.265713    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 16
+I20261010 15:57:33.273108    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 8
+I20261010 15:57:33.283129    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 8
+I20261010 15:57:33.291512    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 8
+I20261010 15:57:33.301687    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 8
+I20261010 15:57:33.324693    56 StaDataPropagationBFS.cc:229] data fwd propagation bfs end
+I20261010 15:57:33.324973    56 StaDataPropagationBFS.cc:232] data fwd propagation bfs memory usage 893.54MB
+I20261010 15:57:33.325037    56 StaDataPropagationBFS.cc:234] data fwd propagation bfs time elapsed 1.06197s
+I20261010 15:57:33.325062    56 StaDataPropagation.cc:695] data fwd propagation end
+I20261010 15:57:33.325083    56 StaDataPropagation.cc:676] data fwd propagation start
+I20261010 15:57:33.325145    56 StaDataPropagationBFS.cc:166] data fwd propagation bfs start
+I20261010 15:57:33.326906    56 StaDataPropagationBFS.cc:190] propagating current data queue vertexes number is 0
+I20261010 15:57:33.335843    56 StaDataPropagationBFS.cc:229] data fwd propagation bfs end
+I20261010 15:57:33.336010    56 StaDataPropagationBFS.cc:232] data fwd propagation bfs memory usage 0MB
+I20261010 15:57:33.336045    56 StaDataPropagationBFS.cc:234] data fwd propagation bfs time elapsed 0.0109s
+I20261010 15:57:33.336066    56 StaDataPropagation.cc:695] data fwd propagation end
+I20261010 15:57:33.336087    56 StaAnalyze.cc:557] analyze timing path start
+I20261010 15:57:33.336112    56 StaAnalyze.cc:565] analyze timing path end vertex 1 total 1084 start
+I20261010 15:57:33.336179    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[0]_104__reg_p:D
+I20261010 15:57:33.336207    56 StaAnalyze.cc:599] analyze timing path end vertex 1 total 1084 end
+I20261010 15:57:33.336292    56 StaAnalyze.cc:565] analyze timing path end vertex 11 total 1084 start
+I20261010 15:57:33.336321    56 StaAnalyze.cc:599] analyze timing path end vertex 11 total 1084 end
+I20261010 15:57:33.336395    56 StaAnalyze.cc:565] analyze timing path end vertex 21 total 1084 start
+I20261010 15:57:33.336416    56 StaAnalyze.cc:599] analyze timing path end vertex 21 total 1084 end
+I20261010 15:57:33.336642    56 StaAnalyze.cc:565] analyze timing path end vertex 31 total 1084 start
+I20261010 15:57:33.336723    56 StaAnalyze.cc:599] analyze timing path end vertex 31 total 1084 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.336973    56 StaAnalyze.cc:565] analyze timing path end vertex 41 total 1084 start
+I20261010 15:57:33.337126    56 StaAnalyze.cc:599] analyze timing path end vertex 41 total 1084 end
+I20261010 15:57:33.337359    56 StaAnalyze.cc:565] analyze timing path end vertex 51 total 1084 start
+I20261010 15:57:33.337539    56 StaAnalyze.cc:599] analyze timing path end vertex 51 total 1084 end
+I20261010 15:57:33.337767    56 StaAnalyze.cc:565] analyze timing path end vertex 61 total 1084 start
+I20261010 15:57:33.337822    56 StaAnalyze.cc:599] analyze timing path end vertex 61 total 1084 end
+I20261010 15:57:33.338048    56 StaAnalyze.cc:565] analyze timing path end vertex 71 total 1084 start
+I20261010 15:57:33.338148    56 StaAnalyze.cc:599] analyze timing path end vertex 71 total 1084 end
+I20261010 15:57:33.338469    56 StaAnalyze.cc:565] analyze timing path end vertex 81 total 1084 start
+I20261010 15:57:33.338563    56 StaAnalyze.cc:599] analyze timing path end vertex 81 total 1084 end
+I20261010 15:57:33.338694    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[0]_31__reg_p:D
+I20261010 15:57:33.338835    56 StaAnalyze.cc:565] analyze timing path end vertex 91 total 1084 start
+I20261010 15:57:33.338939    56 StaAnalyze.cc:599] analyze timing path end vertex 91 total 1084 end
+I20261010 15:57:33.339214    56 StaAnalyze.cc:565] analyze timing path end vertex 101 total 1084 start
+I20261010 15:57:33.339331    56 StaAnalyze.cc:599] analyze timing path end vertex 101 total 1084 end
+I20261010 15:57:33.339622    56 StaAnalyze.cc:565] analyze timing path end vertex 111 total 1084 start
+I20261010 15:57:33.339694    56 StaAnalyze.cc:599] analyze timing path end vertex 111 total 1084 end
+I20261010 15:57:33.339955    56 StaAnalyze.cc:565] analyze timing path end vertex 121 total 1084 start
+I20261010 15:57:33.340057    56 StaAnalyze.cc:599] analyze timing path end vertex 121 total 1084 end
+I20261010 15:57:33.340381    56 StaAnalyze.cc:565] analyze timing path end vertex 131 total 1084 start
+I20261010 15:57:33.340556    56 StaAnalyze.cc:599] analyze timing path end vertex 131 total 1084 end
+I20261010 15:57:33.340708    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[2]_14__reg_p:D
+I20261010 15:57:33.340907    56 StaAnalyze.cc:565] analyze timing path end vertex 141 total 1084 start
+I20261010 15:57:33.341022    56 StaAnalyze.cc:599] analyze timing path end vertex 141 total 1084 end
+I20261010 15:57:33.341260    56 StaAnalyze.cc:565] analyze timing path end vertex 151 total 1084 start
+I20261010 15:57:33.341364    56 StaAnalyze.cc:599] analyze timing path end vertex 151 total 1084 end
+I20261010 15:57:33.341625    56 StaAnalyze.cc:565] analyze timing path end vertex 161 total 1084 start
+I20261010 15:57:33.341776    56 StaAnalyze.cc:599] analyze timing path end vertex 161 total 1084 end
+I20261010 15:57:33.342026    56 StaAnalyze.cc:565] analyze timing path end vertex 171 total 1084 start
+I20261010 15:57:33.342131    56 StaAnalyze.cc:599] analyze timing path end vertex 171 total 1084 end
+I20261010 15:57:33.342464    56 StaAnalyze.cc:565] analyze timing path end vertex 181 total 1084 start
+I20261010 15:57:33.342576    56 StaAnalyze.cc:599] analyze timing path end vertex 181 total 1084 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.342722    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[1]_114__reg_p:D
+I20261010 15:57:33.342865    56 StaAnalyze.cc:565] analyze timing path end vertex 191 total 1084 start
+I20261010 15:57:33.342887    56 StaAnalyze.cc:599] analyze timing path end vertex 191 total 1084 end
+I20261010 15:57:33.343061    56 StaAnalyze.cc:565] analyze timing path end vertex 201 total 1084 start
+I20261010 15:57:33.343139    56 StaAnalyze.cc:599] analyze timing path end vertex 201 total 1084 end
+I20261010 15:57:33.343353    56 StaAnalyze.cc:565] analyze timing path end vertex 211 total 1084 start
+I20261010 15:57:33.343501    56 StaAnalyze.cc:599] analyze timing path end vertex 211 total 1084 end
+I20261010 15:57:33.343722    56 StaAnalyze.cc:565] analyze timing path end vertex 221 total 1084 start
+I20261010 15:57:33.343822    56 StaAnalyze.cc:599] analyze timing path end vertex 221 total 1084 end
+I20261010 15:57:33.344064    56 StaAnalyze.cc:565] analyze timing path end vertex 231 total 1084 start
+I20261010 15:57:33.344152    56 StaAnalyze.cc:599] analyze timing path end vertex 231 total 1084 end
+I20261010 15:57:33.344300    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[1]_4__reg_p:D
+I20261010 15:57:33.344444    56 StaAnalyze.cc:565] analyze timing path end vertex 241 total 1084 start
+I20261010 15:57:33.344542    56 StaAnalyze.cc:599] analyze timing path end vertex 241 total 1084 end
+I20261010 15:57:33.344790    56 StaAnalyze.cc:565] analyze timing path end vertex 251 total 1084 start
+I20261010 15:57:33.344879    56 StaAnalyze.cc:599] analyze timing path end vertex 251 total 1084 end
+I20261010 15:57:33.345201    56 StaAnalyze.cc:565] analyze timing path end vertex 261 total 1084 start
+I20261010 15:57:33.345314    56 StaAnalyze.cc:599] analyze timing path end vertex 261 total 1084 end
+I20261010 15:57:33.345588    56 StaAnalyze.cc:565] analyze timing path end vertex 271 total 1084 start
+I20261010 15:57:33.345649    56 StaAnalyze.cc:599] analyze timing path end vertex 271 total 1084 end
+I20261010 15:57:33.345885    56 StaAnalyze.cc:565] analyze timing path end vertex 281 total 1084 start
+I20261010 15:57:33.345995    56 StaAnalyze.cc:599] analyze timing path end vertex 281 total 1084 end
+I20261010 15:57:33.346129    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[1]_95__reg_p:D
+I20261010 15:57:33.346282    56 StaAnalyze.cc:565] analyze timing path end vertex 291 total 1084 start
+I20261010 15:57:33.346379    56 StaAnalyze.cc:599] analyze timing path end vertex 291 total 1084 end
+I20261010 15:57:33.346642    56 StaAnalyze.cc:565] analyze timing path end vertex 301 total 1084 start
+I20261010 15:57:33.346731    56 StaAnalyze.cc:599] analyze timing path end vertex 301 total 1084 end
+I20261010 15:57:33.346930    56 StaAnalyze.cc:565] analyze timing path end vertex 311 total 1084 start
+I20261010 15:57:33.347025    56 StaAnalyze.cc:599] analyze timing path end vertex 311 total 1084 end
+I20261010 15:57:33.347332    56 StaAnalyze.cc:565] analyze timing path end vertex 321 total 1084 start
+I20261010 15:57:33.347465    56 StaAnalyze.cc:599] analyze timing path end vertex 321 total 1084 end
+I20261010 15:57:33.347726    56 StaAnalyze.cc:565] analyze timing path end vertex 331 total 1084 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.347831    56 StaAnalyze.cc:599] analyze timing path end vertex 331 total 1084 end
+I20261010 15:57:33.348067    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[2]_2__reg_p:D
+I20261010 15:57:33.348209    56 StaAnalyze.cc:565] analyze timing path end vertex 341 total 1084 start
+I20261010 15:57:33.348323    56 StaAnalyze.cc:599] analyze timing path end vertex 341 total 1084 end
+I20261010 15:57:33.348739    56 StaAnalyze.cc:565] analyze timing path end vertex 351 total 1084 start
+I20261010 15:57:33.348840    56 StaAnalyze.cc:599] analyze timing path end vertex 351 total 1084 end
+I20261010 15:57:33.349043    56 StaAnalyze.cc:565] analyze timing path end vertex 361 total 1084 start
+I20261010 15:57:33.349187    56 StaAnalyze.cc:599] analyze timing path end vertex 361 total 1084 end
+I20261010 15:57:33.349413    56 StaAnalyze.cc:565] analyze timing path end vertex 371 total 1084 start
+I20261010 15:57:33.349532    56 StaAnalyze.cc:599] analyze timing path end vertex 371 total 1084 end
+I20261010 15:57:33.349720    56 StaAnalyze.cc:565] analyze timing path end vertex 381 total 1084 start
+I20261010 15:57:33.349808    56 StaAnalyze.cc:599] analyze timing path end vertex 381 total 1084 end
+I20261010 15:57:33.349944    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[2]_77__reg_p:D
+I20261010 15:57:33.350090    56 StaAnalyze.cc:565] analyze timing path end vertex 391 total 1084 start
+I20261010 15:57:33.350184    56 StaAnalyze.cc:599] analyze timing path end vertex 391 total 1084 end
+I20261010 15:57:33.350468    56 StaAnalyze.cc:565] analyze timing path end vertex 401 total 1084 start
+I20261010 15:57:33.350535    56 StaAnalyze.cc:599] analyze timing path end vertex 401 total 1084 end
+I20261010 15:57:33.350785    56 StaAnalyze.cc:565] analyze timing path end vertex 411 total 1084 start
+I20261010 15:57:33.350885    56 StaAnalyze.cc:599] analyze timing path end vertex 411 total 1084 end
+I20261010 15:57:33.351126    56 StaAnalyze.cc:565] analyze timing path end vertex 421 total 1084 start
+I20261010 15:57:33.351261    56 StaAnalyze.cc:599] analyze timing path end vertex 421 total 1084 end
+I20261010 15:57:33.351536    56 StaAnalyze.cc:565] analyze timing path end vertex 431 total 1084 start
+I20261010 15:57:33.351653    56 StaAnalyze.cc:599] analyze timing path end vertex 431 total 1084 end
+I20261010 15:57:33.351786    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[3]_121__reg_p:D
+I20261010 15:57:33.351980    56 StaAnalyze.cc:565] analyze timing path end vertex 441 total 1084 start
+I20261010 15:57:33.352038    56 StaAnalyze.cc:599] analyze timing path end vertex 441 total 1084 end
+I20261010 15:57:33.352276    56 StaAnalyze.cc:565] analyze timing path end vertex 451 total 1084 start
+I20261010 15:57:33.352388    56 StaAnalyze.cc:599] analyze timing path end vertex 451 total 1084 end
+I20261010 15:57:33.352654    56 StaAnalyze.cc:565] analyze timing path end vertex 461 total 1084 start
+I20261010 15:57:33.352771    56 StaAnalyze.cc:599] analyze timing path end vertex 461 total 1084 end
+I20261010 15:57:33.353016    56 StaAnalyze.cc:565] analyze timing path end vertex 471 total 1084 start
+I20261010 15:57:33.353119    56 StaAnalyze.cc:599] analyze timing path end vertex 471 total 1084 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.353438    56 StaAnalyze.cc:565] analyze timing path end vertex 481 total 1084 start
+I20261010 15:57:33.353619    56 StaAnalyze.cc:599] analyze timing path end vertex 481 total 1084 end
+I20261010 15:57:33.353773    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[3]_57__reg_p:D
+I20261010 15:57:33.353914    56 StaAnalyze.cc:565] analyze timing path end vertex 491 total 1084 start
+I20261010 15:57:33.353967    56 StaAnalyze.cc:599] analyze timing path end vertex 491 total 1084 end
+I20261010 15:57:33.354202    56 StaAnalyze.cc:565] analyze timing path end vertex 501 total 1084 start
+I20261010 15:57:33.354310    56 StaAnalyze.cc:599] analyze timing path end vertex 501 total 1084 end
+I20261010 15:57:33.354573    56 StaAnalyze.cc:565] analyze timing path end vertex 511 total 1084 start
+I20261010 15:57:33.354635    56 StaAnalyze.cc:599] analyze timing path end vertex 511 total 1084 end
+I20261010 15:57:33.354861    56 StaAnalyze.cc:565] analyze timing path end vertex 521 total 1084 start
+I20261010 15:57:33.354962    56 StaAnalyze.cc:599] analyze timing path end vertex 521 total 1084 end
+I20261010 15:57:33.355263    56 StaAnalyze.cc:565] analyze timing path end vertex 531 total 1084 start
+I20261010 15:57:33.355381    56 StaAnalyze.cc:599] analyze timing path end vertex 531 total 1084 end
+I20261010 15:57:33.355551    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[4]_101__reg_p:D
+I20261010 15:57:33.355798    56 StaAnalyze.cc:565] analyze timing path end vertex 541 total 1084 start
+I20261010 15:57:33.355939    56 StaAnalyze.cc:599] analyze timing path end vertex 541 total 1084 end
+I20261010 15:57:33.356232    56 StaAnalyze.cc:565] analyze timing path end vertex 551 total 1084 start
+I20261010 15:57:33.356313    56 StaAnalyze.cc:599] analyze timing path end vertex 551 total 1084 end
+I20261010 15:57:33.356495    56 StaAnalyze.cc:565] analyze timing path end vertex 561 total 1084 start
+I20261010 15:57:33.356573    56 StaAnalyze.cc:599] analyze timing path end vertex 561 total 1084 end
+I20261010 15:57:33.356726    56 StaAnalyze.cc:565] analyze timing path end vertex 571 total 1084 start
+I20261010 15:57:33.356805    56 StaAnalyze.cc:599] analyze timing path end vertex 571 total 1084 end
+I20261010 15:57:33.356979    56 StaAnalyze.cc:565] analyze timing path end vertex 581 total 1084 start
+I20261010 15:57:33.357029    56 StaAnalyze.cc:599] analyze timing path end vertex 581 total 1084 end
+I20261010 15:57:33.357110    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[4]_37__reg_p:D
+I20261010 15:57:33.357200    56 StaAnalyze.cc:565] analyze timing path end vertex 591 total 1084 start
+I20261010 15:57:33.357276    56 StaAnalyze.cc:599] analyze timing path end vertex 591 total 1084 end
+I20261010 15:57:33.357542    56 StaAnalyze.cc:565] analyze timing path end vertex 601 total 1084 start
+I20261010 15:57:33.357611    56 StaAnalyze.cc:599] analyze timing path end vertex 601 total 1084 end
+I20261010 15:57:33.357791    56 StaAnalyze.cc:565] analyze timing path end vertex 611 total 1084 start
+I20261010 15:57:33.357867    56 StaAnalyze.cc:599] analyze timing path end vertex 611 total 1084 end
+I20261010 15:57:33.358036    56 StaAnalyze.cc:565] analyze timing path end vertex 621 total 1084 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.358105    56 StaAnalyze.cc:599] analyze timing path end vertex 621 total 1084 end
+I20261010 15:57:33.358326    56 StaAnalyze.cc:565] analyze timing path end vertex 631 total 1084 start
+I20261010 15:57:33.358402    56 StaAnalyze.cc:599] analyze timing path end vertex 631 total 1084 end
+I20261010 15:57:33.358558    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[4]_89__reg_p:D
+I20261010 15:57:33.358654    56 StaAnalyze.cc:565] analyze timing path end vertex 641 total 1084 start
+I20261010 15:57:33.358685    56 StaAnalyze.cc:599] analyze timing path end vertex 641 total 1084 end
+I20261010 15:57:33.358865    56 StaAnalyze.cc:565] analyze timing path end vertex 651 total 1084 start
+I20261010 15:57:33.358904    56 StaAnalyze.cc:599] analyze timing path end vertex 651 total 1084 end
+I20261010 15:57:33.359011    56 StaAnalyze.cc:565] analyze timing path end vertex 661 total 1084 start
+I20261010 15:57:33.359031    56 StaAnalyze.cc:599] analyze timing path end vertex 661 total 1084 end
+I20261010 15:57:33.359161    56 StaAnalyze.cc:565] analyze timing path end vertex 671 total 1084 start
+I20261010 15:57:33.359236    56 StaAnalyze.cc:599] analyze timing path end vertex 671 total 1084 end
+I20261010 15:57:33.359490    56 StaAnalyze.cc:565] analyze timing path end vertex 681 total 1084 start
+I20261010 15:57:33.359573    56 StaAnalyze.cc:599] analyze timing path end vertex 681 total 1084 end
+I20261010 15:57:33.359670    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[5]_23__reg_p:D
+I20261010 15:57:33.359764    56 StaAnalyze.cc:565] analyze timing path end vertex 691 total 1084 start
+I20261010 15:57:33.359795    56 StaAnalyze.cc:599] analyze timing path end vertex 691 total 1084 end
+I20261010 15:57:33.359951    56 StaAnalyze.cc:565] analyze timing path end vertex 701 total 1084 start
+I20261010 15:57:33.359983    56 StaAnalyze.cc:599] analyze timing path end vertex 701 total 1084 end
+I20261010 15:57:33.360152    56 StaAnalyze.cc:565] analyze timing path end vertex 711 total 1084 start
+I20261010 15:57:33.360224    56 StaAnalyze.cc:599] analyze timing path end vertex 711 total 1084 end
+I20261010 15:57:33.360390    56 StaAnalyze.cc:565] analyze timing path end vertex 721 total 1084 start
+I20261010 15:57:33.360478    56 StaAnalyze.cc:599] analyze timing path end vertex 721 total 1084 end
+I20261010 15:57:33.360641    56 StaAnalyze.cc:565] analyze timing path end vertex 731 total 1084 start
+I20261010 15:57:33.360715    56 StaAnalyze.cc:599] analyze timing path end vertex 731 total 1084 end
+I20261010 15:57:33.360810    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[5]_71__reg_p:D
+I20261010 15:57:33.360908    56 StaAnalyze.cc:565] analyze timing path end vertex 741 total 1084 start
+I20261010 15:57:33.360942    56 StaAnalyze.cc:599] analyze timing path end vertex 741 total 1084 end
+I20261010 15:57:33.361102    56 StaAnalyze.cc:565] analyze timing path end vertex 751 total 1084 start
+I20261010 15:57:33.361171    56 StaAnalyze.cc:599] analyze timing path end vertex 751 total 1084 end
+I20261010 15:57:33.361338    56 StaAnalyze.cc:565] analyze timing path end vertex 761 total 1084 start
+I20261010 15:57:33.361407    56 StaAnalyze.cc:599] analyze timing path end vertex 761 total 1084 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.361738    56 StaAnalyze.cc:565] analyze timing path end vertex 771 total 1084 start
+I20261010 15:57:33.361891    56 StaAnalyze.cc:599] analyze timing path end vertex 771 total 1084 end
+I20261010 15:57:33.362121    56 StaAnalyze.cc:565] analyze timing path end vertex 781 total 1084 start
+I20261010 15:57:33.362238    56 StaAnalyze.cc:599] analyze timing path end vertex 781 total 1084 end
+I20261010 15:57:33.362365    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[6]_116__reg_p:D
+I20261010 15:57:33.362514    56 StaAnalyze.cc:565] analyze timing path end vertex 791 total 1084 start
+I20261010 15:57:33.362610    56 StaAnalyze.cc:599] analyze timing path end vertex 791 total 1084 end
+I20261010 15:57:33.362839    56 StaAnalyze.cc:565] analyze timing path end vertex 801 total 1084 start
+I20261010 15:57:33.362946    56 StaAnalyze.cc:599] analyze timing path end vertex 801 total 1084 end
+I20261010 15:57:33.363165    56 StaAnalyze.cc:565] analyze timing path end vertex 811 total 1084 start
+I20261010 15:57:33.363300    56 StaAnalyze.cc:599] analyze timing path end vertex 811 total 1084 end
+I20261010 15:57:33.363642    56 StaAnalyze.cc:565] analyze timing path end vertex 821 total 1084 start
+I20261010 15:57:33.363763    56 StaAnalyze.cc:599] analyze timing path end vertex 821 total 1084 end
+I20261010 15:57:33.364030    56 StaAnalyze.cc:565] analyze timing path end vertex 831 total 1084 start
+I20261010 15:57:33.364154    56 StaAnalyze.cc:599] analyze timing path end vertex 831 total 1084 end
+I20261010 15:57:33.364323    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[6]_51__reg_p:D
+I20261010 15:57:33.364562    56 StaAnalyze.cc:565] analyze timing path end vertex 841 total 1084 start
+I20261010 15:57:33.364672    56 StaAnalyze.cc:599] analyze timing path end vertex 841 total 1084 end
+I20261010 15:57:33.364923    56 StaAnalyze.cc:565] analyze timing path end vertex 851 total 1084 start
+I20261010 15:57:33.364972    56 StaAnalyze.cc:599] analyze timing path end vertex 851 total 1084 end
+I20261010 15:57:33.365181    56 StaAnalyze.cc:565] analyze timing path end vertex 861 total 1084 start
+I20261010 15:57:33.365279    56 StaAnalyze.cc:599] analyze timing path end vertex 861 total 1084 end
+I20261010 15:57:33.365538    56 StaAnalyze.cc:565] analyze timing path end vertex 871 total 1084 start
+I20261010 15:57:33.365645    56 StaAnalyze.cc:599] analyze timing path end vertex 871 total 1084 end
+I20261010 15:57:33.365881    56 StaAnalyze.cc:565] analyze timing path end vertex 881 total 1084 start
+I20261010 15:57:33.366098    56 StaAnalyze.cc:599] analyze timing path end vertex 881 total 1084 end
+I20261010 15:57:33.366290    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[6]_97__reg_p:D
+I20261010 15:57:33.366456    56 StaAnalyze.cc:565] analyze timing path end vertex 891 total 1084 start
+I20261010 15:57:33.366504    56 StaAnalyze.cc:599] analyze timing path end vertex 891 total 1084 end
+I20261010 15:57:33.366796    56 StaAnalyze.cc:565] analyze timing path end vertex 901 total 1084 start
+I20261010 15:57:33.366916    56 StaAnalyze.cc:599] analyze timing path end vertex 901 total 1084 end
+I20261010 15:57:33.367152    56 StaAnalyze.cc:565] analyze timing path end vertex 911 total 1084 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.367316    56 StaAnalyze.cc:599] analyze timing path end vertex 911 total 1084 end
+I20261010 15:57:33.367623    56 StaAnalyze.cc:565] analyze timing path end vertex 921 total 1084 start
+I20261010 15:57:33.367758    56 StaAnalyze.cc:599] analyze timing path end vertex 921 total 1084 end
+I20261010 15:57:33.367998    56 StaAnalyze.cc:565] analyze timing path end vertex 931 total 1084 start
+I20261010 15:57:33.368127    56 StaAnalyze.cc:599] analyze timing path end vertex 931 total 1084 end
+I20261010 15:57:33.368273    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[7]_31__reg_p:D
+I20261010 15:57:33.368410    56 StaAnalyze.cc:565] analyze timing path end vertex 941 total 1084 start
+I20261010 15:57:33.368536    56 StaAnalyze.cc:599] analyze timing path end vertex 941 total 1084 end
+I20261010 15:57:33.368780    56 StaAnalyze.cc:565] analyze timing path end vertex 951 total 1084 start
+I20261010 15:57:33.368888    56 StaAnalyze.cc:599] analyze timing path end vertex 951 total 1084 end
+I20261010 15:57:33.369081    56 StaAnalyze.cc:565] analyze timing path end vertex 961 total 1084 start
+I20261010 15:57:33.369171    56 StaAnalyze.cc:599] analyze timing path end vertex 961 total 1084 end
+I20261010 15:57:33.369416    56 StaAnalyze.cc:565] analyze timing path end vertex 971 total 1084 start
+I20261010 15:57:33.369470    56 StaAnalyze.cc:599] analyze timing path end vertex 971 total 1084 end
+I20261010 15:57:33.369644    56 StaAnalyze.cc:565] analyze timing path end vertex 981 total 1084 start
+I20261010 15:57:33.369776    56 StaAnalyze.cc:599] analyze timing path end vertex 981 total 1084 end
+I20261010 15:57:33.369910    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_array_q[7]_77__reg_p:D
+I20261010 15:57:33.370056    56 StaAnalyze.cc:565] analyze timing path end vertex 991 total 1084 start
+I20261010 15:57:33.370165    56 StaAnalyze.cc:599] analyze timing path end vertex 991 total 1084 end
+I20261010 15:57:33.370411    56 StaAnalyze.cc:565] analyze timing path end vertex 1001 total 1084 start
+I20261010 15:57:33.370486    56 StaAnalyze.cc:599] analyze timing path end vertex 1001 total 1084 end
+I20261010 15:57:33.370707    56 StaAnalyze.cc:565] analyze timing path end vertex 1011 total 1084 start
+I20261010 15:57:33.370827    56 StaAnalyze.cc:599] analyze timing path end vertex 1011 total 1084 end
+I20261010 15:57:33.370992    56 StaAnalyze.cc:565] analyze timing path end vertex 1021 total 1084 start
+I20261010 15:57:33.371052    56 StaAnalyze.cc:599] analyze timing path end vertex 1021 total 1084 end
+I20261010 15:57:33.371203    56 StaAnalyze.cc:565] analyze timing path end vertex 1031 total 1084 start
+I20261010 15:57:33.371258    56 StaAnalyze.cc:599] analyze timing path end vertex 1031 total 1084 end
+I20261010 15:57:33.371451    56 StaAnalyze.cc:565] analyze timing path end vertex 1041 total 1084 start
+I20261010 15:57:33.371508    56 StaAnalyze.cc:599] analyze timing path end vertex 1041 total 1084 end
+I20261010 15:57:33.371577    56 StaAnalyze.cc:303] add path data num 4 to g_full_target.entry_present_array_q_6__reg_p:D
+I20261010 15:57:33.371683    56 StaAnalyze.cc:565] analyze timing path end vertex 1051 total 1084 start
+I20261010 15:57:33.371728    56 StaAnalyze.cc:599] analyze timing path end vertex 1051 total 1084 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.371881    56 StaAnalyze.cc:565] analyze timing path end vertex 1061 total 1084 start
+I20261010 15:57:33.372021    56 StaAnalyze.cc:599] analyze timing path end vertex 1061 total 1084 end
+I20261010 15:57:33.372206    56 StaAnalyze.cc:565] analyze timing path end vertex 1071 total 1084 start
+I20261010 15:57:33.372304    56 StaAnalyze.cc:599] analyze timing path end vertex 1071 total 1084 end
+I20261010 15:57:33.372520    56 StaAnalyze.cc:565] analyze timing path end vertex 1081 total 1084 start
+I20261010 15:57:33.372583    56 StaAnalyze.cc:599] analyze timing path end vertex 1081 total 1084 end
+I20261010 15:57:33.372658    56 StaAnalyze.cc:603] analyze timing path end
+I20261010 15:57:33.372695    56 StaApplySdc.cc:698] apply sdc start
+I20261010 15:57:33.372717    56 StaApplySdc.cc:729] apply sdc end
+I20261010 15:57:33.372735    56 StaDataPropagation.cc:698] data bwd propagation start
+I20261010 15:57:33.379500    56 StaDataPropagation.cc:249] propagate start vertex training_target_pc_i_9_
+I20261010 15:57:33.379613    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[0]_11__reg_p:D
+I20261010 15:57:33.379673    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[0]_72__reg_p:D
+I20261010 15:57:33.379710    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[1]_11__reg_p:D
+I20261010 15:57:33.379733    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[1]_72__reg_p:D
+I20261010 15:57:33.379755    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[2]_11__reg_p:D
+I20261010 15:57:33.379778    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[2]_72__reg_p:D
+I20261010 15:57:33.379801    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[3]_11__reg_p:D
+I20261010 15:57:33.379822    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[3]_72__reg_p:D
+I20261010 15:57:33.379845    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[4]_11__reg_p:D
+I20261010 15:57:33.379868    56 StaDataPropagation.cc:172] Thread 128182223638656 data bwd propagate found end vertex.g_full_target.entry_array_q[4]_72__reg_p:D
+I20261010 15:57:33.418589    56 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[2]_13__reg_p:CK
+I20261010 15:57:33.421810    56 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[2]_29__reg_p:CK
+I20261010 15:57:33.425040    56 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[4]_100__reg_p:CK
+I20261010 15:57:33.428345    56 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[5]_70__reg_p:CK
+I20261010 15:57:33.432228    56 StaDataPropagation.cc:249] propagate start vertex g_full_target.entry_array_q[7]_30__reg_p:CK
+I20261010 15:57:33.441071    56 StaDataPropagation.cc:703] data bwd propagation end
+I20261010 15:57:33.441200    56 Sta.cc:2895] update timing end
+I20261010 15:57:33.441323    56 Sta.cc:2898] update timing memory usage 893.54MB
+I20261010 15:57:33.441372    56 Sta.cc:2900] update timing time elapsed 1.22201s
+I20261010 15:57:33.442404    56 Sta.cc:2998] start write sta report.
+I20261010 15:57:33.442499    56 Sta.cc:2999] output sta report path: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261010-155733.56'!
+I20261010 15:57:33.444538    56 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261010 15:57:33.444762    56 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261010 15:57:33.447088    56 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261010 15:57:33.450704    56 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261010 15:57:33.452499    56 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261010 15:57:33.452636    56 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261010 15:57:33.453795    56 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261010 15:57:33.453908    56 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261010 15:57:33.455389    56 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261010 15:57:33.457690    56 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261010 15:57:33.459733    56 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261010 15:57:33.459862    56 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261010 15:57:33.459896    56 Sta.cc:1885] 
++---------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+-------+-----------+
+| Endpoint                                                                                          | Clock Group              | Delay Type | Path Delay | Path Required | CPPR  | Slack | Freq(MHz) |
++---------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+-------+-----------+
+| lookup_target_pc_o_29_                                                                            | core_clock               | max        | 0.715r     | 0.975         | 0.000 | 0.260 | 1043.273  |
+| lookup_target_pc_o_6_                                                                             | core_clock               | max        | 0.715r     | 0.975         | 0.000 | 0.260 | 1043.273  |
+| lookup_target_pc_o_18_                                                                            | core_clock               | max        | 0.715r     | 0.975         | 0.000 | 0.260 | 1043.273  |
+| lookup_target_pc_o_5_                                                                             | core_clock               | max        | 0.715r     | 0.975         | 0.000 | 0.260 | 1043.273  |
+| lookup_target_pc_o_19_                                                                            | core_clock               | max        | 0.715r     | 0.975         | 0.000 | 0.260 | 1043.273  |
+| g_full_target.entry_present_array_q_9__AOI22_X1_A1_A2_NAND2_X1_A2_ZN_INV_X1_A_ZN_CLKGATE_X1_E:E   | **clock_gating_default** | max        | 0.734r     | 1.170         | 0.000 | 0.436 | NA        |
+| g_full_target.entry_present_array_q_1__NAND2_X1_A2_A1_NAND2_X1_A2_ZN_INV_X1_A_ZN_CLKGATE_X1_E:E   | **clock_gating_default** | max        | 0.734r     | 1.170         | 0.000 | 0.436 | NA        |
+| g_full_target.entry_present_array_q_3__NAND2_X1_A2_A1_NAND2_X1_A2_ZN_INV_X1_A_ZN_CLKGATE_X1_E:E   | **clock_gating_default** | max        | 0.734r     | 1.170         | 0.000 | 0.437 | NA        |
+| g_full_target.entry_present_array_q_4__NAND2_X1_A2_1_A1_NAND2_X1_A2_ZN_INV_X1_A_ZN_CLKGATE_X1_E:E | **clock_gating_default** | max        | 0.734r     | 1.170         | 0.000 | 0.437 | NA        |
+| g_full_target.entry_present_array_q_9__AOI22_X1_A1_B1_NAND2_X1_A2_ZN_INV_X1_A_ZN_CLKGATE_X1_E:E   | **clock_gating_default** | max        | 0.734r     | 1.170         | 0.000 | 0.437 | NA        |
+| g_full_target.entry_present_array_q_5__reg_p:D                                                    | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.entry_present_array_q_5__reg_p:D                                                    | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.entry_present_array_q_9__reg_p:D                                                    | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.entry_present_array_q_9__reg_p:D                                                    | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.entry_present_array_q_7__reg_p:D                                                    | core_clock               | min        | 0.085f     | 0.003         | 0.000 | 0.083 | NA        |
+| g_full_target.replacement_way_array_q_7__reg_p_CK_CLKGATE_X1_GCK:E                                | **clock_gating_default** | min        | 0.239f     | -0.015        | 0.000 | 0.254 | NA        |
+| g_full_target.replacement_way_array_q_3__reg_p_CK_CLKGATE_X1_GCK:E                                | **clock_gating_default** | min        | 0.239f     | -0.015        | 0.000 | 0.254 | NA        |
+| g_full_target.replacement_way_array_q_6__reg_p_CK_CLKGATE_X1_GCK:E                                | **clock_gating_default** | min        | 0.239f     | -0.015        | 0.000 | 0.254 | NA        |
+| g_full_target.replacement_way_array_q_2__reg_p_CK_CLKGATE_X1_GCK:E                                | **clock_gating_default** | min        | 0.239f     | -0.015        | 0.000 | 0.254 | NA        |
+| g_full_target.replacement_way_array_q_0__reg_p_CK_CLKGATE_X1_GCK:E                                | **clock_gating_default** | min        | 0.239f     | -0.015        | 0.000 | 0.254 | NA        |
++---------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+-------+-----------+
+I20261010 15:57:33.460570    56 Sta.cc:1886] 
++------------+------------+-------+
+| Clock      | Delay Type | TNS   |
++------------+------------+-------+
+| core_clock | max        | 0.000 |
+| core_clock | min        | 0.000 |
++------------+------------+-------+
+I20261010 15:57:33.584321    56 NetlistWriter.cc:52] start write verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.v
+I20261010 15:57:33.767666    56 NetlistWriter.cc:71] finish write verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.v
+I20261010 15:57:33.768761    56 Sta.cc:3111] used lib: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib
+I20261010 15:57:33.768885    56 Sta.cc:3096] The timing engine run success.
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow'
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'

@@ -1,0 +1,2407 @@
+[
+  {
+    "source": "result/branch-v3/btb-parallel/unit/run.log",
+    "retained": "tests/unit/run.log.gz",
+    "source_sha256": "c1f7418a96ad08e0ccaa4a66d430dd2a97325a22d7b4aeaff965125a234e94a7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit/manifest.json",
+    "retained": "tests/unit/manifest.json",
+    "source_sha256": "db36b3b732caadef30eb91280fa3b2bd21a8d8109f42e531df2ff8ecafd07036"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit/test.sv",
+    "retained": "tests/unit/test.sv.gz",
+    "source_sha256": "15b463f7dcdc1384143d5573a1844bfd75aff8efe9145fefa5b3ab021b236acb"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit/test.cpp",
+    "retained": "tests/unit/test.cpp.gz",
+    "source_sha256": "1852fcc87237f8bee7f167aecfc2592ce945934db03aa164fbfbe90a31d70a2f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit/build.log",
+    "retained": "tests/unit/build.log.gz",
+    "source_sha256": "f03dda50d655636bfe2aab267966525d77f788d603754445b950b432f4ce2b79"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2/run.log",
+    "retained": "tests/unit-v2/run.log.gz",
+    "source_sha256": "d6c4b27fe18841a709443010faa7f409235b151ea6e1f98596993fb4376fff17"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2/manifest.json",
+    "retained": "tests/unit-v2/manifest.json",
+    "source_sha256": "9c879bf042b8d6fd40008397331349c1e0f7a63c27fdfe15284c62915614b6ba"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2/test.sv",
+    "retained": "tests/unit-v2/test.sv.gz",
+    "source_sha256": "15b463f7dcdc1384143d5573a1844bfd75aff8efe9145fefa5b3ab021b236acb"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2/test.cpp",
+    "retained": "tests/unit-v2/test.cpp.gz",
+    "source_sha256": "1852fcc87237f8bee7f167aecfc2592ce945934db03aa164fbfbe90a31d70a2f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2/build.log",
+    "retained": "tests/unit-v2/build.log.gz",
+    "source_sha256": "4d39aa9cfdf8754230e1533a02e0724a4b10f1d75b358e3ed2e48d5ec2228e8a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2-fixed/run.log",
+    "retained": "tests/unit-v2-fixed/run.log.gz",
+    "source_sha256": "c1f7418a96ad08e0ccaa4a66d430dd2a97325a22d7b4aeaff965125a234e94a7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2-fixed/manifest.json",
+    "retained": "tests/unit-v2-fixed/manifest.json",
+    "source_sha256": "71da2b7f9aa2d886600eb901d9465aff596a7e066bb58636ee9135f889673782"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2-fixed/test.sv",
+    "retained": "tests/unit-v2-fixed/test.sv.gz",
+    "source_sha256": "15b463f7dcdc1384143d5573a1844bfd75aff8efe9145fefa5b3ab021b236acb"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2-fixed/test.cpp",
+    "retained": "tests/unit-v2-fixed/test.cpp.gz",
+    "source_sha256": "1852fcc87237f8bee7f167aecfc2592ce945934db03aa164fbfbe90a31d70a2f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v2-fixed/build.log",
+    "retained": "tests/unit-v2-fixed/build.log.gz",
+    "source_sha256": "0ce8f6292e280a14169b940e57c7586897bf84373b53ad57d6e76c941cb616b1"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend/predictor/run.log",
+    "retained": "tests/frontend/predictor/run.log.gz",
+    "source_sha256": "8744a88ea73d39ae3504098f194bf84604ba5081a1e41f31c39e64c34c3f08ac"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend/predictor/manifest.json",
+    "retained": "tests/frontend/predictor/manifest.json",
+    "source_sha256": "354c017494000f4595720f092617f5a842016b2e5a5f6aca3eef2054e2a5d651"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend/predictor/build.log",
+    "retained": "tests/frontend/predictor/build.log.gz",
+    "source_sha256": "b2c0250d84dff1fb5b0fcb1dc6fff3bf137b1439243364c66683eaa3cf1c3eb3"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/configuration.json",
+    "retained": "core/current/configuration.json",
+    "source_sha256": "38e762b3a70df84a592e0a8e8259f18f23a83607b5a14c7c5b9288e897703163"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core-probes.json",
+    "retained": "core/current/core-probes.json",
+    "source_sha256": "a677c3ecd94847f4686dfbd82344fe7e87e0a726ec696b4a1b84735a6fc8383f"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core700/result.json",
+    "retained": "core/current/core700/result.json",
+    "source_sha256": "406356111709d8133cc97052b43fc8a7bbfa279fc21360467eac0cc914fb6a19"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core700/constraints.sdc",
+    "retained": "core/current/core700/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core700/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/core700/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "ce4859b7608dc604c084e64c42169e115eaafd77bedbdc8e3fb339a771ddb9b3"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-tree.json",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-tree.json",
+    "source_sha256": "edd66f9b8df13967b9a499acbf18aafa62d3630528c1855790d39a2a1c209cba"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_check.txt",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_check.txt",
+    "source_sha256": "db0af1e809a62fa70a5c8b0052e6af0699d93fcdcdac22abade178f27da3181f"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "c6dad9d08224fdce2fd431da606766ef675aea8909a4ae938985747c7af81db8"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "source_sha256": "b0451918a48b1d61aad9519b9859bdecb00ba5a79f5698e1b877c1772dcf780e"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+    "retained": "core/current/mapped-netlist.v.gz",
+    "source_sha256": "dac0d3a78f9871c86c0f94777f96e640b55cd7d5d0f69133a236e3db291fdd4c"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json",
+    "source_sha256": "f1a83d23684b48f51e5e8be31316ad03225b0a28c484d11880277dd1ffaced9c"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz/synth_check.txt",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz/synth_check.txt",
+    "source_sha256": "a244657998cd822f1c6af5aa0f5d1dd7cfe368e1cf3d57b51e06b851888e8306"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz/abc.sdc",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz/abc.sdc",
+    "source_sha256": "18c01ed2b0b354b6cd3cea12e53967347dc69a8ac70f1d0679ab3ed93a55ae57"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "97c10d9b8c0f8fc4dc814cafd8ea0e50dedb913a552d21b8337a42bace673659"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/sta/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "retained": "core/current/sta/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "source_sha256": "6a8dd7fa7abf22513fa8a248f16942b65d1fd7fbb6878ab7580515843216309b"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/prediction-response/targets.json",
+    "retained": "core/current/prediction-response/targets.json",
+    "source_sha256": "39e756a2e92948cd09878619435b614a7a37e98c791d54dc399a93ea29e3b030"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/prediction-response/result.json",
+    "retained": "core/current/prediction-response/result.json",
+    "source_sha256": "2341e2b693c122908524cbb2074cf5bdc20db7e9510b5b834eb7ae92bc2c20d6"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/prediction-response/constraints.sdc",
+    "retained": "core/current/prediction-response/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/prediction-response/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/prediction-response/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "53f53525d2d8470111d62c49a4820186dbed673e7b170003c0f0b8d81c4be9ef"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/prediction-response/scope.tcl",
+    "retained": "core/current/prediction-response/scope.tcl",
+    "source_sha256": "b3a9cf3b43af6586b23ab5613a8c85348a9884d34c431bec98428e8f913d4bff"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core715/result.json",
+    "retained": "core/current/core715/result.json",
+    "source_sha256": "b4ba7e0f3e551cf273432cd62ed3c0cc5f18068fe516c45e175e79b43f65aae4"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core715/constraints.sdc",
+    "retained": "core/current/core715/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core715/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/core715/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "5ec2b1c87a0b1272ed527e99165f938e88f28202f0f50e3ca2446274930989f2"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/analysis/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/analysis/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "c6dad9d08224fdce2fd431da606766ef675aea8909a4ae938985747c7af81db8"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/analysis/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "retained": "core/current/analysis/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "source_sha256": "b0451918a48b1d61aad9519b9859bdecb00ba5a79f5698e1b877c1772dcf780e"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/analysis/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/analysis/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "97c10d9b8c0f8fc4dc814cafd8ea0e50dedb913a552d21b8337a42bace673659"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/analysis/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "retained": "core/current/analysis/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "source_sha256": "6a8dd7fa7abf22513fa8a248f16942b65d1fd7fbb6878ab7580515843216309b"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/btb-training/targets.json",
+    "retained": "core/current/btb-training/targets.json",
+    "source_sha256": "d86f5fdddf1f99a5ef7c503339454fa44bdc8e35a5340718e2302c2a4fc663bd"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/btb-training/result.json",
+    "retained": "core/current/btb-training/result.json",
+    "source_sha256": "bf39e36fd31da9a2b9d968ee365e05dace960280a73f2ed74e545d3c0d0f4f5b"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/btb-training/constraints.sdc",
+    "retained": "core/current/btb-training/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/btb-training/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/btb-training/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "787be64dee02f2e141cac8c0c6090fcb0a985f9ecad828da4aa5d6d2163f7834"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/btb-training/scope.tcl",
+    "retained": "core/current/btb-training/scope.tcl",
+    "source_sha256": "9f44834e3ae81a828b4c7b8eaedbd8f0971b230f9568685b85af7972f701aa34"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core720/result.json",
+    "retained": "core/current/core720/result.json",
+    "source_sha256": "2fb7f2b6a564e2aabef7b11272479fe2844d03dde2940854091b65cc2db36419"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core720/constraints.sdc",
+    "retained": "core/current/core720/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/current/core720/riscv32_core_reset_boundary.rpt",
+    "retained": "core/current/core720/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "68369b425d58c1ec4252f3a99dd08da9a1c477f3b212976c633e5ad225cccbeb"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/configuration.json",
+    "retained": "core/v2/configuration.json",
+    "source_sha256": "c201286d2a5818958d20d5e497357b52b66ae45ac76042184a593c1a0cc291e0"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core-probes.json",
+    "retained": "core/v2/core-probes.json",
+    "source_sha256": "f763cc4b5d31f2c9d531d4a88c4de0870645f068f324f6305332ced32d969843"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core700/result.json",
+    "retained": "core/v2/core700/result.json",
+    "source_sha256": "a9ffdadf42358c34e045336845c948da5656bf2af8a452768bed04ee1980612a"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core700/constraints.sdc",
+    "retained": "core/v2/core700/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core700/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/core700/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "e58163791157f418c4d5ae345a96b97c9142a3ed8917034613609e4b31178813"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-tree.json",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-tree.json",
+    "source_sha256": "fc92c634e785b02a804c123f91a58580ba155aa69caa1e9f4e00257fcd67725f"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_check.txt",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_check.txt",
+    "source_sha256": "db0af1e809a62fa70a5c8b0052e6af0699d93fcdcdac22abade178f27da3181f"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "38cbcc514fb44203a3d370af24f418290562dcbe7ed3ee724580f853343eb9c0"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "source_sha256": "83fe787242e81ce7dd4111dc91e71f0c95bdfa087df7f3b0d8d25391b7818d68"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+    "retained": "core/v2/mapped-netlist.v.gz",
+    "source_sha256": "c7046aeb721f15507e4a41ae9361cf28a109507d6775f220d469cd0d4d59e9c6"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json",
+    "source_sha256": "f1a83d23684b48f51e5e8be31316ad03225b0a28c484d11880277dd1ffaced9c"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz/synth_check.txt",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz/synth_check.txt",
+    "source_sha256": "a244657998cd822f1c6af5aa0f5d1dd7cfe368e1cf3d57b51e06b851888e8306"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz/abc.sdc",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz/abc.sdc",
+    "source_sha256": "18c01ed2b0b354b6cd3cea12e53967347dc69a8ac70f1d0679ab3ed93a55ae57"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "dcf607b2d3959ed810cefa5cac0554f728642a8cbadfcec5094477a0d915953e"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/sta/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "retained": "core/v2/sta/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "source_sha256": "d6a7431b3a3599d1d06270b705257ae84fd067927476e680311688ab00a05141"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/prediction-response/targets.json",
+    "retained": "core/v2/prediction-response/targets.json",
+    "source_sha256": "39e756a2e92948cd09878619435b614a7a37e98c791d54dc399a93ea29e3b030"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/prediction-response/result.json",
+    "retained": "core/v2/prediction-response/result.json",
+    "source_sha256": "8b19e2cf482e20934fdb5522bb0ce561ea5b73e4ffbeb121e674b21274d9e6f6"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/prediction-response/constraints.sdc",
+    "retained": "core/v2/prediction-response/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/prediction-response/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/prediction-response/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "896326b93746ad285761ff977664e0fe72d9a2ac82d80cbe177996c0e07c67c0"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/prediction-response/scope.tcl",
+    "retained": "core/v2/prediction-response/scope.tcl",
+    "source_sha256": "b3a9cf3b43af6586b23ab5613a8c85348a9884d34c431bec98428e8f913d4bff"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core715/result.json",
+    "retained": "core/v2/core715/result.json",
+    "source_sha256": "eb979db20283d3a8a35dd06be14f19bbb839d5d5ac3c76eec702b3f6f8a84771"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core715/constraints.sdc",
+    "retained": "core/v2/core715/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core715/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/core715/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "9af363634249d89d0c460788092ba439636a490122e0d7149ab8e35d6b6280d4"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/analysis/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/analysis/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "38cbcc514fb44203a3d370af24f418290562dcbe7ed3ee724580f853343eb9c0"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/analysis/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "retained": "core/v2/analysis/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "source_sha256": "83fe787242e81ce7dd4111dc91e71f0c95bdfa087df7f3b0d8d25391b7818d68"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/analysis/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/analysis/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "dcf607b2d3959ed810cefa5cac0554f728642a8cbadfcec5094477a0d915953e"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/analysis/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "retained": "core/v2/analysis/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "source_sha256": "d6a7431b3a3599d1d06270b705257ae84fd067927476e680311688ab00a05141"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/btb-training/targets.json",
+    "retained": "core/v2/btb-training/targets.json",
+    "source_sha256": "d86f5fdddf1f99a5ef7c503339454fa44bdc8e35a5340718e2302c2a4fc663bd"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/btb-training/result.json",
+    "retained": "core/v2/btb-training/result.json",
+    "source_sha256": "4d2208fa05b4ec5026edfeef3c8ca4977ce64b242f03b94a1a920cda09c258d8"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/btb-training/constraints.sdc",
+    "retained": "core/v2/btb-training/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/btb-training/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/btb-training/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "6dfd96f18fb3ca9d82b919a98029f914136081265113d772a270b43fdf5005ce"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/btb-training/scope.tcl",
+    "retained": "core/v2/btb-training/scope.tcl",
+    "source_sha256": "9f44834e3ae81a828b4c7b8eaedbd8f0971b230f9568685b85af7972f701aa34"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core720/result.json",
+    "retained": "core/v2/core720/result.json",
+    "source_sha256": "2b55d15d44e234ce27ac3d6bd30b9a299302892b61f37b9ab470a04b7f6f40a5"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core720/constraints.sdc",
+    "retained": "core/v2/core720/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v2/core720/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v2/core720/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "4c71228e0901bed92fe4d4c41a6914b6ce874c9290fdba9c7f4fc96103cd9f98"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/configuration.json",
+    "retained": "selection/v2-e32-w8-p2/configuration.json",
+    "source_sha256": "afbd6e5ca61f29ea8013868497da01baa74e08622600cbfc381aa35e3aede1a6"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "b5e061e86ca1c036e0d2392d6def84a63fcc334668d37fea82635d857da31c15"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "14173e0db52a28fd8da8c88edee49fc949eb5bc4e8d7c739395484202b5d1bc7"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/v2-e32-w8-p2/mapped-netlist.v.gz",
+    "source_sha256": "14cbf76cf79cb0927e72f255efc086e5a93c3cb9d38bf47da840de0cf8a31789"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_58_49/riscv32_btb_2026-10-10T15_58_49.rpt",
+    "retained": "selection/v2-e32-w8-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_58_49/riscv32_btb_2026-10-10T15_58_49.rpt.gz",
+    "source_sha256": "e8caa8d9547c5afe8009d39f83bbf0d120dd69f9094707fd3f8f729e242f0182"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "e8caa8d9547c5afe8009d39f83bbf0d120dd69f9094707fd3f8f729e242f0182"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "14173e0db52a28fd8da8c88edee49fc949eb5bc4e8d7c739395484202b5d1bc7"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/configuration.json",
+    "retained": "selection/before-e32-w8-p2/configuration.json",
+    "source_sha256": "c73e9d216be041e1f06515a76cfa01c7861b9ada96b81c560db916a609deefc0"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/before-e32-w8-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "352d45c40599222fa37916ecdefa8e787ea9ea2b04d9c278ba46f51458fa2d51"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w8-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "60d3f8e9d5a52cafd1fdeedffe984df88f686069b380bb08ce50d99afdb39722"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/before-e32-w8-p2/mapped-netlist.v.gz",
+    "source_sha256": "9c7abe11d117306e93e0705ef2240d8064fc547b9d0560774bce02cd5a49e7e4"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_53_26/riscv32_btb_2026-10-10T15_53_26.rpt",
+    "retained": "selection/before-e32-w8-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_53_26/riscv32_btb_2026-10-10T15_53_26.rpt.gz",
+    "source_sha256": "79ab2c6e2cd44fc69e3d08ece1b05cb5cb34885578ed66be5d934a58b8c63b36"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "79ab2c6e2cd44fc69e3d08ece1b05cb5cb34885578ed66be5d934a58b8c63b36"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "60d3f8e9d5a52cafd1fdeedffe984df88f686069b380bb08ce50d99afdb39722"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/configuration.json",
+    "retained": "selection/after-e32-w4-p2/configuration.json",
+    "source_sha256": "d598769284d139e1b9b70126685d309a9e03fd0bd2eb164ed8303eb44981cf8e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "4b8bb213bc2741407e67ff34b44a62316f2a3ab1c720aea053b67a370786960f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "58e7ef83abe352f54459c3b7d5d18cd6df47033e9b17fdee23b6a46385c1ee1d"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/after-e32-w4-p2/mapped-netlist.v.gz",
+    "source_sha256": "caae29993d714c96d10523db9787e0802d1d0a8d2f1f882068ad1a269bd0af92"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_52_52/riscv32_btb_2026-10-10T15_52_52.rpt",
+    "retained": "selection/after-e32-w4-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_52_52/riscv32_btb_2026-10-10T15_52_52.rpt.gz",
+    "source_sha256": "79f8f7d399fe7bf6d0ba528e8d1fbaaf5b325cf3ac2ac70c8f70ed7d4b66072c"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "79f8f7d399fe7bf6d0ba528e8d1fbaaf5b325cf3ac2ac70c8f70ed7d4b66072c"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "58e7ef83abe352f54459c3b7d5d18cd6df47033e9b17fdee23b6a46385c1ee1d"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/configuration.json",
+    "retained": "selection/v2-e16-w2-p0/configuration.json",
+    "source_sha256": "222f61523c8b7c818b301a55429dde389a16d34bead0feb84d1143c7c4954762"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "3229b0d6a814b7ca7cb4c40a3fbc7d4c0b4ffc24e0dc2d402708c8b9ca7e7ea6"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f4c611c4310bf3031fead32c85d8c7af560968ec5118de50b8515d4424368cc8"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/v2-e16-w2-p0/mapped-netlist.v.gz",
+    "source_sha256": "702219c1b2f7e679a006ccea0a8f91d2770558453d2b1af9e6319ad592e6531c"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz_sta_2026-10-10T15_57_41/riscv32_btb_2026-10-10T15_57_41.rpt",
+    "retained": "selection/v2-e16-w2-p0/sta/riscv32_btb-820MHz_sta_2026-10-10T15_57_41/riscv32_btb_2026-10-10T15_57_41.rpt.gz",
+    "source_sha256": "a2b85a8ec10cf98cd4ad5b2f2b50c760cde5fa906c6424ec5fdf7d62c74a05c8"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "a2b85a8ec10cf98cd4ad5b2f2b50c760cde5fa906c6424ec5fdf7d62c74a05c8"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f4c611c4310bf3031fead32c85d8c7af560968ec5118de50b8515d4424368cc8"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/configuration.json",
+    "retained": "selection/v2-e32-w4-p2/configuration.json",
+    "source_sha256": "98f51ae05334ba1c5f5aa4613d3b15bb8fb879929838ca5682abbdc19f4f9fc2"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_58_14/riscv32_btb_2026-10-10T15_58_14.rpt",
+    "retained": "selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_58_14/riscv32_btb_2026-10-10T15_58_14.rpt.gz",
+    "source_sha256": "46efb5d20983cde0b9b0f453845d6668d8b5acdf878763677fc453ff01b0af88"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "04925a7d9433661f48a792a69498a41c3fbc16001aa15adee97a83f015dc81f5"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "a79ef7982eed68a8d0580181291e407b10c94fd13f4ba2afc5f4ef24ed3ee081"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/v2-e32-w4-p2/mapped-netlist.v.gz",
+    "source_sha256": "787e16570546dd99184036a32f882923d67cd25bd2ed122eeeb0eee2078e9e9d"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "46efb5d20983cde0b9b0f453845d6668d8b5acdf878763677fc453ff01b0af88"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "a79ef7982eed68a8d0580181291e407b10c94fd13f4ba2afc5f4ef24ed3ee081"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/configuration.json",
+    "retained": "selection/before-e16-w2-p0/configuration.json",
+    "source_sha256": "d94400697ca00aa9718f1e057e5fb58d5867d6e692293b966df0fe19699df7db"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/sta/riscv32_btb-820MHz_sta_2026-10-10T15_51_30/riscv32_btb_2026-10-10T15_51_30.rpt",
+    "retained": "selection/before-e16-w2-p0/sta/riscv32_btb-820MHz_sta_2026-10-10T15_51_30/riscv32_btb_2026-10-10T15_51_30.rpt.gz",
+    "source_sha256": "54f542c30b89b5d80d02735181375eb421aca1296ac9a24502c6e1fedf6ea349"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/before-e16-w2-p0/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "6a4c972920b59522c32dd043845e6b979e54176ec470a18720f6bca529207073"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e16-w2-p0/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f08bc91fc41bbdf4f8f2292fac3f86df455a3955b99bebf28d117516874df117"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/before-e16-w2-p0/mapped-netlist.v.gz",
+    "source_sha256": "c998fd37c1008834a2e1ae4b053072d57352212fa50c7bc2fff28d0b842df043"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "54f542c30b89b5d80d02735181375eb421aca1296ac9a24502c6e1fedf6ea349"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f08bc91fc41bbdf4f8f2292fac3f86df455a3955b99bebf28d117516874df117"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/configuration.json",
+    "retained": "selection/after-e32-w8-p2/configuration.json",
+    "source_sha256": "348b30a54688366192d8b60574f3c8e41ce1cce66cd803f8e51656bcab007c1b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_54_00/riscv32_btb_2026-10-10T15_54_00.rpt",
+    "retained": "selection/after-e32-w8-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_54_00/riscv32_btb_2026-10-10T15_54_00.rpt.gz",
+    "source_sha256": "beb1839370d822ddbe29d34bd2ea3ff0b37b9991dd180be4fe86fff4debb9d03"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/after-e32-w8-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "2652677630a3a616d648c14ca5a39284ab16a2ffa5e66172a9f97c4d2863810d"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w8-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "eec0e0283fb5a8f4520b0602c10f4867fb35dea820983f157a5ed10b96596062"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/after-e32-w8-p2/mapped-netlist.v.gz",
+    "source_sha256": "6a8edf6ae2e561aa1dcbc3d46cfda083f760e88a12909e677e32aaac0e4f076f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "beb1839370d822ddbe29d34bd2ea3ff0b37b9991dd180be4fe86fff4debb9d03"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "eec0e0283fb5a8f4520b0602c10f4867fb35dea820983f157a5ed10b96596062"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/configuration.json",
+    "retained": "selection/before-e32-w4-p2/configuration.json",
+    "source_sha256": "cf99db379ca92e72b582fc7e5005d027f4a21e51cf42dd904609f4eee6502225"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/before-e32-w4-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "d7664437658a67e8fa4d7d8c49c2f0db0260a6ff6a4f121b0055fced4a5b8d25"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w4-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "42680934a82fd472336ef661a9157080cf0a987b920052f9ce006838b37c6185"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/before-e32-w4-p2/mapped-netlist.v.gz",
+    "source_sha256": "ad7917430bfff3ed956f7d08da280a24c54e42e405a9b8822241a6f2f30b9fa2"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_52_21/riscv32_btb_2026-10-10T15_52_21.rpt",
+    "retained": "selection/before-e32-w4-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_52_21/riscv32_btb_2026-10-10T15_52_21.rpt.gz",
+    "source_sha256": "b3301eb224e9cb15ec6c7654016d174d1ae6171b0e8b362cc6a49f948801883f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "b3301eb224e9cb15ec6c7654016d174d1ae6171b0e8b362cc6a49f948801883f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "42680934a82fd472336ef661a9157080cf0a987b920052f9ce006838b37c6185"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/configuration.json",
+    "retained": "selection/after-e32-w16-p2/configuration.json",
+    "source_sha256": "0c49645a4d0c46617582bf866047aed1a845407759ac8065c0b6f5158bbb5667"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/after-e32-w16-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "ae2197025d6a6ab99756d81cf891238629d2007c1d538757548f1d18b6322ee9"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w16-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "bdf65ec3902f921176489b86ab7e320b808b29442b0417eaaaa8b14537396d8b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/after-e32-w16-p2/mapped-netlist.v.gz",
+    "source_sha256": "35cec0dac09ed22d9ece798ba0712e3d4e15d5854c2fcb5565f440d8ea394c8c"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_55_20/riscv32_btb_2026-10-10T15_55_20.rpt",
+    "retained": "selection/after-e32-w16-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_55_20/riscv32_btb_2026-10-10T15_55_20.rpt.gz",
+    "source_sha256": "83a01bb2523e8e59be9c76acf3fe0d4374da7252336c695e73f340fc407b7eb3"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "83a01bb2523e8e59be9c76acf3fe0d4374da7252336c695e73f340fc407b7eb3"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "bdf65ec3902f921176489b86ab7e320b808b29442b0417eaaaa8b14537396d8b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/configuration.json",
+    "retained": "selection/before-e32-w16-p2/configuration.json",
+    "source_sha256": "d4c90309f94c4474eaa46bdb3deb99bafd9b781eb3995e69a8f7b48110f64470"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/before-e32-w16-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "100137252d509bbdb63555ab48ca30de3b04e44cabd74ab3b7c9f93254afc27d"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w16-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f3deb081d0a748fbdecc0d098f602ebdadf37f66ec26f57f6d27a88803fa3bf0"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/before-e32-w16-p2/mapped-netlist.v.gz",
+    "source_sha256": "843aede3437c46019399876498b1d03e06e10aacc03850c7f90908e3511901eb"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_54_39/riscv32_btb_2026-10-10T15_54_39.rpt",
+    "retained": "selection/before-e32-w16-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_54_39/riscv32_btb_2026-10-10T15_54_39.rpt.gz",
+    "source_sha256": "48a0fa43225b27682fe5590f479da7fcf5ad3a0bdaecbba4790e49e66a435eda"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "48a0fa43225b27682fe5590f479da7fcf5ad3a0bdaecbba4790e49e66a435eda"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f3deb081d0a748fbdecc0d098f602ebdadf37f66ec26f57f6d27a88803fa3bf0"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/configuration.json",
+    "retained": "selection/v2-e32-w16-p2/configuration.json",
+    "source_sha256": "ee1a9cb267e11e11128b8ac75805b4973aff3c41e439b358edc7ae4c5f211584"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "57e97d2e7fd4e9de2908db31c39aecc113477086004ced21853df504957645a2"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "6a174aafa7507402000e1201c457ec8a3f4f1cd49ecaf438bf727df0385907f1"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/v2-e32-w16-p2/mapped-netlist.v.gz",
+    "source_sha256": "e1634ae1dafb03ba07f65d55b48b22d774f30fab63985dbc0b49b469f2801a0b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_59_29/riscv32_btb_2026-10-10T15_59_29.rpt",
+    "retained": "selection/v2-e32-w16-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T15_59_29/riscv32_btb_2026-10-10T15_59_29.rpt.gz",
+    "source_sha256": "0dad5804f595260fb0ac366b5bf6be962fa923f98010d6362398049175414e5e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "0dad5804f595260fb0ac366b5bf6be962fa923f98010d6362398049175414e5e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "6a174aafa7507402000e1201c457ec8a3f4f1cd49ecaf438bf727df0385907f1"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/configuration.json",
+    "retained": "selection/after-e16-w2-p0/configuration.json",
+    "source_sha256": "9ea335f5f88d6d5dfedca230b722580a1a16789ae571a24d6241a9f9f8e795a9"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/after-e16-w2-p0/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "f783c95e6941ee1758f77e16ec7977df3c6bf7e1bda0895f6292d9696a97ad8b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e16-w2-p0/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "c963d9212e7c9f4fa062350f7924f4f4d3b35b8e9ed7cd3b0e71f5f365c2b790"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/after-e16-w2-p0/mapped-netlist.v.gz",
+    "source_sha256": "4549fc30d64122860d914f85b9741f8fe5831cca1d527d6895ba1cc365cbea0e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/sta/riscv32_btb-820MHz_sta_2026-10-10T15_51_50/riscv32_btb_2026-10-10T15_51_50.rpt",
+    "retained": "selection/after-e16-w2-p0/sta/riscv32_btb-820MHz_sta_2026-10-10T15_51_50/riscv32_btb_2026-10-10T15_51_50.rpt.gz",
+    "source_sha256": "e2ed8a4733f824bcf768424e1c9d55414096676ab5d40b6e8ae8b1e08bcc9fc9"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "e2ed8a4733f824bcf768424e1c9d55414096676ab5d40b6e8ae8b1e08bcc9fc9"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "c963d9212e7c9f4fa062350f7924f4f4d3b35b8e9ed7cd3b0e71f5f365c2b790"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e16-w2-p0-training.rpt",
+    "retained": "experiment/v2-e16-w2-p0-training.rpt.gz",
+    "source_sha256": "3229b0d6a814b7ca7cb4c40a3fbc7d4c0b4ffc24e0dc2d402708c8b9ca7e7ea6"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/btb.sdc",
+    "retained": "experiment/btb.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/selection-ppa.json",
+    "retained": "experiment/selection-ppa.json",
+    "source_sha256": "24625e461977043ad3905ae2f2508b1d57ba28a5f03a7c73ace495dd2b61dbb6"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e16-w2-p0.f",
+    "retained": "experiment/v2-e16-w2-p0.f",
+    "source_sha256": "d4a068f6df4bfe73d287d40b2be5508a13c78efe9df61a004923c357e76f3ea7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e16-w2-p0.log",
+    "retained": "experiment/after-e16-w2-p0.log.gz",
+    "source_sha256": "a4fa9cbf6487ce38701adfe37b0979d02fe15169f6cc83331096b49b9b9bcd12"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w8-p2.f",
+    "retained": "experiment/before-e32-w8-p2.f",
+    "source_sha256": "2165d93ab3dbe670724e86854765cd2d34544c079cf0fcf7249c6dee1e18c920"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w16-p2.f",
+    "retained": "experiment/after-e32-w16-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/probe_core.py",
+    "retained": "experiment/probe_core.py",
+    "source_sha256": "ca6fd310322a1d60df950057e976bd57fa45f64e710875926cd8d12613b6655a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w4-p2-training.rpt",
+    "retained": "experiment/v2-e32-w4-p2-training.rpt.gz",
+    "source_sha256": "04925a7d9433661f48a792a69498a41c3fbc16001aa15adee97a83f015dc81f5"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w4-p2.log",
+    "retained": "experiment/before-e32-w4-p2.log.gz",
+    "source_sha256": "bd9f5b6d95a034a683d461162982a965a350bb2890187bba731df366df06508b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w16-p2.f",
+    "retained": "experiment/before-e32-w16-p2.f",
+    "source_sha256": "2165d93ab3dbe670724e86854765cd2d34544c079cf0fcf7249c6dee1e18c920"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w8-p2.f",
+    "retained": "experiment/after-e32-w8-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w4-p2-training.log",
+    "retained": "experiment/before-e32-w4-p2-training.log.gz",
+    "source_sha256": "d0da9cefefb782058793007bb23931a5bd1c076cb0b8cdf8bdfc77180ee36e5a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w16-p2.log",
+    "retained": "experiment/before-e32-w16-p2.log.gz",
+    "source_sha256": "d07344609a246e3c97f80f4dcc5cdcb26d0dd2add52b440704579550a057aa6a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e16-w2-p0-training.rpt",
+    "retained": "experiment/before-e16-w2-p0-training.rpt.gz",
+    "source_sha256": "6a4c972920b59522c32dd043845e6b979e54176ec470a18720f6bca529207073"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w16-p2-training.log",
+    "retained": "experiment/before-e32-w16-p2-training.log.gz",
+    "source_sha256": "1bd5fd0018f8db436f08d51cc1e272e79cb936c5c18f72da26d576f80e23c7c4"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e16-w2-p0.log",
+    "retained": "experiment/v2-e16-w2-p0.log.gz",
+    "source_sha256": "acad67bfdfb6bbdc3cd032951b42214f50eb27fcd1e6545719b461c1cd9a1397"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/probe_core_v2.py",
+    "retained": "experiment/probe_core_v2.py",
+    "source_sha256": "adc9808339a4d20fec0290b438fbae313c6bdb210b7717b6a54786819d07844a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v2.f",
+    "retained": "experiment/parallel-v2.f",
+    "source_sha256": "176eb5d2907d5b65dc77bf0103801cdc9df26d34102f87e1093289f1d5f50df8"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w16-p2-training.rpt",
+    "retained": "experiment/before-e32-w16-p2-training.rpt.gz",
+    "source_sha256": "100137252d509bbdb63555ab48ca30de3b04e44cabd74ab3b7c9f93254afc27d"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v1.sv",
+    "retained": "experiment/parallel-v1.sv",
+    "source_sha256": "9fb478985ee977804c3632bfb9f93db5c843fea51cfd4a08a176174b68532b9b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e16-w2-p0-training.log",
+    "retained": "experiment/v2-e16-w2-p0-training.log.gz",
+    "source_sha256": "6a9367732254ebb834004f996bd1489200fe0b6aa42319efe63d6fed69d10a07"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w16-p2-training.log",
+    "retained": "experiment/v2-e32-w16-p2-training.log.gz",
+    "source_sha256": "9b9652a158e1071db7522355612253c07be7bb8e14341200483274ee72ca39fe"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e16-w2-p0-training.log",
+    "retained": "experiment/before-e16-w2-p0-training.log.gz",
+    "source_sha256": "4ed074a73630439fbed2bf523952640b090e87bf7f5acd2f1b6dca2094803eed"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w8-p2.log",
+    "retained": "experiment/v2-e32-w8-p2.log.gz",
+    "source_sha256": "4182836adb7e6da147267b6b94519bc9209bed21b900a857ea1a51bc94d67cf4"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/measure_selection_v2.py",
+    "retained": "experiment/measure_selection_v2.py",
+    "source_sha256": "360339059453da52b347660067b12530d5cdc7f0b507186e54212e40be227c5f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w4-p2-training.log",
+    "retained": "experiment/v2-e32-w4-p2-training.log.gz",
+    "source_sha256": "55a897539eb9c86276b5bb0574c50e9584fd86e4fdd32fdcba697f3139545956"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w16-p2.log",
+    "retained": "experiment/after-e32-w16-p2.log.gz",
+    "source_sha256": "8bb0374ad7345a44a310c1a3bab5ca793b38cea511750eee0ce4abacf2e03ff0"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w8-p2-training.rpt",
+    "retained": "experiment/before-e32-w8-p2-training.rpt.gz",
+    "source_sha256": "352d45c40599222fa37916ecdefa8e787ea9ea2b04d9c278ba46f51458fa2d51"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v2.sv",
+    "retained": "experiment/parallel-v2.sv",
+    "source_sha256": "a24e7a0836bdf464078da1d2c164c0423e657742fcf38971c6cb9c41745ecdf8"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w8-p2.f",
+    "retained": "experiment/v2-e32-w8-p2.f",
+    "source_sha256": "d4a068f6df4bfe73d287d40b2be5508a13c78efe9df61a004923c357e76f3ea7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend-v3.log",
+    "retained": "experiment/frontend-v3.log.gz",
+    "source_sha256": "5f7216d229b7d031ed515de2566bee2ec47a6e8d01a952f6554f0518f34c0791"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v3.sv",
+    "retained": "experiment/parallel-v3.sv",
+    "source_sha256": "452b26bf8e88f0843233fc592e4e9ec4de28c2f873a2d8793b4b0ba921c8eeec"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/selection-ppa-v2.json",
+    "retained": "experiment/selection-ppa-v2.json",
+    "source_sha256": "367f6c926e12a2f64e4cc393ff57e1130a655b50ab74f9fb837b77d923214c19"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w8-p2-training.log",
+    "retained": "experiment/v2-e32-w8-p2-training.log.gz",
+    "source_sha256": "237a9f7a1aacb103c2041f60fa16c137381b5216954daa5ccdda301945860bf8"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w4-p2.log",
+    "retained": "experiment/after-e32-w4-p2.log.gz",
+    "source_sha256": "147e1a797ff6a9870e50186f84d274b660e3ad476e0513e03d8244f67af6672e"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w8-p2-training.log",
+    "retained": "experiment/before-e32-w8-p2-training.log.gz",
+    "source_sha256": "81f45c78248dc5549916e2637a1d29269c236ee941fcbcc3e2ef57cf1f792895"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e16-w2-p0-training.rpt",
+    "retained": "experiment/after-e16-w2-p0-training.rpt.gz",
+    "source_sha256": "f783c95e6941ee1758f77e16ec7977df3c6bf7e1bda0895f6292d9696a97ad8b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w4-p2.log",
+    "retained": "experiment/v2-e32-w4-p2.log.gz",
+    "source_sha256": "4d1ab3ab00cd047a0ad4d266c8754793f85ed308374d7f1eebf53aeca6245a85"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w8-p2.log",
+    "retained": "experiment/before-e32-w8-p2.log.gz",
+    "source_sha256": "3f477abc0533bc6ddf66b210b7da3f52c7ca69411be9bda5abab344933d9cc53"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w8-p2-training.log",
+    "retained": "experiment/after-e32-w8-p2-training.log.gz",
+    "source_sha256": "9f542c3e1c48e26d2088c45fe7d5f002b6b7b9df097c7ce526590037675e00f5"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v2-initial.sv",
+    "retained": "experiment/parallel-v2-initial.sv",
+    "source_sha256": "62d497a89a61c090e338dbc4ef51f6d19a90981e553a6343d72ba0f7f319a617"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w8-p2.log",
+    "retained": "experiment/after-e32-w8-p2.log.gz",
+    "source_sha256": "23b141794ae2c1614d5a4d2384f43dccf160fb8e2b26c074ebd9cca46591544c"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/baseline-test.log",
+    "retained": "experiment/baseline-test.log.gz",
+    "source_sha256": "642ab0c3a45c5552a3e8149cd3aa1ac72ca803a173095105dfd4046162bc137a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w4-p2-training.rpt",
+    "retained": "experiment/before-e32-w4-p2-training.rpt.gz",
+    "source_sha256": "d7664437658a67e8fa4d7d8c49c2f0db0260a6ff6a4f121b0055fced4a5b8d25"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/measure_selection.py",
+    "retained": "experiment/measure_selection.py",
+    "source_sha256": "41f67de85a192a82e57b80a77ed5229e0b335a3e34f58aac087b85965e00f894"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/performance-ab.json",
+    "retained": "experiment/performance-ab.json",
+    "source_sha256": "2c51140619476dd3e49b7efad67fef22ca86f3569c3f8c83cd0ea7ad730ca7e4"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w4-p2.f",
+    "retained": "experiment/v2-e32-w4-p2.f",
+    "source_sha256": "d4a068f6df4bfe73d287d40b2be5508a13c78efe9df61a004923c357e76f3ea7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/archive_completed.py",
+    "retained": "experiment/archive_completed.py",
+    "source_sha256": "422510cf9c04c614be1cfa3593fe2a7bfe6a6d78757a7be52ac168d7a0c4c196"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w8-p2-training.rpt",
+    "retained": "experiment/v2-e32-w8-p2-training.rpt.gz",
+    "source_sha256": "b5e061e86ca1c036e0d2392d6def84a63fcc334668d37fea82635d857da31c15"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w16-p2-training.log",
+    "retained": "experiment/after-e32-w16-p2-training.log.gz",
+    "source_sha256": "88c1621fd5bc3d860a7642852b9c110622a432b78ba1c861e039a2bdcbc3cb65"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/baseline-test-report.json",
+    "retained": "experiment/baseline-test-report.json",
+    "source_sha256": "9a1a5241375583e0e495496ef83982ecf61cd7fef8db5d3012bcb02a2350fa19"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e16-w2-p0.f",
+    "retained": "experiment/before-e16-w2-p0.f",
+    "source_sha256": "2165d93ab3dbe670724e86854765cd2d34544c079cf0fcf7249c6dee1e18c920"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e16-w2-p0-training.log",
+    "retained": "experiment/after-e16-w2-p0-training.log.gz",
+    "source_sha256": "66d9a54eebbc06bc62bbf44d947cfca8b63dc4e49c080b024d7f3568fd834e51"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w4-p2.f",
+    "retained": "experiment/before-e32-w4-p2.f",
+    "source_sha256": "2165d93ab3dbe670724e86854765cd2d34544c079cf0fcf7249c6dee1e18c920"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w16-p2.f",
+    "retained": "experiment/v2-e32-w16-p2.f",
+    "source_sha256": "d4a068f6df4bfe73d287d40b2be5508a13c78efe9df61a004923c357e76f3ea7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend.log",
+    "retained": "experiment/frontend.log.gz",
+    "source_sha256": "70f48a07de2c972e8b7b1d2f7667f2f1c0f3307658aad5b7a7fcbc6588304c31"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e16-w2-p0.f",
+    "retained": "experiment/after-e16-w2-p0.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w16-p2.log",
+    "retained": "experiment/v2-e32-w16-p2.log.gz",
+    "source_sha256": "2a989a603410fccd1f604305265eadf24f1b19e915cbd34149fd5c2eb983114e"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e16-w2-p0.log",
+    "retained": "experiment/before-e16-w2-p0.log.gz",
+    "source_sha256": "3503197960f0e55198c423272794d03311e7595e5d0759a4eeabb9556553cb68"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w4-p2-training.rpt",
+    "retained": "experiment/after-e32-w4-p2-training.rpt.gz",
+    "source_sha256": "4b8bb213bc2741407e67ff34b44a62316f2a3ab1c720aea053b67a370786960f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w16-p2-training.rpt",
+    "retained": "experiment/after-e32-w16-p2-training.rpt.gz",
+    "source_sha256": "ae2197025d6a6ab99756d81cf891238629d2007c1d538757548f1d18b6322ee9"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w4-p2.f",
+    "retained": "experiment/after-e32-w4-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/lint.log",
+    "retained": "experiment/lint.log.gz",
+    "source_sha256": "bf0e7d6d94456a28e53d52dec4906f11ace142ad48c5aee7c58fa04ac4e38233"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w8-p2-training.rpt",
+    "retained": "experiment/after-e32-w8-p2-training.rpt.gz",
+    "source_sha256": "2652677630a3a616d648c14ca5a39284ab16a2ffa5e66172a9f97c4d2863810d"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w4-p2-training.log",
+    "retained": "experiment/after-e32-w4-p2-training.log.gz",
+    "source_sha256": "cf97cb358b3a420fc400e67b856db5d371ee2fc2fe3e3057cad0ea11f4ca653c"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w16-p2-training.rpt",
+    "retained": "experiment/v2-e32-w16-p2-training.rpt.gz",
+    "source_sha256": "57e97d2e7fd4e9de2908db31c39aecc113477086004ced21853df504957645a2"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/reference/riscv32_btb.sv",
+    "retained": "experiment/before.sv",
+    "source_sha256": "570398a12b710ae69d76bd1ddabee1428fc1f10df4c452bb5b4425277b9c8594"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v3/run.log",
+    "retained": "tests/unit-v3/run.log.gz",
+    "source_sha256": "c1f7418a96ad08e0ccaa4a66d430dd2a97325a22d7b4aeaff965125a234e94a7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v3/manifest.json",
+    "retained": "tests/unit-v3/manifest.json",
+    "source_sha256": "1dabeb9d162b1013673526efcf4719815c0ef25aa9e72fc022a2eef8f05a6682"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v3/test.sv",
+    "retained": "tests/unit-v3/test.sv.gz",
+    "source_sha256": "15b463f7dcdc1384143d5573a1844bfd75aff8efe9145fefa5b3ab021b236acb"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v3/test.cpp",
+    "retained": "tests/unit-v3/test.cpp.gz",
+    "source_sha256": "1852fcc87237f8bee7f167aecfc2592ce945934db03aa164fbfbe90a31d70a2f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-v3/build.log",
+    "retained": "tests/unit-v3/build.log.gz",
+    "source_sha256": "48bc5d1a58524b92fa62b7eb35055b2d5da80793d4e12b85746d7eafafbbedfd"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-final/run.log",
+    "retained": "tests/unit-final/run.log.gz",
+    "source_sha256": "c1f7418a96ad08e0ccaa4a66d430dd2a97325a22d7b4aeaff965125a234e94a7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-final/manifest.json",
+    "retained": "tests/unit-final/manifest.json",
+    "source_sha256": "fa027319ff46a2a00d6057f42923d97c0f54297b24524c28ca26f3fa19cd12a1"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-final/test.sv",
+    "retained": "tests/unit-final/test.sv.gz",
+    "source_sha256": "15b463f7dcdc1384143d5573a1844bfd75aff8efe9145fefa5b3ab021b236acb"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-final/test.cpp",
+    "retained": "tests/unit-final/test.cpp.gz",
+    "source_sha256": "1852fcc87237f8bee7f167aecfc2592ce945934db03aa164fbfbe90a31d70a2f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-final/build.log",
+    "retained": "tests/unit-final/build.log.gz",
+    "source_sha256": "2c4e6a69a37c5c593006bbeb2d54a35451ca946945bc6205ecf7aa934d2f07fe"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-stable/run.log",
+    "retained": "tests/unit-stable/run.log.gz",
+    "source_sha256": "c1f7418a96ad08e0ccaa4a66d430dd2a97325a22d7b4aeaff965125a234e94a7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-stable/manifest.json",
+    "retained": "tests/unit-stable/manifest.json",
+    "source_sha256": "cbe5fd60db0f7735a95bfecd1763ef5ac52d584d25bc141bd032d1468fd19c69"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-stable/test.sv",
+    "retained": "tests/unit-stable/test.sv.gz",
+    "source_sha256": "15b463f7dcdc1384143d5573a1844bfd75aff8efe9145fefa5b3ab021b236acb"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-stable/test.cpp",
+    "retained": "tests/unit-stable/test.cpp.gz",
+    "source_sha256": "1852fcc87237f8bee7f167aecfc2592ce945934db03aa164fbfbe90a31d70a2f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/unit-stable/build.log",
+    "retained": "tests/unit-stable/build.log.gz",
+    "source_sha256": "b1141dbf074482c3616fa11614ba8ad256e6981ff48d9b87210fc0be4587875b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend-v3/fetch/run.log",
+    "retained": "tests/frontend-v3/fetch/run.log.gz",
+    "source_sha256": "1cd7ba022e5c95dab6a718bad6a79248b9a282443e559f4323608d3aa3b0a18b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend-v3/fetch/manifest.json",
+    "retained": "tests/frontend-v3/fetch/manifest.json",
+    "source_sha256": "4bf41ca6b7f2f03d8c0e780ce824e00c578836e8ba83d327b39836c516b7892a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend-v3/fetch/build.log",
+    "retained": "tests/frontend-v3/fetch/build.log.gz",
+    "source_sha256": "2a84c87fdcdc3b7235435fbcce4d14be9c39c5dc4cbd4bcb439f6b34b7a5f16b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend-v3/predictor/run.log",
+    "retained": "tests/frontend-v3/predictor/run.log.gz",
+    "source_sha256": "539723c8394580693c5a94bcdcd51df16b800e85af495615be0d826907b3e9c7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend-v3/predictor/manifest.json",
+    "retained": "tests/frontend-v3/predictor/manifest.json",
+    "source_sha256": "e9a547b3b162b9e3a58690f176d1427239b42335c36d7cf8443ff7b096a241e5"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend-v3/predictor/build.log",
+    "retained": "tests/frontend-v3/predictor/build.log.gz",
+    "source_sha256": "018c187f8a98507d1d98e9ee2547765f8d346dfde959ab60a5f3999e63be2c65"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/shift.log",
+    "retained": "tests/difftest/shift.log.gz",
+    "source_sha256": "1264b6d81ce4d711a81dab6c184d73d5d5754648f664ab1a76df14a16298b934"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/if-else.log",
+    "retained": "tests/difftest/if-else.log.gz",
+    "source_sha256": "c2b75db5bbb26a1d59e3888bdaa6bfbdf3d76e9593a01939220c6bf968d1655f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/add.log",
+    "retained": "tests/difftest/add.log.gz",
+    "source_sha256": "d6e8a9da41cb0088c7857740bbce3f731cbe695b4b8043e7e0d791b4bc9c0cce"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/quick-sort.log",
+    "retained": "tests/difftest/quick-sort.log.gz",
+    "source_sha256": "cde6a702482d8a94394461f05e7c05f59c92f92ca413b95c1edde2fc242f5961"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/bubble-sort.log",
+    "retained": "tests/difftest/bubble-sort.log.gz",
+    "source_sha256": "830c930291cdc2d5133975a78762c187723bf7656d860ea06aac4f0ef7f5b132"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/switch.log",
+    "retained": "tests/difftest/switch.log.gz",
+    "source_sha256": "4873767271f7a55203b0807fb656e331a60ce725ac438123b9e7438de2e414a9"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/select-sort.log",
+    "retained": "tests/difftest/select-sort.log.gz",
+    "source_sha256": "14b1e5e4def0d929ba57b852658c0587726b9226a9d59dc8b7c11de000c55914"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/results.json",
+    "retained": "tests/difftest/results.json",
+    "source_sha256": "19649358532d8f7d571172808a132ead6e8a03201950e96f2d9ace757c6e9786"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/string.log",
+    "retained": "tests/difftest/string.log.gz",
+    "source_sha256": "7f0479e2b015f31090f41d10fa56c73e0ed1a1babd56947b7712237054d09c08"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/load-store.log",
+    "retained": "tests/difftest/load-store.log.gz",
+    "source_sha256": "f7f652e85ad604de8bca33a49a917945467fbeabb0bf78c825caff2630779f2f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest/recursion.log",
+    "retained": "tests/difftest/recursion.log.gz",
+    "source_sha256": "6e2f17fe1aef274426135b9068ec8052197182e810fd63f82d055c93195c275e"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/configuration.json",
+    "retained": "core/v3/configuration.json",
+    "source_sha256": "ccbde06d3dfece8d56be0c3eae5cf5835cddc3d78d6d4d8a80bbdfe827c91660"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core-probes.json",
+    "retained": "core/v3/core-probes.json",
+    "source_sha256": "0797d6f8e1870a2e3668fa4362f964edfab7eb81887a89812840a005c6cc11f8"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core700/result.json",
+    "retained": "core/v3/core700/result.json",
+    "source_sha256": "83a7f4494c1dad3032469311644837e6a82e72bd0e3ea35b28bac03d78df2f80"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core700/constraints.sdc",
+    "retained": "core/v3/core700/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core700/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/core700/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "d3f4e9e7030cdbe849b545514377acfd5db430d6c1d09d3e31342b56e68e4fa7"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-tree.json",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-tree.json",
+    "source_sha256": "cc7e5dc8b79aa2c3298668212c8c58900129164bd17c805a2ca87d1aaf91cf38"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_check.txt",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_check.txt",
+    "source_sha256": "db0af1e809a62fa70a5c8b0052e6af0699d93fcdcdac22abade178f27da3181f"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "6bbce02698be8f71272080700e1548bbac7c8cc90aa6bb789b8d5b1822ed82fd"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "source_sha256": "c4b82492b8dc37ef65473bc28d6f961d9746eb3f9b60d38f837a134fba6d006a"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+    "retained": "core/v3/mapped-netlist.v.gz",
+    "source_sha256": "949a2edd77947bb8351a0fae7373c42f4875f7523892329a641eea801d8d89c8"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json",
+    "source_sha256": "f1a83d23684b48f51e5e8be31316ad03225b0a28c484d11880277dd1ffaced9c"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz/synth_check.txt",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz/synth_check.txt",
+    "source_sha256": "a244657998cd822f1c6af5aa0f5d1dd7cfe368e1cf3d57b51e06b851888e8306"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz/abc.sdc",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz/abc.sdc",
+    "source_sha256": "18c01ed2b0b354b6cd3cea12e53967347dc69a8ac70f1d0679ab3ed93a55ae57"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "a13cfe31e16d3fce0fc7279fd8ae371622837d8e004ac22fefcabf7c35ee3c45"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/sta/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "retained": "core/v3/sta/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "source_sha256": "b1dbebe6f3c7a36eaa1b89b2f079fa1057877af03bb604776fb74bc8b5235626"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/prediction-response/targets.json",
+    "retained": "core/v3/prediction-response/targets.json",
+    "source_sha256": "39e756a2e92948cd09878619435b614a7a37e98c791d54dc399a93ea29e3b030"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/prediction-response/result.json",
+    "retained": "core/v3/prediction-response/result.json",
+    "source_sha256": "4bf627c6c096587982b3bc04b973a2354472d798bdf81b79cdc7f822fa8b3f87"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/prediction-response/constraints.sdc",
+    "retained": "core/v3/prediction-response/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/prediction-response/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/prediction-response/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "f04bc4cc25146ccb01dc67fa06e79d4acd248473b6ec35cced3a080d0b5ecd48"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/prediction-response/scope.tcl",
+    "retained": "core/v3/prediction-response/scope.tcl",
+    "source_sha256": "b3a9cf3b43af6586b23ab5613a8c85348a9884d34c431bec98428e8f913d4bff"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core715/result.json",
+    "retained": "core/v3/core715/result.json",
+    "source_sha256": "9590f17e39baea2f1f7fbc9222f88bed64871dec73309b2d32fad72073aaf806"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core715/constraints.sdc",
+    "retained": "core/v3/core715/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core715/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/core715/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "671148a82d156f80157da0e48fe15fe859ed5eecaf0d31ecf97055707e7ad660"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/analysis/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/analysis/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "6bbce02698be8f71272080700e1548bbac7c8cc90aa6bb789b8d5b1822ed82fd"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/analysis/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "retained": "core/v3/analysis/riscv32_core_reset_boundary-820MHz-buffered/synth_stat.txt",
+    "source_sha256": "c4b82492b8dc37ef65473bc28d6f961d9746eb3f9b60d38f837a134fba6d006a"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/analysis/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/analysis/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "a13cfe31e16d3fce0fc7279fd8ae371622837d8e004ac22fefcabf7c35ee3c45"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/analysis/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "retained": "core/v3/analysis/riscv32_core_reset_boundary-820MHz/synth_stat.txt",
+    "source_sha256": "b1dbebe6f3c7a36eaa1b89b2f079fa1057877af03bb604776fb74bc8b5235626"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/btb-training/targets.json",
+    "retained": "core/v3/btb-training/targets.json",
+    "source_sha256": "d86f5fdddf1f99a5ef7c503339454fa44bdc8e35a5340718e2302c2a4fc663bd"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/btb-training/result.json",
+    "retained": "core/v3/btb-training/result.json",
+    "source_sha256": "5f27edfcb8ad0ec6903e6f1d2ef627fda73463cdf3e5be0d4f84d90f303cce46"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/btb-training/constraints.sdc",
+    "retained": "core/v3/btb-training/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/btb-training/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/btb-training/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "55848eccd71d99c9354c6d47232907cac76066b6715218c54dcee23dfefb8754"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/btb-training/scope.tcl",
+    "retained": "core/v3/btb-training/scope.tcl",
+    "source_sha256": "9f44834e3ae81a828b4c7b8eaedbd8f0971b230f9568685b85af7972f701aa34"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core720/result.json",
+    "retained": "core/v3/core720/result.json",
+    "source_sha256": "2a8fde7a46ee73fdb2a1d5ae17dbe9dcea4fbe2f1f35da208f0e54e67e80d2c6"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core720/constraints.sdc",
+    "retained": "core/v3/core720/constraints.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/synthesis/btb-parallel/v3/core720/riscv32_core_reset_boundary.rpt",
+    "retained": "core/v3/core720/riscv32_core_reset_boundary.rpt.gz",
+    "source_sha256": "fa7749b5a9e7260ce00d1f4c563130373bbed5e69e3fb906be1a98433b1f79e5"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/configuration.json",
+    "retained": "selection/v2-e32-w8-p2/configuration.json",
+    "source_sha256": "afbd6e5ca61f29ea8013868497da01baa74e08622600cbfc381aa35e3aede1a6"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "e8caa8d9547c5afe8009d39f83bbf0d120dd69f9094707fd3f8f729e242f0182"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "14173e0db52a28fd8da8c88edee49fc949eb5bc4e8d7c739395484202b5d1bc7"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/configuration.json",
+    "retained": "selection/before-e32-w8-p2/configuration.json",
+    "source_sha256": "c73e9d216be041e1f06515a76cfa01c7861b9ada96b81c560db916a609deefc0"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "79ab2c6e2cd44fc69e3d08ece1b05cb5cb34885578ed66be5d934a58b8c63b36"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "60d3f8e9d5a52cafd1fdeedffe984df88f686069b380bb08ce50d99afdb39722"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/configuration.json",
+    "retained": "selection/after-e32-w4-p2/configuration.json",
+    "source_sha256": "d598769284d139e1b9b70126685d309a9e03fd0bd2eb164ed8303eb44981cf8e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "79f8f7d399fe7bf6d0ba528e8d1fbaaf5b325cf3ac2ac70c8f70ed7d4b66072c"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "58e7ef83abe352f54459c3b7d5d18cd6df47033e9b17fdee23b6a46385c1ee1d"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/configuration.json",
+    "retained": "selection/v2-e16-w2-p0/configuration.json",
+    "source_sha256": "222f61523c8b7c818b301a55429dde389a16d34bead0feb84d1143c7c4954762"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "a2b85a8ec10cf98cd4ad5b2f2b50c760cde5fa906c6424ec5fdf7d62c74a05c8"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f4c611c4310bf3031fead32c85d8c7af560968ec5118de50b8515d4424368cc8"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/configuration.json",
+    "retained": "selection/v2-e32-w4-p2/configuration.json",
+    "source_sha256": "98f51ae05334ba1c5f5aa4613d3b15bb8fb879929838ca5682abbdc19f4f9fc2"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "46efb5d20983cde0b9b0f453845d6668d8b5acdf878763677fc453ff01b0af88"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "a79ef7982eed68a8d0580181291e407b10c94fd13f4ba2afc5f4ef24ed3ee081"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/configuration.json",
+    "retained": "selection/before-e16-w2-p0/configuration.json",
+    "source_sha256": "d94400697ca00aa9718f1e057e5fb58d5867d6e692293b966df0fe19699df7db"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "54f542c30b89b5d80d02735181375eb421aca1296ac9a24502c6e1fedf6ea349"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f08bc91fc41bbdf4f8f2292fac3f86df455a3955b99bebf28d117516874df117"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w8-p2/configuration.json",
+    "retained": "selection/v3-e32-w8-p2/configuration.json",
+    "source_sha256": "726759a2298d640ca5ded51bf51a68469620cb5fa2176c3bc4186ff52bd229b3"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "ca9eb3cdb97988f4a52562f32e305e83e1b1f272f37f9c92c1669ea013a2930f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "eec0e0283fb5a8f4520b0602c10f4867fb35dea820983f157a5ed10b96596062"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/v3-e32-w8-p2/mapped-netlist.v.gz",
+    "source_sha256": "6a8edf6ae2e561aa1dcbc3d46cfda083f760e88a12909e677e32aaac0e4f076f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T16_15_51/riscv32_btb_2026-10-10T16_15_51.rpt",
+    "retained": "selection/v3-e32-w8-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T16_15_51/riscv32_btb_2026-10-10T16_15_51.rpt.gz",
+    "source_sha256": "bce798fc554e3f34aa2781f06d7d9f0bb7e36aff6f030cd358d9a283bfcb2aee"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v3-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "bce798fc554e3f34aa2781f06d7d9f0bb7e36aff6f030cd358d9a283bfcb2aee"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v3-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "eec0e0283fb5a8f4520b0602c10f4867fb35dea820983f157a5ed10b96596062"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/configuration.json",
+    "retained": "selection/after-e32-w8-p2/configuration.json",
+    "source_sha256": "348b30a54688366192d8b60574f3c8e41ce1cce66cd803f8e51656bcab007c1b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w8-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "beb1839370d822ddbe29d34bd2ea3ff0b37b9991dd180be4fe86fff4debb9d03"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w8-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "eec0e0283fb5a8f4520b0602c10f4867fb35dea820983f157a5ed10b96596062"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/configuration.json",
+    "retained": "selection/before-e32-w4-p2/configuration.json",
+    "source_sha256": "cf99db379ca92e72b582fc7e5005d027f4a21e51cf42dd904609f4eee6502225"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "b3301eb224e9cb15ec6c7654016d174d1ae6171b0e8b362cc6a49f948801883f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "42680934a82fd472336ef661a9157080cf0a987b920052f9ce006838b37c6185"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w16-p2/configuration.json",
+    "retained": "selection/v3-e32-w16-p2/configuration.json",
+    "source_sha256": "16a0e131db11b55b57ddc6dc7fab62ad68718f59f861fe1ec58c7817e073f4cc"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T16_16_30/riscv32_btb_2026-10-10T16_16_30.rpt",
+    "retained": "selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T16_16_30/riscv32_btb_2026-10-10T16_16_30.rpt.gz",
+    "source_sha256": "ec1875a97d539204800b9e13ca92ca9003e2e015c1b10d2efc644883ccc0eb3b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "eeb17fed6537140ac1324efc2615fff3ab4fba7da99a06ba4bac9111c6c1c187"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "bdf65ec3902f921176489b86ab7e320b808b29442b0417eaaaa8b14537396d8b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w16-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/v3-e32-w16-p2/mapped-netlist.v.gz",
+    "source_sha256": "35cec0dac09ed22d9ece798ba0712e3d4e15d5854c2fcb5565f440d8ea394c8c"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v3-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "ec1875a97d539204800b9e13ca92ca9003e2e015c1b10d2efc644883ccc0eb3b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v3-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "bdf65ec3902f921176489b86ab7e320b808b29442b0417eaaaa8b14537396d8b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/configuration.json",
+    "retained": "selection/after-e32-w16-p2/configuration.json",
+    "source_sha256": "0c49645a4d0c46617582bf866047aed1a845407759ac8065c0b6f5158bbb5667"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "83a01bb2523e8e59be9c76acf3fe0d4374da7252336c695e73f340fc407b7eb3"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "bdf65ec3902f921176489b86ab7e320b808b29442b0417eaaaa8b14537396d8b"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e16-w2-p0/configuration.json",
+    "retained": "selection/v3-e16-w2-p0/configuration.json",
+    "source_sha256": "fd49a20c50097fd50139130e8685c8da4f804963447cd7d9f669b634c9f5c49e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "4ac131447cf0c82150412610b5f25aafcba2cf97180889b890cbaa42d0c3d7f4"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "0b9f4806f017de435b93ef94411f294c3d28557b8cf8c0898a1bc45826def1ba"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/v3-e16-w2-p0/mapped-netlist.v.gz",
+    "source_sha256": "4df72e845435d3a3b26837dbf4d55b04bb3172fca39da2d92b33cc6e1c1d81f0"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz_sta_2026-10-10T16_14_43/riscv32_btb_2026-10-10T16_14_43.rpt",
+    "retained": "selection/v3-e16-w2-p0/sta/riscv32_btb-820MHz_sta_2026-10-10T16_14_43/riscv32_btb_2026-10-10T16_14_43.rpt.gz",
+    "source_sha256": "c08781df1f1dc4802ba7be9de82d614c7843c2c525b70b866cf3669ecceb0c44"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v3-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "c08781df1f1dc4802ba7be9de82d614c7843c2c525b70b866cf3669ecceb0c44"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v3-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "0b9f4806f017de435b93ef94411f294c3d28557b8cf8c0898a1bc45826def1ba"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/configuration.json",
+    "retained": "selection/before-e32-w16-p2/configuration.json",
+    "source_sha256": "d4c90309f94c4474eaa46bdb3deb99bafd9b781eb3995e69a8f7b48110f64470"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/before-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "48a0fa43225b27682fe5590f479da7fcf5ad3a0bdaecbba4790e49e66a435eda"
+  },
+  {
+    "source": "result/synthesis/btb-selection/before-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/before-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "f3deb081d0a748fbdecc0d098f602ebdadf37f66ec26f57f6d27a88803fa3bf0"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/configuration.json",
+    "retained": "selection/v2-e32-w16-p2/configuration.json",
+    "source_sha256": "ee1a9cb267e11e11128b8ac75805b4973aff3c41e439b358edc7ae4c5f211584"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v2-e32-w16-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "0dad5804f595260fb0ac366b5bf6be962fa923f98010d6362398049175414e5e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v2-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v2-e32-w16-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "6a174aafa7507402000e1201c457ec8a3f4f1cd49ecaf438bf727df0385907f1"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w4-p2/configuration.json",
+    "retained": "selection/v3-e32-w4-p2/configuration.json",
+    "source_sha256": "98a5c932639803e6f21c2786cdd7b34a1ccdd370169523de6dce2df2236c982f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "retained": "selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz/synth_check.txt",
+    "source_sha256": "c53d846e39b4d6ec069151baca0094bb81155bd591b35624dc93a5bc6ae6c05e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "c1e73a63ed095b0f2e9abbb19a5511531483d8b299b43a074f0c14b898e6660e"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "58e7ef83abe352f54459c3b7d5d18cd6df47033e9b17fdee23b6a46385c1ee1d"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz/riscv32_btb.netlist.v",
+    "retained": "selection/v3-e32-w4-p2/mapped-netlist.v.gz",
+    "source_sha256": "caae29993d714c96d10523db9787e0802d1d0a8d2f1f882068ad1a269bd0af92"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T16_15_16/riscv32_btb_2026-10-10T16_15_16.rpt",
+    "retained": "selection/v3-e32-w4-p2/sta/riscv32_btb-820MHz_sta_2026-10-10T16_15_16/riscv32_btb_2026-10-10T16_15_16.rpt.gz",
+    "source_sha256": "3828419acd9d7676a494765657978118db32862e7a00b5c9d556757afe502f8f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/v3-e32-w4-p2/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "3828419acd9d7676a494765657978118db32862e7a00b5c9d556757afe502f8f"
+  },
+  {
+    "source": "result/synthesis/btb-selection/v3-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/v3-e32-w4-p2/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "58e7ef83abe352f54459c3b7d5d18cd6df47033e9b17fdee23b6a46385c1ee1d"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/configuration.json",
+    "retained": "selection/after-e16-w2-p0/configuration.json",
+    "source_sha256": "9ea335f5f88d6d5dfedca230b722580a1a16789ae571a24d6241a9f9f8e795a9"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt",
+    "retained": "selection/after-e16-w2-p0/analysis/riscv32_btb-820MHz/riscv32_btb.rpt.gz",
+    "source_sha256": "e2ed8a4733f824bcf768424e1c9d55414096676ab5d40b6e8ae8b1e08bcc9fc9"
+  },
+  {
+    "source": "result/synthesis/btb-selection/after-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "retained": "selection/after-e16-w2-p0/analysis/riscv32_btb-820MHz/synth_stat.txt",
+    "source_sha256": "c963d9212e7c9f4fa062350f7924f4f4d3b35b8e9ed7cd3b0e71f5f365c2b790"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e16-w2-p0-training.rpt",
+    "retained": "experiment/v2-e16-w2-p0-training.rpt.gz",
+    "source_sha256": "3229b0d6a814b7ca7cb4c40a3fbc7d4c0b4ffc24e0dc2d402708c8b9ca7e7ea6"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/btb.sdc",
+    "retained": "experiment/btb.sdc",
+    "source_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/selection-ppa.json",
+    "retained": "experiment/selection-ppa.json",
+    "source_sha256": "24625e461977043ad3905ae2f2508b1d57ba28a5f03a7c73ace495dd2b61dbb6"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/difftest-build.log",
+    "retained": "experiment/difftest-build.log.gz",
+    "source_sha256": "872f25c6488e97a34a96d9cf8a1dd784b7d83a36b6161d0aefcc45a96422f2a5"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e16-w2-p0.f",
+    "retained": "experiment/v2-e16-w2-p0.f",
+    "source_sha256": "d4a068f6df4bfe73d287d40b2be5508a13c78efe9df61a004923c357e76f3ea7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e16-w2-p0.log",
+    "retained": "experiment/after-e16-w2-p0.log.gz",
+    "source_sha256": "a4fa9cbf6487ce38701adfe37b0979d02fe15169f6cc83331096b49b9b9bcd12"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w4-p2.log",
+    "retained": "experiment/v3-e32-w4-p2.log.gz",
+    "source_sha256": "78be6573175b9c2bba94b3e50ab70bc599ad399170853626712fdbd7be7f8b81"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w8-p2.f",
+    "retained": "experiment/before-e32-w8-p2.f",
+    "source_sha256": "2165d93ab3dbe670724e86854765cd2d34544c079cf0fcf7249c6dee1e18c920"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w16-p2.f",
+    "retained": "experiment/after-e32-w16-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/probe_core.py",
+    "retained": "experiment/probe_core.py",
+    "source_sha256": "ca6fd310322a1d60df950057e976bd57fa45f64e710875926cd8d12613b6655a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e16-w2-p0.f",
+    "retained": "experiment/v3-e16-w2-p0.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w4-p2-training.rpt",
+    "retained": "experiment/v2-e32-w4-p2-training.rpt.gz",
+    "source_sha256": "04925a7d9433661f48a792a69498a41c3fbc16001aa15adee97a83f015dc81f5"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w4-p2.log",
+    "retained": "experiment/before-e32-w4-p2.log.gz",
+    "source_sha256": "bd9f5b6d95a034a683d461162982a965a350bb2890187bba731df366df06508b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w16-p2.log",
+    "retained": "experiment/v3-e32-w16-p2.log.gz",
+    "source_sha256": "fa83bc073ffc237d78bed90edbabbe2d6506bba096935ae8ae78b42e9c72d789"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w16-p2-training.log",
+    "retained": "experiment/v3-e32-w16-p2-training.log.gz",
+    "source_sha256": "57567f96dbe83fc108e6bbe2ce6c66c08706022f08f6d932723d7d7e8feaa303"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w16-p2.f",
+    "retained": "experiment/before-e32-w16-p2.f",
+    "source_sha256": "2165d93ab3dbe670724e86854765cd2d34544c079cf0fcf7249c6dee1e18c920"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e16-w2-p0-training.rpt",
+    "retained": "experiment/v3-e16-w2-p0-training.rpt.gz",
+    "source_sha256": "4ac131447cf0c82150412610b5f25aafcba2cf97180889b890cbaa42d0c3d7f4"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w8-p2.f",
+    "retained": "experiment/after-e32-w8-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w4-p2-training.log",
+    "retained": "experiment/before-e32-w4-p2-training.log.gz",
+    "source_sha256": "d0da9cefefb782058793007bb23931a5bd1c076cb0b8cdf8bdfc77180ee36e5a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w16-p2.log",
+    "retained": "experiment/before-e32-w16-p2.log.gz",
+    "source_sha256": "d07344609a246e3c97f80f4dcc5cdcb26d0dd2add52b440704579550a057aa6a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e16-w2-p0-training.rpt",
+    "retained": "experiment/before-e16-w2-p0-training.rpt.gz",
+    "source_sha256": "6a4c972920b59522c32dd043845e6b979e54176ec470a18720f6bca529207073"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w16-p2-training.log",
+    "retained": "experiment/before-e32-w16-p2-training.log.gz",
+    "source_sha256": "1bd5fd0018f8db436f08d51cc1e272e79cb936c5c18f72da26d576f80e23c7c4"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e16-w2-p0.log",
+    "retained": "experiment/v2-e16-w2-p0.log.gz",
+    "source_sha256": "acad67bfdfb6bbdc3cd032951b42214f50eb27fcd1e6545719b461c1cd9a1397"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w16-p2.f",
+    "retained": "experiment/v3-e32-w16-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/probe_core_v2.py",
+    "retained": "experiment/probe_core_v2.py",
+    "source_sha256": "adc9808339a4d20fec0290b438fbae313c6bdb210b7717b6a54786819d07844a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v2.f",
+    "retained": "experiment/parallel-v2.f",
+    "source_sha256": "176eb5d2907d5b65dc77bf0103801cdc9df26d34102f87e1093289f1d5f50df8"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w16-p2-training.rpt",
+    "retained": "experiment/before-e32-w16-p2-training.rpt.gz",
+    "source_sha256": "100137252d509bbdb63555ab48ca30de3b04e44cabd74ab3b7c9f93254afc27d"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v1.sv",
+    "retained": "experiment/parallel-v1.sv",
+    "source_sha256": "9fb478985ee977804c3632bfb9f93db5c843fea51cfd4a08a176174b68532b9b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e16-w2-p0-training.log",
+    "retained": "experiment/v2-e16-w2-p0-training.log.gz",
+    "source_sha256": "6a9367732254ebb834004f996bd1489200fe0b6aa42319efe63d6fed69d10a07"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w16-p2-training.log",
+    "retained": "experiment/v2-e32-w16-p2-training.log.gz",
+    "source_sha256": "9b9652a158e1071db7522355612253c07be7bb8e14341200483274ee72ca39fe"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e16-w2-p0-training.log",
+    "retained": "experiment/before-e16-w2-p0-training.log.gz",
+    "source_sha256": "4ed074a73630439fbed2bf523952640b090e87bf7f5acd2f1b6dca2094803eed"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w8-p2.log",
+    "retained": "experiment/v2-e32-w8-p2.log.gz",
+    "source_sha256": "4182836adb7e6da147267b6b94519bc9209bed21b900a857ea1a51bc94d67cf4"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/measure_selection_v2.py",
+    "retained": "experiment/measure_selection_v2.py",
+    "source_sha256": "360339059453da52b347660067b12530d5cdc7f0b507186e54212e40be227c5f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w4-p2-training.log",
+    "retained": "experiment/v2-e32-w4-p2-training.log.gz",
+    "source_sha256": "55a897539eb9c86276b5bb0574c50e9584fd86e4fdd32fdcba697f3139545956"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w16-p2.log",
+    "retained": "experiment/after-e32-w16-p2.log.gz",
+    "source_sha256": "8bb0374ad7345a44a310c1a3bab5ca793b38cea511750eee0ce4abacf2e03ff0"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w8-p2-training.rpt",
+    "retained": "experiment/before-e32-w8-p2-training.rpt.gz",
+    "source_sha256": "352d45c40599222fa37916ecdefa8e787ea9ea2b04d9c278ba46f51458fa2d51"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w4-p2.f",
+    "retained": "experiment/v3-e32-w4-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v2.sv",
+    "retained": "experiment/parallel-v2.sv",
+    "source_sha256": "a24e7a0836bdf464078da1d2c164c0423e657742fcf38971c6cb9c41745ecdf8"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w8-p2.f",
+    "retained": "experiment/v2-e32-w8-p2.f",
+    "source_sha256": "d4a068f6df4bfe73d287d40b2be5508a13c78efe9df61a004923c357e76f3ea7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e16-w2-p0.log",
+    "retained": "experiment/v3-e16-w2-p0.log.gz",
+    "source_sha256": "77fc9bc19f91efe10cb8545a5ceac8e28f42edcc6ef7c9668734327c5575624d"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend-v3.log",
+    "retained": "experiment/frontend-v3.log.gz",
+    "source_sha256": "5f7216d229b7d031ed515de2566bee2ec47a6e8d01a952f6554f0518f34c0791"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v3.sv",
+    "retained": "experiment/parallel-v3.sv",
+    "source_sha256": "452b26bf8e88f0843233fc592e4e9ec4de28c2f873a2d8793b4b0ba921c8eeec"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/selection-ppa-v2.json",
+    "retained": "experiment/selection-ppa-v2.json",
+    "source_sha256": "367f6c926e12a2f64e4cc393ff57e1130a655b50ab74f9fb837b77d923214c19"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e16-w2-p0-training.log",
+    "retained": "experiment/v3-e16-w2-p0-training.log.gz",
+    "source_sha256": "ff6332089256b9da69735a6bf86969daee599afac21b0379e8b44c29f2551c40"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w8-p2-training.log",
+    "retained": "experiment/v2-e32-w8-p2-training.log.gz",
+    "source_sha256": "237a9f7a1aacb103c2041f60fa16c137381b5216954daa5ccdda301945860bf8"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/archive_final.py",
+    "retained": "experiment/archive_final.py",
+    "source_sha256": "bca935f002d02f4984b5476ea3bab43e17c1be2cae7a1a5f3cebb429de8b2efc"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w4-p2.log",
+    "retained": "experiment/after-e32-w4-p2.log.gz",
+    "source_sha256": "147e1a797ff6a9870e50186f84d274b660e3ad476e0513e03d8244f67af6672e"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w8-p2-training.log",
+    "retained": "experiment/before-e32-w8-p2-training.log.gz",
+    "source_sha256": "81f45c78248dc5549916e2637a1d29269c236ee941fcbcc3e2ef57cf1f792895"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w16-p2-training.rpt",
+    "retained": "experiment/v3-e32-w16-p2-training.rpt.gz",
+    "source_sha256": "eeb17fed6537140ac1324efc2615fff3ab4fba7da99a06ba4bac9111c6c1c187"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e16-w2-p0-training.rpt",
+    "retained": "experiment/after-e16-w2-p0-training.rpt.gz",
+    "source_sha256": "f783c95e6941ee1758f77e16ec7977df3c6bf7e1bda0895f6292d9696a97ad8b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w4-p2.log",
+    "retained": "experiment/v2-e32-w4-p2.log.gz",
+    "source_sha256": "4d1ab3ab00cd047a0ad4d266c8754793f85ed308374d7f1eebf53aeca6245a85"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w8-p2.log",
+    "retained": "experiment/before-e32-w8-p2.log.gz",
+    "source_sha256": "3f477abc0533bc6ddf66b210b7da3f52c7ca69411be9bda5abab344933d9cc53"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w8-p2-training.log",
+    "retained": "experiment/after-e32-w8-p2-training.log.gz",
+    "source_sha256": "9f542c3e1c48e26d2088c45fe7d5f002b6b7b9df097c7ce526590037675e00f5"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w4-p2-training.log",
+    "retained": "experiment/v3-e32-w4-p2-training.log.gz",
+    "source_sha256": "78e09882684e0449a3db46cee9f9e23752f95abf38f1a37e0b3385df7ab24763"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/parallel-v2-initial.sv",
+    "retained": "experiment/parallel-v2-initial.sv",
+    "source_sha256": "62d497a89a61c090e338dbc4ef51f6d19a90981e553a6343d72ba0f7f319a617"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w8-p2-training.log",
+    "retained": "experiment/v3-e32-w8-p2-training.log.gz",
+    "source_sha256": "02cadeb319e0aa20139d9cb1f6dbd0fab432ad7e79d3944fbe83a2a57f2256e0"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w8-p2.log",
+    "retained": "experiment/after-e32-w8-p2.log.gz",
+    "source_sha256": "23b141794ae2c1614d5a4d2384f43dccf160fb8e2b26c074ebd9cca46591544c"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/baseline-test.log",
+    "retained": "experiment/baseline-test.log.gz",
+    "source_sha256": "642ab0c3a45c5552a3e8149cd3aa1ac72ca803a173095105dfd4046162bc137a"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w4-p2-training.rpt",
+    "retained": "experiment/before-e32-w4-p2-training.rpt.gz",
+    "source_sha256": "d7664437658a67e8fa4d7d8c49c2f0db0260a6ff6a4f121b0055fced4a5b8d25"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/measure_selection.py",
+    "retained": "experiment/measure_selection.py",
+    "source_sha256": "41f67de85a192a82e57b80a77ed5229e0b335a3e34f58aac087b85965e00f894"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/lint-v3.log",
+    "retained": "experiment/lint-v3.log.gz",
+    "source_sha256": "a507642146a869dbfb159419b03de5343cb14df00e980eb62f708166cd508c0b"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/performance-ab.json",
+    "retained": "experiment/performance-ab.json",
+    "source_sha256": "2c51140619476dd3e49b7efad67fef22ca86f3569c3f8c83cd0ea7ad730ca7e4"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w4-p2.f",
+    "retained": "experiment/v2-e32-w4-p2.f",
+    "source_sha256": "d4a068f6df4bfe73d287d40b2be5508a13c78efe9df61a004923c357e76f3ea7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/archive_completed.py",
+    "retained": "experiment/archive_completed.py",
+    "source_sha256": "422510cf9c04c614be1cfa3593fe2a7bfe6a6d78757a7be52ac168d7a0c4c196"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/performance-ab-v3.json",
+    "retained": "experiment/performance-ab-v3.json",
+    "source_sha256": "48a942965952ccc158e92e96e7a5add3e2550513e5f8faeebc3c0b943bfb55b1"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w8-p2-training.rpt",
+    "retained": "experiment/v2-e32-w8-p2-training.rpt.gz",
+    "source_sha256": "b5e061e86ca1c036e0d2392d6def84a63fcc334668d37fea82635d857da31c15"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w16-p2-training.log",
+    "retained": "experiment/after-e32-w16-p2-training.log.gz",
+    "source_sha256": "88c1621fd5bc3d860a7642852b9c110622a432b78ba1c861e039a2bdcbc3cb65"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/baseline-test-report.json",
+    "retained": "experiment/baseline-test-report.json",
+    "source_sha256": "9a1a5241375583e0e495496ef83982ecf61cd7fef8db5d3012bcb02a2350fa19"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e16-w2-p0.f",
+    "retained": "experiment/before-e16-w2-p0.f",
+    "source_sha256": "2165d93ab3dbe670724e86854765cd2d34544c079cf0fcf7249c6dee1e18c920"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e16-w2-p0-training.log",
+    "retained": "experiment/after-e16-w2-p0-training.log.gz",
+    "source_sha256": "66d9a54eebbc06bc62bbf44d947cfca8b63dc4e49c080b024d7f3568fd834e51"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e32-w4-p2.f",
+    "retained": "experiment/before-e32-w4-p2.f",
+    "source_sha256": "2165d93ab3dbe670724e86854765cd2d34544c079cf0fcf7249c6dee1e18c920"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/measure_selection_v3.py",
+    "retained": "experiment/measure_selection_v3.py",
+    "source_sha256": "df0b5494a7e8b3b81935001a522aedc38d9598743e92f51195fa9a6d820d685e"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w16-p2.f",
+    "retained": "experiment/v2-e32-w16-p2.f",
+    "source_sha256": "d4a068f6df4bfe73d287d40b2be5508a13c78efe9df61a004923c357e76f3ea7"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/frontend.log",
+    "retained": "experiment/frontend.log.gz",
+    "source_sha256": "70f48a07de2c972e8b7b1d2f7667f2f1c0f3307658aad5b7a7fcbc6588304c31"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e16-w2-p0.f",
+    "retained": "experiment/after-e16-w2-p0.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w16-p2.log",
+    "retained": "experiment/v2-e32-w16-p2.log.gz",
+    "source_sha256": "2a989a603410fccd1f604305265eadf24f1b19e915cbd34149fd5c2eb983114e"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/before-e16-w2-p0.log",
+    "retained": "experiment/before-e16-w2-p0.log.gz",
+    "source_sha256": "3503197960f0e55198c423272794d03311e7595e5d0759a4eeabb9556553cb68"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w8-p2-training.rpt",
+    "retained": "experiment/v3-e32-w8-p2-training.rpt.gz",
+    "source_sha256": "ca9eb3cdb97988f4a52562f32e305e83e1b1f272f37f9c92c1669ea013a2930f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w4-p2-training.rpt",
+    "retained": "experiment/after-e32-w4-p2-training.rpt.gz",
+    "source_sha256": "4b8bb213bc2741407e67ff34b44a62316f2a3ab1c720aea053b67a370786960f"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w16-p2-training.rpt",
+    "retained": "experiment/after-e32-w16-p2-training.rpt.gz",
+    "source_sha256": "ae2197025d6a6ab99756d81cf891238629d2007c1d538757548f1d18b6322ee9"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w4-p2.f",
+    "retained": "experiment/after-e32-w4-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/lint.log",
+    "retained": "experiment/lint.log.gz",
+    "source_sha256": "bf0e7d6d94456a28e53d52dec4906f11ace142ad48c5aee7c58fa04ac4e38233"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w8-p2-training.rpt",
+    "retained": "experiment/after-e32-w8-p2-training.rpt.gz",
+    "source_sha256": "2652677630a3a616d648c14ca5a39284ab16a2ffa5e66172a9f97c4d2863810d"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/after-e32-w4-p2-training.log",
+    "retained": "experiment/after-e32-w4-p2-training.log.gz",
+    "source_sha256": "cf97cb358b3a420fc400e67b856db5d371ee2fc2fe3e3057cad0ea11f4ca653c"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/selection-ppa-v3.json",
+    "retained": "experiment/selection-ppa-v3.json",
+    "source_sha256": "4cb832568ae71eca1535c6fd54482eb784e8394752fe201c823eb32623eb7332"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w4-p2-training.rpt",
+    "retained": "experiment/v3-e32-w4-p2-training.rpt.gz",
+    "source_sha256": "c1e73a63ed095b0f2e9abbb19a5511531483d8b299b43a074f0c14b898e6660e"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v2-e32-w16-p2-training.rpt",
+    "retained": "experiment/v2-e32-w16-p2-training.rpt.gz",
+    "source_sha256": "57e97d2e7fd4e9de2908db31c39aecc113477086004ced21853df504957645a2"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w8-p2.f",
+    "retained": "experiment/v3-e32-w8-p2.f",
+    "source_sha256": "6dcdf8abc42a11434c65c03a2270b698cc23187b52858835c812e461e1fb9cd3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/probe_core_v3.py",
+    "retained": "experiment/probe_core_v3.py",
+    "source_sha256": "008c5473f13031aad7bbdd7b8b5b0706521cac52ed4b74db74822d7394933ff9"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/v3-e32-w8-p2.log",
+    "retained": "experiment/v3-e32-w8-p2.log.gz",
+    "source_sha256": "139fab3ad19e246dfcc34d86a65d96565c2ce9d1c3e5debe1dc4604f0bd464d3"
+  },
+  {
+    "source": "result/branch-v3/btb-parallel/reference/riscv32_btb.sv",
+    "retained": "experiment/before.sv",
+    "source_sha256": "570398a12b710ae69d76bd1ddabee1428fc1f10df4c452bb5b4425277b9c8594"
+  }
+]

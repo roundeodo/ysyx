@@ -1,0 +1,79 @@
+{
+  "workload": "scalar-int8-dot-normalize",
+  "checksum": "0x0",
+  "timing_scope": "whole standalone NPC program, flat memory; not SoC timer",
+  "cpu": "same RV32IM balanced simulator for both software images",
+  "records": [
+    {
+      "isa": "rv32i",
+      "cycles": 2385341,
+      "retired": 2065811,
+      "ipc": 0.866044309807277,
+      "build_command": [
+        "riscv64-linux-gnu-gcc",
+        "-march=rv32i_zicsr_zifencei",
+        "-mabi=ilp32",
+        "-nostdlib",
+        "-static",
+        "-fno-pic",
+        "-fno-pie",
+        "-mcmodel=medany",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-msmall-data-limit=0",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Wl,--no-relax,--build-id=none,--gc-sections",
+        "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/kernel/test.ld",
+        "-DEXPECTED_CHECKSUM=0u",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/kernel/start.S",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+        "-o",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/kernel/rv32i.elf"
+      ],
+      "image_sha256": "b14ef89582bc07af888c3f96385a90424aa92ae4760aec1879877c693f0b220d"
+    },
+    {
+      "isa": "rv32im",
+      "cycles": 192451,
+      "retired": 151125,
+      "ipc": 0.7852648206556474,
+      "build_command": [
+        "riscv64-linux-gnu-gcc",
+        "-march=rv32im_zicsr_zifencei",
+        "-mabi=ilp32",
+        "-nostdlib",
+        "-static",
+        "-fno-pic",
+        "-fno-pie",
+        "-mcmodel=medany",
+        "-ffreestanding",
+        "-fno-builtin",
+        "-msmall-data-limit=0",
+        "-O2",
+        "-ffunction-sections",
+        "-fdata-sections",
+        "-Wl,--no-relax,--build-id=none,--gc-sections",
+        "-Wl,-T,/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/kernel/test.ld",
+        "-DEXPECTED_CHECKSUM=0u",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/kernel/start.S",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/muldi3.S",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/abstract-machine/am/src/riscv/npc/libgcc/div.S",
+        "-o",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/kernel/rv32im.elf"
+      ],
+      "image_sha256": "d9e4031247fbe03822de424551501841efc579581c9724b04861c89c18c59688"
+    }
+  ],
+  "sha256": {
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/muldiv/quantized_dot.c": "4c6f6b70275966a2d65aa7c501f5a7d5f5310ece88c940b52aec7be774f9d108",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/mac-sim/build/top_sim": "15edb87dad3762197efee17bcafe1683cee4be09f0e8ce8f7fb4374090d63acc",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/measure_muldiv_kernel.py": "ebdf94682a7c5463ce3a0bd73b2ed1a54cfd34c477f3d1867d0ce225ed1e110d"
+  },
+  "speedup_same_frequency": 12.39453679118321
+}

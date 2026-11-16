@@ -1,0 +1,109 @@
+{
+  "schema": 2,
+  "frozen_utc": "2026-10-01T16:48:32.651947+00:00",
+  "git_head": "fb42c7a533316b6680e03b4bdf665fa35a47f1b9",
+  "development_report_sha256": "df836874814c1d0180f83d681ba4a3332320234de49031a8d275da3febf0bef2",
+  "candidates": {
+    "BT0-long": {
+      "ppa": "BT0",
+      "operating_mhz": 735,
+      "mhz": [
+        400,
+        735
+      ],
+      "area_um2": 101348.394,
+      "binary_sha256": "1b457d855c25a880a1e56a0eb26f390c8012eccb114e722baacff3bbd1558e46",
+      "build_manifest_sha256": "60522abc07b28eb9bc929ddc12baeec3726288716f9aeb09be50f7a61349e008"
+    },
+    "BT32-fold-long": {
+      "ppa": "BT32-select-fold",
+      "operating_mhz": 720,
+      "mhz": [
+        400,
+        720
+      ],
+      "area_um2": 110639.774,
+      "binary_sha256": "4e9951a8eb00331561ccdaffa3097ef6497f7fb523ebb8bda675c8e0613e3775",
+      "build_manifest_sha256": "e5861b7774e8c4710752569278f7bc8eb8190a7a5e090e9a851c9f83719dbdc5"
+    },
+    "H2E-victim-long": {
+      "ppa": "H2E-victim",
+      "operating_mhz": 700,
+      "mhz": [
+        400,
+        700
+      ],
+      "area_um2": 102253.06,
+      "binary_sha256": "eaa4f1a6e9d96a86bcc192c108db23ac6a73a053768116dbce5e2a810bf80c6d",
+      "build_manifest_sha256": "97cf3b8e8beee085343ee345889fcf6441f1cda20a4fb87b959676d036d2a199"
+    },
+    "NSL-BT32-fold": {
+      "ppa": "NSL-BT32-fold",
+      "operating_mhz": 720,
+      "mhz": [
+        400,
+        720
+      ],
+      "area_um2": 128856.784,
+      "binary_sha256": "577d7a37f93a20efe05e1508d588274da88e4cb98693dcc3a71fafe9c987a2da",
+      "build_manifest_sha256": "d0b415f65ed3c28e147ed98aa2c5bf429a5381a7b43a1c2344062c5f0905ba49"
+    },
+    "NSL-BT64": {
+      "ppa": "NSL-BT64",
+      "operating_mhz": 715,
+      "mhz": [
+        400,
+        715
+      ],
+      "area_um2": 143246.586,
+      "binary_sha256": "300b8d15568ed10f47c9e0c13c509e75c9113a63e983eecd0f2a123c50c6aabd",
+      "build_manifest_sha256": "76e22451d59188887cbd38a746189e7c6147bf0099b7a615941e8ddbb7632d76"
+    }
+  },
+  "reference": "BT0-long",
+  "reference_mhz": 735,
+  "common_mhz": 400,
+  "primary_metric": "equal application families, equal inputs within family, paired time geomean",
+  "selection_basis": "eight-family short validation score, plus <=3% individual regression on short and 128-request validation",
+  "final_proxy_seeds": [
+    2467,
+    2474
+  ],
+  "final_vocabulary_key_ranges": [
+    [
+      512,
+      768
+    ],
+    [
+      33792,
+      42496
+    ]
+  ],
+  "final_protocol": "short proxy and real streams at common/own clocks; 128-request streams at own clocks; report short and long separately",
+  "roles": {
+    "lowest_cost": "BT0",
+    "best_area_time": "H2E-victim",
+    "lowest_latency_by_area_percent": {
+      "0": "BT0",
+      "5": "H2E-victim",
+      "10": "BT32-select-fold",
+      "20": "BT32-select-fold"
+    },
+    "unconstrained_lowest_latency": "NSL-BT64"
+  },
+  "pareto_validation": [
+    "BT0",
+    "H2E-victim",
+    "BT32-select-fold",
+    "NSL-BT32-fold",
+    "NSL-BT64"
+  ],
+  "validation_rejected": {
+    "BT16-admit": {
+      "short_worst": 1.037655614882854,
+      "long_worst": 0.9948386616083498
+    }
+  },
+  "acceptance": "No final per-input slowdown >3%; the frozen balanced proposal must beat stable baseline and stronger simple controls in area*time, with long-input consistency. Incomplete coverage or a failed role keeps the stable default.",
+  "no_retuning": "Final results may veto roles, never choose new parameters, weights, frequencies or workloads"
+}

@@ -1,0 +1,98 @@
+ M ex10/Makefile
+ M ex10/ex10.c
+ M ex11/Makefile
+ M ex11/ex11.c
+ M ex12/ex12.c
+ M ex13/ex13.c
+ M ex14/ex14.c
+ M ex15/ex15.c
+ M ex16/ex16.c
+ M ex17/Makefile
+ M ex17/ex17.c
+ M ex18/Makefile
+ M ex18/ex18.c
+ M ex19/Makefile
+ M ex19/dbg.h
+ M ex19/ex19.c
+ M ex2/Makefile
+ M ex20/Makefile
+ M ex20/ex20.c
+ M ex22/Makefile
+ M ex22/ex22.c
+ M ex22/ex22.h
+ M ex22/ex22_main.c
+ M ex24/Makefile
+ M ex24/ex24.c
+ M ex25/Makefile
+ M ex25/ex25.c
+ D ex28/c-skeleton/src/libex29.c
+ D ex28/c-skeleton/tests/libex29_tests.c
+ M ex29/ex29.c
+ M ex29/libex29.c
+ M ex3/Makefile
+ M ex3/ex3.c
+ D ex30/ex30.c
+ M ex7/Makefile
+ M ex7/ex7.c
+ M ex8/ex8.c
+ M ex9/ex9.c
+?? .vscode/PythonImportHelper-v2-Completion.json
+?? ex10/ex10
+?? ex11/ex11
+?? ex11/vgcore.6577
+?? ex12/ex12
+?? ex13/ex13
+?? ex14/ex14
+?? ex15/ex15
+?? ex16/ex16
+?? ex17/1
+?? ex17/db.dat
+?? ex17/ex17
+?? ex17/test.sh
+?? ex17/test.txt
+?? ex18/1
+?? ex18/ex18
+?? ex19/ex19
+?? ex2/ex1
+?? ex20/core.8124.ex20
+?? ex20/ex20
+?? ex21/ex21
+?? ex21/ex21.c
+?? ex22/core.8906.ex22
+?? ex22/ex22
+?? ex24/core.2709.ex24
+?? ex24/ex24
+?? ex25/core.2960.ex25
+?? ex25/ex25
+?? ex27/logfind.5/logfind
+?? ex28/c-skeleton/build/libYOUR_LIBRARY.a
+?? ex28/c-skeleton/tests/libex29_tests
+?? ex29/ex29
+?? ex3/ex3
+?? ex30/c-skeleton/LICENSE
+?? ex30/c-skeleton/Makefile
+?? ex30/c-skeleton/README.md
+?? ex30/c-skeleton/build/libex29.a
+?? ex30/c-skeleton/src/dbg.h
+?? ex30/c-skeleton/tests/ex30_tests
+?? ex30/c-skeleton/tests/ex30_tests.c
+?? ex30/c-skeleton/tests/libex29_tests
+?? ex30/c-skeleton/tests/minunit.h
+?? ex30/c-skeleton/tests/runtests.sh
+?? ex31/ex31
+?? ex32/c-skeleton/LICENSE
+?? ex32/c-skeleton/Makefile
+?? ex32/c-skeleton/README.md
+?? ex32/c-skeleton/build/liblcthw.a
+?? ex32/c-skeleton/core.4261.list_tests
+?? ex32/c-skeleton/core.4396.list_tests
+?? ex32/c-skeleton/src/dbg.h
+?? ex32/c-skeleton/src/lcthw/list.c
+?? ex32/c-skeleton/src/lcthw/list.h
+?? ex32/c-skeleton/tests/list_tests
+?? ex32/c-skeleton/tests/list_tests.c
+?? ex32/c-skeleton/tests/minunit.h
+?? ex32/c-skeleton/tests/runtests.sh
+?? ex4/Makefile
+?? ex4/ex4
+?? ex9/ex9

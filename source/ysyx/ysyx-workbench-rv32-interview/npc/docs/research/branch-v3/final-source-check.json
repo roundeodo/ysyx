@@ -1,0 +1,27 @@
+[
+  {
+    "candidate": "BT0-long",
+    "all_RTL_files_equal_to_delivery": true,
+    "files": 70
+  },
+  {
+    "candidate": "BT32-fold-long",
+    "all_RTL_files_equal_to_delivery": true,
+    "files": 70
+  },
+  {
+    "candidate": "H2E-victim-long",
+    "all_RTL_files_equal_to_delivery": true,
+    "files": 70
+  },
+  {
+    "candidate": "NSL-BT32-fold",
+    "all_RTL_files_equal_to_delivery": true,
+    "files": 70
+  },
+  {
+    "candidate": "NSL-BT64",
+    "all_RTL_files_equal_to_delivery": true,
+    "files": 70
+  }
+]

@@ -1,0 +1,708 @@
+{
+  "date": "2026-10-02",
+  "head": "e751542b26094a8da2e79fdf5ecdd0fdc3825365",
+  "branch": "branch-v3-20261001",
+  "config": "rv32-balanced",
+  "config_sha256": "c72cf0f5605ac9963481496f8b72a1b665d9689379538ec0d73e2164ea102d3f",
+  "scope": "Current selected RV32I hardware. Static grouped audit and directed regression; not all optional configurations or formal proof.",
+  "rtl_changed": false,
+  "synthesis_rerun": false,
+  "sta_rerun": false,
+  "performance_rerun": false,
+  "full_difftest_rerun": false,
+  "preexisting_changes_preserved": [
+    "am-kernels (dirty submodule)",
+    "ysyxSoC (dirty submodule)",
+    "10 untracked run-history directories"
+  ],
+  "tools": {
+    "verilator": "Verilator 5.043 devel rev v5.042-244-g4080284e5",
+    "make": "GNU Make 4.3",
+    "g++": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0"
+  },
+  "rtl_inputs": [
+    {
+      "path": "npc/vsrc/riscv32/common/riscv_config_pkg.sv",
+      "sha256": "156d28f7fdc46f4fe3f8fb370490cdde65d61ae0cae33ddadf26d240ade4ad8b"
+    },
+    {
+      "path": "npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv",
+      "sha256": "59e7fbcb0057cf265025f3d9e821cc61e3b49692fe338ebab90d76e009ecd66c"
+    },
+    {
+      "path": "npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv",
+      "sha256": "183b14f9935e27ff53e721a62f6966d1538cc5c5c6335aa803f1f185bc88ccda"
+    },
+    {
+      "path": "npc/vsrc/riscv32/common/riscv32_ysyx_soc_axi4_pkg.sv",
+      "sha256": "9d105e37e87f22870471cf37e3296e539b1e30f826486d708f4c52573f09563d"
+    },
+    {
+      "path": "npc/vsrc/riscv32/common/riscv32_pkg.sv",
+      "sha256": "ccd2504bbacba6107745d02bbae96c44304a4d5373b4af7e33a7b3bcec5ea8df"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_pma.sv",
+      "sha256": "882f7db52ec82604236a658271ef853e5ea2ee8759f42e3b2f0e13fc91a2519f"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv",
+      "sha256": "f7f614f9ed5e5b11fd6f01ccde22822b8dfb3e3993a577de9354088cd0db95b3"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv",
+      "sha256": "68e4e8852b83934d5260be57d254d9033b0239db056d4a3fb3ea14cc1e802ad4"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv",
+      "sha256": "1abe7638acd0881f9020a8f6dc3a5f5265e8c68cb0917b2bec1370c21eb3ebd1"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv",
+      "sha256": "316cdda5946a50e08110cc8d96fc4bfda944214cd6db67f72fd0809fb3156510"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_icache.sv",
+      "sha256": "74bf9b23052299077c466b91427262e9388441e99398694508c743235bd75fde"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv",
+      "sha256": "28d4cfc9257690badcca38be10f566f1cd72c23b343de503a0453637d2d1089b"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv",
+      "sha256": "463a569d405f248b069406adf1cea9e17c44ca7e9be1ed2e8d8c3bdae04e7001"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv",
+      "sha256": "782024a6443ea4fe7881eea122dd775898d995a798238b073c1341ae3671934e"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv",
+      "sha256": "149a3c0f5cddaf0db540d1cc7241e695bddf00f6d1c9f55cc40eebac88cac71c"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/memory/riscv32_dcache_axi.sv",
+      "sha256": "cc3f33a7d59de625ebe8fd36b8b27595dfba0dde8498cd91c1bd927527748810"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv",
+      "sha256": "998ce7bfd51dd94504b5f565c677ac8b797784f08fb318410fd906e9c379fccf"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/memory/riscv32_dcache.sv",
+      "sha256": "ce652c4a17a4d788acd6b97a2b8c56b65a1587908453f291af85806d3bdba8df"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/memory/riscv32_uncached_axi.sv",
+      "sha256": "3489fd1822722b056b56f7bdd8be2e759544dfd32ab41292b8a47c6cb9778766"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/memory/riscv32_data_mem.sv",
+      "sha256": "2c19482c74a6fd329223714426adf9732875f5587e77276f4e87360f2f849820"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/decode/riscv32_regfile.sv",
+      "sha256": "acc6f74a623aaec9e184b361d614625275ca04dc934c2f60cb4744f9483c2061"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/writeback/riscv32_pmu.sv",
+      "sha256": "622452bc6f999726070b4a95ddaccb1565832e28c95f81bbb285efe40198a5ad"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/writeback/riscv32_csr_file.sv",
+      "sha256": "be88bec1c6a1e22069530f905f14c815c746f8ef207853a00a33f053821fcf4b"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/decode/riscv32_idu.sv",
+      "sha256": "dd99880a5e21ff9932d26156fd5695896e4d2ef81cb567cbf1b75a90f4a9bddc"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_tage.sv",
+      "sha256": "f26ac89f4fc2c57816438a53c5a5d5d02f329ee42ab82a3dbd3044e25b7cce03"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv",
+      "sha256": "bcbc2f8b8c4782390cfc397a59989ce2ef58774ce4a266ef6f119cc29b96e3e1"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_bht.sv",
+      "sha256": "1d5d719f040f8a121ab719c30cf35da9819c717f5111cdd002d3776b75e8da48"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv",
+      "sha256": "705d2fc90e8e4451682bf11b1b93139438fd20bfacf153864bc69a6e4328b2f0"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_btb.sv",
+      "sha256": "6974ac0b49e63f7ca574b7cad77d4ed67086bde2bc634031163abf9da1f243c0"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_ras.sv",
+      "sha256": "53dab19e5ac553a986744f1f242055b2832885fb1187894367f6f72e154dff40"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv",
+      "sha256": "e7af3ecae1f2f9074997cfdb0a7ab78579c7c15f7b1001b09e852a04a216c6da"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv",
+      "sha256": "5e8f71270aca28ada0a96946b75e5c1bfbe44a03b2ffd23456f72664ce349d7a"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv",
+      "sha256": "0d7b0410ef36012504b4b6c69c1a91e08a4861fe6fdb79bf0cad2ff96d5d0ed1"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv",
+      "sha256": "ec3d8ffce00ddd6e135e4baac2d8c70e2d5a4c74451bbcac23655c0f30c34d31"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/control/riscv32_redirect_mux.sv",
+      "sha256": "f132d10f2ad814f2030c2e813111d35983e9aaf4b4243d834e60a60f6407d2a4"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/control/riscv32_hazard_ctrl.sv",
+      "sha256": "f51d0f777b7ab1b63978574c6a827bea9f61583e71a7420266373e41995737ad"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/execute/riscv32_exu.sv",
+      "sha256": "71e63b1a9cf57d48cbce91f18f01020b3089ce06710d1c6aa194651886956dbb"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv",
+      "sha256": "99673cd9c83a2b2c49a663740f1e271d836a7ed2a4f0d569714233290ef7472a"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/memory/riscv32_lsu.sv",
+      "sha256": "760f92358685d15edc27c932c4d0bd5cb6e3f4aea4d36b46244f0fe14b312650"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/writeback/riscv32_completion_mux.sv",
+      "sha256": "8911ce957d17eb4ef60002d16857e1fef0add62ca7c715178ccd1ae70b55b848"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/writeback/riscv32_wb_reg.sv",
+      "sha256": "fc0cbd9ab8262cb7631f74c5d372eb9ea4377e02c8e3b9bfbfc3ccceb5bd731b"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/writeback/riscv32_commit.sv",
+      "sha256": "f85b305827f360bf67b8410cb52549f4b84e907283f280a435fa1c0771b54102"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/control/riscv32_interrupt_ctrl.sv",
+      "sha256": "9547cd6a67cec2b79cf0ed30c56d9c67e9391e7a6f37c70c0aa7d47a04cf283f"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/control/riscv32_trap_ctrl.sv",
+      "sha256": "8eac45a31e19d634880f7e5f9c7fec5bec0c6fa4bb1b3cb1e804890f68fa586c"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv",
+      "sha256": "5e744e224e53d949d19ae5dd328a6ac765b440e676ef13dee0fa104cbdc64c96"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/decode/riscv32_operand_mux.sv",
+      "sha256": "5e0eb6166fafda21dddc200517271e9925ae0f115c0c3f1a368cbf44b58f7431"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/control/riscv32_fence_i_ctrl.sv",
+      "sha256": "e2d31207a20d5c0bb9ad7ad7d671815c99cf80b4215d4c927ecf7523716627c6"
+    },
+    {
+      "path": "npc/vsrc/riscv32/core/riscv32_core.sv",
+      "sha256": "3068ab9ffdd2c77187ff362dd1208ace446499d4490356770c9d0498ac0f9d0a"
+    },
+    {
+      "path": "npc/vsrc/riscv32/system/riscv32_axi4_arbiter.sv",
+      "sha256": "ef685dc9a54952d3463dfa3aedb5ff7a91d1048fc0aaa6e60b9f0b21c69ef413"
+    },
+    {
+      "path": "npc/vsrc/riscv32/system/riscv32_axi4_router.sv",
+      "sha256": "81a1ff0796b9590ebfbd3e73fc03757792106070f69366f304f54926af48f1bd"
+    },
+    {
+      "path": "npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv",
+      "sha256": "2bd51a152627ae0265aeb757f7fa58127c4b53a85d252833dac94f669dfd3672"
+    },
+    {
+      "path": "npc/vsrc/riscv32/system/riscv32_reset_controller.sv",
+      "sha256": "6a9e64050fc93bbdcaa831d42de420cf016757eeac1753f7b1c1a57dd3d84344"
+    },
+    {
+      "path": "npc/vsrc/riscv32/system/riscv32_core_reset_boundary.sv",
+      "sha256": "000154cd20de840f5cfc591bef64d377f0ac46b3feb822a915dd829909958539"
+    },
+    {
+      "path": "npc/vsrc/riscv32/system/riscv32_npc_system.sv",
+      "sha256": "ada16fda11d2d1e3a562241f8f2f7af9a185d362ee111aaac78884d0fd948588"
+    },
+    {
+      "path": "npc/vsrc/riscv32/system/riscv32_axi4_soc_width_converter.sv",
+      "sha256": "62b197fca99da823e21f2c8f0c03590457568567dba4afb1ab8c8f66d992ca62"
+    },
+    {
+      "path": "npc/vsrc/riscv32/system/riscv32_npc_axi.sv",
+      "sha256": "9d8924a31ca743af2fe10e6c2f0f02e86bd3fa9eab449a6fb3f6c4d7ed73ecac"
+    }
+  ],
+  "pipeline_test": {
+    "path": "npc/tests/rtl/riscv32_pipeline_control_tb.sv",
+    "sha256": "61548bd4479ea4c5a3698e5c7527859eb7b613c6e650c4c8bc005056ba220e75",
+    "patch": "npc/docs/verification/data/wait-review-20261002/pipeline-test.patch"
+  },
+  "runs": [
+    {
+      "goal": "test-fetch",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-fetch"
+      ],
+      "returncode": 0,
+      "host_seconds": 10.556831121444702,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-fetch.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-icache",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-icache"
+      ],
+      "returncode": 0,
+      "host_seconds": 20.359084606170654,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-icache.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-lsu",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-lsu"
+      ],
+      "returncode": 0,
+      "host_seconds": 29.926639080047607,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-lsu.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-pipeline",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-pipeline"
+      ],
+      "returncode": 2,
+      "host_seconds": 33.80153846740723,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline-before.txt",
+      "phase": "before_test_fix"
+    },
+    {
+      "goal": "test-pipeline",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-pipeline"
+      ],
+      "returncode": 0,
+      "host_seconds": 40.19654726982117,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-dcache",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-dcache"
+      ],
+      "returncode": 0,
+      "host_seconds": 21.705449104309082,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-dcache.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-dcache-miss",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-dcache-miss"
+      ],
+      "returncode": 0,
+      "host_seconds": 14.730706691741943,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-dcache-miss.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-dcache-axi",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-dcache-axi"
+      ],
+      "returncode": 0,
+      "host_seconds": 10.879076480865479,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-dcache-axi.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-uncached",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-uncached"
+      ],
+      "returncode": 0,
+      "host_seconds": 19.117582321166992,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-uncached.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-axi-handoff",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-axi-handoff"
+      ],
+      "returncode": 0,
+      "host_seconds": 10.708883285522461,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-axi-handoff.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-fence-i",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-fence-i"
+      ],
+      "returncode": 0,
+      "host_seconds": 26.000544786453247,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-fence-i.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-precise-exception",
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/exception",
+        "ICACHE_REPLACEMENT_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/replacement",
+        "test-precise-exception"
+      ],
+      "returncode": 0,
+      "host_seconds": 26.05731964111328,
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-precise-exception.txt",
+      "phase": "primary_regression"
+    },
+    {
+      "goal": "test-pipeline",
+      "static_policy": 2,
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "NPC_BRANCH_STATIC_POLICY=2",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build-policy-2",
+        "test-pipeline"
+      ],
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline-policy-2.txt",
+      "returncode": 0,
+      "host_seconds": 38.302040815353394,
+      "phase": "final_test_source"
+    },
+    {
+      "goal": "test-pipeline",
+      "static_policy": 0,
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "NPC_BRANCH_STATIC_POLICY=0",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build-policy-0",
+        "test-pipeline"
+      ],
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline-policy-0.txt",
+      "returncode": 0,
+      "host_seconds": 40.53780651092529,
+      "phase": "final_test_source"
+    },
+    {
+      "goal": "test-pipeline",
+      "static_policy": 1,
+      "command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-balanced",
+        "NPC_BRANCH_STATIC_POLICY=1",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-review-current/build-policy-1",
+        "test-pipeline"
+      ],
+      "log": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline-policy-1.txt",
+      "returncode": 0,
+      "host_seconds": 40.75453019142151,
+      "phase": "final_test_source"
+    }
+  ],
+  "logs": [
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-axi-handoff.txt",
+      "sha256": "19ff5b684ad88da16e4bf1547cffe2f4361d3125e8241baa907e91083e3cc79f",
+      "bytes": 6411
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-dcache-axi.txt",
+      "sha256": "5806e4184a9a78c7e1dc52a88ef617b886e556398694f78353bc3a30b5fa2e5d",
+      "bytes": 7804
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-dcache-miss.txt",
+      "sha256": "5d7269b28742668c9fd3f807e3573de4660b2b0db7c9289ee8462d6c3ed8ef2c",
+      "bytes": 6742
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-dcache.txt",
+      "sha256": "f27819d7e2c5b3d43a1e1be4d4f701c9a56c0e937a3bcce82c6daa15248f56e2",
+      "bytes": 7914
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-fence-i.txt",
+      "sha256": "07927c30689be8e6a74ea87431aeac05304da91c9795edfccde4665976ac5d8d",
+      "bytes": 1600
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-fetch.txt",
+      "sha256": "dac138ba5f1adac5a18f929921226501d3732245fbea2ea438bd813160f92e8c",
+      "bytes": 1925
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-icache.txt",
+      "sha256": "cc67da25a00d14adf0d42342240435fc24aa2f14a6035409637ac35319c420b2",
+      "bytes": 1939
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-lsu.txt",
+      "sha256": "ea5a4c697a34e20af373136c7e06d99c118d716bddb1457410e38e1179d58c0b",
+      "bytes": 12265
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline-before.txt",
+      "sha256": "156c90242adac7be1128834b3d1804e22a723cbe5f276415ee1aad0e78d99d56",
+      "bytes": 18494
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline-policy-0.txt",
+      "sha256": "d2128ed7ffdee5d26f3017d40f3b991069b820d9b158b34c3593aba02d313178",
+      "bytes": 20156
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline-policy-1.txt",
+      "sha256": "8f8efc6e9729ea5bc05d2c14e6dd8fc93e25ab1d795ffacf15848e8aeab9a5c6",
+      "bytes": 20156
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline-policy-2.txt",
+      "sha256": "1479549a614f9119bf53e7bc15f05ab8106ac03a402e555670a22e5b830dba44",
+      "bytes": 20156
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-pipeline.txt",
+      "sha256": "a68a321c648ea8045fd3a7648d2ee36ed100b628259aa3cfdef44f8c202fe9a6",
+      "bytes": 20001
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-precise-exception.txt",
+      "sha256": "9592598adfba018745156c493c609ab3a8e5d0c31733ff220a656b97e15a55b6",
+      "bytes": 1593
+    },
+    {
+      "path": "npc/docs/verification/data/wait-review-20261002/logs/test-uncached.txt",
+      "sha256": "5188c369ee73ab9806af81777e2c01aca6c74c52cc36868a2aab88fc068e80fe",
+      "bytes": 9601
+    }
+  ],
+  "findings": [
+    {
+      "id": "dirty_writeback_to_refill",
+      "status": "confirmed_wait_not_modified",
+      "source": "npc/vsrc/riscv32/core/memory/riscv32_dcache_miss_unit.sv",
+      "directed_capture_waits": 0,
+      "directed_refill_waits": 36,
+      "note": "Last victim word already bypasses. Ordinary writeback handshake starts refill the following cycle; no wait for B completion."
+    },
+    {
+      "id": "redirect_to_lookup",
+      "status": "candidate_not_implemented",
+      "source": "npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv",
+      "note": "Same-cycle new lookup gated off; bypass requires recovery priority, identity and timing validation."
+    },
+    {
+      "id": "cache_finish_to_lookup",
+      "status": "candidate_not_implemented",
+      "note": "Same-cycle install/read requires metadata and data forwarding; I-cache data write uses low-phase latches."
+    },
+    {
+      "id": "maintenance_serialization_handoffs",
+      "status": "candidate_not_implemented",
+      "note": "Preserve old stalled requests, CSR visibility and precise recovery."
+    }
+  ],
+  "prior_train": {
+    "user_attachment_sha256": "c6a2a0123ba25657b5e6e158cded0edfad2e4c8a784a677d9046a268d14247cf",
+    "raw_output": "npc/docs/verification/data/wait-review-20261002/train-user-output.txt",
+    "report": "npc/docs/verification/data/wait-review-20261002/train-report.json",
+    "scope_for_events": "whole_program",
+    "cycles": 642063812,
+    "one_cycle_event_estimates": {
+      "dirty_victim": {
+        "events": 704017,
+        "percent": 0.1096490702079936
+      },
+      "icache_next_waiting_at_finish": {
+        "events": 272980,
+        "percent": 0.042516023313894535
+      },
+      "dcache_next_waiting_at_finish": {
+        "events": 409519,
+        "percent": 0.06378166661104395
+      }
+    },
+    "estimate_limit": "Fixed-trace local opportunity accounting only; not measured speedup, not a strict upper bound, not additive."
+  },
+  "cleanup": {
+    "generated_root": "npc/result/wait-review-current",
+    "removed_directories": [
+      {
+        "path": "npc/result/wait-review-current/build",
+        "bytes": 291177892
+      },
+      {
+        "path": "npc/result/wait-review-current/build-policy-0",
+        "bytes": 143590971
+      },
+      {
+        "path": "npc/result/wait-review-current/build-policy-1",
+        "bytes": 143594898
+      },
+      {
+        "path": "npc/result/wait-review-current/build-policy-2",
+        "bytes": 143600912
+      },
+      {
+        "path": "npc/result/wait-review-current/exception",
+        "bytes": 151247051
+      },
+      {
+        "path": "npc/result/wait-review-current/frontend",
+        "bytes": 144338950
+      },
+      {
+        "path": "npc/result/wait-review-current/recovery",
+        "bytes": 148997958
+      }
+    ]
+  }
+}

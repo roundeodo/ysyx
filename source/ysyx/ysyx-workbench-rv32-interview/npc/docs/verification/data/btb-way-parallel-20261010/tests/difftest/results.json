@@ -1,0 +1,128 @@
+{
+  "binary_sha256": "1194a58e67f57430e8f8578db38126fffe8db5df385b4b5dffe41b04a876bc30",
+  "reference": "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+  "reference_sha256": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+  "rtl_sha256": "452b26bf8e88f0843233fc592e4e9ec4de28c2f873a2d8793b4b0ba921c8eeec",
+  "records": [
+    {
+      "test": "add",
+      "image_sha256": "793652c3398b45ea0f18b9fcea829ceb870c4676abe8d9fce072f9b3c90556e0",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/add-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "shift",
+      "image_sha256": "5c4b4a344c8ab50b9e60b4a84469ca75b37ad2bc0e7931f459882ac1b2e6011e",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/shift-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "load-store",
+      "image_sha256": "5d239ee3ef87e55e5a89c2f474f2e85e147e10fd0e6416e598e6565923745d34",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/load-store-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "if-else",
+      "image_sha256": "550c90a6bf174847fc45ffd67ea1f4ef9ff7916bc12a80f61ed74a6aee38ad28",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/if-else-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "recursion",
+      "image_sha256": "c7ad1ecc9b00a806c80ea3cae59f1c7f9c3b764b9393c4f8872c314f533eb1b6",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/recursion-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "quick-sort",
+      "image_sha256": "e4e0e58cf7694dde956a5aea72f275be145c0735e5cf32da5cba7b57ee4eb6cb",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/quick-sort-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "select-sort",
+      "image_sha256": "c52a8dda2d0c8dd6f4555508dc2c4cc5aef369d9693fbe77c52a06d718db6eee",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/select-sort-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "bubble-sort",
+      "image_sha256": "d2d292c3d3474be1975e2811bda7620c4ea22ca291182683d6456ebd765038d9",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/bubble-sort-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "string",
+      "image_sha256": "4b65e3625d74a0c1bf2f7665e4b349bfae6b733dbd3c6471a2ef1c24a56d5c63",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/string-riscv32-npc.bin"
+      ],
+      "passed": true
+    },
+    {
+      "test": "switch",
+      "image_sha256": "3e247b7a68de0ea53981f150ec55f09e0deed4337f46eb3bcd54d2e10822e620",
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/btb-parallel/difftest/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/am-kernels/tests/cpu-tests/build/switch-riscv32-npc.bin"
+      ],
+      "passed": true
+    }
+  ]
+}

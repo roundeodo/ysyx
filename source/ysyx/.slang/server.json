@@ -1,0 +1,9 @@
+{
+  "index": [
+    {
+      "dirs": ["ysyx-workbench/npc/vsrc"],
+      "excludeDirs": ["build", "obj_dir"]
+    }
+  ],
+  "indexingThreads": 2
+}

@@ -1,0 +1,7 @@
+{
+  "tool_exit_code": 2,
+  "timing_status": "Inspect retained timing reports; tool success alone does not qualify frequency",
+  "reports": [
+    "analysis/tool-tail.txt"
+  ]
+}

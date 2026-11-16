@@ -1,0 +1,58 @@
+{
+  "status": "passed",
+  "safety_names": [
+    "B0",
+    "R16"
+  ],
+  "microbench_test": [
+    {
+      "name": "B0",
+      "report": "microbench/B0/report.json",
+      "mhz": 720,
+      "total": {
+        "cycles": 2451974,
+        "retired_instructions": 773643,
+        "ipc": 0.3155184353504564,
+        "timer_ticks": 3406,
+        "timer_seconds": 0.003406,
+        "cycle_seconds": 0.0034055194444444444,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1084292,
+        "retired_instructions": 430313,
+        "ipc": 0.3968608087120444,
+        "timer_ticks": 1506,
+        "timer_seconds": 0.001506,
+        "cycle_seconds": 0.001505961111111111,
+        "interrupts": 0
+      }
+    },
+    {
+      "name": "R16",
+      "report": "microbench/R16/report.json",
+      "mhz": 700,
+      "total": {
+        "cycles": 2395253,
+        "retired_instructions": 773526,
+        "ipc": 0.3229412508824746,
+        "timer_ticks": 3422,
+        "timer_seconds": 0.003422,
+        "cycle_seconds": 0.00342179,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 1048788,
+        "retired_instructions": 430313,
+        "ipc": 0.41029550299965295,
+        "timer_ticks": 1499,
+        "timer_seconds": 0.001499,
+        "cycle_seconds": 0.0014982685714285714,
+        "interrupts": 0
+      }
+    }
+  ],
+  "identical_microbench_image": true,
+  "observer_on_off_verified": true,
+  "microbench_train_rerun": false
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "sc": 0,
+    "loop": 0,
+    "seed": 101,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 0,
+    "loop": 0,
+    "seed": 202,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 0,
+    "loop": 0,
+    "seed": 303,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 0,
+    "loop": 1,
+    "seed": 101,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 0,
+    "loop": 1,
+    "seed": 202,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 0,
+    "loop": 1,
+    "seed": 303,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 1,
+    "loop": 0,
+    "seed": 101,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 1,
+    "loop": 0,
+    "seed": 202,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 1,
+    "loop": 0,
+    "seed": 303,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 1,
+    "loop": 1,
+    "seed": 101,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 1,
+    "loop": 1,
+    "seed": 202,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  },
+  {
+    "sc": 1,
+    "loop": 1,
+    "seed": 303,
+    "steps": 3000,
+    "status": "passed-full-query-context-and-logical-state"
+  }
+]

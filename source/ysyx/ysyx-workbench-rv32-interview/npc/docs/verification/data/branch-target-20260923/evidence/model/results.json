@@ -1,0 +1,6339 @@
+{
+  "scope": "retired control flow, cold state, immediate training, no wrong path or latency; 3C is relative to training-updated full-associative LRU shadow",
+  "configs": {
+    "F16": {
+      "entries": 16,
+      "widths": [
+        32,
+        32
+      ]
+    },
+    "U16w8": {
+      "entries": 16,
+      "widths": [
+        8,
+        8
+      ]
+    },
+    "U16w10": {
+      "entries": 16,
+      "widths": [
+        10,
+        10
+      ]
+    },
+    "U16w12": {
+      "entries": 16,
+      "widths": [
+        12,
+        12
+      ]
+    },
+    "U16w16": {
+      "entries": 16,
+      "widths": [
+        16,
+        16
+      ]
+    },
+    "X16w8": {
+      "entries": 16,
+      "widths": [
+        8,
+        32
+      ]
+    },
+    "X16w10": {
+      "entries": 16,
+      "widths": [
+        10,
+        32
+      ]
+    },
+    "X16w12": {
+      "entries": 16,
+      "widths": [
+        12,
+        32
+      ]
+    },
+    "H16w8-8-8-32": {
+      "entries": 16,
+      "widths": [
+        8,
+        8,
+        8,
+        32
+      ]
+    },
+    "H16w8-8-16-32": {
+      "entries": 16,
+      "widths": [
+        8,
+        8,
+        16,
+        32
+      ]
+    },
+    "H16w8-12-16-32": {
+      "entries": 16,
+      "widths": [
+        8,
+        12,
+        16,
+        32
+      ]
+    },
+    "H16w8-12-16-16": {
+      "entries": 16,
+      "widths": [
+        8,
+        12,
+        16,
+        16
+      ]
+    },
+    "F32": {
+      "entries": 32,
+      "widths": [
+        32,
+        32
+      ]
+    },
+    "U32w8": {
+      "entries": 32,
+      "widths": [
+        8,
+        8
+      ]
+    },
+    "U32w10": {
+      "entries": 32,
+      "widths": [
+        10,
+        10
+      ]
+    },
+    "U32w12": {
+      "entries": 32,
+      "widths": [
+        12,
+        12
+      ]
+    },
+    "U32w16": {
+      "entries": 32,
+      "widths": [
+        16,
+        16
+      ]
+    },
+    "X32w8": {
+      "entries": 32,
+      "widths": [
+        8,
+        32
+      ]
+    },
+    "X32w10": {
+      "entries": 32,
+      "widths": [
+        10,
+        32
+      ]
+    },
+    "X32w12": {
+      "entries": 32,
+      "widths": [
+        12,
+        32
+      ]
+    },
+    "H32w8-8-8-32": {
+      "entries": 32,
+      "widths": [
+        8,
+        8,
+        8,
+        32
+      ]
+    },
+    "H32w8-8-16-32": {
+      "entries": 32,
+      "widths": [
+        8,
+        8,
+        16,
+        32
+      ]
+    },
+    "H32w8-12-16-32": {
+      "entries": 32,
+      "widths": [
+        8,
+        12,
+        16,
+        32
+      ]
+    },
+    "H32w8-12-16-16": {
+      "entries": 32,
+      "widths": [
+        8,
+        12,
+        16,
+        16
+      ]
+    }
+  },
+  "cases": {
+    "json_bpe-dev-131": {
+      "family": "json_bpe",
+      "trace_sha256": "b68ac413e4563b8017611f30e2054d1648ec3b591ca5edc7cc365edec23135bf",
+      "instructions": 45194,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2284,
+            "missing_untrained": 127,
+            "direction": 946,
+            "missing_capacity": 1135,
+            "missing_mapping_or_replacement": 72,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 217
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2581,
+            "missing_untrained": 127,
+            "not_representable": 1940,
+            "direction": 933,
+            "missing_capacity": 1117,
+            "missing_mapping_or_replacement": 402,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 217
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2446,
+            "missing_untrained": 127,
+            "not_representable": 1068,
+            "direction": 952,
+            "missing_capacity": 1135,
+            "missing_mapping_or_replacement": 230,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 217
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2378,
+            "missing_untrained": 127,
+            "not_representable": 560,
+            "direction": 954,
+            "missing_capacity": 1119,
+            "missing_mapping_or_replacement": 174,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 217
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2284,
+            "missing_untrained": 127,
+            "direction": 946,
+            "missing_capacity": 1135,
+            "missing_mapping_or_replacement": 72,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 217
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2376,
+            "missing_untrained": 127,
+            "direction": 973,
+            "missing_capacity": 1138,
+            "missing_mapping_or_replacement": 136,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 217
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2338,
+            "missing_untrained": 127,
+            "direction": 948,
+            "missing_capacity": 1141,
+            "missing_mapping_or_replacement": 120,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 217
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2284,
+            "missing_untrained": 127,
+            "direction": 944,
+            "missing_capacity": 1133,
+            "missing_mapping_or_replacement": 76,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 217
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2402,
+            "missing_untrained": 127,
+            "direction": 1031,
+            "missing_capacity": 1118,
+            "missing_mapping_or_replacement": 124,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 217
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2343,
+            "missing_untrained": 127,
+            "direction": 993,
+            "missing_capacity": 1149,
+            "missing_mapping_or_replacement": 70,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 217
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2294,
+            "missing_untrained": 127,
+            "direction": 969,
+            "missing_capacity": 1165,
+            "missing_mapping_or_replacement": 29,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 217
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2294,
+            "missing_untrained": 127,
+            "direction": 969,
+            "missing_capacity": 1165,
+            "missing_mapping_or_replacement": 29,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 217
+        },
+        "F32": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2174,
+            "missing_untrained": 127,
+            "direction": 1068,
+            "missing_mapping_or_replacement": 190,
+            "missing_capacity": 783,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 217
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2586,
+            "missing_untrained": 127,
+            "not_representable": 1940,
+            "direction": 1111,
+            "missing_mapping_or_replacement": 596,
+            "missing_capacity": 750,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 217
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2384,
+            "missing_untrained": 127,
+            "not_representable": 1068,
+            "direction": 1147,
+            "missing_mapping_or_replacement": 398,
+            "missing_capacity": 708,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 217
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2331,
+            "missing_untrained": 127,
+            "not_representable": 560,
+            "direction": 1113,
+            "missing_mapping_or_replacement": 324,
+            "missing_capacity": 761,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 217
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2174,
+            "missing_untrained": 127,
+            "direction": 1068,
+            "missing_mapping_or_replacement": 190,
+            "missing_capacity": 783,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 217
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2259,
+            "missing_untrained": 127,
+            "direction": 1089,
+            "missing_mapping_or_replacement": 270,
+            "missing_capacity": 767,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 217
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2183,
+            "missing_untrained": 127,
+            "direction": 1078,
+            "missing_mapping_or_replacement": 214,
+            "missing_capacity": 758,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 217
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2164,
+            "missing_untrained": 127,
+            "direction": 1073,
+            "missing_mapping_or_replacement": 186,
+            "missing_capacity": 772,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 217
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2380,
+            "missing_untrained": 127,
+            "direction": 1152,
+            "missing_mapping_or_replacement": 329,
+            "missing_capacity": 768,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 217
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2179,
+            "missing_untrained": 127,
+            "direction": 1108,
+            "missing_mapping_or_replacement": 157,
+            "missing_capacity": 781,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 217
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2158,
+            "missing_untrained": 127,
+            "direction": 1102,
+            "missing_mapping_or_replacement": 142,
+            "missing_capacity": 781,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 217
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 15574,
+            "errors": 2158,
+            "missing_untrained": 127,
+            "direction": 1102,
+            "missing_mapping_or_replacement": 142,
+            "missing_capacity": 781,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5488,
+            "6": 6195,
+            "7": 1672,
+            "8": 277,
+            "9": 482,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 217
+        }
+      }
+    },
+    "json_bpe-dev-257": {
+      "family": "json_bpe",
+      "trace_sha256": "162279f106bd12ba9367163c8952dc953def5eed07f5b44fab6f97ec39c557ed",
+      "instructions": 47122,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2352,
+            "missing_untrained": 127,
+            "direction": 1006,
+            "missing_capacity": 1135,
+            "missing_mapping_or_replacement": 80,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 217
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2655,
+            "missing_untrained": 127,
+            "not_representable": 1950,
+            "direction": 993,
+            "missing_capacity": 1117,
+            "missing_mapping_or_replacement": 416,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 217
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2514,
+            "missing_untrained": 127,
+            "not_representable": 1068,
+            "direction": 1012,
+            "missing_capacity": 1135,
+            "missing_mapping_or_replacement": 238,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 217
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2446,
+            "missing_untrained": 127,
+            "not_representable": 560,
+            "direction": 1014,
+            "missing_capacity": 1119,
+            "missing_mapping_or_replacement": 182,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 217
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2352,
+            "missing_untrained": 127,
+            "direction": 1006,
+            "missing_capacity": 1135,
+            "missing_mapping_or_replacement": 80,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 217
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2444,
+            "missing_untrained": 127,
+            "direction": 1033,
+            "missing_capacity": 1138,
+            "missing_mapping_or_replacement": 144,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 217
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2406,
+            "missing_untrained": 127,
+            "direction": 1008,
+            "missing_capacity": 1141,
+            "missing_mapping_or_replacement": 128,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 217
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2352,
+            "missing_untrained": 127,
+            "direction": 1004,
+            "missing_capacity": 1133,
+            "missing_mapping_or_replacement": 84,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 217
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2468,
+            "missing_untrained": 127,
+            "direction": 1097,
+            "missing_capacity": 1118,
+            "missing_mapping_or_replacement": 124,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 217
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2409,
+            "missing_untrained": 127,
+            "direction": 1059,
+            "missing_capacity": 1149,
+            "missing_mapping_or_replacement": 70,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 217
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2362,
+            "missing_untrained": 127,
+            "direction": 1037,
+            "missing_capacity": 1165,
+            "missing_mapping_or_replacement": 29,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 217
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2362,
+            "missing_untrained": 127,
+            "direction": 1037,
+            "missing_capacity": 1165,
+            "missing_mapping_or_replacement": 29,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 217
+        },
+        "F32": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2238,
+            "missing_untrained": 127,
+            "direction": 1132,
+            "missing_mapping_or_replacement": 190,
+            "missing_capacity": 783,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 217
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2658,
+            "missing_untrained": 127,
+            "not_representable": 1950,
+            "direction": 1177,
+            "missing_mapping_or_replacement": 602,
+            "missing_capacity": 750,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 217
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2450,
+            "missing_untrained": 127,
+            "not_representable": 1068,
+            "direction": 1213,
+            "missing_mapping_or_replacement": 398,
+            "missing_capacity": 708,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 217
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2397,
+            "missing_untrained": 127,
+            "not_representable": 560,
+            "direction": 1179,
+            "missing_mapping_or_replacement": 324,
+            "missing_capacity": 761,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 217
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2238,
+            "missing_untrained": 127,
+            "direction": 1132,
+            "missing_mapping_or_replacement": 190,
+            "missing_capacity": 783,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 217
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2325,
+            "missing_untrained": 127,
+            "direction": 1155,
+            "missing_mapping_or_replacement": 270,
+            "missing_capacity": 767,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 217
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2249,
+            "missing_untrained": 127,
+            "direction": 1144,
+            "missing_mapping_or_replacement": 214,
+            "missing_capacity": 758,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 217
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2230,
+            "missing_untrained": 127,
+            "direction": 1139,
+            "missing_mapping_or_replacement": 186,
+            "missing_capacity": 772,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 217
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2448,
+            "missing_untrained": 127,
+            "direction": 1220,
+            "missing_mapping_or_replacement": 329,
+            "missing_capacity": 768,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 217
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2245,
+            "missing_untrained": 127,
+            "direction": 1174,
+            "missing_mapping_or_replacement": 157,
+            "missing_capacity": 781,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 217
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2224,
+            "missing_untrained": 127,
+            "direction": 1168,
+            "missing_mapping_or_replacement": 142,
+            "missing_capacity": 781,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 217
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 16284,
+            "errors": 2224,
+            "missing_untrained": 127,
+            "direction": 1168,
+            "missing_mapping_or_replacement": 142,
+            "missing_capacity": 781,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 2,
+            "5": 5796,
+            "6": 6513,
+            "7": 1744,
+            "8": 279,
+            "9": 492,
+            "10": 390,
+            "11": 190,
+            "12": 318,
+            "13": 560
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 217
+        }
+      }
+    },
+    "quant_loader-dev-131": {
+      "family": "quant_loader",
+      "trace_sha256": "7ce1828f316dc1cf836d5455380fe642d6b30e5c7287d6415db6fe535c9b5ebc",
+      "instructions": 252939,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7226,
+            "missing_untrained": 118,
+            "direction": 3462,
+            "missing_mapping_or_replacement": 462,
+            "missing_capacity": 3184
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 181
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 52699,
+            "errors": 11645,
+            "missing_untrained": 118,
+            "not_representable": 10212,
+            "direction": 3638,
+            "missing_mapping_or_replacement": 6030,
+            "missing_capacity": 1859
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 181
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 52699,
+            "errors": 8008,
+            "missing_untrained": 118,
+            "not_representable": 4878,
+            "direction": 3448,
+            "missing_mapping_or_replacement": 1984,
+            "missing_capacity": 2458
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 181
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7402,
+            "missing_untrained": 118,
+            "not_representable": 3206,
+            "direction": 3460,
+            "missing_mapping_or_replacement": 1358,
+            "missing_capacity": 2466
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 181
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7226,
+            "missing_untrained": 118,
+            "direction": 3462,
+            "missing_mapping_or_replacement": 462,
+            "missing_capacity": 3184
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 181
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 52699,
+            "errors": 11309,
+            "missing_untrained": 118,
+            "direction": 3331,
+            "missing_mapping_or_replacement": 4916,
+            "missing_capacity": 2944
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 181
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7433,
+            "missing_untrained": 118,
+            "direction": 3571,
+            "missing_mapping_or_replacement": 792,
+            "missing_capacity": 2952
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 181
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7125,
+            "missing_untrained": 118,
+            "direction": 3531,
+            "missing_mapping_or_replacement": 522,
+            "missing_capacity": 2954
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 181
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 52699,
+            "errors": 11844,
+            "missing_untrained": 118,
+            "direction": 3319,
+            "missing_mapping_or_replacement": 5406,
+            "missing_capacity": 3001
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 181
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7139,
+            "missing_untrained": 118,
+            "direction": 3641,
+            "missing_mapping_or_replacement": 576,
+            "missing_capacity": 2804
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 181
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7242,
+            "missing_untrained": 118,
+            "direction": 3516,
+            "missing_mapping_or_replacement": 568,
+            "missing_capacity": 3040
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 181
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7242,
+            "missing_untrained": 118,
+            "direction": 3516,
+            "missing_mapping_or_replacement": 568,
+            "missing_capacity": 3040
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 181
+        },
+        "F32": {
+          "counts": {
+            "branches": 52699,
+            "errors": 6492,
+            "missing_untrained": 118,
+            "direction": 4191,
+            "missing_mapping_or_replacement": 1998,
+            "missing_capacity": 185
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 181
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 52699,
+            "errors": 11650,
+            "missing_untrained": 118,
+            "not_representable": 10212,
+            "direction": 4200,
+            "missing_mapping_or_replacement": 7160,
+            "missing_capacity": 172
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 181
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 52699,
+            "errors": 7258,
+            "missing_untrained": 118,
+            "not_representable": 4878,
+            "direction": 4000,
+            "missing_mapping_or_replacement": 2964,
+            "missing_capacity": 176
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 181
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 52699,
+            "errors": 6642,
+            "missing_untrained": 118,
+            "not_representable": 3206,
+            "direction": 4011,
+            "missing_mapping_or_replacement": 2332,
+            "missing_capacity": 181
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 181
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 52699,
+            "errors": 6492,
+            "missing_untrained": 118,
+            "direction": 4191,
+            "missing_mapping_or_replacement": 1998,
+            "missing_capacity": 185
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 181
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 52699,
+            "errors": 6349,
+            "missing_untrained": 118,
+            "direction": 4238,
+            "missing_mapping_or_replacement": 1813,
+            "missing_capacity": 180
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 181
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 52699,
+            "errors": 6491,
+            "missing_untrained": 118,
+            "direction": 4357,
+            "missing_mapping_or_replacement": 1835,
+            "missing_capacity": 181
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 181
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 52699,
+            "errors": 6471,
+            "missing_untrained": 118,
+            "direction": 4331,
+            "missing_mapping_or_replacement": 1839,
+            "missing_capacity": 183
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 181
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 52699,
+            "errors": 10698,
+            "missing_untrained": 118,
+            "direction": 4114,
+            "missing_mapping_or_replacement": 6309,
+            "missing_capacity": 157
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 181
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 52699,
+            "errors": 5886,
+            "missing_untrained": 118,
+            "direction": 4651,
+            "missing_mapping_or_replacement": 932,
+            "missing_capacity": 185
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 181
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 52699,
+            "errors": 5676,
+            "missing_untrained": 118,
+            "direction": 4632,
+            "missing_mapping_or_replacement": 743,
+            "missing_capacity": 183
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 181
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 52699,
+            "errors": 5676,
+            "missing_untrained": 118,
+            "direction": 4632,
+            "missing_mapping_or_replacement": 743,
+            "missing_capacity": 183
+          },
+          "target_required_bits": {
+            "4": 20930,
+            "5": 11510,
+            "6": 2037,
+            "7": 6130,
+            "8": 1880,
+            "9": 4758,
+            "10": 576,
+            "11": 108,
+            "12": 1564,
+            "13": 3182,
+            "14": 24
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 181
+        }
+      }
+    },
+    "quant_loader-dev-257": {
+      "family": "quant_loader",
+      "trace_sha256": "341c9ee67c66ca654cb24db1a34c5b8bba8b3fbf4409e23cf830871e36829e0a",
+      "instructions": 253665,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7255,
+            "missing_untrained": 117,
+            "direction": 3531,
+            "missing_mapping_or_replacement": 416,
+            "missing_capacity": 3191
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 181
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 52851,
+            "errors": 11713,
+            "missing_untrained": 117,
+            "not_representable": 10354,
+            "direction": 3632,
+            "missing_mapping_or_replacement": 6128,
+            "missing_capacity": 1836
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 181
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 52851,
+            "errors": 8142,
+            "missing_untrained": 117,
+            "not_representable": 4998,
+            "direction": 3462,
+            "missing_mapping_or_replacement": 2108,
+            "missing_capacity": 2455
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 181
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7527,
+            "missing_untrained": 117,
+            "not_representable": 3322,
+            "direction": 3475,
+            "missing_mapping_or_replacement": 1472,
+            "missing_capacity": 2463
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 181
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7255,
+            "missing_untrained": 117,
+            "direction": 3531,
+            "missing_mapping_or_replacement": 416,
+            "missing_capacity": 3191
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 181
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 52851,
+            "errors": 11338,
+            "missing_untrained": 117,
+            "direction": 3348,
+            "missing_mapping_or_replacement": 4926,
+            "missing_capacity": 2947
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 181
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7478,
+            "missing_untrained": 117,
+            "direction": 3636,
+            "missing_mapping_or_replacement": 768,
+            "missing_capacity": 2957
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 181
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7167,
+            "missing_untrained": 117,
+            "direction": 3603,
+            "missing_mapping_or_replacement": 488,
+            "missing_capacity": 2959
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 181
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 52851,
+            "errors": 11759,
+            "missing_untrained": 117,
+            "direction": 3248,
+            "missing_mapping_or_replacement": 5464,
+            "missing_capacity": 2930
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 181
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7186,
+            "missing_untrained": 117,
+            "direction": 3732,
+            "missing_mapping_or_replacement": 520,
+            "missing_capacity": 2817
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 181
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7233,
+            "missing_untrained": 117,
+            "direction": 3587,
+            "missing_mapping_or_replacement": 504,
+            "missing_capacity": 3025
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 181
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7233,
+            "missing_untrained": 117,
+            "direction": 3587,
+            "missing_mapping_or_replacement": 504,
+            "missing_capacity": 3025
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 181
+        },
+        "F32": {
+          "counts": {
+            "branches": 52851,
+            "errors": 6511,
+            "missing_untrained": 117,
+            "direction": 4240,
+            "missing_mapping_or_replacement": 1970,
+            "missing_capacity": 184
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 181
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 52851,
+            "errors": 11786,
+            "missing_untrained": 117,
+            "not_representable": 10354,
+            "direction": 4220,
+            "missing_mapping_or_replacement": 7280,
+            "missing_capacity": 169
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 181
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 52851,
+            "errors": 7414,
+            "missing_untrained": 117,
+            "not_representable": 4998,
+            "direction": 4038,
+            "missing_mapping_or_replacement": 3086,
+            "missing_capacity": 173
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 181
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 52851,
+            "errors": 6789,
+            "missing_untrained": 117,
+            "not_representable": 3322,
+            "direction": 4050,
+            "missing_mapping_or_replacement": 2444,
+            "missing_capacity": 178
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 181
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 52851,
+            "errors": 6511,
+            "missing_untrained": 117,
+            "direction": 4240,
+            "missing_mapping_or_replacement": 1970,
+            "missing_capacity": 184
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 181
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 52851,
+            "errors": 6288,
+            "missing_untrained": 117,
+            "direction": 4231,
+            "missing_mapping_or_replacement": 1763,
+            "missing_capacity": 177
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 181
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 52851,
+            "errors": 6486,
+            "missing_untrained": 117,
+            "direction": 4406,
+            "missing_mapping_or_replacement": 1785,
+            "missing_capacity": 178
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 181
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 52851,
+            "errors": 6468,
+            "missing_untrained": 117,
+            "direction": 4376,
+            "missing_mapping_or_replacement": 1795,
+            "missing_capacity": 180
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 181
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 52851,
+            "errors": 10675,
+            "missing_untrained": 117,
+            "direction": 4091,
+            "missing_mapping_or_replacement": 6313,
+            "missing_capacity": 154
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 181
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 52851,
+            "errors": 5935,
+            "missing_untrained": 117,
+            "direction": 4719,
+            "missing_mapping_or_replacement": 915,
+            "missing_capacity": 184
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 181
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 52851,
+            "errors": 5717,
+            "missing_untrained": 117,
+            "direction": 4665,
+            "missing_mapping_or_replacement": 753,
+            "missing_capacity": 182
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 181
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 52851,
+            "errors": 5717,
+            "missing_untrained": 117,
+            "direction": 4665,
+            "missing_mapping_or_replacement": 753,
+            "missing_capacity": 182
+          },
+          "target_required_bits": {
+            "4": 20888,
+            "5": 11540,
+            "6": 2031,
+            "7": 6160,
+            "8": 1878,
+            "9": 4750,
+            "10": 606,
+            "11": 100,
+            "12": 1576,
+            "13": 3298,
+            "14": 24
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 181
+        }
+      }
+    },
+    "runtime_graph-dev-131": {
+      "family": "runtime_graph",
+      "trace_sha256": "fe7cada3e6d18e18b1736ceaa30e79aaf587cf148e910fa34b6481571bc67ea2",
+      "instructions": 129507,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11755,
+            "missing_untrained": 138,
+            "direction": 4651,
+            "missing_capacity": 6034,
+            "missing_mapping_or_replacement": 930,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 236
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 45219,
+            "errors": 12979,
+            "missing_untrained": 138,
+            "not_representable": 9025,
+            "direction": 5023,
+            "missing_capacity": 6198,
+            "missing_mapping_or_replacement": 1618,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 236
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 45219,
+            "errors": 13119,
+            "missing_untrained": 138,
+            "not_representable": 6194,
+            "direction": 4853,
+            "missing_capacity": 6204,
+            "missing_mapping_or_replacement": 1918,
+            "target": 6
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 236
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 45219,
+            "errors": 12817,
+            "missing_untrained": 138,
+            "not_representable": 3246,
+            "direction": 4851,
+            "missing_capacity": 6068,
+            "missing_mapping_or_replacement": 1758,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 236
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11755,
+            "missing_untrained": 138,
+            "direction": 4651,
+            "missing_capacity": 6034,
+            "missing_mapping_or_replacement": 930,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 236
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11833,
+            "missing_untrained": 138,
+            "direction": 4851,
+            "missing_capacity": 5870,
+            "missing_mapping_or_replacement": 972,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 236
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11937,
+            "missing_untrained": 138,
+            "direction": 4629,
+            "missing_capacity": 6014,
+            "missing_mapping_or_replacement": 1154,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 236
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11879,
+            "missing_untrained": 138,
+            "direction": 4659,
+            "missing_capacity": 6032,
+            "missing_mapping_or_replacement": 1048,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 236
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 45219,
+            "errors": 12399,
+            "missing_untrained": 138,
+            "direction": 5075,
+            "missing_capacity": 6088,
+            "missing_mapping_or_replacement": 1096,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 236
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11832,
+            "missing_untrained": 138,
+            "direction": 5048,
+            "missing_capacity": 6153,
+            "missing_mapping_or_replacement": 491,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 236
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11612,
+            "missing_untrained": 138,
+            "direction": 4929,
+            "missing_capacity": 6096,
+            "missing_mapping_or_replacement": 447,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 236
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11612,
+            "missing_untrained": 138,
+            "direction": 4929,
+            "missing_capacity": 6096,
+            "missing_mapping_or_replacement": 447,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 236
+        },
+        "F32": {
+          "counts": {
+            "branches": 45219,
+            "errors": 10378,
+            "missing_untrained": 138,
+            "direction": 5008,
+            "missing_mapping_or_replacement": 490,
+            "missing_capacity": 4738,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 236
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 45219,
+            "errors": 12328,
+            "missing_untrained": 138,
+            "not_representable": 9025,
+            "direction": 5136,
+            "missing_mapping_or_replacement": 2476,
+            "missing_capacity": 4576,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 236
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 45219,
+            "errors": 12332,
+            "missing_untrained": 138,
+            "not_representable": 6194,
+            "direction": 5072,
+            "missing_mapping_or_replacement": 2350,
+            "missing_capacity": 4752,
+            "target": 20
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 236
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11840,
+            "missing_untrained": 138,
+            "not_representable": 3246,
+            "direction": 5046,
+            "missing_mapping_or_replacement": 1968,
+            "missing_capacity": 4666,
+            "target": 22
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 236
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 45219,
+            "errors": 10378,
+            "missing_untrained": 138,
+            "direction": 5008,
+            "missing_mapping_or_replacement": 490,
+            "missing_capacity": 4738,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 236
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11083,
+            "missing_untrained": 138,
+            "direction": 5138,
+            "missing_mapping_or_replacement": 1225,
+            "missing_capacity": 4578,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 236
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 45219,
+            "errors": 10979,
+            "missing_untrained": 138,
+            "direction": 4972,
+            "missing_mapping_or_replacement": 1131,
+            "missing_capacity": 4728,
+            "target": 10
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 236
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 45219,
+            "errors": 10725,
+            "missing_untrained": 138,
+            "direction": 5008,
+            "missing_mapping_or_replacement": 841,
+            "missing_capacity": 4728,
+            "target": 10
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 236
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 45219,
+            "errors": 11420,
+            "missing_untrained": 138,
+            "direction": 5409,
+            "missing_mapping_or_replacement": 1312,
+            "missing_capacity": 4559,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 236
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 45219,
+            "errors": 10617,
+            "missing_untrained": 138,
+            "direction": 5381,
+            "missing_mapping_or_replacement": 517,
+            "missing_capacity": 4577,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 236
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 45219,
+            "errors": 10585,
+            "missing_untrained": 138,
+            "direction": 5330,
+            "missing_mapping_or_replacement": 529,
+            "missing_capacity": 4584,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 236
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 45219,
+            "errors": 10585,
+            "missing_untrained": 138,
+            "direction": 5330,
+            "missing_mapping_or_replacement": 529,
+            "missing_capacity": 4584,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 5024,
+            "5": 5854,
+            "6": 3320,
+            "7": 19140,
+            "8": 2856,
+            "9": 1975,
+            "10": 856,
+            "11": 2638,
+            "12": 310,
+            "13": 3246
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 236
+        }
+      }
+    },
+    "runtime_graph-dev-257": {
+      "family": "runtime_graph",
+      "trace_sha256": "a6e94b8f95385c1fa30d5a7bc1c8791d6315ef4d350bb81c37b901fede7d07ba",
+      "instructions": 128301,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11643,
+            "missing_untrained": 135,
+            "direction": 4553,
+            "missing_capacity": 6023,
+            "missing_mapping_or_replacement": 930,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 234
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 44723,
+            "errors": 12857,
+            "missing_untrained": 135,
+            "not_representable": 9011,
+            "direction": 4911,
+            "missing_capacity": 6203,
+            "missing_mapping_or_replacement": 1606,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 234
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 44723,
+            "errors": 12993,
+            "missing_untrained": 135,
+            "not_representable": 6194,
+            "direction": 4753,
+            "missing_capacity": 6191,
+            "missing_mapping_or_replacement": 1906,
+            "target": 8
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 234
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 44723,
+            "errors": 12699,
+            "missing_untrained": 135,
+            "not_representable": 3238,
+            "direction": 4753,
+            "missing_capacity": 6059,
+            "missing_mapping_or_replacement": 1750,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 234
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11643,
+            "missing_untrained": 135,
+            "direction": 4553,
+            "missing_capacity": 6023,
+            "missing_mapping_or_replacement": 930,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 234
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11711,
+            "missing_untrained": 135,
+            "direction": 4743,
+            "missing_capacity": 5867,
+            "missing_mapping_or_replacement": 964,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 234
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11819,
+            "missing_untrained": 135,
+            "direction": 4531,
+            "missing_capacity": 6005,
+            "missing_mapping_or_replacement": 1146,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 234
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11769,
+            "missing_untrained": 135,
+            "direction": 4561,
+            "missing_capacity": 6023,
+            "missing_mapping_or_replacement": 1048,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 234
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 44723,
+            "errors": 12277,
+            "missing_untrained": 135,
+            "direction": 4977,
+            "missing_capacity": 6079,
+            "missing_mapping_or_replacement": 1084,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 234
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11754,
+            "missing_untrained": 135,
+            "direction": 4938,
+            "missing_capacity": 6202,
+            "missing_mapping_or_replacement": 477,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 234
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11522,
+            "missing_untrained": 135,
+            "direction": 4847,
+            "missing_capacity": 6091,
+            "missing_mapping_or_replacement": 447,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 234
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11522,
+            "missing_untrained": 135,
+            "direction": 4847,
+            "missing_capacity": 6091,
+            "missing_mapping_or_replacement": 447,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 234
+        },
+        "F32": {
+          "counts": {
+            "branches": 44723,
+            "errors": 10274,
+            "missing_untrained": 135,
+            "direction": 4912,
+            "missing_mapping_or_replacement": 504,
+            "missing_capacity": 4719,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 234
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 44723,
+            "errors": 12212,
+            "missing_untrained": 135,
+            "not_representable": 9011,
+            "direction": 5040,
+            "missing_mapping_or_replacement": 2476,
+            "missing_capacity": 4559,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 234
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 44723,
+            "errors": 12210,
+            "missing_untrained": 135,
+            "not_representable": 6194,
+            "direction": 4972,
+            "missing_mapping_or_replacement": 2348,
+            "missing_capacity": 4737,
+            "target": 18
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 234
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11726,
+            "missing_untrained": 135,
+            "not_representable": 3238,
+            "direction": 4946,
+            "missing_mapping_or_replacement": 1970,
+            "missing_capacity": 4655,
+            "target": 20
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 234
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 44723,
+            "errors": 10274,
+            "missing_untrained": 135,
+            "direction": 4912,
+            "missing_mapping_or_replacement": 504,
+            "missing_capacity": 4719,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 234
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 44723,
+            "errors": 10971,
+            "missing_untrained": 135,
+            "direction": 5040,
+            "missing_mapping_or_replacement": 1223,
+            "missing_capacity": 4569,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 234
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 44723,
+            "errors": 10871,
+            "missing_untrained": 135,
+            "direction": 4876,
+            "missing_mapping_or_replacement": 1123,
+            "missing_capacity": 4727,
+            "target": 10
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 234
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 44723,
+            "errors": 10623,
+            "missing_untrained": 135,
+            "direction": 4914,
+            "missing_mapping_or_replacement": 839,
+            "missing_capacity": 4725,
+            "target": 10
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 234
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 44723,
+            "errors": 11302,
+            "missing_untrained": 135,
+            "direction": 5303,
+            "missing_mapping_or_replacement": 1318,
+            "missing_capacity": 4544,
+            "target": 2
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 234
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 44723,
+            "errors": 10506,
+            "missing_untrained": 135,
+            "direction": 5260,
+            "missing_mapping_or_replacement": 531,
+            "missing_capacity": 4576,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 234
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 44723,
+            "errors": 10508,
+            "missing_untrained": 135,
+            "direction": 5237,
+            "missing_mapping_or_replacement": 544,
+            "missing_capacity": 4588,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 234
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 44723,
+            "errors": 10508,
+            "missing_untrained": 135,
+            "direction": 5237,
+            "missing_mapping_or_replacement": 544,
+            "missing_capacity": 4588,
+            "target": 4
+          },
+          "target_required_bits": {
+            "4": 4916,
+            "5": 5724,
+            "6": 3318,
+            "7": 18904,
+            "8": 2850,
+            "9": 1967,
+            "10": 850,
+            "11": 2646,
+            "12": 310,
+            "13": 3238
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 234
+        }
+      }
+    },
+    "regex_tokenizer-dev-131": {
+      "family": "regex_tokenizer",
+      "trace_sha256": "f9b4c303b7d4337ea9c868ac470c5f9c9ff57716b0383f97844f0c109c200dff",
+      "instructions": 199035,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17328,
+            "missing_untrained": 55,
+            "target": 522,
+            "direction": 3022,
+            "missing_mapping_or_replacement": 1286,
+            "missing_capacity": 12443
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 93
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 51551,
+            "errors": 18796,
+            "missing_untrained": 55,
+            "not_representable": 26967,
+            "target": 374,
+            "direction": 2325,
+            "missing_mapping_or_replacement": 3860,
+            "missing_capacity": 12182
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 93
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17631,
+            "missing_untrained": 55,
+            "not_representable": 4272,
+            "target": 589,
+            "direction": 3106,
+            "missing_mapping_or_replacement": 1358,
+            "missing_capacity": 12523
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 93
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17328,
+            "missing_untrained": 55,
+            "target": 522,
+            "direction": 3022,
+            "missing_mapping_or_replacement": 1286,
+            "missing_capacity": 12443
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 93
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17328,
+            "missing_untrained": 55,
+            "target": 522,
+            "direction": 3022,
+            "missing_mapping_or_replacement": 1286,
+            "missing_capacity": 12443
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 93
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17648,
+            "missing_untrained": 55,
+            "target": 374,
+            "direction": 3407,
+            "missing_mapping_or_replacement": 1569,
+            "missing_capacity": 12243
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 93
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17460,
+            "missing_untrained": 55,
+            "target": 522,
+            "direction": 3022,
+            "missing_mapping_or_replacement": 1434,
+            "missing_capacity": 12427
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 93
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17328,
+            "missing_untrained": 55,
+            "target": 522,
+            "direction": 3022,
+            "missing_mapping_or_replacement": 1286,
+            "missing_capacity": 12443
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 93
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 51551,
+            "errors": 18014,
+            "missing_untrained": 55,
+            "target": 374,
+            "direction": 3736,
+            "missing_mapping_or_replacement": 1668,
+            "missing_capacity": 12181
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 93
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17459,
+            "missing_untrained": 55,
+            "target": 482,
+            "direction": 3239,
+            "missing_mapping_or_replacement": 1638,
+            "missing_capacity": 12045
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 93
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17158,
+            "missing_untrained": 55,
+            "target": 482,
+            "direction": 3415,
+            "missing_mapping_or_replacement": 856,
+            "missing_capacity": 12350
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 93
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 51551,
+            "errors": 17158,
+            "missing_untrained": 55,
+            "target": 482,
+            "direction": 3415,
+            "missing_mapping_or_replacement": 856,
+            "missing_capacity": 12350
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 93
+        },
+        "F32": {
+          "counts": {
+            "branches": 51551,
+            "errors": 15997,
+            "missing_untrained": 55,
+            "target": 1091,
+            "direction": 3930,
+            "missing_capacity": 9357,
+            "missing_mapping_or_replacement": 1564
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 93
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 51551,
+            "errors": 18356,
+            "missing_untrained": 55,
+            "not_representable": 26967,
+            "target": 374,
+            "direction": 3438,
+            "missing_mapping_or_replacement": 5516,
+            "missing_capacity": 8973
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 93
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 51551,
+            "errors": 16248,
+            "missing_untrained": 55,
+            "not_representable": 4272,
+            "target": 1091,
+            "direction": 4364,
+            "missing_capacity": 9226,
+            "missing_mapping_or_replacement": 1512
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 93
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 51551,
+            "errors": 15997,
+            "missing_untrained": 55,
+            "target": 1091,
+            "direction": 3930,
+            "missing_capacity": 9357,
+            "missing_mapping_or_replacement": 1564
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 93
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 51551,
+            "errors": 15997,
+            "missing_untrained": 55,
+            "target": 1091,
+            "direction": 3930,
+            "missing_capacity": 9357,
+            "missing_mapping_or_replacement": 1564
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 93
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 51551,
+            "errors": 16307,
+            "missing_untrained": 55,
+            "target": 1091,
+            "direction": 4353,
+            "missing_mapping_or_replacement": 1750,
+            "missing_capacity": 9058
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 93
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 51551,
+            "errors": 16125,
+            "missing_untrained": 55,
+            "target": 1198,
+            "direction": 3948,
+            "missing_capacity": 9336,
+            "missing_mapping_or_replacement": 1588
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 93
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 51551,
+            "errors": 15997,
+            "missing_untrained": 55,
+            "target": 1091,
+            "direction": 3930,
+            "missing_capacity": 9357,
+            "missing_mapping_or_replacement": 1564
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 93
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 51551,
+            "errors": 16962,
+            "missing_untrained": 55,
+            "target": 374,
+            "direction": 4858,
+            "missing_mapping_or_replacement": 2658,
+            "missing_capacity": 9017
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 93
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 51551,
+            "errors": 16252,
+            "missing_untrained": 55,
+            "target": 748,
+            "direction": 4671,
+            "missing_mapping_or_replacement": 1664,
+            "missing_capacity": 9114
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 93
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 51551,
+            "errors": 16333,
+            "missing_untrained": 55,
+            "target": 864,
+            "direction": 4155,
+            "missing_capacity": 9930,
+            "missing_mapping_or_replacement": 1329
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 93
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 51551,
+            "errors": 16333,
+            "missing_untrained": 55,
+            "target": 864,
+            "direction": 4155,
+            "missing_capacity": 9930,
+            "missing_mapping_or_replacement": 1329
+          },
+          "target_required_bits": {
+            "5": 6480,
+            "6": 8837,
+            "7": 4898,
+            "8": 4369,
+            "9": 6383,
+            "10": 16312,
+            "11": 2770,
+            "12": 1502
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 93
+        }
+      }
+    },
+    "regex_tokenizer-dev-257": {
+      "family": "regex_tokenizer",
+      "trace_sha256": "4a4b7158e5a5a4406a7606f546400769d361d7015b13825ca114e10048837185",
+      "instructions": 197331,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17210,
+            "missing_untrained": 56,
+            "target": 488,
+            "direction": 3070,
+            "missing_mapping_or_replacement": 1430,
+            "missing_capacity": 12166
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 93
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 51853,
+            "errors": 18766,
+            "missing_untrained": 56,
+            "not_representable": 27067,
+            "target": 348,
+            "direction": 2289,
+            "missing_mapping_or_replacement": 4198,
+            "missing_capacity": 11875
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 93
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17553,
+            "missing_untrained": 56,
+            "not_representable": 4360,
+            "target": 555,
+            "direction": 3186,
+            "missing_mapping_or_replacement": 1432,
+            "missing_capacity": 12324
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 93
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17210,
+            "missing_untrained": 56,
+            "target": 488,
+            "direction": 3070,
+            "missing_mapping_or_replacement": 1430,
+            "missing_capacity": 12166
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 93
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17210,
+            "missing_untrained": 56,
+            "target": 488,
+            "direction": 3070,
+            "missing_mapping_or_replacement": 1430,
+            "missing_capacity": 12166
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 93
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17494,
+            "missing_untrained": 56,
+            "target": 348,
+            "direction": 3457,
+            "missing_mapping_or_replacement": 1657,
+            "missing_capacity": 11976
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 93
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17318,
+            "missing_untrained": 56,
+            "target": 488,
+            "direction": 3070,
+            "missing_mapping_or_replacement": 1552,
+            "missing_capacity": 12152
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 93
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17210,
+            "missing_untrained": 56,
+            "target": 488,
+            "direction": 3070,
+            "missing_mapping_or_replacement": 1430,
+            "missing_capacity": 12166
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 93
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17913,
+            "missing_untrained": 56,
+            "target": 348,
+            "direction": 3692,
+            "missing_mapping_or_replacement": 1882,
+            "missing_capacity": 11935
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 93
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 51853,
+            "errors": 17183,
+            "missing_untrained": 56,
+            "target": 444,
+            "direction": 3252,
+            "missing_mapping_or_replacement": 1778,
+            "missing_capacity": 11653
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 93
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 51853,
+            "errors": 16904,
+            "missing_untrained": 56,
+            "target": 444,
+            "direction": 3468,
+            "missing_mapping_or_replacement": 979,
+            "missing_capacity": 11957
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 93
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 51853,
+            "errors": 16904,
+            "missing_untrained": 56,
+            "target": 444,
+            "direction": 3468,
+            "missing_mapping_or_replacement": 979,
+            "missing_capacity": 11957
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 93
+        },
+        "F32": {
+          "counts": {
+            "branches": 51853,
+            "errors": 15763,
+            "missing_untrained": 56,
+            "target": 1015,
+            "direction": 4036,
+            "missing_capacity": 8758,
+            "missing_mapping_or_replacement": 1898
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 93
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 51853,
+            "errors": 18369,
+            "missing_untrained": 56,
+            "not_representable": 27067,
+            "target": 348,
+            "direction": 3358,
+            "missing_mapping_or_replacement": 6208,
+            "missing_capacity": 8399
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 93
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 51853,
+            "errors": 16005,
+            "missing_untrained": 56,
+            "not_representable": 4360,
+            "target": 1015,
+            "direction": 4493,
+            "missing_capacity": 8633,
+            "missing_mapping_or_replacement": 1808
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 93
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 51853,
+            "errors": 15763,
+            "missing_untrained": 56,
+            "target": 1015,
+            "direction": 4036,
+            "missing_capacity": 8758,
+            "missing_mapping_or_replacement": 1898
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 93
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 51853,
+            "errors": 15763,
+            "missing_untrained": 56,
+            "target": 1015,
+            "direction": 4036,
+            "missing_capacity": 8758,
+            "missing_mapping_or_replacement": 1898
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 93
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 51853,
+            "errors": 16001,
+            "missing_untrained": 56,
+            "target": 1015,
+            "direction": 4343,
+            "missing_mapping_or_replacement": 2092,
+            "missing_capacity": 8495
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 93
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 51853,
+            "errors": 15803,
+            "missing_untrained": 56,
+            "target": 1110,
+            "direction": 4018,
+            "missing_capacity": 8749,
+            "missing_mapping_or_replacement": 1870
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 93
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 51853,
+            "errors": 15763,
+            "missing_untrained": 56,
+            "target": 1015,
+            "direction": 4036,
+            "missing_capacity": 8758,
+            "missing_mapping_or_replacement": 1898
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 93
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 51853,
+            "errors": 16681,
+            "missing_untrained": 56,
+            "target": 348,
+            "direction": 4833,
+            "missing_mapping_or_replacement": 3020,
+            "missing_capacity": 8424
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 93
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 51853,
+            "errors": 15935,
+            "missing_untrained": 56,
+            "target": 696,
+            "direction": 4666,
+            "missing_mapping_or_replacement": 2013,
+            "missing_capacity": 8504
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 93
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 51853,
+            "errors": 15961,
+            "missing_untrained": 56,
+            "target": 788,
+            "direction": 4228,
+            "missing_capacity": 9351,
+            "missing_mapping_or_replacement": 1538
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 93
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 51853,
+            "errors": 15961,
+            "missing_untrained": 56,
+            "target": 788,
+            "direction": 4228,
+            "missing_capacity": 9351,
+            "missing_mapping_or_replacement": 1538
+          },
+          "target_required_bits": {
+            "5": 6600,
+            "6": 8725,
+            "7": 4800,
+            "8": 4661,
+            "9": 6007,
+            "10": 16700,
+            "11": 2964,
+            "12": 1396
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 93
+        }
+      }
+    },
+    "ini_config-dev-131": {
+      "family": "ini_config",
+      "trace_sha256": "82693a97e002ed1a1ec843ccba1a5755d339454b8507264825a3dc0bd638488a",
+      "instructions": 36949,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3542,
+            "missing_untrained": 55,
+            "direction": 1238,
+            "missing_capacity": 2138,
+            "missing_mapping_or_replacement": 111
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 84
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 12954,
+            "errors": 4480,
+            "missing_untrained": 55,
+            "not_representable": 2898,
+            "direction": 1351,
+            "missing_mapping_or_replacement": 1051,
+            "missing_capacity": 2023
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 84
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 12954,
+            "errors": 4368,
+            "missing_untrained": 55,
+            "not_representable": 2116,
+            "direction": 1259,
+            "missing_mapping_or_replacement": 946,
+            "missing_capacity": 2108
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 84
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3542,
+            "missing_untrained": 55,
+            "direction": 1238,
+            "missing_capacity": 2138,
+            "missing_mapping_or_replacement": 111
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 84
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3542,
+            "missing_untrained": 55,
+            "direction": 1238,
+            "missing_capacity": 2138,
+            "missing_mapping_or_replacement": 111
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 84
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 12954,
+            "errors": 4156,
+            "missing_untrained": 55,
+            "direction": 1275,
+            "missing_capacity": 2107,
+            "missing_mapping_or_replacement": 719
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 84
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 12954,
+            "errors": 4096,
+            "missing_untrained": 55,
+            "direction": 1241,
+            "missing_capacity": 2134,
+            "missing_mapping_or_replacement": 666
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 84
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3542,
+            "missing_untrained": 55,
+            "direction": 1238,
+            "missing_capacity": 2138,
+            "missing_mapping_or_replacement": 111
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 84
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 12954,
+            "errors": 4103,
+            "missing_untrained": 55,
+            "direction": 1318,
+            "missing_capacity": 2055,
+            "missing_mapping_or_replacement": 675
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 84
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3616,
+            "missing_untrained": 55,
+            "direction": 1210,
+            "missing_capacity": 2190,
+            "missing_mapping_or_replacement": 161
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 84
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3555,
+            "missing_untrained": 55,
+            "direction": 1217,
+            "missing_capacity": 2174,
+            "missing_mapping_or_replacement": 109
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 84
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3555,
+            "missing_untrained": 55,
+            "direction": 1217,
+            "missing_capacity": 2174,
+            "missing_mapping_or_replacement": 109
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 84
+        },
+        "F32": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3110,
+            "missing_untrained": 55,
+            "direction": 1310,
+            "missing_mapping_or_replacement": 109,
+            "missing_capacity": 1636
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 84
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 12954,
+            "errors": 4274,
+            "missing_untrained": 55,
+            "not_representable": 2898,
+            "direction": 1555,
+            "missing_mapping_or_replacement": 1258,
+            "missing_capacity": 1406
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 84
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 12954,
+            "errors": 4025,
+            "missing_untrained": 55,
+            "not_representable": 2116,
+            "direction": 1575,
+            "missing_mapping_or_replacement": 1065,
+            "missing_capacity": 1330
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 84
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3110,
+            "missing_untrained": 55,
+            "direction": 1310,
+            "missing_mapping_or_replacement": 109,
+            "missing_capacity": 1636
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 84
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3110,
+            "missing_untrained": 55,
+            "direction": 1310,
+            "missing_mapping_or_replacement": 109,
+            "missing_capacity": 1636
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 84
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3669,
+            "missing_untrained": 55,
+            "direction": 1429,
+            "missing_mapping_or_replacement": 676,
+            "missing_capacity": 1509
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 84
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3592,
+            "missing_untrained": 55,
+            "direction": 1416,
+            "missing_mapping_or_replacement": 600,
+            "missing_capacity": 1521
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 84
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3110,
+            "missing_untrained": 55,
+            "direction": 1310,
+            "missing_mapping_or_replacement": 109,
+            "missing_capacity": 1636
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 84
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3919,
+            "missing_untrained": 55,
+            "direction": 1585,
+            "missing_mapping_or_replacement": 758,
+            "missing_capacity": 1521
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 84
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3338,
+            "missing_untrained": 55,
+            "direction": 1518,
+            "missing_mapping_or_replacement": 195,
+            "missing_capacity": 1570
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 84
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3285,
+            "missing_untrained": 55,
+            "direction": 1398,
+            "missing_mapping_or_replacement": 130,
+            "missing_capacity": 1702
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 84
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 12954,
+            "errors": 3285,
+            "missing_untrained": 55,
+            "direction": 1398,
+            "missing_mapping_or_replacement": 130,
+            "missing_capacity": 1702
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 942,
+            "6": 5318,
+            "7": 3588,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 84
+        }
+      }
+    },
+    "ini_config-dev-257": {
+      "family": "ini_config",
+      "trace_sha256": "50303c57e368432e4d9df90681408d33067a34d0bb3eff025d63613a4f2a64e4",
+      "instructions": 36885,
+      "configurations": {
+        "F16": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3534,
+            "missing_untrained": 55,
+            "direction": 1230,
+            "missing_capacity": 2138,
+            "missing_mapping_or_replacement": 111
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1000,
+          "static_branch_pcs": 84
+        },
+        "U16w8": {
+          "counts": {
+            "branches": 12940,
+            "errors": 4472,
+            "missing_untrained": 55,
+            "not_representable": 2898,
+            "direction": 1341,
+            "missing_mapping_or_replacement": 1051,
+            "missing_capacity": 2025
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 616,
+          "static_branch_pcs": 84
+        },
+        "U16w10": {
+          "counts": {
+            "branches": 12940,
+            "errors": 4360,
+            "missing_untrained": 55,
+            "not_representable": 2116,
+            "direction": 1251,
+            "missing_mapping_or_replacement": 946,
+            "missing_capacity": 2108
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 648,
+          "static_branch_pcs": 84
+        },
+        "U16w12": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3534,
+            "missing_untrained": 55,
+            "direction": 1230,
+            "missing_capacity": 2138,
+            "missing_mapping_or_replacement": 111
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 680,
+          "static_branch_pcs": 84
+        },
+        "U16w16": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3534,
+            "missing_untrained": 55,
+            "direction": 1230,
+            "missing_capacity": 2138,
+            "missing_mapping_or_replacement": 111
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 744,
+          "static_branch_pcs": 84
+        },
+        "X16w8": {
+          "counts": {
+            "branches": 12940,
+            "errors": 4148,
+            "missing_untrained": 55,
+            "direction": 1267,
+            "missing_capacity": 2107,
+            "missing_mapping_or_replacement": 719
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 808,
+          "static_branch_pcs": 84
+        },
+        "X16w10": {
+          "counts": {
+            "branches": 12940,
+            "errors": 4088,
+            "missing_untrained": 55,
+            "direction": 1233,
+            "missing_capacity": 2134,
+            "missing_mapping_or_replacement": 666
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 824,
+          "static_branch_pcs": 84
+        },
+        "X16w12": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3534,
+            "missing_untrained": 55,
+            "direction": 1230,
+            "missing_capacity": 2138,
+            "missing_mapping_or_replacement": 111
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 840,
+          "static_branch_pcs": 84
+        },
+        "H16w8-8-8-32": {
+          "counts": {
+            "branches": 12940,
+            "errors": 4095,
+            "missing_untrained": 55,
+            "direction": 1310,
+            "missing_capacity": 2055,
+            "missing_mapping_or_replacement": 675
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 728,
+          "static_branch_pcs": 84
+        },
+        "H16w8-8-16-32": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3608,
+            "missing_untrained": 55,
+            "direction": 1202,
+            "missing_capacity": 2190,
+            "missing_mapping_or_replacement": 161
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 760,
+          "static_branch_pcs": 84
+        },
+        "H16w8-12-16-32": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3547,
+            "missing_untrained": 55,
+            "direction": 1209,
+            "missing_capacity": 2174,
+            "missing_mapping_or_replacement": 109
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 776,
+          "static_branch_pcs": 84
+        },
+        "H16w8-12-16-16": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3547,
+            "missing_untrained": 55,
+            "direction": 1209,
+            "missing_capacity": 2174,
+            "missing_mapping_or_replacement": 109
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 712,
+          "static_branch_pcs": 84
+        },
+        "F32": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3102,
+            "missing_untrained": 55,
+            "direction": 1302,
+            "missing_mapping_or_replacement": 109,
+            "missing_capacity": 1636
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1968,
+          "static_branch_pcs": 84
+        },
+        "U32w8": {
+          "counts": {
+            "branches": 12940,
+            "errors": 4266,
+            "missing_untrained": 55,
+            "not_representable": 2898,
+            "direction": 1547,
+            "missing_mapping_or_replacement": 1258,
+            "missing_capacity": 1406
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1200,
+          "static_branch_pcs": 84
+        },
+        "U32w10": {
+          "counts": {
+            "branches": 12940,
+            "errors": 4017,
+            "missing_untrained": 55,
+            "not_representable": 2116,
+            "direction": 1565,
+            "missing_mapping_or_replacement": 1065,
+            "missing_capacity": 1332
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1264,
+          "static_branch_pcs": 84
+        },
+        "U32w12": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3102,
+            "missing_untrained": 55,
+            "direction": 1302,
+            "missing_mapping_or_replacement": 109,
+            "missing_capacity": 1636
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1328,
+          "static_branch_pcs": 84
+        },
+        "U32w16": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3102,
+            "missing_untrained": 55,
+            "direction": 1302,
+            "missing_mapping_or_replacement": 109,
+            "missing_capacity": 1636
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1456,
+          "static_branch_pcs": 84
+        },
+        "X32w8": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3661,
+            "missing_untrained": 55,
+            "direction": 1419,
+            "missing_mapping_or_replacement": 676,
+            "missing_capacity": 1511
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1584,
+          "static_branch_pcs": 84
+        },
+        "X32w10": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3584,
+            "missing_untrained": 55,
+            "direction": 1406,
+            "missing_mapping_or_replacement": 600,
+            "missing_capacity": 1523
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1616,
+          "static_branch_pcs": 84
+        },
+        "X32w12": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3102,
+            "missing_untrained": 55,
+            "direction": 1302,
+            "missing_mapping_or_replacement": 109,
+            "missing_capacity": 1636
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1648,
+          "static_branch_pcs": 84
+        },
+        "H32w8-8-8-32": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3911,
+            "missing_untrained": 55,
+            "direction": 1577,
+            "missing_mapping_or_replacement": 758,
+            "missing_capacity": 1521
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1424,
+          "static_branch_pcs": 84
+        },
+        "H32w8-8-16-32": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3330,
+            "missing_untrained": 55,
+            "direction": 1509,
+            "missing_mapping_or_replacement": 195,
+            "missing_capacity": 1571
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1488,
+          "static_branch_pcs": 84
+        },
+        "H32w8-12-16-32": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3277,
+            "missing_untrained": 55,
+            "direction": 1390,
+            "missing_mapping_or_replacement": 130,
+            "missing_capacity": 1702
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1520,
+          "static_branch_pcs": 84
+        },
+        "H32w8-12-16-16": {
+          "counts": {
+            "branches": 12940,
+            "errors": 3277,
+            "missing_untrained": 55,
+            "direction": 1390,
+            "missing_mapping_or_replacement": 130,
+            "missing_capacity": 1702
+          },
+          "target_required_bits": {
+            "4": 116,
+            "5": 940,
+            "6": 5312,
+            "7": 3582,
+            "8": 92,
+            "9": 546,
+            "10": 236,
+            "11": 2116
+          },
+          "btb_state_bits": 1392,
+          "static_branch_pcs": 84
+        }
+      }
+    }
+  },
+  "summary": {
+    "F16": {
+      "error_ratio_gm": 1.0,
+      "families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "btb_state_bits": 1000
+    },
+    "U16w8": {
+      "error_ratio_gm": 1.2258172445134552,
+      "families": {
+        "json_bpe": 1.129430616804036,
+        "quant_loader": 1.6130065504678357,
+        "runtime_graph": 1.1041972792684691,
+        "regex_tokenizer": 1.087561736226345,
+        "ini_config": 1.2651218409663803
+      },
+      "btb_state_bits": 616
+    },
+    "U16w10": {
+      "error_ratio_gm": 1.1084302621003033,
+      "families": {
+        "json_bpe": 1.0699023822837421,
+        "quant_loader": 1.1152183178590411,
+        "runtime_graph": 1.1159926126816133,
+        "regex_tokenizer": 1.018707478336229,
+        "ini_config": 1.2334655047734169
+      },
+      "btb_state_bits": 648
+    },
+    "U16w12": {
+      "error_ratio_gm": 1.0318673919768655,
+      "families": {
+        "json_bpe": 1.0405607565689383,
+        "quant_loader": 1.0309030188478348,
+        "runtime_graph": 1.0905213895976924,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "btb_state_bits": 680
+    },
+    "U16w16": {
+      "error_ratio_gm": 1.0,
+      "families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "btb_state_bits": 744
+    },
+    "X16w8": {
+      "error_ratio_gm": 1.1433245554711267,
+      "families": {
+        "json_bpe": 1.0396977651547903,
+        "quant_loader": 1.5639131859295832,
+        "runtime_graph": 1.0062378681768602,
+        "regex_tokenizer": 1.017484152742788,
+        "ini_config": 1.173544580778822
+      },
+      "btb_state_bits": 808
+    },
+    "X16w10": {
+      "error_ratio_gm": 1.0449554433279056,
+      "families": {
+        "json_bpe": 1.0233009007863536,
+        "quant_loader": 1.0296914575800544,
+        "runtime_graph": 1.0152995595863141,
+        "regex_tokenizer": 1.006946351229396,
+        "ini_config": 1.156585828207171
+      },
+      "btb_state_bits": 824
+    },
+    "X16w12": {
+      "error_ratio_gm": 0.9994978893258684,
+      "families": {
+        "json_bpe": 1.0,
+        "quant_loader": 0.9869461325903014,
+        "runtime_graph": 1.0106853186577403,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "btb_state_bits": 840
+    },
+    "H16w8-8-8-32": {
+      "error_ratio_gm": 1.168261066753203,
+      "families": {
+        "json_bpe": 1.050491084058253,
+        "quant_loader": 1.6299215714879507,
+        "runtime_graph": 1.0546192456348267,
+        "regex_tokenizer": 1.0402185336159049,
+        "ini_config": 1.1585643493525761
+      },
+      "btb_state_bits": 728
+    },
+    "H16w8-8-16-32": {
+      "error_ratio_gm": 1.0091576349901312,
+      "families": {
+        "json_bpe": 1.0250329728059298,
+        "quant_loader": 0.9892239225183372,
+        "runtime_graph": 1.0080409111420572,
+        "regex_tokenizer": 1.0029851955913296,
+        "ini_config": 1.0209157980834354
+      },
+      "btb_state_bits": 760
+    },
+    "H16w8-12-16-32": {
+      "error_ratio_gm": 0.9964697970699407,
+      "families": {
+        "json_bpe": 1.0043149902022257,
+        "quant_loader": 0.9995874751862657,
+        "runtime_graph": 0.9887208294508923,
+        "regex_tokenizer": 0.9861964138710245,
+        "ini_config": 1.0036743970001174
+      },
+      "btb_state_bits": 776
+    },
+    "H16w8-12-16-16": {
+      "error_ratio_gm": 0.9964697970699407,
+      "families": {
+        "json_bpe": 1.0043149902022257,
+        "quant_loader": 0.9995874751862657,
+        "runtime_graph": 0.9887208294508923,
+        "regex_tokenizer": 0.9861964138710245,
+        "ini_config": 1.0036743970001174
+      },
+      "btb_state_bits": 712
+    },
+    "F32": {
+      "error_ratio_gm": 0.9055403202449948,
+      "families": {
+        "json_bpe": 0.95168473322052,
+        "quant_loader": 0.8979360674621261,
+        "runtime_graph": 0.8826384620028546,
+        "regex_tokenizer": 0.9195472615363957,
+        "ini_config": 0.8778969500873294
+      },
+      "btb_state_bits": 1968
+    },
+    "U32w8": {
+      "error_ratio_gm": 1.197642910260501,
+      "families": {
+        "json_bpe": 1.1311626068169276,
+        "quant_loader": 1.6183725146411545,
+        "runtime_graph": 1.048807888531056,
+        "regex_tokenizer": 1.0633276981904802,
+        "ini_config": 1.2068967935150778
+      },
+      "btb_state_bits": 1200
+    },
+    "U32w10": {
+      "error_ratio_gm": 1.0329549074682083,
+      "families": {
+        "json_bpe": 1.0427242150611251,
+        "quant_loader": 1.0131344562703268,
+        "runtime_graph": 1.0488921244314464,
+        "regex_tokenizer": 0.9338199322243514,
+        "ini_config": 1.1365179706895365
+      },
+      "btb_state_bits": 1264
+    },
+    "U32w12": {
+      "error_ratio_gm": 0.9488324845016617,
+      "families": {
+        "json_bpe": 1.0198550372345716,
+        "quant_loader": 0.9274375016898138,
+        "runtime_graph": 1.0071798549197875,
+        "regex_tokenizer": 0.9195472615363957,
+        "ini_config": 0.8778969500873294
+      },
+      "btb_state_bits": 1328
+    },
+    "U32w16": {
+      "error_ratio_gm": 0.9055403202449948,
+      "families": {
+        "json_bpe": 0.95168473322052,
+        "quant_loader": 0.8979360674621261,
+        "runtime_graph": 0.8826384620028546,
+        "regex_tokenizer": 0.9195472615363957,
+        "ini_config": 0.8778969500873294
+      },
+      "btb_state_bits": 1456
+    },
+    "X32w8": {
+      "error_ratio_gm": 0.95348277112427,
+      "families": {
+        "json_bpe": 0.9887873134078047,
+        "quant_loader": 0.8726523108135082,
+        "runtime_graph": 0.9425578368270361,
+        "regex_tokenizer": 0.9353969368808007,
+        "ini_config": 1.0358960315209333
+      },
+      "btb_state_bits": 1584
+    },
+    "X32w10": {
+      "error_ratio_gm": 0.9440841108717128,
+      "families": {
+        "json_bpe": 0.9559933847783653,
+        "quant_loader": 0.8961414998263204,
+        "runtime_graph": 0.9338397902142708,
+        "regex_tokenizer": 0.9243894428532735,
+        "ini_config": 1.0141322960614987
+      },
+      "btb_state_bits": 1616
+    },
+    "X32w12": {
+      "error_ratio_gm": 0.9099189048814706,
+      "families": {
+        "json_bpe": 0.9477948646076595,
+        "quant_loader": 0.8935174088974045,
+        "runtime_graph": 0.9123857122512498,
+        "regex_tokenizer": 0.9195472615363957,
+        "ini_config": 0.8778969500873294
+      },
+      "btb_state_bits": 1648
+    },
+    "H32w8-8-8-32": {
+      "error_ratio_gm": 1.0997758383743188,
+      "families": {
+        "json_bpe": 1.0414237478408706,
+        "quant_loader": 1.475936087488305,
+        "runtime_graph": 0.9711066720394008,
+        "regex_tokenizer": 0.9740582203052365,
+        "ini_config": 1.1065575066947666
+      },
+      "btb_state_bits": 1424
+    },
+    "H32w8-8-16-32": {
+      "error_ratio_gm": 0.908101197603456,
+      "families": {
+        "json_bpe": 0.9542673818412123,
+        "quant_loader": 0.8163056520240205,
+        "runtime_graph": 0.9027673452284292,
+        "regex_tokenizer": 0.9318902886711948,
+        "ini_config": 0.9423402293007334
+      },
+      "btb_state_bits": 1488
+    },
+    "H32w8-12-16-32": {
+      "error_ratio_gm": 0.8971694711649004,
+      "families": {
+        "json_bpe": 0.9452058549333039,
+        "quant_loader": 0.7867515414781386,
+        "runtime_graph": 0.9014916278267399,
+        "regex_tokenizer": 0.9349715047553647,
+        "ini_config": 0.9273599939605
+      },
+      "btb_state_bits": 1520
+    },
+    "H32w8-12-16-16": {
+      "error_ratio_gm": 0.8971694711649004,
+      "families": {
+        "json_bpe": 0.9452058549333039,
+        "quant_loader": 0.7867515414781386,
+        "runtime_graph": 0.9014916278267399,
+        "regex_tokenizer": 0.9349715047553647,
+        "ini_config": 0.9273599939605
+      },
+      "btb_state_bits": 1392
+    }
+  }
+}

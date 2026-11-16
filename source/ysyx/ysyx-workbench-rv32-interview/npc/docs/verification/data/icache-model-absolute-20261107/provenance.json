@@ -1,0 +1,63 @@
+{
+  "source_commit": "5493a6aec976f4f9bdc075834d3f1202b0ae16ef",
+  "retrieved_at": "2026-11-07",
+  "kind": "Recovered historical model output; no new workload run",
+  "files": [
+    {
+      "path": "model/json_bpe-dev-41.csv",
+      "git_path": "npc/docs/verification/data/icache-selection-20260922/model/json_bpe-dev-41.csv",
+      "sha256": "34d2ee2f5752807363a4381a95183084b4dd39578e3e0136304b117b69ac642f",
+      "bytes": 36839,
+      "matches_historical_manifest": true
+    },
+    {
+      "path": "model/json_bpe-dev-73.csv",
+      "git_path": "npc/docs/verification/data/icache-selection-20260922/model/json_bpe-dev-73.csv",
+      "sha256": "9dc925db132b8df8215f29780049068ea9d419e76767607af736d6c4fc5e8052",
+      "bytes": 36838,
+      "matches_historical_manifest": true
+    },
+    {
+      "path": "model/quant_loader-dev-41.csv",
+      "git_path": "npc/docs/verification/data/icache-selection-20260922/model/quant_loader-dev-41.csv",
+      "sha256": "76d6985f427b25000b91fbeed2dd37e6e0bdeab675cf7be439fc72bbf4c315cf",
+      "bytes": 38187,
+      "matches_historical_manifest": true
+    },
+    {
+      "path": "model/quant_loader-dev-73.csv",
+      "git_path": "npc/docs/verification/data/icache-selection-20260922/model/quant_loader-dev-73.csv",
+      "sha256": "f6b71f5a2aad0a5ff1570113485d5bc21c36becf4f185982df7597ca2d198f7f",
+      "bytes": 38187,
+      "matches_historical_manifest": true
+    },
+    {
+      "path": "model/runtime_graph-dev-41.csv",
+      "git_path": "npc/docs/verification/data/icache-selection-20260922/model/runtime_graph-dev-41.csv",
+      "sha256": "73a501e925d4c208d28400718f73c250d29ce794fef19b91b9583b282b0f9202",
+      "bytes": 38646,
+      "matches_historical_manifest": true
+    },
+    {
+      "path": "model/runtime_graph-dev-73.csv",
+      "git_path": "npc/docs/verification/data/icache-selection-20260922/model/runtime_graph-dev-73.csv",
+      "sha256": "c09ddc1530b550e893fd3954295b64117c7d80f7cf6d5cb8a14456dbba4a4cb6",
+      "bytes": 38646,
+      "matches_historical_manifest": true
+    },
+    {
+      "path": "model/manifest.json",
+      "git_path": "npc/docs/verification/data/icache-selection-20260922/model/manifest.json",
+      "sha256": "f2d3bd328c757249baea9434309575666268d6fc56b5e800da87393b0d4ae59d",
+      "bytes": 2791,
+      "matches_historical_manifest": true
+    },
+    {
+      "path": "policy-screen-1k4way32.json",
+      "git_path": "npc/docs/verification/data/icache-selection-20260922/policy-screen-1k4way32.json",
+      "sha256": "732ef1aac9cf7599957cfc7bf091757f7fa1358daa271fe910d22bc7a31a7a1b",
+      "bytes": 572,
+      "matches_historical_manifest": true
+    }
+  ]
+}

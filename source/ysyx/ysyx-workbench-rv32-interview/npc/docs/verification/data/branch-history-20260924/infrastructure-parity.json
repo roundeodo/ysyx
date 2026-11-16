@@ -1,0 +1,5 @@
+{
+  "status": "passed",
+  "cases": 10,
+  "comparison": "new source TAGE disabled vs frozen baseline, all result fields and counters identical"
+}

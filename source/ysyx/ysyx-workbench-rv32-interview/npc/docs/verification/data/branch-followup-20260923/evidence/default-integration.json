@@ -1,0 +1,10 @@
+{
+  "common_mhz": 660,
+  "own_mhz": 720,
+  "cases_each": 10,
+  "all_results_and_counters_identical": true,
+  "area_change_um2": 184.86999999999534,
+  "same_dff": 8316,
+  "same_data_latches": 8192,
+  "same_clock_gates": 542
+}

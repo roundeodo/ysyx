@@ -1,0 +1,7 @@
+{
+  "development_choice": "U16",
+  "recommendation": "U16",
+  "held_accepted": true,
+  "default_enabled": false,
+  "note": "Prototypes remain opt-in; no held-data retuning or replacement of frozen winner"
+}

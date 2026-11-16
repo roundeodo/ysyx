@@ -1,0 +1,42 @@
+ M npc/Makefile
+ M npc/docs/microarchitecture/FETCH_PREDICTOR_DESIGN_RECORD.md
+ M npc/scripts/run_microbench_perf.py
+M  npc/vsrc/riscv32/common/riscv32_pkg.sv
+MM npc/vsrc/riscv32/common/riscv_config_pkg.sv
+M  npc/vsrc/riscv32/core/decode/riscv32_regfile.sv
+M  npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv
+M  npc/vsrc/riscv32/core/execute/riscv32_exu.sv
+M  npc/vsrc/riscv32/core/frontend/riscv32_bht.sv
+D  npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv
+MM npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+M  npc/vsrc/riscv32/core/frontend/riscv32_btb.sv
+D  npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv
+D  npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv
+M  npc/vsrc/riscv32/core/frontend/riscv32_icache.sv
+D  npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv
+M  npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv
+M  npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
+D  npc/vsrc/riscv32/core/frontend/riscv32_tage.sv
+D  npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv
+M  npc/vsrc/riscv32/core/memory/riscv32_dcache.sv
+M  npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
+M  npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
+M  npc/vsrc/riscv32/core/riscv32_core.sv
+M  npc/vsrc/riscv32/filelist/filelist.f
+M  npc/vsrc/riscv32/filelist/filelist_sta.f
+?? npc/docs/verification/RV32_BASELINE_REPLAY_2026-10-09.md
+?? npc/docs/verification/RV32_REPLAY_AREA_2026-10-10.md
+?? npc/docs/verification/data/run-history/20261009T093038Z-performance-71b473df/
+?? npc/docs/verification/data/run-history/20261009T093227Z-performance-e7ec5723/
+?? npc/docs/verification/data/run-history/20261009T095222Z-synthesis-a914f341/
+?? npc/docs/verification/data/run-history/20261009T095510Z-synthesis-f67709a5/
+?? npc/docs/verification/data/run-history/20261009T095527Z-performance-9f56e69e/
+?? npc/docs/verification/data/run-history/20261009T095528Z-synthesis-de5923ac/
+?? npc/docs/verification/data/run-history/20261009T142253Z-performance-ca23f53e/
+?? npc/docs/verification/data/run-history/20261010T112805Z-synthesis-811d6080/
+?? npc/docs/verification/data/run-history/20261010T113019Z-synthesis-330bb4f2/
+?? npc/docs/verification/data/run-history/20261010T113225Z-performance-d1205264/
+?? npc/docs/verification/data/run-history/20261010T155945Z-performance-8643891c/
+?? npc/scripts/compare_baseline_train.py
+?? npc/scripts/mapped_area_breakdown.py
+?? npc/tests/rtl/riscv32_no_predictor_tb.sv

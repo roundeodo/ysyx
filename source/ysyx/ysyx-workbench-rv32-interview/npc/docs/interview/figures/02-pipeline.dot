@@ -1,0 +1,37 @@
+digraph architecture {
+  graph [fontname="Noto Sans CJK SC", fontsize=20, labelloc=t, bgcolor="white", rankdir=LR, nodesep=0.38, ranksep=0.55, pad=0.25, compound=true];
+  node [fontname="Noto Sans CJK SC", fontsize=12, shape=box, style="rounded,filled", fillcolor="#ffffff", color="#526175", penwidth=1.2, margin="0.14,0.10"];
+  edge [fontname="Noto Sans CJK SC", fontsize=10, color="#506278", arrowsize=0.7];
+  label="02  实际流水线与前递边界\n双边框：寄存/队列；虚线：前递或控制；反向 ready 省略";
+  frontend [label="前端\n预测 / IFU / I-cache\nfetch_buffer 2 项", fillcolor="#eaf2ff", peripheries=2];
+  decode [label="IDU\n组合译码"];
+  gpr [label="GPR\n31 × 32 位 + x0=0\n2 读 / 1 写", fillcolor="#e8f5e9"];
+  select [label="源操作数选择 / 前递\n位于 core 内"];
+  idex [label="ID/EX\n主项 + skid\n共 2 项", fillcolor="#eaf2ff", peripheries=2];
+  exu [label="EXU\nALU / 分支 / CSR\nAGU"];
+  result [label="执行结果寄存级\n1 项\n输出端比较预测后继", fillcolor="#eaf2ff", peripheries=2];
+  lsu [label="LSU\n1 个上下文\n先寄存请求", fillcolor="#eaf2ff", peripheries=2];
+  dmem [label="数据子系统\nPMA / D-cache\nUncached", fillcolor="#e8f5e9"];
+  complete [label="完成选择\nLSU 优先"];
+  wb [label="WB\n1 项", fillcolor="#eaf2ff", peripheries=2];
+  commit [label="commit\n组合架构事件\n无 ROB / 无额外寄存"];
+  csr [label="CSR / PMU\n组合读取", fillcolor="#e8f5e9"];
+  hazard [label="冒险控制\nRAW / 串行化\nLSU 忙 / 恢复", fillcolor="#fff1dd"];
+  frontend -> decode -> select -> idex -> exu;
+  decode -> gpr [label="rs1 / rs2"];
+  gpr -> select [label="组合读值"];
+  decode -> csr [label="指令 CSR 地址字段"];
+  csr -> select [label="CSR 数据 / 合法性"];
+  exu -> result [label="普通结果"];
+  exu -> lsu [label="地址 / store 数据"];
+  lsu -> dmem [label="语义请求 / 响应", dir=both];
+  result -> complete; lsu -> complete;
+  complete -> wb -> commit;
+  commit -> gpr [label="提交写", style=dashed, color="#287ab0", constraint=false];
+  commit -> csr [label="提交写", style=dashed, color="#287ab0", constraint=false];
+  exu -> select [label="EX 数据前递", style=dashed, color="#287ab0", constraint=false];
+  result -> select [label="结果级数据前递", style=dashed, color="#287ab0", constraint=false];
+  wb -> select [label="WB 数据前递", style=dashed, color="#287ab0", constraint=false];
+  hazard -> select [label="选择 / 等待", style=dashed, color="#b76e13"];
+  hazard -> idex [label="接收 / 发出 / flush", style=dashed, color="#b76e13"];
+}

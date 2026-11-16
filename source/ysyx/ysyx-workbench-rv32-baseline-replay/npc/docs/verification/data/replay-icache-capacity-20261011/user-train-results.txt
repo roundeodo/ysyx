@@ -1,0 +1,251 @@
+python3 npc/scripts/run_microbench_perf.py \
+  --scale train --cpu-mhz 700 --timing-model device-clock \
+  --icache-bytes 256 --icache-ways 1 --icache-line 16 --icache-policy 0 \
+  --dcache-enable 0 --predictor-enable 0 \
+  --output npc/result/performance/replay-no-predictor-train
+Artifacts: /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/performance/replay-no-predictor-train
+Building RV32 simulator and uninstrumented MicroBench...
+Starting train; CPU=700 MHz, device=100 MHz.
+NPC: No MROM image supplied
+NPC: loaded 23804 bytes into flash
+======= Running MicroBench [input *train*] =======
+[qsort] Quick sort: * Passed.
+  min time: 96.128 ms [0]
+[queen] Queen placement: * Passed.
+  min time: 26.231 ms [0]
+[bf] Brainf**k interpreter: * Passed.
+  min time: 131.937 ms [0]
+[fib] Fibonacci number: * Passed.
+  min time: 530.377 ms [0]
+[sieve] Eratosthenes sieve: * Passed.
+  min time: 307.025 ms [0]
+[15pz] A* 15-puzzle search: * Passed.
+  min time: 168.960 ms [0]
+[dinic] Dinic's maxflow algorithm: * Passed.
+  min time: 122.507 ms [0]
+[lzip] Lzip compression: * Passed.
+  min time: 192.571 ms [0]
+[ssort] Suffix sort: * Passed.
+  min time: 150.512 ms [0]
+[md5] MD5 digest: * Passed.
+  min time: 173.656 ms [0]
+==================================================
+MicroBench PASS
+Scored time: 1899.904 ms
+Total  time: 2711.176 ms
+NPC: HIT GOOD TRAP at pc = 0xa0003b10
+NPC performance statistics:
+ retired instructions = 266949460
+ CPU cycle            = 1898474217
+ IPC                  = 0.140613
+CACHE_WAIT I-cache: completions=9405160 next_waiting_same_set=8262060 next_waiting_other_set=1143100
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 1898474205
+decoded instructions               : 338225683
+retired instructions               : 266949460
+IPC                                : 0.140613
+
+instruction class        count       ratio       average execution cycles
+integer               189487168    56.024%         1.931
+branch/jump           120635849    35.667%         1.218
+load/store             28102652     8.309%         9.661
+  load                 19083095     5.642%
+  store                 9019557     2.667%
+CSR                            0     0.000%         0.000
+system                        14     0.000%         1.143
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 420829175 / 420829175 / 338225683
+IFU average response latency           : 3.811 cycles
+IFU AR backpressure cycles             : 1359524251 (71.611%)
+IFU response-wait cycles               : 1603916278 (84.484%)
+IFU downstream-backpressure cycles     : 639930227 (33.708%)
+IFU discarded wrong-path responses     : 75904660
+
+LSU requests / completions             : 21723701 / 21723701
+LSU load operation average latency     : 35.680 cycles (12138451 operations)
+LSU store operation average latency    : 12.883 cycles (6144772 operations)
+LSU AXI read average latency           : 25.862 cycles (13902473 transactions)
+LSU AXI write-response average latency : 7.112 cycles (7232492 transactions)
+EXU / LSU completions                  : 245225760 / 21723701
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 338225683 (17.816%)
+  control recovery stalls             : 584293195 (30.777%)
+  LSU structural stalls               : 635980137 (33.500%)
+  unresolved RAW stalls               : 3932488 (0.207%)
+  serializing stalls                  : 53 (0.000%)
+  frontend supply stalls              : 262104259 (13.806%)
+    request backpressure              : 256573678 (13.515%)
+    I-cache miss service              : 0 (0.000%)
+    lookup response in flight         : 5530580 (0.291%)
+    request launch or delivery gap    : 1 (0.000%)
+  other empty issue slots             : 73938390 (3.895%)
+recovery redirects / taken fetch predictions / EX corrections: 65744521 / 0 / 65744519
+actual EX corrections by branch / JAL / JALR          : 56034184 / 6450143 / 3260192
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 77012976 / 56034184 (72.759% taken)
+  backward / taken                  : 37556994 / 33837810 (90.097% taken)
+  forward / taken                   : 39455982 / 22196374 (56.256% taken)
+direct / indirect jumps             : 6450143 / 3260192
+always-not-taken prediction errors  : 65744519 (75.810% of control flow)
+BTFNT+JAL prediction errors          : 29175750 (33.642% of control flow)
+16-entry BHT+JAL errors              : 18328797 (conditional 15068605 + JALR 3260192)
+64-entry BHT+JAL errors              : 18105422 (conditional 14845230 + JALR 3260192)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 243388264.000
+I-cache critical miss excess cycles   : 619200176.000
+oracle 1-cycle data memory / speedup   : 1655085941.000 / 1.147x
+ideal single-issue pipeline cycles     : 1129537900.000 / 1.681x
+ideal pipeline + oracle data memory    : 886149636.000 / 2.142x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 420829175 / 411424014 / 9405161
+I-cache hit rate                            : 97.765%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 66.836 cycles
+average miss penalty                        : 65.836 cycles
+I-cache AMAT                                : 2.471 cycles
+average complete refill latency             : 83.893 cycles
+lookup request waiting cycles               : 1359524251
+successful line installs / refill finishes  : 9405160 / 9405160
+discarded stale responses                   : 0
+==========================================================
+
+PASS: train native Total time = 2.711176 s; same-window IPC = 0.140626041
+      native Scored time = 1.899904 s; same-window IPC = 0.140465930
+Report: /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/performance/replay-no-predictor-train/report.json
+Analysis: /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/docs/verification/data/run-history/20261010T155945Z-performance-8643891c
+yong@yong-virtual-machine:~/ysyx/ysyx-workbench-rv32-baseline-replay$ 
+python3 npc/scripts/run_microbench_perf.py \
+  --scale train --cpu-mhz 700 --timing-model device-clock \
+  --predictor-enable 1 --dcache-enable 0 \
+  --icache-bytes 256 --icache-ways 1 --icache-line 16 --icache-policy 0 \
+  --bht-entries 16 --btb-entries 16 --btb-ways 2 --btb-policy 0 \
+  --direction-policy 0 --ras-entries 4 --branch-static 2 --early-target 1 \
+  --output npc/result/performance/replay-hybrid-train
+Artifacts: /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/performance/replay-hybrid-train
+Building RV32 simulator and uninstrumented MicroBench...
+Starting train; CPU=700 MHz, device=100 MHz.
+NPC: No MROM image supplied
+NPC: loaded 23804 bytes into flash
+======= Running MicroBench [input *train*] =======
+[qsort] Quick sort: * Passed.
+  min time: 88.694 ms [0]
+[queen] Queen placement: * Passed.
+  min time: 23.809 ms [0]
+[bf] Brainf**k interpreter: * Passed.
+  min time: 113.628 ms [0]
+[fib] Fibonacci number: * Passed.
+  min time: 405.526 ms [0]
+[sieve] Eratosthenes sieve: * Passed.
+  min time: 214.958 ms [0]
+[15pz] A* 15-puzzle search: * Passed.
+  min time: 149.266 ms [0]
+[dinic] Dinic's maxflow algorithm: * Passed.
+  min time: 114.883 ms [0]
+[lzip] Lzip compression: * Passed.
+  min time: 166.952 ms [0]
+[ssort] Suffix sort: * Passed.
+  min time: 130.216 ms [0]
+[md5] MD5 digest: * Passed.
+  min time: 133.333 ms [0]
+==================================================
+MicroBench PASS
+Scored time: 1541.265 ms
+Total  time: 2173.550 ms
+NPC: HIT GOOD TRAP at pc = 0xa0003b10
+NPC performance statistics:
+ retired instructions = 266998160
+ CPU cycle            = 1522086513
+ IPC                  = 0.175416
+CACHE_WAIT I-cache: completions=7036261 next_waiting_same_set=5671791 next_waiting_other_set=1364470
+ISSUE_WINDOW total windows=0 active=0 cycles=0 issue=0 recovery=0 lsu_block=0 result_block=0 execute_wait=0 raw=0 serial=0 delivery_gap=0 redirects=0 lsu_busy=0 recovery_observed=0 ic_miss=0 dc_miss=0 dirty_miss=0
+
+================ NPC performance counters ================
+active core cycles                 : 1522086501
+decoded instructions               : 285679671
+retired instructions               : 266998160
+IPC                                : 0.175416
+
+instruction class        count       ratio       average execution cycles
+integer               175739782    61.516%         2.215
+branch/jump            87223437    30.532%         1.333
+load/store             22716438     7.952%         9.764
+  load                 15201263     5.321%
+  store                 7515175     2.631%
+CSR                            0     0.000%         0.000
+system                        14     0.000%         1.143
+unclassified                   0     0.000%         0.000
+
+IFU requests / responses / deliveries : 308859348 / 308859348 / 285679671
+IFU average response latency           : 4.412 cycles
+IFU AR backpressure cycles             : 1181981204 (77.655%)
+IFU response-wait cycles               : 1362610912 (89.523%)
+IFU downstream-backpressure cycles     : 638782402 (41.968%)
+IFU discarded wrong-path responses     : 20940046
+
+LSU requests / completions             : 21739885 / 21739885
+LSU load operation average latency     : 35.157 cycles (12153911 operations)
+LSU store operation average latency    : 12.618 cycles (6119539 operations)
+LSU AXI read average latency           : 25.863 cycles (13904271 transactions)
+LSU AXI write-response average latency : 7.112 cycles (7232514 transactions)
+EXU / LSU completions                  : 245258276 / 21739885
+
+exclusive pipeline issue-slot attribution
+  issued instructions                 : 285679671 (18.769%)
+  control recovery stalls             : 116121722 (7.629%)
+  LSU structural stalls               : 634622420 (41.694%)
+  unresolved RAW stalls               : 4133726 (0.272%)
+  serializing stalls                  : 0 (0.000%)
+  frontend supply stalls              : 414143119 (27.209%)
+    request backpressure              : 407259630 (26.757%)
+    I-cache miss service              : 52034 (0.003%)
+    lookup response in flight         : 6708296 (0.441%)
+    request launch or delivery gap    : 123159 (0.008%)
+  other empty issue slots             : 67385843 (4.427%)
+recovery redirects / taken fetch predictions / EX corrections: 16610289 / 60912857 / 16610287
+actual EX corrections by branch / JAL / JALR          : 15449185 / 0 / 1161102
+pipeline execute discards             : 0
+
+resolved control-flow profile
+conditional branches / taken        : 77029192 / 56050360 (72.765% taken)
+  backward / taken                  : 37573166 / 33853976 (90.101% taken)
+  forward / taken                   : 39456026 / 22196384 (56.256% taken)
+direct / indirect jumps             : 6450154 / 3260199
+always-not-taken prediction errors  : 65760713 (75.814% of control flow)
+BTFNT+JAL prediction errors          : 29175773 (33.636% of control flow)
+16-entry BHT+JAL errors              : 18328841 (conditional 15068642 + JALR 3260199)
+64-entry BHT+JAL errors              : 18105453 (conditional 14845254 + JALR 3260199)
+
+idealized upper-bound estimates
+memory execution excess cycles        : 199097270.000
+I-cache critical miss excess cycles   : 489565395.000
+oracle 1-cycle data memory / speedup   : 1322989231.000 / 1.150x
+ideal single-issue pipeline cycles     : 955660825.000 / 1.593x
+ideal pipeline + oracle data memory    : 756563555.000 / 2.012x
+==========================================================
+
+================ I-cache AMAT counters ===================
+lookups / cacheable hits / cacheable misses : 308859348 / 301823086 / 7036262
+I-cache hit rate                            : 97.722%
+average hit response latency                : 1.000 cycles
+average miss critical response latency      : 70.577 cycles
+average miss penalty                        : 69.577 cycles
+I-cache AMAT                                : 2.585 cycles
+average complete refill latency             : 87.013 cycles
+lookup request waiting cycles               : 1181981204
+successful line installs / refill finishes  : 7036261 / 7036261
+discarded stale responses                   : 0
+==========================================================
+
+PASS: train native Total time = 2.173550 s; same-window IPC = 0.175434685
+      native Scored time = 1.541265 s; same-window IPC = 0.173150929
+Report: /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/performance/replay-hybrid-train/report.json
+Analysis: /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/docs/verification/data/run-history/20261011T043726Z-performance-6ade1904

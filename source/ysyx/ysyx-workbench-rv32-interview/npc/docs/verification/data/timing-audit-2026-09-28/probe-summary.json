@@ -1,0 +1,109 @@
+{
+  "results": [
+    {
+      "ratio_scaled": 1024,
+      "late_read": 0,
+      "ar_start": 1,
+      "ar_down": 4,
+      "wlast_down": 3,
+      "b_up": 5,
+      "r_down": 6,
+      "r_up": 6
+    },
+    {
+      "ratio_scaled": 1024,
+      "late_read": 1,
+      "ar_start": 6,
+      "ar_down": 6,
+      "wlast_down": 3,
+      "b_up": 5,
+      "r_down": 8,
+      "r_up": 8
+    },
+    {
+      "ratio_scaled": 2048,
+      "late_read": 0,
+      "ar_start": 1,
+      "ar_down": 6,
+      "wlast_down": 5,
+      "b_up": 10,
+      "r_down": 8,
+      "r_up": 15
+    },
+    {
+      "ratio_scaled": 2048,
+      "late_read": 1,
+      "ar_start": 11,
+      "ar_down": 11,
+      "wlast_down": 5,
+      "b_up": 10,
+      "r_down": 13,
+      "r_up": 15
+    },
+    {
+      "ratio_scaled": 4096,
+      "late_read": 0,
+      "ar_start": 1,
+      "ar_down": 10,
+      "wlast_down": 9,
+      "b_up": 20,
+      "r_down": 12,
+      "r_up": 45
+    },
+    {
+      "ratio_scaled": 4096,
+      "late_read": 1,
+      "ar_start": 21,
+      "ar_down": 21,
+      "wlast_down": 9,
+      "b_up": 20,
+      "r_down": 23,
+      "r_up": 29
+    },
+    {
+      "ratio_scaled": 5939,
+      "late_read": 0,
+      "ar_start": 1,
+      "ar_down": 13,
+      "wlast_down": 12,
+      "b_up": 28,
+      "r_down": 15,
+      "r_up": 82
+    },
+    {
+      "ratio_scaled": 5939,
+      "late_read": 1,
+      "ar_start": 29,
+      "ar_down": 29,
+      "wlast_down": 12,
+      "b_up": 28,
+      "r_down": 31,
+      "r_up": 40
+    },
+    {
+      "ratio_scaled": 7372,
+      "late_read": 0,
+      "ar_start": 1,
+      "ar_down": 16,
+      "wlast_down": 15,
+      "b_up": 35,
+      "r_down": 18,
+      "r_up": 123
+    },
+    {
+      "ratio_scaled": 7372,
+      "late_read": 1,
+      "ar_start": 36,
+      "ar_down": 36,
+      "wlast_down": 15,
+      "b_up": 35,
+      "r_down": 38,
+      "r_up": 50
+    }
+  ],
+  "sources": {
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v": "25d62d3739938c2aa1af84cb2040f1b466daa7566fd01355b3c24241bb5f8293",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v": "009fd1458ec6f69aaa06f8724bc583be169f229de463bdab5d36a976439a8212",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/timing-audit-20260928/write_read_probe.sv": "799d4481c3eabd0437e21f32b928c74ddb31e9755f6b1879b440825cfa925a18"
+  }
+}

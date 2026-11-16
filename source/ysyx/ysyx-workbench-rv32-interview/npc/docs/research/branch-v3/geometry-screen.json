@@ -1,0 +1,10349 @@
+[
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6723,
+      "weak_provider": 294,
+      "branches": 10138,
+      "errors": 1682,
+      "provider_tagged": 3415
+    },
+    "learning": [
+      [
+        4096,
+        686
+      ],
+      [
+        8192,
+        1329
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5723,
+      "weak_provider": 359,
+      "branches": 10138,
+      "errors": 1116,
+      "provider_tagged": 4415
+    },
+    "learning": [
+      [
+        4096,
+        503
+      ],
+      [
+        8192,
+        918
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7270,
+      "weak_provider": 218,
+      "branches": 10138,
+      "errors": 803,
+      "provider_tagged": 2868
+    },
+    "learning": [
+      [
+        4096,
+        356
+      ],
+      [
+        8192,
+        651
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7675,
+      "weak_provider": 203,
+      "branches": 10138,
+      "errors": 667,
+      "provider_tagged": 2463
+    },
+    "learning": [
+      [
+        4096,
+        303
+      ],
+      [
+        8192,
+        541
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7643,
+      "weak_provider": 196,
+      "branches": 10138,
+      "errors": 1239,
+      "provider_tagged": 2495
+    },
+    "learning": [
+      [
+        4096,
+        528
+      ],
+      [
+        8192,
+        998
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6215,
+      "weak_provider": 214,
+      "branches": 10138,
+      "errors": 553,
+      "provider_tagged": 3923
+    },
+    "learning": [
+      [
+        4096,
+        276
+      ],
+      [
+        8192,
+        467
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5087,
+      "weak_provider": 235,
+      "branches": 10138,
+      "errors": 485,
+      "provider_tagged": 5051
+    },
+    "learning": [
+      [
+        4096,
+        253
+      ],
+      [
+        8192,
+        414
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7591,
+      "weak_provider": 173,
+      "branches": 10138,
+      "errors": 907,
+      "provider_tagged": 2547
+    },
+    "learning": [
+      [
+        4096,
+        386
+      ],
+      [
+        8192,
+        730
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7167,
+      "weak_provider": 244,
+      "branches": 10138,
+      "errors": 798,
+      "provider_tagged": 2971
+    },
+    "learning": [
+      [
+        4096,
+        361
+      ],
+      [
+        8192,
+        646
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7290,
+      "weak_provider": 219,
+      "branches": 10138,
+      "errors": 803,
+      "provider_tagged": 2848
+    },
+    "learning": [
+      [
+        4096,
+        356
+      ],
+      [
+        8192,
+        651
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7232,
+      "weak_provider": 259,
+      "branches": 10138,
+      "errors": 807,
+      "provider_tagged": 2906
+    },
+    "learning": [
+      [
+        4096,
+        381
+      ],
+      [
+        8192,
+        673
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7643,
+      "weak_provider": 196,
+      "branches": 10138,
+      "errors": 1326,
+      "provider_tagged": 2495,
+      "sc_harmful": 211,
+      "sc_helpful": 124
+    },
+    "learning": [
+      [
+        4096,
+        560
+      ],
+      [
+        8192,
+        1068
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7270,
+      "weak_provider": 218,
+      "branches": 10138,
+      "errors": 827,
+      "provider_tagged": 2868,
+      "sc_harmful": 74,
+      "sc_helpful": 50
+    },
+    "learning": [
+      [
+        4096,
+        359
+      ],
+      [
+        8192,
+        666
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6215,
+      "weak_provider": 214,
+      "branches": 10138,
+      "errors": 592,
+      "provider_tagged": 3923,
+      "sc_helpful": 24,
+      "sc_harmful": 63
+    },
+    "learning": [
+      [
+        4096,
+        284
+      ],
+      [
+        8192,
+        493
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 2093
+    },
+    "learning": [
+      [
+        4096,
+        823
+      ],
+      [
+        8192,
+        1642
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 2801
+    },
+    "learning": [
+      [
+        4096,
+        1105
+      ],
+      [
+        8192,
+        2202
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 1729
+    },
+    "learning": [
+      [
+        4096,
+        689
+      ],
+      [
+        8192,
+        1359
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 1715
+    },
+    "learning": [
+      [
+        4096,
+        691
+      ],
+      [
+        8192,
+        1355
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 1694
+    },
+    "learning": [
+      [
+        4096,
+        692
+      ],
+      [
+        8192,
+        1340
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 1309
+    },
+    "learning": [
+      [
+        4096,
+        535
+      ],
+      [
+        8192,
+        1033
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 1133
+    },
+    "learning": [
+      [
+        4096,
+        479
+      ],
+      [
+        8192,
+        904
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 977
+    },
+    "learning": [
+      [
+        4096,
+        424
+      ],
+      [
+        8192,
+        784
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2411",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10138,
+      "errors": 916
+    },
+    "learning": [
+      [
+        4096,
+        428
+      ],
+      [
+        8192,
+        757
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6821,
+      "weak_provider": 295,
+      "branches": 10218,
+      "errors": 1702,
+      "provider_tagged": 3397
+    },
+    "learning": [
+      [
+        4096,
+        679
+      ],
+      [
+        8192,
+        1327
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5769,
+      "weak_provider": 355,
+      "branches": 10218,
+      "errors": 1100,
+      "provider_tagged": 4449
+    },
+    "learning": [
+      [
+        4096,
+        488
+      ],
+      [
+        8192,
+        887
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7331,
+      "weak_provider": 225,
+      "branches": 10218,
+      "errors": 805,
+      "provider_tagged": 2887
+    },
+    "learning": [
+      [
+        4096,
+        352
+      ],
+      [
+        8192,
+        642
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7658,
+      "weak_provider": 177,
+      "branches": 10218,
+      "errors": 642,
+      "provider_tagged": 2560
+    },
+    "learning": [
+      [
+        4096,
+        295
+      ],
+      [
+        8192,
+        521
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7720,
+      "weak_provider": 196,
+      "branches": 10218,
+      "errors": 1250,
+      "provider_tagged": 2498
+    },
+    "learning": [
+      [
+        4096,
+        524
+      ],
+      [
+        8192,
+        993
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6232,
+      "weak_provider": 247,
+      "branches": 10218,
+      "errors": 576,
+      "provider_tagged": 3986
+    },
+    "learning": [
+      [
+        4096,
+        274
+      ],
+      [
+        8192,
+        477
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5165,
+      "weak_provider": 234,
+      "branches": 10218,
+      "errors": 480,
+      "provider_tagged": 5053
+    },
+    "learning": [
+      [
+        4096,
+        250
+      ],
+      [
+        8192,
+        409
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7682,
+      "weak_provider": 169,
+      "branches": 10218,
+      "errors": 899,
+      "provider_tagged": 2536
+    },
+    "learning": [
+      [
+        4096,
+        376
+      ],
+      [
+        8192,
+        710
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7253,
+      "weak_provider": 248,
+      "branches": 10218,
+      "errors": 791,
+      "provider_tagged": 2965
+    },
+    "learning": [
+      [
+        4096,
+        353
+      ],
+      [
+        8192,
+        633
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7360,
+      "weak_provider": 222,
+      "branches": 10218,
+      "errors": 805,
+      "provider_tagged": 2858
+    },
+    "learning": [
+      [
+        4096,
+        352
+      ],
+      [
+        8192,
+        642
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7299,
+      "weak_provider": 291,
+      "branches": 10218,
+      "errors": 823,
+      "provider_tagged": 2919
+    },
+    "learning": [
+      [
+        4096,
+        389
+      ],
+      [
+        8192,
+        677
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7720,
+      "weak_provider": 196,
+      "branches": 10218,
+      "errors": 1327,
+      "provider_tagged": 2498,
+      "sc_harmful": 207,
+      "sc_helpful": 130
+    },
+    "learning": [
+      [
+        4096,
+        550
+      ],
+      [
+        8192,
+        1054
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7331,
+      "weak_provider": 225,
+      "branches": 10218,
+      "errors": 845,
+      "provider_tagged": 2887,
+      "sc_harmful": 90,
+      "sc_helpful": 50
+    },
+    "learning": [
+      [
+        4096,
+        363
+      ],
+      [
+        8192,
+        670
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6232,
+      "weak_provider": 247,
+      "branches": 10218,
+      "errors": 608,
+      "provider_tagged": 3986,
+      "sc_helpful": 30,
+      "sc_harmful": 62
+    },
+    "learning": [
+      [
+        4096,
+        277
+      ],
+      [
+        8192,
+        498
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 2115
+    },
+    "learning": [
+      [
+        4096,
+        829
+      ],
+      [
+        8192,
+        1652
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 2803
+    },
+    "learning": [
+      [
+        4096,
+        1099
+      ],
+      [
+        8192,
+        2186
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 1728
+    },
+    "learning": [
+      [
+        4096,
+        687
+      ],
+      [
+        8192,
+        1352
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 1728
+    },
+    "learning": [
+      [
+        4096,
+        692
+      ],
+      [
+        8192,
+        1354
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 1697
+    },
+    "learning": [
+      [
+        4096,
+        695
+      ],
+      [
+        8192,
+        1332
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 1301
+    },
+    "learning": [
+      [
+        4096,
+        530
+      ],
+      [
+        8192,
+        1021
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 1119
+    },
+    "learning": [
+      [
+        4096,
+        471
+      ],
+      [
+        8192,
+        890
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 992
+    },
+    "learning": [
+      [
+        4096,
+        423
+      ],
+      [
+        8192,
+        790
+      ]
+    ]
+  },
+  {
+    "case": "ini_config-dev-2418",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 10218,
+      "errors": 852
+    },
+    "learning": [
+      [
+        4096,
+        398
+      ],
+      [
+        8192,
+        698
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5994,
+      "weak_provider": 601,
+      "branches": 14510,
+      "errors": 1363,
+      "provider_tagged": 8516
+    },
+    "learning": [
+      [
+        4096,
+        428
+      ],
+      [
+        8192,
+        807
+      ],
+      [
+        12288,
+        1183
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5968,
+      "weak_provider": 538,
+      "branches": 14510,
+      "errors": 1202,
+      "provider_tagged": 8542
+    },
+    "learning": [
+      [
+        4096,
+        378
+      ],
+      [
+        8192,
+        702
+      ],
+      [
+        12288,
+        1034
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5632,
+      "weak_provider": 618,
+      "branches": 14510,
+      "errors": 1114,
+      "provider_tagged": 8878
+    },
+    "learning": [
+      [
+        4096,
+        346
+      ],
+      [
+        8192,
+        653
+      ],
+      [
+        12288,
+        953
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5834,
+      "weak_provider": 596,
+      "branches": 14510,
+      "errors": 991,
+      "provider_tagged": 8676
+    },
+    "learning": [
+      [
+        4096,
+        289
+      ],
+      [
+        8192,
+        547
+      ],
+      [
+        12288,
+        850
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7057,
+      "weak_provider": 1578,
+      "branches": 14510,
+      "errors": 2499,
+      "provider_tagged": 7453
+    },
+    "learning": [
+      [
+        4096,
+        568
+      ],
+      [
+        8192,
+        1354
+      ],
+      [
+        12288,
+        1992
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 4912,
+      "weak_provider": 620,
+      "branches": 14510,
+      "errors": 1030,
+      "provider_tagged": 9598
+    },
+    "learning": [
+      [
+        4096,
+        322
+      ],
+      [
+        8192,
+        608
+      ],
+      [
+        12288,
+        881
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5162,
+      "weak_provider": 623,
+      "branches": 14510,
+      "errors": 1013,
+      "provider_tagged": 9348
+    },
+    "learning": [
+      [
+        4096,
+        323
+      ],
+      [
+        8192,
+        608
+      ],
+      [
+        12288,
+        857
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5422,
+      "weak_provider": 484,
+      "branches": 14510,
+      "errors": 1181,
+      "provider_tagged": 9088
+    },
+    "learning": [
+      [
+        4096,
+        355
+      ],
+      [
+        8192,
+        686
+      ],
+      [
+        12288,
+        1015
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 4780,
+      "weak_provider": 588,
+      "branches": 14510,
+      "errors": 1084,
+      "provider_tagged": 9730
+    },
+    "learning": [
+      [
+        4096,
+        337
+      ],
+      [
+        8192,
+        628
+      ],
+      [
+        12288,
+        929
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6155,
+      "weak_provider": 527,
+      "branches": 14510,
+      "errors": 1098,
+      "provider_tagged": 8355
+    },
+    "learning": [
+      [
+        4096,
+        337
+      ],
+      [
+        8192,
+        644
+      ],
+      [
+        12288,
+        939
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7788,
+      "weak_provider": 504,
+      "branches": 14510,
+      "errors": 1074,
+      "provider_tagged": 6722
+    },
+    "learning": [
+      [
+        4096,
+        330
+      ],
+      [
+        8192,
+        626
+      ],
+      [
+        12288,
+        916
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7057,
+      "weak_provider": 1578,
+      "branches": 14510,
+      "errors": 1403,
+      "provider_tagged": 7453,
+      "sc_harmful": 279,
+      "sc_helpful": 1383,
+      "loop_harmful": 14,
+      "loop_helpful": 6
+    },
+    "learning": [
+      [
+        4096,
+        398
+      ],
+      [
+        8192,
+        793
+      ],
+      [
+        12288,
+        1198
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5632,
+      "weak_provider": 618,
+      "branches": 14510,
+      "errors": 1148,
+      "provider_tagged": 8878,
+      "sc_harmful": 45,
+      "sc_helpful": 27,
+      "loop_harmful": 16
+    },
+    "learning": [
+      [
+        4096,
+        356
+      ],
+      [
+        8192,
+        674
+      ],
+      [
+        12288,
+        988
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 4912,
+      "weak_provider": 620,
+      "branches": 14510,
+      "errors": 1060,
+      "provider_tagged": 9598,
+      "sc_helpful": 31,
+      "sc_harmful": 45,
+      "loop_harmful": 16
+    },
+    "learning": [
+      [
+        4096,
+        332
+      ],
+      [
+        8192,
+        621
+      ],
+      [
+        12288,
+        913
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 1983
+    },
+    "learning": [
+      [
+        4096,
+        668
+      ],
+      [
+        8192,
+        1167
+      ],
+      [
+        12288,
+        1764
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 2527
+    },
+    "learning": [
+      [
+        4096,
+        761
+      ],
+      [
+        8192,
+        1442
+      ],
+      [
+        12288,
+        2180
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 1397
+    },
+    "learning": [
+      [
+        4096,
+        459
+      ],
+      [
+        8192,
+        813
+      ],
+      [
+        12288,
+        1232
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 1627
+    },
+    "learning": [
+      [
+        4096,
+        525
+      ],
+      [
+        8192,
+        950
+      ],
+      [
+        12288,
+        1421
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 1907
+    },
+    "learning": [
+      [
+        4096,
+        594
+      ],
+      [
+        8192,
+        1133
+      ],
+      [
+        12288,
+        1660
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 1114
+    },
+    "learning": [
+      [
+        4096,
+        359
+      ],
+      [
+        8192,
+        639
+      ],
+      [
+        12288,
+        960
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 1180
+    },
+    "learning": [
+      [
+        4096,
+        372
+      ],
+      [
+        8192,
+        698
+      ],
+      [
+        12288,
+        1019
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 1447
+    },
+    "learning": [
+      [
+        4096,
+        473
+      ],
+      [
+        8192,
+        861
+      ],
+      [
+        12288,
+        1259
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2411",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 14510,
+      "errors": 1606
+    },
+    "learning": [
+      [
+        4096,
+        497
+      ],
+      [
+        8192,
+        946
+      ],
+      [
+        12288,
+        1381
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6237,
+      "weak_provider": 565,
+      "branches": 15936,
+      "errors": 1356,
+      "provider_tagged": 9699
+    },
+    "learning": [
+      [
+        4096,
+        406
+      ],
+      [
+        8192,
+        712
+      ],
+      [
+        12288,
+        1087
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6139,
+      "weak_provider": 509,
+      "branches": 15936,
+      "errors": 1186,
+      "provider_tagged": 9797
+    },
+    "learning": [
+      [
+        4096,
+        353
+      ],
+      [
+        8192,
+        643
+      ],
+      [
+        12288,
+        940
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5832,
+      "weak_provider": 556,
+      "branches": 15936,
+      "errors": 1115,
+      "provider_tagged": 10104
+    },
+    "learning": [
+      [
+        4096,
+        327
+      ],
+      [
+        8192,
+        604
+      ],
+      [
+        12288,
+        878
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6828,
+      "weak_provider": 582,
+      "branches": 15936,
+      "errors": 989,
+      "provider_tagged": 9108
+    },
+    "learning": [
+      [
+        4096,
+        266
+      ],
+      [
+        8192,
+        510
+      ],
+      [
+        12288,
+        779
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7738,
+      "weak_provider": 1329,
+      "branches": 15936,
+      "errors": 3106,
+      "provider_tagged": 8198
+    },
+    "learning": [
+      [
+        4096,
+        609
+      ],
+      [
+        8192,
+        1611
+      ],
+      [
+        12288,
+        2281
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5337,
+      "weak_provider": 656,
+      "branches": 15936,
+      "errors": 1046,
+      "provider_tagged": 10599
+    },
+    "learning": [
+      [
+        4096,
+        305
+      ],
+      [
+        8192,
+        573
+      ],
+      [
+        12288,
+        823
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5035,
+      "weak_provider": 679,
+      "branches": 15936,
+      "errors": 1015,
+      "provider_tagged": 10901
+    },
+    "learning": [
+      [
+        4096,
+        302
+      ],
+      [
+        8192,
+        572
+      ],
+      [
+        12288,
+        797
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5825,
+      "weak_provider": 493,
+      "branches": 15936,
+      "errors": 1168,
+      "provider_tagged": 10111
+    },
+    "learning": [
+      [
+        4096,
+        331
+      ],
+      [
+        8192,
+        612
+      ],
+      [
+        12288,
+        928
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 4728,
+      "weak_provider": 570,
+      "branches": 15936,
+      "errors": 1090,
+      "provider_tagged": 11208
+    },
+    "learning": [
+      [
+        4096,
+        318
+      ],
+      [
+        8192,
+        583
+      ],
+      [
+        12288,
+        859
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 6588,
+      "weak_provider": 543,
+      "branches": 15936,
+      "errors": 1126,
+      "provider_tagged": 9348
+    },
+    "learning": [
+      [
+        4096,
+        319
+      ],
+      [
+        8192,
+        607
+      ],
+      [
+        12288,
+        882
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 8388,
+      "weak_provider": 493,
+      "branches": 15936,
+      "errors": 1117,
+      "provider_tagged": 7548
+    },
+    "learning": [
+      [
+        4096,
+        328
+      ],
+      [
+        8192,
+        598
+      ],
+      [
+        12288,
+        888
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 7738,
+      "weak_provider": 1329,
+      "branches": 15936,
+      "errors": 1441,
+      "provider_tagged": 8198,
+      "sc_harmful": 321,
+      "sc_helpful": 1993,
+      "loop_harmful": 8,
+      "loop_helpful": 1
+    },
+    "learning": [
+      [
+        4096,
+        371
+      ],
+      [
+        8192,
+        736
+      ],
+      [
+        12288,
+        1122
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5832,
+      "weak_provider": 556,
+      "branches": 15936,
+      "errors": 1136,
+      "provider_tagged": 10104,
+      "sc_harmful": 44,
+      "sc_helpful": 30,
+      "loop_harmful": 8,
+      "loop_helpful": 1
+    },
+    "learning": [
+      [
+        4096,
+        332
+      ],
+      [
+        8192,
+        612
+      ],
+      [
+        12288,
+        898
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 5337,
+      "weak_provider": 656,
+      "branches": 15936,
+      "errors": 1082,
+      "provider_tagged": 10599,
+      "sc_helpful": 33,
+      "sc_harmful": 61,
+      "loop_harmful": 8
+    },
+    "learning": [
+      [
+        4096,
+        310
+      ],
+      [
+        8192,
+        587
+      ],
+      [
+        12288,
+        852
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 1967
+    },
+    "learning": [
+      [
+        4096,
+        618
+      ],
+      [
+        8192,
+        1005
+      ],
+      [
+        12288,
+        1615
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 2581
+    },
+    "learning": [
+      [
+        4096,
+        695
+      ],
+      [
+        8192,
+        1320
+      ],
+      [
+        12288,
+        2017
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 1380
+    },
+    "learning": [
+      [
+        4096,
+        434
+      ],
+      [
+        8192,
+        720
+      ],
+      [
+        12288,
+        1130
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 1550
+    },
+    "learning": [
+      [
+        4096,
+        477
+      ],
+      [
+        8192,
+        796
+      ],
+      [
+        12288,
+        1268
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 1896
+    },
+    "learning": [
+      [
+        4096,
+        566
+      ],
+      [
+        8192,
+        979
+      ],
+      [
+        12288,
+        1538
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 1094
+    },
+    "learning": [
+      [
+        4096,
+        329
+      ],
+      [
+        8192,
+        579
+      ],
+      [
+        12288,
+        869
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 1122
+    },
+    "learning": [
+      [
+        4096,
+        338
+      ],
+      [
+        8192,
+        593
+      ],
+      [
+        12288,
+        903
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 1395
+    },
+    "learning": [
+      [
+        4096,
+        443
+      ],
+      [
+        8192,
+        741
+      ],
+      [
+        12288,
+        1142
+      ]
+    ]
+  },
+  {
+    "case": "json_bpe-dev-2418",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 15936,
+      "errors": 1516
+    },
+    "learning": [
+      [
+        4096,
+        455
+      ],
+      [
+        8192,
+        808
+      ],
+      [
+        12288,
+        1214
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 17770,
+      "weak_provider": 2317,
+      "branches": 50898,
+      "errors": 3576,
+      "provider_tagged": 33128
+    },
+    "learning": [
+      [
+        4096,
+        184
+      ],
+      [
+        8192,
+        257
+      ],
+      [
+        12288,
+        312
+      ],
+      [
+        16384,
+        800
+      ],
+      [
+        20480,
+        1349
+      ],
+      [
+        24576,
+        1711
+      ],
+      [
+        28672,
+        1897
+      ],
+      [
+        32768,
+        2067
+      ],
+      [
+        36864,
+        2082
+      ],
+      [
+        40960,
+        2437
+      ],
+      [
+        45056,
+        3017
+      ],
+      [
+        49152,
+        3359
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16376,
+      "weak_provider": 1279,
+      "branches": 50898,
+      "errors": 2676,
+      "provider_tagged": 34522
+    },
+    "learning": [
+      [
+        4096,
+        170
+      ],
+      [
+        8192,
+        237
+      ],
+      [
+        12288,
+        286
+      ],
+      [
+        16384,
+        678
+      ],
+      [
+        20480,
+        1109
+      ],
+      [
+        24576,
+        1320
+      ],
+      [
+        28672,
+        1416
+      ],
+      [
+        32768,
+        1587
+      ],
+      [
+        36864,
+        1600
+      ],
+      [
+        40960,
+        1884
+      ],
+      [
+        45056,
+        2354
+      ],
+      [
+        49152,
+        2651
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16798,
+      "weak_provider": 1295,
+      "branches": 50898,
+      "errors": 2359,
+      "provider_tagged": 34100
+    },
+    "learning": [
+      [
+        4096,
+        152
+      ],
+      [
+        8192,
+        212
+      ],
+      [
+        12288,
+        251
+      ],
+      [
+        16384,
+        567
+      ],
+      [
+        20480,
+        944
+      ],
+      [
+        24576,
+        1163
+      ],
+      [
+        28672,
+        1242
+      ],
+      [
+        32768,
+        1387
+      ],
+      [
+        36864,
+        1397
+      ],
+      [
+        40960,
+        1681
+      ],
+      [
+        45056,
+        2053
+      ],
+      [
+        49152,
+        2334
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18236,
+      "weak_provider": 1317,
+      "branches": 50898,
+      "errors": 2222,
+      "provider_tagged": 32662
+    },
+    "learning": [
+      [
+        4096,
+        146
+      ],
+      [
+        8192,
+        207
+      ],
+      [
+        12288,
+        249
+      ],
+      [
+        16384,
+        544
+      ],
+      [
+        20480,
+        906
+      ],
+      [
+        24576,
+        1125
+      ],
+      [
+        28672,
+        1196
+      ],
+      [
+        32768,
+        1319
+      ],
+      [
+        36864,
+        1328
+      ],
+      [
+        40960,
+        1572
+      ],
+      [
+        45056,
+        1920
+      ],
+      [
+        49152,
+        2196
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18777,
+      "weak_provider": 1222,
+      "branches": 50898,
+      "errors": 2619,
+      "provider_tagged": 32121
+    },
+    "learning": [
+      [
+        4096,
+        157
+      ],
+      [
+        8192,
+        217
+      ],
+      [
+        12288,
+        274
+      ],
+      [
+        16384,
+        638
+      ],
+      [
+        20480,
+        1074
+      ],
+      [
+        24576,
+        1293
+      ],
+      [
+        28672,
+        1371
+      ],
+      [
+        32768,
+        1533
+      ],
+      [
+        36864,
+        1542
+      ],
+      [
+        40960,
+        1848
+      ],
+      [
+        45056,
+        2306
+      ],
+      [
+        49152,
+        2594
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16366,
+      "weak_provider": 1285,
+      "branches": 50898,
+      "errors": 2192,
+      "provider_tagged": 34532
+    },
+    "learning": [
+      [
+        4096,
+        152
+      ],
+      [
+        8192,
+        212
+      ],
+      [
+        12288,
+        268
+      ],
+      [
+        16384,
+        567
+      ],
+      [
+        20480,
+        910
+      ],
+      [
+        24576,
+        1112
+      ],
+      [
+        28672,
+        1189
+      ],
+      [
+        32768,
+        1323
+      ],
+      [
+        36864,
+        1333
+      ],
+      [
+        40960,
+        1580
+      ],
+      [
+        45056,
+        1888
+      ],
+      [
+        49152,
+        2167
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 11551,
+      "weak_provider": 1359,
+      "branches": 50898,
+      "errors": 2054,
+      "provider_tagged": 39347
+    },
+    "learning": [
+      [
+        4096,
+        146
+      ],
+      [
+        8192,
+        207
+      ],
+      [
+        12288,
+        258
+      ],
+      [
+        16384,
+        527
+      ],
+      [
+        20480,
+        844
+      ],
+      [
+        24576,
+        1060
+      ],
+      [
+        28672,
+        1141
+      ],
+      [
+        32768,
+        1272
+      ],
+      [
+        36864,
+        1281
+      ],
+      [
+        40960,
+        1489
+      ],
+      [
+        45056,
+        1763
+      ],
+      [
+        49152,
+        2029
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 15863,
+      "weak_provider": 2078,
+      "branches": 50898,
+      "errors": 2975,
+      "provider_tagged": 35035
+    },
+    "learning": [
+      [
+        4096,
+        158
+      ],
+      [
+        8192,
+        220
+      ],
+      [
+        12288,
+        268
+      ],
+      [
+        16384,
+        621
+      ],
+      [
+        20480,
+        1019
+      ],
+      [
+        24576,
+        1374
+      ],
+      [
+        28672,
+        1547
+      ],
+      [
+        32768,
+        1700
+      ],
+      [
+        36864,
+        1709
+      ],
+      [
+        40960,
+        2000
+      ],
+      [
+        45056,
+        2418
+      ],
+      [
+        49152,
+        2758
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 15312,
+      "weak_provider": 1412,
+      "branches": 50898,
+      "errors": 2433,
+      "provider_tagged": 35586
+    },
+    "learning": [
+      [
+        4096,
+        157
+      ],
+      [
+        8192,
+        222
+      ],
+      [
+        12288,
+        264
+      ],
+      [
+        16384,
+        579
+      ],
+      [
+        20480,
+        959
+      ],
+      [
+        24576,
+        1166
+      ],
+      [
+        28672,
+        1245
+      ],
+      [
+        32768,
+        1401
+      ],
+      [
+        36864,
+        1411
+      ],
+      [
+        40960,
+        1672
+      ],
+      [
+        45056,
+        2137
+      ],
+      [
+        49152,
+        2408
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18498,
+      "weak_provider": 1303,
+      "branches": 50898,
+      "errors": 2367,
+      "provider_tagged": 32400
+    },
+    "learning": [
+      [
+        4096,
+        152
+      ],
+      [
+        8192,
+        212
+      ],
+      [
+        12288,
+        251
+      ],
+      [
+        16384,
+        574
+      ],
+      [
+        20480,
+        953
+      ],
+      [
+        24576,
+        1161
+      ],
+      [
+        28672,
+        1237
+      ],
+      [
+        32768,
+        1400
+      ],
+      [
+        36864,
+        1409
+      ],
+      [
+        40960,
+        1664
+      ],
+      [
+        45056,
+        2061
+      ],
+      [
+        49152,
+        2342
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21894,
+      "weak_provider": 996,
+      "branches": 50898,
+      "errors": 2770,
+      "provider_tagged": 29004
+    },
+    "learning": [
+      [
+        4096,
+        178
+      ],
+      [
+        8192,
+        247
+      ],
+      [
+        12288,
+        318
+      ],
+      [
+        16384,
+        690
+      ],
+      [
+        20480,
+        1088
+      ],
+      [
+        24576,
+        1368
+      ],
+      [
+        28672,
+        1466
+      ],
+      [
+        32768,
+        1718
+      ],
+      [
+        36864,
+        1728
+      ],
+      [
+        40960,
+        2044
+      ],
+      [
+        45056,
+        2437
+      ],
+      [
+        49152,
+        2745
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18777,
+      "weak_provider": 1222,
+      "branches": 50898,
+      "errors": 2738,
+      "loop_helpful": 63,
+      "provider_tagged": 32121,
+      "sc_helpful": 217,
+      "sc_harmful": 399
+    },
+    "learning": [
+      [
+        4096,
+        160
+      ],
+      [
+        8192,
+        222
+      ],
+      [
+        12288,
+        280
+      ],
+      [
+        16384,
+        721
+      ],
+      [
+        20480,
+        1178
+      ],
+      [
+        24576,
+        1377
+      ],
+      [
+        28672,
+        1443
+      ],
+      [
+        32768,
+        1607
+      ],
+      [
+        36864,
+        1617
+      ],
+      [
+        40960,
+        1980
+      ],
+      [
+        45056,
+        2462
+      ],
+      [
+        49152,
+        2736
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16798,
+      "weak_provider": 1295,
+      "branches": 50898,
+      "errors": 2349,
+      "loop_helpful": 57,
+      "provider_tagged": 34100,
+      "sc_harmful": 214,
+      "sc_helpful": 167
+    },
+    "learning": [
+      [
+        4096,
+        151
+      ],
+      [
+        8192,
+        209
+      ],
+      [
+        12288,
+        250
+      ],
+      [
+        16384,
+        588
+      ],
+      [
+        20480,
+        968
+      ],
+      [
+        24576,
+        1162
+      ],
+      [
+        28672,
+        1233
+      ],
+      [
+        32768,
+        1369
+      ],
+      [
+        36864,
+        1379
+      ],
+      [
+        40960,
+        1678
+      ],
+      [
+        45056,
+        2076
+      ],
+      [
+        49152,
+        2348
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16366,
+      "weak_provider": 1285,
+      "branches": 50898,
+      "errors": 2206,
+      "loop_helpful": 57,
+      "provider_tagged": 34532,
+      "sc_helpful": 126,
+      "sc_harmful": 197
+    },
+    "learning": [
+      [
+        4096,
+        148
+      ],
+      [
+        8192,
+        205
+      ],
+      [
+        12288,
+        260
+      ],
+      [
+        16384,
+        574
+      ],
+      [
+        20480,
+        930
+      ],
+      [
+        24576,
+        1111
+      ],
+      [
+        28672,
+        1180
+      ],
+      [
+        32768,
+        1318
+      ],
+      [
+        36864,
+        1329
+      ],
+      [
+        40960,
+        1599
+      ],
+      [
+        45056,
+        1939
+      ],
+      [
+        49152,
+        2205
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 5341
+    },
+    "learning": [
+      [
+        4096,
+        211
+      ],
+      [
+        8192,
+        312
+      ],
+      [
+        12288,
+        435
+      ],
+      [
+        16384,
+        1351
+      ],
+      [
+        20480,
+        2119
+      ],
+      [
+        24576,
+        2561
+      ],
+      [
+        28672,
+        2753
+      ],
+      [
+        32768,
+        2973
+      ],
+      [
+        36864,
+        2986
+      ],
+      [
+        40960,
+        3714
+      ],
+      [
+        45056,
+        4674
+      ],
+      [
+        49152,
+        5123
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 5467
+    },
+    "learning": [
+      [
+        4096,
+        238
+      ],
+      [
+        8192,
+        354
+      ],
+      [
+        12288,
+        471
+      ],
+      [
+        16384,
+        1387
+      ],
+      [
+        20480,
+        2189
+      ],
+      [
+        24576,
+        2628
+      ],
+      [
+        28672,
+        2823
+      ],
+      [
+        32768,
+        3067
+      ],
+      [
+        36864,
+        3088
+      ],
+      [
+        40960,
+        3771
+      ],
+      [
+        45056,
+        4800
+      ],
+      [
+        49152,
+        5249
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 4720
+    },
+    "learning": [
+      [
+        4096,
+        320
+      ],
+      [
+        8192,
+        482
+      ],
+      [
+        12288,
+        598
+      ],
+      [
+        16384,
+        1285
+      ],
+      [
+        20480,
+        1868
+      ],
+      [
+        24576,
+        2261
+      ],
+      [
+        28672,
+        2441
+      ],
+      [
+        32768,
+        2831
+      ],
+      [
+        36864,
+        2840
+      ],
+      [
+        40960,
+        3443
+      ],
+      [
+        45056,
+        4114
+      ],
+      [
+        49152,
+        4502
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 4486
+    },
+    "learning": [
+      [
+        4096,
+        208
+      ],
+      [
+        8192,
+        307
+      ],
+      [
+        12288,
+        412
+      ],
+      [
+        16384,
+        1104
+      ],
+      [
+        20480,
+        1718
+      ],
+      [
+        24576,
+        2140
+      ],
+      [
+        28672,
+        2330
+      ],
+      [
+        32768,
+        2539
+      ],
+      [
+        36864,
+        2553
+      ],
+      [
+        40960,
+        3134
+      ],
+      [
+        45056,
+        3846
+      ],
+      [
+        49152,
+        4269
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 4526
+    },
+    "learning": [
+      [
+        4096,
+        243
+      ],
+      [
+        8192,
+        365
+      ],
+      [
+        12288,
+        455
+      ],
+      [
+        16384,
+        1143
+      ],
+      [
+        20480,
+        1789
+      ],
+      [
+        24576,
+        2163
+      ],
+      [
+        28672,
+        2371
+      ],
+      [
+        32768,
+        2604
+      ],
+      [
+        36864,
+        2628
+      ],
+      [
+        40960,
+        3141
+      ],
+      [
+        45056,
+        3959
+      ],
+      [
+        49152,
+        4308
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 3875
+    },
+    "learning": [
+      [
+        4096,
+        165
+      ],
+      [
+        8192,
+        241
+      ],
+      [
+        12288,
+        336
+      ],
+      [
+        16384,
+        946
+      ],
+      [
+        20480,
+        1459
+      ],
+      [
+        24576,
+        1855
+      ],
+      [
+        28672,
+        2024
+      ],
+      [
+        32768,
+        2178
+      ],
+      [
+        36864,
+        2189
+      ],
+      [
+        40960,
+        2718
+      ],
+      [
+        45056,
+        3270
+      ],
+      [
+        49152,
+        3657
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 3744
+    },
+    "learning": [
+      [
+        4096,
+        234
+      ],
+      [
+        8192,
+        331
+      ],
+      [
+        12288,
+        408
+      ],
+      [
+        16384,
+        913
+      ],
+      [
+        20480,
+        1408
+      ],
+      [
+        24576,
+        1807
+      ],
+      [
+        28672,
+        1979
+      ],
+      [
+        32768,
+        2194
+      ],
+      [
+        36864,
+        2205
+      ],
+      [
+        40960,
+        2636
+      ],
+      [
+        45056,
+        3132
+      ],
+      [
+        49152,
+        3526
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 3805
+    },
+    "learning": [
+      [
+        4096,
+        240
+      ],
+      [
+        8192,
+        339
+      ],
+      [
+        12288,
+        426
+      ],
+      [
+        16384,
+        955
+      ],
+      [
+        20480,
+        1458
+      ],
+      [
+        24576,
+        1846
+      ],
+      [
+        28672,
+        2042
+      ],
+      [
+        32768,
+        2235
+      ],
+      [
+        36864,
+        2253
+      ],
+      [
+        40960,
+        2691
+      ],
+      [
+        45056,
+        3230
+      ],
+      [
+        49152,
+        3587
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2411",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50898,
+      "errors": 3063
+    },
+    "learning": [
+      [
+        4096,
+        274
+      ],
+      [
+        8192,
+        380
+      ],
+      [
+        12288,
+        448
+      ],
+      [
+        16384,
+        869
+      ],
+      [
+        20480,
+        1346
+      ],
+      [
+        24576,
+        1571
+      ],
+      [
+        28672,
+        1677
+      ],
+      [
+        32768,
+        1884
+      ],
+      [
+        36864,
+        1911
+      ],
+      [
+        40960,
+        2234
+      ],
+      [
+        45056,
+        2739
+      ],
+      [
+        49152,
+        3037
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21122,
+      "weak_provider": 2351,
+      "branches": 50972,
+      "errors": 3643,
+      "provider_tagged": 29850
+    },
+    "learning": [
+      [
+        4096,
+        196
+      ],
+      [
+        8192,
+        281
+      ],
+      [
+        12288,
+        343
+      ],
+      [
+        16384,
+        818
+      ],
+      [
+        20480,
+        1336
+      ],
+      [
+        24576,
+        1700
+      ],
+      [
+        28672,
+        1890
+      ],
+      [
+        32768,
+        2082
+      ],
+      [
+        36864,
+        2094
+      ],
+      [
+        40960,
+        2434
+      ],
+      [
+        45056,
+        3071
+      ],
+      [
+        49152,
+        3417
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 17617,
+      "weak_provider": 1342,
+      "branches": 50972,
+      "errors": 2663,
+      "provider_tagged": 33355
+    },
+    "learning": [
+      [
+        4096,
+        189
+      ],
+      [
+        8192,
+        267
+      ],
+      [
+        12288,
+        319
+      ],
+      [
+        16384,
+        727
+      ],
+      [
+        20480,
+        1111
+      ],
+      [
+        24576,
+        1319
+      ],
+      [
+        28672,
+        1411
+      ],
+      [
+        32768,
+        1594
+      ],
+      [
+        36864,
+        1605
+      ],
+      [
+        40960,
+        1909
+      ],
+      [
+        45056,
+        2330
+      ],
+      [
+        49152,
+        2637
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18514,
+      "weak_provider": 1372,
+      "branches": 50972,
+      "errors": 2426,
+      "provider_tagged": 32458
+    },
+    "learning": [
+      [
+        4096,
+        172
+      ],
+      [
+        8192,
+        238
+      ],
+      [
+        12288,
+        281
+      ],
+      [
+        16384,
+        624
+      ],
+      [
+        20480,
+        1014
+      ],
+      [
+        24576,
+        1216
+      ],
+      [
+        28672,
+        1293
+      ],
+      [
+        32768,
+        1449
+      ],
+      [
+        36864,
+        1458
+      ],
+      [
+        40960,
+        1705
+      ],
+      [
+        45056,
+        2109
+      ],
+      [
+        49152,
+        2399
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 19736,
+      "weak_provider": 1376,
+      "branches": 50972,
+      "errors": 2303,
+      "provider_tagged": 31236
+    },
+    "learning": [
+      [
+        4096,
+        166
+      ],
+      [
+        8192,
+        235
+      ],
+      [
+        12288,
+        278
+      ],
+      [
+        16384,
+        605
+      ],
+      [
+        20480,
+        956
+      ],
+      [
+        24576,
+        1168
+      ],
+      [
+        28672,
+        1239
+      ],
+      [
+        32768,
+        1381
+      ],
+      [
+        36864,
+        1389
+      ],
+      [
+        40960,
+        1657
+      ],
+      [
+        45056,
+        1992
+      ],
+      [
+        49152,
+        2276
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 20988,
+      "weak_provider": 1259,
+      "branches": 50972,
+      "errors": 2881,
+      "provider_tagged": 29984
+    },
+    "learning": [
+      [
+        4096,
+        172
+      ],
+      [
+        8192,
+        237
+      ],
+      [
+        12288,
+        307
+      ],
+      [
+        16384,
+        714
+      ],
+      [
+        20480,
+        1190
+      ],
+      [
+        24576,
+        1387
+      ],
+      [
+        28672,
+        1466
+      ],
+      [
+        32768,
+        1653
+      ],
+      [
+        36864,
+        1662
+      ],
+      [
+        40960,
+        1982
+      ],
+      [
+        45056,
+        2563
+      ],
+      [
+        49152,
+        2854
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16661,
+      "weak_provider": 1297,
+      "branches": 50972,
+      "errors": 2213,
+      "provider_tagged": 34311
+    },
+    "learning": [
+      [
+        4096,
+        166
+      ],
+      [
+        8192,
+        231
+      ],
+      [
+        12288,
+        282
+      ],
+      [
+        16384,
+        571
+      ],
+      [
+        20480,
+        894
+      ],
+      [
+        24576,
+        1102
+      ],
+      [
+        28672,
+        1179
+      ],
+      [
+        32768,
+        1326
+      ],
+      [
+        36864,
+        1336
+      ],
+      [
+        40960,
+        1575
+      ],
+      [
+        45056,
+        1896
+      ],
+      [
+        49152,
+        2186
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 12742,
+      "weak_provider": 1385,
+      "branches": 50972,
+      "errors": 2091,
+      "provider_tagged": 38230
+    },
+    "learning": [
+      [
+        4096,
+        164
+      ],
+      [
+        8192,
+        237
+      ],
+      [
+        12288,
+        284
+      ],
+      [
+        16384,
+        562
+      ],
+      [
+        20480,
+        885
+      ],
+      [
+        24576,
+        1088
+      ],
+      [
+        28672,
+        1161
+      ],
+      [
+        32768,
+        1308
+      ],
+      [
+        36864,
+        1318
+      ],
+      [
+        40960,
+        1519
+      ],
+      [
+        45056,
+        1809
+      ],
+      [
+        49152,
+        2064
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16475,
+      "weak_provider": 2292,
+      "branches": 50972,
+      "errors": 3050,
+      "provider_tagged": 34497
+    },
+    "learning": [
+      [
+        4096,
+        180
+      ],
+      [
+        8192,
+        250
+      ],
+      [
+        12288,
+        295
+      ],
+      [
+        16384,
+        670
+      ],
+      [
+        20480,
+        1065
+      ],
+      [
+        24576,
+        1410
+      ],
+      [
+        28672,
+        1588
+      ],
+      [
+        32768,
+        1764
+      ],
+      [
+        36864,
+        1773
+      ],
+      [
+        40960,
+        2051
+      ],
+      [
+        45056,
+        2497
+      ],
+      [
+        49152,
+        2823
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18161,
+      "weak_provider": 1405,
+      "branches": 50972,
+      "errors": 2520,
+      "provider_tagged": 32811
+    },
+    "learning": [
+      [
+        4096,
+        178
+      ],
+      [
+        8192,
+        246
+      ],
+      [
+        12288,
+        291
+      ],
+      [
+        16384,
+        626
+      ],
+      [
+        20480,
+        1000
+      ],
+      [
+        24576,
+        1206
+      ],
+      [
+        28672,
+        1284
+      ],
+      [
+        32768,
+        1506
+      ],
+      [
+        36864,
+        1515
+      ],
+      [
+        40960,
+        1803
+      ],
+      [
+        45056,
+        2212
+      ],
+      [
+        49152,
+        2493
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18369,
+      "weak_provider": 1213,
+      "branches": 50972,
+      "errors": 2494,
+      "provider_tagged": 32603
+    },
+    "learning": [
+      [
+        4096,
+        168
+      ],
+      [
+        8192,
+        240
+      ],
+      [
+        12288,
+        284
+      ],
+      [
+        16384,
+        619
+      ],
+      [
+        20480,
+        989
+      ],
+      [
+        24576,
+        1212
+      ],
+      [
+        28672,
+        1293
+      ],
+      [
+        32768,
+        1511
+      ],
+      [
+        36864,
+        1520
+      ],
+      [
+        40960,
+        1788
+      ],
+      [
+        45056,
+        2185
+      ],
+      [
+        49152,
+        2467
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 23690,
+      "weak_provider": 1004,
+      "branches": 50972,
+      "errors": 2699,
+      "provider_tagged": 27282
+    },
+    "learning": [
+      [
+        4096,
+        204
+      ],
+      [
+        8192,
+        287
+      ],
+      [
+        12288,
+        359
+      ],
+      [
+        16384,
+        751
+      ],
+      [
+        20480,
+        1101
+      ],
+      [
+        24576,
+        1331
+      ],
+      [
+        28672,
+        1410
+      ],
+      [
+        32768,
+        1668
+      ],
+      [
+        36864,
+        1677
+      ],
+      [
+        40960,
+        2013
+      ],
+      [
+        45056,
+        2373
+      ],
+      [
+        49152,
+        2672
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 20988,
+      "weak_provider": 1259,
+      "branches": 50972,
+      "errors": 3059,
+      "loop_helpful": 64,
+      "provider_tagged": 29984,
+      "sc_helpful": 229,
+      "sc_harmful": 471
+    },
+    "learning": [
+      [
+        4096,
+        177
+      ],
+      [
+        8192,
+        245
+      ],
+      [
+        12288,
+        316
+      ],
+      [
+        16384,
+        800
+      ],
+      [
+        20480,
+        1321
+      ],
+      [
+        24576,
+        1504
+      ],
+      [
+        28672,
+        1571
+      ],
+      [
+        32768,
+        1755
+      ],
+      [
+        36864,
+        1766
+      ],
+      [
+        40960,
+        2138
+      ],
+      [
+        45056,
+        2779
+      ],
+      [
+        49152,
+        3057
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18514,
+      "weak_provider": 1372,
+      "branches": 50972,
+      "errors": 2441,
+      "loop_helpful": 62,
+      "provider_tagged": 32458,
+      "sc_harmful": 248,
+      "sc_helpful": 171
+    },
+    "learning": [
+      [
+        4096,
+        173
+      ],
+      [
+        8192,
+        231
+      ],
+      [
+        12288,
+        276
+      ],
+      [
+        16384,
+        647
+      ],
+      [
+        20480,
+        1055
+      ],
+      [
+        24576,
+        1237
+      ],
+      [
+        28672,
+        1303
+      ],
+      [
+        32768,
+        1447
+      ],
+      [
+        36864,
+        1457
+      ],
+      [
+        40960,
+        1741
+      ],
+      [
+        45056,
+        2164
+      ],
+      [
+        49152,
+        2439
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16661,
+      "weak_provider": 1297,
+      "branches": 50972,
+      "errors": 2239,
+      "loop_helpful": 58,
+      "provider_tagged": 34311,
+      "sc_helpful": 119,
+      "sc_harmful": 203
+    },
+    "learning": [
+      [
+        4096,
+        163
+      ],
+      [
+        8192,
+        225
+      ],
+      [
+        12288,
+        275
+      ],
+      [
+        16384,
+        586
+      ],
+      [
+        20480,
+        926
+      ],
+      [
+        24576,
+        1116
+      ],
+      [
+        28672,
+        1181
+      ],
+      [
+        32768,
+        1334
+      ],
+      [
+        36864,
+        1346
+      ],
+      [
+        40960,
+        1594
+      ],
+      [
+        45056,
+        1956
+      ],
+      [
+        49152,
+        2237
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 5437
+    },
+    "learning": [
+      [
+        4096,
+        245
+      ],
+      [
+        8192,
+        361
+      ],
+      [
+        12288,
+        480
+      ],
+      [
+        16384,
+        1400
+      ],
+      [
+        20480,
+        2168
+      ],
+      [
+        24576,
+        2606
+      ],
+      [
+        28672,
+        2800
+      ],
+      [
+        32768,
+        3069
+      ],
+      [
+        36864,
+        3081
+      ],
+      [
+        40960,
+        3796
+      ],
+      [
+        45056,
+        4766
+      ],
+      [
+        49152,
+        5211
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 5511
+    },
+    "learning": [
+      [
+        4096,
+        236
+      ],
+      [
+        8192,
+        359
+      ],
+      [
+        12288,
+        466
+      ],
+      [
+        16384,
+        1386
+      ],
+      [
+        20480,
+        2209
+      ],
+      [
+        24576,
+        2645
+      ],
+      [
+        28672,
+        2845
+      ],
+      [
+        32768,
+        3094
+      ],
+      [
+        36864,
+        3114
+      ],
+      [
+        40960,
+        3799
+      ],
+      [
+        45056,
+        4836
+      ],
+      [
+        49152,
+        5284
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 4680
+    },
+    "learning": [
+      [
+        4096,
+        308
+      ],
+      [
+        8192,
+        460
+      ],
+      [
+        12288,
+        575
+      ],
+      [
+        16384,
+        1278
+      ],
+      [
+        20480,
+        1852
+      ],
+      [
+        24576,
+        2241
+      ],
+      [
+        28672,
+        2419
+      ],
+      [
+        32768,
+        2787
+      ],
+      [
+        36864,
+        2796
+      ],
+      [
+        40960,
+        3400
+      ],
+      [
+        45056,
+        4068
+      ],
+      [
+        49152,
+        4453
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 4524
+    },
+    "learning": [
+      [
+        4096,
+        245
+      ],
+      [
+        8192,
+        349
+      ],
+      [
+        12288,
+        448
+      ],
+      [
+        16384,
+        1132
+      ],
+      [
+        20480,
+        1743
+      ],
+      [
+        24576,
+        2154
+      ],
+      [
+        28672,
+        2351
+      ],
+      [
+        32768,
+        2603
+      ],
+      [
+        36864,
+        2615
+      ],
+      [
+        40960,
+        3174
+      ],
+      [
+        45056,
+        3887
+      ],
+      [
+        49152,
+        4298
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 4670
+    },
+    "learning": [
+      [
+        4096,
+        257
+      ],
+      [
+        8192,
+        378
+      ],
+      [
+        12288,
+        469
+      ],
+      [
+        16384,
+        1196
+      ],
+      [
+        20480,
+        1856
+      ],
+      [
+        24576,
+        2232
+      ],
+      [
+        28672,
+        2439
+      ],
+      [
+        32768,
+        2686
+      ],
+      [
+        36864,
+        2708
+      ],
+      [
+        40960,
+        3222
+      ],
+      [
+        45056,
+        4090
+      ],
+      [
+        49152,
+        4443
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 3938
+    },
+    "learning": [
+      [
+        4096,
+        194
+      ],
+      [
+        8192,
+        280
+      ],
+      [
+        12288,
+        377
+      ],
+      [
+        16384,
+        991
+      ],
+      [
+        20480,
+        1498
+      ],
+      [
+        24576,
+        1887
+      ],
+      [
+        28672,
+        2058
+      ],
+      [
+        32768,
+        2247
+      ],
+      [
+        36864,
+        2258
+      ],
+      [
+        40960,
+        2781
+      ],
+      [
+        45056,
+        3330
+      ],
+      [
+        49152,
+        3711
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 3810
+    },
+    "learning": [
+      [
+        4096,
+        264
+      ],
+      [
+        8192,
+        371
+      ],
+      [
+        12288,
+        448
+      ],
+      [
+        16384,
+        958
+      ],
+      [
+        20480,
+        1446
+      ],
+      [
+        24576,
+        1843
+      ],
+      [
+        28672,
+        2017
+      ],
+      [
+        32768,
+        2267
+      ],
+      [
+        36864,
+        2278
+      ],
+      [
+        40960,
+        2694
+      ],
+      [
+        45056,
+        3190
+      ],
+      [
+        49152,
+        3583
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 3787
+    },
+    "learning": [
+      [
+        4096,
+        255
+      ],
+      [
+        8192,
+        354
+      ],
+      [
+        12288,
+        438
+      ],
+      [
+        16384,
+        972
+      ],
+      [
+        20480,
+        1451
+      ],
+      [
+        24576,
+        1831
+      ],
+      [
+        28672,
+        2034
+      ],
+      [
+        32768,
+        2246
+      ],
+      [
+        36864,
+        2263
+      ],
+      [
+        40960,
+        2684
+      ],
+      [
+        45056,
+        3207
+      ],
+      [
+        49152,
+        3560
+      ]
+    ]
+  },
+  {
+    "case": "quant_loader-dev-2418",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 50972,
+      "errors": 3086
+    },
+    "learning": [
+      [
+        4096,
+        279
+      ],
+      [
+        8192,
+        394
+      ],
+      [
+        12288,
+        461
+      ],
+      [
+        16384,
+        904
+      ],
+      [
+        20480,
+        1365
+      ],
+      [
+        24576,
+        1587
+      ],
+      [
+        28672,
+        1688
+      ],
+      [
+        32768,
+        1912
+      ],
+      [
+        36864,
+        1939
+      ],
+      [
+        40960,
+        2265
+      ],
+      [
+        45056,
+        2767
+      ],
+      [
+        49152,
+        3059
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 29972,
+      "weak_provider": 1414,
+      "branches": 38116,
+      "errors": 5423,
+      "provider_tagged": 8144
+    },
+    "learning": [
+      [
+        4096,
+        587
+      ],
+      [
+        8192,
+        1164
+      ],
+      [
+        12288,
+        1775
+      ],
+      [
+        16384,
+        2340
+      ],
+      [
+        20480,
+        2882
+      ],
+      [
+        24576,
+        3502
+      ],
+      [
+        28672,
+        4063
+      ],
+      [
+        32768,
+        4679
+      ],
+      [
+        36864,
+        5243
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 26704,
+      "weak_provider": 990,
+      "branches": 38116,
+      "errors": 2789,
+      "provider_tagged": 11412
+    },
+    "learning": [
+      [
+        4096,
+        373
+      ],
+      [
+        8192,
+        665
+      ],
+      [
+        12288,
+        975
+      ],
+      [
+        16384,
+        1257
+      ],
+      [
+        20480,
+        1534
+      ],
+      [
+        24576,
+        1823
+      ],
+      [
+        28672,
+        2104
+      ],
+      [
+        32768,
+        2403
+      ],
+      [
+        36864,
+        2693
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 26015,
+      "weak_provider": 881,
+      "branches": 38116,
+      "errors": 2779,
+      "provider_tagged": 12101
+    },
+    "learning": [
+      [
+        4096,
+        376
+      ],
+      [
+        8192,
+        670
+      ],
+      [
+        12288,
+        977
+      ],
+      [
+        16384,
+        1245
+      ],
+      [
+        20480,
+        1515
+      ],
+      [
+        24576,
+        1833
+      ],
+      [
+        28672,
+        2119
+      ],
+      [
+        32768,
+        2408
+      ],
+      [
+        36864,
+        2687
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 28360,
+      "weak_provider": 832,
+      "branches": 38116,
+      "errors": 1692,
+      "provider_tagged": 9756
+    },
+    "learning": [
+      [
+        4096,
+        236
+      ],
+      [
+        8192,
+        408
+      ],
+      [
+        12288,
+        595
+      ],
+      [
+        16384,
+        785
+      ],
+      [
+        20480,
+        963
+      ],
+      [
+        24576,
+        1128
+      ],
+      [
+        28672,
+        1290
+      ],
+      [
+        32768,
+        1460
+      ],
+      [
+        36864,
+        1634
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 29205,
+      "weak_provider": 718,
+      "branches": 38116,
+      "errors": 4434,
+      "provider_tagged": 8911
+    },
+    "learning": [
+      [
+        4096,
+        553
+      ],
+      [
+        8192,
+        1040
+      ],
+      [
+        12288,
+        1539
+      ],
+      [
+        16384,
+        1963
+      ],
+      [
+        20480,
+        2385
+      ],
+      [
+        24576,
+        2910
+      ],
+      [
+        28672,
+        3368
+      ],
+      [
+        32768,
+        3841
+      ],
+      [
+        36864,
+        4286
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 20577,
+      "weak_provider": 843,
+      "branches": 38116,
+      "errors": 1932,
+      "provider_tagged": 17539
+    },
+    "learning": [
+      [
+        4096,
+        330
+      ],
+      [
+        8192,
+        560
+      ],
+      [
+        12288,
+        751
+      ],
+      [
+        16384,
+        953
+      ],
+      [
+        20480,
+        1145
+      ],
+      [
+        24576,
+        1322
+      ],
+      [
+        28672,
+        1501
+      ],
+      [
+        32768,
+        1678
+      ],
+      [
+        36864,
+        1869
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 20520,
+      "weak_provider": 521,
+      "branches": 38116,
+      "errors": 1840,
+      "provider_tagged": 17596
+    },
+    "learning": [
+      [
+        4096,
+        277
+      ],
+      [
+        8192,
+        496
+      ],
+      [
+        12288,
+        706
+      ],
+      [
+        16384,
+        884
+      ],
+      [
+        20480,
+        1070
+      ],
+      [
+        24576,
+        1259
+      ],
+      [
+        28672,
+        1426
+      ],
+      [
+        32768,
+        1606
+      ],
+      [
+        36864,
+        1777
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 27156,
+      "weak_provider": 869,
+      "branches": 38116,
+      "errors": 3520,
+      "provider_tagged": 10960
+    },
+    "learning": [
+      [
+        4096,
+        423
+      ],
+      [
+        8192,
+        788
+      ],
+      [
+        12288,
+        1198
+      ],
+      [
+        16384,
+        1545
+      ],
+      [
+        20480,
+        1892
+      ],
+      [
+        24576,
+        2277
+      ],
+      [
+        28672,
+        2651
+      ],
+      [
+        32768,
+        3040
+      ],
+      [
+        36864,
+        3398
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 25123,
+      "weak_provider": 1076,
+      "branches": 38116,
+      "errors": 3234,
+      "provider_tagged": 12993
+    },
+    "learning": [
+      [
+        4096,
+        417
+      ],
+      [
+        8192,
+        775
+      ],
+      [
+        12288,
+        1151
+      ],
+      [
+        16384,
+        1475
+      ],
+      [
+        20480,
+        1797
+      ],
+      [
+        24576,
+        2139
+      ],
+      [
+        28672,
+        2461
+      ],
+      [
+        32768,
+        2799
+      ],
+      [
+        36864,
+        3130
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 26098,
+      "weak_provider": 889,
+      "branches": 38116,
+      "errors": 2784,
+      "provider_tagged": 12018
+    },
+    "learning": [
+      [
+        4096,
+        376
+      ],
+      [
+        8192,
+        673
+      ],
+      [
+        12288,
+        980
+      ],
+      [
+        16384,
+        1248
+      ],
+      [
+        20480,
+        1517
+      ],
+      [
+        24576,
+        1832
+      ],
+      [
+        28672,
+        2115
+      ],
+      [
+        32768,
+        2415
+      ],
+      [
+        36864,
+        2692
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 27528,
+      "weak_provider": 1032,
+      "branches": 38116,
+      "errors": 3306,
+      "provider_tagged": 10588
+    },
+    "learning": [
+      [
+        4096,
+        390
+      ],
+      [
+        8192,
+        751
+      ],
+      [
+        12288,
+        1154
+      ],
+      [
+        16384,
+        1488
+      ],
+      [
+        20480,
+        1827
+      ],
+      [
+        24576,
+        2192
+      ],
+      [
+        28672,
+        2517
+      ],
+      [
+        32768,
+        2872
+      ],
+      [
+        36864,
+        3182
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 29205,
+      "weak_provider": 718,
+      "branches": 38116,
+      "errors": 4620,
+      "provider_tagged": 8911,
+      "sc_helpful": 160,
+      "sc_harmful": 346
+    },
+    "learning": [
+      [
+        4096,
+        575
+      ],
+      [
+        8192,
+        1083
+      ],
+      [
+        12288,
+        1597
+      ],
+      [
+        16384,
+        2047
+      ],
+      [
+        20480,
+        2488
+      ],
+      [
+        24576,
+        3030
+      ],
+      [
+        28672,
+        3508
+      ],
+      [
+        32768,
+        4002
+      ],
+      [
+        36864,
+        4469
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 26015,
+      "weak_provider": 881,
+      "branches": 38116,
+      "errors": 3061,
+      "provider_tagged": 12101,
+      "sc_harmful": 591,
+      "sc_helpful": 309
+    },
+    "learning": [
+      [
+        4096,
+        390
+      ],
+      [
+        8192,
+        712
+      ],
+      [
+        12288,
+        1046
+      ],
+      [
+        16384,
+        1348
+      ],
+      [
+        20480,
+        1651
+      ],
+      [
+        24576,
+        2007
+      ],
+      [
+        28672,
+        2328
+      ],
+      [
+        32768,
+        2644
+      ],
+      [
+        36864,
+        2953
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 20577,
+      "weak_provider": 843,
+      "branches": 38116,
+      "errors": 2139,
+      "provider_tagged": 17539,
+      "sc_helpful": 55,
+      "sc_harmful": 262
+    },
+    "learning": [
+      [
+        4096,
+        337
+      ],
+      [
+        8192,
+        592
+      ],
+      [
+        12288,
+        809
+      ],
+      [
+        16384,
+        1028
+      ],
+      [
+        20480,
+        1245
+      ],
+      [
+        24576,
+        1442
+      ],
+      [
+        28672,
+        1643
+      ],
+      [
+        32768,
+        1848
+      ],
+      [
+        36864,
+        2067
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 8923
+    },
+    "learning": [
+      [
+        4096,
+        955
+      ],
+      [
+        8192,
+        1909
+      ],
+      [
+        12288,
+        2862
+      ],
+      [
+        16384,
+        3853
+      ],
+      [
+        20480,
+        4789
+      ],
+      [
+        24576,
+        5742
+      ],
+      [
+        28672,
+        6708
+      ],
+      [
+        32768,
+        7656
+      ],
+      [
+        36864,
+        8631
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 8885
+    },
+    "learning": [
+      [
+        4096,
+        937
+      ],
+      [
+        8192,
+        1878
+      ],
+      [
+        12288,
+        2837
+      ],
+      [
+        16384,
+        3818
+      ],
+      [
+        20480,
+        4787
+      ],
+      [
+        24576,
+        5698
+      ],
+      [
+        28672,
+        6655
+      ],
+      [
+        32768,
+        7619
+      ],
+      [
+        36864,
+        8583
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 5591
+    },
+    "learning": [
+      [
+        4096,
+        589
+      ],
+      [
+        8192,
+        1190
+      ],
+      [
+        12288,
+        1802
+      ],
+      [
+        16384,
+        2405
+      ],
+      [
+        20480,
+        3000
+      ],
+      [
+        24576,
+        3576
+      ],
+      [
+        28672,
+        4187
+      ],
+      [
+        32768,
+        4799
+      ],
+      [
+        36864,
+        5400
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 4182
+    },
+    "learning": [
+      [
+        4096,
+        444
+      ],
+      [
+        8192,
+        872
+      ],
+      [
+        12288,
+        1317
+      ],
+      [
+        16384,
+        1817
+      ],
+      [
+        20480,
+        2266
+      ],
+      [
+        24576,
+        2654
+      ],
+      [
+        28672,
+        3117
+      ],
+      [
+        32768,
+        3579
+      ],
+      [
+        36864,
+        4046
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 6911
+    },
+    "learning": [
+      [
+        4096,
+        720
+      ],
+      [
+        8192,
+        1471
+      ],
+      [
+        12288,
+        2235
+      ],
+      [
+        16384,
+        2973
+      ],
+      [
+        20480,
+        3691
+      ],
+      [
+        24576,
+        4431
+      ],
+      [
+        28672,
+        5181
+      ],
+      [
+        32768,
+        5943
+      ],
+      [
+        36864,
+        6679
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 4575
+    },
+    "learning": [
+      [
+        4096,
+        504
+      ],
+      [
+        8192,
+        969
+      ],
+      [
+        12288,
+        1461
+      ],
+      [
+        16384,
+        1978
+      ],
+      [
+        20480,
+        2469
+      ],
+      [
+        24576,
+        2933
+      ],
+      [
+        28672,
+        3428
+      ],
+      [
+        32768,
+        3920
+      ],
+      [
+        36864,
+        4420
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 3498
+    },
+    "learning": [
+      [
+        4096,
+        383
+      ],
+      [
+        8192,
+        750
+      ],
+      [
+        12288,
+        1130
+      ],
+      [
+        16384,
+        1518
+      ],
+      [
+        20480,
+        1902
+      ],
+      [
+        24576,
+        2241
+      ],
+      [
+        28672,
+        2615
+      ],
+      [
+        32768,
+        3001
+      ],
+      [
+        36864,
+        3376
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 2639
+    },
+    "learning": [
+      [
+        4096,
+        293
+      ],
+      [
+        8192,
+        561
+      ],
+      [
+        12288,
+        844
+      ],
+      [
+        16384,
+        1148
+      ],
+      [
+        20480,
+        1443
+      ],
+      [
+        24576,
+        1681
+      ],
+      [
+        28672,
+        1966
+      ],
+      [
+        32768,
+        2254
+      ],
+      [
+        36864,
+        2547
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2411",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38116,
+      "errors": 3797
+    },
+    "learning": [
+      [
+        4096,
+        419
+      ],
+      [
+        8192,
+        829
+      ],
+      [
+        12288,
+        1258
+      ],
+      [
+        16384,
+        1639
+      ],
+      [
+        20480,
+        2028
+      ],
+      [
+        24576,
+        2454
+      ],
+      [
+        28672,
+        2852
+      ],
+      [
+        32768,
+        3271
+      ],
+      [
+        36864,
+        3658
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 32435,
+      "weak_provider": 1686,
+      "branches": 42098,
+      "errors": 5955,
+      "provider_tagged": 9663
+    },
+    "learning": [
+      [
+        4096,
+        590
+      ],
+      [
+        8192,
+        1171
+      ],
+      [
+        12288,
+        1758
+      ],
+      [
+        16384,
+        2329
+      ],
+      [
+        20480,
+        2906
+      ],
+      [
+        24576,
+        3490
+      ],
+      [
+        28672,
+        4055
+      ],
+      [
+        32768,
+        4631
+      ],
+      [
+        36864,
+        5222
+      ],
+      [
+        40960,
+        5787
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 29496,
+      "weak_provider": 848,
+      "branches": 42098,
+      "errors": 3166,
+      "provider_tagged": 12602
+    },
+    "learning": [
+      [
+        4096,
+        373
+      ],
+      [
+        8192,
+        680
+      ],
+      [
+        12288,
+        996
+      ],
+      [
+        16384,
+        1297
+      ],
+      [
+        20480,
+        1589
+      ],
+      [
+        24576,
+        1883
+      ],
+      [
+        28672,
+        2173
+      ],
+      [
+        32768,
+        2475
+      ],
+      [
+        36864,
+        2791
+      ],
+      [
+        40960,
+        3076
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 28868,
+      "weak_provider": 821,
+      "branches": 42098,
+      "errors": 2975,
+      "provider_tagged": 13230
+    },
+    "learning": [
+      [
+        4096,
+        375
+      ],
+      [
+        8192,
+        660
+      ],
+      [
+        12288,
+        943
+      ],
+      [
+        16384,
+        1218
+      ],
+      [
+        20480,
+        1491
+      ],
+      [
+        24576,
+        1763
+      ],
+      [
+        28672,
+        2047
+      ],
+      [
+        32768,
+        2332
+      ],
+      [
+        36864,
+        2629
+      ],
+      [
+        40960,
+        2894
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 30951,
+      "weak_provider": 843,
+      "branches": 42098,
+      "errors": 1805,
+      "provider_tagged": 11147
+    },
+    "learning": [
+      [
+        4096,
+        230
+      ],
+      [
+        8192,
+        380
+      ],
+      [
+        12288,
+        550
+      ],
+      [
+        16384,
+        723
+      ],
+      [
+        20480,
+        895
+      ],
+      [
+        24576,
+        1075
+      ],
+      [
+        28672,
+        1233
+      ],
+      [
+        32768,
+        1406
+      ],
+      [
+        36864,
+        1584
+      ],
+      [
+        40960,
+        1748
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 31588,
+      "weak_provider": 799,
+      "branches": 42098,
+      "errors": 4861,
+      "provider_tagged": 10510
+    },
+    "learning": [
+      [
+        4096,
+        511
+      ],
+      [
+        8192,
+        1005
+      ],
+      [
+        12288,
+        1473
+      ],
+      [
+        16384,
+        1944
+      ],
+      [
+        20480,
+        2402
+      ],
+      [
+        24576,
+        2843
+      ],
+      [
+        28672,
+        3348
+      ],
+      [
+        32768,
+        3810
+      ],
+      [
+        36864,
+        4286
+      ],
+      [
+        40960,
+        4732
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 23679,
+      "weak_provider": 831,
+      "branches": 42098,
+      "errors": 2008,
+      "provider_tagged": 18419
+    },
+    "learning": [
+      [
+        4096,
+        289
+      ],
+      [
+        8192,
+        498
+      ],
+      [
+        12288,
+        705
+      ],
+      [
+        16384,
+        905
+      ],
+      [
+        20480,
+        1096
+      ],
+      [
+        24576,
+        1280
+      ],
+      [
+        28672,
+        1426
+      ],
+      [
+        32768,
+        1610
+      ],
+      [
+        36864,
+        1788
+      ],
+      [
+        40960,
+        1949
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 23205,
+      "weak_provider": 500,
+      "branches": 42098,
+      "errors": 1890,
+      "provider_tagged": 18893
+    },
+    "learning": [
+      [
+        4096,
+        280
+      ],
+      [
+        8192,
+        467
+      ],
+      [
+        12288,
+        637
+      ],
+      [
+        16384,
+        814
+      ],
+      [
+        20480,
+        982
+      ],
+      [
+        24576,
+        1157
+      ],
+      [
+        28672,
+        1332
+      ],
+      [
+        32768,
+        1499
+      ],
+      [
+        36864,
+        1677
+      ],
+      [
+        40960,
+        1838
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 30084,
+      "weak_provider": 1052,
+      "branches": 42098,
+      "errors": 4093,
+      "provider_tagged": 12014
+    },
+    "learning": [
+      [
+        4096,
+        438
+      ],
+      [
+        8192,
+        851
+      ],
+      [
+        12288,
+        1266
+      ],
+      [
+        16384,
+        1681
+      ],
+      [
+        20480,
+        2099
+      ],
+      [
+        24576,
+        2488
+      ],
+      [
+        28672,
+        2864
+      ],
+      [
+        32768,
+        3240
+      ],
+      [
+        36864,
+        3625
+      ],
+      [
+        40960,
+        3991
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 27952,
+      "weak_provider": 909,
+      "branches": 42098,
+      "errors": 3065,
+      "provider_tagged": 14146
+    },
+    "learning": [
+      [
+        4096,
+        375
+      ],
+      [
+        8192,
+        665
+      ],
+      [
+        12288,
+        955
+      ],
+      [
+        16384,
+        1246
+      ],
+      [
+        20480,
+        1525
+      ],
+      [
+        24576,
+        1814
+      ],
+      [
+        28672,
+        2104
+      ],
+      [
+        32768,
+        2398
+      ],
+      [
+        36864,
+        2710
+      ],
+      [
+        40960,
+        2977
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 28871,
+      "weak_provider": 821,
+      "branches": 42098,
+      "errors": 2986,
+      "provider_tagged": 13227
+    },
+    "learning": [
+      [
+        4096,
+        383
+      ],
+      [
+        8192,
+        668
+      ],
+      [
+        12288,
+        951
+      ],
+      [
+        16384,
+        1226
+      ],
+      [
+        20480,
+        1500
+      ],
+      [
+        24576,
+        1773
+      ],
+      [
+        28672,
+        2057
+      ],
+      [
+        32768,
+        2342
+      ],
+      [
+        36864,
+        2639
+      ],
+      [
+        40960,
+        2905
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 29633,
+      "weak_provider": 1150,
+      "branches": 42098,
+      "errors": 3470,
+      "provider_tagged": 12465
+    },
+    "learning": [
+      [
+        4096,
+        461
+      ],
+      [
+        8192,
+        833
+      ],
+      [
+        12288,
+        1162
+      ],
+      [
+        16384,
+        1476
+      ],
+      [
+        20480,
+        1798
+      ],
+      [
+        24576,
+        2109
+      ],
+      [
+        28672,
+        2425
+      ],
+      [
+        32768,
+        2749
+      ],
+      [
+        36864,
+        3057
+      ],
+      [
+        40960,
+        3385
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 31588,
+      "weak_provider": 799,
+      "branches": 42098,
+      "errors": 5023,
+      "provider_tagged": 10510,
+      "sc_helpful": 405,
+      "sc_harmful": 567
+    },
+    "learning": [
+      [
+        4096,
+        529
+      ],
+      [
+        8192,
+        1044
+      ],
+      [
+        12288,
+        1523
+      ],
+      [
+        16384,
+        1995
+      ],
+      [
+        20480,
+        2465
+      ],
+      [
+        24576,
+        2932
+      ],
+      [
+        28672,
+        3459
+      ],
+      [
+        32768,
+        3943
+      ],
+      [
+        36864,
+        4432
+      ],
+      [
+        40960,
+        4892
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 28868,
+      "weak_provider": 821,
+      "branches": 42098,
+      "errors": 3461,
+      "provider_tagged": 13230,
+      "sc_helpful": 284,
+      "sc_harmful": 770
+    },
+    "learning": [
+      [
+        4096,
+        389
+      ],
+      [
+        8192,
+        732
+      ],
+      [
+        12288,
+        1063
+      ],
+      [
+        16384,
+        1389
+      ],
+      [
+        20480,
+        1712
+      ],
+      [
+        24576,
+        2036
+      ],
+      [
+        28672,
+        2365
+      ],
+      [
+        32768,
+        2701
+      ],
+      [
+        36864,
+        3056
+      ],
+      [
+        40960,
+        3369
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 23679,
+      "weak_provider": 831,
+      "branches": 42098,
+      "errors": 2254,
+      "provider_tagged": 18419,
+      "sc_harmful": 282,
+      "sc_helpful": 36
+    },
+    "learning": [
+      [
+        4096,
+        296
+      ],
+      [
+        8192,
+        526
+      ],
+      [
+        12288,
+        760
+      ],
+      [
+        16384,
+        983
+      ],
+      [
+        20480,
+        1197
+      ],
+      [
+        24576,
+        1405
+      ],
+      [
+        28672,
+        1581
+      ],
+      [
+        32768,
+        1789
+      ],
+      [
+        36864,
+        2001
+      ],
+      [
+        40960,
+        2190
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 9779
+    },
+    "learning": [
+      [
+        4096,
+        920
+      ],
+      [
+        8192,
+        1860
+      ],
+      [
+        12288,
+        2829
+      ],
+      [
+        16384,
+        3781
+      ],
+      [
+        20480,
+        4748
+      ],
+      [
+        24576,
+        5694
+      ],
+      [
+        28672,
+        6611
+      ],
+      [
+        32768,
+        7595
+      ],
+      [
+        36864,
+        8547
+      ],
+      [
+        40960,
+        9487
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 9779
+    },
+    "learning": [
+      [
+        4096,
+        936
+      ],
+      [
+        8192,
+        1865
+      ],
+      [
+        12288,
+        2820
+      ],
+      [
+        16384,
+        3776
+      ],
+      [
+        20480,
+        4749
+      ],
+      [
+        24576,
+        5708
+      ],
+      [
+        28672,
+        6604
+      ],
+      [
+        32768,
+        7588
+      ],
+      [
+        36864,
+        8534
+      ],
+      [
+        40960,
+        9488
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 6202
+    },
+    "learning": [
+      [
+        4096,
+        616
+      ],
+      [
+        8192,
+        1201
+      ],
+      [
+        12288,
+        1806
+      ],
+      [
+        16384,
+        2401
+      ],
+      [
+        20480,
+        3022
+      ],
+      [
+        24576,
+        3632
+      ],
+      [
+        28672,
+        4207
+      ],
+      [
+        32768,
+        4819
+      ],
+      [
+        36864,
+        5420
+      ],
+      [
+        40960,
+        6026
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 4735
+    },
+    "learning": [
+      [
+        4096,
+        478
+      ],
+      [
+        8192,
+        879
+      ],
+      [
+        12288,
+        1360
+      ],
+      [
+        16384,
+        1819
+      ],
+      [
+        20480,
+        2304
+      ],
+      [
+        24576,
+        2788
+      ],
+      [
+        28672,
+        3163
+      ],
+      [
+        32768,
+        3658
+      ],
+      [
+        36864,
+        4106
+      ],
+      [
+        40960,
+        4581
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 7729
+    },
+    "learning": [
+      [
+        4096,
+        785
+      ],
+      [
+        8192,
+        1515
+      ],
+      [
+        12288,
+        2262
+      ],
+      [
+        16384,
+        3013
+      ],
+      [
+        20480,
+        3764
+      ],
+      [
+        24576,
+        4546
+      ],
+      [
+        28672,
+        5267
+      ],
+      [
+        32768,
+        6010
+      ],
+      [
+        36864,
+        6761
+      ],
+      [
+        40960,
+        7516
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 5018
+    },
+    "learning": [
+      [
+        4096,
+        492
+      ],
+      [
+        8192,
+        952
+      ],
+      [
+        12288,
+        1459
+      ],
+      [
+        16384,
+        1950
+      ],
+      [
+        20480,
+        2450
+      ],
+      [
+        24576,
+        2930
+      ],
+      [
+        28672,
+        3366
+      ],
+      [
+        32768,
+        3887
+      ],
+      [
+        36864,
+        4379
+      ],
+      [
+        40960,
+        4869
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 3882
+    },
+    "learning": [
+      [
+        4096,
+        404
+      ],
+      [
+        8192,
+        760
+      ],
+      [
+        12288,
+        1144
+      ],
+      [
+        16384,
+        1515
+      ],
+      [
+        20480,
+        1905
+      ],
+      [
+        24576,
+        2284
+      ],
+      [
+        28672,
+        2625
+      ],
+      [
+        32768,
+        3013
+      ],
+      [
+        36864,
+        3382
+      ],
+      [
+        40960,
+        3768
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 3005
+    },
+    "learning": [
+      [
+        4096,
+        319
+      ],
+      [
+        8192,
+        569
+      ],
+      [
+        12288,
+        876
+      ],
+      [
+        16384,
+        1187
+      ],
+      [
+        20480,
+        1486
+      ],
+      [
+        24576,
+        1769
+      ],
+      [
+        28672,
+        2010
+      ],
+      [
+        32768,
+        2314
+      ],
+      [
+        36864,
+        2610
+      ],
+      [
+        40960,
+        2915
+      ]
+    ]
+  },
+  {
+    "case": "regex_tokenizer-dev-2418",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 42098,
+      "errors": 4135
+    },
+    "learning": [
+      [
+        4096,
+        435
+      ],
+      [
+        8192,
+        837
+      ],
+      [
+        12288,
+        1234
+      ],
+      [
+        16384,
+        1629
+      ],
+      [
+        20480,
+        2019
+      ],
+      [
+        24576,
+        2428
+      ],
+      [
+        28672,
+        2834
+      ],
+      [
+        32768,
+        3224
+      ],
+      [
+        36864,
+        3638
+      ],
+      [
+        40960,
+        4025
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 26859,
+      "weak_provider": 777,
+      "branches": 38644,
+      "errors": 4084,
+      "provider_tagged": 11785
+    },
+    "learning": [
+      [
+        4096,
+        442
+      ],
+      [
+        8192,
+        921
+      ],
+      [
+        12288,
+        1347
+      ],
+      [
+        16384,
+        1805
+      ],
+      [
+        20480,
+        2152
+      ],
+      [
+        24576,
+        2623
+      ],
+      [
+        28672,
+        3069
+      ],
+      [
+        32768,
+        3519
+      ],
+      [
+        36864,
+        3920
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21681,
+      "weak_provider": 824,
+      "branches": 38644,
+      "errors": 2802,
+      "provider_tagged": 16963
+    },
+    "learning": [
+      [
+        4096,
+        358
+      ],
+      [
+        8192,
+        704
+      ],
+      [
+        12288,
+        1011
+      ],
+      [
+        16384,
+        1337
+      ],
+      [
+        20480,
+        1621
+      ],
+      [
+        24576,
+        1912
+      ],
+      [
+        28672,
+        2159
+      ],
+      [
+        32768,
+        2400
+      ],
+      [
+        36864,
+        2647
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21162,
+      "weak_provider": 841,
+      "branches": 38644,
+      "errors": 2399,
+      "provider_tagged": 17482
+    },
+    "learning": [
+      [
+        4096,
+        322
+      ],
+      [
+        8192,
+        611
+      ],
+      [
+        12288,
+        871
+      ],
+      [
+        16384,
+        1132
+      ],
+      [
+        20480,
+        1423
+      ],
+      [
+        24576,
+        1680
+      ],
+      [
+        28672,
+        1869
+      ],
+      [
+        32768,
+        2054
+      ],
+      [
+        36864,
+        2262
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 22254,
+      "weak_provider": 481,
+      "branches": 38644,
+      "errors": 1373,
+      "provider_tagged": 16390
+    },
+    "learning": [
+      [
+        4096,
+        180
+      ],
+      [
+        8192,
+        301
+      ],
+      [
+        12288,
+        410
+      ],
+      [
+        16384,
+        522
+      ],
+      [
+        20480,
+        771
+      ],
+      [
+        24576,
+        898
+      ],
+      [
+        28672,
+        997
+      ],
+      [
+        32768,
+        1093
+      ],
+      [
+        36864,
+        1205
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 28158,
+      "weak_provider": 753,
+      "branches": 38644,
+      "errors": 3210,
+      "provider_tagged": 10486
+    },
+    "learning": [
+      [
+        4096,
+        352
+      ],
+      [
+        8192,
+        687
+      ],
+      [
+        12288,
+        1008
+      ],
+      [
+        16384,
+        1347
+      ],
+      [
+        20480,
+        1704
+      ],
+      [
+        24576,
+        2074
+      ],
+      [
+        28672,
+        2397
+      ],
+      [
+        32768,
+        2712
+      ],
+      [
+        36864,
+        3031
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 19113,
+      "weak_provider": 405,
+      "branches": 38644,
+      "errors": 1417,
+      "provider_tagged": 19531
+    },
+    "learning": [
+      [
+        4096,
+        210
+      ],
+      [
+        8192,
+        360
+      ],
+      [
+        12288,
+        508
+      ],
+      [
+        16384,
+        619
+      ],
+      [
+        20480,
+        834
+      ],
+      [
+        24576,
+        974
+      ],
+      [
+        28672,
+        1087
+      ],
+      [
+        32768,
+        1196
+      ],
+      [
+        36864,
+        1331
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16400,
+      "weak_provider": 504,
+      "branches": 38644,
+      "errors": 1363,
+      "provider_tagged": 22244
+    },
+    "learning": [
+      [
+        4096,
+        214
+      ],
+      [
+        8192,
+        355
+      ],
+      [
+        12288,
+        489
+      ],
+      [
+        16384,
+        603
+      ],
+      [
+        20480,
+        814
+      ],
+      [
+        24576,
+        935
+      ],
+      [
+        28672,
+        1042
+      ],
+      [
+        32768,
+        1150
+      ],
+      [
+        36864,
+        1272
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 22356,
+      "weak_provider": 534,
+      "branches": 38644,
+      "errors": 2777,
+      "provider_tagged": 16288
+    },
+    "learning": [
+      [
+        4096,
+        339
+      ],
+      [
+        8192,
+        667
+      ],
+      [
+        12288,
+        966
+      ],
+      [
+        16384,
+        1275
+      ],
+      [
+        20480,
+        1582
+      ],
+      [
+        24576,
+        1875
+      ],
+      [
+        28672,
+        2133
+      ],
+      [
+        32768,
+        2384
+      ],
+      [
+        36864,
+        2640
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21255,
+      "weak_provider": 823,
+      "branches": 38644,
+      "errors": 2534,
+      "provider_tagged": 17389
+    },
+    "learning": [
+      [
+        4096,
+        328
+      ],
+      [
+        8192,
+        625
+      ],
+      [
+        12288,
+        893
+      ],
+      [
+        16384,
+        1176
+      ],
+      [
+        20480,
+        1459
+      ],
+      [
+        24576,
+        1723
+      ],
+      [
+        28672,
+        1956
+      ],
+      [
+        32768,
+        2175
+      ],
+      [
+        36864,
+        2397
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21583,
+      "weak_provider": 851,
+      "branches": 38644,
+      "errors": 2450,
+      "provider_tagged": 17061
+    },
+    "learning": [
+      [
+        4096,
+        326
+      ],
+      [
+        8192,
+        608
+      ],
+      [
+        12288,
+        868
+      ],
+      [
+        16384,
+        1138
+      ],
+      [
+        20480,
+        1420
+      ],
+      [
+        24576,
+        1687
+      ],
+      [
+        28672,
+        1906
+      ],
+      [
+        32768,
+        2106
+      ],
+      [
+        36864,
+        2314
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 26396,
+      "weak_provider": 569,
+      "branches": 38644,
+      "errors": 2405,
+      "provider_tagged": 12248
+    },
+    "learning": [
+      [
+        4096,
+        289
+      ],
+      [
+        8192,
+        514
+      ],
+      [
+        12288,
+        702
+      ],
+      [
+        16384,
+        897
+      ],
+      [
+        20480,
+        1216
+      ],
+      [
+        24576,
+        1541
+      ],
+      [
+        28672,
+        1806
+      ],
+      [
+        32768,
+        2048
+      ],
+      [
+        36864,
+        2276
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 28158,
+      "weak_provider": 753,
+      "branches": 38644,
+      "errors": 3425,
+      "provider_tagged": 10486,
+      "sc_harmful": 419,
+      "sc_helpful": 204
+    },
+    "learning": [
+      [
+        4096,
+        377
+      ],
+      [
+        8192,
+        754
+      ],
+      [
+        12288,
+        1110
+      ],
+      [
+        16384,
+        1481
+      ],
+      [
+        20480,
+        1847
+      ],
+      [
+        24576,
+        2240
+      ],
+      [
+        28672,
+        2589
+      ],
+      [
+        32768,
+        2929
+      ],
+      [
+        36864,
+        3257
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21162,
+      "weak_provider": 841,
+      "branches": 38644,
+      "errors": 2710,
+      "provider_tagged": 17482,
+      "sc_helpful": 125,
+      "sc_harmful": 436
+    },
+    "learning": [
+      [
+        4096,
+        329
+      ],
+      [
+        8192,
+        645
+      ],
+      [
+        12288,
+        937
+      ],
+      [
+        16384,
+        1237
+      ],
+      [
+        20480,
+        1554
+      ],
+      [
+        24576,
+        1862
+      ],
+      [
+        28672,
+        2094
+      ],
+      [
+        32768,
+        2313
+      ],
+      [
+        36864,
+        2548
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 19113,
+      "weak_provider": 405,
+      "branches": 38644,
+      "errors": 1729,
+      "provider_tagged": 19531,
+      "sc_helpful": 76,
+      "sc_harmful": 388
+    },
+    "learning": [
+      [
+        4096,
+        222
+      ],
+      [
+        8192,
+        400
+      ],
+      [
+        12288,
+        572
+      ],
+      [
+        16384,
+        727
+      ],
+      [
+        20480,
+        970
+      ],
+      [
+        24576,
+        1142
+      ],
+      [
+        28672,
+        1298
+      ],
+      [
+        32768,
+        1449
+      ],
+      [
+        36864,
+        1623
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 7974
+    },
+    "learning": [
+      [
+        4096,
+        785
+      ],
+      [
+        8192,
+        1712
+      ],
+      [
+        12288,
+        2571
+      ],
+      [
+        16384,
+        3483
+      ],
+      [
+        20480,
+        4147
+      ],
+      [
+        24576,
+        5036
+      ],
+      [
+        28672,
+        5935
+      ],
+      [
+        32768,
+        6826
+      ],
+      [
+        36864,
+        7606
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 7604
+    },
+    "learning": [
+      [
+        4096,
+        739
+      ],
+      [
+        8192,
+        1580
+      ],
+      [
+        12288,
+        2379
+      ],
+      [
+        16384,
+        3220
+      ],
+      [
+        20480,
+        3960
+      ],
+      [
+        24576,
+        4789
+      ],
+      [
+        28672,
+        5598
+      ],
+      [
+        32768,
+        6434
+      ],
+      [
+        36864,
+        7169
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 5540
+    },
+    "learning": [
+      [
+        4096,
+        547
+      ],
+      [
+        8192,
+        1164
+      ],
+      [
+        12288,
+        1766
+      ],
+      [
+        16384,
+        2384
+      ],
+      [
+        20480,
+        2885
+      ],
+      [
+        24576,
+        3491
+      ],
+      [
+        28672,
+        4113
+      ],
+      [
+        32768,
+        4717
+      ],
+      [
+        36864,
+        5275
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 4736
+    },
+    "learning": [
+      [
+        4096,
+        503
+      ],
+      [
+        8192,
+        1035
+      ],
+      [
+        12288,
+        1539
+      ],
+      [
+        16384,
+        2065
+      ],
+      [
+        20480,
+        2490
+      ],
+      [
+        24576,
+        3033
+      ],
+      [
+        28672,
+        3541
+      ],
+      [
+        32768,
+        4066
+      ],
+      [
+        36864,
+        4546
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 5532
+    },
+    "learning": [
+      [
+        4096,
+        568
+      ],
+      [
+        8192,
+        1170
+      ],
+      [
+        12288,
+        1736
+      ],
+      [
+        16384,
+        2314
+      ],
+      [
+        20480,
+        2912
+      ],
+      [
+        24576,
+        3484
+      ],
+      [
+        28672,
+        4075
+      ],
+      [
+        32768,
+        4661
+      ],
+      [
+        36864,
+        5218
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 4159
+    },
+    "learning": [
+      [
+        4096,
+        416
+      ],
+      [
+        8192,
+        874
+      ],
+      [
+        12288,
+        1329
+      ],
+      [
+        16384,
+        1795
+      ],
+      [
+        20480,
+        2158
+      ],
+      [
+        24576,
+        2626
+      ],
+      [
+        28672,
+        3093
+      ],
+      [
+        32768,
+        3549
+      ],
+      [
+        36864,
+        3966
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 1759
+    },
+    "learning": [
+      [
+        4096,
+        199
+      ],
+      [
+        8192,
+        356
+      ],
+      [
+        12288,
+        514
+      ],
+      [
+        16384,
+        670
+      ],
+      [
+        20480,
+        964
+      ],
+      [
+        24576,
+        1115
+      ],
+      [
+        28672,
+        1275
+      ],
+      [
+        32768,
+        1427
+      ],
+      [
+        36864,
+        1597
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 2907
+    },
+    "learning": [
+      [
+        4096,
+        326
+      ],
+      [
+        8192,
+        611
+      ],
+      [
+        12288,
+        907
+      ],
+      [
+        16384,
+        1197
+      ],
+      [
+        20480,
+        1570
+      ],
+      [
+        24576,
+        1876
+      ],
+      [
+        28672,
+        2163
+      ],
+      [
+        32768,
+        2446
+      ],
+      [
+        36864,
+        2743
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2411",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38644,
+      "errors": 3037
+    },
+    "learning": [
+      [
+        4096,
+        371
+      ],
+      [
+        8192,
+        663
+      ],
+      [
+        12288,
+        960
+      ],
+      [
+        16384,
+        1261
+      ],
+      [
+        20480,
+        1664
+      ],
+      [
+        24576,
+        1974
+      ],
+      [
+        28672,
+        2250
+      ],
+      [
+        32768,
+        2546
+      ],
+      [
+        36864,
+        2854
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-small",
+    "geometry": {
+      "base": 16,
+      "entries": 8,
+      "lengths": [
+        3,
+        7
+      ],
+      "tag_bits": 6
+    },
+    "bits": 279,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 26935,
+      "weak_provider": 843,
+      "branches": 38146,
+      "errors": 4142,
+      "provider_tagged": 11211
+    },
+    "learning": [
+      [
+        4096,
+        452
+      ],
+      [
+        8192,
+        937
+      ],
+      [
+        12288,
+        1407
+      ],
+      [
+        16384,
+        1863
+      ],
+      [
+        20480,
+        2219
+      ],
+      [
+        24576,
+        2674
+      ],
+      [
+        28672,
+        3167
+      ],
+      [
+        32768,
+        3632
+      ],
+      [
+        36864,
+        4034
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-base16",
+    "geometry": {
+      "base": 16
+    },
+    "bits": 797,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21482,
+      "weak_provider": 829,
+      "branches": 38146,
+      "errors": 2941,
+      "provider_tagged": 16664
+    },
+    "learning": [
+      [
+        4096,
+        372
+      ],
+      [
+        8192,
+        711
+      ],
+      [
+        12288,
+        1040
+      ],
+      [
+        16384,
+        1366
+      ],
+      [
+        20480,
+        1651
+      ],
+      [
+        24576,
+        1962
+      ],
+      [
+        28672,
+        2250
+      ],
+      [
+        32768,
+        2538
+      ],
+      [
+        36864,
+        2852
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-default",
+    "geometry": {},
+    "bits": 829,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 20785,
+      "weak_provider": 782,
+      "branches": 38146,
+      "errors": 2375,
+      "provider_tagged": 17361
+    },
+    "learning": [
+      [
+        4096,
+        315
+      ],
+      [
+        8192,
+        588
+      ],
+      [
+        12288,
+        866
+      ],
+      [
+        16384,
+        1128
+      ],
+      [
+        20480,
+        1417
+      ],
+      [
+        24576,
+        1665
+      ],
+      [
+        28672,
+        1873
+      ],
+      [
+        32768,
+        2059
+      ],
+      [
+        36864,
+        2266
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-base128",
+    "geometry": {
+      "base": 128
+    },
+    "bits": 1021,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21881,
+      "weak_provider": 476,
+      "branches": 38146,
+      "errors": 1290,
+      "provider_tagged": 16265
+    },
+    "learning": [
+      [
+        4096,
+        174
+      ],
+      [
+        8192,
+        288
+      ],
+      [
+        12288,
+        397
+      ],
+      [
+        16384,
+        505
+      ],
+      [
+        20480,
+        760
+      ],
+      [
+        24576,
+        881
+      ],
+      [
+        28672,
+        979
+      ],
+      [
+        32768,
+        1078
+      ],
+      [
+        36864,
+        1208
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-tagged8",
+    "geometry": {
+      "entries": 8
+    },
+    "bits": 490,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 27752,
+      "weak_provider": 842,
+      "branches": 38146,
+      "errors": 3270,
+      "provider_tagged": 10394
+    },
+    "learning": [
+      [
+        4096,
+        361
+      ],
+      [
+        8192,
+        714
+      ],
+      [
+        12288,
+        1063
+      ],
+      [
+        16384,
+        1420
+      ],
+      [
+        20480,
+        1773
+      ],
+      [
+        24576,
+        2149
+      ],
+      [
+        28672,
+        2513
+      ],
+      [
+        32768,
+        2855
+      ],
+      [
+        36864,
+        3181
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-tagged32",
+    "geometry": {
+      "entries": 32
+    },
+    "bits": 1504,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18509,
+      "weak_provider": 417,
+      "branches": 38146,
+      "errors": 1422,
+      "provider_tagged": 19637
+    },
+    "learning": [
+      [
+        4096,
+        207
+      ],
+      [
+        8192,
+        348
+      ],
+      [
+        12288,
+        465
+      ],
+      [
+        16384,
+        571
+      ],
+      [
+        20480,
+        850
+      ],
+      [
+        24576,
+        980
+      ],
+      [
+        28672,
+        1103
+      ],
+      [
+        32768,
+        1217
+      ],
+      [
+        36864,
+        1360
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-tagged64",
+    "geometry": {
+      "entries": 64
+    },
+    "bits": 2851,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 16136,
+      "weak_provider": 485,
+      "branches": 38146,
+      "errors": 1325,
+      "provider_tagged": 22010
+    },
+    "learning": [
+      [
+        4096,
+        207
+      ],
+      [
+        8192,
+        343
+      ],
+      [
+        12288,
+        460
+      ],
+      [
+        16384,
+        567
+      ],
+      [
+        20480,
+        789
+      ],
+      [
+        24576,
+        905
+      ],
+      [
+        28672,
+        1013
+      ],
+      [
+        32768,
+        1127
+      ],
+      [
+        36864,
+        1263
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-two",
+    "geometry": {
+      "lengths": [
+        3,
+        7
+      ]
+    },
+    "bits": 577,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21936,
+      "weak_provider": 508,
+      "branches": 38146,
+      "errors": 2763,
+      "provider_tagged": 16210
+    },
+    "learning": [
+      [
+        4096,
+        337
+      ],
+      [
+        8192,
+        651
+      ],
+      [
+        12288,
+        966
+      ],
+      [
+        16384,
+        1274
+      ],
+      [
+        20480,
+        1583
+      ],
+      [
+        24576,
+        1864
+      ],
+      [
+        28672,
+        2142
+      ],
+      [
+        32768,
+        2410
+      ],
+      [
+        36864,
+        2678
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-tags6",
+    "geometry": {
+      "tag_bits": 6
+    },
+    "bits": 721,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 21848,
+      "weak_provider": 824,
+      "branches": 38146,
+      "errors": 2550,
+      "provider_tagged": 16298
+    },
+    "learning": [
+      [
+        4096,
+        320
+      ],
+      [
+        8192,
+        599
+      ],
+      [
+        12288,
+        884
+      ],
+      [
+        16384,
+        1153
+      ],
+      [
+        20480,
+        1451
+      ],
+      [
+        24576,
+        1704
+      ],
+      [
+        28672,
+        1966
+      ],
+      [
+        32768,
+        2219
+      ],
+      [
+        36864,
+        2463
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-tags10",
+    "geometry": {
+      "tag_bits": 10
+    },
+    "bits": 937,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 22123,
+      "weak_provider": 637,
+      "branches": 38146,
+      "errors": 2292,
+      "provider_tagged": 16023
+    },
+    "learning": [
+      [
+        4096,
+        317
+      ],
+      [
+        8192,
+        592
+      ],
+      [
+        12288,
+        844
+      ],
+      [
+        16384,
+        1081
+      ],
+      [
+        20480,
+        1356
+      ],
+      [
+        24576,
+        1583
+      ],
+      [
+        28672,
+        1785
+      ],
+      [
+        32768,
+        1976
+      ],
+      [
+        36864,
+        2208
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "N-h32",
+    "geometry": {
+      "lengths": [
+        4,
+        13,
+        32
+      ]
+    },
+    "bits": 845,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 26907,
+      "weak_provider": 454,
+      "branches": 38146,
+      "errors": 2146,
+      "provider_tagged": 11239
+    },
+    "learning": [
+      [
+        4096,
+        287
+      ],
+      [
+        8192,
+        486
+      ],
+      [
+        12288,
+        687
+      ],
+      [
+        16384,
+        878
+      ],
+      [
+        20480,
+        1213
+      ],
+      [
+        24576,
+        1446
+      ],
+      [
+        28672,
+        1627
+      ],
+      [
+        32768,
+        1817
+      ],
+      [
+        36864,
+        2039
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "NSL-8",
+    "geometry": null,
+    "bits": 823,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 27752,
+      "weak_provider": 842,
+      "branches": 38146,
+      "errors": 3529,
+      "provider_tagged": 10394,
+      "sc_harmful": 443,
+      "sc_helpful": 184
+    },
+    "learning": [
+      [
+        4096,
+        395
+      ],
+      [
+        8192,
+        792
+      ],
+      [
+        12288,
+        1176
+      ],
+      [
+        16384,
+        1572
+      ],
+      [
+        20480,
+        1935
+      ],
+      [
+        24576,
+        2329
+      ],
+      [
+        28672,
+        2730
+      ],
+      [
+        32768,
+        3100
+      ],
+      [
+        36864,
+        3435
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "NSL-16",
+    "geometry": null,
+    "bits": 1282,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 20785,
+      "weak_provider": 782,
+      "branches": 38146,
+      "errors": 2592,
+      "provider_tagged": 17361,
+      "sc_helpful": 183,
+      "sc_harmful": 400
+    },
+    "learning": [
+      [
+        4096,
+        325
+      ],
+      [
+        8192,
+        624
+      ],
+      [
+        12288,
+        934
+      ],
+      [
+        16384,
+        1234
+      ],
+      [
+        20480,
+        1555
+      ],
+      [
+        24576,
+        1830
+      ],
+      [
+        28672,
+        2044
+      ],
+      [
+        32768,
+        2244
+      ],
+      [
+        36864,
+        2466
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "NSL-32",
+    "geometry": null,
+    "bits": 2197,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "provider_base": 18509,
+      "weak_provider": 417,
+      "branches": 38146,
+      "errors": 1751,
+      "provider_tagged": 19637,
+      "sc_helpful": 58,
+      "sc_harmful": 387
+    },
+    "learning": [
+      [
+        4096,
+        217
+      ],
+      [
+        8192,
+        382
+      ],
+      [
+        12288,
+        543
+      ],
+      [
+        16384,
+        692
+      ],
+      [
+        20480,
+        1002
+      ],
+      [
+        24576,
+        1173
+      ],
+      [
+        28672,
+        1339
+      ],
+      [
+        32768,
+        1498
+      ],
+      [
+        36864,
+        1678
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare16-h2",
+    "geometry": null,
+    "bits": 34,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 7948
+    },
+    "learning": [
+      [
+        4096,
+        812
+      ],
+      [
+        8192,
+        1725
+      ],
+      [
+        12288,
+        2622
+      ],
+      [
+        16384,
+        3539
+      ],
+      [
+        20480,
+        4195
+      ],
+      [
+        24576,
+        5086
+      ],
+      [
+        28672,
+        6010
+      ],
+      [
+        32768,
+        6907
+      ],
+      [
+        36864,
+        7692
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare16-h4",
+    "geometry": null,
+    "bits": 36,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 7458
+    },
+    "learning": [
+      [
+        4096,
+        733
+      ],
+      [
+        8192,
+        1566
+      ],
+      [
+        12288,
+        2405
+      ],
+      [
+        16384,
+        3253
+      ],
+      [
+        20480,
+        3946
+      ],
+      [
+        24576,
+        4725
+      ],
+      [
+        28672,
+        5585
+      ],
+      [
+        32768,
+        6428
+      ],
+      [
+        36864,
+        7201
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare64-h2",
+    "geometry": null,
+    "bits": 130,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 5459
+    },
+    "learning": [
+      [
+        4096,
+        557
+      ],
+      [
+        8192,
+        1165
+      ],
+      [
+        12288,
+        1774
+      ],
+      [
+        16384,
+        2388
+      ],
+      [
+        20480,
+        2880
+      ],
+      [
+        24576,
+        3493
+      ],
+      [
+        28672,
+        4110
+      ],
+      [
+        32768,
+        4719
+      ],
+      [
+        36864,
+        5277
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare64-h4",
+    "geometry": null,
+    "bits": 132,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 4702
+    },
+    "learning": [
+      [
+        4096,
+        500
+      ],
+      [
+        8192,
+        1027
+      ],
+      [
+        12288,
+        1571
+      ],
+      [
+        16384,
+        2105
+      ],
+      [
+        20480,
+        2515
+      ],
+      [
+        24576,
+        3014
+      ],
+      [
+        28672,
+        3567
+      ],
+      [
+        32768,
+        4107
+      ],
+      [
+        36864,
+        4579
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare64-h6",
+    "geometry": null,
+    "bits": 134,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 5582
+    },
+    "learning": [
+      [
+        4096,
+        592
+      ],
+      [
+        8192,
+        1185
+      ],
+      [
+        12288,
+        1773
+      ],
+      [
+        16384,
+        2375
+      ],
+      [
+        20480,
+        2976
+      ],
+      [
+        24576,
+        3537
+      ],
+      [
+        28672,
+        4162
+      ],
+      [
+        32768,
+        4778
+      ],
+      [
+        36864,
+        5369
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare256-h2",
+    "geometry": null,
+    "bits": 514,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 4046
+    },
+    "learning": [
+      [
+        4096,
+        413
+      ],
+      [
+        8192,
+        864
+      ],
+      [
+        12288,
+        1315
+      ],
+      [
+        16384,
+        1774
+      ],
+      [
+        20480,
+        2129
+      ],
+      [
+        24576,
+        2596
+      ],
+      [
+        28672,
+        3047
+      ],
+      [
+        32768,
+        3497
+      ],
+      [
+        36864,
+        3908
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare256-h4",
+    "geometry": null,
+    "bits": 516,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 1765
+    },
+    "learning": [
+      [
+        4096,
+        210
+      ],
+      [
+        8192,
+        366
+      ],
+      [
+        12288,
+        526
+      ],
+      [
+        16384,
+        686
+      ],
+      [
+        20480,
+        976
+      ],
+      [
+        24576,
+        1134
+      ],
+      [
+        28672,
+        1297
+      ],
+      [
+        32768,
+        1461
+      ],
+      [
+        36864,
+        1655
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare256-h6",
+    "geometry": null,
+    "bits": 518,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 2847
+    },
+    "learning": [
+      [
+        4096,
+        326
+      ],
+      [
+        8192,
+        609
+      ],
+      [
+        12288,
+        912
+      ],
+      [
+        16384,
+        1202
+      ],
+      [
+        20480,
+        1564
+      ],
+      [
+        24576,
+        1841
+      ],
+      [
+        28672,
+        2141
+      ],
+      [
+        32768,
+        2445
+      ],
+      [
+        36864,
+        2745
+      ]
+    ]
+  },
+  {
+    "case": "runtime_graph-dev-2418",
+    "candidate": "gshare256-h8",
+    "geometry": null,
+    "bits": 520,
+    "scope": "M0 ROI cold; decoded identity; immediate resolved history",
+    "counts": {
+      "branches": 38146,
+      "errors": 2983
+    },
+    "learning": [
+      [
+        4096,
+        358
+      ],
+      [
+        8192,
+        647
+      ],
+      [
+        12288,
+        947
+      ],
+      [
+        16384,
+        1256
+      ],
+      [
+        20480,
+        1659
+      ],
+      [
+        24576,
+        1927
+      ],
+      [
+        28672,
+        2232
+      ],
+      [
+        32768,
+        2542
+      ],
+      [
+        36864,
+        2857
+      ]
+    ]
+  }
+]

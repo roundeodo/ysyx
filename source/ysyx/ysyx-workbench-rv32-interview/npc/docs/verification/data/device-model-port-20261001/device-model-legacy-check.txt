@@ -1,0 +1,4 @@
+PASS: write burst calibration, ratio=1024/1024
+PASS: write burst calibration, ratio=2048/1024
+PASS: write burst calibration, ratio=2560/1024
+PASS: write burst calibration, ratio=7168/1024

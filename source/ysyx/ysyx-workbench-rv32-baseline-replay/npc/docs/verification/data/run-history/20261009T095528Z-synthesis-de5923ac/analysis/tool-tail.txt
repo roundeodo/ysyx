@@ -1,0 +1,575 @@
+55:13.257009    65 StaAnalyze.cc:599] analyze timing path end vertex 9631 total 10904 end
+I20261009 11:55:13.257094    65 StaAnalyze.cc:565] analyze timing path end vertex 9641 total 10904 start
+I20261009 11:55:13.257120    65 StaAnalyze.cc:599] analyze timing path end vertex 9641 total 10904 end
+I20261009 11:55:13.257174    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_icache_axi.refill_transaction_context_q_3__reg_p:D
+I20261009 11:55:13.257215    65 StaAnalyze.cc:565] analyze timing path end vertex 9651 total 10904 start
+I20261009 11:55:13.257237    65 StaAnalyze.cc:599] analyze timing path end vertex 9651 total 10904 end
+I20261009 11:55:13.257324    65 StaAnalyze.cc:565] analyze timing path end vertex 9661 total 10904 start
+I20261009 11:55:13.257349    65 StaAnalyze.cc:599] analyze timing path end vertex 9661 total 10904 end
+I20261009 11:55:13.257443    65 StaAnalyze.cc:565] analyze timing path end vertex 9671 total 10904 start
+I20261009 11:55:13.257468    65 StaAnalyze.cc:599] analyze timing path end vertex 9671 total 10904 end
+I20261009 11:55:13.257552    65 StaAnalyze.cc:565] analyze timing path end vertex 9681 total 10904 start
+I20261009 11:55:13.257576    65 StaAnalyze.cc:599] analyze timing path end vertex 9681 total 10904 end
+I20261009 11:55:13.257661    65 StaAnalyze.cc:565] analyze timing path end vertex 9691 total 10904 start
+I20261009 11:55:13.257689    65 StaAnalyze.cc:599] analyze timing path end vertex 9691 total 10904 end
+I20261009 11:55:13.257753    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_ifu.lookup_queue_prediction_array_q[1]_17__reg_p:D
+I20261009 11:55:13.257792    65 StaAnalyze.cc:565] analyze timing path end vertex 9701 total 10904 start
+I20261009 11:55:13.257822    65 StaAnalyze.cc:599] analyze timing path end vertex 9701 total 10904 end
+I20261009 11:55:13.257905    65 StaAnalyze.cc:565] analyze timing path end vertex 9711 total 10904 start
+I20261009 11:55:13.257930    65 StaAnalyze.cc:599] analyze timing path end vertex 9711 total 10904 end
+I20261009 11:55:13.258009    65 StaAnalyze.cc:565] analyze timing path end vertex 9721 total 10904 start
+I20261009 11:55:13.258033    65 StaAnalyze.cc:599] analyze timing path end vertex 9721 total 10904 end
+I20261009 11:55:13.258114    65 StaAnalyze.cc:565] analyze timing path end vertex 9731 total 10904 start
+I20261009 11:55:13.258145    65 StaAnalyze.cc:599] analyze timing path end vertex 9731 total 10904 end
+I20261009 11:55:13.258248    65 StaAnalyze.cc:565] analyze timing path end vertex 9741 total 10904 start
+I20261009 11:55:13.258276    65 StaAnalyze.cc:599] analyze timing path end vertex 9741 total 10904 end
+I20261009 11:55:13.258352    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_ifu.lookup_queue_request_array_q[0]_31__reg_p:D
+I20261009 11:55:13.258396    65 StaAnalyze.cc:565] analyze timing path end vertex 9751 total 10904 start
+I20261009 11:55:13.258422    65 StaAnalyze.cc:599] analyze timing path end vertex 9751 total 10904 end
+I20261009 11:55:13.258491    65 StaAnalyze.cc:565] analyze timing path end vertex 9761 total 10904 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.258503    65 StaAnalyze.cc:599] analyze timing path end vertex 9761 total 10904 end
+I20261009 11:55:13.258577    65 StaAnalyze.cc:565] analyze timing path end vertex 9771 total 10904 start
+I20261009 11:55:13.258605    65 StaAnalyze.cc:599] analyze timing path end vertex 9771 total 10904 end
+I20261009 11:55:13.258683    65 StaAnalyze.cc:565] analyze timing path end vertex 9781 total 10904 start
+I20261009 11:55:13.258708    65 StaAnalyze.cc:599] analyze timing path end vertex 9781 total 10904 end
+I20261009 11:55:13.258786    65 StaAnalyze.cc:565] analyze timing path end vertex 9791 total 10904 start
+I20261009 11:55:13.258818    65 StaAnalyze.cc:599] analyze timing path end vertex 9791 total 10904 end
+I20261009 11:55:13.258903    65 StaAnalyze.cc:565] analyze timing path end vertex 9801 total 10904 start
+I20261009 11:55:13.258924    65 StaAnalyze.cc:599] analyze timing path end vertex 9801 total 10904 end
+I20261009 11:55:13.258967    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_ifu.predictor_fetch_pc_q_10__reg_p:RN
+I20261009 11:55:13.259021    65 StaAnalyze.cc:565] analyze timing path end vertex 9811 total 10904 start
+I20261009 11:55:13.259044    65 StaAnalyze.cc:599] analyze timing path end vertex 9811 total 10904 end
+I20261009 11:55:13.259133    65 StaAnalyze.cc:565] analyze timing path end vertex 9821 total 10904 start
+I20261009 11:55:13.259157    65 StaAnalyze.cc:599] analyze timing path end vertex 9821 total 10904 end
+I20261009 11:55:13.259233    65 StaAnalyze.cc:565] analyze timing path end vertex 9831 total 10904 start
+I20261009 11:55:13.259255    65 StaAnalyze.cc:599] analyze timing path end vertex 9831 total 10904 end
+I20261009 11:55:13.259333    65 StaAnalyze.cc:565] analyze timing path end vertex 9841 total 10904 start
+I20261009 11:55:13.259356    65 StaAnalyze.cc:599] analyze timing path end vertex 9841 total 10904 end
+I20261009 11:55:13.259431    65 StaAnalyze.cc:565] analyze timing path end vertex 9851 total 10904 start
+I20261009 11:55:13.259455    65 StaAnalyze.cc:599] analyze timing path end vertex 9851 total 10904 end
+I20261009 11:55:13.259498    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_ifu.predictor_fetch_pc_q_4__reg_p:RN
+I20261009 11:55:13.259552    65 StaAnalyze.cc:565] analyze timing path end vertex 9861 total 10904 start
+I20261009 11:55:13.259577    65 StaAnalyze.cc:599] analyze timing path end vertex 9861 total 10904 end
+I20261009 11:55:13.259662    65 StaAnalyze.cc:565] analyze timing path end vertex 9871 total 10904 start
+I20261009 11:55:13.259688    65 StaAnalyze.cc:599] analyze timing path end vertex 9871 total 10904 end
+I20261009 11:55:13.259780    65 StaAnalyze.cc:565] analyze timing path end vertex 9881 total 10904 start
+I20261009 11:55:13.259809    65 StaAnalyze.cc:599] analyze timing path end vertex 9881 total 10904 end
+I20261009 11:55:13.259897    65 StaAnalyze.cc:565] analyze timing path end vertex 9891 total 10904 start
+I20261009 11:55:13.259922    65 StaAnalyze.cc:599] analyze timing path end vertex 9891 total 10904 end
+I20261009 11:55:13.259994    65 StaAnalyze.cc:565] analyze timing path end vertex 9901 total 10904 start
+I20261009 11:55:13.260016    65 StaAnalyze.cc:599] analyze timing path end vertex 9901 total 10904 end
+I20261009 11:55:13.260078    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_lsu.memory_writeback_397__reg_p:D
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.260125    65 StaAnalyze.cc:565] analyze timing path end vertex 9911 total 10904 start
+I20261009 11:55:13.260159    65 StaAnalyze.cc:599] analyze timing path end vertex 9911 total 10904 end
+I20261009 11:55:13.260247    65 StaAnalyze.cc:565] analyze timing path end vertex 9921 total 10904 start
+I20261009 11:55:13.260272    65 StaAnalyze.cc:599] analyze timing path end vertex 9921 total 10904 end
+I20261009 11:55:13.260360    65 StaAnalyze.cc:565] analyze timing path end vertex 9931 total 10904 start
+I20261009 11:55:13.260386    65 StaAnalyze.cc:599] analyze timing path end vertex 9931 total 10904 end
+I20261009 11:55:13.260473    65 StaAnalyze.cc:565] analyze timing path end vertex 9941 total 10904 start
+I20261009 11:55:13.260499    65 StaAnalyze.cc:599] analyze timing path end vertex 9941 total 10904 end
+I20261009 11:55:13.260591    65 StaAnalyze.cc:565] analyze timing path end vertex 9951 total 10904 start
+I20261009 11:55:13.260617    65 StaAnalyze.cc:599] analyze timing path end vertex 9951 total 10904 end
+I20261009 11:55:13.260680    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_lsu.memory_writeback_90__reg_p:D
+I20261009 11:55:13.260725    65 StaAnalyze.cc:565] analyze timing path end vertex 9961 total 10904 start
+I20261009 11:55:13.260754    65 StaAnalyze.cc:599] analyze timing path end vertex 9961 total 10904 end
+I20261009 11:55:13.260855    65 StaAnalyze.cc:565] analyze timing path end vertex 9971 total 10904 start
+I20261009 11:55:13.260881    65 StaAnalyze.cc:599] analyze timing path end vertex 9971 total 10904 end
+I20261009 11:55:13.260969    65 StaAnalyze.cc:565] analyze timing path end vertex 9981 total 10904 start
+I20261009 11:55:13.260996    65 StaAnalyze.cc:599] analyze timing path end vertex 9981 total 10904 end
+I20261009 11:55:13.261078    65 StaAnalyze.cc:565] analyze timing path end vertex 9991 total 10904 start
+I20261009 11:55:13.261103    65 StaAnalyze.cc:599] analyze timing path end vertex 9991 total 10904 end
+I20261009 11:55:13.261193    65 StaAnalyze.cc:565] analyze timing path end vertex 10001 total 10904 start
+I20261009 11:55:13.261222    65 StaAnalyze.cc:599] analyze timing path end vertex 10001 total 10904 end
+I20261009 11:55:13.261313    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_lsu.pending_lsu_context_q_16__reg_p:D
+I20261009 11:55:13.261358    65 StaAnalyze.cc:565] analyze timing path end vertex 10011 total 10904 start
+I20261009 11:55:13.261384    65 StaAnalyze.cc:599] analyze timing path end vertex 10011 total 10904 end
+I20261009 11:55:13.261467    65 StaAnalyze.cc:565] analyze timing path end vertex 10021 total 10904 start
+I20261009 11:55:13.261492    65 StaAnalyze.cc:599] analyze timing path end vertex 10021 total 10904 end
+I20261009 11:55:13.261575    65 StaAnalyze.cc:565] analyze timing path end vertex 10031 total 10904 start
+I20261009 11:55:13.261602    65 StaAnalyze.cc:599] analyze timing path end vertex 10031 total 10904 end
+I20261009 11:55:13.261689    65 StaAnalyze.cc:565] analyze timing path end vertex 10041 total 10904 start
+I20261009 11:55:13.261715    65 StaAnalyze.cc:599] analyze timing path end vertex 10041 total 10904 end
+I20261009 11:55:13.261802    65 StaAnalyze.cc:565] analyze timing path end vertex 10051 total 10904 start
+I20261009 11:55:13.261832    65 StaAnalyze.cc:599] analyze timing path end vertex 10051 total 10904 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.261904    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[10]_27__reg_p:D
+I20261009 11:55:13.261947    65 StaAnalyze.cc:565] analyze timing path end vertex 10061 total 10904 start
+I20261009 11:55:13.261977    65 StaAnalyze.cc:599] analyze timing path end vertex 10061 total 10904 end
+I20261009 11:55:13.262061    65 StaAnalyze.cc:565] analyze timing path end vertex 10071 total 10904 start
+I20261009 11:55:13.262087    65 StaAnalyze.cc:599] analyze timing path end vertex 10071 total 10904 end
+I20261009 11:55:13.262167    65 StaAnalyze.cc:565] analyze timing path end vertex 10081 total 10904 start
+I20261009 11:55:13.262192    65 StaAnalyze.cc:599] analyze timing path end vertex 10081 total 10904 end
+I20261009 11:55:13.262276    65 StaAnalyze.cc:565] analyze timing path end vertex 10091 total 10904 start
+I20261009 11:55:13.262301    65 StaAnalyze.cc:599] analyze timing path end vertex 10091 total 10904 end
+I20261009 11:55:13.262384    65 StaAnalyze.cc:565] analyze timing path end vertex 10101 total 10904 start
+I20261009 11:55:13.262408    65 StaAnalyze.cc:599] analyze timing path end vertex 10101 total 10904 end
+I20261009 11:55:13.262475    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[12]_14__reg_p:D
+I20261009 11:55:13.262507    65 StaAnalyze.cc:565] analyze timing path end vertex 10111 total 10904 start
+I20261009 11:55:13.262534    65 StaAnalyze.cc:599] analyze timing path end vertex 10111 total 10904 end
+I20261009 11:55:13.262612    65 StaAnalyze.cc:565] analyze timing path end vertex 10121 total 10904 start
+I20261009 11:55:13.262637    65 StaAnalyze.cc:599] analyze timing path end vertex 10121 total 10904 end
+I20261009 11:55:13.262719    65 StaAnalyze.cc:565] analyze timing path end vertex 10131 total 10904 start
+I20261009 11:55:13.262742    65 StaAnalyze.cc:599] analyze timing path end vertex 10131 total 10904 end
+I20261009 11:55:13.262840    65 StaAnalyze.cc:565] analyze timing path end vertex 10141 total 10904 start
+I20261009 11:55:13.262871    65 StaAnalyze.cc:599] analyze timing path end vertex 10141 total 10904 end
+I20261009 11:55:13.262943    65 StaAnalyze.cc:565] analyze timing path end vertex 10151 total 10904 start
+I20261009 11:55:13.262967    65 StaAnalyze.cc:599] analyze timing path end vertex 10151 total 10904 end
+I20261009 11:55:13.263036    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[13]_30__reg_p:D
+I20261009 11:55:13.263070    65 StaAnalyze.cc:565] analyze timing path end vertex 10161 total 10904 start
+I20261009 11:55:13.263098    65 StaAnalyze.cc:599] analyze timing path end vertex 10161 total 10904 end
+I20261009 11:55:13.263180    65 StaAnalyze.cc:565] analyze timing path end vertex 10171 total 10904 start
+I20261009 11:55:13.263206    65 StaAnalyze.cc:599] analyze timing path end vertex 10171 total 10904 end
+I20261009 11:55:13.263275    65 StaAnalyze.cc:565] analyze timing path end vertex 10181 total 10904 start
+I20261009 11:55:13.263300    65 StaAnalyze.cc:599] analyze timing path end vertex 10181 total 10904 end
+I20261009 11:55:13.263371    65 StaAnalyze.cc:565] analyze timing path end vertex 10191 total 10904 start
+I20261009 11:55:13.263396    65 StaAnalyze.cc:599] analyze timing path end vertex 10191 total 10904 end
+I20261009 11:55:13.263464    65 StaAnalyze.cc:565] analyze timing path end vertex 10201 total 10904 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.263487    65 StaAnalyze.cc:599] analyze timing path end vertex 10201 total 10904 end
+I20261009 11:55:13.263545    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[15]_18__reg_p:D
+I20261009 11:55:13.263579    65 StaAnalyze.cc:565] analyze timing path end vertex 10211 total 10904 start
+I20261009 11:55:13.263605    65 StaAnalyze.cc:599] analyze timing path end vertex 10211 total 10904 end
+I20261009 11:55:13.263674    65 StaAnalyze.cc:565] analyze timing path end vertex 10221 total 10904 start
+I20261009 11:55:13.263696    65 StaAnalyze.cc:599] analyze timing path end vertex 10221 total 10904 end
+I20261009 11:55:13.263767    65 StaAnalyze.cc:565] analyze timing path end vertex 10231 total 10904 start
+I20261009 11:55:13.263792    65 StaAnalyze.cc:599] analyze timing path end vertex 10231 total 10904 end
+I20261009 11:55:13.263873    65 StaAnalyze.cc:565] analyze timing path end vertex 10241 total 10904 start
+I20261009 11:55:13.263898    65 StaAnalyze.cc:599] analyze timing path end vertex 10241 total 10904 end
+I20261009 11:55:13.263967    65 StaAnalyze.cc:565] analyze timing path end vertex 10251 total 10904 start
+I20261009 11:55:13.263989    65 StaAnalyze.cc:599] analyze timing path end vertex 10251 total 10904 end
+I20261009 11:55:13.264043    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[16]_5__reg_p:D
+I20261009 11:55:13.264078    65 StaAnalyze.cc:565] analyze timing path end vertex 10261 total 10904 start
+I20261009 11:55:13.264106    65 StaAnalyze.cc:599] analyze timing path end vertex 10261 total 10904 end
+I20261009 11:55:13.264178    65 StaAnalyze.cc:565] analyze timing path end vertex 10271 total 10904 start
+I20261009 11:55:13.264204    65 StaAnalyze.cc:599] analyze timing path end vertex 10271 total 10904 end
+I20261009 11:55:13.264272    65 StaAnalyze.cc:565] analyze timing path end vertex 10281 total 10904 start
+I20261009 11:55:13.264297    65 StaAnalyze.cc:599] analyze timing path end vertex 10281 total 10904 end
+I20261009 11:55:13.264366    65 StaAnalyze.cc:565] analyze timing path end vertex 10291 total 10904 start
+I20261009 11:55:13.264396    65 StaAnalyze.cc:599] analyze timing path end vertex 10291 total 10904 end
+I20261009 11:55:13.264474    65 StaAnalyze.cc:565] analyze timing path end vertex 10301 total 10904 start
+I20261009 11:55:13.264499    65 StaAnalyze.cc:599] analyze timing path end vertex 10301 total 10904 end
+I20261009 11:55:13.264550    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[18]_21__reg_p:D
+I20261009 11:55:13.264585    65 StaAnalyze.cc:565] analyze timing path end vertex 10311 total 10904 start
+I20261009 11:55:13.264611    65 StaAnalyze.cc:599] analyze timing path end vertex 10311 total 10904 end
+I20261009 11:55:13.264681    65 StaAnalyze.cc:565] analyze timing path end vertex 10321 total 10904 start
+I20261009 11:55:13.264705    65 StaAnalyze.cc:599] analyze timing path end vertex 10321 total 10904 end
+I20261009 11:55:13.264775    65 StaAnalyze.cc:565] analyze timing path end vertex 10331 total 10904 start
+I20261009 11:55:13.264797    65 StaAnalyze.cc:599] analyze timing path end vertex 10331 total 10904 end
+I20261009 11:55:13.264884    65 StaAnalyze.cc:565] analyze timing path end vertex 10341 total 10904 start
+I20261009 11:55:13.264909    65 StaAnalyze.cc:599] analyze timing path end vertex 10341 total 10904 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.264974    65 StaAnalyze.cc:565] analyze timing path end vertex 10351 total 10904 start
+I20261009 11:55:13.265007    65 StaAnalyze.cc:599] analyze timing path end vertex 10351 total 10904 end
+I20261009 11:55:13.265060    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[19]_9__reg_p:D
+I20261009 11:55:13.265096    65 StaAnalyze.cc:565] analyze timing path end vertex 10361 total 10904 start
+I20261009 11:55:13.265125    65 StaAnalyze.cc:599] analyze timing path end vertex 10361 total 10904 end
+I20261009 11:55:13.265193    65 StaAnalyze.cc:565] analyze timing path end vertex 10371 total 10904 start
+I20261009 11:55:13.265216    65 StaAnalyze.cc:599] analyze timing path end vertex 10371 total 10904 end
+I20261009 11:55:13.265285    65 StaAnalyze.cc:565] analyze timing path end vertex 10381 total 10904 start
+I20261009 11:55:13.265311    65 StaAnalyze.cc:599] analyze timing path end vertex 10381 total 10904 end
+I20261009 11:55:13.265383    65 StaAnalyze.cc:565] analyze timing path end vertex 10391 total 10904 start
+I20261009 11:55:13.265410    65 StaAnalyze.cc:599] analyze timing path end vertex 10391 total 10904 end
+I20261009 11:55:13.265489    65 StaAnalyze.cc:565] analyze timing path end vertex 10401 total 10904 start
+I20261009 11:55:13.265514    65 StaAnalyze.cc:599] analyze timing path end vertex 10401 total 10904 end
+I20261009 11:55:13.265575    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[20]_25__reg_p:D
+I20261009 11:55:13.265610    65 StaAnalyze.cc:565] analyze timing path end vertex 10411 total 10904 start
+I20261009 11:55:13.265625    65 StaAnalyze.cc:599] analyze timing path end vertex 10411 total 10904 end
+I20261009 11:55:13.265688    65 StaAnalyze.cc:565] analyze timing path end vertex 10421 total 10904 start
+I20261009 11:55:13.265712    65 StaAnalyze.cc:599] analyze timing path end vertex 10421 total 10904 end
+I20261009 11:55:13.265781    65 StaAnalyze.cc:565] analyze timing path end vertex 10431 total 10904 start
+I20261009 11:55:13.265805    65 StaAnalyze.cc:599] analyze timing path end vertex 10431 total 10904 end
+I20261009 11:55:13.265878    65 StaAnalyze.cc:565] analyze timing path end vertex 10441 total 10904 start
+I20261009 11:55:13.265904    65 StaAnalyze.cc:599] analyze timing path end vertex 10441 total 10904 end
+I20261009 11:55:13.265996    65 StaAnalyze.cc:565] analyze timing path end vertex 10451 total 10904 start
+I20261009 11:55:13.266021    65 StaAnalyze.cc:599] analyze timing path end vertex 10451 total 10904 end
+I20261009 11:55:13.266085    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[22]_12__reg_p:D
+I20261009 11:55:13.266122    65 StaAnalyze.cc:565] analyze timing path end vertex 10461 total 10904 start
+I20261009 11:55:13.266149    65 StaAnalyze.cc:599] analyze timing path end vertex 10461 total 10904 end
+I20261009 11:55:13.266225    65 StaAnalyze.cc:565] analyze timing path end vertex 10471 total 10904 start
+I20261009 11:55:13.266249    65 StaAnalyze.cc:599] analyze timing path end vertex 10471 total 10904 end
+I20261009 11:55:13.266326    65 StaAnalyze.cc:565] analyze timing path end vertex 10481 total 10904 start
+I20261009 11:55:13.266350    65 StaAnalyze.cc:599] analyze timing path end vertex 10481 total 10904 end
+I20261009 11:55:13.266430    65 StaAnalyze.cc:565] analyze timing path end vertex 10491 total 10904 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.266456    65 StaAnalyze.cc:599] analyze timing path end vertex 10491 total 10904 end
+I20261009 11:55:13.266552    65 StaAnalyze.cc:565] analyze timing path end vertex 10501 total 10904 start
+I20261009 11:55:13.266577    65 StaAnalyze.cc:599] analyze timing path end vertex 10501 total 10904 end
+I20261009 11:55:13.266644    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[23]_29__reg_p:D
+I20261009 11:55:13.266683    65 StaAnalyze.cc:565] analyze timing path end vertex 10511 total 10904 start
+I20261009 11:55:13.266712    65 StaAnalyze.cc:599] analyze timing path end vertex 10511 total 10904 end
+I20261009 11:55:13.266794    65 StaAnalyze.cc:565] analyze timing path end vertex 10521 total 10904 start
+I20261009 11:55:13.266824    65 StaAnalyze.cc:599] analyze timing path end vertex 10521 total 10904 end
+I20261009 11:55:13.266892    65 StaAnalyze.cc:565] analyze timing path end vertex 10531 total 10904 start
+I20261009 11:55:13.266916    65 StaAnalyze.cc:599] analyze timing path end vertex 10531 total 10904 end
+I20261009 11:55:13.266985    65 StaAnalyze.cc:565] analyze timing path end vertex 10541 total 10904 start
+I20261009 11:55:13.267010    65 StaAnalyze.cc:599] analyze timing path end vertex 10541 total 10904 end
+I20261009 11:55:13.267091    65 StaAnalyze.cc:565] analyze timing path end vertex 10551 total 10904 start
+I20261009 11:55:13.267117    65 StaAnalyze.cc:599] analyze timing path end vertex 10551 total 10904 end
+I20261009 11:55:13.267181    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[25]_16__reg_p:D
+I20261009 11:55:13.267217    65 StaAnalyze.cc:565] analyze timing path end vertex 10561 total 10904 start
+I20261009 11:55:13.267242    65 StaAnalyze.cc:599] analyze timing path end vertex 10561 total 10904 end
+I20261009 11:55:13.267321    65 StaAnalyze.cc:565] analyze timing path end vertex 10571 total 10904 start
+I20261009 11:55:13.267346    65 StaAnalyze.cc:599] analyze timing path end vertex 10571 total 10904 end
+I20261009 11:55:13.267426    65 StaAnalyze.cc:565] analyze timing path end vertex 10581 total 10904 start
+I20261009 11:55:13.267452    65 StaAnalyze.cc:599] analyze timing path end vertex 10581 total 10904 end
+I20261009 11:55:13.267525    65 StaAnalyze.cc:565] analyze timing path end vertex 10591 total 10904 start
+I20261009 11:55:13.267551    65 StaAnalyze.cc:599] analyze timing path end vertex 10591 total 10904 end
+I20261009 11:55:13.267633    65 StaAnalyze.cc:565] analyze timing path end vertex 10601 total 10904 start
+I20261009 11:55:13.267657    65 StaAnalyze.cc:599] analyze timing path end vertex 10601 total 10904 end
+I20261009 11:55:13.267721    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[26]_3__reg_p:D
+I20261009 11:55:13.267756    65 StaAnalyze.cc:565] analyze timing path end vertex 10611 total 10904 start
+I20261009 11:55:13.267781    65 StaAnalyze.cc:599] analyze timing path end vertex 10611 total 10904 end
+I20261009 11:55:13.267871    65 StaAnalyze.cc:565] analyze timing path end vertex 10621 total 10904 start
+I20261009 11:55:13.267896    65 StaAnalyze.cc:599] analyze timing path end vertex 10621 total 10904 end
+I20261009 11:55:13.267976    65 StaAnalyze.cc:565] analyze timing path end vertex 10631 total 10904 start
+I20261009 11:55:13.268002    65 StaAnalyze.cc:599] analyze timing path end vertex 10631 total 10904 end
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.268078    65 StaAnalyze.cc:565] analyze timing path end vertex 10641 total 10904 start
+I20261009 11:55:13.268110    65 StaAnalyze.cc:599] analyze timing path end vertex 10641 total 10904 end
+I20261009 11:55:13.268189    65 StaAnalyze.cc:565] analyze timing path end vertex 10651 total 10904 start
+I20261009 11:55:13.268214    65 StaAnalyze.cc:599] analyze timing path end vertex 10651 total 10904 end
+I20261009 11:55:13.268277    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[28]_1__reg_p:D
+I20261009 11:55:13.268312    65 StaAnalyze.cc:565] analyze timing path end vertex 10661 total 10904 start
+I20261009 11:55:13.268348    65 StaAnalyze.cc:599] analyze timing path end vertex 10661 total 10904 end
+I20261009 11:55:13.268430    65 StaAnalyze.cc:565] analyze timing path end vertex 10671 total 10904 start
+I20261009 11:55:13.268457    65 StaAnalyze.cc:599] analyze timing path end vertex 10671 total 10904 end
+I20261009 11:55:13.268544    65 StaAnalyze.cc:565] analyze timing path end vertex 10681 total 10904 start
+I20261009 11:55:13.268568    65 StaAnalyze.cc:599] analyze timing path end vertex 10681 total 10904 end
+I20261009 11:55:13.268647    65 StaAnalyze.cc:565] analyze timing path end vertex 10691 total 10904 start
+I20261009 11:55:13.268672    65 StaAnalyze.cc:599] analyze timing path end vertex 10691 total 10904 end
+I20261009 11:55:13.268752    65 StaAnalyze.cc:565] analyze timing path end vertex 10701 total 10904 start
+I20261009 11:55:13.268776    65 StaAnalyze.cc:599] analyze timing path end vertex 10701 total 10904 end
+I20261009 11:55:13.268848    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[29]_7__reg_p:D
+I20261009 11:55:13.268885    65 StaAnalyze.cc:565] analyze timing path end vertex 10711 total 10904 start
+I20261009 11:55:13.268903    65 StaAnalyze.cc:599] analyze timing path end vertex 10711 total 10904 end
+I20261009 11:55:13.268988    65 StaAnalyze.cc:565] analyze timing path end vertex 10721 total 10904 start
+I20261009 11:55:13.269016    65 StaAnalyze.cc:599] analyze timing path end vertex 10721 total 10904 end
+I20261009 11:55:13.269084    65 StaAnalyze.cc:565] analyze timing path end vertex 10731 total 10904 start
+I20261009 11:55:13.269109    65 StaAnalyze.cc:599] analyze timing path end vertex 10731 total 10904 end
+I20261009 11:55:13.269188    65 StaAnalyze.cc:565] analyze timing path end vertex 10741 total 10904 start
+I20261009 11:55:13.269215    65 StaAnalyze.cc:599] analyze timing path end vertex 10741 total 10904 end
+I20261009 11:55:13.269296    65 StaAnalyze.cc:565] analyze timing path end vertex 10751 total 10904 start
+I20261009 11:55:13.269320    65 StaAnalyze.cc:599] analyze timing path end vertex 10751 total 10904 end
+I20261009 11:55:13.269381    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[5]_25__reg_p:D
+I20261009 11:55:13.269418    65 StaAnalyze.cc:565] analyze timing path end vertex 10761 total 10904 start
+I20261009 11:55:13.269445    65 StaAnalyze.cc:599] analyze timing path end vertex 10761 total 10904 end
+I20261009 11:55:13.269524    65 StaAnalyze.cc:565] analyze timing path end vertex 10771 total 10904 start
+I20261009 11:55:13.269548    65 StaAnalyze.cc:599] analyze timing path end vertex 10771 total 10904 end
+I20261009 11:55:13.269629    65 StaAnalyze.cc:565] analyze timing path end vertex 10781 total 10904 start
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.269651    65 StaAnalyze.cc:599] analyze timing path end vertex 10781 total 10904 end
+I20261009 11:55:13.269737    65 StaAnalyze.cc:565] analyze timing path end vertex 10791 total 10904 start
+I20261009 11:55:13.269762    65 StaAnalyze.cc:599] analyze timing path end vertex 10791 total 10904 end
+I20261009 11:55:13.269848    65 StaAnalyze.cc:565] analyze timing path end vertex 10801 total 10904 start
+I20261009 11:55:13.269873    65 StaAnalyze.cc:599] analyze timing path end vertex 10801 total 10904 end
+I20261009 11:55:13.269936    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[7]_12__reg_p:D
+I20261009 11:55:13.269972    65 StaAnalyze.cc:565] analyze timing path end vertex 10811 total 10904 start
+I20261009 11:55:13.270000    65 StaAnalyze.cc:599] analyze timing path end vertex 10811 total 10904 end
+I20261009 11:55:13.270082    65 StaAnalyze.cc:565] analyze timing path end vertex 10821 total 10904 start
+I20261009 11:55:13.270107    65 StaAnalyze.cc:599] analyze timing path end vertex 10821 total 10904 end
+I20261009 11:55:13.270190    65 StaAnalyze.cc:565] analyze timing path end vertex 10831 total 10904 start
+I20261009 11:55:13.270213    65 StaAnalyze.cc:599] analyze timing path end vertex 10831 total 10904 end
+I20261009 11:55:13.270294    65 StaAnalyze.cc:565] analyze timing path end vertex 10841 total 10904 start
+I20261009 11:55:13.270320    65 StaAnalyze.cc:599] analyze timing path end vertex 10841 total 10904 end
+I20261009 11:55:13.270404    65 StaAnalyze.cc:565] analyze timing path end vertex 10851 total 10904 start
+I20261009 11:55:13.270428    65 StaAnalyze.cc:599] analyze timing path end vertex 10851 total 10904 end
+I20261009 11:55:13.270495    65 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[8]_29__reg_p:D
+I20261009 11:55:13.270539    65 StaAnalyze.cc:565] analyze timing path end vertex 10861 total 10904 start
+I20261009 11:55:13.270565    65 StaAnalyze.cc:599] analyze timing path end vertex 10861 total 10904 end
+I20261009 11:55:13.270645    65 StaAnalyze.cc:565] analyze timing path end vertex 10871 total 10904 start
+I20261009 11:55:13.270669    65 StaAnalyze.cc:599] analyze timing path end vertex 10871 total 10904 end
+I20261009 11:55:13.270751    65 StaAnalyze.cc:565] analyze timing path end vertex 10881 total 10904 start
+I20261009 11:55:13.270776    65 StaAnalyze.cc:599] analyze timing path end vertex 10881 total 10904 end
+I20261009 11:55:13.272045    65 StaAnalyze.cc:565] analyze timing path end vertex 10891 total 10904 start
+I20261009 11:55:13.272101    65 StaAnalyze.cc:599] analyze timing path end vertex 10891 total 10904 end
+I20261009 11:55:13.272181    65 StaAnalyze.cc:565] analyze timing path end vertex 10901 total 10904 start
+I20261009 11:55:13.272198    65 StaAnalyze.cc:599] analyze timing path end vertex 10901 total 10904 end
+I20261009 11:55:13.272213    65 StaAnalyze.cc:603] analyze timing path end
+I20261009 11:55:13.272229    65 StaApplySdc.cc:698] apply sdc start
+I20261009 11:55:13.272244    65 StaApplySdc.cc:729] apply sdc end
+I20261009 11:55:13.272251    65 StaDataPropagation.cc:698] data bwd propagation start
+I20261009 11:55:13.273648    65 StaDataPropagation.cc:249] propagate start vertex u_core.commit_0__reg_p:CK
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.273705    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_0__reg_p:D
+I20261009 11:55:13.273763    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_1__reg_p:D
+I20261009 11:55:13.273797    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_2__reg_p:D
+I20261009 11:55:13.273837    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_5__reg_p:D
+I20261009 11:55:13.273870    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_8__reg_p:D
+I20261009 11:55:13.273895    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_9__reg_p:D
+I20261009 11:55:13.273923    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_14__reg_p:D
+I20261009 11:55:13.273955    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_24__reg_p:D
+I20261009 11:55:13.273983    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_27__reg_p:D
+I20261009 11:55:13.274016    65 StaDataPropagation.cc:172] Thread 128660116086912 data bwd propagate found end vertex.u_core.u_ifu.predictor_fetch_pc_q_4__reg_p:D
+I20261009 11:55:13.277983    65 StaDataPropagation.cc:61] the endpoint vertex data_axi4_manager_o_1_ has negative slack
+I20261009 11:55:13.308593    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_11__reg_p:RN has negative slack
+I20261009 11:55:13.308665    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_16__reg_p:RN has negative slack
+I20261009 11:55:13.308681    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_21__reg_p:RN has negative slack
+I20261009 11:55:13.308693    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_26__reg_p:RN has negative slack
+I20261009 11:55:13.308706    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_30__reg_p:RN has negative slack
+I20261009 11:55:13.308719    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_6__reg_p:RN has negative slack
+I20261009 11:55:13.308733    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_11__reg_p:RN has negative slack
+I20261009 11:55:13.308745    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_16__reg_p:RN has negative slack
+I20261009 11:55:13.308758    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_21__reg_p:RN has negative slack
+I20261009 11:55:13.308768    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_26__reg_p:RN has negative slack
+I20261009 11:55:13.308779    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_30__reg_p:RN has negative slack
+I20261009 11:55:13.308790    65 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_6__reg_p:RN has negative slack
+I20261009 11:55:13.308821    65 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_blocking_producer_present_reg_p:RN has negative slack
+I20261009 11:55:13.308840    65 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_10__reg_p:RN has negative slack
+I20261009 11:55:13.308852    65 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_15__reg_p:RN has negative slack
+I20261009 11:55:13.308866    65 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_20__reg_p:RN has negative slack
+I20261009 11:55:13.308892    65 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_25__reg_p:RN has negative slack
+I20261009 11:55:13.308915    65 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_2__reg_p:RN has negative slack
+I20261009 11:55:13.308940    65 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_5__reg_p:RN has negative slack
+I20261009 11:55:13.308966    65 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:RN has negative slack
+I20261009 11:55:13.308991    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.counter_array_q_10__reg_p:SN has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.309005    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.counter_array_q_15__reg_p:RN has negative slack
+I20261009 11:55:13.309054    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.counter_array_q_1__reg_p:RN has negative slack
+I20261009 11:55:13.309079    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.counter_array_q_24__reg_p:SN has negative slack
+I20261009 11:55:13.309104    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.counter_array_q_29__reg_p:RN has negative slack
+I20261009 11:55:13.309134    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.counter_array_q_4__reg_p:SN has negative slack
+I20261009 11:55:13.309158    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.counter_array_q_9__reg_p:RN has negative slack
+I20261009 11:55:13.309182    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.entry_present_array_q_13__reg_p:RN has negative slack
+I20261009 11:55:13.309206    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.entry_present_array_q_3__reg_p:RN has negative slack
+I20261009 11:55:13.309230    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.entry_present_array_q_8__reg_p:RN has negative slack
+I20261009 11:55:13.309255    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.replacement_way_array_q_3__reg_p:RN has negative slack
+I20261009 11:55:13.309283    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_ras.entry_count_q_0__reg_p:RN has negative slack
+I20261009 11:55:13.309307    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mcause_code_q_0__reg_p:RN has negative slack
+I20261009 11:55:13.309332    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mie_mtie_q_reg_p:RN has negative slack
+I20261009 11:55:13.309355    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_13__reg_p:RN has negative slack
+I20261009 11:55:13.309379    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_18__reg_p:RN has negative slack
+I20261009 11:55:13.309404    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_22__reg_p:RN has negative slack
+I20261009 11:55:13.309417    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_27__reg_p:RN has negative slack
+I20261009 11:55:13.309428    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_31__reg_p:RN has negative slack
+I20261009 11:55:13.309441    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_7__reg_p:RN has negative slack
+I20261009 11:55:13.309453    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_0__reg_p:RN has negative slack
+I20261009 11:55:13.309468    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_14__reg_p:RN has negative slack
+I20261009 11:55:13.309480    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_19__reg_p:RN has negative slack
+I20261009 11:55:13.309492    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_23__reg_p:RN has negative slack
+I20261009 11:55:13.309518    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_28__reg_p:RN has negative slack
+I20261009 11:55:13.309530    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_3__reg_p:RN has negative slack
+I20261009 11:55:13.309545    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_8__reg_p:RN has negative slack
+I20261009 11:55:13.309558    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_12__reg_p:RN has negative slack
+I20261009 11:55:13.309580    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_17__reg_p:RN has negative slack
+I20261009 11:55:13.309604    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_21__reg_p:RN has negative slack
+I20261009 11:55:13.309630    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_26__reg_p:RN has negative slack
+I20261009 11:55:13.309643    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_30__reg_p:RN has negative slack
+I20261009 11:55:13.309664    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_6__reg_p:RN has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.309687    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_0__reg_p:RN has negative slack
+I20261009 11:55:13.309717    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_14__reg_p:RN has negative slack
+I20261009 11:55:13.309741    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_19__reg_p:RN has negative slack
+I20261009 11:55:13.309764    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_23__reg_p:RN has negative slack
+I20261009 11:55:13.309787    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_28__reg_p:RN has negative slack
+I20261009 11:55:13.309815    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_3__reg_p:RN has negative slack
+I20261009 11:55:13.309829    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_8__reg_p:RN has negative slack
+I20261009 11:55:13.309854    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_12__reg_p:RN has negative slack
+I20261009 11:55:13.309866    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_17__reg_p:RN has negative slack
+I20261009 11:55:13.309880    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_21__reg_p:RN has negative slack
+I20261009 11:55:13.309892    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_26__reg_p:RN has negative slack
+I20261009 11:55:13.309902    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_30__reg_p:RN has negative slack
+I20261009 11:55:13.309913    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_6__reg_p:RN has negative slack
+I20261009 11:55:13.309924    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_0__reg_p:RN has negative slack
+I20261009 11:55:13.309937    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_14__reg_p:RN has negative slack
+I20261009 11:55:13.309948    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_19__reg_p:RN has negative slack
+I20261009 11:55:13.309970    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_23__reg_p:RN has negative slack
+I20261009 11:55:13.309983    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_28__reg_p:RN has negative slack
+I20261009 11:55:13.310009    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_3__reg_p:RN has negative slack
+I20261009 11:55:13.310030    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_8__reg_p:RN has negative slack
+I20261009 11:55:13.310055    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.lookup_s1_present_q_reg_p:RN has negative slack
+I20261009 11:55:13.310079    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.replacement_way_index_array_q_3__reg_p:RN has negative slack
+I20261009 11:55:13.310105    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.store_write_bypass_present_q_reg_p:RN has negative slack
+I20261009 11:55:13.310135    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_req_ready_o_reg_p:SN has negative slack
+I20261009 11:55:13.310160    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.clean_operation_q_reg_p:RN has negative slack
+I20261009 11:55:13.310186    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.route_state_q_0__reg_p:RN has negative slack
+I20261009 11:55:13.310211    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.u_uncached_axi.state_q_1__reg_p:RN has negative slack
+I20261009 11:55:13.310238    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fence_i_ctrl.fence_i_maintenance_state_q_1__reg_p:RN has negative slack
+I20261009 11:55:13.310254    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fetch_buffer.read_index_q_reg_p:RN has negative slack
+I20261009 11:55:13.310299    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.local_lookup_resp_38__reg_p:D has negative slack
+I20261009 11:55:13.310344    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.local_lookup_resp_59__reg_p:D has negative slack
+I20261009 11:55:13.310388    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.local_lookup_resp_43__reg_p:D has negative slack
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.310480    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.local_lookup_resp_52__reg_p:D has negative slack
+I20261009 11:55:13.310546    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.local_lookup_resp_57__reg_p:D has negative slack
+I20261009 11:55:13.310587    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.local_lookup_resp_64__reg_p:D has negative slack
+I20261009 11:55:13.310621    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.local_lookup_resp_60__reg_p:D has negative slack
+I20261009 11:55:13.310653    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.u_riscv32_icache_miss_unit.lookup_response_generated_q_reg_p:RN has negative slack
+I20261009 11:55:13.310671    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.lookup_queue_entry_count_q_0__reg_p:RN has negative slack
+I20261009 11:55:13.310685    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_10__reg_p:RN has negative slack
+I20261009 11:55:13.310699    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_15__reg_p:RN has negative slack
+I20261009 11:55:13.310714    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_1__reg_p:RN has negative slack
+I20261009 11:55:13.310725    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_24__reg_p:RN has negative slack
+I20261009 11:55:13.310737    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_29__reg_p:SN has negative slack
+I20261009 11:55:13.310750    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_4__reg_p:RN has negative slack
+I20261009 11:55:13.310762    65 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.predictor_fetch_pc_q_9__reg_p:RN has negative slack
+I20261009 11:55:13.315025    65 StaDataPropagation.cc:249] propagate start vertex u_core.commit_252__reg_p:CK
+I20261009 11:55:13.326460    65 StaDataPropagation.cc:249] propagate start vertex u_core.execute_packet_127__reg_p:CK
+I20261009 11:55:13.353765    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.entry_array_q[2]_9__reg_p:CK
+I20261009 11:55:13.361472    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.entry_array_q[7]_98__reg_p:CK
+I20261009 11:55:13.388197    65 StaDataPropagation.cc:249] propagate start vertex u_core.resolved_execute_result_191__reg_p:CK
+I20261009 11:55:13.389640    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.entry_array_q[0]_48__reg_p:CK
+I20261009 11:55:13.390563    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.entry_array_q[2]_118__reg_p:CK
+I20261009 11:55:13.391471    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.entry_array_q[3]_19__reg_p:CK
+I20261009 11:55:13.392431    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.entry_array_q[4]_8__reg_p:CK
+I20261009 11:55:13.393379    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.entry_array_q[6]_4__reg_p:CK
+I20261009 11:55:13.394445    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_context_q_29__reg_p:CK
+I20261009 11:55:13.396896    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_csr_file.mscratch_q_21__reg_p:CK
+I20261009 11:55:13.400279    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_tag_array_21__reg_p:CK
+I20261009 11:55:13.404451    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.store_write_bypass_data_q_15__reg_p:CK
+I20261009 11:55:13.405278    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_229__reg_p:CK
+I20261009 11:55:13.406095    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_409__reg_p:CK
+I20261009 11:55:13.406876    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_58__reg_p:CK
+I20261009 11:55:13.407693    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_76__reg_p:CK
+I20261009 11:55:13.408471    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_94__reg_p:CK
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.409513    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[3]_10__reg_p:CK
+I20261009 11:55:13.410612    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_359__reg_p:CK
+I20261009 11:55:13.411583    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_539__reg_p:CK
+I20261009 11:55:13.412425    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_719__reg_p:CK
+I20261009 11:55:13.413411    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_89__reg_p:CK
+I20261009 11:55:13.415560    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.writeback_state_q_1__reg_p:CK
+I20261009 11:55:13.418063    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.tag_array_q[0]_11__reg_p:CK
+I20261009 11:55:13.418871    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.tag_array_q[1]_11__reg_p:CK
+I20261009 11:55:13.420394    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.u_uncached_axi.request_context_q_28__reg_p:CK
+I20261009 11:55:13.422039    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_fetch_buffer.entry_array_q[1]_109__reg_p:CK
+I20261009 11:55:13.425227    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.miss_lookup_resp_43__reg_p:CK
+I20261009 11:55:13.426024    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1157__$_DLATCH_P__Q:G
+I20261009 11:55:13.426678    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1337__$_DLATCH_P__Q:G
+I20261009 11:55:13.427362    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1517__$_DLATCH_P__Q:G
+I20261009 11:55:13.428047    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1698__$_DLATCH_P__Q:G
+I20261009 11:55:13.428705    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1878__$_DLATCH_P__Q:G
+I20261009 11:55:13.429471    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_213__$_DLATCH_P__Q:G
+I20261009 11:55:13.430272    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_394__$_DLATCH_P__Q:G
+I20261009 11:55:13.431061    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_574__$_DLATCH_P__Q:G
+I20261009 11:55:13.431843    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_754__$_DLATCH_P__Q:G
+I20261009 11:55:13.432552    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_934__$_DLATCH_P__Q:G
+I20261009 11:55:13.436769    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[0]_129__reg_p:CK
+I20261009 11:55:13.437669    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[0]_309__reg_p:CK
+I20261009 11:55:13.440843    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_ifu.lookup_queue_prediction_array_q[0]_19__reg_p:CK
+I20261009 11:55:13.442060    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_lsu.memory_writeback_400__reg_p:CK
+I20261009 11:55:13.443574    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[12]_18__reg_p:CK
+I20261009 11:55:13.444694    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[18]_25__reg_p:CK
+I20261009 11:55:13.445847    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[23]_3__reg_p:CK
+I20261009 11:55:13.446945    65 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[2]_10__reg_p:CK
+I20261009 11:55:13.449704    65 StaDataPropagation.cc:703] data bwd propagation end
+I20261009 11:55:13.449744    65 Sta.cc:2895] update timing end
+I20261009 11:55:13.449802    65 Sta.cc:2898] update timing memory usage 2098.9MB
+Could not create log file: Read-only file system
+COULD NOT CREATE LOGFILE '20261009-115513.65'!
+I20261009 11:55:13.449841    65 Sta.cc:2900] update timing time elapsed 1.89324s
+I20261009 11:55:13.450120    65 Sta.cc:2998] start write sta report.
+I20261009 11:55:13.450137    65 Sta.cc:2999] output sta report path: /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz
+I20261009 11:55:13.461521    65 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261009 11:55:13.462013    65 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261009 11:55:13.475765    65 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261009 11:55:13.476737    65 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261009 11:55:13.495111    65 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261009 11:55:13.495460    65 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261009 11:55:13.505779    65 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261009 11:55:13.506261    65 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261009 11:55:13.518086    65 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261009 11:55:13.519110    65 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261009 11:55:13.538138    65 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261009 11:55:13.538569    65 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261009 11:55:13.538599    65 Sta.cc:1885] 
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| Endpoint                                                                                             | Clock Group              | Delay Type | Path Delay | Path Required | CPPR  | Slack  | Freq(MHz) |
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| u_core.u_icache.local_lookup_resp_39__reg_p:D                                                        | core_clock               | max        | 3.030r     | 1.183         | 0.000 | -1.847 | 326.139   |
+| u_core.u_icache.local_lookup_resp_39__reg_p:D                                                        | core_clock               | max        | 3.030r     | 1.183         | 0.000 | -1.847 | 326.139   |
+| u_core.u_icache.local_lookup_resp_40__reg_p:D                                                        | core_clock               | max        | 3.027r     | 1.184         | 0.000 | -1.843 | 326.597   |
+| u_core.u_icache.local_lookup_resp_40__reg_p:D                                                        | core_clock               | max        | 3.027r     | 1.184         | 0.000 | -1.843 | 326.597   |
+| u_core.u_icache.local_lookup_resp_43__reg_p:D                                                        | core_clock               | max        | 3.027r     | 1.184         | 0.000 | -1.843 | 326.602   |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_2__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.050f     | 1.167         | 0.000 | -1.883 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_1__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.050f     | 1.167         | 0.000 | -1.883 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_5__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.050f     | 1.167         | 0.000 | -1.883 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_4__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.050f     | 1.167         | 0.000 | -1.883 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.050f     | 1.167         | 0.000 | -1.883 | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D                                                       | core_clock               | min        | 0.069r     | 0.007         | 0.000 | 0.062  | NA        |
+| u_core.u_ifu.lookup_queue_read_index_q_reg_p:D                                                       | core_clock               | min        | 0.069r     | 0.007         | 0.000 | 0.062  | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.065f     | 0.003         | 0.000 | 0.062  | NA        |
+| u_core.completion_result_valid_CLKGATE_X1_E:E                                                        | **clock_gating_default** | min        | 0.093r     | -0.001        | 0.000 | 0.094  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E  | **clock_gating_default** | min        | 0.096r     | -0.001        | 0.000 | 0.097  | NA        |
+| u_core.icache_refill_req_ready_reg_p_QN_NOR2_X1_A2_ZN_CLKGATE_X1_E:E                                 | **clock_gating_default** | min        | 0.082f     | -0.015        | 0.000 | 0.098  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E  | **clock_gating_default** | min        | 0.084f     | -0.015        | 0.000 | 0.100  | NA        |
+| u_core.decoded_execute_packet_ready_CLKGATE_X1_E:E                                                   | **clock_gating_default** | min        | 0.099r     | -0.001        | 0.000 | 0.100  | NA        |
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+I20261009 11:55:13.538769    65 Sta.cc:1886] 
++------------+------------+-----------+
+| Clock      | Delay Type | TNS       |
++------------+------------+-----------+
+| core_clock | max        | -2154.802 |
+| core_clock | min        | 0.000     |
++------------+------------+-----------+
+I20261009 11:55:13.964596    65 NetlistWriter.cc:52] start write verilog file /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.v
+I20261009 11:55:14.339170    65 NetlistWriter.cc:71] finish write verilog file /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.v
+I20261009 11:55:14.345976    65 Sta.cc:3111] used lib: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib
+I20261009 11:55:14.346022    65 Sta.cc:3096] The timing engine run success.
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow'
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc'
+python3 scripts/build_reset_tree.py \
+	--netlist /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v \
+	--liberty /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_typ.lib \
+	--output-dir /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz-buffered
+{
+  "source_netlist": "/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v",
+  "top": "riscv32_core_reset_boundary",
+  "buffer_cell": "BUF_X4",
+  "buffer_count": 48,
+  "reset_load_count": 457,
+  "maximum_inserted_tree_fanout": 16,
+  "structural_equivalence": "passed",
+  "scope": "Mapped-cell buffering only; placement and routed parasitics not included"
+}
+python3 scripts/check_reset_netlist.py /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz-buffered/buffered.json \
+	--output /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json
+{
+  "raw_reset_sinks": [
+    [
+      "core_rst_n_reg_n",
+      "RN"
+    ],
+    [
+      "u_reset_controller.reset_release_sync_q_0__reg_p",
+      "RN"
+    ],
+    [
+      "u_reset_controller.reset_release_sync_q_1__reg_p",
+      "RN"
+    ]
+  ],
+  "release_driver": [
+    [
+      "core_rst_n_reg_n",
+      "Q"
+    ]
+  ],
+  "core_reset_sink_count": 429,
+  "qualified_reset_net_count": 49,
+  "status": "passed"
+}
+cp constr/riscv32_core_reset_boundary.sdc /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc
+NPC_STA_NETLIST_FILE=/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v \
+	CLK_FREQ_MHZ=820 RUN_POWER_ANALYSIS=0 \
+	/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA -script /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl \
+	/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc \
+	/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v \
+	riscv32_core_reset_boundary nangate45 > /home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/synthesis/dcache-ab/on/sta/riscv32_core_reset_boundary-820MHz-buffered/sta.log 2>&1
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc'

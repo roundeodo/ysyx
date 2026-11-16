@@ -1,0 +1,5 @@
+{
+  "original": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-exploration-20260922/builds/S32",
+  "binary_sha256": "afd201ad5712910a84aebc1b2a69d8382e0fe0111dca4744a34079787a3626be",
+  "validation": "all compiled source hashes match followup baseline, including memory and observer"
+}

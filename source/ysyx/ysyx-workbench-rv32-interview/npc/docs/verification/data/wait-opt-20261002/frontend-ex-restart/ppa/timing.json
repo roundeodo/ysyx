@@ -1,0 +1,74 @@
+[
+  {
+    "mhz": 700,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "data_axi4_manager_o_52_",
+        "slack_ns": -0.346,
+        "fmax_mhz": 563.775
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.store_write_bypass_present_q_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.167,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 530,
+    "passed": true,
+    "violations": 0,
+    "groups": {
+      "data_max": {
+        "endpoint": "data_axi4_manager_o_52_",
+        "slack_ns": 0.021,
+        "fmax_mhz": 536.078
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.224,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  }
+]

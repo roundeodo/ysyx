@@ -1,0 +1,11 @@
+{
+  "original": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-exploration-20260922/ppa/R32",
+  "records": {
+    "qualified.json": "ecc5624e623c2e943c00259217a6695115536cac92eee12f20ac6e5af1614f4c",
+    "cells.json": "b4e3f442860d36a9e3b1e81ed56f527b676759e6668099261396360e0db6e3b1",
+    "timing.json": "cfd67a770d553086daf824b3f9c38f227957e150a45d232a57587392c6119723",
+    "source-hashes.json": "f949e75d24ce317ecbe787b273bbc50e5554793a69f2fca5c23a1ad4eebcdca9",
+    "command.json": "c829a78bf6d3c12aaa2e7e5283827844524ba8582082e24221cd7f1ca618a095"
+  },
+  "validation": "all compiled RTL sources match frozen baseline; same original AREA3/820MHz/NanGate45 flow; original logs retained"
+}

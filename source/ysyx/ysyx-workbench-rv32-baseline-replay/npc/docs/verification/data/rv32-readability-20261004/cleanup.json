@@ -1,0 +1,79 @@
+{
+  "removed_generated_objects": [
+    "npc/result/readability-review-current/tage-scl/sc1-loop1/obj",
+    "npc/result/readability-review-current/tage-scl/sc1-loop0/obj",
+    "npc/result/readability-review-current/tage-scl/sc0-loop1/obj",
+    "npc/result/readability-review-current/tage-scl/sc0-loop0/obj",
+    "npc/result/readability-review-current/replacement/w8-s1-p13/obj",
+    "npc/result/readability-review-current/replacement/w4-s8-p13/obj",
+    "npc/result/readability-review-current/replacement/w2-s8-p13/obj",
+    "npc/result/readability-review-current/recovery/core/obj",
+    "npc/result/readability-review-current/legacy-predictor/predictor/obj",
+    "npc/result/readability-review-current/frontend/predictor/obj",
+    "npc/result/readability-review-current/frontend/fetch/obj",
+    "npc/result/readability-review-current/exception/obj",
+    "npc/result/readability-review-current/baseline-predictor/predictor/obj"
+  ],
+  "removed_reproducible_state_dumps": [
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc1-loop1/seed303.out",
+      "bytes": 6300000,
+      "sha256": "00698cc6a03a0a79cce466fc57e0e71b72a3e5d9140538753f31ca0281039798"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc1-loop1/seed202.out",
+      "bytes": 6300000,
+      "sha256": "d432d27a4ed7b6c8c56df5eedf3571d6cada3c15b76d8ea2c2f4d8279ffae224"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc1-loop1/seed101.out",
+      "bytes": 6300000,
+      "sha256": "d85323d4a2fd68e7e3636c0d5643f5ad3cf50880c088216446ec5c9f49a7a749"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc0-loop1/seed303.out",
+      "bytes": 6300000,
+      "sha256": "7b5ef8c97b95551b27867937b975b02209ad51c4cec22f6ea2559a2de5687c53"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc0-loop1/seed202.out",
+      "bytes": 6300000,
+      "sha256": "a9d7586f6fe0c57d080631eadbb29d0d8615f84a1184ecfe2df787555b0c762c"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc0-loop1/seed101.out",
+      "bytes": 6300000,
+      "sha256": "eed5ba760841911000ee1cc3f095e6d303704a4cfe85ac56e7b7e796d53782ba"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc0-loop0/seed303.out",
+      "bytes": 6300000,
+      "sha256": "d502cc062ebf86630904a760cd097ac00e8dd594473b1ac756ea99b3a71d430e"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc0-loop0/seed202.out",
+      "bytes": 6300000,
+      "sha256": "ac52e1f5138b9001f31da4f9affb8df520ac23a893e2669040f7040eec548434"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc0-loop0/seed101.out",
+      "bytes": 6300000,
+      "sha256": "c46d98c2f645876d39c601426787aeeaa930eea9283460842b18ef41d5223828"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc1-loop0/seed303.out",
+      "bytes": 6300000,
+      "sha256": "fe7013fc2e2bbb0917000355d9e8d662872ba492052b0f86b089db70dcbc254d"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc1-loop0/seed202.out",
+      "bytes": 6300000,
+      "sha256": "09285d2b94bc5e56bd2f7014309c6d94973457874af37f7d385bfb5a9aa65164"
+    },
+    {
+      "path": "npc/result/readability-review-current/tage-scl/sc1-loop0/seed101.out",
+      "bytes": 6300000,
+      "sha256": "9f6fe817ddc377de1ac8ff1480c444fb074886ba839c51908c02528de22ebe7d"
+    }
+  ]
+}

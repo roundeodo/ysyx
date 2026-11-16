@@ -1,0 +1,2 @@
+bytes,ways,line_bytes,policy,accesses,misses,unique_lines,refill_bytes,table_reads,table_writes
+1024,4,32,srrip,12364,2958,128,94656,0,0

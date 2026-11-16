@@ -1,0 +1,1068 @@
+{
+  "reference": "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+  "reference_sha256": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+  "images": {
+    "load-store-riscv32-npc.bin": "5d239ee3ef87e55e5a89c2f474f2e85e147e10fd0e6416e598e6565923745d34",
+    "recursion-riscv32-npc.bin": "c7ad1ecc9b00a806c80ea3cae59f1c7f9c3b764b9393c4f8872c314f533eb1b6",
+    "select-sort-riscv32-npc.bin": "c52a8dda2d0c8dd6f4555508dc2c4cc5aef369d9693fbe77c52a06d718db6eee",
+    "if-else-riscv32-npc.bin": "550c90a6bf174847fc45ffd67ea1f4ef9ff7916bc12a80f61ed74a6aee38ad28",
+    "quick-sort-riscv32-npc.bin": "e4e0e58cf7694dde956a5aea72f275be145c0735e5cf32da5cba7b57ee4eb6cb",
+    "add-riscv32-npc.bin": "793652c3398b45ea0f18b9fcea829ceb870c4676abe8d9fce072f9b3c90556e0",
+    "string-riscv32-npc.bin": "4b65e3625d74a0c1bf2f7665e4b349bfae6b733dbd3c6471a2ef1c24a56d5c63",
+    "bubble-sort-riscv32-npc.bin": "d2d292c3d3474be1975e2811bda7620c4ea22ca291182683d6456ebd765038d9",
+    "shift-riscv32-npc.bin": "5c4b4a344c8ab50b9e60b4a84469ca75b37ad2bc0e7931f459882ac1b2e6011e",
+    "switch-riscv32-npc.bin": "3e247b7a68de0ea53981f150ec55f09e0deed4337f46eb3bcd54d2e10822e620"
+  },
+  "configs": {
+    "B0": {
+      "bht": 16
+    },
+    "B64": {
+      "bht": 64
+    },
+    "B128": {
+      "bht": 128
+    },
+    "G64": {
+      "bht": 64,
+      "direction_policy": 1,
+      "history_bits": 4
+    },
+    "G128": {
+      "bht": 128,
+      "direction_policy": 1,
+      "history_bits": 4
+    },
+    "M64": {
+      "bht": 64,
+      "direction_policy": 2,
+      "history_bits": 4
+    },
+    "O0": {
+      "bht": 16,
+      "icache": [
+        256,
+        1,
+        16,
+        0
+      ]
+    },
+    "B0current": {
+      "bht": 16
+    },
+    "OM64": {
+      "bht": 64,
+      "direction_policy": 2,
+      "history_bits": 4,
+      "icache": [
+        256,
+        1,
+        16,
+        0
+      ]
+    },
+    "OG128": {
+      "bht": 128,
+      "direction_policy": 1,
+      "history_bits": 4,
+      "icache": [
+        256,
+        1,
+        16,
+        0
+      ]
+    }
+  },
+  "records": [
+    {
+      "config": "G64",
+      "test": "add",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/add-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "shift",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/shift-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "load-store",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/load-store-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "if-else",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/if-else-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "recursion",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/recursion-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "quick-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/quick-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "select-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/select-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "bubble-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/bubble-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "string",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/string-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "G64",
+      "test": "switch",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/switch-riscv32-npc.bin"
+      ],
+      "binary_sha256": "707eb31e76f57aa4488e75ff0b45532e24867a4ca01d9053d11413181c4cfd0b"
+    },
+    {
+      "config": "M64",
+      "test": "add",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/add-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "shift",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/shift-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "load-store",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/load-store-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "if-else",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/if-else-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "recursion",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/recursion-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "quick-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/quick-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "select-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/select-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "bubble-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/bubble-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "string",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/string-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "M64",
+      "test": "switch",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/M64/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/switch-riscv32-npc.bin"
+      ],
+      "binary_sha256": "6c86caac78bf4f9a0ec96660e11d3e4cb5e657beb678deae77bb75468f63cc35"
+    },
+    {
+      "config": "G128",
+      "test": "add",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/add-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "shift",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/shift-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "load-store",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/load-store-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "if-else",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/if-else-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "recursion",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/recursion-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "quick-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/quick-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "select-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/select-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "bubble-sort",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/bubble-sort-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "string",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/string-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    },
+    {
+      "config": "G128",
+      "test": "switch",
+      "build_command": [
+        "make",
+        "-C",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "build-npc",
+        "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build",
+        "CAPSTONE_HOME=/home/yong/ysyx/ysyx-workbench/nemu/tools/capstone/repo",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=128",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=1",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4"
+      ],
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/G128/build/top_sim",
+        "--batch",
+        "--diff",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/difftest/images/switch-riscv32-npc.bin"
+      ],
+      "binary_sha256": "b7badb3ea4e50ceb52c601bf6c67fe40edb585efe525db3e080a78cd800e097a"
+    }
+  ]
+}

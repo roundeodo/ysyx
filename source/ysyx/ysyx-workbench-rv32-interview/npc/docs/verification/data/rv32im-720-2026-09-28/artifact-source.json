@@ -1,0 +1,5 @@
+{
+  "raw_root": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928",
+  "previous_stage": "npc/result/rv32im-timing-20260928",
+  "notes": "Frozen RTL and compact evidence retained; generated build objects removed after verification."
+}

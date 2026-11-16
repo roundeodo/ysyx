@@ -1,0 +1,11 @@
+PASS NEMU add
+PASS NEMU shift
+PASS NEMU load-store
+PASS NEMU if-else
+PASS NEMU recursion
+PASS NEMU quick-sort
+PASS NEMU select-sort
+PASS NEMU bubble-sort
+PASS NEMU string
+PASS NEMU switch
+Analysis: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/docs/verification/data/run-history/20261014T002425Z-ex-merge-difftest-aeae212a

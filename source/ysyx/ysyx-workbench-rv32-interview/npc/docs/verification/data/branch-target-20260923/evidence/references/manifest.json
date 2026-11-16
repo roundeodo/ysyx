@@ -1,0 +1,15 @@
+{
+  "BTBX_HPCA23.pdf": {
+    "url": "https://ease-lab.github.io/ease_website/pubs/BTBX_HPCA23.pdf",
+    "sha256": "0677393f1d40666d37046a49bb0d3c320742438568f3b01f0334ea30da03004d"
+  },
+  "artifact-commit.json": {
+    "url": "https://api.github.com/repos/rakeshdhakla/ChampSim-master-BTBX/commits/main",
+    "sha256": "764fbea1417ff518fe3002a50b18467d269d1768937286b91645de2e3118c275"
+  },
+  "artifact": {
+    "commit": "14d5e7bef6f6c07fe4b4c5adebd53d6af4cfef67",
+    "url": "https://codeload.github.com/rakeshdhakla/ChampSim-master-BTBX/zip/14d5e7bef6f6c07fe4b4c5adebd53d6af4cfef67",
+    "sha256": "c80d72542ca5af5415a1779a5c4cd7929a0a9983546e2d08b5a80c0d029e0de5"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "status": "complete",
+  "command": [
+    "npc/scripts/run_microbench_perf.py",
+    "--scale",
+    "test",
+    "--cpu-mhz",
+    "700",
+    "--timing-model",
+    "device-clock",
+    "--predictor-enable",
+    "0",
+    "--dcache-enable",
+    "0",
+    "--icache-bytes",
+    "256",
+    "--icache-ways",
+    "1",
+    "--icache-line",
+    "16",
+    "--icache-policy",
+    "0",
+    "--branch-static",
+    "0",
+    "--early-target",
+    "0",
+    "--verify-observer",
+    "--output",
+    "npc/result/performance/replay-icache256-no-predictor-test"
+  ],
+  "workspace": "/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/performance/replay-icache256-no-predictor-test",
+  "retention": "compact reports only; generated binaries, source snapshots and netlists are disposable"
+}

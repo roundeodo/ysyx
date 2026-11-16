@@ -1,0 +1,38 @@
+[
+    {
+        "label": "socket",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "socket",
+        "description": "socket",
+        "detail": "socket",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "random",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "random",
+        "description": "random",
+        "detail": "random",
+        "documentation": {}
+    },
+    {
+        "label": "randin",
+        "kind": 5,
+        "importPath": "ex52b.hacker",
+        "description": "ex52b.hacker",
+        "peekOfCode": "randin = open(\"/dev/urandom\", \"r\")\nwhile True:\n    for i in range(0, 2048):\n        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)\n        server_address = ('localhost', 10000)\n        print 'connecting to %s port %s' % server_address\n        sock.connect(server_address)\n        try:\n            name = randin.read(i)\n            number = \"%s\" % random.getrandbits(64)",
+        "detail": "ex52b.hacker",
+        "documentation": {}
+    }
+]

@@ -1,0 +1,3 @@
+ M Makefile
+ M scripts/sta.tcl
+ M scripts/yosys.tcl

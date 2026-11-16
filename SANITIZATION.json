@@ -1,0 +1,6 @@
+[
+  {
+    "file": "source/ysyx/ysyx-workbench/nemu/tools/capstone/repo/suite/fuzz/fuzzit.sh",
+    "change": "Replace pre-existing third-party hardcoded FUZZIT_API_KEY with environment lookup; original VM file untouched."
+  }
+]

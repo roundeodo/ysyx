@@ -1,0 +1,18 @@
+ m am-kernels
+ M npc/docs/verification/ICACHE_SELECTION_2026-09-21.md
+ m ysyxSoC
+?? npc/docs/verification/data/icache-model-absolute-20261107/README.md
+?? npc/docs/verification/data/icache-model-absolute-20261107/REPORT.md
+?? npc/docs/verification/data/run-history/20261014T042816Z-performance-c4a9c6e0/README.md
+?? npc/docs/verification/data/run-history/20261025T161708Z-performance-3fbe272a/README.md
+?? npc/docs/verification/data/run-history/20261025T161931Z-performance-bad1b7cf/README.md
+?? npc/docs/verification/data/run-history/20261025T162031Z-synthesis-eedc5904/README.md
+?? npc/docs/verification/data/run-history/20261025T162212Z-ex-merge-difftest-0c0f044d/README.md
+?? npc/docs/verification/data/run-history/20261025T162546Z-synthesis-17847179/README.md
+?? npc/docs/verification/data/run-history/20261025T163033Z-synthesis-75db8f26/README.md
+?? npc/docs/verification/data/run-history/20261025T163121Z-synthesis-252015bd/README.md
+?? npc/docs/verification/data/run-history/20261025T163727Z-synthesis-6b3a745d/README.md
+?? npc/docs/verification/data/run-history/20261025T163834Z-performance-9a28eabc/README.md
+?? npc/docs/verification/data/run-history/20261025T164022Z-ex-merge-difftest-0e0e33b5/README.md
+?? npc/docs/verification/data/run-history/20261025T164713Z-synthesis-ee465fdd/README.md
+?? npc/scripts/report_icache_model_miss_rates.py

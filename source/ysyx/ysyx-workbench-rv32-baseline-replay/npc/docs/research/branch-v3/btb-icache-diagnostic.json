@@ -1,0 +1,9 @@
+{
+  "scope": "diagnostic only, not part of main selection or a PPA claim",
+  "change": "I-cache 1KiB to 8KiB; ways4/line32/policy13, D-cache and fixed-ns memory unchanged",
+  "purpose": "test whether fewer EX corrections imply fewer cycles when the main instruction footprint fits better",
+  "candidates": [
+    "TAGE-BT32-fold",
+    "G256-BT32-fold"
+  ]
+}

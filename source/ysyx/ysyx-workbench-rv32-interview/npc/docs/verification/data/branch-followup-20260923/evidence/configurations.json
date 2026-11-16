@@ -1,0 +1,75 @@
+{
+  "B0": {
+    "bht": 16
+  },
+  "B64": {
+    "bht": 64
+  },
+  "B128": {
+    "bht": 128
+  },
+  "G64": {
+    "bht": 64,
+    "direction_policy": 1,
+    "history_bits": 4
+  },
+  "G128": {
+    "bht": 128,
+    "direction_policy": 1,
+    "history_bits": 4
+  },
+  "M64": {
+    "bht": 64,
+    "direction_policy": 2,
+    "history_bits": 4
+  },
+  "O0": {
+    "bht": 16,
+    "icache": [
+      256,
+      1,
+      16,
+      0
+    ]
+  },
+  "B0current": {
+    "bht": 16
+  },
+  "OM64": {
+    "bht": 64,
+    "direction_policy": 2,
+    "history_bits": 4,
+    "icache": [
+      256,
+      1,
+      16,
+      0
+    ]
+  },
+  "OG128": {
+    "bht": 128,
+    "direction_policy": 1,
+    "history_bits": 4,
+    "icache": [
+      256,
+      1,
+      16,
+      0
+    ]
+  },
+  "R32": {
+    "bht": 64,
+    "btb": 32,
+    "target_policy": 2
+  },
+  "S32": {
+    "bht": 64,
+    "btb": 32,
+    "target_policy": 0
+  },
+  "A32": {
+    "bht": 64,
+    "btb": 32,
+    "target_policy": 1
+  }
+}

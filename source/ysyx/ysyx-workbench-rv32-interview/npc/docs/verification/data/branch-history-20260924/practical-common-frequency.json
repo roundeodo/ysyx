@@ -1,0 +1,27 @@
+{
+  "mhz": 700,
+  "development": {
+    "B0": {
+      "time_ratio_gm": 1.0,
+      "area_time_ratio_gm": 1.0,
+      "worst_time_ratio": 1.0
+    },
+    "G256F": {
+      "time_ratio_gm": 1.0034256056462527,
+      "area_time_ratio_gm": 1.0544817933070467,
+      "worst_time_ratio": 1.0158723828514458
+    },
+    "T16": {
+      "time_ratio_gm": 0.9968779593631306,
+      "area_time_ratio_gm": 1.065807317611025,
+      "worst_time_ratio": 1.0070010501575237
+    },
+    "G512F": {
+      "time_ratio_gm": 0.997111211996305,
+      "area_time_ratio_gm": 1.0984583366399239,
+      "worst_time_ratio": 1.015344609383715
+    }
+  },
+  "used_for_selection": false,
+  "status": "raw logs and bindings audited"
+}

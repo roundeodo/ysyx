@@ -1,0 +1,10 @@
+{
+  "mhz": 700,
+  "grid_mhz": 20,
+  "search_upper_mhz": 800,
+  "all_groups_passed": true,
+  "area_um2": 109291.686,
+  "wall_seconds": 2607.5293271541595,
+  "search": "estimate-seeded cached/binary grid search; pass point and upper neighbour measured",
+  "source": "timing.json:700"
+}

@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "cases": 6,
+  "result_and_all_counters_identical": true,
+  "reference": "rtl/dev-720/B0/results.json",
+  "candidate": "rtl/dev-720/B0current/results.json"
+}

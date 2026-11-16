@@ -1,0 +1,98 @@
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv b/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+index 68ad6c2..11e53cc 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+@@ -36,7 +36,7 @@ module riscv32_branch_predictor
+     output logic early_return_present_o,
+     output program_counter_t early_return_pc_o,
+ 
+-    // redirect只清除当前查询流水，不清除训练状态；fence.i才清除可能过期的BTB内容。
++    // flush取消旧响应；无推测历史时，可同时接收带新epoch的查询。fence.i清除BTB。
+     input logic flush_lookup_i,
+     input logic invalidate_i
+ );
+@@ -217,13 +217,14 @@ module riscv32_branch_predictor
+       response_q.prediction.predicted_taken ? response_q.prediction.predicted_target :
+       response_q.pc + program_counter_t'(INSTRUCTION_BYTES);
+   assign lookup_request_ready_o =
+-      (!response_present_q || lookup_response_ready_i) && !flush_lookup_i;
++      (!response_present_q || lookup_response_ready_i || flush_lookup_i) &&
++      !(flush_lookup_i && riscv_config_pkg::BRANCH_SPEC_HISTORY);
+   assign request_handshake = lookup_request_valid_i && lookup_request_ready_o;
+ 
+   always_comb begin
+     response_d         = response_q;
+     response_present_d = response_present_q;
+-    if (lookup_response_ready_i)
++    if (lookup_response_ready_i || flush_lookup_i)
+       response_present_d = 1'b0;
+     if (request_handshake) begin
+       response_d.pc         = lookup_request_pc_i;
+@@ -231,8 +232,6 @@ module riscv32_branch_predictor
+       response_d.prediction = selected_prediction;
+       response_present_d    = 1'b1;
+     end
+-    if (flush_lookup_i)
+-      response_present_d = 1'b0;
+   end
+ 
+   always_ff @(posedge clk_i) begin
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv b/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
+index 01f2a65..4cc7cc7 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
+@@ -46,7 +46,13 @@ module riscv32_ifu
+   logic early_redirect_event;
+   logic frontend_restart_event;
+   program_counter_t early_next_pc;
++  program_counter_t restart_pc;
++  logic restart_lookup_allowed;
+   assign frontend_restart_event = redirect_req_valid_i || early_redirect_event;
++  assign restart_pc = redirect_req_valid_i ? redirect_req_i.target_pc : early_next_pc;
++  // 仅已寄存的后端恢复目标同拍查询；I-cache返回后的早期目标仍先更新PC。
++  // 推测历史配置须先恢复历史，不走此旁路。
++  assign restart_lookup_allowed = redirect_req_valid_i && !riscv_config_pkg::BRANCH_SPEC_HISTORY;
+ 
+   // 共享容量反馈：请求队列的占用数决定预测入口是否还能接收结果。
+   localparam int unsigned LOOKUP_QUEUE_ENTRY_COUNT = 2;
+@@ -86,7 +92,7 @@ module riscv32_ifu
+       next_pc_predictor_prediction_i.predicted_target :
+       next_pc_predictor_lookup_response_pc_i + program_counter_t'(INSTRUCTION_BYTES);
+ 
+-  // redirect 取消预测流水；taken 响应直接选择本拍的新查询地址。
++  // 恢复丢弃旧响应，但不必空过查询入口；新查询携带更新后的epoch。
+   assign next_pc_predictor_flush_o                 = frontend_restart_event;
+   assign next_pc_predictor_lookup_response_ready_o =
+       !frontend_restart_event &&
+@@ -95,15 +101,17 @@ module riscv32_ifu
+       next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
+       next_pc_predictor_prediction_i.predicted_taken;
+   // 数据选择不等待 ready，握手仅决定何时保存已算出的地址。
+-  assign next_pc_predictor_lookup_request_pc_o = predictor_taken_response_present ?
+-      predicted_next_pc : predictor_fetch_pc_q;
+-  assign next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q;
++  assign next_pc_predictor_lookup_request_pc_o = redirect_req_valid_i ? redirect_req_i.target_pc :
++      (predictor_taken_response_present ? predicted_next_pc : predictor_fetch_pc_q);
++  assign next_pc_predictor_lookup_request_epoch_o = current_fetch_epoch_q +
++      fetch_epoch_t'(frontend_restart_event);
+   assign predictor_taken_response_event        =
+       predictor_lookup_response_handshake &&
+       predictor_lookup_response_is_current &&
+       next_pc_predictor_prediction_i.predicted_taken;
+   assign next_pc_predictor_lookup_request_valid_o =
+-      lookup_queue_enqueue_ready && !frontend_restart_event && prediction_enable_i;
++      prediction_enable_i && (restart_lookup_allowed ||
++      (lookup_queue_enqueue_ready && !frontend_restart_event));
+ 
+   assign predictor_lookup_request_handshake =
+       next_pc_predictor_lookup_request_valid_o &&
+@@ -119,7 +127,8 @@ module riscv32_ifu
+ 
+     if (frontend_restart_event) begin
+       current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
+-      predictor_fetch_pc_d  = redirect_req_valid_i ? redirect_req_i.target_pc : early_next_pc;
++      predictor_fetch_pc_d  = restart_pc +
++          (predictor_lookup_request_handshake ? program_counter_t'(INSTRUCTION_BYTES) : '0);
+     end else if (predictor_lookup_request_handshake) begin
+       predictor_fetch_pc_d = predictor_taken_response_present ?
+           (predicted_next_pc + program_counter_t'(INSTRUCTION_BYTES)) :

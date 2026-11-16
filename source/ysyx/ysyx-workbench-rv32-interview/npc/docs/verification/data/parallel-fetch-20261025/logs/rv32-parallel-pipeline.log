@@ -1,0 +1,61 @@
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:228:8: Instance pin connected by name with empty reference: 'writeback_result_ready_o'
+  228 |       .writeback_result_ready_o(),
+      |        ^~~~~~~~~~~~~~~~~~~~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.043
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:231:8: Instance pin connected by name with empty reference: 'gpr_write_data_o'
+  231 |       .gpr_write_data_o        (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:232:8: Instance pin connected by name with empty reference: 'gpr_write_addr_o'
+  232 |       .gpr_write_addr_o        (),
+      |        ^~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:233:8: Instance pin connected by name with empty reference: 'gpr_write_enable_o'
+  233 |       .gpr_write_enable_o      ()
+      |        ^~~~~~~~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:243:8: Instance pin connected by name with empty reference: 'trap_valid_o'
+  243 |       .trap_valid_o        (),
+      |        ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:244:8: Instance pin connected by name with empty reference: 'trap_pc_o'
+  244 |       .trap_pc_o           (),
+      |        ^~~~~~~~~
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:245:8: Instance pin connected by name with empty reference: 'trap_cause_o'
+  245 |       .trap_cause_o        (),
+      |        ^~~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:246:8: Instance pin connected by name with empty reference: 'trap_tval_o'
+  246 |       .trap_tval_o         (),
+      |        ^~~~~~~~~~~
+%Warning-PINCONNECTEMPTY: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:247:8: Instance pin connected by name with empty reference: 'mret_valid_o'
+  247 |       .mret_valid_o        (),
+      |        ^~~~~~~~~~~~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:575:25: Logical operator COND expects 1 bit on the Conditional Test, but Conditional Test's VARREF 'backward' generates 32 bits.
+                                                                                                                      : ... note: In instance 'riscv32_pipeline_control_tb'
+  575 |       target = backward ? PC - program_counter_t'(8) : PC + program_counter_t'(8);
+      |                         ^
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.043
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-UNDRIVEN: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv:73:39: Signal is not driven: 'reuse_array_q'
+                                                                                                                    : ... note: In instance 'riscv32_pipeline_control_tb.u_branch_predictor.u_btb'
+   73 |       logic       [              1:0] reuse_array_q          [SET_COUNT] [BTB_WAY_COUNT];
+      |                                       ^~~~~~~~~~~~~
+                   ... For warning description see https://verilator.org/warn/UNDRIVEN?v=5.043
+                   ... Use "/* verilator lint_off UNDRIVEN */" and lint_on around source to disable this message.
+%Warning-SYNCASYNCNET: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:10:24: Signal flopped as both synchronous and async: 'riscv32_pipeline_control_tb.rst_ni'
+                       /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv:123:10: ... Location of async usage
+  123 |     if (!rst_ni) begin
+      |          ^~~~~~
+                       /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv:274:51: ... Location of sync usage
+  274 |   assert property (@(posedge clk_i) disable iff (!rst_ni)
+      |                                                   ^~~~~~
+                       ... For warning description see https://verilator.org/warn/SYNCASYNCNET?v=5.043
+                       ... Use "/* verilator lint_off SYNCASYNCNET */" and lint_on around source to disable this message.
+- V e r i l a t i o n   R e p o r t: Verilator 5.043 devel rev v5.042-244-g4080284e5
+- Verilator: Built from 2.304 MB sources in 22 modules, into 1.437 MB in 8 C++ files needing 0.003 MB
+- Verilator: Walltime 11.334 s (elab=0.025, cvt=0.108, bld=11.157); cpu 0.177 s on 1 threads; alloced 33.566 MB
+PASS fetch queue: 1012 checked outputs, 746 simultaneous transfers, 34 flushes
+PASS conditional choice: 8 direction/state combinations, policy=2
+PASS parallel IFU: first-hit latency, rolling hits, held prediction and consecutive redirects
+pipeline control tests passed: XLEN=32
+- /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/riscv32_pipeline_control_tb.sv:1344: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.043 devel
+- Verilator: $finish at 21ns; walltime 0.003 s; speed 8.210 us/s
+- Verilator: cpu 0.003 s on 1 threads; alloced 6 MB

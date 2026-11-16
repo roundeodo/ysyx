@@ -1,0 +1,206 @@
+SBY 12:10:04 [tests/formal/riscv_pipeline_control] Removing directory '/home/yong/ysyx/ysyx-workbench/npc/tests/formal/riscv_pipeline_control'.
+SBY 12:10:04 [tests/formal/riscv_pipeline_control] Copy '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv/common/riscv_config_pkg.sv' to '/home/yong/ysyx/ysyx-workbench/npc/tests/formal/riscv_pipeline_control/src/riscv_config_pkg.sv'.
+SBY 12:10:04 [tests/formal/riscv_pipeline_control] Copy '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv/common/riscv_addr_map_pkg.sv' to '/home/yong/ysyx/ysyx-workbench/npc/tests/formal/riscv_pipeline_control/src/riscv_addr_map_pkg.sv'.
+SBY 12:10:04 [tests/formal/riscv_pipeline_control] Copy '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv/common/riscv_pkg.sv' to '/home/yong/ysyx/ysyx-workbench/npc/tests/formal/riscv_pipeline_control/src/riscv_pkg.sv'.
+SBY 12:10:04 [tests/formal/riscv_pipeline_control] Copy '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv/core/frontend/riscv_fetch_buffer.sv' to '/home/yong/ysyx/ysyx-workbench/npc/tests/formal/riscv_pipeline_control/src/riscv_fetch_buffer.sv'.
+SBY 12:10:04 [tests/formal/riscv_pipeline_control] Copy '/home/yong/ysyx/ysyx-workbench/npc/vsrc/riscv/core/riscv_pipeline_hazard_controller.sv' to '/home/yong/ysyx/ysyx-workbench/npc/tests/formal/riscv_pipeline_control/src/riscv_pipeline_hazard_controller.sv'.
+SBY 12:10:04 [tests/formal/riscv_pipeline_control] Copy '/home/yong/ysyx/ysyx-workbench/npc/tests/formal/riscv_pipeline_control_formal.sv' to '/home/yong/ysyx/ysyx-workbench/npc/tests/formal/riscv_pipeline_control/src/riscv_pipeline_control_formal.sv'.
+SBY 12:10:05 [tests/formal/riscv_pipeline_control] engine_0: smtbmc boolector
+SBY 12:10:05 [tests/formal/riscv_pipeline_control] base: starting process "cd tests/formal/riscv_pipeline_control/src; yosys -ql ../model/design.log ../model/design.ys"
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: riscv_fetch_buffer.sv:51:18: warning: asynchronous load value missing for variable '\u_fetch_buffer.primary_entry_q'
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: if (!rst_ni) begin
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: ^~~~~
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: riscv_fetch_buffer.sv:50:14: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: always_ff @(posedge clk_i or negedge rst_ni) begin
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: riscv_fetch_buffer.sv:51:18: warning: asynchronous load value missing for variable '\u_fetch_buffer.reserve_entry_q'
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: if (!rst_ni) begin
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: ^~~~~
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: riscv_fetch_buffer.sv:50:14: note: asynchronous load pattern implied by edge sensitivity on multiple signals
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: always_ff @(posedge clk_i or negedge rst_ni) begin
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [7] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [6] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [5] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [4] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [3] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [2] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [1] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [0] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_queue_flush is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\clk_i is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_to_idu_ready is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_from_ifu_valid is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_serializing is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_forwarding_available is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_rd [4] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_rd [3] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_rd [2] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_rd [1] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_rd [0] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_writes_rd is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_redirect_present is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_ready is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\commit_redirect_occurred is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\frontend_redirect_applied is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_serializing is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_serializing is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_serializing is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_uop_valid is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_forwarding_available is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_forwarding_available is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [4] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [3] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [2] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [1] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [0] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_writes_rd is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\lsu_busy is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [4] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [3] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [2] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [1] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [0] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_writes_rd is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\writeback_result_valid is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [4] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [3] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [2] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [1] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [0] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_uses_rs2 is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_valid is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_uop_valid is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [4] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [3] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [2] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [1] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [0] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\decoded_uses_rs1 is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [4] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [3] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [2] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [1] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [0] is used but has no driver.
+SBY 12:10:06 [tests/formal/riscv_pipeline_control] base: Warning: Wire riscv_pipeline_control_formal.\execute_result_writes_rd is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] base: Top level design units:
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] base: riscv_pipeline_control_formal
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] base: Build succeeded: 0 errors, 2 warnings
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] base: finished (returncode=0)
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: starting process "cd tests/formal/riscv_pipeline_control/model; yosys -ql design_prep.log design_prep.ys"
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [7] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [6] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [5] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [4] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [3] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [2] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [1] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_token_from_ifu [0] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_queue_flush is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_to_idu_ready is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\fetch_entry_from_ifu_valid is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_serializing is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_forwarding_available is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_rd [4] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_rd [3] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_rd [2] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_rd [1] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_rd [0] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_writes_rd is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_redirect_present is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_ready is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\commit_redirect_occurred is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\frontend_redirect_applied is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_serializing is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_serializing is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_serializing is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_uop_valid is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_forwarding_available is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_forwarding_available is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [4] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [3] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [2] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [1] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_rd [0] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\lsu_pending_writes_rd is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\lsu_busy is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [4] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [3] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [2] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [1] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_rd [0] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_writes_rd is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\writeback_result_valid is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [4] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [3] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [2] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [1] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs2 [0] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_uses_rs2 is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_valid is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_uop_valid is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [4] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [3] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [2] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [1] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_rs1 [0] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\decoded_uses_rs1 is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [4] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [3] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [2] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [1] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_rd [0] is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: Warning: Wire riscv_pipeline_control_formal.\execute_result_writes_rd is used but has no driver.
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] prep: finished (returncode=0)
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] smt2: starting process "cd tests/formal/riscv_pipeline_control/model; yosys -ql design_smt2.log design_smt2.ys"
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] smt2: finished (returncode=0)
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] engine_0: starting process "cd tests/formal/riscv_pipeline_control; yosys-smtbmc -s boolector --presat --unroll --noprogress -t 20  --append 0 --dump-vcd engine_0/trace.vcd --dump-yw engine_0/trace.yw --dump-vlogtb engine_0/trace_tb.v --dump-smtc engine_0/trace.smtc model/design_smt2.smt2"
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Solver: boolector
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assumptions in step 0..
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assertions in step 0..
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assumptions in step 1..
+SBY 12:10:07 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assertions in step 1..
+SBY 12:10:08 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assumptions in step 2..
+SBY 12:10:08 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assertions in step 2..
+SBY 12:10:08 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assumptions in step 3..
+SBY 12:10:08 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assertions in step 3..
+SBY 12:10:08 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assumptions in step 4..
+SBY 12:10:08 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:00  Checking assertions in step 4..
+SBY 12:10:08 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:01  Checking assumptions in step 5..
+SBY 12:10:08 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:01  Checking assertions in step 5..
+SBY 12:10:09 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:01  Checking assumptions in step 6..
+SBY 12:10:09 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:01  Checking assertions in step 6..
+SBY 12:10:09 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:01  Checking assumptions in step 7..
+SBY 12:10:09 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:01  Checking assertions in step 7..
+SBY 12:10:09 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:02  Checking assumptions in step 8..
+SBY 12:10:09 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:02  Checking assertions in step 8..
+SBY 12:10:10 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:02  Checking assumptions in step 9..
+SBY 12:10:10 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:03  Checking assertions in step 9..
+SBY 12:10:11 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:04  Checking assumptions in step 10..
+SBY 12:10:12 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:05  Checking assertions in step 10..
+SBY 12:10:13 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:05  Checking assumptions in step 11..
+SBY 12:10:13 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:06  Checking assertions in step 11..
+SBY 12:10:14 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:06  Checking assumptions in step 12..
+SBY 12:10:14 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:06  Checking assertions in step 12..
+SBY 12:10:15 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:07  Checking assumptions in step 13..
+SBY 12:10:15 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:07  Checking assertions in step 13..
+SBY 12:10:16 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:09  Checking assumptions in step 14..
+SBY 12:10:17 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:10  Checking assertions in step 14..
+SBY 12:10:19 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:12  Checking assumptions in step 15..
+SBY 12:10:21 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:14  Checking assertions in step 15..
+SBY 12:10:22 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:14  Checking assumptions in step 16..
+SBY 12:10:22 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:14  Checking assertions in step 16..
+SBY 12:10:24 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:16  Checking assumptions in step 17..
+SBY 12:10:25 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:18  Checking assertions in step 17..
+SBY 12:10:29 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:21  Checking assumptions in step 18..
+SBY 12:10:29 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:21  Checking assertions in step 18..
+SBY 12:10:30 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:22  Checking assumptions in step 19..
+SBY 12:10:30 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:23  Checking assertions in step 19..
+SBY 12:10:31 [tests/formal/riscv_pipeline_control] engine_0: ##   0:00:23  Status: passed
+SBY 12:10:31 [tests/formal/riscv_pipeline_control] engine_0: finished (returncode=0)
+SBY 12:10:31 [tests/formal/riscv_pipeline_control] engine_0: Status returned by engine: pass
+SBY 12:10:31 [tests/formal/riscv_pipeline_control] summary: Elapsed clock time [H:MM:SS (secs)]: 0:00:26 (26)
+SBY 12:10:31 [tests/formal/riscv_pipeline_control] summary: Elapsed process time [H:MM:SS (secs)]: 0:00:25 (25)
+SBY 12:10:31 [tests/formal/riscv_pipeline_control] summary: engine_0 (smtbmc boolector) returned pass
+SBY 12:10:31 [tests/formal/riscv_pipeline_control] summary: engine_0 did not produce any traces
+SBY 12:10:31 [tests/formal/riscv_pipeline_control] DONE (PASS, rc=0)

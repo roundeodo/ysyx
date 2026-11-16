@@ -1,0 +1,290 @@
+{
+  "B0": {
+    "time_ratio_gm": 1.0,
+    "adp_ratio": 1.0,
+    "families": {
+      "json_bpe": 1.0,
+      "quant_loader": 1.0,
+      "runtime_graph": 1.0,
+      "regex_tokenizer": 1.0,
+      "ini_config": 1.0,
+      "nms_postprocess": 1.0
+    },
+    "input_time_ratios": {
+      "json_bpe-held-2053": 1.0,
+      "json_bpe-held-4099": 1.0,
+      "quant_loader-held-2053": 1.0,
+      "quant_loader-held-4099": 1.0,
+      "runtime_graph-held-2053": 1.0,
+      "runtime_graph-held-4099": 1.0,
+      "regex_tokenizer-held-2053": 1.0,
+      "regex_tokenizer-held-4099": 1.0,
+      "ini_config-held-2053": 1.0,
+      "ini_config-held-4099": 1.0,
+      "nms_postprocess-held-2053": 1.0,
+      "nms_postprocess-held-4099": 1.0
+    },
+    "max_input_time_ratio": 1.0,
+    "i_beats_ratio_gm": 1.0,
+    "i_beats_families": {
+      "json_bpe": 1.0,
+      "quant_loader": 1.0,
+      "runtime_graph": 1.0,
+      "regex_tokenizer": 1.0,
+      "ini_config": 1.0,
+      "nms_postprocess": 1.0
+    }
+  },
+  "B0off": {
+    "time_ratio_gm": 1.0,
+    "adp_ratio": 1.0,
+    "families": {
+      "json_bpe": 1.0,
+      "quant_loader": 1.0,
+      "runtime_graph": 1.0,
+      "regex_tokenizer": 1.0,
+      "ini_config": 1.0,
+      "nms_postprocess": 1.0
+    },
+    "input_time_ratios": {
+      "json_bpe-held-2053": 1.0,
+      "json_bpe-held-4099": 1.0,
+      "quant_loader-held-2053": 1.0,
+      "quant_loader-held-4099": 1.0,
+      "runtime_graph-held-2053": 1.0,
+      "runtime_graph-held-4099": 1.0,
+      "regex_tokenizer-held-2053": 1.0,
+      "regex_tokenizer-held-4099": 1.0,
+      "ini_config-held-2053": 1.0,
+      "ini_config-held-4099": 1.0,
+      "nms_postprocess-held-2053": 1.0,
+      "nms_postprocess-held-4099": 1.0
+    },
+    "max_input_time_ratio": 1.0,
+    "i_beats_ratio_gm": 1.0,
+    "i_beats_families": {
+      "json_bpe": 1.0,
+      "quant_loader": 1.0,
+      "runtime_graph": 1.0,
+      "regex_tokenizer": 1.0,
+      "ini_config": 1.0,
+      "nms_postprocess": 1.0
+    }
+  },
+  "F16": {
+    "time_ratio_gm": 1.0,
+    "adp_ratio": 0.9978168796561455,
+    "families": {
+      "json_bpe": 1.0,
+      "quant_loader": 1.0,
+      "runtime_graph": 1.0,
+      "regex_tokenizer": 1.0,
+      "ini_config": 1.0,
+      "nms_postprocess": 1.0
+    },
+    "input_time_ratios": {
+      "json_bpe-held-2053": 1.0,
+      "json_bpe-held-4099": 1.0,
+      "quant_loader-held-2053": 1.0,
+      "quant_loader-held-4099": 1.0,
+      "runtime_graph-held-2053": 1.0,
+      "runtime_graph-held-4099": 1.0,
+      "regex_tokenizer-held-2053": 1.0,
+      "regex_tokenizer-held-4099": 1.0,
+      "ini_config-held-2053": 1.0,
+      "ini_config-held-4099": 1.0,
+      "nms_postprocess-held-2053": 1.0,
+      "nms_postprocess-held-4099": 1.0
+    },
+    "max_input_time_ratio": 1.0,
+    "i_beats_ratio_gm": 1.0,
+    "i_beats_families": {
+      "json_bpe": 1.0,
+      "quant_loader": 1.0,
+      "runtime_graph": 1.0,
+      "regex_tokenizer": 1.0,
+      "ini_config": 1.0,
+      "nms_postprocess": 1.0
+    }
+  },
+  "F32": {
+    "time_ratio_gm": 1.006778295817791,
+    "adp_ratio": 1.076170842077374,
+    "families": {
+      "json_bpe": 1.012510381594289,
+      "quant_loader": 1.016187983923072,
+      "runtime_graph": 1.0021988667395274,
+      "regex_tokenizer": 0.9858205154935674,
+      "ini_config": 1.0098526902356904,
+      "nms_postprocess": 1.014424525707605
+    },
+    "input_time_ratios": {
+      "json_bpe-held-2053": 1.013651094908047,
+      "json_bpe-held-4099": 1.011370951983445,
+      "quant_loader-held-2053": 1.0158644159198176,
+      "quant_loader-held-4099": 1.0165116549875728,
+      "runtime_graph-held-2053": 1.0020016701204706,
+      "runtime_graph-held-4099": 1.0023961021674082,
+      "regex_tokenizer-held-2053": 0.9826232123262054,
+      "regex_tokenizer-held-4099": 0.9890282221883607,
+      "ini_config-held-2053": 1.0099335418875859,
+      "ini_config-held-4099": 1.0097718450564879,
+      "nms_postprocess-held-2053": 1.0143928464653145,
+      "nms_postprocess-held-4099": 1.0144562059392304
+    },
+    "max_input_time_ratio": 1.0165116549875728,
+    "i_beats_ratio_gm": 0.9894094406570266,
+    "i_beats_families": {
+      "json_bpe": 0.9942170748478151,
+      "quant_loader": 1.0104045823305772,
+      "runtime_graph": 1.0008480381223968,
+      "regex_tokenizer": 0.974517869167562,
+      "ini_config": 0.9990914253265191,
+      "nms_postprocess": 0.9583333333333334
+    }
+  },
+  "F32W4": {
+    "time_ratio_gm": 0.9990525252524345,
+    "adp_ratio": 1.066495147859863,
+    "families": {
+      "json_bpe": 0.9968684795556859,
+      "quant_loader": 0.9864200771744667,
+      "runtime_graph": 0.9923053233699191,
+      "regex_tokenizer": 1.0187653513571633,
+      "ini_config": 0.998928242599472,
+      "nms_postprocess": 1.0013280563045184
+    },
+    "input_time_ratios": {
+      "json_bpe-held-2053": 0.9968860235129381,
+      "json_bpe-held-4099": 0.9968509359071857,
+      "quant_loader-held-2053": 0.984548642640999,
+      "quant_loader-held-4099": 0.9882950689391989,
+      "runtime_graph-held-2053": 0.9931008100183433,
+      "runtime_graph-held-4099": 0.991510473916633,
+      "regex_tokenizer-held-2053": 1.0176748376031617,
+      "regex_tokenizer-held-4099": 1.0198570336771977,
+      "ini_config-held-2053": 0.9989846188088471,
+      "ini_config-held-4099": 0.9988718695716042,
+      "nms_postprocess-held-2053": 1.001162057358737,
+      "nms_postprocess-held-4099": 1.0014940827739658
+    },
+    "max_input_time_ratio": 1.0198570336771977,
+    "i_beats_ratio_gm": 0.9582035462097123,
+    "i_beats_families": {
+      "json_bpe": 0.9865105525470894,
+      "quant_loader": 0.7982682189786394,
+      "runtime_graph": 0.995821692390992,
+      "regex_tokenizer": 1.0299067193178242,
+      "ini_config": 1.0,
+      "nms_postprocess": 0.9583333333333334
+    }
+  },
+  "U16": {
+    "time_ratio_gm": 1.0034733945748182,
+    "adp_ratio": 0.9915138363150867,
+    "families": {
+      "json_bpe": 1.0046978201399976,
+      "quant_loader": 1.0052474401442846,
+      "runtime_graph": 1.0006949539262326,
+      "regex_tokenizer": 0.9988110411556903,
+      "ini_config": 1.0076972460877112,
+      "nms_postprocess": 1.0037177916380033
+    },
+    "input_time_ratios": {
+      "json_bpe-held-2053": 1.0043130779777707,
+      "json_bpe-held-4099": 1.005082709693048,
+      "quant_loader-held-2053": 1.0053346907349665,
+      "quant_loader-held-4099": 1.0051601971258726,
+      "runtime_graph-held-2053": 1.000664317430957,
+      "runtime_graph-held-4099": 1.00072559135948,
+      "regex_tokenizer-held-2053": 0.99872863632527,
+      "regex_tokenizer-held-4099": 0.9988934527853109,
+      "ini_config-held-2053": 1.0078098770037633,
+      "ini_config-held-4099": 1.007584627759076,
+      "nms_postprocess-held-2053": 1.0036814723981564,
+      "nms_postprocess-held-4099": 1.003754112192099
+    },
+    "max_input_time_ratio": 1.0078098770037633,
+    "i_beats_ratio_gm": 1.0,
+    "i_beats_families": {
+      "json_bpe": 1.0,
+      "quant_loader": 1.0,
+      "runtime_graph": 1.0,
+      "regex_tokenizer": 1.0,
+      "ini_config": 1.0,
+      "nms_postprocess": 1.0
+    }
+  },
+  "U32W4": {
+    "time_ratio_gm": 0.9956776563238261,
+    "adp_ratio": 1.0427689335132522,
+    "families": {
+      "json_bpe": 0.9921897802531617,
+      "quant_loader": 0.9812825444366617,
+      "runtime_graph": 0.9917816491175852,
+      "regex_tokenizer": 1.0200939786423813,
+      "ini_config": 0.9914745738614528,
+      "nms_postprocess": 0.9976676995735154
+    },
+    "input_time_ratios": {
+      "json_bpe-held-2053": 0.9925941052344973,
+      "json_bpe-held-4099": 0.9917856199702558,
+      "quant_loader-held-2053": 0.9793210263388781,
+      "quant_loader-held-4099": 0.9832479913311775,
+      "runtime_graph-held-2053": 0.9926143446458396,
+      "runtime_graph-held-4099": 0.9909496521303568,
+      "regex_tokenizer-held-2053": 1.0190772508563077,
+      "regex_tokenizer-held-4099": 1.0211117208121927,
+      "ini_config-held-2053": 0.9914198878660537,
+      "ini_config-held-4099": 0.9915292628732914,
+      "nms_postprocess-held-2053": 0.9975410285703382,
+      "nms_postprocess-held-4099": 0.9977943866617885
+    },
+    "max_input_time_ratio": 1.0211117208121927,
+    "i_beats_ratio_gm": 0.9582035462097123,
+    "i_beats_families": {
+      "json_bpe": 0.9865105525470894,
+      "quant_loader": 0.7982682189786394,
+      "runtime_graph": 0.995821692390992,
+      "regex_tokenizer": 1.0299067193178242,
+      "ini_config": 1.0,
+      "nms_postprocess": 0.9583333333333334
+    }
+  },
+  "H32": {
+    "time_ratio_gm": 0.9978733773477196,
+    "adp_ratio": 1.0425609025155498,
+    "families": {
+      "json_bpe": 1.0007374065414427,
+      "quant_loader": 0.9830490892477748,
+      "runtime_graph": 0.993341588915048,
+      "regex_tokenizer": 1.0072774596428915,
+      "ini_config": 1.0016921197253839,
+      "nms_postprocess": 1.0013255228543463
+    },
+    "input_time_ratios": {
+      "json_bpe-held-2053": 1.001963417835993,
+      "json_bpe-held-4099": 0.9995128954051494,
+      "quant_loader-held-2053": 0.9808996196376455,
+      "quant_loader-held-4099": 0.9852032690438521,
+      "runtime_graph-held-2053": 0.9940679198459677,
+      "runtime_graph-held-4099": 0.9926157886889329,
+      "regex_tokenizer-held-2053": 1.0058702746118044,
+      "regex_tokenizer-held-4099": 1.008686613287389,
+      "ini_config-held-2053": 1.0017683745907047,
+      "ini_config-held-4099": 1.0016158706646028,
+      "nms_postprocess-held-2053": 1.0012601845267766,
+      "nms_postprocess-held-4099": 1.0013908654456398
+    },
+    "max_input_time_ratio": 1.008686613287389,
+    "i_beats_ratio_gm": 0.9472680770783904,
+    "i_beats_families": {
+      "json_bpe": 0.9949980014874898,
+      "quant_loader": 0.7467472642687811,
+      "runtime_graph": 0.9978191315641971,
+      "regex_tokenizer": 1.0141238229871055,
+      "ini_config": 1.002725724020443,
+      "nms_postprocess": 0.9583333333333334
+    }
+  }
+}

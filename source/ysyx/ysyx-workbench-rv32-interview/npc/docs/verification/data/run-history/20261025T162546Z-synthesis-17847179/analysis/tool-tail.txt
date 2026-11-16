@@ -1,0 +1,516 @@
+ 17333 end
+I20261025 17:25:21.407503 23094 StaAnalyze.cc:565] analyze timing path end vertex 16641 total 17333 start
+I20261025 17:25:21.407531 23094 StaAnalyze.cc:599] analyze timing path end vertex 16641 total 17333 end
+I20261025 17:25:21.407604 23094 StaAnalyze.cc:565] analyze timing path end vertex 16651 total 17333 start
+I20261025 17:25:21.407630 23094 StaAnalyze.cc:599] analyze timing path end vertex 16651 total 17333 end
+I20261025 17:25:21.407701 23094 StaAnalyze.cc:565] analyze timing path end vertex 16661 total 17333 start
+I20261025 17:25:21.407725 23094 StaAnalyze.cc:599] analyze timing path end vertex 16661 total 17333 end
+I20261025 17:25:21.407773 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[1]_19__reg_p:D
+I20261025 17:25:21.407815 23094 StaAnalyze.cc:565] analyze timing path end vertex 16671 total 17333 start
+I20261025 17:25:21.407845 23094 StaAnalyze.cc:599] analyze timing path end vertex 16671 total 17333 end
+I20261025 17:25:21.407917 23094 StaAnalyze.cc:565] analyze timing path end vertex 16681 total 17333 start
+I20261025 17:25:21.407943 23094 StaAnalyze.cc:599] analyze timing path end vertex 16681 total 17333 end
+I20261025 17:25:21.408015 23094 StaAnalyze.cc:565] analyze timing path end vertex 16691 total 17333 start
+I20261025 17:25:21.408042 23094 StaAnalyze.cc:599] analyze timing path end vertex 16691 total 17333 end
+I20261025 17:25:21.408108 23094 StaAnalyze.cc:565] analyze timing path end vertex 16701 total 17333 start
+I20261025 17:25:21.408133 23094 StaAnalyze.cc:599] analyze timing path end vertex 16701 total 17333 end
+I20261025 17:25:21.408200 23094 StaAnalyze.cc:565] analyze timing path end vertex 16711 total 17333 start
+I20261025 17:25:21.408226 23094 StaAnalyze.cc:599] analyze timing path end vertex 16711 total 17333 end
+I20261025 17:25:21.408272 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[20]_6__reg_p:D
+I20261025 17:25:21.408320 23094 StaAnalyze.cc:565] analyze timing path end vertex 16721 total 17333 start
+I20261025 17:25:21.408350 23094 StaAnalyze.cc:599] analyze timing path end vertex 16721 total 17333 end
+I20261025 17:25:21.408422 23094 StaAnalyze.cc:565] analyze timing path end vertex 16731 total 17333 start
+I20261025 17:25:21.408434 23094 StaAnalyze.cc:599] analyze timing path end vertex 16731 total 17333 end
+I20261025 17:25:21.408499 23094 StaAnalyze.cc:565] analyze timing path end vertex 16741 total 17333 start
+I20261025 17:25:21.408525 23094 StaAnalyze.cc:599] analyze timing path end vertex 16741 total 17333 end
+I20261025 17:25:21.408596 23094 StaAnalyze.cc:565] analyze timing path end vertex 16751 total 17333 start
+I20261025 17:25:21.408620 23094 StaAnalyze.cc:599] analyze timing path end vertex 16751 total 17333 end
+I20261025 17:25:21.408689 23094 StaAnalyze.cc:565] analyze timing path end vertex 16761 total 17333 start
+I20261025 17:25:21.408712 23094 StaAnalyze.cc:599] analyze timing path end vertex 16761 total 17333 end
+I20261025 17:25:21.408758 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[22]_22__reg_p:D
+I20261025 17:25:21.408789 23094 StaAnalyze.cc:565] analyze timing path end vertex 16771 total 17333 start
+I20261025 17:25:21.408815 23094 StaAnalyze.cc:599] analyze timing path end vertex 16771 total 17333 end
+I20261025 17:25:21.408885 23094 StaAnalyze.cc:565] analyze timing path end vertex 16781 total 17333 start
+I20261025 17:25:21.408910 23094 StaAnalyze.cc:599] analyze timing path end vertex 16781 total 17333 end
+I20261025 17:25:21.408979 23094 StaAnalyze.cc:565] analyze timing path end vertex 16791 total 17333 start
+I20261025 17:25:21.409006 23094 StaAnalyze.cc:599] analyze timing path end vertex 16791 total 17333 end
+I20261025 17:25:21.409075 23094 StaAnalyze.cc:565] analyze timing path end vertex 16801 total 17333 start
+I20261025 17:25:21.409101 23094 StaAnalyze.cc:599] analyze timing path end vertex 16801 total 17333 end
+I20261025 17:25:21.409170 23094 StaAnalyze.cc:565] analyze timing path end vertex 16811 total 17333 start
+I20261025 17:25:21.409204 23094 StaAnalyze.cc:599] analyze timing path end vertex 16811 total 17333 end
+I20261025 17:25:21.409253 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[24]_0__reg_p:D
+I20261025 17:25:21.409303 23094 StaAnalyze.cc:565] analyze timing path end vertex 16821 total 17333 start
+I20261025 17:25:21.409328 23094 StaAnalyze.cc:599] analyze timing path end vertex 16821 total 17333 end
+I20261025 17:25:21.409399 23094 StaAnalyze.cc:565] analyze timing path end vertex 16831 total 17333 start
+I20261025 17:25:21.409411 23094 StaAnalyze.cc:599] analyze timing path end vertex 16831 total 17333 end
+I20261025 17:25:21.409507 23094 StaAnalyze.cc:565] analyze timing path end vertex 16841 total 17333 start
+I20261025 17:25:21.409523 23094 StaAnalyze.cc:599] analyze timing path end vertex 16841 total 17333 end
+I20261025 17:25:21.409595 23094 StaAnalyze.cc:565] analyze timing path end vertex 16851 total 17333 start
+I20261025 17:25:21.409610 23094 StaAnalyze.cc:599] analyze timing path end vertex 16851 total 17333 end
+I20261025 17:25:21.409673 23094 StaAnalyze.cc:565] analyze timing path end vertex 16861 total 17333 start
+I20261025 17:25:21.409699 23094 StaAnalyze.cc:599] analyze timing path end vertex 16861 total 17333 end
+I20261025 17:25:21.409745 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[25]_26__reg_p:D
+I20261025 17:25:21.409777 23094 StaAnalyze.cc:565] analyze timing path end vertex 16871 total 17333 start
+I20261025 17:25:21.409801 23094 StaAnalyze.cc:599] analyze timing path end vertex 16871 total 17333 end
+I20261025 17:25:21.409870 23094 StaAnalyze.cc:565] analyze timing path end vertex 16881 total 17333 start
+I20261025 17:25:21.409896 23094 StaAnalyze.cc:599] analyze timing path end vertex 16881 total 17333 end
+I20261025 17:25:21.409960 23094 StaAnalyze.cc:565] analyze timing path end vertex 16891 total 17333 start
+I20261025 17:25:21.409986 23094 StaAnalyze.cc:599] analyze timing path end vertex 16891 total 17333 end
+I20261025 17:25:21.410055 23094 StaAnalyze.cc:565] analyze timing path end vertex 16901 total 17333 start
+I20261025 17:25:21.410079 23094 StaAnalyze.cc:599] analyze timing path end vertex 16901 total 17333 end
+I20261025 17:25:21.410149 23094 StaAnalyze.cc:565] analyze timing path end vertex 16911 total 17333 start
+I20261025 17:25:21.410162 23094 StaAnalyze.cc:599] analyze timing path end vertex 16911 total 17333 end
+I20261025 17:25:21.410207 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[27]_13__reg_p:D
+I20261025 17:25:21.410249 23094 StaAnalyze.cc:565] analyze timing path end vertex 16921 total 17333 start
+I20261025 17:25:21.410279 23094 StaAnalyze.cc:599] analyze timing path end vertex 16921 total 17333 end
+I20261025 17:25:21.410349 23094 StaAnalyze.cc:565] analyze timing path end vertex 16931 total 17333 start
+I20261025 17:25:21.410374 23094 StaAnalyze.cc:599] analyze timing path end vertex 16931 total 17333 end
+I20261025 17:25:21.410441 23094 StaAnalyze.cc:565] analyze timing path end vertex 16941 total 17333 start
+I20261025 17:25:21.410467 23094 StaAnalyze.cc:599] analyze timing path end vertex 16941 total 17333 end
+I20261025 17:25:21.410535 23094 StaAnalyze.cc:565] analyze timing path end vertex 16951 total 17333 start
+I20261025 17:25:21.410559 23094 StaAnalyze.cc:599] analyze timing path end vertex 16951 total 17333 end
+I20261025 17:25:21.410629 23094 StaAnalyze.cc:565] analyze timing path end vertex 16961 total 17333 start
+I20261025 17:25:21.410651 23094 StaAnalyze.cc:599] analyze timing path end vertex 16961 total 17333 end
+I20261025 17:25:21.410698 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[28]_2__reg_p:D
+I20261025 17:25:21.410729 23094 StaAnalyze.cc:565] analyze timing path end vertex 16971 total 17333 start
+I20261025 17:25:21.410756 23094 StaAnalyze.cc:599] analyze timing path end vertex 16971 total 17333 end
+I20261025 17:25:21.410825 23094 StaAnalyze.cc:565] analyze timing path end vertex 16981 total 17333 start
+I20261025 17:25:21.410856 23094 StaAnalyze.cc:599] analyze timing path end vertex 16981 total 17333 end
+I20261025 17:25:21.410924 23094 StaAnalyze.cc:565] analyze timing path end vertex 16991 total 17333 start
+I20261025 17:25:21.410938 23094 StaAnalyze.cc:599] analyze timing path end vertex 16991 total 17333 end
+I20261025 17:25:21.411002 23094 StaAnalyze.cc:565] analyze timing path end vertex 17001 total 17333 start
+I20261025 17:25:21.411028 23094 StaAnalyze.cc:599] analyze timing path end vertex 17001 total 17333 end
+I20261025 17:25:21.411098 23094 StaAnalyze.cc:565] analyze timing path end vertex 17011 total 17333 start
+I20261025 17:25:21.411121 23094 StaAnalyze.cc:599] analyze timing path end vertex 17011 total 17333 end
+I20261025 17:25:21.411165 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[2]_17__reg_p:D
+I20261025 17:25:21.411208 23094 StaAnalyze.cc:565] analyze timing path end vertex 17021 total 17333 start
+I20261025 17:25:21.411223 23094 StaAnalyze.cc:599] analyze timing path end vertex 17021 total 17333 end
+I20261025 17:25:21.411290 23094 StaAnalyze.cc:565] analyze timing path end vertex 17031 total 17333 start
+I20261025 17:25:21.411317 23094 StaAnalyze.cc:599] analyze timing path end vertex 17031 total 17333 end
+I20261025 17:25:21.411386 23094 StaAnalyze.cc:565] analyze timing path end vertex 17041 total 17333 start
+I20261025 17:25:21.411401 23094 StaAnalyze.cc:599] analyze timing path end vertex 17041 total 17333 end
+I20261025 17:25:21.411468 23094 StaAnalyze.cc:565] analyze timing path end vertex 17051 total 17333 start
+I20261025 17:25:21.411480 23094 StaAnalyze.cc:599] analyze timing path end vertex 17051 total 17333 end
+I20261025 17:25:21.411545 23094 StaAnalyze.cc:565] analyze timing path end vertex 17061 total 17333 start
+I20261025 17:25:21.411569 23094 StaAnalyze.cc:599] analyze timing path end vertex 17061 total 17333 end
+I20261025 17:25:21.411615 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[30]_4__reg_p:D
+I20261025 17:25:21.411648 23094 StaAnalyze.cc:565] analyze timing path end vertex 17071 total 17333 start
+I20261025 17:25:21.411674 23094 StaAnalyze.cc:599] analyze timing path end vertex 17071 total 17333 end
+I20261025 17:25:21.411747 23094 StaAnalyze.cc:565] analyze timing path end vertex 17081 total 17333 start
+I20261025 17:25:21.411773 23094 StaAnalyze.cc:599] analyze timing path end vertex 17081 total 17333 end
+I20261025 17:25:21.411844 23094 StaAnalyze.cc:565] analyze timing path end vertex 17091 total 17333 start
+I20261025 17:25:21.411871 23094 StaAnalyze.cc:599] analyze timing path end vertex 17091 total 17333 end
+I20261025 17:25:21.411947 23094 StaAnalyze.cc:565] analyze timing path end vertex 17101 total 17333 start
+I20261025 17:25:21.411971 23094 StaAnalyze.cc:599] analyze timing path end vertex 17101 total 17333 end
+I20261025 17:25:21.412045 23094 StaAnalyze.cc:565] analyze timing path end vertex 17111 total 17333 start
+I20261025 17:25:21.412057 23094 StaAnalyze.cc:599] analyze timing path end vertex 17111 total 17333 end
+I20261025 17:25:21.412107 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[3]_20__reg_p:D
+I20261025 17:25:21.412137 23094 StaAnalyze.cc:565] analyze timing path end vertex 17121 total 17333 start
+I20261025 17:25:21.412151 23094 StaAnalyze.cc:599] analyze timing path end vertex 17121 total 17333 end
+I20261025 17:25:21.412242 23094 StaAnalyze.cc:565] analyze timing path end vertex 17131 total 17333 start
+I20261025 17:25:21.412272 23094 StaAnalyze.cc:599] analyze timing path end vertex 17131 total 17333 end
+I20261025 17:25:21.412354 23094 StaAnalyze.cc:565] analyze timing path end vertex 17141 total 17333 start
+I20261025 17:25:21.412367 23094 StaAnalyze.cc:599] analyze timing path end vertex 17141 total 17333 end
+I20261025 17:25:21.412443 23094 StaAnalyze.cc:565] analyze timing path end vertex 17151 total 17333 start
+I20261025 17:25:21.412465 23094 StaAnalyze.cc:599] analyze timing path end vertex 17151 total 17333 end
+I20261025 17:25:21.412539 23094 StaAnalyze.cc:565] analyze timing path end vertex 17161 total 17333 start
+I20261025 17:25:21.412559 23094 StaAnalyze.cc:599] analyze timing path end vertex 17161 total 17333 end
+I20261025 17:25:21.412611 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[4]_8__reg_p:D
+I20261025 17:25:21.412643 23094 StaAnalyze.cc:565] analyze timing path end vertex 17171 total 17333 start
+I20261025 17:25:21.412671 23094 StaAnalyze.cc:599] analyze timing path end vertex 17171 total 17333 end
+I20261025 17:25:21.412739 23094 StaAnalyze.cc:565] analyze timing path end vertex 17181 total 17333 start
+I20261025 17:25:21.412765 23094 StaAnalyze.cc:599] analyze timing path end vertex 17181 total 17333 end
+I20261025 17:25:21.412839 23094 StaAnalyze.cc:565] analyze timing path end vertex 17191 total 17333 start
+I20261025 17:25:21.412864 23094 StaAnalyze.cc:599] analyze timing path end vertex 17191 total 17333 end
+I20261025 17:25:21.412942 23094 StaAnalyze.cc:565] analyze timing path end vertex 17201 total 17333 start
+I20261025 17:25:21.412969 23094 StaAnalyze.cc:599] analyze timing path end vertex 17201 total 17333 end
+I20261025 17:25:21.413043 23094 StaAnalyze.cc:565] analyze timing path end vertex 17211 total 17333 start
+I20261025 17:25:21.413067 23094 StaAnalyze.cc:599] analyze timing path end vertex 17211 total 17333 end
+I20261025 17:25:21.413120 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[6]_24__reg_p:D
+I20261025 17:25:21.413167 23094 StaAnalyze.cc:565] analyze timing path end vertex 17221 total 17333 start
+I20261025 17:25:21.413206 23094 StaAnalyze.cc:599] analyze timing path end vertex 17221 total 17333 end
+I20261025 17:25:21.413291 23094 StaAnalyze.cc:565] analyze timing path end vertex 17231 total 17333 start
+I20261025 17:25:21.413334 23094 StaAnalyze.cc:599] analyze timing path end vertex 17231 total 17333 end
+I20261025 17:25:21.413411 23094 StaAnalyze.cc:565] analyze timing path end vertex 17241 total 17333 start
+I20261025 17:25:21.413436 23094 StaAnalyze.cc:599] analyze timing path end vertex 17241 total 17333 end
+I20261025 17:25:21.413553 23094 StaAnalyze.cc:565] analyze timing path end vertex 17251 total 17333 start
+I20261025 17:25:21.413581 23094 StaAnalyze.cc:599] analyze timing path end vertex 17251 total 17333 end
+I20261025 17:25:21.413658 23094 StaAnalyze.cc:565] analyze timing path end vertex 17261 total 17333 start
+I20261025 17:25:21.413671 23094 StaAnalyze.cc:599] analyze timing path end vertex 17261 total 17333 end
+I20261025 17:25:21.413719 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[8]_11__reg_p:D
+I20261025 17:25:21.413746 23094 StaAnalyze.cc:565] analyze timing path end vertex 17271 total 17333 start
+I20261025 17:25:21.413761 23094 StaAnalyze.cc:599] analyze timing path end vertex 17271 total 17333 end
+I20261025 17:25:21.413826 23094 StaAnalyze.cc:565] analyze timing path end vertex 17281 total 17333 start
+I20261025 17:25:21.413852 23094 StaAnalyze.cc:599] analyze timing path end vertex 17281 total 17333 end
+I20261025 17:25:21.413924 23094 StaAnalyze.cc:565] analyze timing path end vertex 17291 total 17333 start
+I20261025 17:25:21.413949 23094 StaAnalyze.cc:599] analyze timing path end vertex 17291 total 17333 end
+I20261025 17:25:21.414021 23094 StaAnalyze.cc:565] analyze timing path end vertex 17301 total 17333 start
+I20261025 17:25:21.414033 23094 StaAnalyze.cc:599] analyze timing path end vertex 17301 total 17333 end
+I20261025 17:25:21.414100 23094 StaAnalyze.cc:565] analyze timing path end vertex 17311 total 17333 start
+I20261025 17:25:21.414124 23094 StaAnalyze.cc:599] analyze timing path end vertex 17311 total 17333 end
+I20261025 17:25:21.414172 23094 StaAnalyze.cc:303] add path data num 4 to u_core.u_regfile.gpr_array_q[9]_28__reg_p:D
+I20261025 17:25:21.414216 23094 StaAnalyze.cc:565] analyze timing path end vertex 17321 total 17333 start
+I20261025 17:25:21.414244 23094 StaAnalyze.cc:599] analyze timing path end vertex 17321 total 17333 end
+I20261025 17:25:21.414314 23094 StaAnalyze.cc:565] analyze timing path end vertex 17331 total 17333 start
+I20261025 17:25:21.414337 23094 StaAnalyze.cc:599] analyze timing path end vertex 17331 total 17333 end
+I20261025 17:25:21.414351 23094 StaAnalyze.cc:603] analyze timing path end
+I20261025 17:25:21.414359 23094 StaApplySdc.cc:698] apply sdc start
+I20261025 17:25:21.414366 23094 StaApplySdc.cc:729] apply sdc end
+I20261025 17:25:21.414381 23094 StaDataPropagation.cc:698] data bwd propagation start
+I20261025 17:25:21.415925 23094 StaDataPropagation.cc:249] propagate start vertex u_core.commit_14__reg_p:CK
+I20261025 17:25:21.415967 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.u_csr_file.mtval_q_9__reg_p:D
+I20261025 17:25:21.416004 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.commit_valid_reg_p:RN
+I20261025 17:25:21.416021 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.commit_valid_reg_p:RN has negative slack
+I20261025 17:25:21.416030 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.csr_mepc_10__reg_p:RN
+I20261025 17:25:21.416038 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.csr_mepc_11__reg_p:RN
+I20261025 17:25:21.416047 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.csr_mepc_12__reg_p:RN
+I20261025 17:25:21.416055 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.csr_mepc_13__reg_p:RN
+I20261025 17:25:21.416072 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.csr_mepc_14__reg_p:RN
+I20261025 17:25:21.416080 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_14__reg_p:RN has negative slack
+I20261025 17:25:21.416086 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.csr_mepc_15__reg_p:RN
+I20261025 17:25:21.416096 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.csr_mepc_16__reg_p:RN
+I20261025 17:25:21.416114 23094 StaDataPropagation.cc:172] Thread 124250941808768 data bwd propagate found end vertex.u_core.csr_mepc_17__reg_p:RN
+I20261025 17:25:21.416127 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_19__reg_p:RN has negative slack
+I20261025 17:25:21.416152 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_24__reg_p:RN has negative slack
+I20261025 17:25:21.416167 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_29__reg_p:RN has negative slack
+I20261025 17:25:21.416180 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_4__reg_p:RN has negative slack
+I20261025 17:25:21.416208 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mepc_9__reg_p:RN has negative slack
+I20261025 17:25:21.416222 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_14__reg_p:RN has negative slack
+I20261025 17:25:21.416236 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_19__reg_p:RN has negative slack
+I20261025 17:25:21.416262 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_24__reg_p:RN has negative slack
+I20261025 17:25:21.416278 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_29__reg_p:RN has negative slack
+I20261025 17:25:21.416309 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_4__reg_p:RN has negative slack
+I20261025 17:25:21.416324 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.csr_mtvec_9__reg_p:RN has negative slack
+I20261025 17:25:21.416356 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_serializing_instruction_present_reg_p:RN has negative slack
+I20261025 17:25:21.416424 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.icache_lookup_resp_1__reg_p:D has negative slack
+I20261025 17:25:21.416462 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.icache_lookup_resp_42__reg_p:D has negative slack
+I20261025 17:25:21.416507 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.icache_lookup_resp_47__reg_p:D has negative slack
+I20261025 17:25:21.416548 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.icache_lookup_resp_65__reg_p:D has negative slack
+I20261025 17:25:21.416661 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.icache_lookup_resp_51__reg_p:D has negative slack
+I20261025 17:25:21.416719 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.icache_lookup_resp_56__reg_p:D has negative slack
+I20261025 17:25:21.416774 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.icache_lookup_resp_67__reg_p:D has negative slack
+I20261025 17:25:21.416815 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_12__reg_p:RN has negative slack
+I20261025 17:25:21.416831 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_17__reg_p:RN has negative slack
+I20261025 17:25:21.416854 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_22__reg_p:RN has negative slack
+I20261025 17:25:21.416868 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_27__reg_p:RN has negative slack
+I20261025 17:25:21.416882 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_31__reg_p:RN has negative slack
+I20261025 17:25:21.416905 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.interrupt_pc_7__reg_p:RN has negative slack
+I20261025 17:25:21.416922 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_lookup_response_valid_reg_p:RN has negative slack
+I20261025 17:25:21.416957 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_13__reg_p:RN has negative slack
+I20261025 17:25:21.416975 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_18__reg_p:SN has negative slack
+I20261025 17:25:21.417001 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_22__reg_p:SN has negative slack
+I20261025 17:25:21.417026 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_27__reg_p:RN has negative slack
+I20261025 17:25:21.417052 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_31__reg_p:RN has negative slack
+I20261025 17:25:21.417076 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_7__reg_p:RN has negative slack
+I20261025 17:25:21.417104 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_11__reg_p:RN has negative slack
+I20261025 17:25:21.417129 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_1__reg_p:RN has negative slack
+I20261025 17:25:21.417155 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_6__reg_p:RN has negative slack
+I20261025 17:25:21.417181 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.replacement_way_array_q_1__reg_p:RN has negative slack
+I20261025 17:25:21.417207 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_btb.g_full_target.replacement_way_array_q_6__reg_p:RN has negative slack
+I20261025 17:25:21.417232 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_branch_predictor.u_ras.write_index_q_0__reg_p:RN has negative slack
+I20261025 17:25:21.417258 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mcause_code_q_3__reg_p:RN has negative slack
+I20261025 17:25:21.417284 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_11__reg_p:RN has negative slack
+I20261025 17:25:21.417317 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_16__reg_p:RN has negative slack
+I20261025 17:25:21.417342 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_20__reg_p:RN has negative slack
+I20261025 17:25:21.417376 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_25__reg_p:RN has negative slack
+I20261025 17:25:21.417400 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_2__reg_p:RN has negative slack
+I20261025 17:25:21.417424 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mscratch_q_5__reg_p:RN has negative slack
+I20261025 17:25:21.417448 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mstatus_mie_q_reg_p:RN has negative slack
+I20261025 17:25:21.417472 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_12__reg_p:RN has negative slack
+I20261025 17:25:21.417496 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_17__reg_p:RN has negative slack
+I20261025 17:25:21.417521 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_21__reg_p:RN has negative slack
+I20261025 17:25:21.417546 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_26__reg_p:RN has negative slack
+I20261025 17:25:21.417570 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_30__reg_p:RN has negative slack
+I20261025 17:25:21.417594 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.mtval_q_6__reg_p:RN has negative slack
+I20261025 17:25:21.417619 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_10__reg_p:RN has negative slack
+I20261025 17:25:21.417644 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_15__reg_p:RN has negative slack
+I20261025 17:25:21.417668 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_1__reg_p:RN has negative slack
+I20261025 17:25:21.417692 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_24__reg_p:RN has negative slack
+I20261025 17:25:21.417717 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_29__reg_p:RN has negative slack
+I20261025 17:25:21.417740 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_4__reg_p:RN has negative slack
+I20261025 17:25:21.417754 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_high_q_9__reg_p:RN has negative slack
+I20261025 17:25:21.417778 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_12__reg_p:RN has negative slack
+I20261025 17:25:21.417804 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_17__reg_p:RN has negative slack
+I20261025 17:25:21.417826 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_21__reg_p:RN has negative slack
+I20261025 17:25:21.417840 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_26__reg_p:RN has negative slack
+I20261025 17:25:21.417851 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_30__reg_p:RN has negative slack
+I20261025 17:25:21.417863 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.mcycle_low_q_6__reg_p:RN has negative slack
+I20261025 17:25:21.417878 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_10__reg_p:RN has negative slack
+I20261025 17:25:21.417891 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_15__reg_p:RN has negative slack
+I20261025 17:25:21.417901 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_1__reg_p:RN has negative slack
+I20261025 17:25:21.417913 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_24__reg_p:RN has negative slack
+I20261025 17:25:21.417925 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_29__reg_p:RN has negative slack
+I20261025 17:25:21.417943 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_4__reg_p:RN has negative slack
+I20261025 17:25:21.417955 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_high_q_9__reg_p:RN has negative slack
+I20261025 17:25:21.417969 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_12__reg_p:RN has negative slack
+I20261025 17:25:21.417980 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_17__reg_p:RN has negative slack
+I20261025 17:25:21.417992 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_21__reg_p:RN has negative slack
+I20261025 17:25:21.418004 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_26__reg_p:RN has negative slack
+I20261025 17:25:21.418030 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_30__reg_p:RN has negative slack
+I20261025 17:25:21.418044 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_6__reg_p:RN has negative slack
+I20261025 17:25:21.418059 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.clean_state_q_0__reg_p:RN has negative slack
+I20261025 17:25:21.418087 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.replacement_way_index_array_q_1__reg_p:RN has negative slack
+I20261025 17:25:21.418102 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.replacement_way_index_array_q_6__reg_p:RN has negative slack
+I20261025 17:25:21.418126 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.write_data_pending_q_reg_p:RN has negative slack
+I20261025 17:25:21.418140 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.clean_access_fault_q_reg_p:RN has negative slack
+I20261025 17:25:21.418156 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.transaction_access_fault_q_reg_p:RN has negative slack
+I20261025 17:25:21.418205 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.u_uncached_axi.hold_read_address_reg_p:RN has negative slack
+I20261025 17:25:21.418229 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.u_uncached_axi.write_address_pending_q_reg_p:RN has negative slack
+I20261025 17:25:21.418242 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fence_i_ctrl.icache_lookup_stalled_q_reg_p:RN has negative slack
+I20261025 17:25:21.418274 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[2]_1__INV_X1_A_ZN_AOI21_X1_B2_ZN_OAI21_X1_A_ZN_AOI21_X1_B1_A_DFF_X1_Q:D has negative slack
+I20261025 17:25:21.418300 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_fetch_buffer.write_index_q_reg_p:RN has negative slack
+I20261025 17:25:21.418314 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.u_riscv32_icache_miss_unit.state_q_1__reg_p:RN has negative slack
+I20261025 17:25:21.418327 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_11__reg_p:RN has negative slack
+I20261025 17:25:21.418350 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_16__reg_p:RN has negative slack
+I20261025 17:25:21.418362 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_20__reg_p:RN has negative slack
+I20261025 17:25:21.418373 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_25__reg_p:RN has negative slack
+I20261025 17:25:21.418385 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_2__reg_p:RN has negative slack
+I20261025 17:25:21.418407 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_5__reg_p:RN has negative slack
+I20261025 17:25:21.418426 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.held_request_present_q_reg_p:RN has negative slack
+I20261025 17:25:21.418578 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_2__reg_p:D has negative slack
+I20261025 17:25:21.418624 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_7__reg_p:D has negative slack
+I20261025 17:25:21.418671 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[6]_4__reg_p:D has negative slack
+I20261025 17:25:21.418720 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_1__reg_p:D has negative slack
+I20261025 17:25:21.418766 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_6__reg_p:D has negative slack
+I20261025 17:25:21.418818 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[2]_3__reg_p:D has negative slack
+I20261025 17:25:21.418864 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_0__reg_p:D has negative slack
+I20261025 17:25:21.418906 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[3]_5__reg_p:D has negative slack
+I20261025 17:25:21.418959 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[4]_2__reg_p:D has negative slack
+I20261025 17:25:21.419006 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_0__reg_p:D has negative slack
+I20261025 17:25:21.419056 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[0]_5__reg_p:D has negative slack
+I20261025 17:25:21.419099 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[1]_2__reg_p:D has negative slack
+I20261025 17:25:21.419945 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[7]_7__reg_p:D has negative slack
+I20261025 17:25:21.420424 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_0__reg_p:D has negative slack
+I20261025 17:25:21.420503 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_13__reg_p:D has negative slack
+I20261025 17:25:21.420547 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_16__reg_p:D has negative slack
+I20261025 17:25:21.420589 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_22__reg_p:D has negative slack
+I20261025 17:25:21.420627 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_3__reg_p:D has negative slack
+I20261025 17:25:21.420665 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_9__reg_p:D has negative slack
+I20261025 17:25:21.420708 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_ifu.fetch_pc_q_2__reg_p:D has negative slack
+I20261025 17:25:21.422993 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_blocking_producer_present_reg_p:D has negative slack
+I20261025 17:25:21.423204 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_1__reg_p:D has negative slack
+I20261025 17:25:21.423252 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_14__reg_p:D has negative slack
+I20261025 17:25:21.423323 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_19__reg_p:D has negative slack
+I20261025 17:25:21.423353 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_25__reg_p:D has negative slack
+I20261025 17:25:21.423405 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_4__reg_p:D has negative slack
+I20261025 17:25:21.423472 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_3__reg_p:D has negative slack
+I20261025 17:25:21.423568 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_42__reg_p:D has negative slack
+I20261025 17:25:21.423632 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_47__reg_p:D has negative slack
+I20261025 17:25:21.423679 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_55__reg_p:D has negative slack
+I20261025 17:25:21.423731 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_60__reg_p:D has negative slack
+I20261025 17:25:21.423805 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_35__reg_p:D has negative slack
+I20261025 17:25:21.423859 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_51__reg_p:D has negative slack
+I20261025 17:25:21.424263 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_66__reg_p:D has negative slack
+I20261025 17:25:21.424340 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_72__reg_p:D has negative slack
+I20261025 17:25:21.424391 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_79__reg_p:D has negative slack
+I20261025 17:25:21.424443 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_87__reg_p:D has negative slack
+I20261025 17:25:21.424490 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_93__reg_p:D has negative slack
+I20261025 17:25:21.424543 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_81__reg_p:D has negative slack
+I20261025 17:25:21.425256 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.u_uncached_axi.hold_write_payload_reg_p:D has negative slack
+I20261025 17:25:21.425645 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_0__reg_p:D has negative slack
+I20261025 17:25:21.425704 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_28__reg_p:D has negative slack
+I20261025 17:25:21.425772 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_5__reg_p:D has negative slack
+I20261025 17:25:21.425817 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_12__reg_p:D has negative slack
+I20261025 17:25:21.425901 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_18__reg_p:D has negative slack
+I20261025 17:25:21.425971 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_29__reg_p:D has negative slack
+I20261025 17:25:21.426024 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_53__reg_p:D has negative slack
+I20261025 17:25:21.426071 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_36__reg_p:D has negative slack
+I20261025 17:25:21.426132 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_44__reg_p:D has negative slack
+I20261025 17:25:21.426200 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_58__reg_p:D has negative slack
+I20261025 17:25:21.428009 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_102__reg_p:D has negative slack
+I20261025 17:25:21.428079 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_112__reg_p:D has negative slack
+I20261025 17:25:21.428135 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.execute_packet_122__reg_p:D has negative slack
+I20261025 17:25:21.445840 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.commit_247__reg_p:D has negative slack
+I20261025 17:25:21.460079 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.u_csr_file.u_pmu.minstret_low_q_28__reg_p:D has negative slack
+I20261025 17:25:21.463562 23094 StaDataPropagation.cc:249] propagate start vertex u_core.commit_275__reg_p:CK
+I20261025 17:25:21.474279 23094 StaDataPropagation.cc:249] propagate start vertex u_core.execute_packet_142__reg_p:CK
+I20261025 17:25:21.502662 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_228__reg_p:D has negative slack
+I20261025 17:25:21.502856 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_207__reg_p:D has negative slack
+I20261025 17:25:21.502902 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_213__reg_p:D has negative slack
+I20261025 17:25:21.502951 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_218__reg_p:D has negative slack
+I20261025 17:25:21.502996 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_223__reg_p:D has negative slack
+I20261025 17:25:21.503049 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_237__reg_p:D has negative slack
+I20261025 17:25:21.503118 23094 StaDataPropagation.cc:61] the endpoint vertex u_core.next_pc_predictor_prediction_236__reg_p:D has negative slack
+I20261025 17:25:21.509459 23094 StaDataPropagation.cc:249] propagate start vertex u_core.execute_packet_499__reg_p:CK
+I20261025 17:25:21.595954 23094 StaDataPropagation.cc:249] propagate start vertex u_core.next_pc_predictor_lookup_response_pc_22__reg_p:CK
+I20261025 17:25:21.597522 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[0]_95__reg_p:CK
+I20261025 17:25:21.598570 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[2]_55__reg_p:CK
+I20261025 17:25:21.599529 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[3]_60__reg_p:CK
+I20261025 17:25:21.600555 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[5]_20__reg_p:CK
+I20261025 17:25:21.601528 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[6]_91__reg_p:CK
+I20261025 17:25:21.603120 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_branch_predictor.u_btb.g_full_target.replacement_way_array_q_5__reg_p:CK
+I20261025 17:25:21.604557 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_csr_file.mtval_q_30__reg_p:CK
+I20261025 17:25:21.608220 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.array_read_word_data_array_16__reg_p:CK
+I20261025 17:25:21.611074 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_127__reg_p:CK
+I20261025 17:25:21.612002 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_307__reg_p:CK
+I20261025 17:25:21.612916 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_488__reg_p:CK
+I20261025 17:25:21.613818 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_668__reg_p:CK
+I20261025 17:25:21.614777 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[0]_848__reg_p:CK
+I20261025 17:25:21.615690 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_105__reg_p:CK
+I20261025 17:25:21.616581 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4472__$_DLATCH_P__Q:G
+I20261025 17:25:21.617404 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_322__reg_p:CK
+I20261025 17:25:21.618283 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_502__reg_p:CK
+I20261025 17:25:21.619163 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_683__reg_p:CK
+I20261025 17:25:21.620064 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_data_array.data_array_q[1]_863__reg_p:CK
+I20261025 17:25:21.622064 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5480__$_DLATCH_P__Q:G
+I20261025 17:25:21.623097 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5660__$_DLATCH_P__Q:G
+I20261025 17:25:21.625500 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.miss_context_q_76__reg_p:CK
+I20261025 17:25:21.627729 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.tag_array_q[0]_169__reg_p:CK
+I20261025 17:25:21.628563 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.tag_array_q[1]_169__reg_p:CK
+I20261025 17:25:21.630223 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_data_mem.u_uncached_axi.state_q_2__reg_p:CK
+I20261025 17:25:21.632727 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_fetch_buffer.entry_array_q[1]_96__reg_p:CK
+I20261025 17:25:21.634683 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.array_read_word_data_array_65__reg_p:CK
+I20261025 17:25:21.636269 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1027__$_DLATCH_P__Q:G
+I20261025 17:25:21.637022 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1207__$_DLATCH_P__Q:G
+I20261025 17:25:21.637794 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1388__$_DLATCH_P__Q:G
+I20261025 17:25:21.638528 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1568__$_DLATCH_P__Q:G
+I20261025 17:25:21.639226 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1748__$_DLATCH_P__Q:G
+I20261025 17:25:21.640031 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_1928__$_DLATCH_P__Q:G
+I20261025 17:25:21.640826 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2107__$_DLATCH_P__Q:G
+I20261025 17:25:21.641566 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2288__$_DLATCH_P__Q:G
+I20261025 17:25:21.642324 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2468__$_DLATCH_P__Q:G
+I20261025 17:25:21.643028 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2648__$_DLATCH_P__Q:G
+I20261025 17:25:21.643752 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_2828__$_DLATCH_P__Q:G
+I20261025 17:25:21.644470 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3007__$_DLATCH_P__Q:G
+I20261025 17:25:21.645164 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3188__$_DLATCH_P__Q:G
+I20261025 17:25:21.645954 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3368__$_DLATCH_P__Q:G
+I20261025 17:25:21.646646 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3548__$_DLATCH_P__Q:G
+I20261025 17:25:21.647332 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3728__$_DLATCH_P__Q:G
+I20261025 17:25:21.647995 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_3908__$_DLATCH_P__Q:G
+I20261025 17:25:21.648739 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4088__$_DLATCH_P__Q:G
+I20261025 17:25:21.649435 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4268__$_DLATCH_P__Q:G
+I20261025 17:25:21.650151 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4688__$_DLATCH_P__Q:G
+I20261025 17:25:21.650835 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_4868__$_DLATCH_P__Q:G
+I20261025 17:25:21.651652 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5047__$_DLATCH_P__Q:G
+I20261025 17:25:21.652395 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5227__$_DLATCH_P__Q:G
+I20261025 17:25:21.653156 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5407__$_DLATCH_P__Q:G
+I20261025 17:25:21.653887 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_5837__$_DLATCH_P__Q:G
+I20261025 17:25:21.654634 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6016__$_DLATCH_P__Q:G
+I20261025 17:25:21.655346 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6197__$_DLATCH_P__Q:G
+I20261025 17:25:21.656032 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6377__$_DLATCH_P__Q:G
+I20261025 17:25:21.656757 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6557__$_DLATCH_P__Q:G
+I20261025 17:25:21.657461 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6737__$_DLATCH_P__Q:G
+I20261025 17:25:21.658145 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_6917__$_DLATCH_P__Q:G
+I20261025 17:25:21.658869 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7097__$_DLATCH_P__Q:G
+I20261025 17:25:21.659754 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7277__$_DLATCH_P__Q:G
+I20261025 17:25:21.660632 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7457__$_DLATCH_P__Q:G
+I20261025 17:25:21.661417 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7637__$_DLATCH_P__Q:G
+I20261025 17:25:21.662396 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7817__$_DLATCH_P__Q:G
+I20261025 17:25:21.663055 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_7998__$_DLATCH_P__Q:G
+I20261025 17:25:21.663782 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_8177__$_DLATCH_P__Q:G
+I20261025 17:25:21.664479 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_data_array.data_array_q_984__$_DLATCH_P__Q:G
+I20261025 17:25:21.678102 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[0]_162__reg_p:CK
+I20261025 17:25:21.679301 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[1]_16__reg_p:CK
+I20261025 17:25:21.680227 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[2]_177__reg_p:CK
+I20261025 17:25:21.681097 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_icache.u_riscv32_icache_tag_array.tag_array_q[3]_184__reg_p:CK
+I20261025 17:25:21.682397 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_ifu.held_request_q_7__reg_p:CK
+I20261025 17:25:21.684173 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[10]_6__reg_p:CK
+I20261025 17:25:21.685458 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[17]_13__reg_p:CK
+I20261025 17:25:21.686754 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[22]_20__reg_p:CK
+I20261025 17:25:21.687947 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[28]_28__reg_p:CK
+I20261025 17:25:21.689345 23094 StaDataPropagation.cc:249] propagate start vertex u_core.u_regfile.gpr_array_q[4]_6__reg_p:CK
+I20261025 17:25:21.691360 23094 StaDataPropagation.cc:703] data bwd propagation end
+I20261025 17:25:21.691396 23094 Sta.cc:2895] update timing end
+I20261025 17:25:21.691449 23094 Sta.cc:2898] update timing memory usage 1066.43MB
+I20261025 17:25:21.691463 23094 Sta.cc:2900] update timing time elapsed 2.76409s
+I20261025 17:25:21.691725 23094 Sta.cc:2998] start write sta report.
+I20261025 17:25:21.691743 23094 Sta.cc:2999] output sta report path: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz
+I20261025 17:25:21.709393 23094 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261025 17:25:21.709921 23094 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261025 17:25:21.731738 23094 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261025 17:25:21.732875 23094 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261025 17:25:21.768287 23094 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261025 17:25:21.768733 23094 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261025 17:25:21.782212 23094 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261025 17:25:21.782765 23094 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261025 17:25:21.802419 23094 StaReport.cc:211] report the clock group core_clock 5 timing paths.
+I20261025 17:25:21.803412 23094 StaReport.cc:206] report the clock group **clock_gating_default** 5 timing paths.
+I20261025 17:25:21.833459 23094 StaReport.cc:211] report the clock group core_clock 1 timing paths.
+I20261025 17:25:21.833977 23094 StaReport.cc:206] report the clock group **clock_gating_default** 1 timing paths.
+I20261025 17:25:21.834007 23094 Sta.cc:1885] 
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| Endpoint                                                                                             | Clock Group              | Delay Type | Path Delay | Path Required | CPPR  | Slack  | Freq(MHz) |
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+| u_core.icache_lookup_resp_2__reg_p:D                                                                 | core_clock               | max        | 3.119r     | 1.175         | 0.000 | -1.943 | 316.216   |
+| u_core.icache_lookup_resp_2__reg_p:D                                                                 | core_clock               | max        | 3.119r     | 1.175         | 0.000 | -1.943 | 316.216   |
+| u_core.icache_lookup_resp_1__reg_p:D                                                                 | core_clock               | max        | 3.119r     | 1.175         | 0.000 | -1.943 | 316.216   |
+| u_core.icache_lookup_resp_1__reg_p:D                                                                 | core_clock               | max        | 3.119r     | 1.175         | 0.000 | -1.943 | 316.216   |
+| u_core.u_icache.lookup_executable_s1_q_reg_p:D                                                       | core_clock               | max        | 3.119r     | 1.175         | 0.000 | -1.943 | 316.216   |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_6__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.249f     | 1.167         | 0.000 | -2.082 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_3__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.249f     | 1.167         | 0.000 | -2.082 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_2__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.249f     | 1.167         | 0.000 | -2.082 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_0__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.249f     | 1.167         | 0.000 | -2.082 | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_tag_array.line_dirty_array_q[1]_4__reg_p_CK_CLKGATE_X1_GCK:E | **clock_gating_default** | max        | 3.249f     | 1.167         | 0.000 | -2.082 | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.066r     | 0.006         | 0.000 | 0.060  | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.065f     | 0.003         | 0.000 | 0.062  | NA        |
+| u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D                                             | core_clock               | min        | 0.065f     | 0.003         | 0.000 | 0.062  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.replacement_way_index_array_q_6__reg_p:D                       | core_clock               | min        | 0.082r     | 0.011         | 0.000 | 0.071  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E  | **clock_gating_default** | min        | 0.096r     | -0.001        | 0.000 | 0.097  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E  | **clock_gating_default** | min        | 0.084f     | -0.015        | 0.000 | 0.100  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.clean_access_fault_q_reg_p_CK_CLKGATE_X1_GCK:E     | **clock_gating_default** | min        | 0.100r     | -0.000        | 0.000 | 0.100  | NA        |
+| u_core.u_data_mem.gen_dcache.u_dcache.u_miss_unit.clean_access_fault_q_reg_p_CK_CLKGATE_X1_GCK:E     | **clock_gating_default** | min        | 0.088f     | -0.016        | 0.000 | 0.104  | NA        |
+| u_core.icache_refill_req_ready_reg_p_QN_NOR2_X1_A2_ZN_CLKGATE_X1_E:E                                 | **clock_gating_default** | min        | 0.089f     | -0.015        | 0.000 | 0.104  | NA        |
++------------------------------------------------------------------------------------------------------+--------------------------+------------+------------+---------------+-------+--------+-----------+
+I20261025 17:25:21.834219 23094 Sta.cc:1886] 
++------------+------------+-----------+
+| Clock      | Delay Type | TNS       |
++------------+------------+-----------+
+| core_clock | max        | -2334.483 |
+| core_clock | min        | 0.000     |
++------------+------------+-----------+
+I20261025 17:25:22.450989 23094 NetlistWriter.cc:52] start write verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.v
+I20261025 17:25:23.126785 23094 NetlistWriter.cc:71] finish write verilog file /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.v
+I20261025 17:25:23.135605 23094 Sta.cc:3111] used lib: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/../pdk/nangate45/lib/Nangate45_typ.lib
+I20261025 17:25:23.135643 23094 Sta.cc:3096] The timing engine run success.
+make[2]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow'
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'
+python3 scripts/build_reset_tree.py \
+	--netlist /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v \
+	--liberty /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_typ.lib \
+	--output-dir /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered
+{
+  "source_netlist": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz/riscv32_core_reset_boundary.netlist.v",
+  "top": "riscv32_core_reset_boundary",
+  "buffer_cell": "BUF_X4",
+  "buffer_count": 48,
+  "reset_load_count": 472,
+  "maximum_inserted_tree_fanout": 16,
+  "structural_equivalence": "passed",
+  "scope": "Mapped-cell buffering only; placement and routed parasitics not included"
+}
+python3 scripts/check_reset_netlist.py /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered/buffered.json \
+	--output /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered/reset-connectivity.json
+{
+  "raw_reset_sinks": [
+    [
+      "core_rst_n_reg_n",
+      "RN"
+    ],
+    [
+      "u_reset_controller.reset_release_sync_q_0__reg_p",
+      "RN"
+    ],
+    [
+      "u_reset_controller.reset_release_sync_q_1__reg_p",
+      "RN"
+    ]
+  ],
+  "release_driver": [
+    [
+      "core_rst_n_reg_n",
+      "Q"
+    ]
+  ],
+  "core_reset_sink_count": 424,
+  "qualified_reset_net_count": 49,
+  "status": "passed"
+}
+cp constr/riscv32_core_reset_boundary.sdc /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc
+NPC_STA_NETLIST_FILE=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v \
+	CLK_FREQ_MHZ=820 RUN_POWER_ANALYSIS=0 \
+	/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA -script /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl \
+	/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered/constraints.sdc \
+	/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v \
+	riscv32_core_reset_boundary nangate45 > /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta/riscv32_core_reset_boundary-820MHz-buffered/sta.log 2>&1
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc'

@@ -1,0 +1,13 @@
+{
+  "created_utc": "2026-09-24T07:33:44.086075+00:00",
+  "held_started": false,
+  "variants": {
+    "G256F": "G256",
+    "G512F": "G512",
+    "B512F": "B512"
+  },
+  "trigger_loads": 64,
+  "tree_fanout": 16,
+  "cell": "BUF_X4",
+  "reason": "Measured G512 shared training_counter has fanout 512 and 3.036 ns single driver delay. Separate circuit drive cost from predictor algorithm. No extra pipeline stage or retuning on held inputs."
+}

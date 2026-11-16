@@ -1,0 +1,2994 @@
+diff --git a/npc/vsrc/riscv32/common/riscv32_pkg.sv b/npc/vsrc/riscv32/common/riscv32_pkg.sv
+index 1ce4fbd..dcd33a9 100644
+--- a/npc/vsrc/riscv32/common/riscv32_pkg.sv
++++ b/npc/vsrc/riscv32/common/riscv32_pkg.sv
+@@ -537,24 +537,10 @@ package riscv32_pkg;
+   // Frontend payloads
+   // prediction记录IFU发出该指令请求时真正采用的后继选择。EX必须同时比较方向和目标；
+   // 即使B/J目标可重新计算，也不能用重算结果替代predicted_target，否则BTB旧目标或别名
+-  // 无法触发恢复。历史方向预测的快照只供对应指令解析后训练使用。
+-  typedef struct packed {
+-    logic history_inserted;
+-    logic history_taken;
+-    logic [191:0] tage_scl;  // policy5查询快照；其余配置恒零并由综合移除。
+-    logic [riscv_config_pkg::BRANCH_GLOBAL_HISTORY_BITS-1:0] history;
+-    logic                                                  choice;
+-    logic                                                  taken;
+-    logic [1:0]                                            provider;
+-    logic [1:0]                                            alternate_provider;
+-    logic                                                  alternate_taken;
+-  } direction_context_t;
+-
+-  typedef struct packed {
+-    logic [1:0] raw_direction_counter;
+-    logic               predicted_taken;
+-    program_counter_t   predicted_target;
+-    direction_context_t direction;
++  // 无法触发恢复。未来引入TAGE checkpoint时，再增加有明确消费者的metadata。
++  typedef struct packed {
++    logic             predicted_taken;
++    program_counter_t predicted_target;
+   } branch_prediction_t;
+ 
+   // 请求侧预测时还不知道返回指令的opcode，因此把BHT方向和RAS栈顶作为请求上下文
+@@ -749,7 +735,6 @@ package riscv32_pkg;
+     decoded_uop_t  uop;
+     xlen_data_t    result;
+     program_counter_t next_pc;
+-    logic          branch_taken; // EX比较真值，目标为PC+4时也必须保留
+     xlen_data_t  csr_wdata;
+     logic          redirect_valid;
+     redirect_req_t redirect_req;
+@@ -767,7 +752,6 @@ package riscv32_pkg;
+     decoded_uop_t  uop;
+     xlen_data_t    result;
+     program_counter_t next_pc;
+-    logic          branch_taken; // EX比较真值，目标为PC+4时也必须保留
+     xlen_data_t  csr_wdata;
+     effective_addr_t   memory_addr;
+     core_data_t        memory_rdata;
+diff --git a/npc/vsrc/riscv32/common/riscv_config_pkg.sv b/npc/vsrc/riscv32/common/riscv_config_pkg.sv
+index 493786c..6dab9d4 100644
+--- a/npc/vsrc/riscv32/common/riscv_config_pkg.sv
++++ b/npc/vsrc/riscv32/common/riscv_config_pkg.sv
+@@ -89,104 +89,6 @@ package riscv_config_pkg;
+   localparam int unsigned BRANCH_HISTORY_ENTRY_COUNT = `YSYX_BRANCH_HISTORY_ENTRY_COUNT;
+   localparam int unsigned BRANCH_TARGET_ENTRY_COUNT  = `YSYX_BRANCH_TARGET_ENTRY_COUNT;
+   localparam int unsigned BRANCH_TARGET_WAY_COUNT    = `YSYX_BRANCH_TARGET_WAY_COUNT;
+-`ifdef YSYX_BRANCH_TARGET_WAY_BITS
+-  localparam logic [31:0] BRANCH_TARGET_WAY_BITS = `YSYX_BRANCH_TARGET_WAY_BITS;
+-`else
+-  localparam logic [31:0] BRANCH_TARGET_WAY_BITS = 0;
+-`endif
+-`ifdef YSYX_BRANCH_TARGET_POLICY
+-  localparam int unsigned BRANCH_TARGET_POLICY = `YSYX_BRANCH_TARGET_POLICY;
+-`else
+-  localparam int unsigned BRANCH_TARGET_POLICY = 0;
+-`endif
+-`ifdef YSYX_BRANCH_TARGET_INDEX_POLICY
+-  localparam int unsigned BRANCH_TARGET_INDEX_POLICY = `YSYX_BRANCH_TARGET_INDEX_POLICY;
+-`else
+-  localparam int unsigned BRANCH_TARGET_INDEX_POLICY = 0;
+-`endif
+-`ifdef YSYX_BRANCH_TARGET_ADMISSION_POLICY
+-  localparam int unsigned BRANCH_TARGET_ADMISSION_POLICY = `YSYX_BRANCH_TARGET_ADMISSION_POLICY;
+-`else
+-  localparam int unsigned BRANCH_TARGET_ADMISSION_POLICY = 0;
+-`endif
+-`ifdef YSYX_BRANCH_TAGE_BASE_ENTRIES
+-  localparam int unsigned BRANCH_TAGE_BASE_ENTRIES = `YSYX_BRANCH_TAGE_BASE_ENTRIES;
+-`else
+-  localparam int unsigned BRANCH_TAGE_BASE_ENTRIES = 32;
+-`endif
+-`ifdef YSYX_BRANCH_TAGE_TAGGED_ENTRIES
+-  localparam int unsigned BRANCH_TAGE_TAGGED_ENTRIES = `YSYX_BRANCH_TAGE_TAGGED_ENTRIES;
+-`else
+-  localparam int unsigned BRANCH_TAGE_TAGGED_ENTRIES = 16;
+-`endif
+-`ifdef YSYX_BRANCH_TAGE_TABLE_COUNT
+-  localparam int unsigned BRANCH_TAGE_TABLE_COUNT = `YSYX_BRANCH_TAGE_TABLE_COUNT;
+-`else
+-  localparam int unsigned BRANCH_TAGE_TABLE_COUNT = 3;
+-`endif
+-`ifdef YSYX_BRANCH_TAGE_TAG_BITS
+-  localparam int unsigned BRANCH_TAGE_TAG_BITS = `YSYX_BRANCH_TAGE_TAG_BITS;
+-`else
+-  localparam int unsigned BRANCH_TAGE_TAG_BITS = 8;
+-`endif
+-`ifdef YSYX_BRANCH_TAGE_HISTORY_BITS_0
+-  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_0 = `YSYX_BRANCH_TAGE_HISTORY_BITS_0;
+-`else
+-  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_0 = 3;
+-`endif
+-`ifdef YSYX_BRANCH_TAGE_HISTORY_BITS_1
+-  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_1 = `YSYX_BRANCH_TAGE_HISTORY_BITS_1;
+-`else
+-  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_1 = 7;
+-`endif
+-`ifdef YSYX_BRANCH_TAGE_HISTORY_BITS_2
+-  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_2 = `YSYX_BRANCH_TAGE_HISTORY_BITS_2;
+-`else
+-  localparam int unsigned BRANCH_TAGE_HISTORY_BITS_2 = 16;
+-`endif
+-`ifdef YSYX_BRANCH_SPEC_HISTORY
+-  localparam bit BRANCH_SPEC_HISTORY = `YSYX_BRANCH_SPEC_HISTORY;
+-`else
+-  localparam bit BRANCH_SPEC_HISTORY = 0;
+-`endif
+-`ifdef YSYX_BRANCH_SC_ENABLE
+-  localparam bit BRANCH_SC_ENABLE = `YSYX_BRANCH_SC_ENABLE;
+-`else
+-  localparam bit BRANCH_SC_ENABLE = 0;
+-`endif
+-`ifdef YSYX_BRANCH_LOOP_ENABLE
+-  localparam bit BRANCH_LOOP_ENABLE = `YSYX_BRANCH_LOOP_ENABLE;
+-`else
+-  localparam bit BRANCH_LOOP_ENABLE = 0;
+-`endif
+-
+-`ifdef YSYX_BRANCH_EARLY_RAS
+-  localparam bit BRANCH_EARLY_RAS = `YSYX_BRANCH_EARLY_RAS;
+-`else
+-  localparam bit BRANCH_EARLY_RAS = 0;
+-`endif
+-`ifdef YSYX_BRANCH_EARLY_TARGET
+-  localparam bit BRANCH_EARLY_TARGET = `YSYX_BRANCH_EARLY_TARGET;
+-`else
+-  localparam bit BRANCH_EARLY_TARGET = 0;
+-`endif
+-
+-`ifdef YSYX_BRANCH_STATIC_POLICY
+-  localparam int unsigned BRANCH_STATIC_POLICY = `YSYX_BRANCH_STATIC_POLICY;
+-`else
+-  localparam int unsigned BRANCH_STATIC_POLICY = 0;
+-`endif
+-
+-`ifdef YSYX_BRANCH_DIRECTION_POLICY
+-  localparam int unsigned BRANCH_DIRECTION_POLICY = `YSYX_BRANCH_DIRECTION_POLICY;
+-`else
+-  localparam int unsigned BRANCH_DIRECTION_POLICY = 0;
+-`endif
+-`ifdef YSYX_BRANCH_GLOBAL_HISTORY_BITS
+-  localparam int unsigned BRANCH_GLOBAL_HISTORY_BITS = `YSYX_BRANCH_GLOBAL_HISTORY_BITS;
+-`else
+-  localparam int unsigned BRANCH_GLOBAL_HISTORY_BITS = 4;
+-`endif
+   localparam int unsigned RETURN_STACK_ENTRY_COUNT   = `YSYX_RETURN_STACK_ENTRY_COUNT;
+   //
+   // I-cache容量、路数与line大小由Makefile唯一选择；set数量、tag/offset宽度、
+@@ -194,12 +96,6 @@ package riscv_config_pkg;
+   localparam int unsigned ICACHE_CAPACITY_BYTES = `YSYX_ICACHE_CAPACITY_BYTES;
+   localparam int unsigned ICACHE_WAY_COUNT = `YSYX_ICACHE_WAY_COUNT;
+   localparam int unsigned ICACHE_LINE_BYTES = `YSYX_ICACHE_LINE_BYTES;
+-`ifdef YSYX_ICACHE_REPLACEMENT_POLICY
+-  localparam int unsigned ICACHE_REPLACEMENT_POLICY = `YSYX_ICACHE_REPLACEMENT_POLICY;
+-`else
+-  localparam int unsigned ICACHE_REPLACEMENT_POLICY = 0;
+-`endif
+-
+   localparam int unsigned ICACHE_FETCH_BYTES = INSTR_WIDTH / 8;
+   localparam int unsigned ICACHE_MSHR_COUNT = 1;
+   // 课程面积配置在elaboration时完全移除D-cache实例；这不是运行时旁路，也不会为
+diff --git a/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv b/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv
+index d135890..af7221e 100644
+--- a/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv
++++ b/npc/vsrc/riscv32/core/decode/riscv32_regfile.sv
+@@ -24,7 +24,7 @@ module riscv32_regfile
+ 
+   // 架构提交和寄存器堆写入发生在同一个上升沿。提交事件被仿真器或Difftest观察到时，
+   // gpr_array_q必须已经反映该条指令的架构结果，不能再延迟到下降半周期。同拍进入ID/EX的
+-  // 消费者通过 operand_mux 中的 WB 前递取得新值；后续由组合读口读取更新后的 GPR。
++  // 消费者通过 operand_prepare 中的 WB 前递取得新值；后续由组合读口读取更新后的 GPR。
+   // 寄存器内容无需复位，软件在读取前负责初始化；x0不在物理阵列中。
+   always_ff @(posedge clk_i) begin
+     if (gpr_write_enable_i && (gpr_write_addr_i != '0)) begin
+diff --git a/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv b/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv
+index eed9fc8..8a5ae4e 100644
+--- a/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv
++++ b/npc/vsrc/riscv32/core/execute/riscv32_ex_result_reg.sv
+@@ -25,7 +25,6 @@ module riscv32_ex_result_reg
+   logic             stage_can_accept;
+   program_counter_t predicted_next_pc_q;
+   logic             branch_prediction_mismatch;
+-  logic             history_repair_required;
+ 
+   assign stage_can_accept = !execute_result_valid_q || resolved_result_ready_i;
+   // flush只清除valid，ready仍只描述本级容量。年轻普通结果可以在恢复拍物理写入
+@@ -37,12 +36,6 @@ module riscv32_ex_result_reg
+   // 预测顺序后继在寄存器入口计算，避免输出侧再串联 PC+4、选择和地址比较。
+   assign branch_prediction_mismatch = execute_result_q.next_pc != predicted_next_pc_q;
+ 
+-  assign history_repair_required = riscv_config_pkg::BRANCH_SPEC_HISTORY &&
+-      ((execute_result_q.uop.branch_ctrl.op == CF_BRANCH) ?
+-       (!execute_result_q.uop.prediction.direction.history_inserted ||
+-        execute_result_q.uop.prediction.direction.history_taken != execute_result_q.branch_taken) :
+-       execute_result_q.uop.prediction.direction.history_inserted);
+-
+   always_comb begin
+     resolved_result_o                              = execute_result_q;
+     resolved_result_o.redirect_valid               = 1'b0;
+@@ -53,7 +46,7 @@ module riscv32_ex_result_reg
+     resolved_result_o.redirect_req.flush_inclusive = 1'b0;
+ 
+     if ((execute_result_q.uop.fu_type == FU_BRANCH) &&
+-        !execute_result_q.uop.exception_valid && (branch_prediction_mismatch || history_repair_required)) begin
++        !execute_result_q.uop.exception_valid && branch_prediction_mismatch) begin
+       resolved_result_o.redirect_valid = 1'b1;
+     end
+   end
+@@ -104,7 +97,7 @@ module riscv32_ex_result_reg
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+     (resolved_result_valid_o && resolved_result_o.redirect_valid) |->
+       ((resolved_result_o.uop.fu_type == FU_BRANCH) &&
+-       !resolved_result_o.uop.exception_valid && (branch_prediction_mismatch || history_repair_required)))
++       !resolved_result_o.uop.exception_valid && branch_prediction_mismatch))
+   else
+     $error("EX/MEM stage generated a redirect without a valid branch misprediction");
+   /* verilator lint_on SYNCASYNCNET */
+diff --git a/npc/vsrc/riscv32/core/execute/riscv32_exu.sv b/npc/vsrc/riscv32/core/execute/riscv32_exu.sv
+index 811af68..d5e3df6 100644
+--- a/npc/vsrc/riscv32/core/execute/riscv32_exu.sv
++++ b/npc/vsrc/riscv32/core/execute/riscv32_exu.sv
+@@ -30,7 +30,7 @@ module riscv32_exu
+   xlen_data_t execute_rs1_value;
+   xlen_data_t execute_rs2_value;
+ 
+-  // operand_mux 在消费者写入 ID/EX 时完成源选择与前递。EX 只消费寄存后的
++  // operand_prepare 在消费者写入 ID/EX 时完成源选择与前递。EX 只消费寄存后的
+   // 操作数，不再串联rd/rs比较、操作数选择或旁路mux。
+   assign execute_rs1_value = execute_packet_i.source_a_value;
+   assign execute_rs2_value = execute_packet_i.source_b_value;
+@@ -153,7 +153,6 @@ module riscv32_exu
+     // 长度决定；cache一次返回多少字节属于前端微架构，两者必须解耦。
+     exu_result.next_pc   = sequential_next_pc;
+     exu_result.csr_wdata = csr_wdata;
+-    exu_result.branch_taken = (execute_packet_i.uop.fu_type == FU_BRANCH) && branch_taken;
+     // 预测校验位于后继EX/MEM寄存级之后。本级只计算真实next_pc，避免把预测比较继续
+     // 串在分支加法器之后。
+     exu_result.redirect_valid = 1'b0;
+@@ -220,10 +219,8 @@ module riscv32_exu
+   assign sequential_redirect_valid_o = execute_packet_valid_i &&
+       execute_packet_issue_allowed_i && execute_packet_ready_o &&
+       (execute_packet_i.uop.fu_type != FU_BRANCH) && !exu_result.uop.exception_valid &&
+-      ((execute_packet_i.uop.prediction.predicted_taken &&
+-        execute_packet_i.uop.prediction.predicted_target != sequential_next_pc) ||
+-       (riscv_config_pkg::BRANCH_SPEC_HISTORY &&
+-        execute_packet_i.uop.prediction.direction.history_inserted));
++      execute_packet_i.uop.prediction.predicted_taken &&
++      (execute_packet_i.uop.prediction.predicted_target != sequential_next_pc);
+ 
+ `ifndef SYNTHESIS
+   always_comb begin : check_exception_side_effects
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv b/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv
+index 2901760..533f701 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_bht.sv
+@@ -1,199 +1,58 @@
+-// 条件方向预测：组合查表，携带查询快照，解析交付时训练；不增加查询或训练流水级。
++// 条件分支方向表：PC索引的两位饱和计数器。
++// 组合查询直接参与预测选择；训练输入已经过共享解析事件寄存器。
++// 同沿查询读取更新前的计数值，没有查询旁路。invalidate不清此表。
+ module riscv32_bht
+   import riscv32_pkg::*;
+ #(
+-    parameter int unsigned BHT_ENTRY_COUNT = riscv_config_pkg::BRANCH_HISTORY_ENTRY_COUNT,
+-    parameter int unsigned DIRECTION_POLICY = riscv_config_pkg::BRANCH_DIRECTION_POLICY,
+-    parameter int unsigned HISTORY_BITS = riscv_config_pkg::BRANCH_GLOBAL_HISTORY_BITS
++    parameter int unsigned BHT_ENTRY_COUNT = riscv_config_pkg::BRANCH_HISTORY_ENTRY_COUNT
+ ) (
+-    input  logic                     clk_i,
+-    input  logic                     rst_ni,
+-    input  program_counter_t         lookup_pc_i,
+-    output logic               [1:0] lookup_counter_o,
+-    output direction_context_t       lookup_context_o,
+-    input  program_counter_t         training_pc_i,
+-    input  logic                     training_valid_i,
+-    input  logic                     training_taken_i,
+-    input  direction_context_t       training_context_i,
+-    input  logic                     lookup_handshake_i,
+-    input  logic                     lookup_conditional_i,
+-    input  logic                     lookup_taken_i,
+-    input  logic                     flush_i,
+-    input  logic                     invalidate_i
++    input  logic                   clk_i,
++    input  logic                   rst_ni,
++    input  program_counter_t       lookup_pc_i,
++    output logic             [1:0] lookup_counter_o,
++    input  program_counter_t       training_pc_i,
++    input  logic                   training_valid_i,
++    input  logic                   training_taken_i
+ );
+-  localparam int unsigned INDEX_BITS = $clog2(BHT_ENTRY_COUNT);
+-  localparam int unsigned OFFSET_BITS = $clog2(INSTRUCTION_BYTES);
++  localparam int unsigned INDEX_WIDTH = $clog2(BHT_ENTRY_COUNT);
++  localparam int unsigned INSTRUCTION_OFFSET_WIDTH = $clog2(INSTRUCTION_BYTES);
++  typedef logic [INDEX_WIDTH-1:0] branch_history_index_t;
+ 
+-  initial begin
+-    if (BHT_ENTRY_COUNT < 2 || (BHT_ENTRY_COUNT & (BHT_ENTRY_COUNT - 1)) != 0)
+-      $fatal(1, "direction counter count must be a power of two and at least two");
+-    if (DIRECTION_POLICY > 5 || HISTORY_BITS < 1 ||
+-        HISTORY_BITS != riscv_config_pkg::BRANCH_GLOBAL_HISTORY_BITS)
+-      $fatal(1, "invalid direction policy or history metadata width");
+-    if (DIRECTION_POLICY == 1 && HISTORY_BITS > INDEX_BITS)
+-      $fatal(1, "gshare history must fit its index");
+-    if (DIRECTION_POLICY == 2 && (BHT_ENTRY_COUNT < 8 || HISTORY_BITS > INDEX_BITS - 2))
+-      $fatal(1, "bi-mode requires three tables and history fitting a direction table index");
+-  end
+-
+-  function automatic logic [1:0] update_counter(input logic [1:0] value, input logic taken);
+-    if (taken)
+-      return value == 2'b11 ? value : value + 2'b01;
+-    return value == 2'b00 ? value : value - 2'b01;
+-  endfunction
++  logic                  [1:0] counter_array_q[BHT_ENTRY_COUNT];
++  branch_history_index_t       lookup_index;
++  branch_history_index_t       training_index;
+ 
+-  // 1. 已解析历史：查询不写，普通flush不写；invalidate优先于训练。
+-  logic [HISTORY_BITS-1:0] history;
+-  if (DIRECTION_POLICY inside {0, 5}) begin : g_no_history
+-    assign history = '0;
+-  end else begin : g_resolved_history
+-    logic [HISTORY_BITS-1:0] history_q;
+-    assign history = history_q;
+-    always_ff @(posedge clk_i or negedge rst_ni) begin
+-      if (!rst_ni)
+-        history_q <= '0;
+-      else if (invalidate_i)
+-        history_q <= '0;
+-      else if (training_valid_i)
+-        history_q <= (history_q << 1) | HISTORY_BITS'(training_taken_i);
++  initial begin
++    if ((BHT_ENTRY_COUNT < 2) || ((BHT_ENTRY_COUNT & (BHT_ENTRY_COUNT - 1)) != 0)) begin
++      $fatal(1, "branch history entry count must be a power of two and at least 2");
+     end
+   end
+ 
+-  if (DIRECTION_POLICY == 5) begin : g_tage_scl
+-    logic         direction_taken;
+-    logic [191:0] query_context;
+-    riscv32_tage_scl #(
+-        .BASE_ENTRIES       (riscv_config_pkg::BRANCH_TAGE_BASE_ENTRIES),
+-        .TAGGED_ENTRIES     (riscv_config_pkg::BRANCH_TAGE_TAGGED_ENTRIES),
+-        .TABLE_COUNT        (riscv_config_pkg::BRANCH_TAGE_TABLE_COUNT),
+-        .TAG_BITS           (riscv_config_pkg::BRANCH_TAGE_TAG_BITS),
+-        .HISTORY_BITS_0     (riscv_config_pkg::BRANCH_TAGE_HISTORY_BITS_0),
+-        .HISTORY_BITS_1     (riscv_config_pkg::BRANCH_TAGE_HISTORY_BITS_1),
+-        .HISTORY_BITS_2     (riscv_config_pkg::BRANCH_TAGE_HISTORY_BITS_2),
+-        .SPECULATIVE_HISTORY(riscv_config_pkg::BRANCH_SPEC_HISTORY),
+-        .SC_ENABLE          (riscv_config_pkg::BRANCH_SC_ENABLE),
+-        .LOOP_ENABLE        (riscv_config_pkg::BRANCH_LOOP_ENABLE)
+-    ) u_tage_scl (
+-        .clk_i               (clk_i),
+-        .rst_ni              (rst_ni),
+-        .lookup_pc_i         (lookup_pc_i),
+-        .taken_o             (direction_taken),
+-        .context_o           (query_context),
+-        .training_valid_i    (training_valid_i),
+-        .training_taken_i    (training_taken_i),
+-        .training_context_i  (training_context_i.tage_scl),
+-        .lookup_handshake_i  (lookup_handshake_i),
+-        .lookup_conditional_i(lookup_conditional_i),
+-        .lookup_taken_i      (lookup_taken_i),
+-        .flush_i             (flush_i),
+-        .invalidate_i        (invalidate_i)
+-    );
+-    // H2强弱门控仅针对真实2bit counter；新TAGE不伪造弱置信度。
+-    assign lookup_counter_o = direction_taken ? 2'b11 : 2'b00;
+-    always_comb begin
+-      lookup_context_o = '0;
+-      lookup_context_o.tage_scl = query_context;
+-      lookup_context_o.history_inserted = riscv_config_pkg::BRANCH_SPEC_HISTORY && lookup_conditional_i;
+-      lookup_context_o.history_taken = riscv_config_pkg::BRANCH_SPEC_HISTORY && lookup_taken_i;
+-    end
+-  end else if (DIRECTION_POLICY inside {3, 4}) begin : g_tage
+-    riscv32_tage #(
+-        .TABLE_ENTRIES    (BHT_ENTRY_COUNT),
+-        .PROTECT_ALTERNATE(DIRECTION_POLICY == 4)
+-    ) u_tage (
+-        .clk_i             (clk_i),
+-        .rst_ni            (rst_ni),
+-        .lookup_pc_i       (lookup_pc_i),
+-        .lookup_history_i  (history),
+-        .lookup_counter_o  (lookup_counter_o),
+-        .lookup_context_o  (lookup_context_o),
+-        .training_pc_i     (training_pc_i),
+-        .training_context_i(training_context_i),
+-        .training_valid_i  (training_valid_i),
+-        .training_taken_i  (training_taken_i),
+-        .invalidate_i      (invalidate_i)
+-    );
+-  end else if (DIRECTION_POLICY != 2) begin : g_counter_table
+-    typedef logic [INDEX_BITS-1:0] index_t;
+-    logic [1:0] counter_array_q[BHT_ENTRY_COUNT];
+-    index_t lookup_index, training_index;
+-    logic [1:0] training_counter;
+-
+-    // 2a. PC索引或PC异或历史：旧指令必须用它自己的查询历史训练。
+-    if (DIRECTION_POLICY == 0) begin : g_bimodal
+-      assign lookup_index     = lookup_pc_i[OFFSET_BITS+:INDEX_BITS];
+-      assign training_index   = training_pc_i[OFFSET_BITS+:INDEX_BITS];
+-      assign lookup_context_o = '0;
+-    end else begin : g_gshare
+-      assign lookup_index = lookup_pc_i[OFFSET_BITS+:INDEX_BITS] ^
+-          (index_t'(history) << (INDEX_BITS - HISTORY_BITS));
+-      assign training_index = training_pc_i[OFFSET_BITS+:INDEX_BITS] ^
+-          (index_t'(training_context_i.history) << (INDEX_BITS - HISTORY_BITS));
+-      always_comb begin
+-        lookup_context_o         = '0;
+-        lookup_context_o.history = history;
+-      end
+-    end
+-    assign lookup_counter_o = counter_array_q[lookup_index];
++  // 1. 查询读口：只取地址索引，不增加查询寄存级。
++  assign lookup_index     = lookup_pc_i[INSTRUCTION_OFFSET_WIDTH+:INDEX_WIDTH];
++  assign training_index   = training_pc_i[INSTRUCTION_OFFSET_WIDTH+:INDEX_WIDTH];
++  assign lookup_counter_o = counter_array_q[lookup_index];
+ 
+-    // 3a. 当前表值做饱和更新；连续同址训练自然读到前沿写入值。
+-    assign training_counter = update_counter(counter_array_q[training_index], training_taken_i);
+-    always_ff @(posedge clk_i or negedge rst_ni) begin
+-      if (!rst_ni) begin
+-        for (int unsigned index = 0; index < BHT_ENTRY_COUNT; index++)
+-          counter_array_q[index] <= 2'b01;
+-      end else if (training_valid_i && !invalidate_i) begin
+-        counter_array_q[training_index] <= training_counter;
+-      end
++  // 2. 训练运算：先读当前计数器，再做两位饱和加减。
++  function automatic logic [1:0] update_counter(input logic [1:0] current_counter,
++                                                input logic taken);
++    if (taken) begin
++      return (current_counter == 2'b11) ? current_counter : current_counter + 2'b01;
+     end
+-  end else begin : g_bimode
+-    localparam int unsigned CHOICE_ENTRIES = BHT_ENTRY_COUNT / 2;
+-    localparam int unsigned DIRECTION_ENTRIES = BHT_ENTRY_COUNT / 4;
+-    typedef logic [$clog2(CHOICE_ENTRIES)-1:0] choice_index_t;
+-    typedef logic [$clog2(DIRECTION_ENTRIES)-1:0] direction_index_t;
+-    logic [1:0] choice_array_q   [CHOICE_ENTRIES];
+-    logic [1:0] direction_array_q[             2] [DIRECTION_ENTRIES];
+-    choice_index_t lookup_choice_index, training_choice_index;
+-    direction_index_t lookup_direction_index, training_direction_index;
+-    logic lookup_choice;
+-    logic [1:0] training_direction_counter, training_choice_counter;
+-    logic choice_update;
++    return (current_counter == 2'b00) ? current_counter : current_counter - 2'b01;
++  endfunction
+ 
+-    // 2b. 两方向表与选择表并行读，再选择方向；快照保存实际选择，避免延迟训练串表。
+-    assign lookup_choice_index = choice_index_t'(lookup_pc_i >> OFFSET_BITS);
+-    assign
+-        lookup_direction_index = direction_index_t'(lookup_pc_i >> OFFSET_BITS) ^ direction_index_t'(history);
+-    assign lookup_choice = choice_array_q[lookup_choice_index][1];
+-    assign lookup_counter_o = direction_array_q[lookup_choice][lookup_direction_index];
+-    always_comb begin
+-      lookup_context_o         = '0;
+-      lookup_context_o.history = history;
+-      lookup_context_o.choice  = lookup_choice;
+-      lookup_context_o.taken   = lookup_counter_o[1];
+-    end
++  logic [1:0] training_counter_next;
++  assign training_counter_next = update_counter(counter_array_q[training_index], training_taken_i);
+ 
+-    // 3b. 只更新查询时选中的方向表；正确识别偏置例外时不改变选择表。
+-    assign training_choice_index = choice_index_t'(training_pc_i >> OFFSET_BITS);
+-    assign training_direction_index = direction_index_t'(training_pc_i >> OFFSET_BITS) ^
+-        direction_index_t'(training_context_i.history);
+-    assign training_direction_counter = update_counter(
+-        direction_array_q[training_context_i.choice][training_direction_index], training_taken_i
+-    );
+-    assign training_choice_counter = update_counter(choice_array_q[training_choice_index], training_taken_i);
+-    assign choice_update = (training_context_i.taken != training_taken_i) ||
+-        (training_context_i.choice == training_taken_i);
+-    always_ff @(posedge clk_i or negedge rst_ni) begin
+-      if (!rst_ni) begin
+-        for (int unsigned index = 0; index < CHOICE_ENTRIES; index++)
+-          choice_array_q[index] <= 2'b01;
+-        for (int unsigned bank = 0; bank < 2; bank++)
+-          for (int unsigned index = 0; index < DIRECTION_ENTRIES; index++)
+-          direction_array_q[bank][index] <= bank == 0 ? 2'b01 : 2'b10;
+-      end else if (training_valid_i && !invalidate_i) begin
+-        direction_array_q[training_context_i.choice][training_direction_index] <= training_direction_counter;
+-        if (choice_update)
+-          choice_array_q[training_choice_index] <= training_choice_counter;
++  // 3. 同步写口：00/01 预测不跳，10/11 预测跳转。
++  always_ff @(posedge clk_i or negedge rst_ni) begin
++    if (!rst_ni) begin
++      for (int unsigned entry_index = 0; entry_index < BHT_ENTRY_COUNT; entry_index++) begin
++        counter_array_q[entry_index] <= 2'b01;
+       end
++    end else if (training_valid_i) begin
++      counter_array_q[training_index] <= training_counter_next;
+     end
+   end
+ endmodule
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv b/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv
+deleted file mode 100644
+index 0c1f4d4..0000000
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv
++++ /dev/null
+@@ -1,31 +0,0 @@
+-// 条件分支同信息时机对照：纯动态、BTFNT、弱动态回退BTFNT；不增加状态或寄存级。
+-module riscv32_branch_choice #(
+-    parameter int unsigned POLICY = riscv_config_pkg::BRANCH_STATIC_POLICY
+-) (
+-    input  logic       backward_i,
+-    input  logic       metadata_valid_i,
+-    input  logic [1:0] dynamic_counter_i,
+-    output logic       taken_o
+-);
+-  logic dynamic_counter_weak;
+-
+-  assign dynamic_counter_weak = dynamic_counter_i[1] != dynamic_counter_i[0];
+-
+-  always_comb begin
+-    taken_o = dynamic_counter_i[1];
+-    if (metadata_valid_i) begin
+-      case (POLICY)
+-        1:       taken_o = backward_i;
+-        2:
+-          if (dynamic_counter_weak)
+-            taken_o = backward_i;
+-        default: ;
+-      endcase
+-    end
+-  end
+-
+-  initial begin
+-    if (POLICY > 2)
+-      $fatal(1, "invalid static/dynamic selection policy");
+-  end
+-endmodule
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv b/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+index 68ad6c2..89dba4e 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+@@ -6,8 +6,7 @@ module riscv32_branch_predictor
+     parameter int unsigned BHT_ENTRY_COUNT = riscv_config_pkg::BRANCH_HISTORY_ENTRY_COUNT,
+     parameter int unsigned BTB_ENTRY_COUNT = riscv_config_pkg::BRANCH_TARGET_ENTRY_COUNT,
+     parameter int unsigned BTB_WAY_COUNT   = riscv_config_pkg::BRANCH_TARGET_WAY_COUNT,
+-    parameter int unsigned RAS_ENTRY_COUNT = riscv_config_pkg::RETURN_STACK_ENTRY_COUNT,
+-    parameter int unsigned BTB_POLICY      = riscv_config_pkg::BRANCH_TARGET_POLICY
++    parameter int unsigned RAS_ENTRY_COUNT = riscv_config_pkg::RETURN_STACK_ENTRY_COUNT
+ ) (
+     input logic clk_i,
+     input logic rst_ni,
+@@ -31,22 +30,12 @@ module riscv32_branch_predictor
+     input arch_reg_idx_t    resolved_control_flow_rd_i,
+     input logic             resolved_control_flow_event_i,
+     input logic             resolved_control_flow_taken_i,
+-    input branch_prediction_t resolved_control_flow_prediction_i,
+-
+-    output logic early_return_present_o,
+-    output program_counter_t early_return_pc_o,
+ 
+     // redirect只清除当前查询流水，不清除训练状态；fence.i才清除可能过期的BTB内容。
+     input logic flush_lookup_i,
+     input logic invalidate_i
+ );
+ 
+-  initial begin
+-    if (riscv_config_pkg::BRANCH_SPEC_HISTORY &&
+-        (riscv_config_pkg::BRANCH_DIRECTION_POLICY != 5 || riscv_config_pkg::BRANCH_EARLY_TARGET || riscv_config_pkg::BRANCH_EARLY_RAS))
+-      $fatal(1,"Speculative history requires policy5 without local early override");
+-  end
+-
+   // 1. 训练入口：已寄存的解析结果直接驱动写表，不再增加训练流水级。
+   typedef struct packed {
+     program_counter_t    pc;
+@@ -90,18 +79,12 @@ module riscv32_branch_predictor
+ 
+   // 2. 并行查表：三个单元都读取当前请求，没有各自的查询流水或握手状态。
+   logic [1:0]          history_counter;
+-  direction_context_t  direction_context;
+   logic                target_present;
+   program_counter_t    target_pc;
+   branch_target_kind_e target_kind;
+   logic                return_present;
+   program_counter_t    return_pc;
+ 
+-  assign early_return_present_o = return_present;
+-  assign early_return_pc_o = return_pc;
+-
+-  logic request_handshake, selected_taken;
+-
+   riscv32_bht #(
+       .BHT_ENTRY_COUNT(BHT_ENTRY_COUNT)
+   ) u_bht (
+@@ -109,22 +92,14 @@ module riscv32_branch_predictor
+       .rst_ni           (rst_ni),
+       .lookup_pc_i      (lookup_request_pc_i),
+       .lookup_counter_o (history_counter),
+-      .lookup_context_o (direction_context),
+-      .lookup_handshake_i(request_handshake),
+-      .lookup_conditional_i(target_present && target_kind == TARGET_KIND_CONDITIONAL_BRANCH),
+-      .lookup_taken_i(selected_taken),
+-      .flush_i(flush_lookup_i),
+       .training_pc_i    (training.pc),
+       .training_valid_i (training_valid && (training.kind == TARGET_KIND_CONDITIONAL_BRANCH)),
+-      .training_taken_i (training.taken),
+-      .training_context_i(resolved_control_flow_prediction_i.direction),
+-      .invalidate_i      (invalidate_i)
++      .training_taken_i (training.taken)
+   );
+ 
+   riscv32_btb #(
+       .BTB_ENTRY_COUNT (BTB_ENTRY_COUNT),
+-      .BTB_WAY_COUNT   (BTB_WAY_COUNT),
+-      .BTB_POLICY      (BTB_POLICY)
++      .BTB_WAY_COUNT   (BTB_WAY_COUNT)
+   ) u_btb (
+       .clk_i                   (clk_i),
+       .rst_ni                  (rst_ni),
+@@ -136,7 +111,6 @@ module riscv32_branch_predictor
+       .training_target_pc_i    (training.target_pc),
+       .training_kind_i         (training.kind),
+       .training_valid_i        (training_valid),
+-      .training_taken_i        (training.taken),
+       .invalidate_i            (invalidate_i)
+   );
+ 
+@@ -157,20 +131,10 @@ module riscv32_branch_predictor
+       .invalidate_i                  (invalidate_i)
+   );
+ 
+-  // 条件方向组合选择：静态偏置只使用本拍真实命中的BTB信息。
+-  logic conditional_taken;
+-  logic [12:0] conditional_displacement;
+-  assign conditional_displacement = target_pc[12:0] - lookup_request_pc_i[12:0];
+-  riscv32_branch_choice u_branch_choice (
+-      .backward_i        (conditional_displacement[12]),
+-      .metadata_valid_i  (target_present && target_kind == TARGET_KIND_CONDITIONAL_BRANCH),
+-      .dynamic_counter_i (history_counter),
+-      .taken_o           (conditional_taken)
+-  );
+-
+   // 3. 预测选择：BTB 决定指令种类，BHT 决定条件分支方向，RAS 提供返回目标。
+   branch_prediction_t selected_prediction;
+   program_counter_t   selected_target_pc;
++  logic               selected_taken;
+ 
+   always_comb begin
+     selected_taken     = 1'b0;
+@@ -178,7 +142,7 @@ module riscv32_branch_predictor
+     if (target_present) begin
+       unique case (target_kind)
+         TARGET_KIND_CONDITIONAL_BRANCH:
+-          selected_taken = conditional_taken;
++          selected_taken = history_counter[1];
+         TARGET_KIND_DIRECT_JUMP, TARGET_KIND_INDIRECT_JUMP:
+           selected_taken = 1'b1;
+         TARGET_KIND_RETURN: begin
+@@ -193,8 +157,6 @@ module riscv32_branch_predictor
+     if (selected_target_pc[1:0] != 2'b00)
+       selected_taken = 1'b0;
+     selected_prediction                  = '0;
+-    selected_prediction.direction        = direction_context;
+-    selected_prediction.raw_direction_counter = riscv_config_pkg::BRANCH_EARLY_TARGET ? history_counter : 2'b00;
+     selected_prediction.predicted_taken  = selected_taken;
+     selected_prediction.predicted_target = selected_taken ? selected_target_pc : '0;
+   end
+@@ -208,6 +170,7 @@ module riscv32_branch_predictor
+ 
+   response_t response_q, response_d;
+   logic response_present_q, response_present_d;
++  logic request_handshake;
+ 
+   assign lookup_response_pc_o    = response_q.pc;
+   assign lookup_response_epoch_o = response_q.epoch;
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv b/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv
+index ade6d50..0ac2c56 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_btb.sv
+@@ -4,11 +4,7 @@ module riscv32_btb
+   import riscv32_pkg::*;
+ #(
+     parameter int unsigned BTB_ENTRY_COUNT = riscv_config_pkg::BRANCH_TARGET_ENTRY_COUNT,
+-    parameter int unsigned BTB_WAY_COUNT = riscv_config_pkg::BRANCH_TARGET_WAY_COUNT,
+-    parameter int unsigned BTB_POLICY = riscv_config_pkg::BRANCH_TARGET_POLICY,
+-    parameter int unsigned BTB_INDEX_POLICY = riscv_config_pkg::BRANCH_TARGET_INDEX_POLICY,
+-    parameter int unsigned BTB_ADMISSION_POLICY = riscv_config_pkg::BRANCH_TARGET_ADMISSION_POLICY,
+-    parameter logic [31:0] BTB_WAY_TARGET_BITS = riscv_config_pkg::BRANCH_TARGET_WAY_BITS
++    parameter int unsigned BTB_WAY_COUNT   = riscv_config_pkg::BRANCH_TARGET_WAY_COUNT
+ ) (
+     input  logic                clk_i,
+     input  logic                rst_ni,
+@@ -21,274 +17,123 @@ module riscv32_btb
+     input program_counter_t    training_target_pc_i,
+     input branch_target_kind_e training_kind_i,
+     input logic                training_valid_i,
+-    input logic                training_taken_i,
+     input logic                invalidate_i
+ );
+-  generate
+-    if (BTB_WAY_TARGET_BITS != 0) begin : g_compact
+-      initial begin
+-        if (BTB_INDEX_POLICY != 0 || BTB_ADMISSION_POLICY != 0)
+-          $fatal(1, "Compact BTB supports only legacy index and admission");
++  localparam int unsigned SET_COUNT = BTB_ENTRY_COUNT / BTB_WAY_COUNT;
++  localparam int unsigned OFFSET_BITS = $clog2(INSTRUCTION_BYTES);
++  localparam int unsigned SET_BITS = $clog2(SET_COUNT);
++  localparam int unsigned TAG_BITS = XLEN - SET_BITS - OFFSET_BITS;
++  localparam int unsigned WAY_BITS = (BTB_WAY_COUNT > 1) ? $clog2(BTB_WAY_COUNT) : 1;
++  typedef logic [SET_BITS-1:0] set_index_t;
++  typedef logic [WAY_BITS-1:0] way_index_t;
++  typedef logic [TAG_BITS-1:0] tag_t;
++
++  initial begin
++    if (BTB_ENTRY_COUNT < 2 || (BTB_ENTRY_COUNT & (BTB_ENTRY_COUNT - 1)) != 0)
++      $fatal(1, "BTB entries must be a power of two and at least 2");
++    if (BTB_WAY_COUNT < 1 || (BTB_WAY_COUNT & (BTB_WAY_COUNT - 1)) != 0 ||
++        BTB_WAY_COUNT >= BTB_ENTRY_COUNT)
++      $fatal(1, "BTB ways must be a power of two smaller than entry count");
++  end
++
++  // 1. 表状态：有效位与载荷分开，invalidate 只清有效位与替换指针。
++  typedef struct packed {
++    tag_t                tag;
++    program_counter_t    target_pc;
++    branch_target_kind_e kind;
++  } entry_t;
++
++  entry_t entry_array_q[SET_COUNT][BTB_WAY_COUNT];
++  logic [BTB_WAY_COUNT-1:0] entry_present_array_q[SET_COUNT];
++  way_index_t               replacement_way_array_q[SET_COUNT];
++
++  // 2. 查询读口：读取一个 set，并行比较各 way，合并唯一命中项。
++  set_index_t               lookup_set_index;
++  tag_t                     lookup_tag;
++  logic [BTB_WAY_COUNT-1:0] lookup_hit_vector;
++
++  assign lookup_set_index = lookup_pc_i[OFFSET_BITS+:SET_BITS];
++  assign lookup_tag       = lookup_pc_i[XLEN-1-:TAG_BITS];
++
++  always_comb begin
++    lookup_hit_vector    = '0;
++    lookup_target_pc_o   = '0;
++    lookup_target_kind_o = TARGET_KIND_CONDITIONAL_BRANCH;
++    for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
++      lookup_hit_vector[way_index] = entry_present_array_q[lookup_set_index][way_index] &&
++                                    (entry_array_q[lookup_set_index][way_index].tag == lookup_tag);
++      // 命中保证 one-hot；按位合并避免以 way 数量增长的目标优先级链。
++      if (lookup_hit_vector[way_index]) begin
++        lookup_target_pc_o |= entry_array_q[lookup_set_index][way_index].target_pc;
++        lookup_target_kind_o = branch_target_kind_e'(
++            lookup_target_kind_o | entry_array_q[lookup_set_index][way_index].kind);
+       end
+-      riscv32_compact_btb #(
+-          .BTB_ENTRY_COUNT    (BTB_ENTRY_COUNT),
+-          .BTB_WAY_COUNT      (BTB_WAY_COUNT),
+-          .BTB_POLICY         (BTB_POLICY),
+-          .BTB_WAY_TARGET_BITS(BTB_WAY_TARGET_BITS)
+-      ) u_compact_btb (
+-          .*
+-      );
+-    end else begin : g_full_target
+-      localparam int unsigned SET_COUNT = BTB_ENTRY_COUNT / BTB_WAY_COUNT;
+-      localparam int unsigned OFFSET_BITS = $clog2(INSTRUCTION_BYTES);
+-      localparam int unsigned SET_BITS = $clog2(SET_COUNT);
+-      localparam int unsigned TAG_BITS = XLEN - SET_BITS - OFFSET_BITS;
+-      localparam int unsigned WAY_BITS = (BTB_WAY_COUNT > 1) ? $clog2(BTB_WAY_COUNT) : 1;
+-      typedef logic [SET_BITS-1:0] set_index_t;
+-      typedef logic [WAY_BITS-1:0] way_index_t;
+-      typedef logic [TAG_BITS-1:0] tag_t;
+-
+-      initial begin
+-        if (BTB_ENTRY_COUNT < 2 || (BTB_ENTRY_COUNT & (BTB_ENTRY_COUNT - 1)) != 0)
+-          $fatal(1, "BTB entries must be a power of two and at least 2");
+-        if (BTB_WAY_COUNT < 1 || (BTB_WAY_COUNT & (BTB_WAY_COUNT - 1)) != 0 ||
+-            BTB_WAY_COUNT >= BTB_ENTRY_COUNT)
+-          $fatal(1, "BTB ways must be a power of two smaller than entry count");
+-        if (BTB_POLICY > 4 || (BTB_POLICY == 3 && BTB_WAY_COUNT != 2))
+-          $fatal(1, "BTB policy must be 0..4; policy3 requires two ways");
+-        if (BTB_INDEX_POLICY > 2 || BTB_ADMISSION_POLICY > 2)
+-          $fatal(1, "BTB index and admission must be 0..2");
+-      end
+-
+-      // 1. 表状态：有效位与载荷分开，invalidate 只清有效位与替换指针。
+-      typedef struct packed {
+-        tag_t                tag;
+-        program_counter_t    target_pc;
+-        branch_target_kind_e kind;
+-      } entry_t;
+-
+-      entry_t                         entry_array_q          [SET_COUNT] [BTB_WAY_COUNT];
+-      logic       [BTB_WAY_COUNT-1:0] entry_present_array_q  [SET_COUNT];
+-      way_index_t                     replacement_way_array_q[SET_COUNT];
+-      logic       [              1:0] reuse_array_q          [SET_COUNT] [BTB_WAY_COUNT];
+-
+-      // 2. 查询读口：读取一个 set，并行比较各 way，合并唯一命中项。
+-      set_index_t                     lookup_set_index;
+-      tag_t                           lookup_tag;
+-      logic       [BTB_WAY_COUNT-1:0] lookup_hit_vector;
+-
+-      // 两个组合端口采用相同映射。保留完整高位tag，异或索引不截断PC身份。
+-      function automatic set_index_t pc_set_index(input program_counter_t pc);
+-        set_index_t index_value;
+-        index_value = pc[OFFSET_BITS+:SET_BITS];
+-        for (int unsigned bit_index = OFFSET_BITS + SET_BITS; bit_index < XLEN; bit_index++) begin
+-          if ((BTB_INDEX_POLICY == 2) ||
+-              ((BTB_INDEX_POLICY == 1) && (bit_index < OFFSET_BITS + 2 * SET_BITS)))
+-            index_value[(bit_index-OFFSET_BITS)%SET_BITS] ^= pc[bit_index];
+-        end
+-        return index_value;
+-      endfunction
+-
+-      assign lookup_set_index = pc_set_index(lookup_pc_i);
+-      assign lookup_tag       = lookup_pc_i[XLEN-1-:TAG_BITS];
+-
+-      always_comb begin
+-        lookup_hit_vector    = '0;
+-        lookup_target_pc_o   = '0;
+-        lookup_target_kind_o = TARGET_KIND_CONDITIONAL_BRANCH;
+-        for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
+-          lookup_hit_vector[way_index] = entry_present_array_q[lookup_set_index][way_index] &&
+-              (entry_array_q[lookup_set_index][way_index].tag == lookup_tag);
+-          // 命中保证 one-hot；按位合并避免以 way 数量增长的目标优先级链。
+-          if (lookup_hit_vector[way_index]) begin
+-            lookup_target_pc_o |= entry_array_q[lookup_set_index][way_index].target_pc;
+-            lookup_target_kind_o =
+-                branch_target_kind_e'(lookup_target_kind_o | entry_array_q[lookup_set_index][way_index].kind);
+-          end
+-        end
+-        lookup_target_present_o = |lookup_hit_vector;
+-      end
+-
+-      // 3. 训练选择：同 tag、首个空 way、策略选出的受害者，按此顺序优先。
+-      set_index_t       training_set_index;
+-      tag_t             training_tag;
+-      way_index_t       training_way_index;
+-      way_index_t       replacement_next_way;
+-      logic             training_hit_present;
+-      logic             empty_way_present;
+-      logic             training_write_enable;
+-      logic       [1:0] maximum_reuse;
+-      logic       [1:0] age_amount;
+-
+-      assign training_set_index = pc_set_index(training_pc_i);
+-      assign training_tag = training_pc_i[XLEN-1-:TAG_BITS];
+-      // 只限制新表项准入；已有条目的更新和父模块的 BHT/RAS 训练仍然保留。
+-      assign training_write_enable = training_valid_i && !invalidate_i &&
+-          (BTB_ADMISSION_POLICY == 1 || (BTB_ADMISSION_POLICY == 0 && BTB_POLICY == 0) ||
+-           training_hit_present || training_taken_i || training_kind_i != TARGET_KIND_CONDITIONAL_BRANCH);
+-
+-      always_comb begin
+-        training_way_index = replacement_way_array_q[training_set_index];
+-        maximum_reuse      = '0;
+-        if (BTB_POLICY == 2 || BTB_POLICY == 4) begin
+-          training_way_index = '0;
+-          maximum_reuse      = reuse_array_q[training_set_index][0];
+-          for (int unsigned way_index = 1; way_index < BTB_WAY_COUNT; way_index++) begin
+-            if (reuse_array_q[training_set_index][way_index] > maximum_reuse) begin
+-              maximum_reuse      = reuse_array_q[training_set_index][way_index];
+-              training_way_index = way_index_t'(way_index);
+-            end
+-          end
+-        end
+-        training_hit_present = 1'b0;
+-        empty_way_present    = 1'b0;
+-        for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
+-          if (entry_present_array_q[training_set_index][way_index] &&
+-              entry_array_q[training_set_index][way_index].tag == training_tag) begin
+-            training_way_index   = way_index_t'(way_index);
+-            training_hit_present = 1'b1;
+-          end else if (!entry_present_array_q[training_set_index][way_index] && !empty_way_present &&
+-                       !training_hit_present) begin
+-            training_way_index = way_index_t'(way_index);
+-            empty_way_present  = 1'b1;
+-          end
+-        end
+-        replacement_next_way = training_way_index + way_index_t'(1);
+-        if (training_way_index == way_index_t'(BTB_WAY_COUNT - 1))
+-          replacement_next_way = '0;
+-        age_amount = (!training_hit_present && !empty_way_present) ? 2'd3 - maximum_reuse : 2'd0;
+-      end
+-
+-      // 4. 复用写口：策略2/4共享RRPV；策略4用签名复用反馈选择插入2或3。
+-      // 查询不经过此路径，没有新增训练寄存级或等待周期。
+-      if (BTB_POLICY == 2 || BTB_POLICY == 4) begin : g_reuse
+-        logic [1:0] insertion_reuse;
+-
+-        if (BTB_POLICY == 4) begin : g_signature
+-          localparam int unsigned SIGNATURE_COUNT = 16;
+-          typedef logic [3:0] signature_t;
+-          logic             [              1:0] signature_counter_array_q[SIGNATURE_COUNT];
+-          logic             [BTB_WAY_COUNT-1:0] reused_array_q           [      SET_COUNT];
+-          program_counter_t                     victim_pc;
+-          signature_t                           training_signature;
+-          signature_t                           victim_signature;
+-          logic                                 victim_unused;
+-          logic             [              1:0] insertion_counter;
+-
+-          function automatic signature_t pc_signature(input program_counter_t pc);
+-            signature_t signature_value;
+-            signature_value = '0;
+-            for (int unsigned bit_index = OFFSET_BITS; bit_index < XLEN; bit_index++)
+-              signature_value[(bit_index-OFFSET_BITS)%4] ^= pc[bit_index];
+-            return signature_value;
+-          endfunction
+-
+-          // tag保留全部高位；反解索引即可取得低组位，不存重复的签名/PC副本。
+-          always_comb begin
+-            victim_pc = {
+-              entry_array_q[training_set_index][training_way_index].tag, {SET_BITS + OFFSET_BITS{1'b0}}
+-            };
+-            victim_pc[OFFSET_BITS+:SET_BITS] = training_set_index ^ pc_set_index(victim_pc);
+-          end
+-          assign training_signature = pc_signature(training_pc_i);
+-          assign victim_signature = pc_signature(victim_pc);
+-          assign victim_unused = !training_hit_present && !empty_way_present &&
+-              !reused_array_q[training_set_index][training_way_index];
+-
+-          // 被替换项与新项签名相同时，新项观察扣减后的计数。
+-          always_comb begin
+-            insertion_counter = signature_counter_array_q[training_signature];
+-            if (victim_unused && victim_signature == training_signature && insertion_counter != 0)
+-              insertion_counter = insertion_counter - 2'd1;
+-            insertion_reuse = (insertion_counter != 0) ? 2'd2 : 2'd3;
+-          end
+-
+-          always_ff @(posedge clk_i or negedge rst_ni) begin
+-            if (!rst_ni) begin
+-              for (int unsigned signature_index = 0; signature_index < SIGNATURE_COUNT; signature_index++)
+-                signature_counter_array_q[signature_index] <= 2'd1;
+-              for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++)
+-                reused_array_q[set_index] <= '0;
+-            end else if (invalidate_i) begin
+-              for (int unsigned signature_index = 0; signature_index < SIGNATURE_COUNT; signature_index++)
+-                signature_counter_array_q[signature_index] <= 2'd1;
+-              for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++)
+-                reused_array_q[set_index] <= '0;
+-            end else if (training_write_enable) begin
+-              if (!training_hit_present) begin
+-                reused_array_q[training_set_index][training_way_index] <= 1'b0;
+-                if (victim_unused && signature_counter_array_q[victim_signature] != 0)
+-                  signature_counter_array_q[victim_signature] <= signature_counter_array_q[victim_signature] -
+-                      2'd1;
+-              end else if (training_taken_i) begin
+-                reused_array_q[training_set_index][training_way_index] <= 1'b1;
+-                if (signature_counter_array_q[training_signature] != 2'd3)
+-                  signature_counter_array_q[training_signature] <=
+-                      signature_counter_array_q[training_signature] + 2'd1;
+-              end
+-            end
+-          end
+-        end else begin : g_static_insertion
+-          assign insertion_reuse = 2'd2;
+-        end
+-
+-        always_ff @(posedge clk_i or negedge rst_ni) begin
+-          if (!rst_ni) begin
+-            for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
+-              for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++)
+-                reuse_array_q[set_index][way_index] <= 2'd3;
+-            end
+-          end else if (invalidate_i) begin
+-            for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
+-              for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++)
+-                reuse_array_q[set_index][way_index] <= 2'd3;
+-            end
+-          end else if (training_write_enable) begin
+-            if (!training_hit_present) begin
+-              for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++)
+-                reuse_array_q[training_set_index][way_index] <= reuse_array_q[training_set_index][way_index] +
+-                    age_amount;
+-              reuse_array_q[training_set_index][training_way_index] <= insertion_reuse;
+-            end else if (training_taken_i) begin
+-              reuse_array_q[training_set_index][training_way_index] <= 2'd0;
+-            end
+-          end
+-        end
++    end
++    lookup_target_present_o = |lookup_hit_vector;
++  end
++
++  // 3. 训练选择：同 tag 优先；否则选第一个空 way；全部占用才使用轮转指针。
++  set_index_t training_set_index;
++  tag_t       training_tag;
++  way_index_t training_way_index;
++  way_index_t replacement_next_way;
++  logic       training_hit_present;
++  logic       empty_way_present;
++  logic       training_write_enable;
++
++  assign training_set_index    = training_pc_i[OFFSET_BITS+:SET_BITS];
++  assign training_tag          = training_pc_i[XLEN-1-:TAG_BITS];
++  assign training_write_enable = training_valid_i && !invalidate_i;
++
++  always_comb begin
++    training_way_index   = replacement_way_array_q[training_set_index];
++    training_hit_present = 1'b0;
++    empty_way_present    = 1'b0;
++    for (int unsigned way_index = 0; way_index < BTB_WAY_COUNT; way_index++) begin
++      if (entry_present_array_q[training_set_index][way_index] &&
++          entry_array_q[training_set_index][way_index].tag == training_tag) begin
++        training_way_index   = way_index_t'(way_index);
++        training_hit_present = 1'b1;
++      end else if (!entry_present_array_q[training_set_index][way_index] &&
++                   !empty_way_present && !training_hit_present) begin
++        training_way_index = way_index_t'(way_index);
++        empty_way_present  = 1'b1;
+       end
++    end
++    replacement_next_way = training_way_index + way_index_t'(1);
++    if (training_way_index == way_index_t'(BTB_WAY_COUNT - 1))
++      replacement_next_way = '0;
++  end
++
++  // 4. 同步写口：连续训练在下一周期直接看到本沿写入的状态，不需要旁路。
++  always_ff @(posedge clk_i) begin
++    if (training_write_enable) begin
++      entry_array_q[training_set_index][training_way_index].tag       <= training_tag;
++      entry_array_q[training_set_index][training_way_index].target_pc <= training_target_pc_i;
++      entry_array_q[training_set_index][training_way_index].kind      <= training_kind_i;
++    end
++  end
+ 
+-      // 5. 同步写口：连续训练在下一周期直接看到本沿写入的状态，不需要旁路。
+-      always_ff @(posedge clk_i) begin
+-        if (training_write_enable) begin
+-          entry_array_q[training_set_index][training_way_index].tag       <= training_tag;
+-          entry_array_q[training_set_index][training_way_index].target_pc <= training_target_pc_i;
+-          entry_array_q[training_set_index][training_way_index].kind      <= training_kind_i;
+-        end
++  always_ff @(posedge clk_i or negedge rst_ni) begin
++    if (!rst_ni) begin
++      for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
++        entry_present_array_q[set_index]   <= '0;
++        replacement_way_array_q[set_index] <= '0;
+       end
+-
+-      always_ff @(posedge clk_i or negedge rst_ni) begin
+-        if (!rst_ni) begin
+-          for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
+-            entry_present_array_q[set_index]   <= '0;
+-            replacement_way_array_q[set_index] <= '0;
+-          end
+-        end else if (invalidate_i) begin
+-          for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
+-            entry_present_array_q[set_index]   <= '0;
+-            replacement_way_array_q[set_index] <= '0;
+-          end
+-        end else if (training_write_enable) begin
+-          entry_present_array_q[training_set_index][training_way_index] <= 1'b1;
+-          if ((BTB_POLICY < 2 && !training_hit_present && !empty_way_present) ||
+-              (BTB_POLICY == 3 && (!training_hit_present || training_taken_i)))
+-            replacement_way_array_q[training_set_index] <= replacement_next_way;
+-        end
++    end else if (invalidate_i) begin
++      for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
++        entry_present_array_q[set_index]   <= '0;
++        replacement_way_array_q[set_index] <= '0;
+       end
++    end else if (training_write_enable) begin
++      entry_present_array_q[training_set_index][training_way_index] <= 1'b1;
++      if (!training_hit_present && !empty_way_present)
++        replacement_way_array_q[training_set_index] <= replacement_next_way;
++    end
++  end
+ 
+ `ifndef SYNTHESIS
+-      assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(lookup_hit_vector))
+-      else
+-        $error("multiple BTB ways matched the same lookup PC");
++  assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(lookup_hit_vector))
++  else $error("multiple BTB ways matched the same lookup PC");
+ `endif
+-    end
+-  endgenerate
+ endmodule
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv b/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv
+deleted file mode 100644
+index 369f190..0000000
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv
++++ /dev/null
+@@ -1,170 +0,0 @@
+-// 完整 tag，按路固定目标位宽；查询拼接 PC 高位，不新增流水级。
+-module riscv32_compact_btb
+-  import riscv32_pkg::*;
+-#(
+-    parameter int unsigned BTB_ENTRY_COUNT = 16,
+-    parameter int unsigned BTB_WAY_COUNT = 2,
+-    parameter int unsigned BTB_POLICY = 0,
+-    parameter logic [31:0] BTB_WAY_TARGET_BITS = 32'h00001010
+-) (
+-    input  logic                clk_i,
+-    input  logic                rst_ni,
+-    input  program_counter_t    lookup_pc_i,
+-    output logic                lookup_target_present_o,
+-    output program_counter_t    lookup_target_pc_o,
+-    output branch_target_kind_e lookup_target_kind_o,
+-    input  program_counter_t    training_pc_i,
+-    input  program_counter_t    training_target_pc_i,
+-    input  branch_target_kind_e training_kind_i,
+-    input  logic                training_valid_i,
+-    input  logic                training_taken_i,
+-    input  logic                invalidate_i
+-);
+-  localparam int unsigned SET_COUNT = BTB_ENTRY_COUNT / BTB_WAY_COUNT;
+-  localparam int unsigned OFFSET_BITS = $clog2(INSTRUCTION_BYTES);
+-  localparam int unsigned SET_BITS = $clog2(SET_COUNT);
+-  localparam int unsigned TAG_BITS = XLEN - SET_BITS - OFFSET_BITS;
+-  localparam int unsigned WAY_BITS = $clog2(BTB_WAY_COUNT);
+-  typedef logic [SET_BITS-1:0] set_index_t;
+-  typedef logic [WAY_BITS-1:0] way_index_t;
+-  typedef logic [TAG_BITS-1:0] tag_t;
+-
+-  initial begin
+-    if ((BTB_WAY_COUNT != 2 && BTB_WAY_COUNT != 4) || BTB_ENTRY_COUNT <= BTB_WAY_COUNT ||
+-        (BTB_ENTRY_COUNT & (BTB_ENTRY_COUNT - 1)) != 0)
+-      $fatal(1, "compact BTB requires two/four ways and power-of-two entries above ways");
+-    if (BTB_POLICY > 1)
+-      $fatal(1, "compact BTB supports round-robin policies 0 and 1");
+-  end
+-
+-  // 1. 共享索引和有效状态；每路载荷在下方按实际位宽实例化。
+-  set_index_t lookup_set_index, training_set_index;
+-  tag_t lookup_tag, training_tag;
+-  logic       [BTB_WAY_COUNT-1:0] entry_present_array_q  [SET_COUNT];
+-  way_index_t                     replacement_way_array_q[SET_COUNT];
+-  logic [BTB_WAY_COUNT-1:0] lookup_hit_vector, training_hit_vector;
+-  logic                [BTB_WAY_COUNT-1:0] training_fit_vector;
+-  program_counter_t                        lookup_target_array [BTB_WAY_COUNT];
+-  branch_target_kind_e                     lookup_kind_array   [BTB_WAY_COUNT];
+-
+-  assign lookup_set_index   = lookup_pc_i[OFFSET_BITS+:SET_BITS];
+-  assign training_set_index = training_pc_i[OFFSET_BITS+:SET_BITS];
+-  assign lookup_tag         = lookup_pc_i[XLEN-1-:TAG_BITS];
+-  assign training_tag       = training_pc_i[XLEN-1-:TAG_BITS];
+-
+-  // 2. 并行查询结果合并；训练选择不在查询路径上。
+-  always_comb begin
+-    lookup_target_present_o = |lookup_hit_vector;
+-    lookup_target_pc_o      = '0;
+-    lookup_target_kind_o    = TARGET_KIND_CONDITIONAL_BRANCH;
+-    for (int unsigned way = 0; way < BTB_WAY_COUNT; way++) begin
+-      if (lookup_hit_vector[way]) begin
+-        lookup_target_pc_o |= lookup_target_array[way];
+-        lookup_target_kind_o = branch_target_kind_e'(lookup_target_kind_o | lookup_kind_array[way]);
+-      end
+-    end
+-  end
+-
+-  // 3. 训练选路：可保留命中 → 可容纳空路 → 从指针开始轮转的可容纳路。
+-  logic training_write_enable, training_selection_present, training_eviction_event;
+-  way_index_t training_way_index;
+-  logic       training_hit_present;
+-  assign training_hit_present = |training_hit_vector;
+-  assign training_write_enable = training_valid_i && !invalidate_i &&
+-      (BTB_POLICY == 0 || training_hit_present || training_taken_i ||
+-       training_kind_i != TARGET_KIND_CONDITIONAL_BRANCH);
+-
+-  always_comb begin
+-    training_way_index         = '0;
+-    training_selection_present = 1'b0;
+-    training_eviction_event    = 1'b0;
+-    for (int unsigned way = 0; way < BTB_WAY_COUNT; way++) begin
+-      if (training_hit_vector[way] && training_fit_vector[way]) begin
+-        training_way_index         = way_index_t'(way);
+-        training_selection_present = 1'b1;
+-      end
+-    end
+-    for (int unsigned way = 0; way < BTB_WAY_COUNT; way++) begin
+-      if (!training_selection_present && training_fit_vector[way] &&
+-          !entry_present_array_q[training_set_index][way]) begin
+-        training_way_index         = way_index_t'(way);
+-        training_selection_present = 1'b1;
+-      end
+-    end
+-    for (int unsigned step = 0; step < BTB_WAY_COUNT; step++) begin
+-      way_index_t candidate_way_index;
+-      candidate_way_index = replacement_way_array_q[training_set_index] + way_index_t'(step);
+-      if (!training_selection_present && training_fit_vector[candidate_way_index]) begin
+-        training_way_index         = candidate_way_index;
+-        training_selection_present = 1'b1;
+-        training_eviction_event    = 1'b1;
+-      end
+-    end
+-  end
+-
+-  // 4. 每路独立定宽阵列：完整 tag 读口、目标拼接、训练适配及同步写口。
+-  for (genvar way = 0; way < BTB_WAY_COUNT; way++) begin : g_way
+-    localparam int unsigned TARGET_BITS = int'(BTB_WAY_TARGET_BITS[way*8+:8]);
+-    tag_t                                  tag_array_q   [SET_COUNT];
+-    logic                [TARGET_BITS-1:0] target_array_q[SET_COUNT];
+-    branch_target_kind_e                   kind_array_q  [SET_COUNT];
+-    initial begin
+-      if (TARGET_BITS < 1 || TARGET_BITS > XLEN)
+-        $fatal(1, "target width must be in 1..XLEN");
+-    end
+-    assign lookup_hit_vector[way] = entry_present_array_q[lookup_set_index][way] &&
+-        tag_array_q[lookup_set_index] == lookup_tag;
+-    assign training_hit_vector[way] = entry_present_array_q[training_set_index][way] &&
+-        tag_array_q[training_set_index] == training_tag;
+-    assign lookup_kind_array[way] = kind_array_q[lookup_set_index];
+-    if (TARGET_BITS == XLEN) begin : g_full_target
+-      assign lookup_target_array[way] = target_array_q[lookup_set_index];
+-      assign training_fit_vector[way] = 1'b1;
+-    end else begin : g_short_target
+-      assign lookup_target_array[way] = {lookup_pc_i[XLEN-1:TARGET_BITS], target_array_q[lookup_set_index]};
+-      assign training_fit_vector[way] = training_pc_i[XLEN-1:TARGET_BITS] ==
+-          training_target_pc_i[XLEN-1:TARGET_BITS];
+-    end
+-    always_ff @(posedge clk_i) begin
+-      if (training_write_enable && training_selection_present &&
+-          training_way_index == way_index_t'(way)) begin
+-        tag_array_q[training_set_index]    <= training_tag;
+-        target_array_q[training_set_index] <= training_target_pc_i[TARGET_BITS-1:0];
+-        kind_array_q[training_set_index]   <= training_kind_i;
+-      end
+-    end
+-  end
+-
+-  // 5. 有效位与替换指针：目标跨越本路范围时清掉旧项，避免跨路重复。
+-  always_ff @(posedge clk_i or negedge rst_ni) begin
+-    if (!rst_ni) begin
+-      for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
+-        entry_present_array_q[set_index]   <= '0;
+-        replacement_way_array_q[set_index] <= '0;
+-      end
+-    end else if (invalidate_i) begin
+-      for (int unsigned set_index = 0; set_index < SET_COUNT; set_index++) begin
+-        entry_present_array_q[set_index]   <= '0;
+-        replacement_way_array_q[set_index] <= '0;
+-      end
+-    end else if (training_write_enable) begin
+-      for (int unsigned way = 0; way < BTB_WAY_COUNT; way++) begin
+-        if (training_hit_vector[way] && !training_fit_vector[way])
+-          entry_present_array_q[training_set_index][way] <= 1'b0;
+-      end
+-      if (training_selection_present)
+-        entry_present_array_q[training_set_index][training_way_index] <= 1'b1;
+-      if (training_eviction_event)
+-        replacement_way_array_q[training_set_index] <= training_way_index + way_index_t'(1);
+-    end
+-  end
+-
+-`ifndef SYNTHESIS
+-  assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(lookup_hit_vector))
+-  else
+-    $error("compact BTB has duplicate lookup tags");
+-  assert property (@(posedge clk_i) disable iff (!rst_ni) $onehot0(training_hit_vector))
+-  else
+-    $error("compact BTB has duplicate training tags");
+-`endif
+-endmodule
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv b/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv
+deleted file mode 100644
+index 41dca39..0000000
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_direct_target.sv
++++ /dev/null
+@@ -1,34 +0,0 @@
+-// 当前指令已由I-cache返回：精确计算B/J目标；JALR仍交给现有预测/EX路径。
+-module riscv32_direct_target (
+-    input  logic [31:0] pc_i,
+-    input  logic [31:0] instruction_i,
+-    input  logic [ 1:0] direction_counter_i,
+-    output logic        known_o,
+-    output logic        taken_o,
+-    output logic [31:0] target_o
+-);
+-  logic conditional_branch, jal_instruction;
+-  logic [31:0] branch_displacement;
+-  logic        conditional_taken;
+-
+-  // 真实指令类型/立即数译码 → 目标加法与方向选择 → 输出。
+-  // 条件真假仍由EX确认，这里不读取GPR，也不新增寄存器。
+-  assign conditional_branch = instruction_i[6:0] == 7'b1100011 &&
+-      instruction_i[14:12] inside {3'b000, 3'b001, 3'b100, 3'b101, 3'b110, 3'b111};
+-  assign jal_instruction = instruction_i[6:0] == 7'b1101111;
+-  assign branch_displacement = jal_instruction ?
+-      {{11{instruction_i[31]}}, instruction_i[31], instruction_i[19:12],
+-       instruction_i[20], instruction_i[30:21], 1'b0} :
+-      {{19{instruction_i[31]}}, instruction_i[31], instruction_i[7],
+-       instruction_i[30:25], instruction_i[11:8], 1'b0};
+-  assign target_o = pc_i + branch_displacement;
+-
+-  riscv32_branch_choice u_branch_choice (
+-      .backward_i       (instruction_i[31]),
+-      .metadata_valid_i (conditional_branch),
+-      .dynamic_counter_i(direction_counter_i),
+-      .taken_o          (conditional_taken)
+-  );
+-  assign known_o = conditional_branch || jal_instruction;
+-  assign taken_o = jal_instruction || (conditional_branch && conditional_taken);
+-endmodule
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv b/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv
+index 021e9b3..ba76dc7 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_icache.sv
+@@ -8,8 +8,6 @@ module riscv32_icache
+ (
+     input logic clk_i,
+     input logic rst_ni,
+-    input logic retired_valid_i,
+-    input program_counter_t retired_pc_i,
+ 
+     input  icache_lookup_req_t  lookup_req_i,
+     input  logic                lookup_req_valid_i,
+@@ -68,13 +66,6 @@ module riscv32_icache
+   icache_tag_t       refill_metadata_write_tag;
+   logic              refill_metadata_write_line_present;
+ 
+-  localparam int unsigned REPLACEMENT_POLICY = riscv_config_pkg::ICACHE_REPLACEMENT_POLICY;
+-  logic [1:0] array_read_rrpv_array [ICACHE_WAY_COUNT];
+-  logic [1:0] replacement_age_amount;
+-  logic replacement_age_valid;
+-  logic replacement_hit_valid;
+-  logic [ICACHE_WAY_COUNT-1:0] replacement_hit_vector;
+-
+   // Lookup流水线：S0是输入握手与同步阵列读请求；S1保存请求身份和PMA属性，
+   // tag/data array内部的同步读寄存器在同一时钟沿保存对应阵列数据。下一拍直接使用
+   // S1身份和阵列输出执行命中判断，不再增加一份内容完全相同的S2快照。
+@@ -165,15 +156,6 @@ module riscv32_icache
+   riscv32_icache_tag_array u_riscv32_icache_tag_array (
+       .clk_i                         (clk_i),
+       .rst_ni                        (rst_ni),
+-      .read_rrpv_array_o             (array_read_rrpv_array),
+-      .age_valid_i                   (replacement_age_valid),
+-      .age_set_index_i               (get_icache_set_index(lookup_s1_q.fetch_addr)),
+-      .age_amount_i                  (replacement_age_amount),
+-      .hit_valid_i                   (replacement_hit_valid),
+-      .hit_set_index_i               (get_icache_set_index(lookup_s1_q.fetch_addr)),
+-      .hit_way_vector_i              (replacement_hit_vector),
+-      .retired_valid_i               (retired_valid_i),
+-      .retired_pc_i                  (retired_pc_i),
+       .read_enable_i                 (array_read_enable),
+       .read_set_index_i              (array_read_set_index),
+       .read_tag_array_o              (array_read_tag_array),
+@@ -247,65 +229,15 @@ module riscv32_icache
+ 
+   end
+ 
+-  // 直接映射使用way 0；组相联优先使用invalid way，全部有效时按所选策略决定victim。
+-  // generate只保留当前配置需要的替换硬件，不改变I-cache外部协议。
++  // 直接映射配置的victim恒为way 0，不应实例化任何替换状态。组相联配置才为每个set
++  // 保存下一次全有效miss的victim way：优先使用invalid way，全部way有效时使用轮转指针。
++  // generate在展开期只保留当前配置需要的硬件，不改变I-cache外部协议。
+   generate
+     if (ICACHE_WAY_COUNT == 1) begin : g_direct_mapped_replacement
+       always_comb begin
+         replacement_way_index = '0;
+-        replacement_age_amount = 2'd0;
+-      end
+-    end else if (REPLACEMENT_POLICY >= 4) begin : g_replacement_experiment
+-      icache_way_index_t read_victim;
+-      logic invalid_found;
+-      riscv32_icache_replacement u_replacement (
+-          .clk_i            (clk_i),
+-          .rst_ni           (rst_ni),
+-          .invalidate_i     (invalidate_done_o),
+-          .read_enable_i    (array_read_enable),
+-          .read_set_i       (array_read_set_index),
+-          .read_victim_o    (read_victim),
+-          .hit_i            (replacement_hit_valid),
+-          .hit_way_vector_i (lookup_way_hit_vector),
+-          .allocate_i       (miss_req_handshake && miss_req.cacheable),
+-          .allocate_way_i   (replacement_way_index),
+-          .victim_present_i (array_read_line_present_vector[replacement_way_index]),
+-          .access_addr_i    (lookup_s1_q.fetch_addr)
+-      );
+-      always_comb begin
+-        replacement_way_index = read_victim;
+-        invalid_found = 1'b0;
+-        for (int way = 0; way < ICACHE_WAY_COUNT; way++) begin
+-          if (!invalid_found && !array_read_line_present_vector[way]) begin
+-            replacement_way_index = icache_way_index_t'(way);
+-            invalid_found = 1'b1;
+-          end
+-        end
+-        replacement_age_amount = 2'd0;
+-      end
+-    end else if (REPLACEMENT_POLICY != 0) begin : g_rrip_replacement
+-      logic [1:0] maximum_rrpv;
+-      logic invalid_way_found;
+-      always_comb begin
+-        maximum_rrpv = array_read_rrpv_array[0];
+-        replacement_way_index = '0;
+-        for (int way = 1; way < ICACHE_WAY_COUNT; way++) begin
+-          if (array_read_rrpv_array[way] > maximum_rrpv) begin
+-            maximum_rrpv = array_read_rrpv_array[way];
+-            replacement_way_index = icache_way_index_t'(way);
+-          end
+-        end
+-        invalid_way_found = 1'b0;
+-        for (int way = 0; way < ICACHE_WAY_COUNT; way++) begin
+-          if (!invalid_way_found && !array_read_line_present_vector[way]) begin
+-            replacement_way_index = icache_way_index_t'(way);
+-            invalid_way_found = 1'b1;
+-          end
+-        end
+-        replacement_age_amount = invalid_way_found ? 2'd0 : 2'd3 - maximum_rrpv;
+       end
+     end else begin : g_set_associative_replacement
+-      assign replacement_age_amount = 2'd0;
+       icache_way_index_t replacement_way_index_array_q[ICACHE_SET_COUNT];
+       logic              replacement_invalid_way_found;
+ 
+@@ -364,9 +296,6 @@ module riscv32_icache
+   assign local_lookup_resp_handshake =
+       local_lookup_resp_valid && lookup_resp_ready_i && !miss_lookup_resp_valid;
+   assign miss_req_handshake = miss_req_valid && miss_req_ready;
+-  assign replacement_age_valid = miss_req_handshake && miss_req.cacheable;
+-  assign replacement_hit_valid = local_lookup_resp_handshake && lookup_hit;
+-  assign replacement_hit_vector = lookup_way_hit_vector;
+ 
+   // 缺失单元独占回填写端口；这些输出反馈到上方阵列。
+   riscv32_icache_miss_unit u_riscv32_icache_miss_unit (
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv b/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv
+deleted file mode 100644
+index 9ba2dc7..0000000
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv
++++ /dev/null
+@@ -1,334 +0,0 @@
+-// 策略状态与S1事件更新；与tag读取同拍冻结victim，不增加流水级。
+-module riscv32_icache_replacement
+-  import riscv32_pkg::*;
+-  import riscv32_addr_map_pkg::*;
+-#(
+-    parameter int unsigned POLICY = riscv_config_pkg::ICACHE_REPLACEMENT_POLICY
+-) (
+-    input  logic                                     clk_i,
+-    input  logic                                     rst_ni,
+-    input  logic                                     invalidate_i,
+-    input  logic                                     read_enable_i,
+-    input  icache_set_index_t                        read_set_i,
+-    output icache_way_index_t                        read_victim_o,
+-    input  logic                                     hit_i,
+-    input  logic              [ICACHE_WAY_COUNT-1:0] hit_way_vector_i,
+-    input  logic                                     allocate_i,
+-    input  icache_way_index_t                        allocate_way_i,
+-    input  logic                                     victim_present_i,
+-    input  phys_addr_t                               access_addr_i
+-);
+-  localparam int unsigned WAY_COUNT = ICACHE_WAY_COUNT;
+-  localparam int unsigned SET_COUNT = ICACHE_SET_COUNT;
+-  localparam int unsigned WAY_BITS = $clog2(WAY_COUNT);
+-  localparam int unsigned LINE_ADDR_BITS = PADDR_WIDTH - ICACHE_LINE_OFFSET_W;
+-
+-  initial begin
+-    if (WAY_COUNT < 2 || POLICY < 4 || POLICY > 16)
+-      $fatal(1, "replacement experiment requires policy4..16 and multiple ways");
+-  end
+-
+-  // 同一个S1槽只产生hit或分配事件。按实际握手更新，不按valid重复更新。
+-  logic                                   access_event;
+-  icache_set_index_t                      access_set_index;
+-  icache_way_index_t                      access_way_index;
+-  logic              [LINE_ADDR_BITS-1:0] access_line_addr;
+-  assign access_event = hit_i || allocate_i;
+-  assign access_set_index = (SET_COUNT == 1) ? '0 :
+-      icache_set_index_t'(access_addr_i >> ICACHE_LINE_OFFSET_W);
+-  assign access_line_addr = access_addr_i[PADDR_WIDTH-1:ICACHE_LINE_OFFSET_W];
+-  always_comb begin
+-    access_way_index = allocate_way_i;
+-    if (hit_i) begin
+-      for (int way = 0; way < WAY_COUNT; way++) begin
+-        if (hit_way_vector_i[way])
+-          access_way_index = icache_way_index_t'(way);
+-      end
+-    end
+-  end
+-
+-  generate
+-    if ((POLICY == 4 || POLICY == 5) && WAY_COUNT == 2) begin : g_two_way_lru
+-      logic victim_array_q[SET_COUNT];
+-      logic victim_array_d[SET_COUNT];
+-      always_comb begin
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-          victim_array_d[set_index] = victim_array_q[set_index];
+-          if (access_event && access_set_index == icache_set_index_t'(set_index))
+-            victim_array_d[set_index] = !access_way_index[0];
+-        end
+-      end
+-      always_ff @(posedge clk_i) begin
+-        if (read_enable_i)
+-          read_victim_o <= icache_way_index_t'(victim_array_d[read_set_i]);
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-          if (!rst_ni || invalidate_i)
+-            victim_array_q[set_index] <= 1'b0;
+-          else
+-            victim_array_q[set_index] <= victim_array_d[set_index];
+-        end
+-      end
+-    end else if (POLICY == 4) begin : g_lru
+-      logic              [WAY_BITS-1:0] age_array_q       [SET_COUNT][WAY_COUNT];
+-      logic              [WAY_BITS-1:0] age_array_d       [SET_COUNT][WAY_COUNT];
+-      icache_way_index_t                read_victim_index;
+-
+-      always_comb begin
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-          for (int way = 0; way < WAY_COUNT; way++) begin
+-            age_array_d[set_index][way] = age_array_q[set_index][way];
+-            if (access_event && access_set_index == icache_set_index_t'(set_index)) begin
+-              if (access_way_index == icache_way_index_t'(way))
+-                age_array_d[set_index][way] = '0;
+-              else if (age_array_q[set_index][way] < age_array_q[set_index][access_way_index])
+-                age_array_d[set_index][way] = age_array_q[set_index][way] + 1'b1;
+-            end
+-          end
+-        end
+-        read_victim_index = '0;
+-        for (int way = 1; way < WAY_COUNT; way++) begin
+-          if (age_array_d[read_set_i][way] > age_array_d[read_set_i][read_victim_index])
+-            read_victim_index = icache_way_index_t'(way);
+-        end
+-      end
+-      always_ff @(posedge clk_i) begin
+-        if (read_enable_i)
+-          read_victim_o <= read_victim_index;
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-          for (int way = 0; way < WAY_COUNT; way++) begin
+-            if (!rst_ni || invalidate_i)
+-              age_array_q[set_index][way] <= WAY_BITS'(WAY_COUNT - 1);
+-            else
+-              age_array_q[set_index][way] <= age_array_d[set_index][way];
+-          end
+-        end
+-      end
+-    end else if (POLICY == 5) begin : g_plru
+-      logic              [WAY_COUNT-2:0] tree_array_q      [SET_COUNT];
+-      logic              [WAY_COUNT-2:0] tree_array_d      [SET_COUNT];
+-      icache_way_index_t                 read_victim_index;
+-      integer update_node_index, read_node_index;
+-      logic direction;
+-
+-      always_comb begin
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++)
+-          tree_array_d[set_index] = tree_array_q[set_index];
+-        update_node_index = 0;
+-        for (int depth = 0; depth < WAY_BITS; depth++) begin
+-          if (access_event)
+-            tree_array_d[access_set_index][update_node_index] = !access_way_index[WAY_BITS-1-depth];
+-          update_node_index = 2 * update_node_index + 1 + int'(access_way_index[WAY_BITS-1-depth]);
+-        end
+-        read_node_index   = 0;
+-        read_victim_index = '0;
+-        direction         = 1'b0;
+-        for (int depth = 0; depth < WAY_BITS; depth++) begin
+-          direction                           = tree_array_d[read_set_i][read_node_index];
+-          read_victim_index[WAY_BITS-1-depth] = direction;
+-          read_node_index                     = 2 * read_node_index + 1 + int'(direction);
+-        end
+-      end
+-      always_ff @(posedge clk_i) begin
+-        if (read_enable_i)
+-          read_victim_o <= read_victim_index;
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-          if (!rst_ni || invalidate_i)
+-            tree_array_q[set_index] <= '0;
+-          else
+-            tree_array_q[set_index] <= tree_array_d[set_index];
+-        end
+-      end
+-    end else if (POLICY == 6) begin : g_random
+-      logic [31:0] random_q, random_d;
+-      always_comb begin
+-        random_d = random_q;
+-        if (allocate_i) begin
+-          random_d ^= random_d << 13;
+-          random_d ^= random_d >> 17;
+-          random_d ^= random_d << 5;
+-        end
+-      end
+-      always_ff @(posedge clk_i) begin
+-        if (!rst_ni || invalidate_i)
+-          random_q <= 32'd97531;
+-        else
+-          random_q <= random_d;
+-        if (read_enable_i)
+-          read_victim_o <= icache_way_index_t'(random_d);
+-      end
+-    end else begin : g_rrip
+-      localparam bit SEGMENT_REUSE = (POLICY >= 9 && POLICY <= 11) || POLICY == 13 || POLICY >= 15;
+-      localparam bit REUSE_FEEDBACK = POLICY == 10 || POLICY == 11 || POLICY >= 15;
+-      localparam bit PATH_SIGNATURE = POLICY == 11 || POLICY == 15;
+-      localparam bit QUERY_BYPASS = POLICY >= 13;
+-      localparam int unsigned LEADER_STRIDE = (SET_COUNT >= 32) ? 32 : ((SET_COUNT >= 4) ? SET_COUNT : 4);
+-      logic [1:0] rrpv_array_q[SET_COUNT][WAY_COUNT], rrpv_array_d[SET_COUNT][WAY_COUNT];
+-      logic [4:0] insertion_count_q, insertion_count_d;
+-      logic [9:0] selector_q, selector_d;
+-      logic [LINE_ADDR_BITS-1:0] previous_line_q;
+-      logic                      previous_line_present_q;
+-      logic [              15:0] history_q;
+-      logic [5:0] signature_array_q[SET_COUNT][WAY_COUNT], signature_array_d[SET_COUNT][WAY_COUNT];
+-      logic reused_array_q[SET_COUNT][WAY_COUNT], reused_array_d[SET_COUNT][WAY_COUNT];
+-      logic [1:0] prediction_array_q[64], prediction_array_d[64];
+-      logic segment_start, bimodal;
+-      logic [5:0] signature;
+-      logic [1:0] maximum_rrpv, age_amount, insertion;
+-      logic              [          1:0] read_rrpv_array    [WAY_COUNT];
+-      logic              [WAY_COUNT-1:0] read_winner_vector;
+-      icache_way_index_t                 read_victim_index;
+-
+-      // 当前行地址发生变化时，开始新的访问段。
+-      assign segment_start = !previous_line_present_q || previous_line_q != access_line_addr;
+-      assign signature = 6'(access_line_addr ^ (access_line_addr >> 6)) ^
+-          (PATH_SIGNATURE ? history_q[5:0] : 6'd0);
+-
+-      // 先训练旧身份，再查新签名，覆盖同索引训练/插入的旁路。每拍最多一次训练。
+-      always_comb begin
+-        for (int index = 0; index < 64; index++)
+-          prediction_array_d[index] = prediction_array_q[index];
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-          for (int way = 0; way < WAY_COUNT; way++) begin
+-            signature_array_d[set_index][way] = signature_array_q[set_index][way];
+-            reused_array_d[set_index][way]    = reused_array_q[set_index][way];
+-          end
+-        end
+-        if (REUSE_FEEDBACK && allocate_i) begin
+-          if (victim_present_i && !reused_array_q[access_set_index][access_way_index] &&
+-              prediction_array_q[signature_array_q[access_set_index][access_way_index]] != 0)
+-            prediction_array_d[signature_array_q[access_set_index][access_way_index]] =
+-                prediction_array_q[signature_array_q[access_set_index][access_way_index]] - 1'b1;
+-          signature_array_d[access_set_index][access_way_index] = signature;
+-          reused_array_d[access_set_index][access_way_index]    = 1'b0;
+-        end else if (REUSE_FEEDBACK && hit_i && segment_start &&
+-                     !reused_array_q[access_set_index][access_way_index]) begin
+-          if (prediction_array_q[signature_array_q[access_set_index][access_way_index]] != 3)
+-            prediction_array_d[signature_array_q[access_set_index][access_way_index]] =
+-                prediction_array_q[signature_array_q[access_set_index][access_way_index]] + 1'b1;
+-          reused_array_d[access_set_index][access_way_index] = 1'b1;
+-        end
+-      end
+-
+-      always_comb begin
+-        insertion_count_d = insertion_count_q;
+-        selector_d        = selector_q;
+-        bimodal           = POLICY == 7;
+-        if (allocate_i)
+-          insertion_count_d = insertion_count_q + 1'b1;
+-        if (POLICY == 8) begin
+-          if (int'(access_set_index) % LEADER_STRIDE == 0) begin
+-            if (allocate_i && selector_q != 1023)
+-              selector_d = selector_q + 1'b1;
+-            bimodal = 1'b0;
+-          end else if (int'(access_set_index) % LEADER_STRIDE == LEADER_STRIDE - 1) begin
+-            if (allocate_i && selector_q != 0)
+-              selector_d = selector_q - 1'b1;
+-            bimodal = 1'b1;
+-        end else
+-          bimodal = selector_q >= 512;
+-        end
+-        insertion = (bimodal && insertion_count_d != 0) ? 2'd3 : 2'd2;
+-        if (REUSE_FEEDBACK)
+-          insertion = prediction_array_d[signature] == 0 ? 2'd3 : 2'd2;
+-        maximum_rrpv = rrpv_array_q[access_set_index][0];
+-        for (int way = 1; way < WAY_COUNT; way++) begin
+-          if (rrpv_array_q[access_set_index][way] > maximum_rrpv)
+-            maximum_rrpv = rrpv_array_q[access_set_index][way];
+-        end
+-        age_amount = victim_present_i ? 2'd3 - maximum_rrpv : 2'd0;
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-          for (int way = 0; way < WAY_COUNT; way++) begin
+-            rrpv_array_d[set_index][way] = rrpv_array_q[set_index][way];
+-            if (access_set_index == icache_set_index_t'(set_index)) begin
+-              if (allocate_i) begin
+-                rrpv_array_d[set_index][way] = rrpv_array_q[set_index][way] + age_amount;
+-                if (access_way_index == icache_way_index_t'(way))
+-                  rrpv_array_d[set_index][way] = insertion;
+-              end else if (hit_i && access_way_index == icache_way_index_t'(way) &&
+-                           (!SEGMENT_REUSE || segment_start))
+-                rrpv_array_d[set_index][way] = 2'd0;
+-            end
+-          end
+-        end
+-        // 阻塞式cache的miss分配与新查询互斥；13～16只保留真实的同组hit前递。
+-        for (int way = 0; way < WAY_COUNT; way++) begin
+-          read_rrpv_array[way] = rrpv_array_d[read_set_i][way];
+-          if (QUERY_BYPASS) begin
+-            read_rrpv_array[way] = rrpv_array_q[read_set_i][way];
+-            if (hit_i && access_set_index == read_set_i && access_way_index == icache_way_index_t'(way) &&
+-                (!SEGMENT_REUSE || segment_start))
+-              read_rrpv_array[way] = 2'd0;
+-          end
+-        end
+-        read_victim_index  = '0;
+-        read_winner_vector = '0;
+-        if (QUERY_BYPASS && WAY_COUNT <= 4) begin
+-          // 各路并行比较，平局选最小路号；不再串联victim编码与RRPV索引。
+-          for (int way = 0; way < WAY_COUNT; way++) begin
+-            read_winner_vector[way] = 1'b1;
+-            for (int other = 0; other < WAY_COUNT; other++) begin
+-              if (other < way)
+-                read_winner_vector[way] &= read_rrpv_array[way] > read_rrpv_array[other];
+-              else if (other > way)
+-                read_winner_vector[way] &= read_rrpv_array[way] >= read_rrpv_array[other];
+-            end
+-            read_victim_index |= icache_way_index_t'(way) & {WAY_BITS{read_winner_vector[way]}};
+-          end
+-        end else begin
+-          for (int way = 1; way < WAY_COUNT; way++) begin
+-            if (read_rrpv_array[way] > read_rrpv_array[read_victim_index])
+-              read_victim_index = icache_way_index_t'(way);
+-          end
+-        end
+-      end
+-
+-      always_ff @(posedge clk_i) begin
+-        if (read_enable_i)
+-          read_victim_o <= read_victim_index;
+-        if (!rst_ni || invalidate_i) begin
+-          insertion_count_q       <= '0;
+-          selector_q              <= 10'd511;
+-          previous_line_q         <= '0;
+-          previous_line_present_q <= 1'b0;
+-          history_q               <= '0;
+-        end else begin
+-          insertion_count_q <= insertion_count_d;
+-          selector_q        <= selector_d;
+-          if (access_event) begin
+-            previous_line_q         <= access_line_addr;
+-            previous_line_present_q <= 1'b1;
+-            if (segment_start)
+-              history_q <= (history_q << 3) ^ {13'd0, access_line_addr[2:0]};
+-          end
+-        end
+-        for (int index = 0; index < 64; index++) begin
+-          if (!rst_ni || invalidate_i)
+-            prediction_array_q[index] <= 2'd1;
+-          else
+-            prediction_array_q[index] <= prediction_array_d[index];
+-        end
+-        for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-          for (int way = 0; way < WAY_COUNT; way++) begin
+-            if (!rst_ni || invalidate_i) begin
+-              rrpv_array_q[set_index][way]      <= 2'd3;
+-              signature_array_q[set_index][way] <= '0;
+-              reused_array_q[set_index][way]    <= 1'b0;
+-            end else begin
+-              rrpv_array_q[set_index][way]      <= rrpv_array_d[set_index][way];
+-              signature_array_q[set_index][way] <= signature_array_d[set_index][way];
+-              reused_array_q[set_index][way]    <= reused_array_d[set_index][way];
+-            end
+-          end
+-        end
+-      end
+-    end
+-  endgenerate
+-
+-`ifndef SYNTHESIS
+-  assert property (@(posedge clk_i) disable iff (!rst_ni) !(hit_i && allocate_i));
+-  assert property (@(posedge clk_i) disable iff (!rst_ni) hit_i |-> $onehot(hit_way_vector_i));
+-  if (POLICY >= 13) begin : g_check_blocking_query
+-    assert property (@(posedge clk_i) disable iff (!rst_ni) !(read_enable_i && allocate_i));
+-  end
+-`endif
+-endmodule
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv b/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv
+index 04bde71..ab40017 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv
+@@ -17,17 +17,6 @@ module riscv32_icache_tag_array
+     output icache_tag_t                       read_tag_array_o          [WAY_COUNT],
+     output logic              [WAY_COUNT-1:0] read_line_present_vector_o,
+ 
+-    // 实验替换元数据与tag同拍读取；退休匹配复用现有tag，不复制整张地址表。
+-    output logic [1:0] read_rrpv_array_o [WAY_COUNT],
+-    input logic age_valid_i,
+-    input icache_set_index_t age_set_index_i,
+-    input logic [1:0] age_amount_i,
+-    input logic hit_valid_i,
+-    input icache_set_index_t hit_set_index_i,
+-    input logic [WAY_COUNT-1:0] hit_way_vector_i,
+-    input logic retired_valid_i,
+-    input program_counter_t retired_pc_i,
+-
+     input logic              metadata_write_valid_i,
+     input icache_set_index_t metadata_write_set_index_i,
+     input icache_way_index_t metadata_write_way_index_i,
+@@ -35,12 +24,6 @@ module riscv32_icache_tag_array
+     input logic              metadata_write_line_present_i
+ );
+ 
+-  localparam int unsigned REPLACEMENT_POLICY = riscv_config_pkg::ICACHE_REPLACEMENT_POLICY;
+-  initial begin
+-    if (REPLACEMENT_POLICY > 16 || (REPLACEMENT_POLICY != 0 && WAY_COUNT < 2))
+-      $fatal(1, "experimental I-cache replacement requires multiple ways and policy 1..16");
+-  end
+-
+   // tag不需要复位，因为present=0时tag没有语义。不要把tag和present打成一个大
+   // struct后对整个阵列复位，否则综合为SRAM时会因为复位要求失去宏推断机会。
+   icache_tag_t                 tag_array_q                [WAY_COUNT] [SET_COUNT];
+@@ -69,70 +52,6 @@ module riscv32_icache_tag_array
+     end
+   end
+ 
+-  // 替换状态：同步快照保证受阻请求的victim不会被后续退休提示改变。
+-  generate
+-    if (REPLACEMENT_POLICY >= 1 && REPLACEMENT_POLICY <= 3) begin : g_rrip
+-      logic [1:0] rrpv_array_q [WAY_COUNT][SET_COUNT];
+-      logic [1:0] rrpv_array_d [WAY_COUNT][SET_COUNT];
+-      logic [1:0] read_rrpv_array_q [WAY_COUNT];
+-      icache_set_index_t retired_set_index;
+-      icache_tag_t retired_tag;
+-      assign retired_set_index = (SET_COUNT == 1) ? '0 :
+-          icache_set_index_t'(retired_pc_i >> ICACHE_LINE_OFFSET_W);
+-      assign retired_tag = icache_tag_t'(retired_pc_i >> (ICACHE_LINE_OFFSET_W + ICACHE_SET_INDEX_BITS));
+-
+-      for (genvar way = 0; way < WAY_COUNT; way++) begin : g_read
+-        assign read_rrpv_array_o[way] = read_rrpv_array_q[way];
+-        always_ff @(posedge clk_i) begin
+-          if (read_enable_i)
+-            read_rrpv_array_q[way] <= rrpv_array_q[way][read_set_index_i];
+-        end
+-      end
+-
+-      always_comb begin
+-        for (int way = 0; way < WAY_COUNT; way++) begin
+-          for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-            rrpv_array_d[way][set_index] = rrpv_array_q[way][set_index];
+-            if (age_valid_i && age_set_index_i == icache_set_index_t'(set_index)) begin
+-              if ({1'b0, rrpv_array_q[way][set_index]} + {1'b0, age_amount_i} >= 3)
+-                rrpv_array_d[way][set_index] = 2'd3;
+-              else
+-                rrpv_array_d[way][set_index] = rrpv_array_q[way][set_index] + age_amount_i;
+-            end
+-            if (hit_valid_i && hit_set_index_i == icache_set_index_t'(set_index) && hit_way_vector_i[way] &&
+-                (REPLACEMENT_POLICY != 3 || rrpv_array_q[way][set_index] != 2'd3))
+-              rrpv_array_d[way][set_index] = 2'd0;
+-            if (REPLACEMENT_POLICY == 3 && retired_valid_i && retired_set_index == icache_set_index_t'(set_index) &&
+-                line_present_array_q[way][set_index] && tag_array_q[way][set_index] == retired_tag)
+-              rrpv_array_d[way][set_index] = 2'd0;
+-            // 新分配的身份优先于旧行退休；安装同tag可接收当拍提示。
+-            if (metadata_write_valid_i && metadata_write_way_index_i == icache_way_index_t'(way) &&
+-                metadata_write_set_index_i == icache_set_index_t'(set_index)) begin
+-              rrpv_array_d[way][set_index] = (REPLACEMENT_POLICY == 1) ? 2'd2 : 2'd3;
+-              if (REPLACEMENT_POLICY == 3 && metadata_write_line_present_i && retired_valid_i &&
+-                  retired_set_index == metadata_write_set_index_i && retired_tag == metadata_write_tag_i)
+-                rrpv_array_d[way][set_index] = 2'd0;
+-            end
+-          end
+-        end
+-      end
+-      always_ff @(posedge clk_i) begin
+-        for (int way = 0; way < WAY_COUNT; way++) begin
+-          for (int set_index = 0; set_index < SET_COUNT; set_index++) begin
+-            if (!rst_ni || invalidate_all_i)
+-              rrpv_array_q[way][set_index] <= 2'd3;
+-            else
+-              rrpv_array_q[way][set_index] <= rrpv_array_d[way][set_index];
+-          end
+-        end
+-      end
+-    end else begin : g_no_rrip
+-      for (genvar way = 0; way < WAY_COUNT; way++) begin : g_read
+-        assign read_rrpv_array_o[way] = 2'd0;
+-      end
+-    end
+-  endgenerate
+-
+   // 写口：清 present 使旧 tag 失效；安装时同时更新 tag 和 present。
+   // blocking cache 不并发接收 refill 期间的查询，不依赖同地址读写旁路。
+   always_ff @(posedge clk_i) begin
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv b/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
+index 9d2e95b..01ba0fc 100644
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
++++ b/npc/vsrc/riscv32/core/frontend/riscv32_ifu.sv
+@@ -13,9 +13,6 @@ module riscv32_ifu
+     // 维护期间只停止新预测；已展示的 I-cache 请求仍按原握手排空。
+     input logic          prediction_enable_i,
+ 
+-    input logic early_return_present_i,
+-    input program_counter_t early_return_pc_i,
+-
+     // IFU顺序产生预测请求；预测器用一级寄存响应切断PC自反馈关键路径。非跳转响应被
+     // 消费时同拍查询下一 PC：顺序时 PC+4，taken 时直接使用响应目标。
+     output program_counter_t   next_pc_predictor_lookup_request_pc_o,
+@@ -42,12 +39,6 @@ module riscv32_ifu
+     input  logic         fetch_entry_ready_i
+ );
+ 
+-  // 内部早期恢复只丢年轻取指；当前fetch_entry与已进入fetch buffer的老指令继续交付。
+-  logic early_redirect_event;
+-  logic frontend_restart_event;
+-  program_counter_t early_next_pc;
+-  assign frontend_restart_event = redirect_req_valid_i || early_redirect_event;
+-
+   // 共享容量反馈：请求队列的占用数决定预测入口是否还能接收结果。
+   localparam int unsigned LOOKUP_QUEUE_ENTRY_COUNT = 2;
+   localparam int unsigned LOOKUP_QUEUE_INDEX_WIDTH = $clog2(LOOKUP_QUEUE_ENTRY_COUNT);
+@@ -87,9 +78,9 @@ module riscv32_ifu
+       next_pc_predictor_lookup_response_pc_i + program_counter_t'(INSTRUCTION_BYTES);
+ 
+   // redirect 取消预测流水；taken 响应直接选择本拍的新查询地址。
+-  assign next_pc_predictor_flush_o                 = frontend_restart_event;
++  assign next_pc_predictor_flush_o                 = redirect_req_valid_i;
+   assign next_pc_predictor_lookup_response_ready_o =
+-      !frontend_restart_event &&
++      !redirect_req_valid_i &&
+       (!predictor_lookup_response_is_current || lookup_queue_enqueue_ready);
+   assign predictor_taken_response_present =
+       next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
+@@ -103,7 +94,7 @@ module riscv32_ifu
+       predictor_lookup_response_is_current &&
+       next_pc_predictor_prediction_i.predicted_taken;
+   assign next_pc_predictor_lookup_request_valid_o =
+-      lookup_queue_enqueue_ready && !frontend_restart_event && prediction_enable_i;
++      lookup_queue_enqueue_ready && !redirect_req_valid_i && prediction_enable_i;
+ 
+   assign predictor_lookup_request_handshake =
+       next_pc_predictor_lookup_request_valid_o &&
+@@ -117,9 +108,9 @@ module riscv32_ifu
+     current_fetch_epoch_d = current_fetch_epoch_q;
+     next_frontend_tag_d   = next_frontend_tag_q;
+ 
+-    if (frontend_restart_event) begin
++    if (redirect_req_valid_i) begin
+       current_fetch_epoch_d = current_fetch_epoch_q + fetch_epoch_t'(1);
+-      predictor_fetch_pc_d  = redirect_req_valid_i ? redirect_req_i.target_pc : early_next_pc;
++      predictor_fetch_pc_d  = redirect_req_i.target_pc;
+     end else if (predictor_lookup_request_handshake) begin
+       predictor_fetch_pc_d = predictor_taken_response_present ?
+           (predicted_next_pc + program_counter_t'(INSTRUCTION_BYTES)) :
+@@ -177,7 +168,7 @@ module riscv32_ifu
+   // 旧epoch请求可以继续握手，返回时按epoch丢弃；这比破坏协议稳定性更可控。
+   assign icache_lookup_req_valid_o = (lookup_queue_entry_count_q != '0) ||
+       (next_pc_predictor_lookup_response_valid_i && predictor_lookup_response_is_current &&
+-       !frontend_restart_event);
++       !redirect_req_valid_i);
+   assign icache_lookup_request_handshake = icache_lookup_req_valid_o && icache_lookup_req_ready_i;
+ 
+   assign lookup_queue_dequeue_event = icache_lookup_request_handshake;
+@@ -187,7 +178,7 @@ module riscv32_ifu
+     lookup_queue_write_index_d = lookup_queue_write_index_q;
+     lookup_queue_entry_count_d = lookup_queue_entry_count_q;
+ 
+-    if (frontend_restart_event) begin
++    if (redirect_req_valid_i) begin
+       // 当前已经呈现在I-cache端口的front不能在反压时撤销；其后的旧epoch请求尚未
+       // 对外可见，可以立即删除。若front本拍握手，则旧队列全部清空。
+       if (lookup_queue_entry_count_q == '0) begin
+@@ -254,96 +245,12 @@ module riscv32_ifu
+   assign icache_lookup_response_handshake =
+       icache_lookup_resp_valid_i && icache_lookup_resp_ready_o;
+ 
+-  // 3a. 返回指令译码：B/J直接目标与可选返回地址预测并行。
+-  logic early_control_flow_present, early_taken;
+-  logic direct_control_flow_present, direct_taken;
+-  program_counter_t direct_target;
+-  logic instruction_is_return, return_rs1_link, return_rd_link;
+-  instruction_t returned_instruction;
+-  assign returned_instruction = icache_lookup_resp_i.fetch_data;
+-  assign return_rs1_link = returned_instruction[19:15] inside {5'd1, 5'd5};
+-  assign return_rd_link = returned_instruction[11:7] inside {5'd1, 5'd5};
+-  assign instruction_is_return = returned_instruction[6:0] == 7'b1100111 &&
+-      returned_instruction[14:12] == 3'b000 && returned_instruction[31:20] == 12'b0 &&
+-      return_rs1_link && (!return_rd_link || returned_instruction[11:7] != returned_instruction[19:15]);
+-  // 解析RAS可在返回响应被反压时变化；首次受阻才保留其当时值。
+-  logic return_hold_present_q, return_hold_target_present_q;
+-  program_counter_t return_hold_pc_q;
+-  logic selected_return_target_present;
+-  program_counter_t selected_return_pc;
+-  // 3b. 返回栈快照：首次受阻才保存；同一响应交付或外部恢复时释放。
+-  if (riscv_config_pkg::BRANCH_EARLY_RAS) begin : g_return_hold
+-    assign selected_return_target_present = return_hold_present_q ?
+-        return_hold_target_present_q : early_return_present_i;
+-    assign selected_return_pc = return_hold_present_q ? return_hold_pc_q : early_return_pc_i;
+-
+-    always_ff @(posedge clk_i or negedge rst_ni) begin
+-      if (!rst_ni)
+-        return_hold_present_q <= 1'b0;
+-      else if (redirect_req_valid_i || (fetch_entry_valid_o && fetch_entry_ready_i))
+-        return_hold_present_q <= 1'b0;
+-      else if (fetch_entry_valid_o && !fetch_entry_ready_i && instruction_is_return)
+-        return_hold_present_q <= 1'b1;
+-    end
+-    always_ff @(posedge clk_i) begin
+-      if (fetch_entry_valid_o && !fetch_entry_ready_i && instruction_is_return &&
+-          !return_hold_present_q) begin
+-        return_hold_target_present_q <= early_return_present_i;
+-        return_hold_pc_q <= early_return_pc_i;
+-      end
+-    end
+-  end else begin : g_no_return_hold
+-    assign return_hold_present_q = 1'b0;
+-    assign return_hold_target_present_q = 1'b0;
+-    assign return_hold_pc_q = '0;
+-    assign selected_return_target_present = 1'b0;
+-    assign selected_return_pc = '0;
+-  end
+-  // 3c. 直接目标：指令立即数加PC，沿用请求时的方向计数器快照。
+-  program_counter_t early_target, original_next_pc;
+-  if (riscv_config_pkg::BRANCH_EARLY_TARGET) begin : g_early_target
+-    riscv32_direct_target u_direct_target (
+-        .pc_i(program_counter_t'(icache_lookup_resp_i.fetch_addr)),
+-        .instruction_i(icache_lookup_resp_i.fetch_data),
+-        .direction_counter_i(pending_prediction_q.raw_direction_counter),
+-        .known_o(direct_control_flow_present), .taken_o(direct_taken), .target_o(direct_target));
+-  end else begin : g_no_early_target
+-    assign direct_control_flow_present = 1'b0;
+-    assign direct_taken = 1'b0;
+-    assign direct_target = '0;
+-  end
+-  always_comb begin
+-    early_control_flow_present = direct_control_flow_present;
+-    early_taken = direct_taken;
+-    early_target = direct_target;
+-    if (riscv_config_pkg::BRANCH_EARLY_RAS && instruction_is_return && selected_return_target_present) begin
+-      early_control_flow_present = 1'b1;
+-      early_taken = 1'b1;
+-      early_target = selected_return_pc;
+-    end
+-  end
+-  // 3d. 下一PC比较：交付当前指令时只取消年轻请求，外部恢复优先。
+-  assign early_next_pc = early_taken ? early_target :
+-      program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
+-  assign original_next_pc = pending_prediction_q.predicted_taken ?
+-      pending_prediction_q.predicted_target :
+-      program_counter_t'(icache_lookup_resp_i.fetch_addr) + program_counter_t'(INSTRUCTION_BYTES);
+-  assign early_redirect_event = early_control_flow_present && !icache_lookup_resp_i.access_fault &&
+-      (!early_taken || early_target[1:0] == 2'b00) && early_next_pc != original_next_pc &&
+-      fetch_entry_valid_o && fetch_entry_ready_i;
+-
+-  // 3e. 响应交付：指令、异常与更新后的预测信息由此处统一打包。
+   always_comb begin
+     fetch_entry_o                 = '0;
+     fetch_entry_o.pc              = program_counter_t'(icache_lookup_resp_i.fetch_addr);
+     fetch_entry_o.instruction     = icache_lookup_resp_i.fetch_data;
+     fetch_entry_o.frontend_tag    = icache_lookup_resp_i.frontend_tag;
+     fetch_entry_o.prediction      = pending_prediction_q;
+-    if (early_control_flow_present && !icache_lookup_resp_i.access_fault &&
+-        (!early_taken || early_target[1:0] == 2'b00)) begin
+-      fetch_entry_o.prediction.predicted_taken = early_taken;
+-      fetch_entry_o.prediction.predicted_target = early_taken ? early_target : '0;
+-    end
+     fetch_entry_o.exception_valid = icache_lookup_resp_i.access_fault;
+     fetch_entry_o.exception_cause = EXC_INSTR_ACCESS_FAULT;
+     fetch_entry_o.exception_tval  = xlen_data_t'(icache_lookup_resp_i.fetch_addr);
+@@ -389,17 +296,11 @@ module riscv32_ifu
+ 
+   a_nontaken_predictor_response_keeps_request_throughput :
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+-    (prediction_enable_i && predictor_lookup_response_handshake &&
+-     predictor_lookup_response_is_current && !next_pc_predictor_prediction_i.predicted_taken)
++    (predictor_lookup_response_handshake && predictor_lookup_response_is_current &&
++     !next_pc_predictor_prediction_i.predicted_taken)
+     |-> predictor_lookup_request_handshake)
+   else $error("IFU inserted a bubble after a current non-taken prediction");
+ 
+-  // 维护暂停允许排空旧预测响应，同时禁止产生新的预测请求。
+-  a_disabled_prediction_does_not_query :
+-  assert property (@(posedge clk_i) disable iff (!rst_ni)
+-    !prediction_enable_i |-> !next_pc_predictor_lookup_request_valid_o)
+-  else $error("IFU queried while prediction was disabled");
+-
+   a_taken_response_queries_target :
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+     predictor_taken_response_event |->
+@@ -409,17 +310,11 @@ module riscv32_ifu
+   a_predictor_request_stable_while_stalled :
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+     (next_pc_predictor_lookup_request_valid_o &&
+-     !next_pc_predictor_lookup_request_ready_i && !frontend_restart_event)
+-    |=> (frontend_restart_event || (next_pc_predictor_lookup_request_valid_o &&
+-         $stable(next_pc_predictor_lookup_request_pc_o) && $stable(next_pc_predictor_lookup_request_epoch_o))))
++     !next_pc_predictor_lookup_request_ready_i && !redirect_req_valid_i)
++    |=> (next_pc_predictor_lookup_request_valid_o &&
++         $stable(next_pc_predictor_lookup_request_pc_o) && $stable(next_pc_predictor_lookup_request_epoch_o)))
+   else $error("IFU changed a predictor request while stalled");
+ 
+-  a_fetch_entry_stable_while_stalled :
+-  assert property (@(posedge clk_i) disable iff (!rst_ni)
+-    (fetch_entry_valid_o && !fetch_entry_ready_i && !redirect_req_valid_i)
+-    |=> (redirect_req_valid_i || (fetch_entry_valid_o && $stable(fetch_entry_o))))
+-  else $error("IFU changed a presented fetch entry while stalled");
+-
+   a_icache_request_stable_while_stalled :
+   assert property (@(posedge clk_i) disable iff (!rst_ni)
+     (icache_lookup_req_valid_o && !icache_lookup_req_ready_i)
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv b/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv
+deleted file mode 100644
+index 75081d2..0000000
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_tage.sv
++++ /dev/null
+@@ -1,176 +0,0 @@
+-// 小型TAGE：并行查基础表和三张历史表，直接送入既有预测响应寄存器。
+-module riscv32_tage
+-  import riscv32_pkg::*;
+-#(
+-    parameter int unsigned TABLE_ENTRIES = riscv_config_pkg::BRANCH_HISTORY_ENTRY_COUNT,
+-    parameter bit PROTECT_ALTERNATE = (riscv_config_pkg::BRANCH_DIRECTION_POLICY == 4)
+-) (
+-    input  logic                      clk_i,
+-    input  logic                      rst_ni,
+-    input  program_counter_t          lookup_pc_i,
+-    input  logic               [15:0] lookup_history_i,
+-    output logic               [ 1:0] lookup_counter_o,
+-    output direction_context_t        lookup_context_o,
+-    input  program_counter_t          training_pc_i,
+-    input  direction_context_t        training_context_i,
+-    input  logic                      training_valid_i,
+-    input  logic                      training_taken_i,
+-    input  logic                      invalidate_i
+-);
+-  localparam int unsigned INDEX_BITS = $clog2(TABLE_ENTRIES);
+-  localparam int unsigned BANK_COUNT = 3;
+-  typedef logic [INDEX_BITS-1:0] index_t;
+-  typedef logic [7:0] tag_t;
+-  typedef struct packed {
+-    logic       present;
+-    tag_t       tag;
+-    logic [2:0] counter;
+-    logic       useful;
+-  } entry_t;
+-
+-  initial begin
+-    if (!(TABLE_ENTRIES inside {8, 16, 32}) || riscv_config_pkg::BRANCH_GLOBAL_HISTORY_BITS != 16)
+-      $fatal(1, "small TAGE requires 8/16/32 entries per table and 16-bit history");
+-  end
+-
+-  // 1. PC/历史组合哈希：长度由generate常量决定，没有折叠历史寄存器。
+-  function automatic logic [15:0] fold_history(input logic [15:0] history, input int unsigned width,
+-                                               input int unsigned length);
+-    logic [15:0] folded;
+-    folded = '0;
+-    for (int unsigned bit_index = 0; bit_index < length; bit_index++)
+-      folded[bit_index%width] ^= history[bit_index];
+-    return folded;
+-  endfunction
+-
+-  function automatic tag_t history_tag(input program_counter_t pc, input logic [15:0] history,
+-                                       input int unsigned length);
+-    return tag_t'((pc >> 2) ^ (pc >> 10) ^ fold_history(history, 8, length) ^
+-                  (fold_history(history, 7, length) << 1));
+-  endfunction
+-
+-  index_t lookup_base_index, training_base_index;
+-  index_t lookup_index_array[BANK_COUNT], training_index_array[BANK_COUNT];
+-  tag_t lookup_tag_array[BANK_COUNT], training_tag_array[BANK_COUNT];
+-  entry_t       entry_array_q       [   BANK_COUNT] [TABLE_ENTRIES];
+-  logic   [1:0] base_counter_array_q[TABLE_ENTRIES];
+-  logic [BANK_COUNT-1:0] lookup_match_vector, training_match_vector;
+-
+-  assign lookup_base_index   = index_t'(lookup_pc_i >> 2);
+-  assign training_base_index = index_t'(training_pc_i >> 2);
+-  for (genvar bank = 0; bank < BANK_COUNT; bank++) begin : g_hash
+-    localparam int unsigned HISTORY_BITS = 4 << bank;
+-    assign lookup_index_array[bank] = lookup_base_index ^ index_t'(fold_history(
+-        lookup_history_i, INDEX_BITS, HISTORY_BITS
+-    ));
+-    assign training_index_array[bank] = training_base_index ^ index_t'(fold_history(
+-        training_context_i.history, INDEX_BITS, HISTORY_BITS
+-    ));
+-    assign lookup_tag_array[bank] = history_tag(lookup_pc_i, lookup_history_i, HISTORY_BITS);
+-    assign training_tag_array[bank] = history_tag(training_pc_i, training_context_i.history, HISTORY_BITS);
+-    assign lookup_match_vector[bank] = entry_array_q[bank][lookup_index_array[bank]].present &&
+-        entry_array_q[bank][lookup_index_array[bank]].tag == lookup_tag_array[bank];
+-    assign training_match_vector[bank] = entry_array_q[bank][training_index_array[bank]].present &&
+-        entry_array_q[bank][training_index_array[bank]].tag == training_tag_array[bank];
+-  end
+-
+-  // 2. 最长匹配选择：完整查询快照随指令走，反压由外层响应寄存器负责。
+-  always_comb begin
+-    lookup_counter_o                 = base_counter_array_q[lookup_base_index];
+-    lookup_context_o                 = '0;
+-    lookup_context_o.history         = lookup_history_i;
+-    lookup_context_o.alternate_taken = lookup_counter_o[1];
+-    for (int unsigned bank = 0; bank < BANK_COUNT; bank++) begin
+-      if (lookup_match_vector[bank]) begin
+-        lookup_context_o.alternate_provider = lookup_context_o.provider;
+-        lookup_context_o.alternate_taken = lookup_counter_o[1];
+-        lookup_context_o.provider = 2'(bank + 1);
+-        lookup_counter_o = entry_array_q[bank][lookup_index_array[bank]].counter[2:1];
+-      end
+-    end
+-    lookup_context_o.taken = lookup_counter_o[1];
+-    // 标准策略不需要备用提供者编号，保持为常量以删除对应载荷状态。
+-    if (!PROTECT_ALTERNATE)
+-      lookup_context_o.alternate_provider = '0;
+-  end
+-
+-  // 3. 分配反馈：仅错误预测分配一项，失败则老化候选项，不阻塞取指。
+-  logic allocation_requested, allocation_present;
+-  logic [1:0] allocation_bank_index;
+-  assign allocation_requested = training_context_i.taken != training_taken_i;
+-  always_comb begin
+-    allocation_present    = 1'b0;
+-    allocation_bank_index = '0;
+-    for (int unsigned bank = 0; bank < BANK_COUNT; bank++) begin
+-      if (!allocation_present && (bank >= int'(training_context_i.provider)) &&
+-          (!entry_array_q[bank][training_index_array[bank]].present ||
+-           !entry_array_q[bank][training_index_array[bank]].useful)) begin
+-        allocation_present    = 1'b1;
+-        allocation_bank_index = 2'(bank);
+-      end
+-    end
+-  end
+-
+-  // 4. 基础表独立写口：使用当前计数器，连续同址训练不丢失更新。
+-  function automatic logic [1:0] update_base(input logic [1:0] value, input logic taken);
+-    if (taken)
+-      return value == 2'b11 ? value : value + 2'b01;
+-    return value == 2'b00 ? value : value - 2'b01;
+-  endfunction
+-
+-  always_ff @(posedge clk_i or negedge rst_ni) begin
+-    if (!rst_ni) begin
+-      for (int unsigned index = 0; index < TABLE_ENTRIES; index++)
+-        base_counter_array_q[index] <= 2'b01;
+-    end else if (training_valid_i && !invalidate_i) begin
+-      base_counter_array_q[training_base_index] <=
+-          update_base(base_counter_array_q[training_base_index], training_taken_i);
+-    end
+-  end
+-
+-  // 5. 各历史表只写训练索引：标签检查保护延迟provider，失效优先于训练。
+-  function automatic logic [2:0] update_tagged(input logic [2:0] value, input logic taken);
+-    if (taken)
+-      return value == 3'b111 ? value : value + 3'b001;
+-    return value == 3'b000 ? value : value - 3'b001;
+-  endfunction
+-
+-  for (genvar bank = 0; bank < BANK_COUNT; bank++) begin : g_update
+-    entry_t training_entry;
+-    always_comb begin
+-      training_entry = entry_array_q[bank][training_index_array[bank]];
+-      if ((training_context_i.provider == 2'(bank + 1)) && training_match_vector[bank]) begin
+-        training_entry.counter = update_tagged(training_entry.counter, training_taken_i);
+-        if (training_context_i.taken != training_context_i.alternate_taken)
+-          training_entry.useful = training_context_i.taken == training_taken_i;
+-      end
+-      if (PROTECT_ALTERNATE &&
+-          training_match_vector[bank] && (training_context_i.alternate_provider == 2'(bank + 1)) &&
+-          (training_context_i.taken != training_taken_i) &&
+-          (training_context_i.alternate_taken == training_taken_i))
+-        training_entry.useful = 1'b1;
+-      if (allocation_requested && bank >= int'(training_context_i.provider)) begin
+-        if (allocation_present && allocation_bank_index == 2'(bank)) begin
+-          training_entry.present = 1'b1;
+-          training_entry.tag     = training_tag_array[bank];
+-          training_entry.counter = training_taken_i ? 3'b100 : 3'b011;
+-          training_entry.useful  = 1'b0;
+-        end else if (!allocation_present) begin
+-          training_entry.useful = 1'b0;
+-        end
+-      end
+-    end
+-
+-    always_ff @(posedge clk_i or negedge rst_ni) begin
+-      if (!rst_ni) begin
+-        for (int unsigned index = 0; index < TABLE_ENTRIES; index++)
+-          entry_array_q[bank][index] <= '0;
+-      end else if (invalidate_i) begin
+-        for (int unsigned index = 0; index < TABLE_ENTRIES; index++)
+-          entry_array_q[bank][index].present <= 1'b0;
+-      end else if (training_valid_i) begin
+-        entry_array_q[bank][training_index_array[bank]] <= training_entry;
+-      end
+-    end
+-  end
+-endmodule
+diff --git a/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv b/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv
+deleted file mode 100644
+index d9f26fa..0000000
+--- a/npc/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv
++++ /dev/null
+@@ -1,451 +0,0 @@
+-// 可选的缩放 TAGE/SC/loop 实现；结构和裁剪边界见BRANCH_V3_DESIGN.md。
+-// 查询路径：历史索引 → 表并行读取 → provider/SC/Loop方向选择 → 组合输出。
+-// 训练反馈独立更新各表；本模块没有查询流水寄存器，响应保持由父预测器负责。
+-module riscv32_tage_scl #(
+-    parameter int unsigned BASE_ENTRIES = 32,
+-    parameter int unsigned TAGGED_ENTRIES = 16,
+-    parameter int unsigned TABLE_COUNT = 3,
+-    parameter int unsigned TAG_BITS = 8,
+-    parameter int unsigned HISTORY_BITS_0 = 3,
+-    parameter int unsigned HISTORY_BITS_1 = 7,
+-    parameter int unsigned HISTORY_BITS_2 = 16,
+-    parameter bit SPECULATIVE_HISTORY = 0,
+-    parameter bit SC_ENABLE = 0,
+-    parameter bit LOOP_ENABLE = 0
+-) (
+-    input  logic          clk_i,
+-    input  logic          rst_ni,
+-    input  logic [  31:0] lookup_pc_i,
+-    output logic          taken_o,
+-    output logic [ 191:0] context_o,
+-    input  logic          training_valid_i,
+-    input  logic          training_taken_i,
+-    input  logic [ 191:0] training_context_i,
+-`ifdef BRANCH_V3_VERIFY
+-    output logic [8191:0] state_o,
+-`endif
+-    input  logic          lookup_handshake_i,
+-    input  logic          lookup_conditional_i,
+-    input  logic          lookup_taken_i,
+-    input  logic          flush_i,
+-    input  logic          invalidate_i
+-);
+-  localparam int BASE_INDEX_BITS = $clog2(BASE_ENTRIES);
+-  localparam int TAGGED_INDEX_BITS = $clog2(TAGGED_ENTRIES);
+-  localparam int HISTORY_BITS = TABLE_COUNT == 2 ? HISTORY_BITS_1 : HISTORY_BITS_2;
+-  localparam int HISTORY_LENGTH_ARRAY[3] = '{HISTORY_BITS_0, HISTORY_BITS_1, HISTORY_BITS_2};
+-  localparam int ENTRY_BITS = 1 + TAG_BITS + 3 + 2;
+-  localparam int FOLD_BITS = TAGGED_INDEX_BITS + TAG_BITS + TAG_BITS - 1;
+-  typedef struct packed {
+-    logic [HISTORY_BITS-1:0]                     history_before;
+-    logic [31:0]                                pc;
+-    logic [15:0]                                epoch;
+-    logic [TABLE_COUNT-1:0][TAGGED_INDEX_BITS-1:0] tagged_index_vector;
+-    logic [TABLE_COUNT-1:0][TAG_BITS-1:0]          tagged_tag_vector;
+-    logic [BASE_INDEX_BITS-1:0]                  base_index;
+-    logic signed [2:0]                          provider_index;
+-
+-    // 备用方向、最长匹配原始方向、弱provider及选择后的TAGE方向。
+-    logic alternate_taken, provider_taken, provider_weak, tage_taken;
+-
+-    logic [2:0][TAGGED_INDEX_BITS-1:0] sc_index_vector;
+-    logic signed [8:0]                sc_sum;
+-    logic [1:0]                       loop_index;
+-    logic                             prediction;
+-  } context_t;
+-  initial begin
+-    if (BASE_ENTRIES < 16 || BASE_ENTRIES > 128 ||
+-        (BASE_ENTRIES & (BASE_ENTRIES - 1)) != 0 || TAGGED_ENTRIES < 8 || TAGGED_ENTRIES > 64 ||
+-        (TAGGED_ENTRIES & (TAGGED_ENTRIES - 1)) != 0 || TABLE_COUNT < 2 || TABLE_COUNT > 3 || TAG_BITS < 6 ||
+-        TAG_BITS > 10 || HISTORY_BITS_0 < 1 || HISTORY_BITS_0 >= HISTORY_BITS_1 || HISTORY_BITS > 32 ||
+-        (TABLE_COUNT == 3 && HISTORY_BITS_1 >= HISTORY_BITS_2) || $bits(context_t) > 192)
+-      $fatal(1, "Unsupported scaled TAGE geometry or oversized context");
+-  end
+-  context_t lookup_context, training_context;
+-  assign training_context = context_t'(training_context_i);
+-  assign context_o        = 192'(lookup_context);
+-
+-  // 1. 历史：解析版本每次训练推进；推测版本按采用的方向推进并保留解析副本。
+-  logic [HISTORY_BITS-1:0] history_q, resolved_history_q;
+-  logic [                 15:0] epoch_q;
+-  logic [TAGGED_INDEX_BITS-1:0] index_fold_array_q    [TABLE_COUNT];
+-  logic [         TAG_BITS-1:0] tag_fold_array_q      [TABLE_COUNT];
+-  logic [         TAG_BITS-2:0] tag_short_fold_array_q[TABLE_COUNT];
+-  logic train_event, history_advance_event, history_taken;
+-  logic [HISTORY_BITS-1:0] repaired_history;
+-  assign train_event = training_valid_i && !invalidate_i && training_context.epoch == epoch_q;
+-  assign history_advance_event = SPECULATIVE_HISTORY ? (lookup_handshake_i && lookup_conditional_i) :
+-      train_event;
+-  assign history_taken = SPECULATIVE_HISTORY ? lookup_taken_i : training_taken_i;
+-  assign repaired_history = train_event ?
+-      {training_context.history_before[HISTORY_BITS-2:0], training_taken_i} : resolved_history_q;
+-
+-  // 仅恢复时重建折叠；正常查询与推进不串联完整历史折叠电路。
+-  function automatic logic [TAG_BITS-1:0] fold_recovery(
+-      input logic [HISTORY_BITS-1:0] value, input int length, width);
+-    logic [TAG_BITS-1:0] folded;
+-    folded = '0;
+-    for (int entry_index = 0; entry_index < HISTORY_BITS; entry_index++) begin
+-      if (entry_index < length)
+-        folded[entry_index%width] ^= value[entry_index];
+-    end
+-    return folded;
+-  endfunction
+-  always_ff @(posedge clk_i or negedge rst_ni) begin
+-    if (!rst_ni) begin
+-      history_q          <= '0;
+-      resolved_history_q <= '0;
+-      epoch_q            <= '0;
+-      for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-        index_fold_array_q[table_index]     <= '0;
+-        tag_fold_array_q[table_index]       <= '0;
+-        tag_short_fold_array_q[table_index] <= '0;
+-      end
+-    end else if (invalidate_i) begin
+-      history_q          <= '0;
+-      resolved_history_q <= '0;
+-      epoch_q            <= epoch_q + 1'b1;
+-      for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-        index_fold_array_q[table_index]     <= '0;
+-        tag_fold_array_q[table_index]       <= '0;
+-        tag_short_fold_array_q[table_index] <= '0;
+-      end
+-    end else begin
+-      if (train_event && SPECULATIVE_HISTORY)
+-        resolved_history_q <= {resolved_history_q[HISTORY_BITS-2:0], training_taken_i};
+-      if (SPECULATIVE_HISTORY && flush_i) begin
+-        history_q <= repaired_history;
+-        for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-          index_fold_array_q[table_index] <= TAGGED_INDEX_BITS'(fold_recovery(
+-              repaired_history, HISTORY_LENGTH_ARRAY[table_index], TAGGED_INDEX_BITS
+-          ));
+-          tag_fold_array_q[table_index] <= fold_recovery(
+-              repaired_history, HISTORY_LENGTH_ARRAY[table_index], TAG_BITS
+-          );
+-          tag_short_fold_array_q[table_index] <= (TAG_BITS - 1)'(fold_recovery(
+-              repaired_history, HISTORY_LENGTH_ARRAY[table_index], TAG_BITS - 1
+-          ));
+-        end
+-      end else if (history_advance_event) begin
+-        history_q <= {history_q[HISTORY_BITS-2:0], history_taken};
+-        for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-          index_fold_array_q[table_index] <=
+-              {index_fold_array_q[table_index][TAGGED_INDEX_BITS-2:0],
+-               index_fold_array_q[table_index][TAGGED_INDEX_BITS-1]} ^
+-              TAGGED_INDEX_BITS'(history_taken) ^
+-              (TAGGED_INDEX_BITS'(history_q[HISTORY_LENGTH_ARRAY[table_index]-1]) <<
+-               (HISTORY_LENGTH_ARRAY[table_index] % TAGGED_INDEX_BITS));
+-          tag_fold_array_q[table_index] <=
+-              {tag_fold_array_q[table_index][TAG_BITS-2:0],
+-               tag_fold_array_q[table_index][TAG_BITS-1]} ^
+-              TAG_BITS'(history_taken) ^
+-              (TAG_BITS'(history_q[HISTORY_LENGTH_ARRAY[table_index]-1]) <<
+-               (HISTORY_LENGTH_ARRAY[table_index] % TAG_BITS));
+-          tag_short_fold_array_q[table_index] <=
+-              {tag_short_fold_array_q[table_index][TAG_BITS-3:0],
+-               tag_short_fold_array_q[table_index][TAG_BITS-2]} ^
+-              (TAG_BITS - 1)'(history_taken) ^
+-              ((TAG_BITS - 1)'(history_q[HISTORY_LENGTH_ARRAY[table_index]-1]) <<
+-               (HISTORY_LENGTH_ARRAY[table_index] % (TAG_BITS - 1)));
+-        end
+-      end
+-    end
+-  end
+-
+-  // 2. base/tagged并行读取，最长匹配与alternate按历史长度选择。
+-  logic        [         1:0] base_counter_array_q[BASE_ENTRIES];
+-  logic                       present_array_q     [ TABLE_COUNT] [TAGGED_ENTRIES];
+-  logic        [TAG_BITS-1:0] tag_array_q         [ TABLE_COUNT] [TAGGED_ENTRIES];
+-  logic signed [         2:0] counter_array_q     [ TABLE_COUNT] [TAGGED_ENTRIES];
+-  logic        [         1:0] useful_array_q      [ TABLE_COUNT] [TAGGED_ENTRIES];
+-  logic signed [         3:0] alternate_select_q;
+-  logic signed [         4:0] weight_array_q      [           3] [TAGGED_ENTRIES];
+-  // SC权重与阈值在解析反馈时更新；查询只读。
+-  logic        [         4:0] threshold_q;
+-  // Loop表保存已解析迭代；invalidate仅清存在位，无效载荷不复位。
+-  logic loop_present_array_q[4], loop_direction_array_q[4];
+-  logic [31:0] loop_pc_array_q[4];
+-  logic [7:0] loop_trip_count_array_q[4], loop_iteration_count_array_q[4];
+-  logic [1:0] loop_confidence_array_q[4];
+-  logic [TABLE_COUNT-1:0][TAGGED_INDEX_BITS-1:0] lookup_index_vector;
+-  logic [TABLE_COUNT-1:0][         TAG_BITS-1:0] lookup_tag_vector;
+-  logic [TABLE_COUNT-1:0] match_vector, provider_select_vector, alternate_select_vector;
+-  logic [TABLE_COUNT-1:0] direction_vector, weak_vector;
+-  logic base_direction;
+-  assign base_direction = base_counter_array_q[lookup_pc_i[BASE_INDEX_BITS+1:2]][1];
+-  for (genvar bank = 0; bank < TABLE_COUNT; bank++) begin : g_tagged_query
+-    logic signed [2:0] counter;
+-    logic longer_match, multiple_longer_matches;
+-    assign lookup_index_vector[bank] = lookup_pc_i[TAGGED_INDEX_BITS+1:2] ^ index_fold_array_q[bank];
+-    assign lookup_tag_vector[bank] = lookup_pc_i[TAG_BITS+1:2] ^ tag_fold_array_q[bank] ^
+-        {tag_short_fold_array_q[bank], 1'b0};
+-    assign match_vector[bank] = present_array_q[bank][lookup_index_vector[bank]] &&
+-        tag_array_q[bank][lookup_index_vector[bank]] == lookup_tag_vector[bank];
+-    assign counter = counter_array_q[bank][lookup_index_vector[bank]];
+-    assign direction_vector[bank] = !counter[2];
+-    assign weak_vector[bank] = counter == -1 || counter == 0;
+-    // 最长匹配没有更长命中；次长匹配恰有一个更长命中。
+-    always_comb begin
+-      longer_match            = 1'b0;
+-      multiple_longer_matches = 1'b0;
+-      for (int other = bank + 1; other < TABLE_COUNT; other++) begin
+-        multiple_longer_matches |= longer_match && match_vector[other];
+-        longer_match |= match_vector[other];
+-      end
+-    end
+-    assign provider_select_vector[bank]  = match_vector[bank] && !longer_match;
+-    assign alternate_select_vector[bank] = match_vector[bank] && longer_match && !multiple_longer_matches;
+-  end
+-
+-  // SC与TAGE并行：第三张表按两个方向读；公共部分和只计算一次。
+-  logic        [TAGGED_INDEX_BITS-1:0] sc_index_array       [3];
+-  logic signed [                  5:0] sc_weight_pair;
+-  logic signed [                  6:0] sc_common_sum;
+-  logic signed [                  7:0] sc_sum_array         [2];
+-  logic        [                  1:0] sc_prediction_vector;
+-  assign sc_index_array[0] = lookup_pc_i[TAGGED_INDEX_BITS+1:2];
+-  assign sc_index_array[1] = lookup_pc_i[TAGGED_INDEX_BITS+1:2] ^ TAGGED_INDEX_BITS'(history_q);
+-  assign sc_index_array[2] = lookup_pc_i[TAGGED_INDEX_BITS+1:2] ^ index_fold_array_q[TABLE_COUNT-1];
+-  assign sc_weight_pair = 6'(weight_array_q[0][sc_index_array[0]]) + 6'(weight_array_q[1][sc_index_array[1]]);
+-  assign sc_common_sum = {sc_weight_pair, 1'b0} + 7'sd2;
+-  for (genvar direction = 0; direction < 2; direction++) begin : g_sc_direction
+-    logic signed [4:0] weight;
+-    logic signed [6:0] tail_sum;
+-    assign weight = weight_array_q[2][sc_index_array[2]^TAGGED_INDEX_BITS'(direction)];
+-    assign tail_sum = 7'(weight) * 7'sd2 + (direction == 0 ? -7'sd3 : 7'sd5);
+-    assign sc_sum_array[direction] = 8'(sc_common_sum) + 8'(tail_sum);
+-    // 原规则：强负和覆盖为NT，强正和覆盖为T，其余保持TAGE方向。
+-    assign sc_prediction_vector[direction] = direction == 0 ?
+-        sc_sum_array[direction] >= $signed({3'b0, threshold_q}) :
+-        sc_sum_array[direction] > -$signed({3'b0, threshold_q});
+-  end
+-
+-  // 查询汇合：provider/alternate → SC方向选择 → Loop覆盖 → 查询快照。
+-  always_comb begin
+-    lookup_context                     = '0;
+-    lookup_context.history_before      = SPECULATIVE_HISTORY ? history_q : '0;
+-    lookup_context.pc                  = lookup_pc_i;
+-    lookup_context.epoch               = epoch_q;
+-    lookup_context.base_index          = lookup_pc_i[BASE_INDEX_BITS+1:2];
+-    lookup_context.tagged_index_vector = lookup_index_vector;
+-    lookup_context.tagged_tag_vector   = lookup_tag_vector;
+-    lookup_context.provider_index      = -1;
+-    for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-      if (provider_select_vector[table_index])
+-        lookup_context.provider_index = 3'(table_index);
+-    end
+-    lookup_context.alternate_taken = (|(alternate_select_vector & direction_vector)) ||
+-        (!(|alternate_select_vector) && base_direction);
+-    lookup_context.provider_taken = (|(provider_select_vector & direction_vector)) ||
+-        (!(|provider_select_vector) && base_direction);
+-    lookup_context.provider_weak = |(provider_select_vector & weak_vector);
+-    lookup_context.tage_taken = lookup_context.provider_weak && alternate_select_q >= 0 ?
+-        lookup_context.alternate_taken : lookup_context.provider_taken;
+-    lookup_context.sc_index_vector[0] = sc_index_array[0];
+-    lookup_context.sc_index_vector[1] = sc_index_array[1];
+-    lookup_context.sc_index_vector[2] = sc_index_array[2] ^ TAGGED_INDEX_BITS'(lookup_context.tage_taken);
+-    lookup_context.sc_sum = 9'(sc_sum_array[lookup_context.tage_taken]);
+-    lookup_context.prediction = SC_ENABLE ? sc_prediction_vector[lookup_context.tage_taken] :
+-        lookup_context.tage_taken;
+-    lookup_context.loop_index = lookup_pc_i[3:2];
+-    if (LOOP_ENABLE && loop_present_array_q[lookup_context.loop_index] &&
+-        loop_pc_array_q[lookup_context.loop_index] == lookup_pc_i && loop_confidence_array_q[
+-        lookup_context.loop_index] == 3 && loop_trip_count_array_q[lookup_context.loop_index] != 0)
+-      lookup_context.prediction = ({1'b0, loop_iteration_count_array_q[lookup_context.loop_index]} + 9'd1) ==
+-          {1'b0, loop_trip_count_array_q[lookup_context.loop_index]} ? !loop_direction_array_q[
+-          lookup_context.loop_index] : loop_direction_array_q[lookup_context.loop_index];
+-    taken_o = lookup_context.prediction;
+-  end
+-
+-  // 3. tagged/base训练：以快照定位，以当前counter更新；tag不匹配禁止训练新住户。
+-  function automatic int saturating_step(input int value, input bit up, input int low, high);
+-    if (up)
+-      return value == high ? value : value + 1;
+-    return value == low ? value : value - 1;
+-  endfunction
+-  logic signed [2:0] allocation_table_index;
+-  always_comb begin
+-    allocation_table_index = -1;
+-    for (int table_index = TABLE_COUNT - 1; table_index >= 0; table_index--) begin
+-      if (table_index > int'(training_context.provider_index) &&
+-          (!present_array_q[table_index][training_context.tagged_index_vector[table_index]] ||
+-           useful_array_q[table_index][training_context.tagged_index_vector[table_index]] == 0))
+-        allocation_table_index = table_index;
+-    end
+-  end
+-  always_ff @(posedge clk_i or negedge rst_ni) begin
+-    if (!rst_ni) begin
+-      alternate_select_q <= 0;
+-      for (int entry_index = 0; entry_index < BASE_ENTRIES; entry_index++)
+-        base_counter_array_q[entry_index] <= 1;
+-      for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-        for (int entry_index = 0; entry_index < TAGGED_ENTRIES; entry_index++)
+-          present_array_q[table_index][entry_index] <= 0;
+-      end
+-    end else if (invalidate_i) begin
+-      for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-        for (int entry_index = 0; entry_index < TAGGED_ENTRIES; entry_index++)
+-          present_array_q[table_index][entry_index] <= 0;
+-      end
+-    end else if (train_event) begin
+-      base_counter_array_q[training_context.base_index] <= 2'(saturating_step(
+-          int'(base_counter_array_q[training_context.base_index]), training_taken_i, 0, 3
+-      ));
+-      if (training_context.provider_index >= 0 && present_array_q[training_context.provider_index][
+-          training_context.tagged_index_vector[training_context.provider_index]] &&
+-          tag_array_q[training_context.provider_index][
+-          training_context.tagged_index_vector[training_context.provider_index]] ==
+-          training_context.tagged_tag_vector[training_context.provider_index]) begin
+-        counter_array_q[training_context.provider_index][
+-            training_context.tagged_index_vector[training_context.provider_index]] <= 3'(saturating_step(
+-            int'(counter_array_q[training_context.provider_index][
+-                 training_context.tagged_index_vector[training_context.provider_index]]),
+-            training_taken_i,
+-            -4,
+-            3
+-        ));
+-        if (training_context.provider_taken != training_context.alternate_taken)
+-          useful_array_q[training_context.provider_index][
+-              training_context.tagged_index_vector[training_context.provider_index]] <= 2'(saturating_step(
+-              int'(useful_array_q[training_context.provider_index][
+-                   training_context.tagged_index_vector[training_context.provider_index]]),
+-              training_context.provider_taken == training_taken_i,
+-              0,
+-              3
+-          ));
+-        if (training_context.provider_weak &&
+-            training_context.provider_taken != training_context.alternate_taken)
+-          alternate_select_q <= 4'(saturating_step(
+-              int'(alternate_select_q), training_context.alternate_taken == training_taken_i, -8, 7
+-          ));
+-      end
+-      if (training_context.tage_taken != training_taken_i) begin
+-        if (allocation_table_index >= 0) begin
+-          present_array_q[allocation_table_index][
+-              training_context.tagged_index_vector[allocation_table_index]] <= 1;
+-          tag_array_q[allocation_table_index][training_context.tagged_index_vector[allocation_table_index]] <=
+-              training_context.tagged_tag_vector[allocation_table_index];
+-          counter_array_q[allocation_table_index][
+-              training_context.tagged_index_vector[allocation_table_index]] <= training_taken_i ? 0 : -1;
+-          useful_array_q[allocation_table_index][training_context.tagged_index_vector[allocation_table_index]]
+-              <= 0;
+-        end else begin
+-          for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-            if (table_index > int'(training_context.provider_index) &&
+-                useful_array_q[table_index][training_context.tagged_index_vector[table_index]] != 0)
+-              useful_array_q[table_index][training_context.tagged_index_vector[table_index]] <=
+-                  useful_array_q[table_index][training_context.tagged_index_vector[table_index]] - 1'b1;
+-          end
+-        end
+-      end
+-    end
+-  end
+-
+-  // 4. SC：有符号中心化求和、动态阈值、仅在错误或低margin时更新。
+-  always_ff @(posedge clk_i or negedge rst_ni) begin
+-    if (!rst_ni) begin
+-      threshold_q <= 8;
+-      for (int table_index = 0; table_index < 3; table_index++) begin
+-        for (int entry_index = 0; entry_index < TAGGED_ENTRIES; entry_index++)
+-          weight_array_q[table_index][entry_index] <= 0;
+-      end
+-    end else if (train_event && SC_ENABLE) begin
+-      if ((training_context.sc_sum >= 0) != training_taken_i ||
+-          (training_context.sc_sum < int'(threshold_q) && training_context.sc_sum > -int'(threshold_q)))
+-        for (int table_index = 0; table_index < 3; table_index++)
+-          weight_array_q[table_index][training_context.sc_index_vector[table_index]] <= 5'(saturating_step(
+-              int'(weight_array_q[table_index][training_context.sc_index_vector[table_index]]),
+-              training_taken_i,
+-              -16,
+-              15
+-          ));
+-      if ((training_context.sc_sum >= 0) != training_context.tage_taken)
+-        threshold_q <= 5'(saturating_step(
+-            int'(threshold_q), (training_context.sc_sum >= 0) != training_taken_i, 1, 31
+-        ));
+-    end
+-  end
+-
+-  // 5. loop：PC身份、当前迭代与稳定trip；变长重学，溢出撤销可信度。
+-  always_ff @(posedge clk_i or negedge rst_ni) begin
+-    if (!rst_ni) begin
+-      for (int entry_index = 0; entry_index < 4; entry_index++)
+-        loop_present_array_q[entry_index] <= 0;
+-    end else if (invalidate_i) begin
+-      for (int entry_index = 0; entry_index < 4; entry_index++)
+-        loop_present_array_q[entry_index] <= 0;
+-    end else if (train_event && LOOP_ENABLE) begin
+-      if (!loop_present_array_q[training_context.loop_index] ||
+-          loop_pc_array_q[training_context.loop_index] != training_context.pc) begin
+-        loop_present_array_q[training_context.loop_index]         <= 1;
+-        loop_pc_array_q[training_context.loop_index]              <= training_context.pc;
+-        loop_iteration_count_array_q[training_context.loop_index] <= 1;
+-        loop_trip_count_array_q[training_context.loop_index]      <= 0;
+-        loop_confidence_array_q[training_context.loop_index]      <= 0;
+-        loop_direction_array_q[training_context.loop_index]       <= training_taken_i;
+-      end else if (training_taken_i == loop_direction_array_q[training_context.loop_index]) begin
+-        loop_iteration_count_array_q[training_context.loop_index] <=
+-            loop_iteration_count_array_q[training_context.loop_index] + 1'b1;
+-        if (loop_iteration_count_array_q[training_context.loop_index] == 255) begin
+-          loop_trip_count_array_q[training_context.loop_index] <= 0;
+-          loop_confidence_array_q[training_context.loop_index] <= 0;
+-        end
+-      end else begin
+-        loop_confidence_array_q[training_context.loop_index] <=
+-            ({1'b0, loop_iteration_count_array_q[training_context.loop_index]} + 9'd1) ==
+-            {1'b0, loop_trip_count_array_q[training_context.loop_index]} ? 2'(saturating_step(
+-            int'(loop_confidence_array_q[training_context.loop_index]), 1, 0, 3
+-        )) : 0;
+-        loop_trip_count_array_q[training_context.loop_index] <=
+-            loop_iteration_count_array_q[training_context.loop_index] + 1'b1;
+-        loop_iteration_count_array_q[training_context.loop_index] <= 0;
+-      end
+-    end
+-  end
+-`ifdef BRANCH_V3_VERIFY
+-  // 逻辑状态展开：无效payload屏蔽；调试线不进入正常综合。
+-  int state_bit_offset;
+-  always_comb begin
+-    state_o          = '0;
+-    state_bit_offset = 0;
+-    for (int entry_index = 0; entry_index < BASE_ENTRIES; entry_index++) begin
+-      state_o[state_bit_offset+:2] = base_counter_array_q[entry_index];
+-      state_bit_offset += 2;
+-    end
+-    for (int table_index = 0; table_index < TABLE_COUNT; table_index++)
+-      for (int entry_index = 0; entry_index < TAGGED_ENTRIES; entry_index++) begin
+-        state_o[state_bit_offset+:ENTRY_BITS] = present_array_q[table_index][entry_index] ?
+-            {1'b1, tag_array_q[table_index][entry_index], counter_array_q[table_index][entry_index],
+-             useful_array_q[table_index][entry_index]} : ENTRY_BITS'(0);
+-        state_bit_offset += ENTRY_BITS;
+-      end
+-    state_o[state_bit_offset+:HISTORY_BITS] = history_q;
+-    state_bit_offset += HISTORY_BITS;
+-    state_o[state_bit_offset+:16] = epoch_q;
+-    state_bit_offset += 16;
+-    state_o[state_bit_offset+:4] = alternate_select_q;
+-    state_bit_offset += 4;
+-    for (int table_index = 0; table_index < 3; table_index++)
+-      for (int entry_index = 0; entry_index < TAGGED_ENTRIES; entry_index++) begin
+-        state_o[state_bit_offset+:5] = weight_array_q[table_index][entry_index];
+-        state_bit_offset += 5;
+-      end
+-    state_o[state_bit_offset+:5] = threshold_q;
+-    state_bit_offset += 5;
+-    for (int entry_index = 0; entry_index < 4; entry_index++) begin
+-      state_o[state_bit_offset+:52] = loop_present_array_q[entry_index] ?
+-          {1'b1, loop_pc_array_q[entry_index], loop_iteration_count_array_q[entry_index],
+-           loop_trip_count_array_q[entry_index], loop_confidence_array_q[entry_index],
+-           loop_direction_array_q[entry_index]} : 52'b0;
+-      state_bit_offset += 52;
+-    end
+-    for (int table_index = 0; table_index < TABLE_COUNT; table_index++) begin
+-      state_o[state_bit_offset+:FOLD_BITS] = {
+-        index_fold_array_q[table_index], tag_fold_array_q[table_index], tag_short_fold_array_q[table_index]
+-      };
+-      state_bit_offset += FOLD_BITS;
+-    end
+-    state_o[state_bit_offset+:HISTORY_BITS] = resolved_history_q;
+-  end
+-`endif
+-endmodule
+diff --git a/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv b/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv
+index 35ef266..8fec661 100644
+--- a/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv
+@@ -223,15 +223,42 @@ module riscv32_dcache
+   );
+ 
+   logic [DCACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
++  logic [DCACHE_WAY_COUNT-1:0] lookup_line_dirty_vector;
+   logic                        lookup_hit;
+   dcache_way_index_t           lookup_hit_way_index;
+   core_data_t                  lookup_hit_word_data;
+   dcache_way_index_t           replacement_way_index;
+   logic                        replacement_invalid_way_found;
+ 
+-  // 阵列读口已合并同沿写入值；命中路径不再保存第二份store旁路载荷。
++  // store hit写array的同拍允许下一请求启动同步读。宏的read-during-write语义可能是
++  // old-data，因此显式保存刚提交的store，并只在紧随其后的S1访问中覆盖对应byte。
++  // 同set不同tag的下一请求若miss，也必须看到该way已经变dirty，避免替换时漏写回。
++  logic               store_write_bypass_present_q;
++  dcache_set_index_t  store_write_bypass_set_index_q;
++  dcache_way_index_t  store_write_bypass_way_index_q;
++  dcache_word_index_t store_write_bypass_word_index_q;
++  core_data_t         store_write_bypass_data_q;
++  core_byte_strobe_t  store_write_bypass_byte_strobe_q;
++  logic               store_write_bypass_matches_lookup_line;
++  logic               store_write_bypass_matches_lookup_word;
++
++  assign store_write_bypass_matches_lookup_line =
++      store_write_bypass_present_q &&
++      (store_write_bypass_set_index_q == get_set_index(
++      lookup_s1_q.addr
++  ));
++  assign store_write_bypass_matches_lookup_word =
++      store_write_bypass_matches_lookup_line &&
++      (store_write_bypass_word_index_q == get_word_index(
++      lookup_s1_q.addr
++  ));
++
+   always_comb begin
+     lookup_way_hit_vector    = '0;
++    lookup_line_dirty_vector = array_read_line_dirty_vector;
++    if (store_write_bypass_matches_lookup_line) begin
++      lookup_line_dirty_vector[store_write_bypass_way_index_q] = 1'b1;
++    end
+     lookup_hit           = 1'b0;
+     lookup_hit_way_index = '0;
+     lookup_hit_word_data = '0;
+@@ -244,6 +271,14 @@ module riscv32_dcache
+         lookup_hit           = 1'b1;
+         lookup_hit_way_index = dcache_way_index_t'(way_index);
+         lookup_hit_word_data = array_read_word_data_array[way_index];
++        if (store_write_bypass_matches_lookup_word &&
++            store_write_bypass_way_index_q == dcache_way_index_t'(way_index)) begin
++          lookup_hit_word_data = merge_store_bytes(
++            array_read_word_data_array[way_index],
++            store_write_bypass_data_q,
++            store_write_bypass_byte_strobe_q
++          );
++        end
+       end
+     end
+   end
+@@ -305,11 +340,26 @@ module riscv32_dcache
+     miss_req.replacement_way_index = replacement_way_index;
+     miss_req.victim_tag            = array_read_tag_array[replacement_way_index];
+     miss_req.victim_present        = array_read_line_present_vector[replacement_way_index];
+-    miss_req.victim_dirty          = array_read_line_dirty_vector[replacement_way_index];
++    miss_req.victim_dirty          = lookup_line_dirty_vector[replacement_way_index];
+     miss_req_valid                 = lookup_s1_present_q && !lookup_hit && !clean_blocks_lookup;
+   end
+   assign miss_req_handshake = miss_req_valid && miss_req_ready;
+ 
++  always_ff @(posedge clk_i or negedge rst_ni) begin
++    if (!rst_ni) begin
++      store_write_bypass_present_q <= 1'b0;
++    end else if (lookup_req_handshake || !lookup_s1_present_d) begin
++      store_write_bypass_present_q <= store_hit_write_event && lookup_req_handshake;
++      if (store_hit_write_event && lookup_req_handshake) begin
++        store_write_bypass_set_index_q   <= get_set_index(lookup_s1_q.addr);
++        store_write_bypass_way_index_q   <= lookup_hit_way_index;
++        store_write_bypass_word_index_q  <= get_word_index(lookup_s1_q.addr);
++        store_write_bypass_data_q        <= lookup_s1_q.write_data;
++        store_write_bypass_byte_strobe_q <= lookup_s1_q.byte_strobe;
++      end
++    end
++  end
++
+   // clean 反馈：输出条件、下一状态、状态更新集中排列。
+   always_comb begin
+     clean_dirty_way_present  = 1'b0;
+diff --git a/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv b/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
+index c8561f5..d74f3e3 100644
+--- a/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
+@@ -33,14 +33,6 @@ module riscv32_dcache_data_array
+       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
+         read_word_data_array_q[way_index] <=
+             data_array_q[way_index][read_word_index_i][read_set_index_i];
+-        // 显式定义同址读写为新数据，在原有同步读寄存器之前合并store字节。
+-        if (write_valid_i && write_set_index_i == read_set_index_i &&
+-            write_word_index_i == read_word_index_i &&
+-            write_way_index_i == dcache_way_index_t'(way_index)) begin
+-          read_word_data_array_q[way_index] <= merge_store_bytes(
+-              data_array_q[way_index][read_word_index_i][read_set_index_i],
+-              write_word_data_i, write_byte_strobe_i);
+-        end
+       end
+     end
+   end
+@@ -50,7 +42,8 @@ module riscv32_dcache_data_array
+   end
+ 
+   // 每个byte lane独立写使能，使综合器能够映射到带byte-enable的SRAM或banked array。
+-  // 存储本体的写口不变；上方显式旁路定义读写冲突，不依赖SRAM宏的默认行为。
++  // RTL 同沿读写同一字时读到旧值。store 与下一 lookup 的冲突由 D-cache 顶层旁路处理；
++  // 阵列本身不检测请求相关性，也不复制另一套旁路。
+   always_ff @(posedge clk_i) begin
+     if (write_valid_i) begin
+       for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
+diff --git a/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv b/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
+index 14c4c25..027840a 100644
+--- a/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
+@@ -41,15 +41,6 @@ module riscv32_dcache_tag_array
+             line_present_array_q[way_index][read_set_index_i];
+         read_line_dirty_vector_q[way_index] <=
+             line_dirty_array_q[way_index][read_set_index_i];
+-        // 同址写与同步读重合时，读出寄存器采样新元数据，尤其是store置dirty。
+-        if (metadata_write_valid_i && metadata_write_set_index_i == read_set_index_i &&
+-            metadata_write_way_index_i == dcache_way_index_t'(way_index)) begin
+-          if (metadata_write_line_present_i)
+-            read_tag_array_q[way_index] <= metadata_write_tag_i;
+-          read_line_present_vector_q[way_index] <= metadata_write_line_present_i;
+-          read_line_dirty_vector_q[way_index] <=
+-              metadata_write_line_present_i && metadata_write_line_dirty_i;
+-        end
+       end
+     end
+   end
+diff --git a/npc/vsrc/riscv32/core/riscv32_core.sv b/npc/vsrc/riscv32/core/riscv32_core.sv
+index 4163625..c851b7b 100644
+--- a/npc/vsrc/riscv32/core/riscv32_core.sv
++++ b/npc/vsrc/riscv32/core/riscv32_core.sv
+@@ -52,14 +52,9 @@ module riscv32_core
+   redirect_req_t       sequential_redirect;
+   logic                sequential_redirect_valid;
+ 
+-  logic early_return_present;
+-  program_counter_t early_return_pc;
+-
+   riscv32_ifu #(
+       .PC_START                                 (RESET_PC)
+   ) u_ifu (
+-      .early_return_present_i(early_return_present),
+-      .early_return_pc_i(early_return_pc),
+       .clk_i                                     (clk_i),
+       .rst_ni                                    (rst_ni),
+       .redirect_req_i                            (selected_redirect_req),
+@@ -97,13 +92,7 @@ module riscv32_core
+   logic                icache_invalidate_done;
+   logic                icache_busy;
+ 
+-  // 提交反馈只供实验替换策略使用，不产生额外访存或恢复。
+-  commit_t commit;
+-  logic commit_valid;
+-
+   riscv32_icache u_icache (
+-      .retired_valid_i     (commit_valid && !commit.trap_taken),
+-      .retired_pc_i        (commit.pc),
+       .clk_i                                     (clk_i),
+       .rst_ni                                    (rst_ni),
+       .lookup_req_i        (icache_lookup_req),
+@@ -156,8 +145,6 @@ module riscv32_core
+   logic resolved_execute_result_ready;
+ 
+   riscv32_branch_predictor u_branch_predictor (
+-      .early_return_present_o(early_return_present),
+-      .early_return_pc_o(early_return_pc),
+       .clk_i                                     (clk_i),
+       .rst_ni                                    (rst_ni),
+       .lookup_request_pc_i            (next_pc_predictor_lookup_request_pc),
+@@ -172,7 +159,6 @@ module riscv32_core
+       .lookup_response_ready_i        (next_pc_predictor_lookup_response_ready),
+       .resolved_control_flow_pc_i     (resolved_execute_result.uop.pc),
+       .resolved_control_flow_target_i (resolved_control_flow_target),
+-      .resolved_control_flow_prediction_i(resolved_execute_result.uop.prediction),
+       .resolved_control_flow_imm_i    (resolved_execute_result.uop.imm),
+       .resolved_control_flow_op_i     (resolved_execute_result.uop.branch_ctrl.op),
+       .resolved_control_flow_rs1_i    (resolved_execute_result.uop.rs1),
+@@ -183,7 +169,9 @@ module riscv32_core
+           !resolved_execute_result.uop.exception_valid
+       ),
+       .resolved_control_flow_taken_i(
+-          resolved_execute_result.branch_taken
++          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
++          (resolved_execute_result.next_pc !=
++          (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
+       ),
+       .flush_lookup_i (next_pc_predictor_flush),
+       .invalidate_i   (icache_invalidate_req)
+@@ -240,6 +228,8 @@ module riscv32_core
+       .rs2_data_o         (rs2_value)
+   );
+ 
++  commit_t          commit;
++  logic             commit_valid;
+   xlen_data_t       csr_read_data;
+   logic             csr_read_illegal;
+   program_counter_t csr_mtvec;
+@@ -749,7 +739,9 @@ module riscv32_core
+       .resolved_control_flow_op_i     (resolved_execute_result.uop.branch_ctrl.op),
+       .resolved_control_flow_pc_i     (resolved_execute_result.uop.pc),
+       .resolved_control_flow_taken_i(
+-          resolved_execute_result.branch_taken
++          (resolved_execute_result.uop.branch_ctrl.op != CF_BRANCH) ||
++          (resolved_execute_result.next_pc !=
++          (resolved_execute_result.uop.pc + program_counter_t'(INSTRUCTION_BYTES)))
+       ),
+       .resolved_control_flow_immediate_i        (resolved_execute_result.uop.imm),
+       .lsu_request_event_i                      (lsu_req_valid && lsu_req_ready),
+diff --git a/npc/vsrc/riscv32/filelist/filelist.f b/npc/vsrc/riscv32/filelist/filelist.f
+index d9e2c87..6514923 100644
+--- a/npc/vsrc/riscv32/filelist/filelist.f
++++ b/npc/vsrc/riscv32/filelist/filelist.f
+@@ -17,7 +17,6 @@ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv
+ 
+ // 数据存储子系统：同步阵列、write-back miss路径、PMA路由和uncached旁路。
+@@ -34,14 +33,9 @@ ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_regfile.sv
+ ${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_pmu.sv
+ ${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_csr_file.sv
+ ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_idu.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_tage.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_bht.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_btb.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_ras.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_direct_target.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+ ${NPC_HOME}/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv
+ ${NPC_HOME}/vsrc/riscv32/core/control/riscv32_redirect_mux.sv
+diff --git a/npc/vsrc/riscv32/filelist/filelist_sta.f b/npc/vsrc/riscv32/filelist/filelist_sta.f
+index 68415af..9bf94fa 100644
+--- a/npc/vsrc/riscv32/filelist/filelist_sta.f
++++ b/npc/vsrc/riscv32/filelist/filelist_sta.f
+@@ -13,7 +13,6 @@ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_axi.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_icache_replacement.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv
+ // 数据存储：D-cache、uncached 和路由。
+ ${NPC_HOME}/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
+@@ -29,14 +28,9 @@ ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_regfile.sv
+ ${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_pmu.sv
+ ${NPC_HOME}/vsrc/riscv32/core/writeback/riscv32_csr_file.sv
+ ${NPC_HOME}/vsrc/riscv32/core/decode/riscv32_idu.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_tage.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_tage_scl.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_bht.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_compact_btb.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_btb.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_ras.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_choice.sv
+-${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_direct_target.sv
+ ${NPC_HOME}/vsrc/riscv32/core/frontend/riscv32_branch_predictor.sv
+ ${NPC_HOME}/vsrc/riscv32/core/execute/riscv32_id_ex_reg.sv
+ ${NPC_HOME}/vsrc/riscv32/core/control/riscv32_redirect_mux.sv

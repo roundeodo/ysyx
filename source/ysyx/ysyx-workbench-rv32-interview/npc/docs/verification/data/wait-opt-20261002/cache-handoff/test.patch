@@ -1,0 +1,99 @@
+diff --git a/npc/tests/rtl/riscv32_dcache_tb.sv b/npc/tests/rtl/riscv32_dcache_tb.sv
+index 36d7de0..ab46b6a 100644
+--- a/npc/tests/rtl/riscv32_dcache_tb.sv
++++ b/npc/tests/rtl/riscv32_dcache_tb.sv
+@@ -335,6 +335,81 @@ module riscv32_dcache_tb;
+     @(negedge clk);
+   endtask
+ 
++  // 最后一拍refill/响应与下一lookup交接，覆盖新tag、末字和store字节合并。
++  task automatic check_miss_handoff(input int next_kind, input bit first_store,
++                                    input int response_stalls);
++    phys_addr_t base_addr, first_addr, next_addr;
++    core_data_t expected, held_data, store_value, expected_stored;
++    int reads_before;
++    @(negedge clk);
++    rst_ni=0; data_memory_req_valid=0; data_memory_resp_ready=0;
++    repeat(2) @(negedge clk);
++    rst_ni=1;
++    base_addr=phys_addr_t'('h80006000);
++    first_addr=base_addr+phys_addr_t'(DCACHE_LINE_BYTES-DCACHE_WORD_BYTES);
++    store_value=core_data_t'('ha5317b29 ^ next_kind ^ (response_stalls << 16));
++    expected_stored=merge_store_bytes(core_data_t'(read_memory_word(axi4_addr_t'(first_addr))),
++                                     store_value,core_byte_strobe_t'(5));
++    case(next_kind)
++      0: next_addr=first_addr;
++      1: next_addr=base_addr;
++      2: next_addr=base_addr+SAME_SET_ADDR_STRIDE;
++      default: next_addr=base_addr+phys_addr_t'(DCACHE_LINE_BYTES);
++    endcase
++    expected=core_data_t'(read_memory_word(axi4_addr_t'(next_addr)));
++    if(first_store && next_addr==first_addr)
++      expected=expected_stored;
++    reads_before=read_address_handshake_count;
++    data_memory_req='0;
++    data_memory_req.addr=first_addr;
++    data_memory_req.cmd=first_store ? MEM_CMD_STORE : MEM_CMD_LOAD;
++    data_memory_req.size=TEST_WORD_SIZE;
++    data_memory_req.transaction_id=mem_txn_id_t'(7);
++    data_memory_req.write_data=store_value;
++    data_memory_req.byte_strobe=core_byte_strobe_t'(5);
++    data_memory_req_valid=1; data_memory_resp_ready=response_stalls==0;
++    while(!data_memory_req_ready) @(negedge clk);
++    @(negedge clk);
++    data_memory_req.addr=next_addr; data_memory_req.cmd=MEM_CMD_LOAD;
++    data_memory_req.transaction_id=mem_txn_id_t'(8);
++    while(!data_memory_resp_valid) begin
++      #1;
++      assert(!data_memory_req_ready)
++        else $fatal(1,"miss admitted another lookup before completion");
++      @(negedge clk);
++    end
++    held_data=data_memory_resp.read_data;
++    repeat(response_stalls) begin
++      #1;
++      assert(!data_memory_req_ready && data_memory_resp_valid &&
++             data_memory_resp.transaction_id==mem_txn_id_t'(7) &&
++             data_memory_resp.read_data==held_data)
++        else $fatal(1,"miss handoff lost its stalled old response");
++      @(negedge clk);
++    end
++    data_memory_resp_ready=1;
++    #1;
++    assert(data_memory_req_ready && !data_memory_resp.access_fault &&
++           data_memory_resp.transaction_id==mem_txn_id_t'(7))
++      else $fatal(1,"completed miss inserted a lookup handoff bubble");
++    @(negedge clk); data_memory_req_valid=0;
++    if(next_kind<2)
++      assert(data_memory_resp_valid)
++        else $fatal(1,"newly installed line did not hit immediately after handoff");
++    while(!data_memory_resp_valid) @(negedge clk);
++    assert(data_memory_resp.transaction_id==mem_txn_id_t'(8) &&
++           !data_memory_resp.access_fault && data_memory_resp.read_data==expected)
++      else $fatal(1,"miss handoff returned stale data or wrong identity");
++    @(negedge clk);
++    assert(read_address_handshake_count==reads_before+((next_kind<2) ? 1 : 2))
++      else $fatal(1,"handoff lost the installed tag or duplicated a refill");
++    if(first_store) begin
++      clean_cache();
++      assert(core_data_t'(read_memory_word(axi4_addr_t'(first_addr)))==expected_stored)
++        else $fatal(1,"handoff lost newly installed dirty data before clean");
++    end
++  endtask
++
+   initial begin
+     core_data_t read_data;
+     core_data_t original_a;
+@@ -437,6 +512,12 @@ module riscv32_dcache_tb;
+           else $fatal(1,"clean scan wrote wrong set/way data");
+     clean_cache(1);
+ 
++    for(int next_kind=0;next_kind<4;next_kind++)
++      for(int store=0;store<2;store++) begin
++        check_miss_handoff(next_kind,1'(store),0);
++        check_miss_handoff(next_kind,1'(store),3);
++      end
++    $display("PASS D-cache miss handoff: 16 tag/data/byte-write/response-stall cases");
+     $display("D-cache directed test passed: XLEN=%0d sets=%0d ways=%0d line=%0dB",
+              XLEN, DCACHE_SET_COUNT, DCACHE_WAY_COUNT, DCACHE_LINE_BYTES);
+     $finish;

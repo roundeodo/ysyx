@@ -1,0 +1,40 @@
+{
+  "scope": "functional 660 MHz memory-model diagnostic only; old caches unqualified and G128 fails STA at 660 MHz; not used for hardware selection",
+  "ratios": {
+    "ini_config": {
+      "icache_new_over_old": 0.3584671343917341,
+      "G128_new": 1.0205125513683821,
+      "G128_old": 1.0177544603410194,
+      "M64_new": 1.0015093775401598,
+      "M64_old": 1.0359948417101519
+    },
+    "json_bpe": {
+      "icache_new_over_old": 0.5494309135605048,
+      "G128_new": 1.0016438831775243,
+      "G128_old": 0.9984982720978797,
+      "M64_new": 1.004834122638032,
+      "M64_old": 0.9995345696234973
+    },
+    "quant_loader": {
+      "icache_new_over_old": 0.4808950483268638,
+      "G128_new": 1.013414499315724,
+      "G128_old": 1.0027118783913063,
+      "M64_new": 1.004399115683832,
+      "M64_old": 1.001177204134239
+    },
+    "regex_tokenizer": {
+      "icache_new_over_old": 0.5194129626365815,
+      "G128_new": 0.9951619952201953,
+      "G128_old": 1.0006662414890108,
+      "M64_new": 1.0324870524218897,
+      "M64_old": 1.0048775865964044
+    },
+    "runtime_graph": {
+      "icache_new_over_old": 0.5612644126464299,
+      "G128_new": 1.0023295570097843,
+      "G128_old": 1.0041836892667269,
+      "M64_new": 1.0042964628896822,
+      "M64_old": 1.000171721954049
+    }
+  }
+}

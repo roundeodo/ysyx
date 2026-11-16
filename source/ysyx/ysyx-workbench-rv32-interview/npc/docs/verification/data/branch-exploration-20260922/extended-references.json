@@ -1,0 +1,73 @@
+{
+  "scope": "Relevant sections read using primary full text or official documentation; paper experiments were not reproduced.",
+  "local_download": "Supplementary batch download did not run: automatic permission review timed out. Public links and web reading remain available; not an implementation blocker.",
+  "sources": [
+    {
+      "id": "pulp-2024",
+      "url": "https://arxiv.org/html/2412.20391v1",
+      "status": "relevant_sections_read",
+      "role": "CPU tasks, ISA and deployment context"
+    },
+    {
+      "id": "siracusa-2023",
+      "url": "https://arxiv.org/html/2312.14750v1",
+      "status": "relevant_sections_read",
+      "role": "private versus shared instruction cache, extended ISA"
+    },
+    {
+      "id": "snitch-doc",
+      "url": "https://pulp-platform.github.io/snitch_cluster/ug/code_optimization.html",
+      "status": "official_documentation_read",
+      "role": "separate loop, data and dependency overheads"
+    },
+    {
+      "id": "cv32e40p",
+      "url": "https://cv32e40p.readthedocs.io/en/latest/pipeline.html",
+      "status": "official_documentation_read",
+      "role": "actual small-core branch recovery costs"
+    },
+    {
+      "id": "mcfarling-1993",
+      "url": "https://american.cs.ucdavis.edu/academic/readings/papers/mcfarling.pdf",
+      "status": "relevant_sections_read",
+      "role": "same-budget direction baseline"
+    },
+    {
+      "id": "bimode-1997",
+      "url": "https://people.eecs.berkeley.edu/~kubitron/courses/cs252-F00/handouts/papers/p4-lee.pdf",
+      "status": "update_rule_read_and_modelled",
+      "role": "bias separation and partial choice update"
+    },
+    {
+      "id": "perceptron-report",
+      "url": "https://people.engr.tamu.edu/djimenez/pdfs/old-perceptron.pdf",
+      "status": "mechanism_screened",
+      "role": "weighted-history cost; not implemented"
+    },
+    {
+      "id": "llbp-2024",
+      "url": "https://ease-lab.github.io/ease_website/pubs/LLBP_MICRO24.pdf",
+      "artifact": "https://github.com/dhschall/LLBP",
+      "status": "relevant_sections_and_artifact_readme_read",
+      "role": "context capacity and model limitations; not implemented"
+    },
+    {
+      "id": "workload-2025",
+      "url": "https://arxiv.org/html/2512.15827v1",
+      "status": "characterization_method_read_and_adapted",
+      "role": "95 percent context working set and retrospective bias"
+    },
+    {
+      "id": "hotp-2026",
+      "url": "https://doi.org/10.1109/ISPASS69572.2026.00044",
+      "status": "publisher_abstract_only_full_text_unavailable",
+      "role": "confidence experiment is not a HOTP reproduction"
+    },
+    {
+      "id": "vla-tage-2026",
+      "url": "https://doi.org/10.1109/LCA.2026.3669169",
+      "status": "discovered_primary_full_text_unavailable",
+      "role": "not used as quantitative evidence"
+    }
+  ]
+}

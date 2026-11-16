@@ -1,0 +1,291 @@
+%Warning-WIDTHEXPAND: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/frontend/riscv32_icache_axi.sv:89:63: Operator COND expects 8 bits on the Conditional True, but Conditional True's SEL generates 4 bits.
+                                                                                                                                                   : ... note: In instance 'exploration_core_tb.dut.u_icache_axi'
+   89 |         axi_manager_o.ar.len   = 8'(((state_q == REFILL_IDLE) ?
+      |                                                               ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.043
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-WIDTHEXPAND: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/frontend/riscv32_icache_axi.sv:89:63: Operator COND expects 8 bits on the Conditional False, but Conditional False's SEL generates 4 bits.
+                                                                                                                                                   : ... note: In instance 'exploration_core_tb.dut.u_icache_axi'
+   89 |         axi_manager_o.ar.len   = 8'(((state_q == REFILL_IDLE) ?
+      |                                                               ^
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/axi_memory.sv:57:10: Logical operator LOGNOT expects 1 bit on the LHS, but LHS's VARREF 'random_stalls' generates 32 bits.
+                                                                                                          : ... note: In instance 'exploration_core_tb.u_memory'
+   57 |         (!random_stalls || random_q[0]);
+      |          ^
+                     ... For warning description see https://verilator.org/warn/WIDTHTRUNC?v=5.043
+                     ... Use "/* verilator lint_off WIDTHTRUNC */" and lint_on around source to disable this message.
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/axi_memory.sv:65:48: Logical operator LOGNOT expects 1 bit on the LHS, but LHS's VARREF 'random_stalls' generates 32 bits.
+                                                                                                          : ... note: In instance 'exploration_core_tb.u_memory'
+   65 |     response_o.aw_ready = !write_present_q && (!random_stalls || random_q[1]);
+      |                                                ^
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/axi_memory.sv:66:67: Logical operator LOGNOT expects 1 bit on the LHS, but LHS's VARREF 'random_stalls' generates 32 bits.
+                                                                                                          : ... note: In instance 'exploration_core_tb.u_memory'
+   66 |     response_o.w_ready = write_present_q && !write_complete_q && (!random_stalls || random_q[2]);
+      |                                                                   ^
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:105:5: Logical operator IF expects 1 bit on the If, but If's VARREF 'metadata_fd' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  105 |     if (metadata_fd) begin
+      |     ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:126:18: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'observer' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  126 |     if (observer && dut.u_ifu.lookup_queue_enqueue_event) begin
+      |                  ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:137:18: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'observer' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  137 |     if (observer && dut.icache_lookup_req_valid && dut.icache_lookup_req_ready &&
+      |                  ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:146:18: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'observer' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  146 |     if (observer && dut.u_ifu.frontend_restart_event) begin
+      |                  ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:158:7: Logical operator IF expects 1 bit on the If, but If's VARREF 'event_fd' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  158 |       if (event_fd) $fdisplay(event_fd, "Q,%0d,%0d,%h,%0d,%0d,%0d,%0d,%h,%h,%h,%h",
+      |       ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:154:18: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'observer' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  154 |     if (observer && dut.next_pc_predictor_lookup_request_valid && dut.next_pc_predictor_lookup_request_ready) begin
+      |                  ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:173:9: Logical operator IF expects 1 bit on the If, but If's VARREF 'event_fd' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  173 |         if(event_fd) $fdisplay(event_fd,"C,%0d,%0d,%h,%h,%h",retired_record.dynamic_id,cycle,dut.commit.pc,dut.commit.instruction,dut.commit.next_pc);
+      |         ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:169:7: Logical operator IF expects 1 bit on the If, but If's VARREF 'observer' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  169 |       if (observer) begin
+      |       ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:181:22: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'observer' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  181 |         if (observer && trace_fd) $fdisplay(trace_fd, "%h,%h,%h,%0d", dut.commit.pc, dut.commit.instruction, dut.commit.next_pc, cycle);
+      |                      ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:181:22: Logical operator LOGAND expects 1 bit on the RHS, but RHS's VARREF 'trace_fd' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  181 |         if (observer && trace_fd) $fdisplay(trace_fd, "%h,%h,%h,%0d", dut.commit.pc, dut.commit.instruction, dut.commit.next_pc, cycle);
+      |                      ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:185:18: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'observer' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  185 |     if (observer && event_fd && dut.resolved_execute_result_valid && dut.resolved_execute_result_ready &&
+      |                  ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:185:18: Logical operator LOGAND expects 1 bit on the RHS, but RHS's VARREF 'event_fd' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  185 |     if (observer && event_fd && dut.resolved_execute_result_valid && dut.resolved_execute_result_ready &&
+      |                  ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:200:9: Logical operator IF expects 1 bit on the If, but If's VARREF 'fetch_fd' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  200 |         if (fetch_fd) $fdisplay(fetch_fd, "%d,%h,%d", cycle, dut.u_icache.lookup_s1_q.fetch_addr, dut.u_icache.miss_req_handshake);
+      |         ^~
+%Warning-WIDTHEXPAND: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:234:31: Operator ADD expects 32 bits on the RHS, but RHS's NEQ generates 1 bits.
+                                                                                                         : ... note: In instance 'exploration_core_tb'
+  234 |             window_raw_errors += (result_record.raw_taken != dut.resolved_execute_result.branch_taken);
+      |                               ^~
+%Warning-WIDTHEXPAND: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:235:28: Operator ADD expects 32 bits on the RHS, but RHS's LOGNOT generates 1 bits.
+                                                                                                         : ... note: In instance 'exploration_core_tb'
+  235 |             window_missing += !result_record.target_present;
+      |                            ^~
+%Warning-WIDTHEXPAND: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:236:30: Operator ADD expects 32 bits on the RHS, but RHS's SEL generates 1 bits.
+                                                                                                         : ... note: In instance 'exploration_core_tb'
+  236 |             window_redirects += dut.resolved_execute_result.redirect_valid;
+      |                              ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:247:9: Logical operator IF expects 1 bit on the If, but If's VARREF 'event_fd' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  247 |         if (event_fd) $fdisplay(event_fd, "R,%0d,%0d,%h,%h,%0d,%0d,%0d,%0d,%0d,%0d",
+      |         ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:191:19: Logical operator LOGAND expects 1 bit on the RHS, but RHS's VARREF 'observer' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  191 |     if (measuring && observer) begin
+      |                   ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:278:9: Logical operator IF expects 1 bit on the If, but If's VARREF 'event_fd' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  278 |         if(event_fd) $fdisplay(event_fd,"A,%0d,%0d,%h,%0d,%h",pending_record.dynamic_id,cycle,dut.ifu_fetch_entry.pc,dut.ifu_fetch_entry.prediction.predicted_taken,dut.ifu_fetch_entry.prediction.predicted_target);
+      |         ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:279:21: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'event_fd' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  279 |         if(event_fd && dut.u_ifu.early_redirect_event) $fdisplay(event_fd,"E,%0d,%0d,%h",pending_record.dynamic_id,cycle,dut.u_ifu.early_next_pc);
+      |                     ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:281:20: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'event_fd' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  281 |       if (event_fd && dut.decoded_uop_valid && dut.decoded_uop.fu_type == FU_BRANCH &&
+      |                    ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:298:9: Logical operator IF expects 1 bit on the If, but If's VARREF 'event_fd' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  298 |         if (event_fd) $fdisplay(event_fd,"S,%0d",cycle);
+      |         ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:273:5: Logical operator IF expects 1 bit on the If, but If's VARREF 'observer' generates 32 bits.
+                                                                                                       : ... note: In instance 'exploration_core_tb'
+  273 |     if (observer) begin
+      |     ^~
+%Warning-WIDTHTRUNC: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:324:20: Logical operator LOGAND expects 1 bit on the LHS, but LHS's VARREF 'observer' generates 32 bits.
+                                                                                                        : ... note: In instance 'exploration_core_tb'
+  324 |       if (observer && retired_cycles+data_wait+frontend_wait+other_wait != end_cycle-begin_cycle)
+      |                    ^~
+%Warning-UNOPTFLAT: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:63:9: Signal unoptimizable: Circular combinational logic: 'exploration_core_tb.dut.u_data_mem.u_uncached_axi.new_request_window_open'
+   63 |   logic new_request_window_open;
+      |         ^~~~~~~~~~~~~~~~~~~~~~~
+                    ... For warning description see https://verilator.org/warn/UNOPTFLAT?v=5.043
+                    ... Use "/* verilator lint_off UNOPTFLAT */" and lint_on around source to disable this message.
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:63:9:      Example path: exploration_core_tb.dut.u_data_mem.u_uncached_axi.new_request_window_open
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: exploration_core_tb.dut.u_data_mem.uncached_axi_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:163:59:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:7:49:      Example path: exploration_core_tb.data_request
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:26:20:      Example path: exploration_core_tb.u_arbiter.selected_read_requester
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:68:68:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:7:63:      Example path: exploration_core_tb.memory_request
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/axi_memory.sv:54:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:8:65:      Example path: exploration_core_tb.memory_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_axi.sv:108:36:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:99:27:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.refill_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:132:40:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:106:15:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.u_miss_unit.refill_word_after_store_merge
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:156:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:76:23:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.miss_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:315:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:47:28:      Example path: exploration_core_tb.dut.u_data_mem.dcache_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:474:22:      Example path: exploration_core_tb.dut.data_memory_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:244:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:64:22:      Example path: exploration_core_tb.dut.u_lsu.memory_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:294:33:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:288:22:      Example path: exploration_core_tb.dut.lsu_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: exploration_core_tb.dut.u_hazard_ctrl.lsu_completion_succeeded_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:57:18:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:57:18:      Example path: exploration_core_tb.dut.u_hazard_ctrl.structural_hazard_present_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:51:18:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:51:18:      Example path: exploration_core_tb.dut.u_hazard_ctrl.execute_issue_allowed_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:203:54:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:203:54:      Example path: __VdfgRegularize_h6e95ff9d_0_34
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:17:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:17:22:      Example path: exploration_core_tb.dut.u_exu.lsu_req_valid_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:19:30:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:19:30:      Example path: exploration_core_tb.dut.u_lsu.data_memory_req_valid_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:97:31:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:97:31:      Example path: __VdfgRegularize_h6e95ff9d_0_37
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:15:30:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:15:30:      Example path: exploration_core_tb.dut.u_data_mem.u_uncached_axi.data_memory_req_valid_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_40
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_41
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+%Warning-UNOPTFLAT: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:35:9: Signal unoptimizable: Circular combinational logic: 'exploration_core_tb.u_arbiter.read_last_handshake'
+   35 |   logic read_last_handshake;
+      |         ^~~~~~~~~~~~~~~~~~~
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:35:9:      Example path: exploration_core_tb.u_arbiter.read_last_handshake
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:26:20:      Example path: exploration_core_tb.u_arbiter.selected_read_requester
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:68:68:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:7:63:      Example path: exploration_core_tb.memory_request
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/axi_memory.sv:54:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:8:65:      Example path: exploration_core_tb.memory_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_axi.sv:108:36:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:99:27:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.refill_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:132:40:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:106:15:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.u_miss_unit.refill_word_after_store_merge
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:156:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:76:23:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.miss_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:315:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:47:28:      Example path: exploration_core_tb.dut.u_data_mem.dcache_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:474:22:      Example path: exploration_core_tb.dut.data_memory_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:244:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:64:22:      Example path: exploration_core_tb.dut.u_lsu.memory_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:294:33:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:288:22:      Example path: exploration_core_tb.dut.lsu_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: exploration_core_tb.dut.u_hazard_ctrl.lsu_completion_succeeded_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:57:18:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:57:18:      Example path: exploration_core_tb.dut.u_hazard_ctrl.structural_hazard_present_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:51:18:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:51:18:      Example path: exploration_core_tb.dut.u_hazard_ctrl.execute_issue_allowed_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:203:54:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:203:54:      Example path: __VdfgRegularize_h6e95ff9d_0_34
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:17:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:17:22:      Example path: exploration_core_tb.dut.u_exu.lsu_req_valid_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:19:30:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:19:30:      Example path: exploration_core_tb.dut.u_lsu.data_memory_req_valid_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:97:31:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:97:31:      Example path: __VdfgRegularize_h6e95ff9d_0_37
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:15:30:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:15:30:      Example path: exploration_core_tb.dut.u_data_mem.u_uncached_axi.data_memory_req_valid_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_40
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_41
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: exploration_core_tb.dut.u_data_mem.uncached_axi_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:163:59:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:7:49:      Example path: exploration_core_tb.data_request
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+%Warning-UNOPTFLAT: /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:15:30: Signal unoptimizable: Circular combinational logic: 'exploration_core_tb.dut.u_data_mem.u_uncached_axi.data_memory_req_valid_i'
+   15 |     input  logic             data_memory_req_valid_i,
+      |                              ^~~~~~~~~~~~~~~~~~~~~~~
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:15:30:      Example path: exploration_core_tb.dut.u_data_mem.u_uncached_axi.data_memory_req_valid_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_40
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: __VdfgRegularize_h6e95ff9d_0_41
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:59:28:      Example path: exploration_core_tb.dut.u_data_mem.uncached_axi_manager
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:163:59:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:7:49:      Example path: exploration_core_tb.data_request
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:42:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:26:20:      Example path: exploration_core_tb.u_arbiter.selected_read_requester
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/system/riscv32_axi4_arbiter.sv:68:68:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:7:63:      Example path: exploration_core_tb.memory_request
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/axi_memory.sv:54:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/branch_v3/core_tb.sv:8:65:      Example path: exploration_core_tb.memory_response
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_axi.sv:108:36:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:99:27:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.refill_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:132:40:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:106:15:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.u_miss_unit.refill_word_after_store_merge
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache_miss_unit.sv:156:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:76:23:      Example path: exploration_core_tb.dut.u_data_mem.gen_dcache.u_dcache.miss_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_dcache.sv:315:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:47:28:      Example path: exploration_core_tb.dut.u_data_mem.dcache_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:474:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:474:22:      Example path: exploration_core_tb.dut.data_memory_resp
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:244:3:      Example path: ALWAYS
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:64:22:      Example path: exploration_core_tb.dut.u_lsu.memory_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:294:33:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/riscv32_core.sv:288:22:      Example path: exploration_core_tb.dut.lsu_writeback
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:40:27:      Example path: exploration_core_tb.dut.u_hazard_ctrl.lsu_completion_succeeded_i
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:57:18:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:57:18:      Example path: exploration_core_tb.dut.u_hazard_ctrl.structural_hazard_present_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:51:18:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/control/riscv32_hazard_ctrl.sv:51:18:      Example path: exploration_core_tb.dut.u_hazard_ctrl.execute_issue_allowed_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:203:54:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:203:54:      Example path: __VdfgRegularize_h6e95ff9d_0_34
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:17:22:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/execute/riscv32_exu.sv:17:22:      Example path: exploration_core_tb.dut.u_exu.lsu_req_valid_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:19:30:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_lsu.sv:19:30:      Example path: exploration_core_tb.dut.u_lsu.data_memory_req_valid_o
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:97:31:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_data_mem.sv:97:31:      Example path: __VdfgRegularize_h6e95ff9d_0_37
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:15:30:      Example path: ASSIGNW
+                    /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/rtl/core/memory/riscv32_uncached_axi.sv:15:30:      Example path: exploration_core_tb.dut.u_data_mem.u_uncached_axi.data_memory_req_valid_i
+make: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/build/obj'
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /home/yong/tools/oss-cad-suite/share/verilator/include/verilated.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /home/yong/tools/oss-cad-suite/share/verilator/include/verilated_timing.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /home/yong/tools/oss-cad-suite/share/verilator/include/verilated_threads.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vexploration_core_tb__pch.h -o Vexploration_core_tb__pch.h.fast.gch
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -x c++-header Vexploration_core_tb__pch.h -o Vexploration_core_tb__pch.h.slow.gch
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.fast -c -o Vexploration_core_tb.o Vexploration_core_tb.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.fast -c -o Vexploration_core_tb___024root__0.o Vexploration_core_tb___024root__0.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.fast -c -o Vexploration_core_tb___024root__1.o Vexploration_core_tb___024root__1.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.fast -c -o Vexploration_core_tb___024root__2.o Vexploration_core_tb___024root__2.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.fast -c -o Vexploration_core_tb___024root__3.o Vexploration_core_tb___024root__3.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.fast -c -o Vexploration_core_tb__main.o Vexploration_core_tb__main.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.slow -c -o Vexploration_core_tb__ConstPool__0__Slow.o Vexploration_core_tb__ConstPool__0__Slow.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.slow -c -o Vexploration_core_tb___024root__Slow.o Vexploration_core_tb___024root__Slow.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.slow -c -o Vexploration_core_tb___024root__0__Slow.o Vexploration_core_tb___024root__0__Slow.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.slow -c -o Vexploration_core_tb___024root__1__Slow.o Vexploration_core_tb___024root__1__Slow.cpp
+g++ -O2  -I.  -MMD -I/home/yong/tools/oss-cad-suite/share/verilator/include -I/home/yong/tools/oss-cad-suite/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -include Vexploration_core_tb__pch.h.slow -c -o Vexploration_core_tb__Syms__Slow.o Vexploration_core_tb__Syms__Slow.cpp
+g++    verilated.o verilated_timing.o verilated_threads.o Vexploration_core_tb__ALL.a    -pthread -lpthread -latomic   -o Vexploration_core_tb
+rm Vexploration_core_tb__ALL.verilator_deplist.tmp
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/build/obj'
+- V e r i l a t i o n   R e p o r t: Verilator 5.043 devel rev v5.042-244-g4080284e5
+- Verilator: Built from 14.093 MB sources in 51 modules, into 3.576 MB in 11 C++ files needing 0.005 MB
+- Verilator: Walltime 30.157 s (elab=0.208, cvt=1.103, bld=28.543); cpu 1.731 s on 2 threads; alloced 184.820 MB

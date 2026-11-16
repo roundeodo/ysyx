@@ -1,0 +1,67 @@
+{
+  "B0": {
+    "btb": 16,
+    "ways": 2,
+    "widths": null,
+    "source": "baseline"
+  },
+  "B0off": {
+    "btb": 16,
+    "ways": 2,
+    "widths": null
+  },
+  "F16": {
+    "btb": 16,
+    "ways": 2,
+    "widths": [
+      32,
+      32
+    ]
+  },
+  "F32": {
+    "btb": 32,
+    "ways": 2,
+    "widths": [
+      32,
+      32
+    ]
+  },
+  "F32W4": {
+    "btb": 32,
+    "ways": 4,
+    "widths": [
+      32,
+      32,
+      32,
+      32
+    ]
+  },
+  "U16": {
+    "btb": 16,
+    "ways": 2,
+    "widths": [
+      16,
+      16
+    ]
+  },
+  "U32W4": {
+    "btb": 32,
+    "ways": 4,
+    "widths": [
+      16,
+      16,
+      16,
+      16
+    ]
+  },
+  "H32": {
+    "btb": 32,
+    "ways": 4,
+    "widths": [
+      8,
+      12,
+      16,
+      32
+    ]
+  }
+}

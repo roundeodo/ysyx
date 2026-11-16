@@ -1,0 +1,1149 @@
+{
+  "scope": "720 MHz functional cycle screening; mutually exclusive priority classifications, not causal stall penalties",
+  "cases": {
+    "B0": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      }
+    ],
+    "H64": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": -640,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -246,
+          "frontend_wait": -181,
+          "other": -213,
+          "misses": -2,
+          "queries": -372,
+          "i_beats": -16,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": -103,
+          "target": 0
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": 589,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -293,
+          "frontend_wait": 1099,
+          "other": -217,
+          "misses": 8,
+          "queries": -383,
+          "i_beats": 64,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": -105,
+          "target": 0
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": -4122,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -156,
+          "frontend_wait": -2071,
+          "other": -1895,
+          "misses": -14,
+          "queries": -2510,
+          "i_beats": -112,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": -605,
+          "target": 0
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": -3955,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -383,
+          "frontend_wait": -1786,
+          "other": -1786,
+          "misses": -14,
+          "queries": -2198,
+          "i_beats": -112,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": -561,
+          "target": 0
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": 4001,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -187,
+          "frontend_wait": 5063,
+          "other": -875,
+          "misses": 44,
+          "queries": -1432,
+          "i_beats": 352,
+          "d_beats": 0,
+          "btb_missing": -1,
+          "direction": -366,
+          "target": 0
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": 5042,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -182,
+          "frontend_wait": 6068,
+          "other": -844,
+          "misses": 52,
+          "queries": -1258,
+          "i_beats": 416,
+          "d_beats": 0,
+          "btb_missing": 8,
+          "direction": -364,
+          "target": 0
+        }
+      }
+    ],
+    "S32": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": -2116,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -143,
+          "frontend_wait": -1278,
+          "other": -695,
+          "misses": -8,
+          "queries": -998,
+          "i_beats": -64,
+          "d_beats": 0,
+          "btb_missing": -238,
+          "direction": -56,
+          "target": 16
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": -1248,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -87,
+          "frontend_wait": -491,
+          "other": -670,
+          "misses": -1,
+          "queries": -1018,
+          "i_beats": -8,
+          "d_beats": 0,
+          "btb_missing": -236,
+          "direction": -54,
+          "target": 16
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": -14270,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -157,
+          "frontend_wait": -9960,
+          "other": -4153,
+          "misses": -69,
+          "queries": -5397,
+          "i_beats": -552,
+          "d_beats": 0,
+          "btb_missing": -1441,
+          "direction": 25,
+          "target": 2
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": -14864,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -607,
+          "frontend_wait": -10040,
+          "other": -4217,
+          "misses": -74,
+          "queries": -5325,
+          "i_beats": -592,
+          "d_beats": 0,
+          "btb_missing": -1463,
+          "direction": 46,
+          "target": 2
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": 433,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1721,
+          "frontend_wait": 2331,
+          "other": -3619,
+          "misses": 55,
+          "queries": -6238,
+          "i_beats": 440,
+          "d_beats": 0,
+          "btb_missing": -1494,
+          "direction": -144,
+          "target": 93
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": 2156,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1542,
+          "frontend_wait": 4198,
+          "other": -3584,
+          "misses": 69,
+          "queries": -6488,
+          "i_beats": 552,
+          "d_beats": 0,
+          "btb_missing": -1524,
+          "direction": -118,
+          "target": 92
+        }
+      }
+    ],
+    "S64": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": -3612,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 422,
+          "frontend_wait": -2884,
+          "other": -1150,
+          "misses": -10,
+          "queries": -2390,
+          "i_beats": -80,
+          "d_beats": 0,
+          "btb_missing": -570,
+          "direction": -20,
+          "target": 20
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": -3358,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 731,
+          "frontend_wait": -2947,
+          "other": -1142,
+          "misses": -8,
+          "queries": -2407,
+          "i_beats": -64,
+          "d_beats": 0,
+          "btb_missing": -568,
+          "direction": -20,
+          "target": 20
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": -21326,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -149,
+          "frontend_wait": -14110,
+          "other": -7067,
+          "misses": -92,
+          "queries": -9865,
+          "i_beats": -736,
+          "d_beats": 0,
+          "btb_missing": -2579,
+          "direction": 109,
+          "target": 2
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": -23645,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -587,
+          "frontend_wait": -15868,
+          "other": -7190,
+          "misses": -111,
+          "queries": -9719,
+          "i_beats": -888,
+          "d_beats": 0,
+          "btb_missing": -2601,
+          "direction": 128,
+          "target": 2
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": 12408,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 3439,
+          "frontend_wait": 15043,
+          "other": -6074,
+          "misses": 203,
+          "queries": -13960,
+          "i_beats": 1624,
+          "d_beats": 0,
+          "btb_missing": -3674,
+          "direction": 171,
+          "target": 216
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": 25077,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 4763,
+          "frontend_wait": 26314,
+          "other": -6000,
+          "misses": 306,
+          "queries": -14200,
+          "i_beats": 2448,
+          "d_beats": 0,
+          "btb_missing": -3698,
+          "direction": 199,
+          "target": 218
+        }
+      }
+    ],
+    "A16": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": -3,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -75,
+          "frontend_wait": 685,
+          "other": -613,
+          "misses": 8,
+          "queries": -945,
+          "i_beats": 64,
+          "d_beats": 0,
+          "btb_missing": -110,
+          "direction": -151,
+          "target": 8
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": 246,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 107,
+          "frontend_wait": 745,
+          "other": -606,
+          "misses": 10,
+          "queries": -961,
+          "i_beats": 80,
+          "d_beats": 0,
+          "btb_missing": -106,
+          "direction": -153,
+          "target": 8
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": 3169,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 11220,
+          "frontend_wait": -5248,
+          "other": -2803,
+          "misses": 67,
+          "queries": -4778,
+          "i_beats": 536,
+          "d_beats": 0,
+          "btb_missing": -772,
+          "direction": -429,
+          "target": 0
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": 4249,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 11204,
+          "frontend_wait": -3980,
+          "other": -2975,
+          "misses": 78,
+          "queries": -5035,
+          "i_beats": 624,
+          "d_beats": 0,
+          "btb_missing": -862,
+          "direction": -409,
+          "target": 0
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": -8575,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 2212,
+          "frontend_wait": -7460,
+          "other": -3327,
+          "misses": -25,
+          "queries": -5442,
+          "i_beats": -200,
+          "d_beats": 0,
+          "btb_missing": -934,
+          "direction": -536,
+          "target": 124
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": -2586,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 2553,
+          "frontend_wait": -1861,
+          "other": -3278,
+          "misses": 24,
+          "queries": -5438,
+          "i_beats": 192,
+          "d_beats": 0,
+          "btb_missing": -968,
+          "direction": -506,
+          "target": 124
+        }
+      }
+    ],
+    "A32": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": -4512,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -250,
+          "frontend_wait": -3087,
+          "other": -1175,
+          "misses": -21,
+          "queries": -1945,
+          "i_beats": -168,
+          "d_beats": 0,
+          "btb_missing": -428,
+          "direction": -72,
+          "target": 20
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": -3287,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 160,
+          "frontend_wait": -2291,
+          "other": -1156,
+          "misses": -11,
+          "queries": -1955,
+          "i_beats": -88,
+          "d_beats": 0,
+          "btb_missing": -424,
+          "direction": -72,
+          "target": 20
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": -29549,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -2408,
+          "frontend_wait": -19625,
+          "other": -7516,
+          "misses": -158,
+          "queries": -9885,
+          "i_beats": -1264,
+          "d_beats": 0,
+          "btb_missing": -2667,
+          "direction": 150,
+          "target": 2
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": -29269,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -2102,
+          "frontend_wait": -19593,
+          "other": -7574,
+          "misses": -156,
+          "queries": -9813,
+          "i_beats": -1248,
+          "d_beats": 0,
+          "btb_missing": -2689,
+          "direction": 171,
+          "target": 2
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": -22336,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1369,
+          "frontend_wait": -17212,
+          "other": -6493,
+          "misses": -90,
+          "queries": -11074,
+          "i_beats": -720,
+          "d_beats": 0,
+          "btb_missing": -2804,
+          "direction": -84,
+          "target": 156
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": -19324,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1457,
+          "frontend_wait": -14474,
+          "other": -6307,
+          "misses": -67,
+          "queries": -11117,
+          "i_beats": -536,
+          "d_beats": 0,
+          "btb_missing": -2792,
+          "direction": -64,
+          "target": 160
+        }
+      }
+    ],
+    "L16": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": -323,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -105,
+          "frontend_wait": 450,
+          "other": -668,
+          "misses": 6,
+          "queries": -1026,
+          "i_beats": 48,
+          "d_beats": 0,
+          "btb_missing": -128,
+          "direction": -151,
+          "target": 8
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": -198,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 77,
+          "frontend_wait": 386,
+          "other": -661,
+          "misses": 7,
+          "queries": -1037,
+          "i_beats": 56,
+          "d_beats": 0,
+          "btb_missing": -124,
+          "direction": -153,
+          "target": 8
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": 7793,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 10656,
+          "frontend_wait": 78,
+          "other": -2941,
+          "misses": 107,
+          "queries": -5054,
+          "i_beats": 856,
+          "d_beats": 0,
+          "btb_missing": -786,
+          "direction": -495,
+          "target": 0
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": 9486,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 10898,
+          "frontend_wait": 1533,
+          "other": -2945,
+          "misses": 121,
+          "queries": -5043,
+          "i_beats": 968,
+          "d_beats": 0,
+          "btb_missing": -810,
+          "direction": -477,
+          "target": 0
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": -8921,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1932,
+          "frontend_wait": -7747,
+          "other": -3106,
+          "misses": -30,
+          "queries": -5035,
+          "i_beats": -240,
+          "d_beats": 0,
+          "btb_missing": -866,
+          "direction": -541,
+          "target": 124
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": -2398,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 2078,
+          "frontend_wait": -1427,
+          "other": -3049,
+          "misses": 23,
+          "queries": -5020,
+          "i_beats": 184,
+          "d_beats": 0,
+          "btb_missing": -904,
+          "direction": -509,
+          "target": 124
+        }
+      }
+    ],
+    "L32": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": -4589,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 210,
+          "frontend_wait": -3526,
+          "other": -1273,
+          "misses": -20,
+          "queries": -2146,
+          "i_beats": -160,
+          "d_beats": 0,
+          "btb_missing": -466,
+          "direction": -72,
+          "target": 20
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": -3486,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 622,
+          "frontend_wait": -2852,
+          "other": -1256,
+          "misses": -11,
+          "queries": -2158,
+          "i_beats": -88,
+          "d_beats": 0,
+          "btb_missing": -462,
+          "direction": -72,
+          "target": 20
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": -28557,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -2394,
+          "frontend_wait": -18331,
+          "other": -7832,
+          "misses": -146,
+          "queries": -10315,
+          "i_beats": -1168,
+          "d_beats": 0,
+          "btb_missing": -2789,
+          "direction": 150,
+          "target": 2
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": -29757,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -2102,
+          "frontend_wait": -19729,
+          "other": -7926,
+          "misses": -156,
+          "queries": -10221,
+          "i_beats": -1248,
+          "d_beats": 0,
+          "btb_missing": -2807,
+          "direction": 169,
+          "target": 2
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": -20079,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1783,
+          "frontend_wait": -15587,
+          "other": -6275,
+          "misses": -73,
+          "queries": -10735,
+          "i_beats": -584,
+          "d_beats": 0,
+          "btb_missing": -2850,
+          "direction": 20,
+          "target": 156
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": -17996,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 2180,
+          "frontend_wait": -14050,
+          "other": -6126,
+          "misses": -58,
+          "queries": -10764,
+          "i_beats": -464,
+          "d_beats": 0,
+          "btb_missing": -2848,
+          "direction": 40,
+          "target": 160
+        }
+      }
+    ],
+    "R16": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": 243,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 563,
+          "frontend_wait": 555,
+          "other": -875,
+          "misses": 14,
+          "queries": -1469,
+          "i_beats": 112,
+          "d_beats": 0,
+          "btb_missing": -230,
+          "direction": -131,
+          "target": 4
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": 513,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1004,
+          "frontend_wait": 364,
+          "other": -855,
+          "misses": 16,
+          "queries": -1473,
+          "i_beats": 128,
+          "d_beats": 0,
+          "btb_missing": -222,
+          "direction": -131,
+          "target": 4
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": 10299,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 7796,
+          "frontend_wait": 6192,
+          "other": -3689,
+          "misses": 135,
+          "queries": -5678,
+          "i_beats": 1080,
+          "d_beats": 0,
+          "btb_missing": -1094,
+          "direction": -435,
+          "target": -2
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": 11978,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 8272,
+          "frontend_wait": 7406,
+          "other": -3700,
+          "misses": 149,
+          "queries": -5666,
+          "i_beats": 1192,
+          "d_beats": 0,
+          "btb_missing": -1133,
+          "direction": -405,
+          "target": -2
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": -22893,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -794,
+          "frontend_wait": -19028,
+          "other": -3071,
+          "misses": -148,
+          "queries": -4547,
+          "i_beats": -1184,
+          "d_beats": 0,
+          "btb_missing": -839,
+          "direction": -524,
+          "target": 124
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": -3871,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -2141,
+          "frontend_wait": 1225,
+          "other": -2955,
+          "misses": 8,
+          "queries": -4590,
+          "i_beats": 64,
+          "d_beats": 0,
+          "btb_missing": -869,
+          "direction": -492,
+          "target": 124
+        }
+      }
+    ],
+    "R32": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": -3179,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 705,
+          "frontend_wait": -2559,
+          "other": -1325,
+          "misses": -7,
+          "queries": -2332,
+          "i_beats": -56,
+          "d_beats": 0,
+          "btb_missing": -499,
+          "direction": -72,
+          "target": 16
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": -1949,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1254,
+          "frontend_wait": -1904,
+          "other": -1299,
+          "misses": 3,
+          "queries": -2349,
+          "i_beats": 24,
+          "d_beats": 0,
+          "btb_missing": -494,
+          "direction": -72,
+          "target": 16
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": -30541,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -2408,
+          "frontend_wait": -19887,
+          "other": -8246,
+          "misses": -158,
+          "queries": -10895,
+          "i_beats": -1264,
+          "d_beats": 0,
+          "btb_missing": -2912,
+          "direction": 150,
+          "target": 2
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": -30281,
+        "deltas": {
+          "retire": 0,
+          "data_wait": -2103,
+          "frontend_wait": -19861,
+          "other": -8317,
+          "misses": -156,
+          "queries": -10786,
+          "i_beats": -1248,
+          "d_beats": 0,
+          "btb_missing": -2936,
+          "direction": 168,
+          "target": 2
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": -37984,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1651,
+          "frontend_wait": -32356,
+          "other": -7279,
+          "misses": -206,
+          "queries": -12716,
+          "i_beats": -1648,
+          "d_beats": 0,
+          "btb_missing": -3390,
+          "direction": 89,
+          "target": 174
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": -21156,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 1640,
+          "frontend_wait": -15775,
+          "other": -7021,
+          "misses": -71,
+          "queries": -12728,
+          "i_beats": -568,
+          "d_beats": 0,
+          "btb_missing": -3388,
+          "direction": 112,
+          "target": 176
+        }
+      }
+    ],
+    "B0current": [
+      {
+        "case": "json_bpe-dev-61",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "json_bpe-dev-97",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "quant_loader-dev-61",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "quant_loader-dev-97",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "runtime_graph-dev-61",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      },
+      {
+        "case": "runtime_graph-dev-97",
+        "cycle_delta": 0,
+        "deltas": {
+          "retire": 0,
+          "data_wait": 0,
+          "frontend_wait": 0,
+          "other": 0,
+          "misses": 0,
+          "queries": 0,
+          "i_beats": 0,
+          "d_beats": 0,
+          "btb_missing": 0,
+          "direction": 0,
+          "target": 0
+        }
+      }
+    ]
+  }
+}

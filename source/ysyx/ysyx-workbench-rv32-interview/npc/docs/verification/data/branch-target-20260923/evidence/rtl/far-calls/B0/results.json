@@ -1,0 +1,93 @@
+{
+  "mhz": 680,
+  "latency_ns": 100,
+  "beat_ns": 10,
+  "random_stalls": false,
+  "memory_mode": "physical",
+  "binary_sha256": "675893696a3d8f7c91a2f41bb2a6e23988a0be2e77880f3387430ed0283727c2",
+  "results": [
+    {
+      "case": {
+        "name": "far_calls-dev",
+        "kind": "far_calls",
+        "held": false,
+        "seed": null,
+        "expected": 64,
+        "begin_pc": 2147483652,
+        "end_pc": 2147483672,
+        "command": [
+          "riscv64-linux-gnu-gcc",
+          "-march=rv32i_zicsr_zifencei",
+          "-mabi=ilp32",
+          "-nostdlib",
+          "-static",
+          "-Wl,--build-id=none",
+          "-T",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/boundary-probe/far_calls-dev/link.ld",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/boundary-probe/far_calls-dev/program.S",
+          "-o",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/boundary-probe/far_calls-dev/image.elf"
+        ],
+        "hashes": {
+          "program.S": "f68199cfbbc4e1fe71f43251debf8d4cca664834aa5a0fd8224302792ad1da03",
+          "link.ld": "6ca53e41d42d4f2b61dc0fc54cebe421525748f3247bf1a92babb25afd85bb28",
+          "image.elf": "f0072ed49fb252c31b8314766fbc260603e99fa248dc5a973ad268ad500680aa",
+          "image.bin": "afb4204bf7e5297a35318a552481afbabbb3c65b32b900a9a3c9831e82c185b5",
+          "image.hex": "e51366f871e41b072cc8d0af8e00f41f3df796d99dc8a2d4c1e09426a2c2a95b"
+        }
+      },
+      "result": {
+        "cycles": 455,
+        "retired": 322,
+        "total_cycles": 579,
+        "all_retired": 324,
+        "digest": 2483043081,
+        "checksum": 64
+      },
+      "counters": {
+        "retire": 322,
+        "data_wait": 0,
+        "frontend_wait": 122,
+        "other": 11,
+        "lookups": 331,
+        "misses": 2,
+        "i_bursts": 2,
+        "i_beats": 8,
+        "d_beats": 1,
+        "d_wait": 0,
+        "branches": 192,
+        "conditional_errors": 2,
+        "target_errors": 2,
+        "indirect_errors": 0,
+        "return_errors": 1,
+        "nonbranch_errors": 0,
+        "queries": 336,
+        "idle_bus": 336,
+        "btb_missing": 3,
+        "direction": 1,
+        "target": 0,
+        "lead_sum": 685,
+        "lead_samples": 330,
+        "lead_max": 118,
+        "hints_resident": 321,
+        "hints_absent": 1
+      },
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/builds/B0/obj/Vexploration_core_tb",
+        "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-target-20260923/boundary-probe/far_calls-dev/image.hex",
+        "+begin_pc=80000004",
+        "+end_pc=80000018",
+        "+expected=40",
+        "+cpu_mhz=680",
+        "+latency_ns=100",
+        "+beat_ns=10",
+        "+seed=97531",
+        "+memory_mode=physical",
+        "+random_stalls=0",
+        "+observer=1"
+      ],
+      "seconds": 6.691176470588235e-07,
+      "ipc": 0.7076923076923077
+    }
+  ]
+}

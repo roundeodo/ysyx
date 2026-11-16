@@ -1,0 +1,40 @@
+[
+  {
+    "name": "gpt2",
+    "split": "development",
+    "repository": "openai-community/gpt2",
+    "commit": "607a30d783dfa663caf39e06633721c8d4cfcd7e",
+    "url": "https://huggingface.co/openai-community/gpt2/resolve/607a30d783dfa663caf39e06633721c8d4cfcd7e/config.json",
+    "sha256": "0daed7749b4f02b8f76240d5444551d7b08712dab4d0adb8239c56ba823bb7b4",
+    "bytes": 665,
+    "license": "mit"
+  },
+  {
+    "name": "bert",
+    "split": "development",
+    "repository": "google-bert/bert-base-uncased",
+    "commit": "86b5e0934494bd15c9632b12f734a8a67f723594",
+    "url": "https://huggingface.co/google-bert/bert-base-uncased/resolve/86b5e0934494bd15c9632b12f734a8a67f723594/config.json",
+    "sha256": "7160e1553ad2ca51d8c1cb066be533db31826e12d173824c1bb0cb1a4f187d20",
+    "bytes": 570,
+    "license": "apache-2.0"
+  },
+  {
+    "name": "jsmn.h",
+    "repository": "zserge/jsmn",
+    "commit": "25647e692c7906b96ffd2b05ca54c097948e879c",
+    "url": "https://raw.githubusercontent.com/zserge/jsmn/25647e692c7906b96ffd2b05ca54c097948e879c/jsmn.h",
+    "sha256": "c04533e9181e1e33baceb0f55ac449b05145bb936e8c68cc77dfe0d8277514fb",
+    "bytes": 12145,
+    "license": "MIT"
+  },
+  {
+    "name": "LICENSE",
+    "repository": "zserge/jsmn",
+    "commit": "25647e692c7906b96ffd2b05ca54c097948e879c",
+    "url": "https://raw.githubusercontent.com/zserge/jsmn/25647e692c7906b96ffd2b05ca54c097948e879c/LICENSE",
+    "sha256": "4675b94a50d2afe811c52785463c854f1156056632cce17cc7133939eac8ed55",
+    "bytes": 1061,
+    "license": "MIT"
+  }
+]

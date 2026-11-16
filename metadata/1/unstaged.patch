@@ -1,0 +1,18 @@
+diff --git a/npc/docs/verification/ICACHE_SELECTION_2026-09-21.md b/npc/docs/verification/ICACHE_SELECTION_2026-09-21.md
+index f7b2301..fbdf337 100644
+--- a/npc/docs/verification/ICACHE_SELECTION_2026-09-21.md
++++ b/npc/docs/verification/ICACHE_SELECTION_2026-09-21.md
+@@ -200,6 +200,13 @@ PC反馈在量化装载上发生明显退化；加入历史缓解了它，却没
+ 2 KiB/4路/64 B下PC反馈表现较好，所以仍实现该点，验证它是否能抵消硬件成本。
+ 这些数值只指导筛选，不是加速比；最终决策采用RTL、全核面积和合法频点的结果。
+ 
++2026-11-07 补充：已从 Git 历史恢复六项开发轨迹的完整模型 CSV，并核对原归档哈希。
++固定 1 KiB/4路/32 B 时，855,188 次访问的合并绝对缺失率分别为：
++PLRU 1.719388%、SRRIP 1.824043%、分段访问RRIP 1.508908%。
++上述相对表按负载等权取几何平均，此处绝对值按访问数合并，权重不同。
++全部14种策略的绝对值、逐负载计数、复现命令和来源见
++[绝对缺失率报告](data/icache-model-absolute-20261107/README.md)。
++
+ 主要对照关系如下，配置缩写与原始目录一致：
+ 
+ | 对照 | 分离的因素 |

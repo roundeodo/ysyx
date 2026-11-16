@@ -1,0 +1,17 @@
+{
+  "head": "47c852e12b9ce086b872095f59cf54fbe5a6fda6",
+  "soc_head": "a9fe2e0421291c40c2ae38e7507a399b6617a859",
+  "sha256": {
+    "ysyxSoC/perip/amba/axi4_delayer.v": "25d62d3739938c2aa1af84cb2040f1b466daa7566fd01355b3c24241bb5f8293",
+    "ysyxSoC/perip/amba/apb_delayer.v": "96882eb7ebeb6d3f214602e7ac048de2f1ac74c2a544a776968c3c3e819913f4",
+    "ysyxSoC/build/ysyxSoCFull.v": "41edc24c2f8fd5daa916b34719760f1267cd0a396fbc69e6570d0175aaee4e37",
+    "ysyxSoC/src/SoC.scala": "544121823ac5d69215e2ec07aba497f186ec543f1194826bbb2609e9f1a80f9a",
+    "ysyxSoC/src/amba/AXI4Delayer.scala": "14a202120e775f595e9febeee4acfeb8d75b768c04969097462e6cac487ba54d",
+    "ysyxSoC/src/amba/APBDelayer.scala": "78ddd0ee980fede5c86882a6d9de7bcc1afe15f6ff1b0168f6d7e263a064c1f2",
+    "npc/Makefile": "485bf666fb56c6bb82b5491fff059d84d00d4a4e3e8e0fcdcb0975cae6ad5dd3",
+    "npc/scripts/run_microbench_perf.py": "fb1e0ebc9c35c103be256134b2ed94596080d2e76ef6cf2b92ed3e1a592d3758",
+    "npc/scripts/test_soc_timing.py": "5991186b1f577ed40f0a0c050093553b596f86f6aef56cd30b9a164b8f49c45b",
+    "npc/tests/rtl/axi4_delayer_tb.sv": "e2e6aed796f1386f6cc358b1f42236c570232148217f36a3e5620430c8331da3",
+    "npc/tests/rtl/axi4_write_calibration_tb.sv": "5eb70299af078b67f4fddb6537a3391259b3bb5c30f0f22ea7be8fe8b3a478bf"
+  }
+}

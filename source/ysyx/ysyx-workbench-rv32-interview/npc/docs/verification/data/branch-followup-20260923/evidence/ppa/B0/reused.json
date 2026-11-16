@@ -1,0 +1,11 @@
+{
+  "source": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-exploration-20260922/ppa/B0current",
+  "matched_frozen_rtl_files": 51,
+  "reason": "identical frozen integrated policy-0 RTL; previous full STA and mapping evidence retained",
+  "evidence": {
+    "qualified.json": "ab8c0f97ce175f10a5544bec0ba975bba6b45fae42cf5873c57f990e63b1f3a3",
+    "cells.json": "e70a4de5c772a6836e2c6ab956604f05d0cfe59dd87c72e5b0893490b3f37449",
+    "timing.json": "5d14a6eb89116db2ec4ead261c7098953f4e9a3bd1059a16661db533b24d1a2f",
+    "source-hashes.json": "f949e75d24ce317ecbe787b273bbc50e5554793a69f2fca5c23a1ad4eebcdca9"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "failure": "insufficient RRIP replacement coverage",
+  "cause": "random PCs cover only 16 contiguous instructions; 32-entry BTB has spare capacity",
+  "action": "add explicit same-set WAYS+1 conflict stream; keep coverage assertions",
+  "test_sha256": "8bfbc89c72bc59ed56c55553ec41fe549d7689fb96fa5c31e7a485b28f75b274"
+}

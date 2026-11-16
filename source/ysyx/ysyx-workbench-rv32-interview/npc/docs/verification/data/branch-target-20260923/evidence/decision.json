@@ -1,0 +1,13 @@
+{
+  "development_choice": "U16",
+  "recommendation": "B0",
+  "held_accepted": true,
+  "default_enabled": false,
+  "note": "No retuning or selection of another winner after held evaluation; general-default fallback only",
+  "profile_recommendation": "U16",
+  "boundary_probe": {
+    "time_ratio": 2.1076923076923078,
+    "excluded_from_profile_weighting": true
+  },
+  "reason": "Selected prototype passes held/layout profiles, but repeated cross-64KiB calls exceed the regression guard; retain as an opt-in area experiment"
+}

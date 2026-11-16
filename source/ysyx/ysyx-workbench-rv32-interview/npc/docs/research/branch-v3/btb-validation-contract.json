@@ -1,0 +1,28 @@
+{
+  "candidates": [
+    "BT0",
+    "BT16-admit",
+    "BT16-rrip-all",
+    "BT16-way4-rrip",
+    "BT32-select-fold",
+    "TAGE-BT32-fold",
+    "NSL-BT32-fold",
+    "H2E-victim",
+    "R0-victim"
+  ],
+  "split": "validation, never final",
+  "reason": "development cost/time points and earlier strong simple target controls",
+  "metric": "equal families, own qualified frequency; final eligibility requires <=3% per-input regression",
+  "sensitivity": {
+    "common_mhz": 520,
+    "latency_ns": [
+      20,
+      200
+    ],
+    "random_stalls": 1,
+    "seeds": [
+      191,
+      811
+    ]
+  }
+}

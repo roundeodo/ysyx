@@ -1,0 +1,70 @@
+{
+  "scope": "Final reproduction recipe: stronger independent audits, retained-model limitations, equivalent STA scheduling, explicit combinational training-drive controls and diagnostic common-frequency table. Per-run manifests remain authoritative for measured RTL; no change to test expected values or stable default.",
+  "changes": [
+    {
+      "path": "npc/scripts/audit_history_study.py",
+      "before": "f643b6c455c84a5f2448b976b03ca728bd84f3cd5a650930cb7bb28f051a1fd1",
+      "after": "40e206ba6ecf58e7c0af84b2d8bf3068f3dbef6b851d37904a23548146c2c73d"
+    },
+    {
+      "path": "npc/scripts/finish_history_study.py",
+      "before": "8c3a8f04ef655a654c6cf5ba1d9f1fbd94fc0ee27f0b2ffa457b2598f29c7a53",
+      "after": "1851ca2941c5b4b93e338f8861a11dc1cc9b4661a18a1b97cc020e91e1d21305"
+    },
+    {
+      "path": "npc/scripts/report_history_study.py",
+      "before": "0d1b281fb64d136c5d049951abb3067b54d8a404b035500104f83b6c61939ac4",
+      "after": "8f7467e5cc0af3d43c4e730fd4723338a49d59816c16d523c5f7939c5692206f"
+    },
+    {
+      "path": "npc/scripts/reproduce_history_study.py",
+      "before": "2947707b474c697ed0809d1072846fcb9b5981fe798c79440b30d6a09ad4588e",
+      "after": "de7081d2bb066daeeb8f9ee173ad109bdf4413353f4e3cc3f83e44b332e823f1"
+    },
+    {
+      "path": "npc/scripts/verify_direction_difftest.py",
+      "before": "39f550446af5cb746edc06fa3fb54061020abd24a127104d72d4e5a856dc6c19",
+      "after": "2ac46f3b8c5e4cfeb6398ff7c4671c0536ddfaba48ad51256f36f4ae0713f835"
+    },
+    {
+      "path": "npc/scripts/audit_history_comparison.py",
+      "before": null,
+      "after": "0279a456f0887e5a640079f325835d3f0233ec3c1222adcfa9ce742a7edcc968"
+    },
+    {
+      "path": "npc/scripts/complete_history_study.py",
+      "before": "a51851cff76d6d76f87ed6041842ff203c7c868a5dd427b19093e31aca68902e",
+      "after": "bfa0dcccb35b7d92b542998e3cb21ef27dd9aee70352efc3f049e9146566f332"
+    },
+    {
+      "path": "npc/scripts/explore_history.py",
+      "before": "7bf4b22c858f35c43c9b5c21e387f696afce6d532bd234b420782480728d6e22",
+      "after": "5b3c6461f99b34f7b6764efdc6bc79bbd17b220744a1e9a366cf117020c3141c"
+    },
+    {
+      "path": "npc/scripts/select_icache_ppa.py",
+      "before": "1fc1ff2f2717aa02d4d03270e50d22b1c36942103eab78b9efc50c48c51da76d",
+      "after": "6ab2ed866ea6c33cf0a0be74edbae8c0881abf4547c110e43c136763a1be13e2"
+    },
+    {
+      "path": "npc/scripts/summarize_history_audit.py",
+      "before": "7cff95db6a70c4a6e24fc9dd1359432e50cb1ad1a9dfe8fd1fdee64f759c011f",
+      "after": "0778c120081ca6807b63ba3ceb0e3170f0d911f40cd5596e63b6c95f496815fe"
+    },
+    {
+      "path": "npc/scripts/test_training_buffers.py",
+      "before": null,
+      "after": "fd2cf4139fb3990f56e4ffe102b6720bb5bc306a7a1fc2a6fe5efd6d0f80f000"
+    },
+    {
+      "path": "npc/scripts/buffer_history_training.py",
+      "before": null,
+      "after": "e92a72bd1ecf133c45020114b91e3b7ff84e714068505000cb20bef0a0fcff5d"
+    },
+    {
+      "path": "npc/scripts/compact_history_results.py",
+      "before": null,
+      "after": "6c889e5e9ed86a09637ad95c6bfca2b1d18eed32f736678ac312b07384bad25b"
+    }
+  ]
+}

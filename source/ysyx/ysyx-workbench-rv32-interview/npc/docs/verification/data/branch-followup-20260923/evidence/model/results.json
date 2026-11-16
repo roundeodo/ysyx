@@ -1,0 +1,5685 @@
+{
+  "scope": "cold retired-order screening, immediate training; not CPU execution time",
+  "cases": {
+    "json_bpe-dev-131": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 15574,
+            "jumps": 623,
+            "btb_misses": 2546,
+            "errors": 2284,
+            "missing_errors": 1334,
+            "allocations": 2546,
+            "returns": 447,
+            "conditional": 14504,
+            "not_taken_allocations": 1212,
+            "evictions": 2530,
+            "unused_victims": 2077,
+            "false_not_taken": 936,
+            "direction_errors": 946,
+            "false_taken": 510,
+            "target_errors": 4
+          },
+          "mpki": 50.53768199318493,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147483860,
+              226
+            ],
+            [
+              2147483852,
+              214
+            ],
+            [
+              2147488348,
+              132
+            ],
+            [
+              2147485508,
+              82
+            ],
+            [
+              2147484012,
+              72
+            ],
+            [
+              2147483892,
+              62
+            ],
+            [
+              2147488192,
+              56
+            ],
+            [
+              2147484944,
+              52
+            ],
+            [
+              2147488228,
+              50
+            ],
+            [
+              2147483872,
+              48
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147483760,
+              34
+            ],
+            [
+              2147484844,
+              30
+            ],
+            [
+              2147487964,
+              24
+            ],
+            [
+              2147488248,
+              24
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 15574,
+            "jumps": 623,
+            "btb_misses": 2546,
+            "errors": 2177,
+            "missing_errors": 1334,
+            "allocations": 2546,
+            "returns": 447,
+            "conditional": 14504,
+            "not_taken_allocations": 1212,
+            "evictions": 2530,
+            "unused_victims": 2077,
+            "false_not_taken": 849,
+            "direction_errors": 839,
+            "false_taken": 490,
+            "target_errors": 4
+          },
+          "mpki": 48.1701110766916,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147483860,
+              226
+            ],
+            [
+              2147483852,
+              214
+            ],
+            [
+              2147488348,
+              132
+            ],
+            [
+              2147485508,
+              66
+            ],
+            [
+              2147483892,
+              62
+            ],
+            [
+              2147484012,
+              50
+            ],
+            [
+              2147484944,
+              49
+            ],
+            [
+              2147483872,
+              48
+            ],
+            [
+              2147488192,
+              47
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147488228,
+              34
+            ],
+            [
+              2147483760,
+              34
+            ],
+            [
+              2147484844,
+              25
+            ],
+            [
+              2147488248,
+              24
+            ],
+            [
+              2147484720,
+              24
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 15574,
+            "jumps": 623,
+            "btb_misses": 2546,
+            "errors": 2173,
+            "missing_errors": 1334,
+            "allocations": 2546,
+            "returns": 447,
+            "conditional": 14504,
+            "not_taken_allocations": 1212,
+            "evictions": 2530,
+            "unused_victims": 2077,
+            "false_not_taken": 843,
+            "direction_errors": 835,
+            "false_taken": 492,
+            "target_errors": 4
+          },
+          "mpki": 48.081603752710535,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147483860,
+              226
+            ],
+            [
+              2147483852,
+              214
+            ],
+            [
+              2147488348,
+              132
+            ],
+            [
+              2147485508,
+              66
+            ],
+            [
+              2147483892,
+              63
+            ],
+            [
+              2147484012,
+              50
+            ],
+            [
+              2147484944,
+              48
+            ],
+            [
+              2147483872,
+              47
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147488192,
+              44
+            ],
+            [
+              2147488228,
+              34
+            ],
+            [
+              2147483760,
+              34
+            ],
+            [
+              2147484844,
+              25
+            ],
+            [
+              2147488248,
+              24
+            ],
+            [
+              2147484720,
+              24
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 15574,
+            "jumps": 623,
+            "btb_misses": 2546,
+            "errors": 2392,
+            "missing_errors": 1334,
+            "allocations": 2546,
+            "returns": 447,
+            "conditional": 14504,
+            "not_taken_allocations": 1212,
+            "evictions": 2530,
+            "unused_victims": 2077,
+            "false_not_taken": 1097,
+            "direction_errors": 1054,
+            "false_taken": 457,
+            "target_errors": 4
+          },
+          "mpki": 52.927379740673544,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147483852,
+              224
+            ],
+            [
+              2147483860,
+              218
+            ],
+            [
+              2147488192,
+              96
+            ],
+            [
+              2147485508,
+              82
+            ],
+            [
+              2147484944,
+              72
+            ],
+            [
+              2147484012,
+              72
+            ],
+            [
+              2147483760,
+              69
+            ],
+            [
+              2147483892,
+              67
+            ],
+            [
+              2147483872,
+              62
+            ],
+            [
+              2147488228,
+              46
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147483952,
+              41
+            ],
+            [
+              2147487964,
+              34
+            ],
+            [
+              2147488368,
+              26
+            ],
+            [
+              2147484844,
+              25
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 15574,
+            "jumps": 623,
+            "btb_misses": 2546,
+            "errors": 2170,
+            "missing_errors": 1334,
+            "allocations": 2546,
+            "returns": 447,
+            "conditional": 14504,
+            "not_taken_allocations": 1212,
+            "evictions": 2530,
+            "unused_victims": 2077,
+            "false_not_taken": 927,
+            "direction_errors": 832,
+            "false_taken": 405,
+            "target_errors": 4
+          },
+          "mpki": 48.01522325972474,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147483860,
+              220
+            ],
+            [
+              2147483852,
+              220
+            ],
+            [
+              2147488192,
+              72
+            ],
+            [
+              2147483892,
+              70
+            ],
+            [
+              2147485508,
+              66
+            ],
+            [
+              2147488228,
+              54
+            ],
+            [
+              2147484012,
+              54
+            ],
+            [
+              2147484944,
+              50
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147483872,
+              46
+            ],
+            [
+              2147484844,
+              35
+            ],
+            [
+              2147483760,
+              35
+            ],
+            [
+              2147487964,
+              24
+            ],
+            [
+              2147488248,
+              24
+            ],
+            [
+              2147484720,
+              24
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 15574,
+            "jumps": 623,
+            "btb_misses": 2546,
+            "errors": 2236,
+            "missing_errors": 1334,
+            "allocations": 2546,
+            "returns": 447,
+            "conditional": 14504,
+            "not_taken_allocations": 1212,
+            "evictions": 2530,
+            "unused_victims": 2077,
+            "false_not_taken": 952,
+            "direction_errors": 898,
+            "false_taken": 446,
+            "target_errors": 4
+          },
+          "mpki": 49.47559410541222,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147483860,
+              239
+            ],
+            [
+              2147483852,
+              222
+            ],
+            [
+              2147485508,
+              74
+            ],
+            [
+              2147483892,
+              64
+            ],
+            [
+              2147488228,
+              61
+            ],
+            [
+              2147488192,
+              60
+            ],
+            [
+              2147484012,
+              52
+            ],
+            [
+              2147484944,
+              50
+            ],
+            [
+              2147483872,
+              50
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147483760,
+              44
+            ],
+            [
+              2147484844,
+              36
+            ],
+            [
+              2147484840,
+              26
+            ],
+            [
+              2147483952,
+              26
+            ],
+            [
+              2147488248,
+              24
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 126,
+          "working_set_95": 47,
+          "covered_branches": 13780,
+          "conditional_branches": 14504,
+          "retrospective_bias": 0.9449927431059506
+        },
+        "4": {
+          "unique_contexts": 284,
+          "working_set_95": 119,
+          "covered_branches": 13783,
+          "conditional_branches": 14504,
+          "retrospective_bias": 0.9521149241819633
+        },
+        "8": {
+          "unique_contexts": 547,
+          "working_set_95": 256,
+          "covered_branches": 13783,
+          "conditional_branches": 14504,
+          "retrospective_bias": 0.9538561996662556
+        },
+        "16": {
+          "unique_contexts": 1117,
+          "working_set_95": 739,
+          "covered_branches": 13780,
+          "conditional_branches": 14504,
+          "retrospective_bias": 0.9579100145137881
+        },
+        "24": {
+          "unique_contexts": 1716,
+          "working_set_95": 1330,
+          "covered_branches": 13780,
+          "conditional_branches": 14504,
+          "retrospective_bias": 0.9642960812772133
+        }
+      }
+    },
+    "json_bpe-dev-257": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 16284,
+            "jumps": 623,
+            "btb_misses": 2558,
+            "errors": 2352,
+            "missing_errors": 1342,
+            "allocations": 2558,
+            "returns": 447,
+            "conditional": 15214,
+            "not_taken_allocations": 1216,
+            "evictions": 2542,
+            "unused_victims": 2077,
+            "false_not_taken": 988,
+            "direction_errors": 1006,
+            "false_taken": 526,
+            "target_errors": 4
+          },
+          "mpki": 49.91299180849709,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147483860,
+              240
+            ],
+            [
+              2147483852,
+              238
+            ],
+            [
+              2147488348,
+              132
+            ],
+            [
+              2147485508,
+              82
+            ],
+            [
+              2147484012,
+              72
+            ],
+            [
+              2147483892,
+              66
+            ],
+            [
+              2147483872,
+              64
+            ],
+            [
+              2147488192,
+              56
+            ],
+            [
+              2147484944,
+              52
+            ],
+            [
+              2147488228,
+              50
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147483760,
+              34
+            ],
+            [
+              2147484844,
+              30
+            ],
+            [
+              2147488248,
+              24
+            ],
+            [
+              2147484720,
+              24
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 16284,
+            "jumps": 623,
+            "btb_misses": 2558,
+            "errors": 2247,
+            "missing_errors": 1342,
+            "allocations": 2558,
+            "returns": 447,
+            "conditional": 15214,
+            "not_taken_allocations": 1216,
+            "evictions": 2542,
+            "unused_victims": 2077,
+            "false_not_taken": 903,
+            "direction_errors": 901,
+            "false_taken": 506,
+            "target_errors": 4
+          },
+          "mpki": 47.68473324561776,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147483860,
+              240
+            ],
+            [
+              2147483852,
+              238
+            ],
+            [
+              2147488348,
+              132
+            ],
+            [
+              2147485508,
+              66
+            ],
+            [
+              2147483892,
+              66
+            ],
+            [
+              2147483872,
+              62
+            ],
+            [
+              2147484012,
+              50
+            ],
+            [
+              2147484944,
+              49
+            ],
+            [
+              2147488192,
+              47
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147488228,
+              34
+            ],
+            [
+              2147483760,
+              34
+            ],
+            [
+              2147484844,
+              25
+            ],
+            [
+              2147488248,
+              24
+            ],
+            [
+              2147484720,
+              24
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 16284,
+            "jumps": 623,
+            "btb_misses": 2558,
+            "errors": 2243,
+            "missing_errors": 1342,
+            "allocations": 2558,
+            "returns": 447,
+            "conditional": 15214,
+            "not_taken_allocations": 1216,
+            "evictions": 2542,
+            "unused_victims": 2077,
+            "false_not_taken": 897,
+            "direction_errors": 897,
+            "false_taken": 508,
+            "target_errors": 4
+          },
+          "mpki": 47.59984720512712,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147483860,
+              240
+            ],
+            [
+              2147483852,
+              238
+            ],
+            [
+              2147488348,
+              132
+            ],
+            [
+              2147483892,
+              67
+            ],
+            [
+              2147485508,
+              66
+            ],
+            [
+              2147483872,
+              61
+            ],
+            [
+              2147484012,
+              50
+            ],
+            [
+              2147484944,
+              48
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147488192,
+              44
+            ],
+            [
+              2147488228,
+              34
+            ],
+            [
+              2147483760,
+              34
+            ],
+            [
+              2147484844,
+              25
+            ],
+            [
+              2147488248,
+              24
+            ],
+            [
+              2147484720,
+              24
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 16284,
+            "jumps": 623,
+            "btb_misses": 2558,
+            "errors": 2488,
+            "missing_errors": 1342,
+            "allocations": 2558,
+            "returns": 447,
+            "conditional": 15214,
+            "not_taken_allocations": 1216,
+            "evictions": 2542,
+            "unused_victims": 2077,
+            "false_not_taken": 1163,
+            "direction_errors": 1142,
+            "false_taken": 487,
+            "target_errors": 4
+          },
+          "mpki": 52.7991171851789,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147483852,
+              254
+            ],
+            [
+              2147483860,
+              234
+            ],
+            [
+              2147488192,
+              95
+            ],
+            [
+              2147483872,
+              90
+            ],
+            [
+              2147485508,
+              82
+            ],
+            [
+              2147483760,
+              77
+            ],
+            [
+              2147484012,
+              76
+            ],
+            [
+              2147484944,
+              72
+            ],
+            [
+              2147483892,
+              71
+            ],
+            [
+              2147488228,
+              46
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147483952,
+              36
+            ],
+            [
+              2147487964,
+              34
+            ],
+            [
+              2147488368,
+              26
+            ],
+            [
+              2147484844,
+              25
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 16284,
+            "jumps": 623,
+            "btb_misses": 2558,
+            "errors": 2229,
+            "missing_errors": 1342,
+            "allocations": 2558,
+            "returns": 447,
+            "conditional": 15214,
+            "not_taken_allocations": 1216,
+            "evictions": 2542,
+            "unused_victims": 2077,
+            "false_not_taken": 962,
+            "direction_errors": 883,
+            "false_taken": 429,
+            "target_errors": 4
+          },
+          "mpki": 47.30274606340987,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147483852,
+              246
+            ],
+            [
+              2147483860,
+              224
+            ],
+            [
+              2147483892,
+              74
+            ],
+            [
+              2147488192,
+              71
+            ],
+            [
+              2147485508,
+              66
+            ],
+            [
+              2147483872,
+              66
+            ],
+            [
+              2147488228,
+              54
+            ],
+            [
+              2147484012,
+              54
+            ],
+            [
+              2147484944,
+              50
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147484844,
+              35
+            ],
+            [
+              2147483760,
+              35
+            ],
+            [
+              2147487964,
+              24
+            ],
+            [
+              2147488248,
+              24
+            ],
+            [
+              2147484720,
+              24
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 16284,
+            "jumps": 623,
+            "btb_misses": 2558,
+            "errors": 2310,
+            "missing_errors": 1342,
+            "allocations": 2558,
+            "returns": 447,
+            "conditional": 15214,
+            "not_taken_allocations": 1216,
+            "evictions": 2542,
+            "unused_victims": 2077,
+            "false_not_taken": 993,
+            "direction_errors": 964,
+            "false_taken": 479,
+            "target_errors": 4
+          },
+          "mpki": 49.02168838334536,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147483852,
+              259
+            ],
+            [
+              2147483860,
+              251
+            ],
+            [
+              2147485508,
+              74
+            ],
+            [
+              2147483872,
+              70
+            ],
+            [
+              2147483892,
+              66
+            ],
+            [
+              2147488192,
+              64
+            ],
+            [
+              2147488228,
+              53
+            ],
+            [
+              2147484012,
+              52
+            ],
+            [
+              2147484944,
+              50
+            ],
+            [
+              2147488016,
+              46
+            ],
+            [
+              2147485544,
+              46
+            ],
+            [
+              2147483760,
+              44
+            ],
+            [
+              2147484844,
+              34
+            ],
+            [
+              2147484840,
+              26
+            ],
+            [
+              2147483952,
+              26
+            ],
+            [
+              2147488248,
+              24
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 126,
+          "working_set_95": 46,
+          "covered_branches": 14460,
+          "conditional_branches": 15214,
+          "retrospective_bias": 0.944536652835408
+        },
+        "4": {
+          "unique_contexts": 286,
+          "working_set_95": 120,
+          "covered_branches": 14463,
+          "conditional_branches": 15214,
+          "retrospective_bias": 0.9510475005185646
+        },
+        "8": {
+          "unique_contexts": 559,
+          "working_set_95": 268,
+          "covered_branches": 14459,
+          "conditional_branches": 15214,
+          "retrospective_bias": 0.9531087903727782
+        },
+        "16": {
+          "unique_contexts": 1172,
+          "working_set_95": 776,
+          "covered_branches": 14454,
+          "conditional_branches": 15214,
+          "retrospective_bias": 0.9582122595821226
+        },
+        "24": {
+          "unique_contexts": 1772,
+          "working_set_95": 1368,
+          "covered_branches": 14454,
+          "conditional_branches": 15214,
+          "retrospective_bias": 0.9652691296526913
+        }
+      }
+    },
+    "quant_loader-dev-131": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 52699,
+            "jumps": 1784,
+            "btb_misses": 5891,
+            "errors": 7226,
+            "missing_errors": 3764,
+            "allocations": 5891,
+            "conditional": 50802,
+            "not_taken_allocations": 2127,
+            "false_not_taken": 3636,
+            "evictions": 5875,
+            "unused_victims": 4840,
+            "direction_errors": 3462,
+            "false_taken": 2561,
+            "returns": 113
+          },
+          "mpki": 28.568152795733358,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147487860,
+              544
+            ],
+            [
+              2147483968,
+              514
+            ],
+            [
+              2147483884,
+              372
+            ],
+            [
+              2147491196,
+              320
+            ],
+            [
+              2147487796,
+              318
+            ],
+            [
+              2147486944,
+              292
+            ],
+            [
+              2147483876,
+              258
+            ],
+            [
+              2147486608,
+              248
+            ],
+            [
+              2147485968,
+              228
+            ],
+            [
+              2147486024,
+              228
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147486624,
+              192
+            ],
+            [
+              2147485812,
+              160
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 52699,
+            "jumps": 1784,
+            "btb_misses": 5891,
+            "errors": 6680,
+            "missing_errors": 3764,
+            "allocations": 5891,
+            "conditional": 50802,
+            "not_taken_allocations": 2127,
+            "false_not_taken": 3298,
+            "evictions": 5875,
+            "unused_victims": 4840,
+            "direction_errors": 2916,
+            "false_taken": 2353,
+            "returns": 113
+          },
+          "mpki": 26.409529570370722,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147483968,
+              515
+            ],
+            [
+              2147483884,
+              372
+            ],
+            [
+              2147491196,
+              320
+            ],
+            [
+              2147487860,
+              318
+            ],
+            [
+              2147486608,
+              280
+            ],
+            [
+              2147483876,
+              259
+            ],
+            [
+              2147486024,
+              228
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147485968,
+              220
+            ],
+            [
+              2147487796,
+              198
+            ],
+            [
+              2147486624,
+              192
+            ],
+            [
+              2147485812,
+              160
+            ],
+            [
+              2147491820,
+              150
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 52699,
+            "jumps": 1784,
+            "btb_misses": 5891,
+            "errors": 6671,
+            "missing_errors": 3764,
+            "allocations": 5891,
+            "conditional": 50802,
+            "not_taken_allocations": 2127,
+            "false_not_taken": 3292,
+            "evictions": 5875,
+            "unused_victims": 4840,
+            "direction_errors": 2907,
+            "false_taken": 2350,
+            "returns": 113
+          },
+          "mpki": 26.373947868853755,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147483968,
+              515
+            ],
+            [
+              2147483884,
+              372
+            ],
+            [
+              2147491196,
+              322
+            ],
+            [
+              2147487860,
+              318
+            ],
+            [
+              2147486608,
+              280
+            ],
+            [
+              2147483876,
+              259
+            ],
+            [
+              2147486024,
+              228
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147485968,
+              220
+            ],
+            [
+              2147487796,
+              198
+            ],
+            [
+              2147486624,
+              192
+            ],
+            [
+              2147485812,
+              160
+            ],
+            [
+              2147491820,
+              150
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 52699,
+            "jumps": 1784,
+            "btb_misses": 5891,
+            "errors": 6939,
+            "missing_errors": 3764,
+            "allocations": 5891,
+            "conditional": 50802,
+            "not_taken_allocations": 2127,
+            "false_not_taken": 3603,
+            "evictions": 5875,
+            "unused_victims": 4840,
+            "direction_errors": 3175,
+            "false_taken": 2307,
+            "returns": 113
+          },
+          "mpki": 27.433491869581204,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147483968,
+              526
+            ],
+            [
+              2147487860,
+              340
+            ],
+            [
+              2147487796,
+              333
+            ],
+            [
+              2147483884,
+              294
+            ],
+            [
+              2147483876,
+              270
+            ],
+            [
+              2147485800,
+              228
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147486024,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147485968,
+              225
+            ],
+            [
+              2147485812,
+              194
+            ],
+            [
+              2147486624,
+              192
+            ],
+            [
+              2147491820,
+              177
+            ],
+            [
+              2147486608,
+              174
+            ],
+            [
+              2147483908,
+              173
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 52699,
+            "jumps": 1784,
+            "btb_misses": 5891,
+            "errors": 6640,
+            "missing_errors": 3764,
+            "allocations": 5891,
+            "conditional": 50802,
+            "not_taken_allocations": 2127,
+            "false_not_taken": 3565,
+            "evictions": 5875,
+            "unused_victims": 4840,
+            "direction_errors": 2876,
+            "false_taken": 2046,
+            "returns": 113
+          },
+          "mpki": 26.251388674739758,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147483968,
+              520
+            ],
+            [
+              2147487860,
+              344
+            ],
+            [
+              2147483884,
+              290
+            ],
+            [
+              2147483876,
+              248
+            ],
+            [
+              2147485968,
+              229
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147486024,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147486624,
+              192
+            ],
+            [
+              2147487796,
+              188
+            ],
+            [
+              2147491820,
+              181
+            ],
+            [
+              2147491196,
+              180
+            ],
+            [
+              2147485812,
+              166
+            ],
+            [
+              2147483900,
+              164
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 52699,
+            "jumps": 1784,
+            "btb_misses": 5891,
+            "errors": 6725,
+            "missing_errors": 3764,
+            "allocations": 5891,
+            "conditional": 50802,
+            "not_taken_allocations": 2127,
+            "false_not_taken": 3570,
+            "evictions": 5875,
+            "unused_victims": 4840,
+            "direction_errors": 2961,
+            "false_taken": 2126,
+            "returns": 113
+          },
+          "mpki": 26.587438077955554,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147483968,
+              519
+            ],
+            [
+              2147487860,
+              321
+            ],
+            [
+              2147483884,
+              287
+            ],
+            [
+              2147483876,
+              269
+            ],
+            [
+              2147486608,
+              241
+            ],
+            [
+              2147485968,
+              233
+            ],
+            [
+              2147486024,
+              228
+            ],
+            [
+              2147485800,
+              228
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147487796,
+              214
+            ],
+            [
+              2147486624,
+              192
+            ],
+            [
+              2147483908,
+              176
+            ],
+            [
+              2147491820,
+              171
+            ],
+            [
+              2147491196,
+              169
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 125,
+          "working_set_95": 39,
+          "covered_branches": 48402,
+          "conditional_branches": 50802,
+          "retrospective_bias": 0.9279368621131359
+        },
+        "4": {
+          "unique_contexts": 324,
+          "working_set_95": 112,
+          "covered_branches": 48266,
+          "conditional_branches": 50802,
+          "retrospective_bias": 0.9356897194712634
+        },
+        "8": {
+          "unique_contexts": 751,
+          "working_set_95": 265,
+          "covered_branches": 48280,
+          "conditional_branches": 50802,
+          "retrospective_bias": 0.9668185584092792
+        },
+        "16": {
+          "unique_contexts": 2193,
+          "working_set_95": 1079,
+          "covered_branches": 48262,
+          "conditional_branches": 50802,
+          "retrospective_bias": 0.9754672413078612
+        },
+        "24": {
+          "unique_contexts": 3744,
+          "working_set_95": 2450,
+          "covered_branches": 48262,
+          "conditional_branches": 50802,
+          "retrospective_bias": 0.9844598234635945
+        }
+      }
+    },
+    "quant_loader-dev-257": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 52851,
+            "jumps": 1842,
+            "btb_misses": 5827,
+            "errors": 7255,
+            "missing_errors": 3724,
+            "allocations": 5827,
+            "conditional": 50904,
+            "not_taken_allocations": 2103,
+            "false_not_taken": 3664,
+            "evictions": 5811,
+            "unused_victims": 4774,
+            "direction_errors": 3531,
+            "false_taken": 2578,
+            "returns": 105
+          },
+          "mpki": 28.60071353951077,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147487860,
+              546
+            ],
+            [
+              2147483968,
+              514
+            ],
+            [
+              2147483884,
+              382
+            ],
+            [
+              2147491196,
+              324
+            ],
+            [
+              2147486944,
+              324
+            ],
+            [
+              2147487796,
+              322
+            ],
+            [
+              2147486608,
+              256
+            ],
+            [
+              2147483876,
+              256
+            ],
+            [
+              2147486024,
+              228
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147485968,
+              222
+            ],
+            [
+              2147486624,
+              194
+            ],
+            [
+              2147485812,
+              158
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 52851,
+            "jumps": 1842,
+            "btb_misses": 5827,
+            "errors": 6658,
+            "missing_errors": 3724,
+            "allocations": 5827,
+            "conditional": 50904,
+            "not_taken_allocations": 2103,
+            "false_not_taken": 3296,
+            "evictions": 5811,
+            "unused_victims": 4774,
+            "direction_errors": 2934,
+            "false_taken": 2349,
+            "returns": 105
+          },
+          "mpki": 26.247215816135455,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147483968,
+              515
+            ],
+            [
+              2147483884,
+              382
+            ],
+            [
+              2147491196,
+              324
+            ],
+            [
+              2147487860,
+              322
+            ],
+            [
+              2147486608,
+              280
+            ],
+            [
+              2147483876,
+              257
+            ],
+            [
+              2147486024,
+              228
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147485968,
+              212
+            ],
+            [
+              2147487796,
+              206
+            ],
+            [
+              2147486624,
+              194
+            ],
+            [
+              2147485812,
+              158
+            ],
+            [
+              2147491820,
+              140
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 52851,
+            "jumps": 1842,
+            "btb_misses": 5827,
+            "errors": 6653,
+            "missing_errors": 3724,
+            "allocations": 5827,
+            "conditional": 50904,
+            "not_taken_allocations": 2103,
+            "false_not_taken": 3293,
+            "evictions": 5811,
+            "unused_victims": 4774,
+            "direction_errors": 2929,
+            "false_taken": 2347,
+            "returns": 105
+          },
+          "mpki": 26.22750477992628,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147483968,
+              515
+            ],
+            [
+              2147483884,
+              382
+            ],
+            [
+              2147491196,
+              326
+            ],
+            [
+              2147487860,
+              322
+            ],
+            [
+              2147486608,
+              280
+            ],
+            [
+              2147483876,
+              257
+            ],
+            [
+              2147486024,
+              228
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147485968,
+              212
+            ],
+            [
+              2147487796,
+              206
+            ],
+            [
+              2147486624,
+              194
+            ],
+            [
+              2147485812,
+              158
+            ],
+            [
+              2147491820,
+              140
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 52851,
+            "jumps": 1842,
+            "btb_misses": 5827,
+            "errors": 6845,
+            "missing_errors": 3724,
+            "allocations": 5827,
+            "conditional": 50904,
+            "not_taken_allocations": 2103,
+            "false_not_taken": 3561,
+            "evictions": 5811,
+            "unused_victims": 4774,
+            "direction_errors": 3121,
+            "false_taken": 2271,
+            "returns": 105
+          },
+          "mpki": 26.984408570358543,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147483968,
+              526
+            ],
+            [
+              2147487860,
+              343
+            ],
+            [
+              2147487796,
+              336
+            ],
+            [
+              2147483884,
+              278
+            ],
+            [
+              2147483876,
+              270
+            ],
+            [
+              2147485968,
+              231
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147486024,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147486624,
+              194
+            ],
+            [
+              2147485812,
+              189
+            ],
+            [
+              2147483908,
+              181
+            ],
+            [
+              2147486608,
+              178
+            ],
+            [
+              2147491820,
+              167
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 52851,
+            "jumps": 1842,
+            "btb_misses": 5827,
+            "errors": 6614,
+            "missing_errors": 3724,
+            "allocations": 5827,
+            "conditional": 50904,
+            "not_taken_allocations": 2103,
+            "false_not_taken": 3543,
+            "evictions": 5811,
+            "unused_victims": 4774,
+            "direction_errors": 2890,
+            "false_taken": 2058,
+            "returns": 105
+          },
+          "mpki": 26.07375869749473,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147483968,
+              520
+            ],
+            [
+              2147487860,
+              347
+            ],
+            [
+              2147483884,
+              302
+            ],
+            [
+              2147483876,
+              242
+            ],
+            [
+              2147485968,
+              235
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147486024,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147487796,
+              202
+            ],
+            [
+              2147486624,
+              194
+            ],
+            [
+              2147491820,
+              172
+            ],
+            [
+              2147491196,
+              171
+            ],
+            [
+              2147483908,
+              171
+            ],
+            [
+              2147486608,
+              168
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 52851,
+            "jumps": 1842,
+            "btb_misses": 5827,
+            "errors": 6706,
+            "missing_errors": 3724,
+            "allocations": 5827,
+            "conditional": 50904,
+            "not_taken_allocations": 2103,
+            "false_not_taken": 3540,
+            "evictions": 5811,
+            "unused_victims": 4774,
+            "direction_errors": 2982,
+            "false_taken": 2153,
+            "returns": 105
+          },
+          "mpki": 26.43644176374352,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147483968,
+              520
+            ],
+            [
+              2147487860,
+              325
+            ],
+            [
+              2147483884,
+              290
+            ],
+            [
+              2147483876,
+              265
+            ],
+            [
+              2147486608,
+              248
+            ],
+            [
+              2147486024,
+              227
+            ],
+            [
+              2147485780,
+              226
+            ],
+            [
+              2147485800,
+              226
+            ],
+            [
+              2147486240,
+              226
+            ],
+            [
+              2147486536,
+              226
+            ],
+            [
+              2147485968,
+              222
+            ],
+            [
+              2147487796,
+              217
+            ],
+            [
+              2147486624,
+              194
+            ],
+            [
+              2147483908,
+              176
+            ],
+            [
+              2147491196,
+              167
+            ],
+            [
+              2147491820,
+              162
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 125,
+          "working_set_95": 39,
+          "covered_branches": 48522,
+          "conditional_branches": 50904,
+          "retrospective_bias": 0.928156300234945
+        },
+        "4": {
+          "unique_contexts": 323,
+          "working_set_95": 111,
+          "covered_branches": 48366,
+          "conditional_branches": 50904,
+          "retrospective_bias": 0.93586403672001
+        },
+        "8": {
+          "unique_contexts": 735,
+          "working_set_95": 266,
+          "covered_branches": 48366,
+          "conditional_branches": 50904,
+          "retrospective_bias": 0.9665880990778646
+        },
+        "16": {
+          "unique_contexts": 2171,
+          "working_set_95": 1054,
+          "covered_branches": 48360,
+          "conditional_branches": 50904,
+          "retrospective_bias": 0.9748552522746071
+        },
+        "24": {
+          "unique_contexts": 3774,
+          "working_set_95": 2478,
+          "covered_branches": 48360,
+          "conditional_branches": 50904,
+          "retrospective_bias": 0.9829197684036394
+        }
+      }
+    },
+    "runtime_graph-dev-131": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 45219,
+            "jumps": 3700,
+            "btb_misses": 14395,
+            "errors": 11755,
+            "missing_errors": 7102,
+            "allocations": 14395,
+            "returns": 2373,
+            "conditional": 39146,
+            "not_taken_allocations": 7293,
+            "false_not_taken": 5496,
+            "direction_errors": 4651,
+            "false_taken": 2034,
+            "evictions": 14379,
+            "unused_victims": 12676,
+            "target_errors": 2
+          },
+          "mpki": 90.7672944319612,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147488820,
+              3326
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488576,
+              376
+            ],
+            [
+              2147488812,
+              358
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              278
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              224
+            ],
+            [
+              2147485060,
+              204
+            ],
+            [
+              2147488660,
+              196
+            ],
+            [
+              2147486744,
+              140
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 45219,
+            "jumps": 3700,
+            "btb_misses": 14395,
+            "errors": 11387,
+            "missing_errors": 7102,
+            "allocations": 14395,
+            "returns": 2373,
+            "conditional": 39146,
+            "not_taken_allocations": 7293,
+            "false_not_taken": 5054,
+            "direction_errors": 4283,
+            "false_taken": 2108,
+            "evictions": 14379,
+            "unused_victims": 12676,
+            "target_errors": 2
+          },
+          "mpki": 87.92574918730261,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147488820,
+              3326
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              278
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147488812,
+              259
+            ],
+            [
+              2147488576,
+              255
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              204
+            ],
+            [
+              2147486744,
+              200
+            ],
+            [
+              2147488660,
+              144
+            ],
+            [
+              2147485992,
+              142
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 45219,
+            "jumps": 3700,
+            "btb_misses": 14395,
+            "errors": 11482,
+            "missing_errors": 7102,
+            "allocations": 14395,
+            "returns": 2373,
+            "conditional": 39146,
+            "not_taken_allocations": 7293,
+            "false_not_taken": 4415,
+            "direction_errors": 4378,
+            "false_taken": 2842,
+            "evictions": 14379,
+            "unused_victims": 12676,
+            "target_errors": 2
+          },
+          "mpki": 88.65930026948351,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147488820,
+              3424
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              278
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147488812,
+              259
+            ],
+            [
+              2147488576,
+              255
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              204
+            ],
+            [
+              2147486744,
+              200
+            ],
+            [
+              2147488660,
+              143
+            ],
+            [
+              2147485992,
+              142
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 45219,
+            "jumps": 3700,
+            "btb_misses": 14395,
+            "errors": 9666,
+            "missing_errors": 7102,
+            "allocations": 14395,
+            "returns": 2373,
+            "conditional": 39146,
+            "not_taken_allocations": 7293,
+            "false_not_taken": 4209,
+            "direction_errors": 2562,
+            "false_taken": 1232,
+            "evictions": 14379,
+            "unused_victims": 12676,
+            "target_errors": 2
+          },
+          "mpki": 74.63689221432047,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147488840,
+              643
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488812,
+              434
+            ],
+            [
+              2147488820,
+              406
+            ],
+            [
+              2147488576,
+              340
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147485056,
+              267
+            ],
+            [
+              2147485060,
+              264
+            ],
+            [
+              2147485160,
+              228
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147486744,
+              166
+            ],
+            [
+              2147485048,
+              152
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 45219,
+            "jumps": 3700,
+            "btb_misses": 14395,
+            "errors": 8723,
+            "missing_errors": 7102,
+            "allocations": 14395,
+            "returns": 2373,
+            "conditional": 39146,
+            "not_taken_allocations": 7293,
+            "false_not_taken": 3716,
+            "direction_errors": 1619,
+            "false_taken": 782,
+            "evictions": 14379,
+            "unused_victims": 12676,
+            "target_errors": 2
+          },
+          "mpki": 67.35543252488283,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488576,
+              441
+            ],
+            [
+              2147488812,
+              378
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              299
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147485060,
+              263
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              206
+            ],
+            [
+              2147486744,
+              176
+            ],
+            [
+              2147485056,
+              145
+            ],
+            [
+              2147488820,
+              139
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 45219,
+            "jumps": 3700,
+            "btb_misses": 14395,
+            "errors": 9032,
+            "missing_errors": 7102,
+            "allocations": 14395,
+            "returns": 2373,
+            "conditional": 39146,
+            "not_taken_allocations": 7293,
+            "false_not_taken": 3927,
+            "direction_errors": 1928,
+            "false_taken": 880,
+            "evictions": 14379,
+            "unused_victims": 12676,
+            "target_errors": 2
+          },
+          "mpki": 69.7414039395554,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147488812,
+              547
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488820,
+              401
+            ],
+            [
+              2147488576,
+              360
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              282
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              205
+            ],
+            [
+              2147486744,
+              181
+            ],
+            [
+              2147485056,
+              179
+            ],
+            [
+              2147485060,
+              156
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 140,
+          "working_set_95": 63,
+          "covered_branches": 37270,
+          "conditional_branches": 39146,
+          "retrospective_bias": 0.9049637778374028
+        },
+        "4": {
+          "unique_contexts": 276,
+          "working_set_95": 115,
+          "covered_branches": 37252,
+          "conditional_branches": 39146,
+          "retrospective_bias": 0.9709545796198862
+        },
+        "8": {
+          "unique_contexts": 463,
+          "working_set_95": 195,
+          "covered_branches": 37190,
+          "conditional_branches": 39146,
+          "retrospective_bias": 0.9745630545845657
+        },
+        "16": {
+          "unique_contexts": 818,
+          "working_set_95": 372,
+          "covered_branches": 37192,
+          "conditional_branches": 39146,
+          "retrospective_bias": 0.9787050978705097
+        },
+        "24": {
+          "unique_contexts": 1154,
+          "working_set_95": 543,
+          "covered_branches": 37204,
+          "conditional_branches": 39146,
+          "retrospective_bias": 0.9803246962692184
+        }
+      }
+    },
+    "runtime_graph-dev-257": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 44723,
+            "jumps": 3706,
+            "btb_misses": 14391,
+            "errors": 11643,
+            "missing_errors": 7088,
+            "allocations": 14391,
+            "returns": 2369,
+            "conditional": 38648,
+            "not_taken_allocations": 7303,
+            "false_not_taken": 5432,
+            "direction_errors": 4553,
+            "false_taken": 1978,
+            "evictions": 14375,
+            "unused_victims": 12672,
+            "target_errors": 2
+          },
+          "mpki": 90.74753899034302,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147488820,
+              3238
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488576,
+              376
+            ],
+            [
+              2147488812,
+              354
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              274
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              224
+            ],
+            [
+              2147485060,
+              204
+            ],
+            [
+              2147488660,
+              192
+            ],
+            [
+              2147486744,
+              140
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 44723,
+            "jumps": 3706,
+            "btb_misses": 14391,
+            "errors": 11275,
+            "missing_errors": 7088,
+            "allocations": 14391,
+            "returns": 2369,
+            "conditional": 38648,
+            "not_taken_allocations": 7303,
+            "false_not_taken": 4990,
+            "direction_errors": 4185,
+            "false_taken": 2052,
+            "evictions": 14375,
+            "unused_victims": 12672,
+            "target_errors": 2
+          },
+          "mpki": 87.87928387152088,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147488820,
+              3238
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              274
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147488576,
+              255
+            ],
+            [
+              2147488812,
+              255
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              204
+            ],
+            [
+              2147486744,
+              200
+            ],
+            [
+              2147488660,
+              144
+            ],
+            [
+              2147485992,
+              142
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 44723,
+            "jumps": 3706,
+            "btb_misses": 14391,
+            "errors": 11372,
+            "missing_errors": 7088,
+            "allocations": 14391,
+            "returns": 2369,
+            "conditional": 38648,
+            "not_taken_allocations": 7303,
+            "false_not_taken": 4351,
+            "direction_errors": 4282,
+            "false_taken": 2788,
+            "evictions": 14375,
+            "unused_victims": 12672,
+            "target_errors": 2
+          },
+          "mpki": 88.63531850881911,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147488820,
+              3338
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              274
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147488576,
+              255
+            ],
+            [
+              2147488812,
+              255
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              204
+            ],
+            [
+              2147486744,
+              200
+            ],
+            [
+              2147488660,
+              143
+            ],
+            [
+              2147485992,
+              142
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 44723,
+            "jumps": 3706,
+            "btb_misses": 14391,
+            "errors": 9632,
+            "missing_errors": 7088,
+            "allocations": 14391,
+            "returns": 2369,
+            "conditional": 38648,
+            "not_taken_allocations": 7303,
+            "false_not_taken": 4191,
+            "direction_errors": 2542,
+            "false_taken": 1208,
+            "evictions": 14375,
+            "unused_victims": 12672,
+            "target_errors": 2
+          },
+          "mpki": 75.07346006656222,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147488840,
+              641
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488812,
+              432
+            ],
+            [
+              2147488820,
+              414
+            ],
+            [
+              2147488576,
+              338
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147485056,
+              267
+            ],
+            [
+              2147485060,
+              264
+            ],
+            [
+              2147485160,
+              228
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147486744,
+              160
+            ],
+            [
+              2147485048,
+              154
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 44723,
+            "jumps": 3706,
+            "btb_misses": 14391,
+            "errors": 8688,
+            "missing_errors": 7088,
+            "allocations": 14391,
+            "returns": 2369,
+            "conditional": 38648,
+            "not_taken_allocations": 7303,
+            "false_not_taken": 3685,
+            "direction_errors": 1598,
+            "false_taken": 770,
+            "evictions": 14375,
+            "unused_victims": 12672,
+            "target_errors": 2
+          },
+          "mpki": 67.71576215306195,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488576,
+              445
+            ],
+            [
+              2147488812,
+              374
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              293
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147485060,
+              263
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              206
+            ],
+            [
+              2147486744,
+              172
+            ],
+            [
+              2147485056,
+              145
+            ],
+            [
+              2147488820,
+              135
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 44723,
+            "jumps": 3706,
+            "btb_misses": 14391,
+            "errors": 8986,
+            "missing_errors": 7088,
+            "allocations": 14391,
+            "returns": 2369,
+            "conditional": 38648,
+            "not_taken_allocations": 7303,
+            "false_not_taken": 3889,
+            "direction_errors": 1896,
+            "false_taken": 864,
+            "evictions": 14375,
+            "unused_victims": 12672,
+            "target_errors": 2
+          },
+          "mpki": 70.0384252655864,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147488812,
+              535
+            ],
+            [
+              2147485724,
+              474
+            ],
+            [
+              2147488820,
+              400
+            ],
+            [
+              2147488576,
+              359
+            ],
+            [
+              2147488628,
+              302
+            ],
+            [
+              2147488840,
+              278
+            ],
+            [
+              2147485760,
+              270
+            ],
+            [
+              2147488348,
+              226
+            ],
+            [
+              2147485160,
+              205
+            ],
+            [
+              2147485056,
+              180
+            ],
+            [
+              2147486744,
+              176
+            ],
+            [
+              2147485060,
+              151
+            ],
+            [
+              2147488580,
+              126
+            ],
+            [
+              2147488700,
+              126
+            ],
+            [
+              2147488736,
+              126
+            ],
+            [
+              2147488400,
+              124
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 139,
+          "working_set_95": 63,
+          "covered_branches": 36796,
+          "conditional_branches": 38648,
+          "retrospective_bias": 0.9059680400043483
+        },
+        "4": {
+          "unique_contexts": 279,
+          "working_set_95": 114,
+          "covered_branches": 36736,
+          "conditional_branches": 38648,
+          "retrospective_bias": 0.9706554878048781
+        },
+        "8": {
+          "unique_contexts": 464,
+          "working_set_95": 193,
+          "covered_branches": 36718,
+          "conditional_branches": 38648,
+          "retrospective_bias": 0.9742360695026963
+        },
+        "16": {
+          "unique_contexts": 828,
+          "working_set_95": 366,
+          "covered_branches": 36728,
+          "conditional_branches": 38648,
+          "retrospective_bias": 0.9783816162056197
+        },
+        "24": {
+          "unique_contexts": 1184,
+          "working_set_95": 541,
+          "covered_branches": 36726,
+          "conditional_branches": 38648,
+          "retrospective_bias": 0.979959701573817
+        }
+      }
+    },
+    "regex_tokenizer-dev-131": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 51551,
+            "jumps": 8438,
+            "btb_misses": 25437,
+            "errors": 17328,
+            "missing_errors": 13784,
+            "allocations": 25437,
+            "conditional": 41188,
+            "not_taken_allocations": 11653,
+            "false_not_taken": 7079,
+            "target_errors": 522,
+            "evictions": 25421,
+            "unused_victims": 21589,
+            "direction_errors": 3022,
+            "false_taken": 840,
+            "returns": 1925
+          },
+          "mpki": 87.06006481272138,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1203
+            ],
+            [
+              2147484160,
+              1018
+            ],
+            [
+              2147486132,
+              838
+            ],
+            [
+              2147484140,
+              762
+            ],
+            [
+              2147484300,
+              674
+            ],
+            [
+              2147484132,
+              674
+            ],
+            [
+              2147484268,
+              674
+            ],
+            [
+              2147484600,
+              594
+            ],
+            [
+              2147484780,
+              504
+            ],
+            [
+              2147484204,
+              504
+            ],
+            [
+              2147484280,
+              422
+            ],
+            [
+              2147484924,
+              375
+            ],
+            [
+              2147486412,
+              374
+            ],
+            [
+              2147485944,
+              374
+            ],
+            [
+              2147485892,
+              374
+            ],
+            [
+              2147485924,
+              374
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 51551,
+            "jumps": 8438,
+            "btb_misses": 25437,
+            "errors": 16869,
+            "missing_errors": 13784,
+            "allocations": 25437,
+            "conditional": 41188,
+            "not_taken_allocations": 11653,
+            "false_not_taken": 6421,
+            "target_errors": 522,
+            "evictions": 25421,
+            "unused_victims": 21589,
+            "direction_errors": 2563,
+            "false_taken": 1039,
+            "returns": 1925
+          },
+          "mpki": 84.75393774964202,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1203
+            ],
+            [
+              2147484140,
+              762
+            ],
+            [
+              2147484160,
+              752
+            ],
+            [
+              2147486132,
+              680
+            ],
+            [
+              2147484300,
+              674
+            ],
+            [
+              2147484132,
+              674
+            ],
+            [
+              2147484268,
+              674
+            ],
+            [
+              2147484600,
+              594
+            ],
+            [
+              2147484780,
+              504
+            ],
+            [
+              2147484204,
+              504
+            ],
+            [
+              2147484924,
+              375
+            ],
+            [
+              2147486412,
+              374
+            ],
+            [
+              2147485944,
+              374
+            ],
+            [
+              2147485892,
+              374
+            ],
+            [
+              2147485924,
+              374
+            ],
+            [
+              2147485996,
+              374
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 51551,
+            "jumps": 8438,
+            "btb_misses": 25437,
+            "errors": 16839,
+            "missing_errors": 13784,
+            "allocations": 25437,
+            "conditional": 41188,
+            "not_taken_allocations": 11653,
+            "false_not_taken": 6421,
+            "target_errors": 522,
+            "evictions": 25421,
+            "unused_victims": 21589,
+            "direction_errors": 2533,
+            "false_taken": 1009,
+            "returns": 1925
+          },
+          "mpki": 84.60321049061723,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1203
+            ],
+            [
+              2147484140,
+              762
+            ],
+            [
+              2147484160,
+              752
+            ],
+            [
+              2147486132,
+              680
+            ],
+            [
+              2147484300,
+              674
+            ],
+            [
+              2147484132,
+              674
+            ],
+            [
+              2147484268,
+              674
+            ],
+            [
+              2147484600,
+              594
+            ],
+            [
+              2147484780,
+              504
+            ],
+            [
+              2147484204,
+              504
+            ],
+            [
+              2147484924,
+              375
+            ],
+            [
+              2147486412,
+              374
+            ],
+            [
+              2147485944,
+              374
+            ],
+            [
+              2147485892,
+              374
+            ],
+            [
+              2147485924,
+              374
+            ],
+            [
+              2147485996,
+              374
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 51551,
+            "jumps": 8438,
+            "btb_misses": 25437,
+            "errors": 16685,
+            "missing_errors": 13784,
+            "allocations": 25437,
+            "conditional": 41188,
+            "not_taken_allocations": 11653,
+            "false_not_taken": 6584,
+            "target_errors": 522,
+            "evictions": 25421,
+            "unused_victims": 21589,
+            "direction_errors": 2379,
+            "false_taken": 692,
+            "returns": 1925
+          },
+          "mpki": 83.82947722762329,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1203
+            ],
+            [
+              2147484140,
+              910
+            ],
+            [
+              2147486132,
+              683
+            ],
+            [
+              2147484132,
+              676
+            ],
+            [
+              2147484300,
+              674
+            ],
+            [
+              2147484268,
+              674
+            ],
+            [
+              2147484600,
+              594
+            ],
+            [
+              2147484780,
+              504
+            ],
+            [
+              2147484204,
+              504
+            ],
+            [
+              2147484160,
+              503
+            ],
+            [
+              2147484284,
+              378
+            ],
+            [
+              2147484924,
+              375
+            ],
+            [
+              2147486412,
+              374
+            ],
+            [
+              2147485944,
+              374
+            ],
+            [
+              2147485924,
+              374
+            ],
+            [
+              2147485996,
+              374
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 51551,
+            "jumps": 8438,
+            "btb_misses": 25437,
+            "errors": 16496,
+            "missing_errors": 13784,
+            "allocations": 25437,
+            "conditional": 41188,
+            "not_taken_allocations": 11653,
+            "false_not_taken": 6577,
+            "target_errors": 522,
+            "evictions": 25421,
+            "unused_victims": 21589,
+            "direction_errors": 2190,
+            "false_taken": 510,
+            "returns": 1925
+          },
+          "mpki": 82.87989549576707,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1203
+            ],
+            [
+              2147484140,
+              910
+            ],
+            [
+              2147486132,
+              681
+            ],
+            [
+              2147484132,
+              675
+            ],
+            [
+              2147484300,
+              674
+            ],
+            [
+              2147484268,
+              674
+            ],
+            [
+              2147484600,
+              594
+            ],
+            [
+              2147484780,
+              504
+            ],
+            [
+              2147484204,
+              504
+            ],
+            [
+              2147484160,
+              487
+            ],
+            [
+              2147484924,
+              375
+            ],
+            [
+              2147486412,
+              374
+            ],
+            [
+              2147485944,
+              374
+            ],
+            [
+              2147485924,
+              374
+            ],
+            [
+              2147485996,
+              374
+            ],
+            [
+              2147486440,
+              374
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 51551,
+            "jumps": 8438,
+            "btb_misses": 25437,
+            "errors": 17694,
+            "missing_errors": 13784,
+            "allocations": 25437,
+            "conditional": 41188,
+            "not_taken_allocations": 11653,
+            "false_not_taken": 7235,
+            "target_errors": 522,
+            "evictions": 25421,
+            "unused_victims": 21589,
+            "direction_errors": 3388,
+            "false_taken": 1050,
+            "returns": 1925
+          },
+          "mpki": 88.89893737282388,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1203
+            ],
+            [
+              2147484140,
+              910
+            ],
+            [
+              2147486132,
+              846
+            ],
+            [
+              2147485904,
+              770
+            ],
+            [
+              2147484132,
+              693
+            ],
+            [
+              2147484300,
+              674
+            ],
+            [
+              2147484268,
+              674
+            ],
+            [
+              2147484160,
+              612
+            ],
+            [
+              2147484600,
+              594
+            ],
+            [
+              2147484780,
+              504
+            ],
+            [
+              2147484204,
+              504
+            ],
+            [
+              2147484924,
+              375
+            ],
+            [
+              2147486412,
+              374
+            ],
+            [
+              2147485944,
+              374
+            ],
+            [
+              2147485924,
+              374
+            ],
+            [
+              2147485996,
+              374
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 57,
+          "working_set_95": 36,
+          "covered_branches": 39136,
+          "conditional_branches": 41188,
+          "retrospective_bias": 0.8954926410466068
+        },
+        "4": {
+          "unique_contexts": 135,
+          "working_set_95": 77,
+          "covered_branches": 39162,
+          "conditional_branches": 41188,
+          "retrospective_bias": 0.9326387824932333
+        },
+        "8": {
+          "unique_contexts": 237,
+          "working_set_95": 124,
+          "covered_branches": 39156,
+          "conditional_branches": 41188,
+          "retrospective_bias": 0.9615384615384616
+        },
+        "16": {
+          "unique_contexts": 474,
+          "working_set_95": 252,
+          "covered_branches": 39140,
+          "conditional_branches": 41188,
+          "retrospective_bias": 0.9677056719468574
+        },
+        "24": {
+          "unique_contexts": 734,
+          "working_set_95": 394,
+          "covered_branches": 39138,
+          "conditional_branches": 41188,
+          "retrospective_bias": 0.9806326332464612
+        }
+      }
+    },
+    "regex_tokenizer-dev-257": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 51853,
+            "jumps": 8344,
+            "btb_misses": 25239,
+            "errors": 17210,
+            "missing_errors": 13652,
+            "allocations": 25239,
+            "conditional": 41610,
+            "not_taken_allocations": 11587,
+            "false_not_taken": 7201,
+            "target_errors": 488,
+            "evictions": 25223,
+            "unused_victims": 21314,
+            "direction_errors": 3070,
+            "false_taken": 838,
+            "returns": 1899
+          },
+          "mpki": 87.21386908291146,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1117
+            ],
+            [
+              2147484160,
+              1026
+            ],
+            [
+              2147484140,
+              854
+            ],
+            [
+              2147486132,
+              784
+            ],
+            [
+              2147484300,
+              722
+            ],
+            [
+              2147484132,
+              722
+            ],
+            [
+              2147484268,
+              722
+            ],
+            [
+              2147484600,
+              618
+            ],
+            [
+              2147484780,
+              566
+            ],
+            [
+              2147484204,
+              566
+            ],
+            [
+              2147484280,
+              450
+            ],
+            [
+              2147484924,
+              349
+            ],
+            [
+              2147486412,
+              348
+            ],
+            [
+              2147485944,
+              348
+            ],
+            [
+              2147485892,
+              348
+            ],
+            [
+              2147485924,
+              348
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 51853,
+            "jumps": 8344,
+            "btb_misses": 25239,
+            "errors": 16769,
+            "missing_errors": 13652,
+            "allocations": 25239,
+            "conditional": 41610,
+            "not_taken_allocations": 11587,
+            "false_not_taken": 6551,
+            "target_errors": 488,
+            "evictions": 25223,
+            "unused_victims": 21314,
+            "direction_errors": 2629,
+            "false_taken": 1047,
+            "returns": 1899
+          },
+          "mpki": 84.97904536033366,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1117
+            ],
+            [
+              2147484140,
+              854
+            ],
+            [
+              2147484160,
+              774
+            ],
+            [
+              2147484300,
+              722
+            ],
+            [
+              2147484132,
+              722
+            ],
+            [
+              2147484268,
+              722
+            ],
+            [
+              2147486132,
+              644
+            ],
+            [
+              2147484600,
+              618
+            ],
+            [
+              2147484780,
+              566
+            ],
+            [
+              2147484204,
+              566
+            ],
+            [
+              2147484280,
+              363
+            ],
+            [
+              2147484924,
+              349
+            ],
+            [
+              2147486412,
+              348
+            ],
+            [
+              2147485944,
+              348
+            ],
+            [
+              2147485892,
+              348
+            ],
+            [
+              2147485924,
+              348
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 51853,
+            "jumps": 8344,
+            "btb_misses": 25239,
+            "errors": 16741,
+            "missing_errors": 13652,
+            "allocations": 25239,
+            "conditional": 41610,
+            "not_taken_allocations": 11587,
+            "false_not_taken": 6551,
+            "target_errors": 488,
+            "evictions": 25223,
+            "unused_victims": 21314,
+            "direction_errors": 2601,
+            "false_taken": 1019,
+            "returns": 1899
+          },
+          "mpki": 84.83715179064617,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1117
+            ],
+            [
+              2147484140,
+              854
+            ],
+            [
+              2147484160,
+              774
+            ],
+            [
+              2147484300,
+              722
+            ],
+            [
+              2147484132,
+              722
+            ],
+            [
+              2147484268,
+              722
+            ],
+            [
+              2147486132,
+              644
+            ],
+            [
+              2147484600,
+              618
+            ],
+            [
+              2147484780,
+              566
+            ],
+            [
+              2147484204,
+              566
+            ],
+            [
+              2147484280,
+              363
+            ],
+            [
+              2147484924,
+              349
+            ],
+            [
+              2147486412,
+              348
+            ],
+            [
+              2147485944,
+              348
+            ],
+            [
+              2147485892,
+              348
+            ],
+            [
+              2147485924,
+              348
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 51853,
+            "jumps": 8344,
+            "btb_misses": 25239,
+            "errors": 16698,
+            "missing_errors": 13652,
+            "allocations": 25239,
+            "conditional": 41610,
+            "not_taken_allocations": 11587,
+            "false_not_taken": 6792,
+            "target_errors": 488,
+            "evictions": 25223,
+            "unused_victims": 21314,
+            "direction_errors": 2558,
+            "false_taken": 735,
+            "returns": 1899
+          },
+          "mpki": 84.61924380862611,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1117
+            ],
+            [
+              2147484140,
+              1032
+            ],
+            [
+              2147484132,
+              724
+            ],
+            [
+              2147484300,
+              722
+            ],
+            [
+              2147484268,
+              722
+            ],
+            [
+              2147486132,
+              649
+            ],
+            [
+              2147484600,
+              618
+            ],
+            [
+              2147484780,
+              566
+            ],
+            [
+              2147484204,
+              566
+            ],
+            [
+              2147484160,
+              538
+            ],
+            [
+              2147484284,
+              406
+            ],
+            [
+              2147484280,
+              363
+            ],
+            [
+              2147484924,
+              349
+            ],
+            [
+              2147486412,
+              348
+            ],
+            [
+              2147485944,
+              348
+            ],
+            [
+              2147485924,
+              348
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 51853,
+            "jumps": 8344,
+            "btb_misses": 25239,
+            "errors": 16457,
+            "missing_errors": 13652,
+            "allocations": 25239,
+            "conditional": 41610,
+            "not_taken_allocations": 11587,
+            "false_not_taken": 6762,
+            "target_errors": 488,
+            "evictions": 25223,
+            "unused_victims": 21314,
+            "direction_errors": 2317,
+            "false_taken": 524,
+            "returns": 1899
+          },
+          "mpki": 83.39794558381602,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1117
+            ],
+            [
+              2147484140,
+              1032
+            ],
+            [
+              2147484132,
+              723
+            ],
+            [
+              2147484300,
+              722
+            ],
+            [
+              2147484268,
+              722
+            ],
+            [
+              2147486132,
+              645
+            ],
+            [
+              2147484600,
+              618
+            ],
+            [
+              2147484780,
+              566
+            ],
+            [
+              2147484204,
+              566
+            ],
+            [
+              2147484160,
+              523
+            ],
+            [
+              2147484280,
+              363
+            ],
+            [
+              2147484924,
+              349
+            ],
+            [
+              2147486412,
+              348
+            ],
+            [
+              2147485944,
+              348
+            ],
+            [
+              2147485924,
+              348
+            ],
+            [
+              2147485996,
+              348
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 51853,
+            "jumps": 8344,
+            "btb_misses": 25239,
+            "errors": 17554,
+            "missing_errors": 13652,
+            "allocations": 25239,
+            "conditional": 41610,
+            "not_taken_allocations": 11587,
+            "false_not_taken": 7453,
+            "target_errors": 488,
+            "evictions": 25223,
+            "unused_victims": 21314,
+            "direction_errors": 3414,
+            "false_taken": 930,
+            "returns": 1899
+          },
+          "mpki": 88.95713293907191,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147485848,
+              1117
+            ],
+            [
+              2147484140,
+              1032
+            ],
+            [
+              2147486132,
+              794
+            ],
+            [
+              2147484132,
+              746
+            ],
+            [
+              2147484300,
+              722
+            ],
+            [
+              2147484268,
+              722
+            ],
+            [
+              2147485904,
+              716
+            ],
+            [
+              2147484160,
+              628
+            ],
+            [
+              2147484600,
+              618
+            ],
+            [
+              2147484780,
+              566
+            ],
+            [
+              2147484204,
+              566
+            ],
+            [
+              2147484280,
+              387
+            ],
+            [
+              2147484924,
+              349
+            ],
+            [
+              2147486412,
+              348
+            ],
+            [
+              2147485944,
+              348
+            ],
+            [
+              2147485924,
+              348
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 57,
+          "working_set_95": 36,
+          "covered_branches": 39618,
+          "conditional_branches": 41610,
+          "retrospective_bias": 0.8957039729415922
+        },
+        "4": {
+          "unique_contexts": 134,
+          "working_set_95": 77,
+          "covered_branches": 39604,
+          "conditional_branches": 41610,
+          "retrospective_bias": 0.9282395717604283
+        },
+        "8": {
+          "unique_contexts": 235,
+          "working_set_95": 124,
+          "covered_branches": 39530,
+          "conditional_branches": 41610,
+          "retrospective_bias": 0.9603339236023274
+        },
+        "16": {
+          "unique_contexts": 490,
+          "working_set_95": 264,
+          "covered_branches": 39554,
+          "conditional_branches": 41610,
+          "retrospective_bias": 0.9656671891591242
+        },
+        "24": {
+          "unique_contexts": 775,
+          "working_set_95": 421,
+          "covered_branches": 39532,
+          "conditional_branches": 41610,
+          "retrospective_bias": 0.9794090863098249
+        }
+      }
+    },
+    "ini_config-dev-131": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 12954,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3542,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10178,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1600,
+            "direction_errors": 1238,
+            "false_taken": 526,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2497
+          },
+          "mpki": 95.8618636498958,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147485148,
+              388
+            ],
+            [
+              2147485156,
+              194
+            ],
+            [
+              2147485096,
+              160
+            ],
+            [
+              2147484404,
+              128
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147483756,
+              98
+            ],
+            [
+              2147483800,
+              98
+            ],
+            [
+              2147483716,
+              89
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147485112,
+              88
+            ],
+            [
+              2147484564,
+              88
+            ],
+            [
+              2147484092,
+              82
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 12954,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3375,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10178,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1521,
+            "direction_errors": 1071,
+            "false_taken": 438,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2497
+          },
+          "mpki": 91.34212021976238,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147485148,
+              388
+            ],
+            [
+              2147485156,
+              148
+            ],
+            [
+              2147485096,
+              138
+            ],
+            [
+              2147484404,
+              128
+            ],
+            [
+              2147483800,
+              116
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147485112,
+              88
+            ],
+            [
+              2147484528,
+              88
+            ],
+            [
+              2147483716,
+              88
+            ],
+            [
+              2147483756,
+              88
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ],
+            [
+              2147484092,
+              72
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 12954,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3363,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10178,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1463,
+            "direction_errors": 1059,
+            "false_taken": 484,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2497
+          },
+          "mpki": 91.01734823675878,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147485148,
+              388
+            ],
+            [
+              2147485156,
+              136
+            ],
+            [
+              2147485096,
+              130
+            ],
+            [
+              2147484404,
+              128
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147485112,
+              88
+            ],
+            [
+              2147484528,
+              88
+            ],
+            [
+              2147484564,
+              88
+            ],
+            [
+              2147483716,
+              88
+            ],
+            [
+              2147483756,
+              88
+            ],
+            [
+              2147483800,
+              80
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 12954,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3472,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10178,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1377,
+            "direction_errors": 1168,
+            "false_taken": 679,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2497
+          },
+          "mpki": 93.96736041570814,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147485148,
+              347
+            ],
+            [
+              2147485096,
+              254
+            ],
+            [
+              2147483716,
+              223
+            ],
+            [
+              2147485156,
+              158
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147483756,
+              106
+            ],
+            [
+              2147483800,
+              102
+            ],
+            [
+              2147484564,
+              88
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ],
+            [
+              2147484112,
+              72
+            ],
+            [
+              2147484344,
+              72
+            ],
+            [
+              2147484360,
+              72
+            ],
+            [
+              2147485112,
+              72
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 12954,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3279,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10178,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1276,
+            "direction_errors": 975,
+            "false_taken": 587,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2497
+          },
+          "mpki": 88.74394435573357,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147485148,
+              339
+            ],
+            [
+              2147485096,
+              194
+            ],
+            [
+              2147485156,
+              147
+            ],
+            [
+              2147483716,
+              132
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147483800,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147483756,
+              92
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ],
+            [
+              2147484092,
+              72
+            ],
+            [
+              2147484112,
+              72
+            ],
+            [
+              2147484344,
+              72
+            ],
+            [
+              2147484360,
+              72
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 12954,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3527,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10178,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1551,
+            "direction_errors": 1223,
+            "false_taken": 560,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2497
+          },
+          "mpki": 95.4558986711413,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147485148,
+              440
+            ],
+            [
+              2147485096,
+              243
+            ],
+            [
+              2147485156,
+              159
+            ],
+            [
+              2147483716,
+              140
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147485112,
+              106
+            ],
+            [
+              2147483756,
+              94
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147484528,
+              85
+            ],
+            [
+              2147483800,
+              77
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484092,
+              73
+            ],
+            [
+              2147484064,
+              72
+            ],
+            [
+              2147484112,
+              72
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 51,
+          "working_set_95": 33,
+          "covered_branches": 9702,
+          "conditional_branches": 10178,
+          "retrospective_bias": 0.8849721706864564
+        },
+        "4": {
+          "unique_contexts": 127,
+          "working_set_95": 71,
+          "covered_branches": 9693,
+          "conditional_branches": 10178,
+          "retrospective_bias": 0.9240689157123697
+        },
+        "8": {
+          "unique_contexts": 236,
+          "working_set_95": 131,
+          "covered_branches": 9673,
+          "conditional_branches": 10178,
+          "retrospective_bias": 0.9627830042386023
+        },
+        "16": {
+          "unique_contexts": 442,
+          "working_set_95": 254,
+          "covered_branches": 9675,
+          "conditional_branches": 10178,
+          "retrospective_bias": 0.9737467700258398
+        },
+        "24": {
+          "unique_contexts": 658,
+          "working_set_95": 394,
+          "covered_branches": 9670,
+          "conditional_branches": 10178,
+          "retrospective_bias": 0.9745604963805584
+        }
+      }
+    },
+    "ini_config-dev-257": {
+      "rows": {
+        "B0": {
+          "counts": {
+            "branches": 12940,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3534,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10164,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1596,
+            "direction_errors": 1230,
+            "false_taken": 522,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2501
+          },
+          "mpki": 95.81130540870272,
+          "state_bits_estimate": 1165,
+          "hot_error_pc": [
+            [
+              2147485148,
+              388
+            ],
+            [
+              2147485156,
+              194
+            ],
+            [
+              2147485096,
+              162
+            ],
+            [
+              2147484404,
+              128
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147483756,
+              98
+            ],
+            [
+              2147483800,
+              92
+            ],
+            [
+              2147483716,
+              89
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147485112,
+              88
+            ],
+            [
+              2147484564,
+              88
+            ],
+            [
+              2147484092,
+              82
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ]
+          ]
+        },
+        "B64": {
+          "counts": {
+            "branches": 12940,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3369,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10164,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1519,
+            "direction_errors": 1065,
+            "false_taken": 434,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2501
+          },
+          "mpki": 91.33794225294835,
+          "state_bits_estimate": 1261,
+          "hot_error_pc": [
+            [
+              2147485148,
+              388
+            ],
+            [
+              2147485156,
+              148
+            ],
+            [
+              2147485096,
+              138
+            ],
+            [
+              2147484404,
+              128
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147483800,
+              112
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147485112,
+              88
+            ],
+            [
+              2147484528,
+              88
+            ],
+            [
+              2147483716,
+              88
+            ],
+            [
+              2147483756,
+              88
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ],
+            [
+              2147484092,
+              72
+            ]
+          ]
+        },
+        "B128": {
+          "counts": {
+            "branches": 12940,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3361,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10164,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1463,
+            "direction_errors": 1057,
+            "false_taken": 482,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2501
+          },
+          "mpki": 91.1210519181239,
+          "state_bits_estimate": 1389,
+          "hot_error_pc": [
+            [
+              2147485148,
+              388
+            ],
+            [
+              2147485156,
+              136
+            ],
+            [
+              2147485096,
+              130
+            ],
+            [
+              2147484404,
+              128
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147485112,
+              88
+            ],
+            [
+              2147484528,
+              88
+            ],
+            [
+              2147484564,
+              88
+            ],
+            [
+              2147483716,
+              88
+            ],
+            [
+              2147483756,
+              88
+            ],
+            [
+              2147483800,
+              80
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ]
+          ]
+        },
+        "G64": {
+          "counts": {
+            "branches": 12940,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3468,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10164,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1379,
+            "direction_errors": 1164,
+            "false_taken": 673,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2501
+          },
+          "mpki": 94.02196014640097,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147485148,
+              347
+            ],
+            [
+              2147485096,
+              252
+            ],
+            [
+              2147483716,
+              223
+            ],
+            [
+              2147485156,
+              158
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147483756,
+              106
+            ],
+            [
+              2147483800,
+              103
+            ],
+            [
+              2147484564,
+              88
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ],
+            [
+              2147484112,
+              72
+            ],
+            [
+              2147484344,
+              72
+            ],
+            [
+              2147484360,
+              72
+            ],
+            [
+              2147484416,
+              72
+            ]
+          ]
+        },
+        "G128": {
+          "counts": {
+            "branches": 12940,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3285,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10164,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1281,
+            "direction_errors": 981,
+            "false_taken": 588,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2501
+          },
+          "mpki": 89.06059373729158,
+          "state_bits_estimate": 1393,
+          "hot_error_pc": [
+            [
+              2147485148,
+              339
+            ],
+            [
+              2147485096,
+              194
+            ],
+            [
+              2147485156,
+              147
+            ],
+            [
+              2147483716,
+              132
+            ],
+            [
+              2147483800,
+              124
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147483756,
+              92
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484064,
+              72
+            ],
+            [
+              2147484092,
+              72
+            ],
+            [
+              2147484112,
+              72
+            ],
+            [
+              2147484344,
+              72
+            ],
+            [
+              2147484360,
+              72
+            ]
+          ]
+        },
+        "M64": {
+          "counts": {
+            "branches": 12940,
+            "jumps": 1743,
+            "btb_misses": 3643,
+            "errors": 3523,
+            "missing_errors": 2304,
+            "allocations": 3643,
+            "conditional": 10164,
+            "not_taken_allocations": 1339,
+            "false_not_taken": 1549,
+            "direction_errors": 1219,
+            "false_taken": 558,
+            "returns": 1033,
+            "evictions": 3627,
+            "unused_victims": 2501
+          },
+          "mpki": 95.5130811983191,
+          "state_bits_estimate": 1265,
+          "hot_error_pc": [
+            [
+              2147485148,
+              440
+            ],
+            [
+              2147485096,
+              241
+            ],
+            [
+              2147485156,
+              159
+            ],
+            [
+              2147483716,
+              140
+            ],
+            [
+              2147485124,
+              114
+            ],
+            [
+              2147485140,
+              110
+            ],
+            [
+              2147485168,
+              108
+            ],
+            [
+              2147485112,
+              106
+            ],
+            [
+              2147483756,
+              94
+            ],
+            [
+              2147484468,
+              88
+            ],
+            [
+              2147484528,
+              85
+            ],
+            [
+              2147483800,
+              81
+            ],
+            [
+              2147484304,
+              74
+            ],
+            [
+              2147484092,
+              73
+            ],
+            [
+              2147484064,
+              72
+            ],
+            [
+              2147484112,
+              72
+            ]
+          ]
+        }
+      },
+      "working_sets": {
+        "0": {
+          "unique_contexts": 51,
+          "working_set_95": 33,
+          "covered_branches": 9688,
+          "conditional_branches": 10164,
+          "retrospective_bias": 0.8848059454995871
+        },
+        "4": {
+          "unique_contexts": 127,
+          "working_set_95": 71,
+          "covered_branches": 9681,
+          "conditional_branches": 10164,
+          "retrospective_bias": 0.9237682057638674
+        },
+        "8": {
+          "unique_contexts": 237,
+          "working_set_95": 132,
+          "covered_branches": 9657,
+          "conditional_branches": 10164,
+          "retrospective_bias": 0.9623071347209278
+        },
+        "16": {
+          "unique_contexts": 451,
+          "working_set_95": 262,
+          "covered_branches": 9661,
+          "conditional_branches": 10164,
+          "retrospective_bias": 0.9728806541765863
+        },
+        "24": {
+          "unique_contexts": 675,
+          "working_set_95": 425,
+          "covered_branches": 9656,
+          "conditional_branches": 10164,
+          "retrospective_bias": 0.973695111847556
+        }
+      }
+    }
+  },
+  "traces": {
+    "json_bpe-dev-131": "b68ac413e4563b8017611f30e2054d1648ec3b591ca5edc7cc365edec23135bf",
+    "json_bpe-dev-257": "162279f106bd12ba9367163c8952dc953def5eed07f5b44fab6f97ec39c557ed",
+    "quant_loader-dev-131": "7ce1828f316dc1cf836d5455380fe642d6b30e5c7287d6415db6fe535c9b5ebc",
+    "quant_loader-dev-257": "341c9ee67c66ca654cb24db1a34c5b8bba8b3fbf4409e23cf830871e36829e0a",
+    "runtime_graph-dev-131": "fe7cada3e6d18e18b1736ceaa30e79aaf587cf148e910fa34b6481571bc67ea2",
+    "runtime_graph-dev-257": "a6e94b8f95385c1fa30d5a7bc1c8791d6315ef4d350bb81c37b901fede7d07ba",
+    "regex_tokenizer-dev-131": "f9b4c303b7d4337ea9c868ac470c5f9c9ff57716b0383f97844f0c109c200dff",
+    "regex_tokenizer-dev-257": "4a4b7158e5a5a4406a7606f546400769d361d7015b13825ca114e10048837185",
+    "ini_config-dev-131": "82693a97e002ed1a1ec843ccba1a5755d339454b8507264825a3dc0bd638488a",
+    "ini_config-dev-257": "50303c57e368432e4d9df90681408d33067a34d0bb3eff025d63613a4f2a64e4"
+  },
+  "summary": {
+    "B0": {
+      "error_ratio_gm": 1.0,
+      "by_family": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "B64": {
+      "error_ratio_gm": 0.9539987778815514,
+      "by_family": {
+        "json_bpe": 0.9542541168051515,
+        "quant_loader": 0.9210695809978019,
+        "runtime_graph": 0.9685435875681031,
+        "regex_tokenizer": 0.9739431258754813,
+        "ini_config": 0.9530810685567918
+      }
+    },
+    "B128": {
+      "error_ratio_gm": 0.9541670601264606,
+      "by_family": {
+        "json_bpe": 0.9525280891366171,
+        "quant_loader": 0.9201032083083434,
+        "runtime_graph": 0.9767500256793443,
+        "regex_tokenizer": 0.9722639696179549,
+        "ini_config": 0.9502549462867254
+      }
+    },
+    "G64": {
+      "error_ratio_gm": 0.9523342189865934,
+      "by_family": {
+        "json_bpe": 1.052541109340649,
+        "quant_loader": 0.9518477397667552,
+        "runtime_graph": 0.8247795169654444,
+        "regex_tokenizer": 0.9665641410788378,
+        "ini_config": 0.9807805656692996
+      }
+    },
+    "G128": {
+      "error_ratio_gm": 0.8942919328203309,
+      "by_family": {
+        "json_bpe": 0.9488950752838395,
+        "quant_loader": 0.9152683568727967,
+        "runtime_graph": 0.7441304509636326,
+        "regex_tokenizer": 0.954113418487319,
+        "ini_config": 0.9276429413336624
+      }
+    },
+    "M64": {
+      "error_ratio_gm": 0.9343529145372449,
+      "by_family": {
+        "json_bpe": 0.9805622758308555,
+        "quant_loader": 0.9274921271682907,
+        "runtime_graph": 0.7700721303243545,
+        "regex_tokenizer": 1.0205549738836008,
+        "ini_config": 0.9963260840819557
+      }
+    }
+  }
+}

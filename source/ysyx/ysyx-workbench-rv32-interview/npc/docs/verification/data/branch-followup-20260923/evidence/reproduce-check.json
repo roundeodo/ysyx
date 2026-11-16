@@ -1,0 +1,6 @@
+{
+  "status": "passed",
+  "log": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/reproduce-check.log",
+  "log_sha256": "69495f33b173471af806a0cfe80c42cd39ac76027be5e1179618240e01de9798",
+  "mode": "check-only; full stages executed separately in this study"
+}

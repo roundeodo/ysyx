@@ -1,0 +1,272 @@
+{
+  "versions": {
+    "verilator": "Verilator 5.043 devel rev v5.042-244-g4080284e5",
+    "yosys": "Yosys 0.60+70 (git sha1 8101c87fa, clang++ 18.1.8 -fPIC -O3)",
+    "riscv64-linux-gnu-gcc": "riscv64-linux-gnu-gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0",
+    "g++": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0"
+  },
+  "files": {
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/Makefile": {
+      "sha256": "5879f1676efc0aeb16984659ad0d11303da862420e56333dea1e1feb96e1b891",
+      "bytes": 1491
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA": {
+      "sha256": "99bdaf0e96a3a2f3fbb8014e0cd2c13f8973a4e26c92bd45f587bb444f1ca9e3",
+      "bytes": 35995656
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/LICENSE": {
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "bytes": 10174
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/README.md": {
+      "sha256": "0e3c8a8cbe5429552764c6531dc454d64f6aa7c1f7128175b5f06070a3de578d",
+      "bytes": 613
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/blackbox_map.tcl": {
+      "sha256": "8a44ad1ed21fd2f323ee37df46802cb01eafc4082bb100dd7ad90436506cfe3f",
+      "bytes": 22
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/cdl/NangateOpenCellLibrary.cdl": {
+      "sha256": "457f0e3836b369f56d2cb04aab2a16d0e40b56d32bf2c62f19475b0abca2f6b3",
+      "bytes": 293675
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/cells_adders.v": {
+      "sha256": "952b214f36f4a608cc6fdacbefcb2f169cc87917fe158a47326bbe6db10867bf",
+      "bytes": 1305
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/config.mk": {
+      "sha256": "54efe08753364be4939160efb9950eb2328d3c2f0c8a9fc277b3defd16cae964",
+      "bytes": 3797
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/drc/FreePDK45.lydrc": {
+      "sha256": "4e35cad6786f21c6e233fb606bea59bb44e1a12713008cf7367d65a1a3de2147",
+      "bytes": 24376
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/fakeram.cfg": {
+      "sha256": "177d142301e2ebfd4b445c99bb0f48f6b5c3cfca009f393d84f834c77ac3303c",
+      "bytes": 2319
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/fakeram.tcl": {
+      "sha256": "c78a646caf8ba2f8016fcf1f9c616aef19adff6e048ceb18da9782bad2717b7a",
+      "bytes": 1169
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/fastroute.tcl": {
+      "sha256": "06f47a1a5e2588f0d2e7c1822f46e3de20e6ec90c7b560b7940f4385d4f452ea",
+      "bytes": 270
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/gds/NangateOpenCellLibrary.gds": {
+      "sha256": "7fdbd7f4e46283fdd9b9a369e1cae1a7f6f742c8e75cfe943c17f451626fe8e8",
+      "bytes": 727870
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/gds/NangateOpenCellLibrary.gds.orig": {
+      "sha256": "93286a7108584e3bc9e8e3a9f56790c7d150549d5f8dfb2459ac7defac101477",
+      "bytes": 727044
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/grid_strategy-M1-M2-M7.cfg": {
+      "sha256": "6d4e7bfd1a70db28578075da55a7cb5ebd281b3411e290e0f19bedcd01b45c91",
+      "bytes": 970
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/grid_strategy-M1-M4-M7.cfg": {
+      "sha256": "db4f2842fe9e1e5d613dfcfe51d2c9b18965e3c36bd34ba9b32c8f2ba2eb40c4",
+      "bytes": 979
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/klayout.lyp": {
+      "sha256": "924ed17e9d77366c88e68698d53dd90240b88550ff05205297c89fc298337065",
+      "bytes": 61501
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/klayout.lyt": {
+      "sha256": "6f238f65a3875cad9ede5f6cd6a5f83e297867827942f2313dea93eba9310143",
+      "bytes": 6221
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/Nangate45_lvt.lef": {
+      "sha256": "40011fdc26c38bbd433fb7eff5225255adc98a1df01bccf16d80582c4484bb97",
+      "bytes": 258656
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/Nangate45_stdcell.lef": {
+      "sha256": "840b01e500826096d1edcc752350834da647fdbf360798f243f8122b52b357c3",
+      "bytes": 349950
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/Nangate45_tech.lef": {
+      "sha256": "834a79295054cd4209178d1bade67c353863c47bb4b3c22ee38b862b7cec37f2",
+      "bytes": 19485
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/dummy_pads.lef": {
+      "sha256": "77a861de94bdef7033ff4479b728033f6d8717337d7065648fa98592cef32361",
+      "bytes": 53622
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_1024x32.lef": {
+      "sha256": "2f2a0e3b837809ffcd0ee279ae3b37ba44e51478467b7832c2d4af47040d4fd1",
+      "bytes": 30248
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_2048x39.lef": {
+      "sha256": "10641ad541de4b7086a377e805287d660d4af1799ff9576341a0c2acda2eaf7d",
+      "bytes": 37737
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_256x34.lef": {
+      "sha256": "07686873e2c0f11c79cbeb6c771b92f1fc0eb5c88d3554bc109bd2f2e83e64c0",
+      "bytes": 28216
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_256x95.lef": {
+      "sha256": "3bde4c1641b01bf8e2c23f7efd852d0c17eeadc81bc673e4e1e48c5a3dc70a4e",
+      "bytes": 66784
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_256x96.lef": {
+      "sha256": "057d49efe23b887aedfa6e90aa925f4a3d8d59873f378aede99376c6207e5f2f",
+      "bytes": 67401
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_32x64.lef": {
+      "sha256": "67b084b7151aaf26bcca731765dd369638ee411260c1b04503c57808d99b841d",
+      "bytes": 43149
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_512x64.lef": {
+      "sha256": "08a24fd39b4f46d024f410db6496626965e8e58f001590befabdf4f32889bd9e",
+      "bytes": 49777
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_64x15.lef": {
+      "sha256": "bf3d7fcfb54cca0f71f7bac556fcf5bab6ac448fc6e8074e055636ffc0951bed",
+      "bytes": 12062
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_64x21.lef": {
+      "sha256": "3f7a1128858379adab2c95bc96bb31d8364037fedd3b9161ca54b99332252af5",
+      "bytes": 15908
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_64x32.lef": {
+      "sha256": "6eeaee7e0198ffed126ea56e32485eb111c101ad76c8a5916c8dc9100c5e4652",
+      "bytes": 22905
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_64x7.lef": {
+      "sha256": "e93c7080e854192fc55af24c060b49da410c39e210c6281f573e81fa274ba0ef",
+      "bytes": 7071
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lef/fakeram45_64x96.lef": {
+      "sha256": "9327837ab7f3e811c2a3204a1a0054ec2a5ccc87a979b3ba4df66fc8d5671a4e",
+      "bytes": 63877
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/.gitignore": {
+      "sha256": "e912071fff427d9707e4bb9fef0df7aaea641d1b23f693afa7a625e331c2d330",
+      "bytes": 11
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_fast.lib": {
+      "sha256": "7c08823aa809fb8c1d633b7f985c3f8a56c1f06e4d3a05b00c487e9e4b4805b7",
+      "bytes": 6749164
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_lvt.lib": {
+      "sha256": "0bdcaf769424b3dc6614228a26c3fd5c79826f102dc25ddef3d1d8402807607a",
+      "bytes": 6749641
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_slow.lib": {
+      "sha256": "899e4a91977dde6aaca8e99073ae7a02fa546510bb4a393e6bab4a8ee2f98b16",
+      "bytes": 6631139
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/Nangate45_typ.lib": {
+      "sha256": "2efd0b32eb580e4e60e72fc0575bb3bc69aac907c91d908442e4ae6d7fe55895",
+      "bytes": 6691483
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/dummy_pads.lib": {
+      "sha256": "43587266cb0d6b3a060f923a33c8b16eedea78c8e1eae33b23749147c558b44e",
+      "bytes": 31022
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_1024x32.lib": {
+      "sha256": "bbc88b300a6b6b785713c5096c6c5fda6fefb24a3f9ef732b020ea18d6048d50",
+      "bytes": 8333
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_2048x39.lib": {
+      "sha256": "5afd38adda31badb973451a3d0d0ea4fa5eb684254a39cd605f418557349698d",
+      "bytes": 8335
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_256x34.lib": {
+      "sha256": "4ebbf31b7369510bf9da7a8ce2c65c26d34cd753884603dbc1e99263fab0307b",
+      "bytes": 8319
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_256x95.lib": {
+      "sha256": "e1420eb47e8723472bee40136470c60024845b5e5185295b36bd5acd57f1d86a",
+      "bytes": 8320
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_256x96.lib": {
+      "sha256": "4991a9331291fc234def0282e62af96561ea35c4770532ddae51e6b836ad7af7",
+      "bytes": 8320
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_32x64.lib": {
+      "sha256": "fa432b5ec2c694e7c32d2cf4cb530c9155217e9c0ae5dafb4e51edd1557207c5",
+      "bytes": 8307
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_512x64.lib": {
+      "sha256": "b43481cdf721a9e811f16fec05f2d654602873c3e00069778aa215c7cf2f451d",
+      "bytes": 8320
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_64x15.lib": {
+      "sha256": "624891682f5828805358b8d30c9086ce289a369b09769b56f5cd3205dfec9c1d",
+      "bytes": 8290
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_64x21.lib": {
+      "sha256": "ab2f144a916605ccb84cb7ab6c2bc90917effbe6167bf2d38584f14c8ecdbb2c",
+      "bytes": 8290
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_64x32.lib": {
+      "sha256": "62ffb0b03f16a21f6d6552123251b858f6183bf4ddbbd56a17ad2528ec0543b0",
+      "bytes": 8291
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_64x7.lib": {
+      "sha256": "713c33418c26ff90df652100d9a5f2224627ae7cd21023712c5a5c7a0cb18758",
+      "bytes": 8276
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/lib/fakeram45_64x96.lib": {
+      "sha256": "51987cbd4df139d095b790acda8ffcd2963a973e5585c2b1609a68befff13b6b",
+      "bytes": 8308
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/magic.tech": {
+      "sha256": "73327b46ff3e9f45d03c6166c03768529816f74a41600284762586b59566ad85",
+      "bytes": 44832
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/pdn.cfg": {
+      "sha256": "9cda43bb7bd1b437cdf4e34f64e32a1eccccb93639734b938c078939f98e1492",
+      "bytes": 556
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/rcx_patterns.rules": {
+      "sha256": "2f65fafbe2c704b378563c53a680b93cef080c2799997019d43df7d1e5a563e9",
+      "bytes": 134186
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/setRC.tcl": {
+      "sha256": "f28668b2d4d3cb10876eb72c0f410d81ce8b67d9420c237f82c215d2903bbb0e",
+      "bytes": 903
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/sim/cells.v": {
+      "sha256": "9430fe45ddf1d60b3c74851c7df759bf4c0f5a78fbff80b65e6cd619cdfd6b69",
+      "bytes": 16521
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/tapcell.tcl": {
+      "sha256": "d4acaaf13d360b8a056745e5575f22260c517d7ad2ee43b1cc3dfa5f764e70c3",
+      "bytes": 91
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/template_pga.cfg": {
+      "sha256": "81d0a5dd9898fb85cc3f33cb2cbd4009dc2be2683dc1d2b73d096cde4f51ad2d",
+      "bytes": 270
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/tracks_1.2.0.info": {
+      "sha256": "571f73a06074922a6488df73dfb346a86c0d3ee76a953d7d29867df8632941cc",
+      "bytes": 781
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/verilog/blackbox.v": {
+      "sha256": "e37a571b20502f624ddff8109879f4b4cf0dd9f2a5f93c89f0e0953b8e6b3375",
+      "bytes": 38
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/verilog/cells_clkgate.v": {
+      "sha256": "5ea0a6fb7aee5e17c11c00ad751fd5c1cc9f8e4791426643fc96ecc19ffbf8f7",
+      "bytes": 191
+    },
+    "npc/result/sta/rv32-interrupt-20260906/toolflow/pdk/nangate45/verilog/cells_latch.v": {
+      "sha256": "7e2330df874405c28f92d37f17be088b371b9f378a913e7ca3dbda25ca4c7802",
+      "bytes": 289
+    },
+    "/home/yong/tools/oss-cad-suite/bin/yosys": {
+      "sha256": "7c3e3396b38c129dd7485be5a0a0f0da8e495a94c8fd486059e3bea043a588d6",
+      "bytes": 540
+    },
+    "/home/yong/tools/oss-cad-suite/bin/yosys-abc": {
+      "sha256": "9a47b87ed0f705246d61b289669c5540a42f31203da2c7971e35baed9fdfb4cf",
+      "bytes": 392
+    }
+  },
+  "validated_against_previous": "npc/result/branch-exploration-20260922/baseline",
+  "status": "same tool binaries, flow, library and version records"
+}

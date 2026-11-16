@@ -1,0 +1,1391 @@
+diff --git a/tests/cpu-tests/tests/icache-sdram-burst-test.c b/tests/cpu-tests/tests/icache-sdram-burst-test.c
+new file mode 100644
+index 0000000..1b1ee74
+--- /dev/null
++++ b/tests/cpu-tests/tests/icache-sdram-burst-test.c
+@@ -0,0 +1,24 @@
++#include "trap.h"
++
++#include <stdint.h>
++
++#define SDRAM_EXEC_BASE_ADDR 0xa0000000u
++
++typedef uint32_t (*sdram_test_function_t)(void);
++
++int main(void) {
++  volatile uint32_t *const sdram_instructions =
++      (volatile uint32_t *)(uintptr_t)SDRAM_EXEC_BASE_ADDR;
++
++  // 写入addi a0, x0, 42和返回指令，作为之后从SDRAM执行的最小函数。
++  sdram_instructions[0] = 0x02a00513u;
++  sdram_instructions[1] = 0x00008067u;
++
++  // 前面的store修改了未来要取指的地址；跳转前用fence.i清除旧I-cache状态。
++  __asm__ volatile("fence.i" ::: "memory");
++
++  const sdram_test_function_t sdram_test_function =
++      (sdram_test_function_t)(uintptr_t)SDRAM_EXEC_BASE_ADDR;
++  check(sdram_test_function() == 42u);
++  return 0;
++}
+diff --git a/tests/cpu-tests/tests/mem-test.c b/tests/cpu-tests/tests/mem-test.c
+new file mode 100644
+index 0000000..bc080e2
+--- /dev/null
++++ b/tests/cpu-tests/tests/mem-test.c
+@@ -0,0 +1,65 @@
++#include "trap.h"
++#include <stdint.h>
++
++#define PSRAM_TEST_START_ADDR ((uintptr_t)0x80000000u)
++#define PSRAM_TEST_END_ADDR   ((uintptr_t)0x80400000u)
++
++static uintptr_t align_up(uintptr_t addr, uintptr_t alignment) {
++  return (addr + alignment - 1) & ~(alignment - 1);
++}
++
++int main(void) {
++  const uintptr_t start = PSRAM_TEST_START_ADDR;
++  const uintptr_t end   = PSRAM_TEST_END_ADDR;
++
++  // Cover every PSRAM byte with 8-bit stores and loads.
++  for (uintptr_t addr = start; addr < end; addr++) {
++    *(volatile uint8_t *)addr = (uint8_t)(addr ^ 0x5a);
++  }
++
++  for (uintptr_t addr = start; addr < end; addr++) {
++    uint8_t expected = (uint8_t)(addr ^ 0x5a);
++    if (*(volatile uint8_t *)addr != expected) {
++      halt(1);
++    }
++  }
++
++  // Cover the complete PSRAM range with naturally aligned 16-bit accesses.
++  for (uintptr_t addr = align_up(start, 2); addr + 2 <= end; addr += 2) {
++    *(volatile uint16_t *)addr = (uint16_t)(addr ^ 0xa55a);
++  }
++
++  for (uintptr_t addr = align_up(start, 2); addr + 2 <= end; addr += 2) {
++    uint16_t expected = (uint16_t)(addr ^ 0xa55a);
++    if (*(volatile uint16_t *)addr != expected) {
++      halt(2);
++    }
++  }
++
++  // Cover the complete PSRAM range with naturally aligned 32-bit accesses.
++  for (uintptr_t addr = align_up(start, 4); addr + 4 <= end; addr += 4) {
++    *(volatile uint32_t *)addr = (uint32_t)(addr ^ 0xa5a55a5a);
++  }
++
++  for (uintptr_t addr = align_up(start, 4); addr + 4 <= end; addr += 4) {
++    uint32_t expected = (uint32_t)(addr ^ 0xa5a55a5a);
++    if (*(volatile uint32_t *)addr != expected) {
++      halt(3);
++    }
++  }
++
++  // RV32 implements each 64-bit C access as multiple 32-bit instructions.
++  for (uintptr_t addr = align_up(start, 8); addr + 8 <= end; addr += 8) {
++    uint64_t expected = ((uint64_t)(addr ^ 0x5aa55aa5u) << 32) | addr;
++    *(volatile uint64_t *)addr = expected;
++  }
++
++  for (uintptr_t addr = align_up(start, 8); addr + 8 <= end; addr += 8) {
++    uint64_t expected = ((uint64_t)(addr ^ 0x5aa55aa5u) << 32) | addr;
++    if (*(volatile uint64_t *)addr != expected) {
++      halt(4);
++    }
++  }
++
++  return 0;
++}
+diff --git a/tests/cpu-tests/tests/psram-test.c b/tests/cpu-tests/tests/psram-test.c
+new file mode 100644
+index 0000000..a629573
+--- /dev/null
++++ b/tests/cpu-tests/tests/psram-test.c
+@@ -0,0 +1,133 @@
++#include "trap.h"
++
++#include <stdint.h>
++#include <stdio.h>
++
++#define PSRAM_TEST_BASE_ADDR 0x80000000u
++#define PSRAM_TEST_BYTE_SIZE 0x00001000u
++
++static void test_byte_access(void) {
++  volatile uint8_t *const psram =
++      (volatile uint8_t *)(uintptr_t)PSRAM_TEST_BASE_ADDR;
++
++  printf("PSRAM: testing 8-bit accesses...\n");
++
++  for (uint32_t byte_offset = 0; byte_offset < PSRAM_TEST_BYTE_SIZE;
++       byte_offset++) {
++    psram[byte_offset] = (uint8_t)(byte_offset ^ 0x5au);
++  }
++
++  for (uint32_t byte_offset = 0; byte_offset < PSRAM_TEST_BYTE_SIZE;
++       byte_offset++) {
++    const uint8_t expected = (uint8_t)(byte_offset ^ 0x5au);
++    const uint8_t actual   = psram[byte_offset];
++
++    if (actual != expected) {
++      printf("PSRAM 8-bit mismatch: addr=0x%x expected=0x%x actual=0x%x\n",
++             PSRAM_TEST_BASE_ADDR + byte_offset, expected, actual);
++      halt(1);
++    }
++  }
++}
++
++static void test_halfword_access(void) {
++  volatile uint16_t *const psram =
++      (volatile uint16_t *)(uintptr_t)PSRAM_TEST_BASE_ADDR;
++  const uint32_t halfword_count = PSRAM_TEST_BYTE_SIZE / sizeof(uint16_t);
++
++  printf("PSRAM: testing 16-bit accesses...\n");
++
++  for (uint32_t halfword_index = 0; halfword_index < halfword_count;
++       halfword_index++) {
++    const uint32_t byte_offset = halfword_index * sizeof(uint16_t);
++    psram[halfword_index] = (uint16_t)(byte_offset ^ 0xa55au);
++  }
++
++  for (uint32_t halfword_index = 0; halfword_index < halfword_count;
++       halfword_index++) {
++    const uint32_t byte_offset = halfword_index * sizeof(uint16_t);
++    const uint16_t expected    = (uint16_t)(byte_offset ^ 0xa55au);
++    const uint16_t actual      = psram[halfword_index];
++
++    if (actual != expected) {
++      printf("PSRAM 16-bit mismatch: addr=0x%x expected=0x%x actual=0x%x\n",
++             PSRAM_TEST_BASE_ADDR + byte_offset, expected, actual);
++      halt(2);
++    }
++  }
++}
++
++static void test_word_access(void) {
++  volatile uint32_t *const psram =
++      (volatile uint32_t *)(uintptr_t)PSRAM_TEST_BASE_ADDR;
++  const uint32_t word_count = PSRAM_TEST_BYTE_SIZE / sizeof(uint32_t);
++
++  printf("PSRAM: testing 32-bit accesses...\n");
++
++  for (uint32_t word_index = 0; word_index < word_count; word_index++) {
++    const uint32_t byte_offset = word_index * sizeof(uint32_t);
++    psram[word_index] = byte_offset ^ 0xa5a55a5au;
++  }
++
++  for (uint32_t word_index = 0; word_index < word_count; word_index++) {
++    const uint32_t byte_offset = word_index * sizeof(uint32_t);
++    const uint32_t expected    = byte_offset ^ 0xa5a55a5au;
++    const uint32_t actual      = psram[word_index];
++
++    if (actual != expected) {
++      printf("PSRAM 32-bit mismatch: addr=0x%x expected=0x%x actual=0x%x\n",
++             PSRAM_TEST_BASE_ADDR + byte_offset, expected, actual);
++      halt(3);
++    }
++  }
++}
++
++static void test_doubleword_access(void) {
++  volatile uint64_t *const psram =
++      (volatile uint64_t *)(uintptr_t)PSRAM_TEST_BASE_ADDR;
++  const uint32_t doubleword_count = PSRAM_TEST_BYTE_SIZE / sizeof(uint64_t);
++
++  printf("PSRAM: testing 64-bit accesses as RV32 word pairs...\n");
++
++  for (uint32_t doubleword_index = 0;
++       doubleword_index < doubleword_count; doubleword_index++) {
++    const uint32_t byte_offset = doubleword_index * sizeof(uint64_t);
++    const uint64_t pattern =
++        ((uint64_t)(byte_offset ^ 0x89abcdefu) << 32) |
++        (uint64_t)(byte_offset ^ 0x01234567u);
++
++    psram[doubleword_index] = pattern;
++  }
++
++  for (uint32_t doubleword_index = 0;
++       doubleword_index < doubleword_count; doubleword_index++) {
++    const uint32_t byte_offset = doubleword_index * sizeof(uint64_t);
++    const uint64_t expected =
++        ((uint64_t)(byte_offset ^ 0x89abcdefu) << 32) |
++        (uint64_t)(byte_offset ^ 0x01234567u);
++    const uint64_t actual = psram[doubleword_index];
++
++    if (actual != expected) {
++      printf("PSRAM 64-bit mismatch: addr=0x%x\n",
++             PSRAM_TEST_BASE_ADDR + byte_offset);
++      printf("  expected: high=0x%x low=0x%x\n",
++             (uint32_t)(expected >> 32), (uint32_t)expected);
++      printf("  actual:   high=0x%x low=0x%x\n",
++             (uint32_t)(actual >> 32), (uint32_t)actual);
++      halt(4);
++    }
++  }
++}
++
++int main(void) {
++  printf("PSRAM test range: [0x%x, 0x%x)\n", PSRAM_TEST_BASE_ADDR,
++         PSRAM_TEST_BASE_ADDR + PSRAM_TEST_BYTE_SIZE);
++
++  test_byte_access();
++  test_halfword_access();
++  test_word_access();
++  test_doubleword_access();
++
++  printf("PSRAM test passed.\n");
++  return 0;
++}
+diff --git a/tests/cpu-tests/tests/sdram-test.c b/tests/cpu-tests/tests/sdram-test.c
+new file mode 100644
+index 0000000..c9ce532
+--- /dev/null
++++ b/tests/cpu-tests/tests/sdram-test.c
+@@ -0,0 +1,91 @@
++#include "trap.h"
++
++#include <stdint.h>
++#include <stdio.h>
++
++#define SDRAM_TEST_BASE_ADDR 0xa0000000u
++#define SDRAM_TEST_BYTE_SIZE 0x00001000u
++
++static uint32_t select_word_test_pattern(uint32_t word_index) {
++  const uint32_t byte_offset = word_index * sizeof(uint32_t);
++  return (SDRAM_TEST_BASE_ADDR + byte_offset) ^ 0xa5a55a5au;
++}
++
++static void test_complete_word_range(void) {
++  volatile uint32_t *const sdram_words =
++      (volatile uint32_t *)(uintptr_t)SDRAM_TEST_BASE_ADDR;
++  const uint32_t word_count = SDRAM_TEST_BYTE_SIZE / sizeof(uint32_t);
++
++  printf("SDRAM: testing 4 KiB with 32-bit accesses...\n");
++
++  for (uint32_t word_index = 0; word_index < word_count; word_index++) {
++    sdram_words[word_index] = select_word_test_pattern(word_index);
++  }
++
++  for (uint32_t word_index = 0; word_index < word_count; word_index++) {
++    const uint32_t expected = select_word_test_pattern(word_index);
++    const uint32_t actual   = sdram_words[word_index];
++
++    if (actual != expected) {
++      const uint32_t failed_addr =
++          SDRAM_TEST_BASE_ADDR + word_index * sizeof(uint32_t);
++      printf("SDRAM word mismatch: addr=0x%x expected=0x%x actual=0x%x\n",
++             failed_addr, expected, actual);
++      halt(1);
++    }
++  }
++}
++
++static void test_byte_write_strobes(void) {
++  const uintptr_t test_addr = SDRAM_TEST_BASE_ADDR + 0x100u;
++  volatile uint32_t *const test_word =
++      (volatile uint32_t *)(uintptr_t)test_addr;
++  volatile uint8_t *const test_bytes =
++      (volatile uint8_t *)(uintptr_t)test_addr;
++
++  printf("SDRAM: testing four byte write strobes...\n");
++
++  *test_word     = 0u;
++  test_bytes[0] = 0x11u;
++  test_bytes[1] = 0x22u;
++  test_bytes[2] = 0x33u;
++  test_bytes[3] = 0x44u;
++
++  if (*test_word != 0x44332211u) {
++    printf("SDRAM byte-strobe mismatch: expected=0x44332211 actual=0x%x\n",
++           *test_word);
++    halt(2);
++  }
++}
++
++static void test_halfword_write_strobes(void) {
++  const uintptr_t test_addr = SDRAM_TEST_BASE_ADDR + 0x200u;
++  volatile uint32_t *const test_word =
++      (volatile uint32_t *)(uintptr_t)test_addr;
++  volatile uint16_t *const test_halfwords =
++      (volatile uint16_t *)(uintptr_t)test_addr;
++
++  printf("SDRAM: testing two halfword write strobes...\n");
++
++  *test_word         = 0u;
++  test_halfwords[0] = 0x55aau;
++  test_halfwords[1] = 0xa55au;
++
++  if (*test_word != 0xa55a55aau) {
++    printf("SDRAM halfword-strobe mismatch: expected=0xa55a55aa actual=0x%x\n",
++           *test_word);
++    halt(3);
++  }
++}
++
++int main(void) {
++  printf("SDRAM test range: [0x%x, 0x%x)\n", SDRAM_TEST_BASE_ADDR,
++         SDRAM_TEST_BASE_ADDR + SDRAM_TEST_BYTE_SIZE);
++
++  test_complete_word_range();
++  test_byte_write_strobes();
++  test_halfword_write_strobes();
++
++  printf("SDRAM test passed.\n");
++  return 0;
++}
+diff --git a/tests/cpu-tests/tests/soc-bitrev-test.c b/tests/cpu-tests/tests/soc-bitrev-test.c
+new file mode 100644
+index 0000000..4247182
+--- /dev/null
++++ b/tests/cpu-tests/tests/soc-bitrev-test.c
+@@ -0,0 +1,18 @@
++#include <am.h>
++#include <stdint.h>
++#include <stdio.h>
++#include "spi.h"
++
++int main(void) {
++  spi_init();
++
++  const uint8_t input = 0xd2u;
++  const uint8_t expected = 0x4bu;
++  const uint8_t actual = spi_bitrev(input);
++
++  printf("input    = 0x%02x\n", input);
++  printf("expected = 0x%02x\n", expected);
++  printf("actual   = 0x%02x\n", actual);
++
++  halt(actual == expected ? 0 : 1);
++}
+\ No newline at end of file
+diff --git a/tests/cpu-tests/tests/soc-flash-boot-test.c b/tests/cpu-tests/tests/soc-flash-boot-test.c
+new file mode 100644
+index 0000000..cf5daac
+--- /dev/null
++++ b/tests/cpu-tests/tests/soc-flash-boot-test.c
+@@ -0,0 +1,30 @@
++#include <stdint.h>
++#include <flash.h>
++
++#define FLASH_PAYLOAD_OFFSET 0x00000000u
++#define SRAM_PROGRAM_ENTRY   0x0f000000u
++
++
++#define PROGRAM_BYTE_COUNT 16u
++
++typedef void (*program_entry_t)(void);
++
++int main(void) {
++  volatile uint32_t *const sram_program =
++      (volatile uint32_t *)(uintptr_t)SRAM_PROGRAM_ENTRY;
++
++  for (uint32_t offset = 0; offset < PROGRAM_BYTE_COUNT;
++       offset += sizeof(uint32_t)) {
++    sram_program[offset / sizeof(uint32_t)] =
++        flash_read(FLASH_PAYLOAD_OFFSET + offset);
++  }
++
++  __asm__ volatile(".word 0x0000100f" ::: "memory");
++
++  program_entry_t program_entry =
++      (program_entry_t)(uintptr_t)SRAM_PROGRAM_ENTRY;
++
++  program_entry();
++
++  return 1;
++}
+diff --git a/tests/cpu-tests/tests/soc-flash-test.c b/tests/cpu-tests/tests/soc-flash-test.c
+new file mode 100644
+index 0000000..3a14c6b
+--- /dev/null
++++ b/tests/cpu-tests/tests/soc-flash-test.c
+@@ -0,0 +1,30 @@
++#include <stdint.h>
++
++#define FLASH_BASE 0x30000000u
++
++static inline uint32_t flash_read32(uint32_t offset) {
++  volatile uint32_t *addr =
++      (volatile uint32_t *)(uintptr_t)(FLASH_BASE + offset);
++
++  return *addr;
++}
++
++int main(void) {
++  uint32_t value0 = flash_read32(0x0000);
++  uint32_t value1 = flash_read32(0x0004);
++  uint32_t value2 = flash_read32(0x0100);
++
++  if (value0 != 0x12345678u) {
++    return 1;
++  }
++
++  if (value1 != 0xdeadbeefu) {
++    return 2;
++  }
++
++  if (value2 != 0xabcdef01u) {
++    return 3;
++  }
++
++  return 0;
++}
+\ No newline at end of file
+diff --git a/tests/cpu-tests/tests/soc-flash-xip-test.c b/tests/cpu-tests/tests/soc-flash-xip-test.c
+new file mode 100644
+index 0000000..428f129
+--- /dev/null
++++ b/tests/cpu-tests/tests/soc-flash-xip-test.c
+@@ -0,0 +1,14 @@
++#include <stdint.h>
++
++#define FLASH_ENTRY_ADDR 0x30000000u
++#define FLASH_RETURN_VALUE 0x58495031u
++
++typedef uint32_t (*flash_entry_t)(void);
++
++int main(void){
++    flash_entry_t flash_entry = (flash_entry_t)(uintptr_t)FLASH_ENTRY_ADDR;
++
++    uint32_t result = flash_entry();
++
++    return result == FLASH_RETURN_VALUE ? 0 : 1;
++}
+\ No newline at end of file
+diff --git a/tests/cpu-tests/tests/soc-spi-flash-test.c b/tests/cpu-tests/tests/soc-spi-flash-test.c
+new file mode 100644
+index 0000000..1314457
+--- /dev/null
++++ b/tests/cpu-tests/tests/soc-spi-flash-test.c
+@@ -0,0 +1,18 @@
++#include <flash.h>
++#include <stdint.h>
++
++int main(void) {
++  if (flash_read(0x000000u) != 0x12345678u) {
++    return 1;
++  }
++
++  if (flash_read(0x000004u) != 0xdeadbeefu) {
++    return 2;
++  }
++
++  if (flash_read(0x000100u) != 0xabcdef01u) {
++    return 3;
++  }
++
++  return 0;
++}
+diff --git a/tests/klib-tests/Makefile b/tests/klib-tests/Makefile
+new file mode 100644
+index 0000000..4b26aaf
+--- /dev/null
++++ b/tests/klib-tests/Makefile
+@@ -0,0 +1,3 @@
++NAME = klibtest
++SRCS = $(shell find src/ -name "*.[cS]")
++include $(AM_HOME)/Makefile
+\ No newline at end of file
+diff --git a/tests/klib-tests/include/test.h b/tests/klib-tests/include/test.h
+new file mode 100644
+index 0000000..df6d7c7
+--- /dev/null
++++ b/tests/klib-tests/include/test.h
+@@ -0,0 +1,8 @@
++#ifndef __TEST_H__
++#define __TEST_H__
++
++void test_memory(void);
++void test_string(void);
++void test_stdio(void);
++
++#endif
+\ No newline at end of file
+diff --git a/tests/klib-tests/src/main.c b/tests/klib-tests/src/main.c
+new file mode 100644
+index 0000000..fe6fc8e
+--- /dev/null
++++ b/tests/klib-tests/src/main.c
+@@ -0,0 +1,13 @@
++#include <am.h>
++#include <klib.h>
++#include <test.h>
++
++int main() {
++  test_memory();
++  test_string();
++  test_stdio();
++
++  printf("All klib tests passed!\n");
++
++  return 0;
++}
+\ No newline at end of file
+diff --git a/tests/klib-tests/src/memory.c b/tests/klib-tests/src/memory.c
+new file mode 100644
+index 0000000..7cf0f04
+--- /dev/null
++++ b/tests/klib-tests/src/memory.c
+@@ -0,0 +1,211 @@
++#include <am.h>
++#include <klib.h>
++#include <klib-macros.h>
++#include <stdint.h>
++#include <test.h>
++
++#define N 32
++
++static uint8_t data[N];
++
++static uint8_t src_data[N];
++static uint8_t dst_data[N];
++
++
++static void reset(void) {
++  for (int i = 0; i < N; i++) {
++    data[i] = i + 1;
++  }
++}
++
++static void reset_src_dst(void){
++  for (int i = 0; i < N; i++){
++    src_data[i] = (uint8_t)(0x80 + i);
++    dst_data[i] = (uint8_t)(i + 1);
++  }
++}
++
++static void check_seq(int l, int r, uint8_t val) {
++  for (int i = l; i < r; i++) {
++    assert(data[i] == val + i - l);
++  }
++}
++
++static void check_eq(int l, int r, uint8_t val) {
++  for (int i = l; i < r; i++) {
++    assert(data[i] == val);
++  }
++}
++
++static void check_raw_bytes_eq(const uint8_t *a, const uint8_t *b, size_t n){
++  for (size_t i = 0; i < n; i++){
++    assert(a[i] == b[i]);
++  }
++}
++
++static void ref_memmove(uint8_t *dst, const uint8_t *src, size_t n){
++  uint8_t temp[N];
++
++  for (size_t i = 0; i < n;i++){
++    temp[i] = src[i];
++  }
++
++  for (size_t i = 0; i < n;i++){
++    dst[i] = temp[i];
++  }
++}
++
++static void test_memset_impl(void){
++  for (int l = 0; l <= N;l++){
++    for (int r = l; r <= N;r++){
++      reset();
++      uint8_t val = (uint8_t)((l + r + 7) & 0xff);
++      // set the value of the segment
++      void *ret = memset(data + l, val, r - l);
++      assert(ret == data + l);
++      // left continue region
++      check_seq(0, l, 1);
++      // middle set region
++      check_eq(l, r, val);
++      // right continue region
++      check_seq(r, N, r + 1);
++    }
++  }
++}
++
++static void test_memcpy_impl(void){
++  // memcpy require that there is not overlap between src and dst
++  for (int l = 0; l <= N; l++){
++    for (int r = l; r <= N; r++){
++      reset_src_dst();
++      void *ret = memcpy(dst_data + l, src_data + l, r - l);
++      assert(ret == dst_data + l);
++
++      for (int i = 0; i < l; i++){
++        assert(dst_data[i] == (uint8_t)(i + 1));
++      }
++
++      for (int i = l; i < r; i++){
++        assert(dst_data[i] == src_data[i]);
++      }
++
++      for (int i = r; i < N; i++){
++        assert(dst_data[i] == (uint8_t)(i+1));
++      }
++    }
++  }
++}
++
++static void test_memmove_impl(void){
++  // memmove need to support overlap
++  uint8_t actual[N];
++  uint8_t expected[N];
++
++  for (int src_off = 0; src_off <= N; src_off++){
++    for (int dst_off = 0; dst_off <= N; dst_off++){
++      for (int len = 0; len <= N; len++){
++        if(src_off + len > N)
++          continue;
++        if(dst_off + len > N)
++        continue;
++
++        for (int i = 0; i < N; i++){
++          actual[i] = (uint8_t)(i + 1);
++          expected[i] = (uint8_t)(i + 1);
++        }
++
++        void *ret = memmove(actual + dst_off, actual + src_off, len);
++        ref_memmove(expected + dst_off, expected + src_off, len);
++        assert(ret == actual + dst_off); // have to return target address
++        check_raw_bytes_eq(actual, expected, N);
++      }
++    }
++  }
++}
++
++static void test_strcpy_impl(void){
++  char buf[32];
++
++  for (int i = 0; i < 32; i++){
++    buf[i] = (char)0xaa;
++  }
++
++  char *ret = strcpy(buf, "abc");
++  assert(ret == buf);
++  assert(buf[0] == 'a');
++  assert(buf[1] == 'b');
++  assert(buf[2] == 'c');
++  assert(buf[3] == '\0');
++
++  assert((unsigned char)buf[4] == 0xaa);
++}
++
++
++static void test_strncpy_impl(void){
++  char buf[16];
++
++  // length < n
++  for (int i = 0; i < 16;i++){
++    buf[i] = (char)0xaa;
++  }
++  char *ret = strncpy(buf, "abc", 6);
++  assert(ret == buf);
++  assert(buf[0] == 'a');
++  assert(buf[1] == 'b');
++  assert(buf[2] == 'c');
++  assert(buf[3] == '\0');
++  assert(buf[4] == '\0');
++  assert(buf[5] == '\0');
++
++  assert((unsigned char)buf[6] == 0xaa);
++
++  // length > n
++  for (int i = 0; i < 16; i++){
++    buf[i] = (char)0xaa;
++  }
++  ret = strncpy(buf, "abcdef", 3);
++  assert(ret == buf);
++  assert(buf[0] == 'a');
++  assert(buf[1] == 'b');
++  assert(buf[2] == 'c');
++
++  assert((unsigned char)buf[3] == 0xaa); // transfer to unsigned because char can be signed/unsigned in different platform
++
++  // length = 0
++  for (int i = 0; i < 16; i++){
++    buf[i] = (char)0xaa;
++  }
++
++  ret = strncpy(buf, "abc", 0);
++  assert(ret == buf);
++  assert((unsigned char)buf[0] == 0xaa);
++}
++
++static void test_strcat_impl(void){
++  char buf[32];
++
++  for (int i = 0; i < 32; i++){
++    buf[i] = (char)0xaa;
++  }
++  buf[0] = 'a';
++  buf[1] = 'b';
++  buf[2] = '\0';
++
++  char *ret = strcat(buf, "cd");
++
++  assert(ret == buf);
++  assert(buf[0] == 'a');
++  assert(buf[1] == 'b');
++  assert(buf[2] == 'c');
++  assert(buf[3] == 'd');
++  assert(buf[4] == '\0');
++}
++
++void test_memory(void){
++  test_memset_impl();
++  test_memcpy_impl();
++  test_memmove_impl();
++  test_strcpy_impl();
++  test_strncpy_impl();
++  test_strcat_impl();
++}
+\ No newline at end of file
+diff --git a/tests/klib-tests/src/stdio.c b/tests/klib-tests/src/stdio.c
+new file mode 100644
+index 0000000..fe09b9a
+--- /dev/null
++++ b/tests/klib-tests/src/stdio.c
+@@ -0,0 +1,240 @@
++#include <am.h>
++#include <klib.h>
++#include <klib-macros.h>
++#include <stdarg.h>
++#include <stdint.h>
++#include <limits.h>
++#include <test.h>
++
++static int raw_streq(const char *a, const char *b) {
++  while (*a != '\0' && *b != '\0') {
++    if (*a != *b) {
++      return 0;
++    }
++
++    a++;
++    b++;
++  }
++
++  return *a == '\0' && *b == '\0';
++}
++
++static int call_vsprintf(char *out, const char *fmt, ...){
++    va_list ap;
++    va_start(ap, fmt);
++    int ret = vsprintf(out, fmt, ap);
++    va_end(ap);
++
++    return ret;
++}
++
++static int call_vsnprintf(char *out, size_t n, const char *fmt, ...) {
++    va_list ap; 
++    va_start(ap, fmt);
++    int ret = vsnprintf(out, n, fmt, ap);
++    va_end(ap); 
++    return ret;
++}
++
++static void test_sprintf_decimal(void){
++    char buf[128];
++    int ret;
++
++    // normal positive value
++    ret = sprintf(buf, "%d", 123);
++    assert(ret == 3);
++    assert(raw_streq(buf, "123"));
++
++    // normal negative value
++    ret = sprintf(buf, "%d", -123);
++    assert(ret == 4);
++    assert(raw_streq(buf, "-123"));
++
++    // 0 
++    ret = sprintf(buf, "%d", 0);
++    assert(ret == 1);
++    assert(raw_streq(buf, "0"));
++
++    // width + space_padding
++    ret = sprintf(buf, "%6d", -123);
++    assert(ret == 6);
++    assert(raw_streq(buf, "  -123"));
++
++    // width + zero_padding
++    ret = sprintf(buf, "%06d", -123);
++    assert(ret == 6);
++    assert(raw_streq(buf, "-00123"));
++
++    // boundary value
++    ret = sprintf(buf, "%d", INT_MAX);
++    assert(ret == 10);
++    assert(raw_streq(buf, "2147483647"));
++
++    ret = sprintf(buf, "%d", INT_MIN);
++    assert(ret == 11);
++    assert(raw_streq(buf, "-2147483648"));
++
++    ret = sprintf(buf, "%d", INT_MAX / 17);
++    assert(ret == 9);
++    assert(raw_streq(buf, "126322567"));
++
++    ret = sprintf(buf, "%d", INT_MIN + 1);
++    assert(ret == 11);
++    assert(raw_streq(buf, "-2147483647"));  
++}
++
++static void test_sprintf_hex(void){
++    char buf[128];
++    int ret;
++
++    // normal value
++    ret = sprintf(buf, "%x", 0x1a);
++    assert(ret == 2);
++    assert(raw_streq(buf, "1a"));
++
++    // width + zero_padding
++    ret = sprintf(buf, "%08x", 0x1a);
++    assert(ret == 8);
++    assert(raw_streq(buf, "0000001a"));
++
++    // boundary value
++    ret = sprintf(buf, "%x", UINT_MAX);
++    assert(ret == 8);
++    assert(raw_streq(buf, "ffffffff"));
++
++    ret = sprintf(buf, "%x", UINT_MAX / 17);
++    assert(ret == 7);
++    assert(raw_streq(buf, "f0f0f0f"));
++
++    ret = sprintf(buf, "%x", INT_MAX / 17);
++    assert(ret == 7);
++    assert(raw_streq(buf, "7878787"));
++}
++
++static void test_sprintf_string_char_percent_pointer(void) {
++    char buf[128];
++    int ret;    
++    
++    // %s
++    ret = sprintf(buf, "%s", "hello");
++    assert(ret == 5);
++    assert(raw_streq(buf, "hello"));    
++    
++    // %5s
++    ret = sprintf(buf, "%5s", "hi");
++    assert(ret == 5);
++    assert(raw_streq(buf, "   hi"));    
++
++    // %c  (char will be promote to int so we shoud read by va_arg(ap,int))
++    ret = sprintf(buf, "%c", 'A');
++    assert(ret == 1);
++    assert(raw_streq(buf, "A"));    
++    
++    // %3c
++    ret = sprintf(buf, "%3c", 'A');
++    assert(ret == 3);
++    assert(raw_streq(buf, "  A"));  
++    
++    // %%
++    ret = sprintf(buf, "%%");
++    assert(ret == 1);
++    assert(raw_streq(buf, "%"));    
++    /* mix
++     * expected："hi A -7 2b %"
++     *
++     *   hi  -> 2
++     *   space -> 1
++     *   A   -> 1
++     *   space -> 1
++     *   -7  -> 2
++     *   space -> 1
++     *   2b  -> 2
++     *   space -> 1
++     *   %   -> 1
++     *
++     * total length = 12
++     */
++    ret = sprintf(buf, "%s %c %d %x %%", "hi", 'A', -7, 0x2b);
++    assert(ret == 12);
++    assert(raw_streq(buf, "hi A -7 2b %")); 
++    
++    // %p
++    ret = sprintf(buf, "%p", (void *)0x1234);
++    assert(ret == 6);
++    assert(raw_streq(buf, "0x1234"));
++}
++
++static void test_snprintf_impl(void) {
++    char buf[128];
++    int ret;    
++    
++    // no cutoff
++    ret = snprintf(buf, sizeof(buf), "hello");
++    assert(ret == 5);
++    assert(raw_streq(buf, "hello"));    
++
++    // with cutoff   snprintf should return that length that ought to be output 
++    ret = snprintf(buf, 5, "hello world");
++    assert(ret == 11);
++    assert(raw_streq(buf, "hell")); 
++
++    // n = 1
++    buf[0] = 'X';
++    ret = snprintf(buf, 1, "abc");
++    assert(ret == 3);
++    assert(buf[0] == '\0'); 
++
++    // n = 0
++    buf[0] = 'X';
++    ret = snprintf(buf, 0, "abc");
++    assert(ret == 3);
++    assert(buf[0] == 'X');  
++
++    // format
++    ret = snprintf(buf, sizeof(buf), "%06d %08x", -123, 0x1a);
++    assert(ret == 15);
++    assert(raw_streq(buf, "-00123 0000001a"));
++}
++
++static void test_vsprintf_impl(void) {
++    char buf[128];
++    int ret;    
++
++    ret = call_vsprintf(buf, "%s %d %x", "num", -12, 0x2a); 
++    /*
++     * expected：
++     *   "num -12 2a"
++     *
++     * length：
++     *   num -> 3
++     *   space -> 1
++     *   -12 -> 3
++     *   space -> 1
++     *   2a -> 2
++     * total length = 10
++     */
++    assert(ret == 10);
++    assert(raw_streq(buf, "num -12 2a"));
++}
++
++static void test_vsnprintf_impl(void) {
++    char buf[128];
++    int ret;    
++    // no cutoff
++    ret = call_vsnprintf(buf, sizeof(buf), "%s %d", "abc", 123);
++    assert(ret == 7);
++    assert(raw_streq(buf, "abc 123"));  
++    // with cutoff
++    ret = call_vsnprintf(buf, 4, "abcdef");
++    assert(ret == 6);
++    assert(raw_streq(buf, "abc"));
++}
++
++void test_stdio(void){
++    test_sprintf_decimal();
++    test_sprintf_hex();
++    test_sprintf_string_char_percent_pointer();
++    test_snprintf_impl();
++    test_vsprintf_impl();
++    test_vsnprintf_impl();
++}
+\ No newline at end of file
+diff --git a/tests/klib-tests/src/string.c b/tests/klib-tests/src/string.c
+new file mode 100644
+index 0000000..c1d3928
+--- /dev/null
++++ b/tests/klib-tests/src/string.c
+@@ -0,0 +1,80 @@
++#include <am.h>
++#include <klib.h>
++#include <klib-macros.h>
++#include <stdint.h>
++#include <test.h>
++
++static void test_strlen_impl(void){
++    assert(strlen("") == 0);
++    assert(strlen("a") == 1);
++    assert(strlen("hello") == 5);
++
++    char s[] = {'a', 'b', '\0', 'c', 'd', '\0'};
++    assert(strlen(s) == 2);
++}
++
++static void test_strcmp_impl(void){
++    assert(strcmp("", "") == 0);
++    assert(strcmp("abc", "abc") == 0);
++
++    assert(strcmp("abc", "abd") < 0);
++    assert(strcmp("abd", "abc") > 0);
++
++    assert(strcmp("abc", "ab") > 0);
++    assert(strcmp("ab", "abc") < 0);
++
++    // test unsigned char  because 0x80 might be treated as negative value in some platform
++    char high[] = {(char)0x80, '\0'};
++    char low[] = {(char)0x01, '\0'};
++
++    assert(strcmp(high, low) > 0);
++    assert(strcmp(low, high) < 0);
++}
++
++static void test_strncmp_impl(void){
++    // compare all
++    assert(strncmp("abc", "abc", 3) == 0);
++    // compare part
++    assert(strncmp("abc", "abd", 2) == 0);
++    // compare all 
++    assert(strncmp("abc", "abd", 3) < 0);
++    // compare none
++    assert(strncmp("abc", "abd", 0) == 0);
++    assert(strncmp("", "a", 0) == 0);
++    // compare prefix
++    assert(strncmp("abc", "ab", 3) > 0);
++    assert(strncmp("ab", "abc", 3) < 0);
++    // compare ungisned char
++    char high[] = { (char)0x80, '\0' };
++    char low[]  = { (char)0x01, '\0' };
++    assert(strncmp(high, low, 1) > 0);
++    assert(strncmp(low, high, 1) < 0);
++}
++
++static void test_memcmp_impl(void) {
++    uint8_t a[] = { 1, 2, 3, 4 };
++    uint8_t b[] = { 1, 2, 3, 4 };
++    uint8_t c[] = { 1, 2, 5, 4 };
++    uint8_t d[] = { 1, 2, 1, 4 };   
++
++    // compare none
++    assert(memcmp(a, c, 0) == 0);   
++    assert(memcmp(a, b, 4) == 0);   
++    // compare first two
++    assert(memcmp(a, c, 2) == 0);   
++    // compare first three
++    assert(memcmp(a, c, 4) < 0);    
++    assert(memcmp(a, d, 4) > 0);    
++    // test unsigned char
++    uint8_t high[] = { 0x80 };
++    uint8_t low[]  = { 0x01 };  
++    assert(memcmp(high, low, 1) > 0);
++    assert(memcmp(low, high, 1) < 0);
++}
++
++void test_string(void){
++    test_strlen_impl();
++    test_strcmp_impl();
++    test_strncmp_impl();
++    test_memcmp_impl();
++}
+\ No newline at end of file
+diff --git a/tests/usr-tests/Makefile b/tests/usr-tests/Makefile
+new file mode 100644
+index 0000000..e06711e
+--- /dev/null
++++ b/tests/usr-tests/Makefile
+@@ -0,0 +1,4 @@
++NAME = minirvEMU
++SRCS = minirvEMU.c
++export CFLAGS += -g -O0
++include $(AM_HOME)/Makefile
+diff --git a/tests/usr-tests/minirvEMU.c b/tests/usr-tests/minirvEMU.c
+new file mode 100644
+index 0000000..b56a884
+--- /dev/null
++++ b/tests/usr-tests/minirvEMU.c
+@@ -0,0 +1,213 @@
++#include <am.h>
++#include <klib-macros.h>
++#include <klib.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <stdlib.h>
++
++uint32_t pc = 0;
++uint32_t gpr[32] = {0};
++uint8_t memory[0x8000000];
++uint8_t vga_fb[0x40000];
++void load_image(const char *image_path) {
++  // ("rb" = Read Binary)
++  FILE *fp = fopen(image_path, "rb");
++  if (fp == NULL) {
++    printf("Can not open '%s'\n", image_path);
++    exit(1); //
++  }
++
++  //
++  fseek(fp, 0, SEEK_END);
++  long size = ftell(fp);
++  printf("Image path: %s, size = %ld bytes\n", image_path, size);
++
++  if (size > sizeof(memory)) {
++    printf("Error: Image too large for memory!\n");
++    fclose(fp);
++    exit(1);
++  }
++
++  fseek(fp, 0, SEEK_SET);
++
++  int ret = fread(memory, 1, size, fp);
++  assert(ret == size);
++
++  fclose(fp);
++}
++
++uint32_t fetch_inst(uint32_t addr) {
++  return (memory[addr + 3] << 24) | (memory[addr + 2] << 16) |
++         (memory[addr + 1] << 8) | memory[addr];
++}
++
++int32_t sign_extend(uint32_t imm, int bit_len) {
++  int32_t mask = 1 << (bit_len - 1);
++  return (imm ^ mask) - mask;
++}
++
++void inst_cycle() {
++  // Fetch
++  uint32_t inst = fetch_inst(pc);
++
++  // x0
++  gpr[0] = 0;
++
++  // Decode
++  uint32_t opcode = inst & 0x7F;         // [6:0]
++  uint32_t rd = (inst >> 7) & 0x1F;      // [11:7]
++  uint32_t funct3 = (inst >> 12) & 0x07; // [14:12]
++  uint32_t rs1 = (inst >> 15) & 0x1F;    // [19:15]
++  uint32_t rs2 = (inst >> 20) & 0x1F;    // [24:20]
++  uint32_t funct7 = (inst >> 25) & 0x7F; // [31:25]
++
++  // Immediate
++  //  I-Type (ADDI, LW, JALR)
++  int32_t imm_i = sign_extend(inst >> 20, 12);
++  // S-Type (SW)
++  int32_t imm_s = sign_extend(((inst >> 25) << 5) | ((inst >> 7) & 0x1F), 12);
++  // U-Type (LUI)
++  int32_t imm_u = inst & 0xFFFFF000;
++
++  // LW SW
++  uint32_t addr;
++  uint32_t val;
++  uint32_t offset;
++  // printf("PC: %08X | Inst: %08X | Op: %02X | rd: %d\n", pc, inst, opcode,
++  // rd);
++
++  uint32_t next_pc = pc + 4; // pc renew
++
++  // Execute
++  switch (opcode) {
++  // R-Type (ADD)
++  case 0x33: {
++    if (funct3 == 0x0 && funct7 == 0x00) { // ADD
++      gpr[rd] = gpr[rs1] + gpr[rs2];
++      printf("EXEC: ADD x%d = x%d(%d) + x%d(%d)\n", rd, rs1, gpr[rs1], rs2,
++             gpr[rs2]);
++    }
++    break;
++  }
++
++  // I-Type (ADDI)
++  case 0x13: {
++    if (funct3 == 0x0) { // ADDI
++      gpr[rd] = gpr[rs1] + imm_i;
++      printf("EXEC: ADDI x%d = x%d(%d) + %d\n", rd, rs1, gpr[rs1], imm_i);
++    }
++    break;
++  }
++
++  // U-Type (LUI)
++  case 0x37: {
++    gpr[rd] = imm_u;
++    printf("EXEC: LUI x%d = 0x%X\n", rd, imm_u);
++    break;
++  }
++
++  // I-Type
++  case 0x67: {
++    if (funct3 == 0x0) {
++      // JALR: rd = PC+4; PC = (rs1 + imm) & ~1
++      // 注意：必须在跳转前保存 PC+4
++      uint32_t link_addr = pc + 4;
++      // 计算跳转目标地址，并设置最低位为 0
++      next_pc = (gpr[rs1] + imm_i) & ~1;
++      gpr[rd] = link_addr;
++      printf("EXEC: JALR x%d = PC+4, Jump to %X\n", rd, next_pc);
++    }
++    break;
++  }
++
++  case 0x03: {
++    addr = gpr[rs1] + imm_i;
++
++    switch (funct3) {
++    case 0x4:                 // LBU (Load Byte Unsigned)
++      gpr[rd] = memory[addr]; // uint8 -> uint32 自动零扩展
++      printf("EXEC: LBU x%d = Mem[%X](ZeroExt %02X)\n", rd, addr, memory[addr]);
++      break;
++
++    case 0x2: // LW (Load Word)
++      gpr[rd] = fetch_inst(addr);
++      printf("EXEC: LW  x%d = Mem[%X](%08X)\n", rd, addr, gpr[rd]);
++      break;
++
++    default:
++      printf("Unknown Load Funct3: %d\n", funct3);
++      break;
++    }
++    break;
++  }
++
++  // S-Type
++  case 0x23: {
++    addr = gpr[rs1] + imm_s;
++    val = gpr[rs2];
++    offset = addr - 0x20000000;
++    switch (funct3) {
++    case 0x0:                    // SB (Store Byte)
++      if (addr >= 0x20000000 && addr < 0x20040000) {
++        vga_fb[offset] = val & 0xFF;
++        printf("EXEC: SW  vga[%X] = %08X\n", offset, val);
++      }
++      else{
++        memory[addr] = val & 0xFF; //
++        printf("EXEC: SB  Mem[%X] = %02X\n", addr, memory[addr]);
++      }
++      break;
++
++    case 0x2: // SW (Store Word)
++      if (addr >= 0x20000000 && addr < 0x20040000) {
++        vga_fb[offset] = val & 0xFF;
++        vga_fb[offset + 1] = (val >> 8) & 0xFF;
++        vga_fb[offset + 2] = (val >> 16) & 0xFF;
++        vga_fb[offset + 3] = (val >> 24) & 0xFF;
++        printf("EXEC: SW  vga[%X] = %08X\n", offset, val);
++      } else {
++        memory[addr] = val & 0xFF;
++        memory[addr + 1] = (val >> 8) & 0xFF;
++        memory[addr + 2] = (val >> 16) & 0xFF;
++        memory[addr + 3] = (val >> 24) & 0xFF;
++        printf("EXEC: SW  Mem[%X] = %08X\n", addr, val);
++      }
++      break;
++    }
++    break;
++  }
++
++  case 0x00: 
++  {
++    io_write(AM_GPU_FBDRAW, 0, 0, (uint32_t *)vga_fb, 256, 256, true);
++    while (1);
++    break;
++  }
++
++
++  default:
++    printf("Unknown Instruction: %08X\n", inst);
++    break;
++  }
++
++  //
++  pc = next_pc;
++}
++
++int main(int argc, char *argv[]) {
++
++  load_image("./build/vga.bin");
++  uint32_t target_addr = 0xdb0;
++  uint32_t ebreak_inst = 0x00000000;
++  memory[target_addr + 0] = ebreak_inst & 0xFF;
++  memory[target_addr + 1] = (ebreak_inst >> 8) & 0xFF;
++  memory[target_addr + 2] = (ebreak_inst >> 16) & 0xFF;
++  memory[target_addr + 3] = (ebreak_inst >> 24) & 0xFF;
++
++  printf("--- sCPU Simulation Start ---\n");
++  while (1) {
++    inst_cycle();
++  }
++    ;
++  return 0;
++}
+diff --git a/tests/usr-tests/screensaver.c b/tests/usr-tests/screensaver.c
+new file mode 100644
+index 0000000..368aa51
+--- /dev/null
++++ b/tests/usr-tests/screensaver.c
+@@ -0,0 +1,79 @@
++#include <am.h>
++#include <klib-macros.h>
++#include <stdlib.h>
++#define h 300
++#define w 400
++#define R(p) (((p) >> 16) & 0xff)
++#define G(p) (((p) >> 8) & 0xff)
++#define B(p) ((p)&0xff)
++#define normal_interval 20
++#define fast_interval 2
++
++uint32_t color_list[] = {0x000000, 0xff0000, 0x00ff00, 0x0000ff,
++                         0xffff00, 0xff00ff, 0x00ffff, 0xffffff};
++
++static uint32_t c_start = 0;
++static uint32_t c_end = 0;
++static int k_steps = 100;
++static int i_step = 0;
++static int cur_idx = 0;
++
++void color_transition() {
++  if (i_step >= k_steps) {
++    c_start = c_end;
++    int num_color = sizeof(color_list) / sizeof(uint32_t);
++    int offset = rand() % (num_color - 1);
++    cur_idx = (cur_idx + 1 + offset) % num_color;
++    c_end = color_list[cur_idx];
++    i_step = 0;
++  }
++  i_step++;
++}
++
++void draw() {
++  // add code here
++  static uint32_t pixels[w * h];
++
++  int r0 = R(c_start), rk = R(c_end);
++  int g0 = G(c_start), gk = G(c_end);
++  int b0 = B(c_start), bk = B(c_end);
++
++  uint8_t ri = r0 + (rk - r0) * i_step / k_steps;
++  uint8_t gi = g0 + (gk - g0) * i_step / k_steps;
++  uint8_t bi = b0 + (bk - b0) * i_step / k_steps;
++
++  uint32_t color = (ri << 16) | (gi << 8) | bi;
++
++  for (int i = 0; i < w * h; i++) {
++    pixels[i] = color;
++  }
++  io_write(AM_GPU_FBDRAW, 0, 0, pixels, w, h, true);
++}
++
++int main() {
++  ioe_init(); // initialization for GUI
++  c_end = color_list[rand() % 8];
++  uint32_t last_time = 0;
++  uint32_t current_interval = normal_interval;
++  while (1) {
++    AM_INPUT_KEYBRD_T ev = io_read(AM_INPUT_KEYBRD);
++    uint32_t now = io_read(AM_TIMER_UPTIME).us / 1000;
++    if (ev.keycode != AM_KEY_NONE) {
++      if (ev.keydown) {
++        if (ev.keycode == AM_KEY_ESCAPE) {
++          halt(0);
++        } else {
++          current_interval = fast_interval;
++        }
++      } else {
++        current_interval = normal_interval;
++      }
++    }
++    if (now - last_time > current_interval) {
++      color_transition();
++      draw();
++      last_time = now;
++    }
++  }
++  return 0;
++}

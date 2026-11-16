@@ -1,0 +1,11 @@
+{
+  "bht": 64,
+  "direction_policy": 2,
+  "history_bits": 4,
+  "icache": [
+    256,
+    1,
+    16,
+    0
+  ]
+}

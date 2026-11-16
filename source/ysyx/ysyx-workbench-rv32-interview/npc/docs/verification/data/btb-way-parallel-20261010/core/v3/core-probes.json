@@ -1,0 +1,287 @@
+{
+  "frequency_checks": {
+    "700": {
+      "mhz": 700,
+      "groups": {
+        "data_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_13__reg_p:D",
+          "slack_ns": -0.318,
+          "fmax_mhz": 572.824
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": -0.314,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+          "slack_ns": 0.059,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": false,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+        "-script",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/core700/constraints.sdc",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/core700/riscv32_core_reset_boundary.netlist.v",
+        "riscv32_core_reset_boundary",
+        "nangate45"
+      ]
+    },
+    "715": {
+      "mhz": 715,
+      "groups": {
+        "data_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_13__reg_p:D",
+          "slack_ns": -0.342,
+          "fmax_mhz": 574.798
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": -0.338,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+          "slack_ns": 0.059,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": false,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+        "-script",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/core715/constraints.sdc",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/core715/riscv32_core_reset_boundary.netlist.v",
+        "riscv32_core_reset_boundary",
+        "nangate45"
+      ]
+    },
+    "720": {
+      "mhz": 720,
+      "groups": {
+        "data_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_13__reg_p:D",
+          "slack_ns": -0.35,
+          "fmax_mhz": 575.44
+        },
+        "gating_max": {
+          "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+          "slack_ns": -0.346,
+          "fmax_mhz": null
+        },
+        "data_min": {
+          "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+          "slack_ns": 0.059,
+          "fmax_mhz": null
+        },
+        "gating_min": {
+          "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+          "slack_ns": 0.097,
+          "fmax_mhz": null
+        }
+      },
+      "passed": false,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+        "-script",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/core720/constraints.sdc",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/core720/riscv32_core_reset_boundary.netlist.v",
+        "riscv32_core_reset_boundary",
+        "nangate45"
+      ]
+    }
+  },
+  "endpoint_scopes": {
+    "btb-training": {
+      "mhz": 700,
+      "target_pins": 1000,
+      "summary_rows": [
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[7]_33__reg_p:D",
+          "type": "max",
+          "path_delay": "1.590r",
+          "required_ns": 1.381,
+          "slack_ns": -0.208
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[7]_94__reg_p:D",
+          "type": "max",
+          "path_delay": "1.590r",
+          "required_ns": 1.381,
+          "slack_ns": -0.208
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[4]_94__reg_p:D",
+          "type": "max",
+          "path_delay": "1.590r",
+          "required_ns": 1.381,
+          "slack_ns": -0.208
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[1]_94__reg_p:D",
+          "type": "max",
+          "path_delay": "1.590r",
+          "required_ns": 1.381,
+          "slack_ns": -0.208
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_array_q[0]_94__reg_p:D",
+          "type": "max",
+          "path_delay": "1.590r",
+          "required_ns": 1.381,
+          "slack_ns": -0.208
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_1__reg_p:D",
+          "type": "min",
+          "path_delay": "0.085f",
+          "required_ns": 0.003,
+          "slack_ns": 0.083
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_1__reg_p:D",
+          "type": "min",
+          "path_delay": "0.085f",
+          "required_ns": 0.003,
+          "slack_ns": 0.083
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_13__reg_p:D",
+          "type": "min",
+          "path_delay": "0.085f",
+          "required_ns": 0.003,
+          "slack_ns": 0.083
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_9__reg_p:D",
+          "type": "min",
+          "path_delay": "0.085f",
+          "required_ns": 0.003,
+          "slack_ns": 0.083
+        },
+        {
+          "endpoint": "u_core.u_branch_predictor.u_btb.g_full_target.entry_present_array_q_9__reg_p:D",
+          "type": "min",
+          "path_delay": "0.085f",
+          "required_ns": 0.003,
+          "slack_ns": 0.083
+        }
+      ],
+      "worst_setup_ns": -0.208,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+        "-script",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/btb-training/scope.tcl",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/btb-training/constraints.sdc",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/btb-training/riscv32_core_reset_boundary.netlist.v",
+        "riscv32_core_reset_boundary",
+        "nangate45"
+      ]
+    },
+    "prediction-response": {
+      "mhz": 700,
+      "target_pins": 69,
+      "summary_rows": [
+        {
+          "endpoint": "u_core.next_pc_predictor_prediction_224__reg_p:D",
+          "type": "max",
+          "path_delay": "1.448r",
+          "required_ns": 1.397,
+          "slack_ns": -0.052
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_prediction_224__reg_p:D",
+          "type": "max",
+          "path_delay": "1.448r",
+          "required_ns": 1.397,
+          "slack_ns": -0.052
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_prediction_212__reg_p:D",
+          "type": "max",
+          "path_delay": "1.448r",
+          "required_ns": 1.397,
+          "slack_ns": -0.052
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_prediction_211__reg_p:D",
+          "type": "max",
+          "path_delay": "1.448r",
+          "required_ns": 1.397,
+          "slack_ns": -0.052
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_prediction_230__reg_p:D",
+          "type": "max",
+          "path_delay": "1.448r",
+          "required_ns": 1.397,
+          "slack_ns": -0.052
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_0__reg_p:D",
+          "type": "min",
+          "path_delay": "0.095f",
+          "required_ns": 0.002,
+          "slack_ns": 0.093
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_0__reg_p:D",
+          "type": "min",
+          "path_delay": "0.095f",
+          "required_ns": 0.002,
+          "slack_ns": 0.093
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_1__reg_p:D",
+          "type": "min",
+          "path_delay": "0.096f",
+          "required_ns": 0.002,
+          "slack_ns": 0.094
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_1__reg_p:D",
+          "type": "min",
+          "path_delay": "0.096f",
+          "required_ns": 0.002,
+          "slack_ns": 0.094
+        },
+        {
+          "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_0__reg_p:D",
+          "type": "min",
+          "path_delay": "0.114r",
+          "required_ns": 0.01,
+          "slack_ns": 0.104
+        }
+      ],
+      "worst_setup_ns": -0.052,
+      "command": [
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+        "-script",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/prediction-response/scope.tcl",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/prediction-response/constraints.sdc",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/btb-parallel/v3/prediction-response/riscv32_core_reset_boundary.netlist.v",
+        "riscv32_core_reset_boundary",
+        "nangate45"
+      ]
+    }
+  },
+  "input_sha256": {
+    "riscv32_core_reset_boundary.netlist.v": "949a2edd77947bb8351a0fae7373c42f4875f7523892329a641eea801d8d89c8",
+    "constraints.sdc": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857"
+  }
+}

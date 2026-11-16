@@ -1,0 +1,12 @@
+[
+  "make",
+  "-C",
+  "npc",
+  "git_commit=",
+  "NPC_CONFIG=rv32im-balanced",
+  "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-frontend",
+  "PIPELINE_TEST_BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-frontend/pipeline",
+  "test-icache",
+  "test-fetch",
+  "test-pipeline"
+]

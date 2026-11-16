@@ -1,0 +1,76 @@
+{
+  "status": "passed",
+  "matrices": {
+    "dev-common": {
+      "A32": 10,
+      "B0": 10,
+      "B0current": 10,
+      "B128": 10,
+      "B64": 10,
+      "G128": 10,
+      "G64": 10,
+      "M64": 10,
+      "O0": 10,
+      "OG128": 10,
+      "OM64": 10,
+      "R32": 10,
+      "S32": 10
+    },
+    "dev-common-560": {
+      "A32": 10,
+      "B0": 10,
+      "B128": 10,
+      "B64": 10,
+      "G128": 10,
+      "G64": 10,
+      "M64": 10,
+      "R32": 10,
+      "S32": 10
+    },
+    "dev-own": {
+      "A32": 10,
+      "B0": 10,
+      "B0current": 10,
+      "B128": 10,
+      "B64": 10,
+      "G128": 10,
+      "G64": 10,
+      "M64": 10,
+      "R32": 10,
+      "S32": 10
+    },
+    "held-own": {
+      "A32": 12,
+      "B0": 12,
+      "B128": 12,
+      "B64": 12,
+      "G128": 12,
+      "G64": 12,
+      "M64": 12,
+      "R32": 12,
+      "S32": 12
+    },
+    "sensitivity-fast": {
+      "B0": 10,
+      "G128": 10,
+      "R32": 10
+    },
+    "sensitivity-random": {
+      "B0": 10,
+      "G128": 10,
+      "R32": 10
+    },
+    "sensitivity-slow": {
+      "B0": 10,
+      "G128": 10,
+      "R32": 10
+    }
+  },
+  "software_inputs": 22,
+  "direction_cycles": 160000,
+  "nemu_program_runs": 30,
+  "default_disabled_cycle_and_counter_equivalence": true,
+  "selected_development": "B0",
+  "recommendation": "B0",
+  "old_cache_points": "functional cycle diagnostics only; not freshly STA-qualified"
+}

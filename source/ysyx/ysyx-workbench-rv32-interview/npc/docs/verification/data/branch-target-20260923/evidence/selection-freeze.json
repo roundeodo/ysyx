@@ -1,0 +1,20 @@
+{
+  "utc": "2026-09-23T15:30:05.371864+00:00",
+  "choice": "U16",
+  "policy": "minimum development whole-core area*time GM, equal family weights, 3% per-input guard; no retuning on held/layout",
+  "development_sha256": "351fb87f9458814331c9102b2c5aa8a09d6ceb8f56a17e6aa7433bea19b197f3",
+  "configurations_sha256": "f554450565d8a2682ee38d3e16d5d8b0ace20672644850cc14d0dfc1c9a17808",
+  "held_seeds": [
+    2053,
+    4099
+  ],
+  "layout_offsets": [
+    "3f00",
+    "ff00"
+  ],
+  "prototype_validation": [
+    "U16",
+    "H32"
+  ],
+  "note": "All frozen controls also reported on held inputs; held data cannot select another winner"
+}

@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-04",
+  "command": "make git_commit= test-operand-wait test-scoreboard test-scoreboard-core test-execution-units test-pipeline lint",
+  "exit_code": 0,
+  "results": [
+    "PASS operand wait: 526 checks",
+    "PASS scoreboard: 636 checks, 4 entries, immediate ordinary results, three return ports, latest writer, memory overlap, precise traps",
+    "PASS scoreboard core mode=0 cycles=96 commits=14 normal_before_div=2 mul_before_div=1 branch_before_div=1 full_cycles=58 cancelled_div=0",
+    "PASS scoreboard core mode=1 cycles=173 commits=12 normal_before_div=1 mul_before_div=1 branch_before_div=0 full_cycles=63 cancelled_div=1",
+    "PASS scoreboard core mode=2 cycles=112 commits=25 normal_before_div=3 mul_before_div=0 branch_before_div=0 full_cycles=58 cancelled_div=0",
+    "PASS scoreboard core mode=3 cycles=92 commits=10 normal_before_div=0 mul_before_div=0 branch_before_div=0 full_cycles=0 cancelled_div=0",
+    "PASS scoreboard core mode=4 cycles=127 commits=32 normal_before_div=2 mul_before_div=1 branch_before_div=0 full_cycles=58 cancelled_div=0",
+    "PASS scoreboard core mode=5 cycles=93 commits=11 normal_before_div=0 mul_before_div=0 branch_before_div=0 full_cycles=58 cancelled_div=0",
+    "PASS scoreboard core mode=6 cycles=105 commits=10 normal_before_div=0 mul_before_div=0 branch_before_div=0 full_cycles=0 cancelled_div=0",
+    "PASS ALU: 12816 independent and pre-change comparisons",
+    "PASS branch: 7168 cases",
+    "PASS multiplier: issued=4005 completed=3992 cancelled=13 stalled=1395 same_cycle_turnover=3607",
+    "PASS divider: issued=6408 completed=6403 cancelled=5 stalled=2148 same_cycle_turnover=6368",
+    "PASS IDU/EXU: completed=10413 blocked=20886 cancellation_events=4",
+    "PASS early recovery: ADD/MUL/DIV held, one correction, backpressure and cancellation",
+    "PASS FU latency: MUL=3, DIVU 31/7=7, 12345/7=16, full-width=66; negative DIV/REM 31/7=9 cycles",
+    "PASS execution units: total_cycles=315706",
+    "PASS fetch queue: 1012 checked outputs, 746 simultaneous transfers, 34 flushes",
+    "pipeline control tests passed: XLEN=64"
+  ],
+  "train_run": false,
+  "full_soc_program_run": false,
+  "sta_run": false
+}

@@ -1,0 +1,77 @@
+{
+  "frequency_mhz": 700,
+  "scope": "bht-training",
+  "summary_rows": [
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_8__reg_p:D",
+      "type": "max",
+      "path_delay": "0.514r",
+      "required_ns": 1.382,
+      "slack_ns": 0.868
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_16__reg_p:D",
+      "type": "max",
+      "path_delay": "0.514r",
+      "required_ns": 1.382,
+      "slack_ns": 0.868
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_14__reg_p:D",
+      "type": "max",
+      "path_delay": "0.514r",
+      "required_ns": 1.382,
+      "slack_ns": 0.868
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_0__reg_p:D",
+      "type": "max",
+      "path_delay": "0.514r",
+      "required_ns": 1.382,
+      "slack_ns": 0.868
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_6__reg_p:D",
+      "type": "max",
+      "path_delay": "0.514r",
+      "required_ns": 1.382,
+      "slack_ns": 0.868
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_9__reg_p:D",
+      "type": "min",
+      "path_delay": "0.169r",
+      "required_ns": 0.022,
+      "slack_ns": 0.147
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_9__reg_p:D",
+      "type": "min",
+      "path_delay": "0.169r",
+      "required_ns": 0.022,
+      "slack_ns": 0.147
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_19__reg_p:D",
+      "type": "min",
+      "path_delay": "0.169r",
+      "required_ns": 0.022,
+      "slack_ns": 0.147
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_31__reg_p:D",
+      "type": "min",
+      "path_delay": "0.169r",
+      "required_ns": 0.022,
+      "slack_ns": 0.147
+    },
+    {
+      "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_31__reg_p:D",
+      "type": "min",
+      "path_delay": "0.169r",
+      "required_ns": 0.022,
+      "slack_ns": 0.147
+    }
+  ],
+  "note": "Endpoint-filtered report; not a whole-core frequency qualification."
+}

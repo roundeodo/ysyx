@@ -1,0 +1,102 @@
+{
+  "status": "passed",
+  "config": {
+    "bht": 64,
+    "direction_policy": 2,
+    "history_bits": 4
+  },
+  "tests": [
+    {
+      "command": [
+        "make",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/exception",
+        "test-fetch"
+      ],
+      "status": "passed"
+    },
+    {
+      "command": [
+        "make",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/exception",
+        "test-fence-i"
+      ],
+      "status": "passed"
+    },
+    {
+      "command": [
+        "make",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/exception",
+        "test-dcache-recovery"
+      ],
+      "status": "passed"
+    },
+    {
+      "command": [
+        "make",
+        "git_commit=",
+        "NPC_CONFIG=rv32-baseline",
+        "NPC_ICACHE_CAPACITY_BYTES=1024",
+        "NPC_ICACHE_WAY_COUNT=4",
+        "NPC_ICACHE_LINE_BYTES=32",
+        "NPC_ICACHE_REPLACEMENT_POLICY=13",
+        "NPC_BRANCH_HISTORY_ENTRY_COUNT=64",
+        "NPC_BRANCH_TARGET_ENTRY_COUNT=16",
+        "NPC_BRANCH_TARGET_WAY_COUNT=2",
+        "NPC_BRANCH_TARGET_POLICY=0",
+        "NPC_RETURN_STACK_ENTRY_COUNT=4",
+        "NPC_BRANCH_DIRECTION_POLICY=2",
+        "NPC_BRANCH_GLOBAL_HISTORY_BITS=4",
+        "FRONTEND_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/frontend",
+        "CACHE_RECOVERY_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/recovery",
+        "EXCEPTION_TEST_OUTPUT=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-followup-20260923/verification/M64/exception",
+        "test-precise-exception"
+      ],
+      "status": "passed"
+    }
+  ]
+}

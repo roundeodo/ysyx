@@ -1,0 +1,23 @@
+{
+  "editor.fontFamily": "'Victor Mono', 'JetBrains Mono', monospace",
+  "editor.fontSize": 18,
+  "editor.fontLigatures": true,
+  "editor.fontWeight": "600",
+  "terminal.integrated.fontFamily": "'Victor Mono', monospace",
+  "editor.tabCompletion": "on",
+  "[systemverilog]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "bmpenuelas.systemverilog-formatter-vscode",
+    "editor.wordBasedSuggestions": "off",
+    "editor.snippetSuggestions": "bottom",
+    "editor.suggestOnTriggerCharacters": true
+  },
+  "[verilog]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "bmpenuelas.systemverilog-formatter-vscode"
+  },
+  "slang.path": "/home/yong/.local/bin/slang-server",
+  "slang.formatters": [],
+  "systemverilogFormatter.veribleBuild": "none",
+  "systemverilogFormatter.commandLineArguments": "/home/yong/ysyx/.vscode/verible_dummy.sv && /home/yong/ysyx/.vscode/sv_format_wrapper.py"
+}

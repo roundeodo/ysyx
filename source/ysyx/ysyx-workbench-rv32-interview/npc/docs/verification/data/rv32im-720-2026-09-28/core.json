@@ -1,0 +1,26 @@
+{
+  "arithmetic_cases": 2803,
+  "difftest": true,
+  "misa_and_precise_trap": true,
+  "commands": [
+    [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-sim/build/top_sim",
+      "--batch",
+      "--diff",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-regression/core/arithmetic.bin"
+    ],
+    [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-sim/build/top_sim",
+      "--batch",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-regression/core/traps.bin"
+    ]
+  ],
+  "sha256": {
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-sim/build/top_sim": "a5e4ccb5044e17a80107414610ded41615f6d851b935c795c5b96c2e33ab74bd",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/nemu/build/riscv32-nemu-interpreter-so": "04e57718f44a66119d309996c3d852221366a15d65f4df66fc289925315189b5",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-regression/core/arithmetic.bin": "98c6a80455bd2ab4f6d2ace331bb42fb375c98903c7e9b002a10d33887dbc9cc",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-720-20260928/final-regression/core/traps.bin": "037fb7b47ce4358091648722b6624f546c7b6464e4497e6e8343ca704d3b9639",
+    "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/scripts/test_muldiv_core.py": "cc0539c3e29c506ea51ae64b23a3517d39e772b79a7ae5312c761595b805cb79"
+  }
+}

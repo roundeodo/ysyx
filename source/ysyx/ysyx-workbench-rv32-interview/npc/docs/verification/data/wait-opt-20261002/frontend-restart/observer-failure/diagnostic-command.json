@@ -1,0 +1,14 @@
+[
+  "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-proxy/current/build/obj/Vexploration_core_tb",
+  "+image=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/images/json_bpe-dev-2411/image.hex",
+  "+begin_pc=80000008",
+  "+end_pc=80000010",
+  "+expected=459c90e5",
+  "+cpu_mhz=700",
+  "+latency_ns=100",
+  "+beat_ns=10",
+  "+seed=97531",
+  "+memory_mode=physical",
+  "+random_stalls=0",
+  "+observer=0"
+]

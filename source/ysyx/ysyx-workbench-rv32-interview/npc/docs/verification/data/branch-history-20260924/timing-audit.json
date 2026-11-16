@@ -1,0 +1,207 @@
+{
+  "status": "passed",
+  "memory_cases": 1158,
+  "paired_cases": 12,
+  "rtl_runs_in_pairs": 36,
+  "pairs": [
+    {
+      "layout": "warm",
+      "latency_ns": 20,
+      "random_stalls": 0,
+      "extra_cycles": 4,
+      "redirect_to_correct_fetch_cycles": 3,
+      "read_outstanding_at_redirect": 0,
+      "last_r_before_fetch": 0,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "warm",
+      "latency_ns": 20,
+      "random_stalls": 1,
+      "extra_cycles": 8,
+      "redirect_to_correct_fetch_cycles": 3,
+      "read_outstanding_at_redirect": 0,
+      "last_r_before_fetch": 0,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "warm",
+      "latency_ns": 100,
+      "random_stalls": 0,
+      "extra_cycles": 4,
+      "redirect_to_correct_fetch_cycles": 3,
+      "read_outstanding_at_redirect": 0,
+      "last_r_before_fetch": 0,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "warm",
+      "latency_ns": 100,
+      "random_stalls": 1,
+      "extra_cycles": 2,
+      "redirect_to_correct_fetch_cycles": 3,
+      "read_outstanding_at_redirect": 0,
+      "last_r_before_fetch": 0,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "warm",
+      "latency_ns": 200,
+      "random_stalls": 0,
+      "extra_cycles": 4,
+      "redirect_to_correct_fetch_cycles": 3,
+      "read_outstanding_at_redirect": 0,
+      "last_r_before_fetch": 0,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "warm",
+      "latency_ns": 200,
+      "random_stalls": 1,
+      "extra_cycles": 3,
+      "redirect_to_correct_fetch_cycles": 3,
+      "read_outstanding_at_redirect": 0,
+      "last_r_before_fetch": 0,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "cold_fallthrough",
+      "latency_ns": 20,
+      "random_stalls": 0,
+      "extra_cycles": 68,
+      "redirect_to_correct_fetch_cycles": 67,
+      "read_outstanding_at_redirect": 1,
+      "last_r_before_fetch": 367,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "cold_fallthrough",
+      "latency_ns": 20,
+      "random_stalls": 1,
+      "extra_cycles": 64,
+      "redirect_to_correct_fetch_cycles": 67,
+      "read_outstanding_at_redirect": 1,
+      "last_r_before_fetch": 371,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "cold_fallthrough",
+      "latency_ns": 100,
+      "random_stalls": 0,
+      "extra_cycles": 126,
+      "redirect_to_correct_fetch_cycles": 125,
+      "read_outstanding_at_redirect": 1,
+      "last_r_before_fetch": 715,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "cold_fallthrough",
+      "latency_ns": 100,
+      "random_stalls": 1,
+      "extra_cycles": 125,
+      "redirect_to_correct_fetch_cycles": 125,
+      "read_outstanding_at_redirect": 1,
+      "last_r_before_fetch": 720,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "cold_fallthrough",
+      "latency_ns": 200,
+      "random_stalls": 0,
+      "extra_cycles": 198,
+      "redirect_to_correct_fetch_cycles": 197,
+      "read_outstanding_at_redirect": 1,
+      "last_r_before_fetch": 1147,
+      "all_modes_architecture_equal": true
+    },
+    {
+      "layout": "cold_fallthrough",
+      "latency_ns": 200,
+      "random_stalls": 1,
+      "extra_cycles": 198,
+      "redirect_to_correct_fetch_cycles": 197,
+      "read_outstanding_at_redirect": 1,
+      "last_r_before_fetch": 1150,
+      "all_modes_architecture_equal": true
+    }
+  ],
+  "application_observation": {
+    "B0": {
+      "cases": 10,
+      "recovery": [
+        {
+          "kind": "btb_missing",
+          "count": 54849,
+          "mean_redirect_to_correct_fetch": 43.42569600175026,
+          "max_redirect_to_correct_fetch": 249,
+          "short_le8": 36146
+        },
+        {
+          "kind": "direction",
+          "count": 26401,
+          "mean_redirect_to_correct_fetch": 3.306049013294951,
+          "max_redirect_to_correct_fetch": 248,
+          "short_le8": 26333
+        },
+        {
+          "kind": "target",
+          "count": 1244,
+          "mean_redirect_to_correct_fetch": 43.30064308681672,
+          "max_redirect_to_correct_fetch": 119,
+          "short_le8": 707
+        }
+      ],
+      "history": {
+        "age_zero": 103219,
+        "age_one": 75870,
+        "age_many": 128783,
+        "age_sum": 366610,
+        "bits_differ": 0
+      }
+    },
+    "T16": {
+      "cases": 10,
+      "recovery": [
+        {
+          "kind": "btb_missing",
+          "count": 54878,
+          "mean_redirect_to_correct_fetch": 43.68717883304785,
+          "max_redirect_to_correct_fetch": 249,
+          "short_le8": 36074
+        },
+        {
+          "kind": "direction",
+          "count": 14255,
+          "mean_redirect_to_correct_fetch": 4.105226236408278,
+          "max_redirect_to_correct_fetch": 249,
+          "short_le8": 14140
+        },
+        {
+          "kind": "target",
+          "count": 1244,
+          "mean_redirect_to_correct_fetch": 43.23070739549839,
+          "max_redirect_to_correct_fetch": 119,
+          "short_le8": 708
+        }
+      ],
+      "history": {
+        "age_zero": 91853,
+        "age_one": 79709,
+        "age_many": 136310,
+        "age_sum": 384432,
+        "bits_differ": 141971
+      }
+    }
+  },
+  "limits": [
+    "Correct-path Python/C++ model uses immediate training and no timing penalty.",
+    "Delayed-history model measures event timing sensitivity, not CPU cycle time.",
+    "Classic Branchsim toy IPC assumes 2 or 12 cycles and is not used for this study.",
+    "Redirect-to-correct-fetch latency includes correct-target accesses and cannot be summed as lost cycles.",
+    "Directed pairs measure net execution-cycle difference, including changed request alignment.",
+    "Physical reference memory has one read burst outstanding and cumulative service deadlines; it is not a DRAM or full SoC model.",
+    "Native MicroBench uses the ysyxSoC AXI/APB delay-ratio model, not this reference memory; its known early-VALID timing bias is not removed by this audit.",
+    "Native timer/observer agreement validates the simulated window, not silicon timing or the physical fidelity of every peripheral.",
+    "Only B0 and T16 passive observers are covered; each has identical original result and counters."
+  ]
+}

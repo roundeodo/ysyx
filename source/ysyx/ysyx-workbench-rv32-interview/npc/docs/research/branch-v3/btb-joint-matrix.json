@@ -1,0 +1,78 @@
+{
+  "BT0-long": {},
+  "BT16-select-long": {
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2
+  },
+  "BT32-select-long": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 1,
+    "target_policy": 2,
+    "target_admission": 2
+  },
+  "BT64-select-long": {
+    "btb": 64,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2
+  },
+  "TAGE-long": {
+    "direction_policy": 5
+  },
+  "TAGE-BT16": {
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5
+  },
+  "TAGE-BT32": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 1,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5
+  },
+  "TAGE-BT64": {
+    "btb": 64,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5
+  },
+  "TAGE-BT64-base": {
+    "btb": 64,
+    "direction_policy": 5
+  },
+  "NSL-BT64": {
+    "btb": 64,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5,
+    "sc": 1,
+    "loop": 1
+  },
+  "EARLY-BT16": {
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "early": 1
+  },
+  "TAGE-EARLY-BT16": {
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "direction_policy": 5,
+    "early": 1
+  }
+}

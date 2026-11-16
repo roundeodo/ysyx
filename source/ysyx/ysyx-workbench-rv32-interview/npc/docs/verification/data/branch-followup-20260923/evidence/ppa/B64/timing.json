@@ -1,0 +1,80 @@
+{
+  "800": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_23__reg_p:D",
+        "slack_ns": -0.132,
+        "fmax_mhz": 723.465
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.056,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 10,
+    "passed": false
+  },
+  "720": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_1__reg_p:D",
+        "slack_ns": 0.002,
+        "fmax_mhz": 721.753
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.055,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  },
+  "740": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_branch_predictor.u_bht.g_counter_table.counter_array_q_45__reg_p:D",
+        "slack_ns": -0.031,
+        "fmax_mhz": 723.465
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.025,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_134__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 5,
+    "passed": false
+  }
+}

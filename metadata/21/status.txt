@@ -1,0 +1,28 @@
+ M benchmarks/coremark/Makefile
+ M benchmarks/coremark/include/core_portme.h
+ M benchmarks/microbench/src/bench.c
+ M kernels/typing-game/game.c
+ M tests/cpu-tests/Makefile
+A  tests/cpu-tests/tests/icache-sdram-burst-test.c
+A  tests/cpu-tests/tests/mem-test.c
+A  tests/cpu-tests/tests/psram-test.c
+A  tests/cpu-tests/tests/sdram-test.c
+A  tests/cpu-tests/tests/soc-bitrev-test.c
+A  tests/cpu-tests/tests/soc-flash-boot-test.c
+A  tests/cpu-tests/tests/soc-flash-test.c
+A  tests/cpu-tests/tests/soc-flash-xip-test.c
+A  tests/cpu-tests/tests/soc-spi-flash-test.c
+A  tests/klib-tests/Makefile
+A  tests/klib-tests/include/test.h
+A  tests/klib-tests/src/main.c
+A  tests/klib-tests/src/memory.c
+A  tests/klib-tests/src/stdio.c
+A  tests/klib-tests/src/string.c
+A  tests/usr-tests/Makefile
+A  tests/usr-tests/minirvEMU.c
+A  tests/usr-tests/screensaver.c
+?? tests/cpu-tests/tests/csr-trap.c
+?? tests/cpu-tests/tests/gpio-test.c
+?? tests/cpu-tests/tests/icache-smc-fence-i.c
+?? tests/cpu-tests/tests/icache-smc-no-fence.c
+?? tests/cpu-tests/tests/rv64m.c

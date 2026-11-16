@@ -1,0 +1,55 @@
+# CPU 模块设计记录
+
+本目录说明模块负责什么、内部怎样工作、接口遵守什么规则，以及目前有哪些限制。
+项目阶段以 [架构与开发路线](../architecture/ARCHITECTURE_PLAN.md) 为准。
+全部 RTL 文件的职责与结构检查见 [设计模块总览](../architecture/RTL_MODULE_MAP.md)。
+
+## 先读哪份记录
+
+| 模块 | 主要内容 |
+| --- | --- |
+| [旁路迁移](RV64_BYPASS_MIGRATION_DESIGN.md) | RV32 优化如何适配到 RV64，以及保留的等待和平台边界 |
+| [顺序发射流水线](PIPELINE_DESIGN_RECORD.md) | 指令经过哪些级，如何处理相关、阻塞、提交和恢复 |
+| [Issue 与 scoreboard](SCOREBOARD_DESIGN_RECORD.md) | 顺序发射、最近生产者、乱序完成与顺序提交 |
+| [I-cache](ICACHE_DESIGN_RECORD.md) | 指令缓存查找、缺失回填、提前返回和失效 |
+| [D-cache](DCACHE_DESIGN_RECORD.md) | 数据缓存、脏行写回、uncached 访问和缓存维护 |
+| [分支预测](BRANCH_PREDICTION_DESIGN_RECORD.md) | 方向、目标与返回地址预测，预测更新和比较方法 |
+| [I-cache 替换](ICACHE_REPLACEMENT_DESIGN.md) | 分段访问 RRIP、候选路快照和同拍命中旁路 |
+
+总线连接见 [AXI4 互连](../interconnect/AXI4_ARCHITECTURE.md)，测试证据见
+[验证记录](../verification/EXPERIMENT_LOG.md)。
+
+## 修改模块时
+
+1. 阅读当前记录与源码，确认本次需要改变的行为。
+2. 新模块使用 [记录模板](../development/MODULE_DESIGN_RECORD_TEMPLATE.md)；已有模块更新
+   相关章节。先写清接口、状态、错误处理和验证方法。
+3. 按 [开发流程](../development/DEVELOPMENT_PROCESS.md) 实现和检查，不要求每次改动
+   都先找到 AI 负载或对比两个开源项目。
+4. 实际结果写入验证记录。已有代码不自动等于已验证，文档中的待办也不等于已经实现。
+
+## 本目录常用术语
+
+| 术语 | 在本项目中的含义 |
+| --- | --- |
+| `valid/ready` | 发送方给出有效信息，接收方表示能够接收；两者同时为 1 时完成本次传递 |
+| payload | 随有效信号传递的内容，例如指令、地址、数据和请求身份 |
+| 反压 | 接收方暂时不能接收，上游按协议保存尚未传出的内容 |
+| 在途事务 | 已被接收但还没有完成的请求 |
+| flush | 清除指定范围内指令的有效状态；不等于取消已被总线接收的事务 |
+| redirect | 改变后续取指地址，常用于预测错误、异常或返回处理 |
+| epoch | 取指路径的代号，用于识别并丢弃旧路径响应 |
+| 前递 | 把尚未写入架构寄存器的结果直接提供给依赖它的指令 |
+| RAW | 写后读相关（read after write）：年轻指令要读取老指令将写入的结果 |
+| commit / retire | 按程序顺序确认指令结果或处理异常；退休计数不包括发生同步异常的指令 |
+| scoreboard | 本核同时管理在途指令、依赖与完成结果，并按序交给 commit；没有重复的独立 ROB 存储 |
+| WAW | 写后写相关：本核将同名写分别保存在结果槽中，按序提交；前递只选择最近生产者 |
+| ROB | 重排序缓冲区，保存指令顺序、完成和异常信息，控制顺序提交 |
+| LSQ | load/store 队列的合称，跟踪访存指令和顺序约束 |
+| MSHR | 保存一次缓存缺失处理进度的记录；数量限制可同时跟踪的缺失数 |
+| cache line / beat | 缓存行是缓存分配与替换单位；beat 是总线一次数据传输，两者大小可以不同 |
+| IPC / MPKI | 每周期退休指令数 / 每千条退休指令对应的事件数；使用时注明计数范围与事件 |
+
+术语说明用于帮助阅读，具体握手、恢复和计数规则仍以对应模块的定义为准。
+
+- [整数执行单元](EXECUTION_UNITS_DESIGN_RECORD.md)：共享 ALU、分支目标、三级乘法和迭代除法。

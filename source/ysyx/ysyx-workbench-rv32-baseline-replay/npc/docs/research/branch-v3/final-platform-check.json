@@ -1,0 +1,27 @@
+[
+  {
+    "name": "BT0-long",
+    "RAM_bytes": 2097152,
+    "fixed_cache_configuration_verified": true
+  },
+  {
+    "name": "BT32-fold-long",
+    "RAM_bytes": 2097152,
+    "fixed_cache_configuration_verified": true
+  },
+  {
+    "name": "H2E-victim-long",
+    "RAM_bytes": 2097152,
+    "fixed_cache_configuration_verified": true
+  },
+  {
+    "name": "NSL-BT32-fold",
+    "RAM_bytes": 2097152,
+    "fixed_cache_configuration_verified": true
+  },
+  {
+    "name": "NSL-BT64",
+    "RAM_bytes": 2097152,
+    "fixed_cache_configuration_verified": true
+  }
+]

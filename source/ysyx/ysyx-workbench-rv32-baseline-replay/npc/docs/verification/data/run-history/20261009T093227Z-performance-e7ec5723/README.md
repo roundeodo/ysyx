@@ -1,0 +1,4 @@
+# performance: complete
+
+Command: `npc/scripts/run_microbench_perf.py --scale train --cpu-mhz 700 --timing-model device-clock --icache-bytes 256 --icache-ways 1 --icache-line 16 --icache-policy 0 --bht-entries 16 --btb-entries 16 --btb-ways 2 --btb-policy 0 --direction-policy 0 --branch-static 0 --early-target 0 --ras-entries 4 --prepare-only --output npc/result/performance/replay-train`
+

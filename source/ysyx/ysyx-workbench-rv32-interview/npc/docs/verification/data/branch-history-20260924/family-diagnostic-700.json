@@ -1,0 +1,130 @@
+{
+  "mhz": 700,
+  "scope": "qualified common B0/T16, development inputs, cycle classes are exclusive observations not causal stalls",
+  "families": {
+    "json_bpe": {
+      "time_ratio_gm": 1.0060712311766227,
+      "baseline": {
+        "retire": 93036,
+        "data_wait": 186268,
+        "frontend_wait": 219667,
+        "other": 26048,
+        "direction": 1938,
+        "btb_missing": 2652,
+        "i_beats": 16290,
+        "d_beats": 10400
+      },
+      "tage16": {
+        "retire": 93036,
+        "data_wait": 185721,
+        "frontend_wait": 222946,
+        "other": 26499,
+        "direction": 2097,
+        "btb_missing": 2652,
+        "i_beats": 16458,
+        "d_beats": 10400
+      },
+      "baseline_cycles": 525019
+    },
+    "quant_loader": {
+      "time_ratio_gm": 0.9954269686511025,
+      "baseline": {
+        "retire": 506968,
+        "data_wait": 1644940,
+        "frontend_wait": 203012,
+        "other": 50683,
+        "direction": 7004,
+        "btb_missing": 7498,
+        "i_beats": 14610,
+        "d_beats": 115016
+      },
+      "tage16": {
+        "retire": 506968,
+        "data_wait": 1644089,
+        "frontend_wait": 201419,
+        "other": 42133,
+        "direction": 4219,
+        "btb_missing": 7498,
+        "i_beats": 14618,
+        "d_beats": 115016
+      },
+      "baseline_cycles": 2405603
+    },
+    "runtime_graph": {
+      "time_ratio_gm": 0.9896786913627366,
+      "baseline": {
+        "retire": 256378,
+        "data_wait": 951566,
+        "frontend_wait": 1170863,
+        "other": 87127,
+        "direction": 9128,
+        "btb_missing": 13742,
+        "i_beats": 90098,
+        "d_beats": 50192
+      },
+      "tage16": {
+        "retire": 256378,
+        "data_wait": 950844,
+        "frontend_wait": 1164978,
+        "other": 68283,
+        "direction": 2569,
+        "btb_missing": 13771,
+        "i_beats": 90154,
+        "d_beats": 50192
+      },
+      "baseline_cycles": 2465934
+    },
+    "regex_tokenizer": {
+      "time_ratio_gm": 1.0011869285101243,
+      "baseline": {
+        "retire": 381300,
+        "data_wait": 1345541,
+        "frontend_wait": 3115169,
+        "other": 149388,
+        "direction": 5857,
+        "btb_missing": 26343,
+        "i_beats": 232986,
+        "d_beats": 66880
+      },
+      "tage16": {
+        "retire": 381300,
+        "data_wait": 1345924,
+        "frontend_wait": 3127181,
+        "other": 142930,
+        "direction": 3677,
+        "btb_missing": 26343,
+        "i_beats": 233978,
+        "d_beats": 66880
+      },
+      "baseline_cycles": 4991398
+    },
+    "ini_config": {
+      "time_ratio_gm": 0.99211598349428,
+      "baseline": {
+        "retire": 74114,
+        "data_wait": 53792,
+        "frontend_wait": 144582,
+        "other": 27702,
+        "direction": 2474,
+        "btb_missing": 4614,
+        "i_beats": 9706,
+        "d_beats": 2592
+      },
+      "tage16": {
+        "retire": 74114,
+        "data_wait": 53519,
+        "frontend_wait": 144805,
+        "other": 25385,
+        "direction": 1693,
+        "btb_missing": 4614,
+        "i_beats": 9762,
+        "d_beats": 2592
+      },
+      "baseline_cycles": 300190
+    }
+  },
+  "sources": {
+    "rtl/dev-own-700/B0/results.json": "5df5aa61a1628487fe9612d36e7408a9ae9fddb65c919b467bd865ed4bcc1816",
+    "rtl/dev-own-700/T16/results.json": "ae307c11cdd803820e82d2612d4457f220e387d7db41d4d3e38930cd5975aa33"
+  }
+}

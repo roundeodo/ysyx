@@ -1,0 +1,1591 @@
+{
+  "selected": "array-forward",
+  "default_mhz": 700,
+  "tested_higher_mhz": 715,
+  "limitations": [
+    "post-synthesis STA only",
+    "no train rerun",
+    "proxy physical model and native SoC results are separate"
+  ],
+  "variants": [
+    {
+      "name": "baseline",
+      "area_um2": 102253.06,
+      "passed_mhz": 700,
+      "grid_note": "5MHz upward or 10MHz downward from 700; all four STA groups required",
+      "at_700": {
+        "mhz": 700,
+        "passed": true,
+        "violations": 0,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+            "slack_ns": 0.008,
+            "fmax_mhz": 704.096
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.lookup_queue_entry_count_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.013,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+            "slack_ns": 0.094,
+            "fmax_mhz": null
+          }
+        },
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      },
+      "native": {
+        "cpu_mhz": 700,
+        "total": {
+          "cycles": 2684531,
+          "retired_instructions": 831627,
+          "ipc": 0.3097848376494814,
+          "timer_ticks": 3835,
+          "timer_seconds": 0.003835,
+          "cycle_seconds": 0.0038350442857142857,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0
+        },
+        "scored": {
+          "cycles": 1048317,
+          "retired_instructions": 430313,
+          "ipc": 0.41047984531396514,
+          "timer_ticks": 1497,
+          "timer_seconds": 0.001497,
+          "cycle_seconds": 0.0014975957142857143,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0
+        },
+        "whole_program": {
+          "cycles": 3294156,
+          "retired_instructions": 910165,
+          "ipc": 0.2762968724006999,
+          "cycle_seconds": 0.004705937142857143,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0
+        },
+        "total_cycle_time_change_pct": 0.0
+      },
+      "proxy": {
+        "dev": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "json_bpe-dev-2411",
+              "cycles": 251927,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "json_bpe-dev-2418",
+              "cycles": 257237,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2411",
+              "cycles": 1202662,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2418",
+              "cycles": 1210047,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2411",
+              "cycles": 1210995,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2418",
+              "cycles": 1167920,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2411",
+              "cycles": 2287838,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2418",
+              "cycles": 2566807,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2411",
+              "cycles": 134177,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2418",
+              "cycles": 135274,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": 0.0,
+          "time_geomean_change_pct": 0.0
+        },
+        "streams": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "jsmn_stream-cold",
+              "cycles": 2036941,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "jsmn_stream-warm",
+              "cycles": 1923290,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-cold",
+              "cycles": 2897754,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-warm",
+              "cycles": 1769594,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": 0.0,
+          "time_geomean_change_pct": 0.0
+        }
+      }
+    },
+    {
+      "name": "dirty-dispatch",
+      "area_um2": 102211.564,
+      "passed_mhz": 700,
+      "grid_note": "5MHz upward or 10MHz downward from 700; all four STA groups required",
+      "at_700": {
+        "mhz": 700,
+        "passed": true,
+        "violations": 0,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_0__reg_p:D",
+            "slack_ns": 0.001,
+            "fmax_mhz": 700.893
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.lookup_queue_write_index_d_OAI21_X1_ZN_B1_NOR2_X1_A2_ZN_CLKGATE_X1_E:E",
+            "slack_ns": 0.008,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+            "slack_ns": 0.094,
+            "fmax_mhz": null
+          }
+        },
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      },
+      "native": {
+        "cpu_mhz": 700,
+        "total": {
+          "cycles": 2684335,
+          "retired_instructions": 831633,
+          "ipc": 0.30980969215839305,
+          "timer_ticks": 3835,
+          "timer_seconds": 0.003835,
+          "cycle_seconds": 0.0038347642857142856,
+          "interrupts": 0,
+          "cycles_change_pct": -0.007301089091538149
+        },
+        "scored": {
+          "cycles": 1048345,
+          "retired_instructions": 430313,
+          "ipc": 0.41046888190433495,
+          "timer_ticks": 1496,
+          "timer_seconds": 0.001496,
+          "cycle_seconds": 0.0014976357142857143,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0026709478144537613
+        },
+        "whole_program": {
+          "cycles": 3294156,
+          "retired_instructions": 910171,
+          "ipc": 0.27629869380806493,
+          "cycle_seconds": 0.004705937142857143,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0
+        },
+        "total_cycle_time_change_pct": -0.007301089091538149
+      },
+      "proxy": {
+        "dev": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "json_bpe-dev-2411",
+              "cycles": 251554,
+              "cycles_ratio": 0.9985194123694562,
+              "time_ratio": 0.9985194123694562,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "json_bpe-dev-2418",
+              "cycles": 256846,
+              "cycles_ratio": 0.9984800009329917,
+              "time_ratio": 0.9984800009329917,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2411",
+              "cycles": 1196766,
+              "cycles_ratio": 0.9950975419527681,
+              "time_ratio": 0.9950975419527681,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2418",
+              "cycles": 1204123,
+              "cycles_ratio": 0.9951043223940889,
+              "time_ratio": 0.995104322394089,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2411",
+              "cycles": 1209569,
+              "cycles_ratio": 0.9988224559143514,
+              "time_ratio": 0.9988224559143515,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2418",
+              "cycles": 1166397,
+              "cycles_ratio": 0.9986959723268717,
+              "time_ratio": 0.9986959723268717,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2411",
+              "cycles": 2286459,
+              "cycles_ratio": 0.9993972475323865,
+              "time_ratio": 0.9993972475323865,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2418",
+              "cycles": 2564783,
+              "cycles_ratio": 0.9992114716844702,
+              "time_ratio": 0.9992114716844703,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2411",
+              "cycles": 134117,
+              "cycles_ratio": 0.9995528294715189,
+              "time_ratio": 0.9995528294715189,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2418",
+              "cycles": 135212,
+              "cycles_ratio": 0.9995416709789021,
+              "time_ratio": 0.9995416709789021,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.17590161354426037,
+          "time_geomean_change_pct": -0.17590161354424927
+        },
+        "streams": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "jsmn_stream-cold",
+              "cycles": 2036032,
+              "cycles_ratio": 0.9995537425973555,
+              "time_ratio": 0.9995537425973555,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "jsmn_stream-warm",
+              "cycles": 1922280,
+              "cycles_ratio": 0.999474858185713,
+              "time_ratio": 0.9994748581857129,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-cold",
+              "cycles": 2880510,
+              "cycles_ratio": 0.9940491842992883,
+              "time_ratio": 0.9940491842992883,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-warm",
+              "cycles": 1759329,
+              "cycles_ratio": 0.9941992344006592,
+              "time_ratio": 0.9941992344006592,
+              "i_beats_change": -8,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.31843901666475105,
+          "time_geomean_change_pct": -0.31843901666475105
+        }
+      }
+    },
+    {
+      "name": "frontend-restart",
+      "area_um2": 103118.624,
+      "passed_mhz": 460,
+      "grid_note": "5MHz upward or 10MHz downward from 700; all four STA groups required",
+      "adopted": false,
+      "reason": "Only 460MHz passed on the measured grid; required 700MHz failed by 0.586ns.",
+      "at_700": {
+        "mhz": 700,
+        "passed": false,
+        "violations": 10,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+            "slack_ns": -0.586,
+            "fmax_mhz": 496.545
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": -0.311,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.096,
+            "fmax_mhz": null
+          }
+        },
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      },
+      "native": {
+        "cpu_mhz": 700,
+        "total": {
+          "cycles": 2637702,
+          "retired_instructions": 831609,
+          "ipc": 0.3152778441234074,
+          "timer_ticks": 3768,
+          "timer_seconds": 0.003768,
+          "cycle_seconds": 0.0037681457142857144,
+          "interrupts": 0,
+          "cycles_change_pct": -1.7444015360597476
+        },
+        "scored": {
+          "cycles": 1021749,
+          "retired_instructions": 430313,
+          "ipc": 0.4211533360933067,
+          "timer_ticks": 1461,
+          "timer_seconds": 0.001461,
+          "cycle_seconds": 0.0014596414285714286,
+          "interrupts": 0,
+          "cycles_change_pct": -2.53434791193885
+        },
+        "whole_program": {
+          "cycles": 3246255,
+          "retired_instructions": 910132,
+          "ipc": 0.2803636806104265,
+          "cycle_seconds": 0.004637507142857143,
+          "interrupts": 0,
+          "cycles_change_pct": -1.4541205698819337
+        },
+        "total_cycle_time_change_pct": -1.7444015360597365
+      },
+      "proxy": {
+        "dev": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "json_bpe-dev-2411",
+              "cycles": 253615,
+              "cycles_ratio": 1.0067003536738817,
+              "time_ratio": 1.0067003536738817,
+              "i_beats_change": 248,
+              "d_beats_change": 0
+            },
+            {
+              "name": "json_bpe-dev-2418",
+              "cycles": 258344,
+              "cycles_ratio": 1.0043034244684863,
+              "time_ratio": 1.0043034244684863,
+              "i_beats_change": 208,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2411",
+              "cycles": 1227065,
+              "cycles_ratio": 1.0202908215275779,
+              "time_ratio": 1.0202908215275779,
+              "i_beats_change": 2136,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2418",
+              "cycles": 1245469,
+              "cycles_ratio": 1.029273243105433,
+              "time_ratio": 1.029273243105433,
+              "i_beats_change": 2880,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2411",
+              "cycles": 1190057,
+              "cycles_ratio": 0.9827100855081978,
+              "time_ratio": 0.9827100855081978,
+              "i_beats_change": -808,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2418",
+              "cycles": 1150267,
+              "cycles_ratio": 0.9848850948695116,
+              "time_ratio": 0.9848850948695115,
+              "i_beats_change": -576,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2411",
+              "cycles": 2296715,
+              "cycles_ratio": 1.003880082418423,
+              "time_ratio": 1.003880082418423,
+              "i_beats_change": 1600,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2418",
+              "cycles": 2566279,
+              "cycles_ratio": 0.9997942969611662,
+              "time_ratio": 0.9997942969611662,
+              "i_beats_change": 1056,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2411",
+              "cycles": 130684,
+              "cycles_ratio": 0.9739672224002623,
+              "time_ratio": 0.9739672224002622,
+              "i_beats_change": -8,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2418",
+              "cycles": 131774,
+              "cycles_ratio": 0.9741265875186658,
+              "time_ratio": 0.9741265875186659,
+              "i_beats_change": -8,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.21659867175863878,
+          "time_geomean_change_pct": -0.21659867175863878
+        },
+        "streams": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "jsmn_stream-cold",
+              "cycles": 2029562,
+              "cycles_ratio": 0.9963774110295782,
+              "time_ratio": 0.9963774110295782,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "jsmn_stream-warm",
+              "cycles": 1916643,
+              "cycles_ratio": 0.9965439429311232,
+              "time_ratio": 0.9965439429311231,
+              "i_beats_change": -16,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-cold",
+              "cycles": 2924823,
+              "cycles_ratio": 1.009341372663104,
+              "time_ratio": 1.009341372663104,
+              "i_beats_change": 2672,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-warm",
+              "cycles": 1784673,
+              "cycles_ratio": 1.0085211636115403,
+              "time_ratio": 1.0085211636115403,
+              "i_beats_change": 1584,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": 0.2676542017068684,
+          "time_geomean_change_pct": 0.2676542017068684
+        }
+      }
+    },
+    {
+      "name": "frontend-ex-restart",
+      "area_um2": 102552.31,
+      "passed_mhz": 530,
+      "grid_note": "5MHz upward or 10MHz downward from 700; all four STA groups required",
+      "at_700": {
+        "mhz": 700,
+        "passed": false,
+        "violations": 10,
+        "groups": {
+          "data_max": {
+            "endpoint": "data_axi4_manager_o_52_",
+            "slack_ns": -0.346,
+            "fmax_mhz": 563.775
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.store_write_bypass_present_q_reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": -0.167,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+            "slack_ns": 0.059,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.096,
+            "fmax_mhz": null
+          }
+        },
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      },
+      "native": {
+        "cpu_mhz": 700,
+        "total": {
+          "cycles": 2643463,
+          "retired_instructions": 831609,
+          "ipc": 0.31459074706171414,
+          "timer_ticks": 3776,
+          "timer_seconds": 0.003776,
+          "cycle_seconds": 0.003776375714285714,
+          "interrupts": 0,
+          "cycles_change_pct": -1.529801667404851
+        },
+        "scored": {
+          "cycles": 1026060,
+          "retired_instructions": 430313,
+          "ipc": 0.41938385669454026,
+          "timer_ticks": 1466,
+          "timer_seconds": 0.001466,
+          "cycle_seconds": 0.0014658,
+          "interrupts": 0,
+          "cycles_change_pct": -2.1231173395070413
+        },
+        "whole_program": {
+          "cycles": 3252786,
+          "retired_instructions": 910141,
+          "ipc": 0.2798035284214824,
+          "cycle_seconds": 0.004646837142857143,
+          "interrupts": 0,
+          "cycles_change_pct": -1.2558603781970268
+        },
+        "total_cycle_time_change_pct": -1.529801667404851
+      },
+      "proxy": {
+        "dev": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "json_bpe-dev-2411",
+              "cycles": 250440,
+              "cycles_ratio": 0.9940974964970011,
+              "time_ratio": 0.9940974964970011,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "json_bpe-dev-2418",
+              "cycles": 255770,
+              "cycles_ratio": 0.9942970878994857,
+              "time_ratio": 0.9942970878994857,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2411",
+              "cycles": 1197009,
+              "cycles_ratio": 0.9952995937345654,
+              "time_ratio": 0.9952995937345654,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2418",
+              "cycles": 1204302,
+              "cycles_ratio": 0.9952522505324173,
+              "time_ratio": 0.9952522505324173,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2411",
+              "cycles": 1203717,
+              "cycles_ratio": 0.9939900660200909,
+              "time_ratio": 0.9939900660200908,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2418",
+              "cycles": 1160885,
+              "cycles_ratio": 0.9939764709911638,
+              "time_ratio": 0.9939764709911638,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2411",
+              "cycles": 2278754,
+              "cycles_ratio": 0.9960294391473522,
+              "time_ratio": 0.9960294391473522,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2418",
+              "cycles": 2556955,
+              "cycles_ratio": 0.996161768298123,
+              "time_ratio": 0.9961617682981229,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2411",
+              "cycles": 131953,
+              "cycles_ratio": 0.9834248790776362,
+              "time_ratio": 0.9834248790776361,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2418",
+              "cycles": 133059,
+              "cycles_ratio": 0.9836258261010985,
+              "time_ratio": 0.9836258261010986,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.739525952662079,
+          "time_geomean_change_pct": -0.739525952662079
+        },
+        "streams": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "jsmn_stream-cold",
+              "cycles": 2031509,
+              "cycles_ratio": 0.9973332560933282,
+              "time_ratio": 0.9973332560933282,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "jsmn_stream-warm",
+              "cycles": 1917900,
+              "cycles_ratio": 0.9971975105158348,
+              "time_ratio": 0.9971975105158347,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-cold",
+              "cycles": 2889302,
+              "cycles_ratio": 0.9970832582752021,
+              "time_ratio": 0.9970832582752021,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-warm",
+              "cycles": 1763983,
+              "cycles_ratio": 0.9968292161930928,
+              "time_ratio": 0.996829216193093,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.2889206912848774,
+          "time_geomean_change_pct": -0.2889206912848774
+        }
+      }
+    },
+    {
+      "name": "cache-handoff",
+      "area_um2": 102041.856,
+      "passed_mhz": 550,
+      "grid_note": "5MHz upward or 10MHz downward from 700; all four STA groups required",
+      "at_700": {
+        "mhz": 700,
+        "passed": false,
+        "violations": 10,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_17__reg_p:D",
+            "slack_ns": -0.294,
+            "fmax_mhz": 580.67
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": -0.294,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+            "slack_ns": 0.06,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+            "slack_ns": 0.094,
+            "fmax_mhz": null
+          }
+        },
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-cache-synthesis/current/probe/constraints.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-cache-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      },
+      "native": {
+        "cpu_mhz": 700,
+        "total": {
+          "cycles": 2684048,
+          "retired_instructions": 831627,
+          "ipc": 0.3098405840730121,
+          "timer_ticks": 3835,
+          "timer_seconds": 0.003835,
+          "cycle_seconds": 0.003834354285714286,
+          "interrupts": 0,
+          "cycles_change_pct": -0.017991969547004327
+        },
+        "scored": {
+          "cycles": 1048002,
+          "retired_instructions": 430313,
+          "ipc": 0.4106032240396488,
+          "timer_ticks": 1496,
+          "timer_seconds": 0.001496,
+          "cycle_seconds": 0.0014971457142857142,
+          "interrupts": 0,
+          "cycles_change_pct": -0.030048162912554854
+        },
+        "whole_program": {
+          "cycles": 3293484,
+          "retired_instructions": 910159,
+          "ipc": 0.2763514260278781,
+          "cycle_seconds": 0.004704977142857143,
+          "interrupts": 0,
+          "cycles_change_pct": -0.020399762488476636
+        },
+        "total_cycle_time_change_pct": -0.017991969547004327
+      },
+      "proxy": {
+        "dev": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "json_bpe-dev-2411",
+              "cycles": 251708,
+              "cycles_ratio": 0.9991307005600829,
+              "time_ratio": 0.9991307005600829,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "json_bpe-dev-2418",
+              "cycles": 257006,
+              "cycles_ratio": 0.9991019954361153,
+              "time_ratio": 0.9991019954361153,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2411",
+              "cycles": 1202057,
+              "cycles_ratio": 0.9994969492675415,
+              "time_ratio": 0.9994969492675415,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2418",
+              "cycles": 1209514,
+              "cycles_ratio": 0.9995595212417369,
+              "time_ratio": 0.999559521241737,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2411",
+              "cycles": 1210079,
+              "cycles_ratio": 0.9992435972072552,
+              "time_ratio": 0.9992435972072552,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2418",
+              "cycles": 1166869,
+              "cycles_ratio": 0.9991001095965477,
+              "time_ratio": 0.9991001095965477,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2411",
+              "cycles": 2292690,
+              "cycles_ratio": 1.0021207795307185,
+              "time_ratio": 1.0021207795307185,
+              "i_beats_change": 360,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2418",
+              "cycles": 2566189,
+              "cycles_ratio": 0.9997592339431831,
+              "time_ratio": 0.9997592339431831,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2411",
+              "cycles": 134127,
+              "cycles_ratio": 0.9996273578929324,
+              "time_ratio": 0.9996273578929326,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2418",
+              "cycles": 135230,
+              "cycles_ratio": 0.9996747342430918,
+              "time_ratio": 0.9996747342430918,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.031886061188013404,
+          "time_geomean_change_pct": -0.0318860611880023
+        },
+        "streams": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "jsmn_stream-cold",
+              "cycles": 2036329,
+              "cycles_ratio": 0.9996995494714869,
+              "time_ratio": 0.9996995494714869,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "jsmn_stream-warm",
+              "cycles": 1922534,
+              "cycles_ratio": 0.9996069235528704,
+              "time_ratio": 0.9996069235528704,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-cold",
+              "cycles": 2896306,
+              "cycles_ratio": 0.9995003026481889,
+              "time_ratio": 0.9995003026481889,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-warm",
+              "cycles": 1768949,
+              "cycles_ratio": 0.9996355096140697,
+              "time_ratio": 0.9996355096140696,
+              "i_beats_change": 8,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.03894312683458967,
+          "time_geomean_change_pct": -0.03894312683460077
+        }
+      }
+    },
+    {
+      "name": "array-forward",
+      "area_um2": 102004.882,
+      "passed_mhz": 715,
+      "grid_note": "5MHz upward from 700; on failure probe a conservative lower point, not the exact maximum; all four STA groups required",
+      "at_700": {
+        "mhz": 700,
+        "passed": true,
+        "violations": 0,
+        "groups": {
+          "data_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_9__reg_p:D",
+            "slack_ns": 0.025,
+            "fmax_mhz": 712.529
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.038,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+            "slack_ns": 0.06,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+            "slack_ns": 0.097,
+            "fmax_mhz": null
+          }
+        },
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-cache-synthesis/current/probe/constraints.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-cache-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      },
+      "native": {
+        "cpu_mhz": 700,
+        "total": {
+          "cycles": 2684531,
+          "retired_instructions": 831627,
+          "ipc": 0.3097848376494814,
+          "timer_ticks": 3835,
+          "timer_seconds": 0.003835,
+          "cycle_seconds": 0.0038350442857142857,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0
+        },
+        "scored": {
+          "cycles": 1048317,
+          "retired_instructions": 430313,
+          "ipc": 0.41047984531396514,
+          "timer_ticks": 1497,
+          "timer_seconds": 0.001497,
+          "cycle_seconds": 0.0014975957142857143,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0
+        },
+        "whole_program": {
+          "cycles": 3294156,
+          "retired_instructions": 910165,
+          "ipc": 0.2762968724006999,
+          "cycle_seconds": 0.004705937142857143,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0
+        },
+        "total_cycle_time_change_pct": 0.0
+      },
+      "proxy": {
+        "dev": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "json_bpe-dev-2411",
+              "cycles": 251927,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "json_bpe-dev-2418",
+              "cycles": 257237,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2411",
+              "cycles": 1202662,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2418",
+              "cycles": 1210047,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2411",
+              "cycles": 1210995,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2418",
+              "cycles": 1167920,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2411",
+              "cycles": 2287838,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2418",
+              "cycles": 2566807,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2411",
+              "cycles": 134177,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2418",
+              "cycles": 135274,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": 0.0,
+          "time_geomean_change_pct": 0.0
+        },
+        "streams": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "jsmn_stream-cold",
+              "cycles": 2036941,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "jsmn_stream-warm",
+              "cycles": 1923290,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-cold",
+              "cycles": 2897754,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-warm",
+              "cycles": 1769594,
+              "cycles_ratio": 1.0,
+              "time_ratio": 1.0,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": 0.0,
+          "time_geomean_change_pct": 0.0
+        }
+      }
+    },
+    {
+      "name": "combined",
+      "area_um2": 101453.198,
+      "passed_mhz": 550,
+      "grid_note": "5 MHz upward from 700; conservative lower point after failure, not necessarily the maximum; require all four STA groups",
+      "at_700": {
+        "mhz": 700,
+        "passed": false,
+        "violations": 10,
+        "groups": {
+          "data_max": {
+            "endpoint": "data_axi4_manager_o_1_",
+            "slack_ns": -0.288,
+            "fmax_mhz": 582.846
+          },
+          "gating_max": {
+            "endpoint": "u_core.u_ifu.lookup_queue_write_index_q_INV_X1_A_ZN_NOR2_X1_A2_ZN_CLKGATE_X1_E:E",
+            "slack_ns": -0.279,
+            "fmax_mhz": null
+          },
+          "data_min": {
+            "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+            "slack_ns": 0.06,
+            "fmax_mhz": null
+          },
+          "gating_min": {
+            "endpoint": "u_core.completion_result_valid_CLKGATE_X1_E:E",
+            "slack_ns": 0.094,
+            "fmax_mhz": null
+          }
+        },
+        "command": [
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+          "-script",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+          "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+          "riscv32_core_reset_boundary",
+          "nangate45"
+        ]
+      },
+      "native": {
+        "cpu_mhz": 700,
+        "total": {
+          "cycles": 2684335,
+          "retired_instructions": 831633,
+          "ipc": 0.30980969215839305,
+          "timer_ticks": 3835,
+          "timer_seconds": 0.003835,
+          "cycle_seconds": 0.0038347642857142856,
+          "interrupts": 0,
+          "cycles_change_pct": -0.007301089091538149
+        },
+        "scored": {
+          "cycles": 1048345,
+          "retired_instructions": 430313,
+          "ipc": 0.41046888190433495,
+          "timer_ticks": 1496,
+          "timer_seconds": 0.001496,
+          "cycle_seconds": 0.0014976357142857143,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0026709478144537613
+        },
+        "whole_program": {
+          "cycles": 3294156,
+          "retired_instructions": 910171,
+          "ipc": 0.27629869380806493,
+          "cycle_seconds": 0.004705937142857143,
+          "interrupts": 0,
+          "cycles_change_pct": 0.0
+        },
+        "total_cycle_time_change_pct": -0.007301089091538149
+      },
+      "proxy": {
+        "dev": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "json_bpe-dev-2411",
+              "cycles": 251554,
+              "cycles_ratio": 0.9985194123694562,
+              "time_ratio": 0.9985194123694562,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "json_bpe-dev-2418",
+              "cycles": 256846,
+              "cycles_ratio": 0.9984800009329917,
+              "time_ratio": 0.9984800009329917,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2411",
+              "cycles": 1196766,
+              "cycles_ratio": 0.9950975419527681,
+              "time_ratio": 0.9950975419527681,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2418",
+              "cycles": 1204123,
+              "cycles_ratio": 0.9951043223940889,
+              "time_ratio": 0.995104322394089,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2411",
+              "cycles": 1209569,
+              "cycles_ratio": 0.9988224559143514,
+              "time_ratio": 0.9988224559143515,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2418",
+              "cycles": 1166397,
+              "cycles_ratio": 0.9986959723268717,
+              "time_ratio": 0.9986959723268717,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2411",
+              "cycles": 2286459,
+              "cycles_ratio": 0.9993972475323865,
+              "time_ratio": 0.9993972475323865,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2418",
+              "cycles": 2564783,
+              "cycles_ratio": 0.9992114716844702,
+              "time_ratio": 0.9992114716844703,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2411",
+              "cycles": 134117,
+              "cycles_ratio": 0.9995528294715189,
+              "time_ratio": 0.9995528294715189,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2418",
+              "cycles": 135212,
+              "cycles_ratio": 0.9995416709789021,
+              "time_ratio": 0.9995416709789021,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.17590161354426037,
+          "time_geomean_change_pct": -0.17590161354424927
+        },
+        "streams": {
+          "mhz": 700,
+          "cases": [
+            {
+              "name": "jsmn_stream-cold",
+              "cycles": 2036032,
+              "cycles_ratio": 0.9995537425973555,
+              "time_ratio": 0.9995537425973555,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "jsmn_stream-warm",
+              "cycles": 1922280,
+              "cycles_ratio": 0.999474858185713,
+              "time_ratio": 0.9994748581857129,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-cold",
+              "cycles": 2880510,
+              "cycles_ratio": 0.9940491842992883,
+              "time_ratio": 0.9940491842992883,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-warm",
+              "cycles": 1759329,
+              "cycles_ratio": 0.9941992344006592,
+              "time_ratio": 0.9941992344006592,
+              "i_beats_change": -8,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": -0.31843901666475105,
+          "time_geomean_change_pct": -0.31843901666475105
+        }
+      }
+    },
+    {
+      "name": "final-715",
+      "native": {
+        "cpu_mhz": 715,
+        "total": {
+          "cycles": 2722008,
+          "retired_instructions": 831627,
+          "ipc": 0.30551967518096934,
+          "timer_ticks": 3807,
+          "timer_seconds": 0.003807,
+          "cycle_seconds": 0.003807004195804196,
+          "interrupts": 0,
+          "cycles_change_pct": 1.396035285120556
+        },
+        "scored": {
+          "cycles": 1058603,
+          "retired_instructions": 430313,
+          "ipc": 0.4064913853446476,
+          "timer_ticks": 1479,
+          "timer_seconds": 0.001479,
+          "cycle_seconds": 0.0014805636363636363,
+          "interrupts": 0,
+          "cycles_change_pct": 0.9811917578366192
+        },
+        "whole_program": {
+          "cycles": 3344182,
+          "retired_instructions": 910138,
+          "ipc": 0.27215564224674377,
+          "cycle_seconds": 0.004677177622377623,
+          "interrupts": 0,
+          "cycles_change_pct": 1.5186287473938798
+        },
+        "total_cycle_time_change_pct": -0.7311542663155257
+      },
+      "proxy": {
+        "dev": {
+          "mhz": 715,
+          "cases": [
+            {
+              "name": "json_bpe-dev-2411",
+              "cycles": 256493,
+              "cycles_ratio": 1.0181242979116967,
+              "time_ratio": 0.9967650469065562,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "json_bpe-dev-2418",
+              "cycles": 261824,
+              "cycles_ratio": 1.017831804911424,
+              "time_ratio": 0.9964786901230724,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2411",
+              "cycles": 1222505,
+              "cycles_ratio": 1.0164992325358246,
+              "time_ratio": 0.9951740738112969,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "quant_loader-dev-2418",
+              "cycles": 1230032,
+              "cycles_ratio": 1.0165158873994151,
+              "time_ratio": 0.9951903792721547,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2411",
+              "cycles": 1235791,
+              "cycles_ratio": 1.020475724507533,
+              "time_ratio": 0.9990671428745079,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "runtime_graph-dev-2418",
+              "cycles": 1191741,
+              "cycles_ratio": 1.0203960887732035,
+              "time_ratio": 0.9989891778199195,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2411",
+              "cycles": 2337628,
+              "cycles_ratio": 1.0217629045413181,
+              "time_ratio": 1.0003273191313604,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "regex_tokenizer-dev-2418",
+              "cycles": 2622646,
+              "cycles_ratio": 1.0217542651239457,
+              "time_ratio": 1.0003188609605063,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2411",
+              "cycles": 136165,
+              "cycles_ratio": 1.014816250177005,
+              "time_ratio": 0.9935263987746903,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "ini_config-dev-2418",
+              "cycles": 137277,
+              "cycles_ratio": 1.0148069843428893,
+              "time_ratio": 0.9935173273287028,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": 1.8295198538620383,
+          "time_geomean_change_pct": -0.30676377943577027
+        },
+        "streams": {
+          "mhz": 715,
+          "cases": [
+            {
+              "name": "jsmn_stream-cold",
+              "cycles": 2076727,
+              "cycles_ratio": 1.0195322299467682,
+              "time_ratio": 0.998143441905927,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "jsmn_stream-warm",
+              "cycles": 1961148,
+              "cycles_ratio": 1.019683979015125,
+              "time_ratio": 0.9982920074273951,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-cold",
+              "cycles": 2949542,
+              "cycles_ratio": 1.0178717724140836,
+              "time_ratio": 0.9965178191466553,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            },
+            {
+              "name": "miniz_stream-warm",
+              "cycles": 1800596,
+              "cycles_ratio": 1.0175192727823443,
+              "time_ratio": 0.9961727146120853,
+              "i_beats_change": 0,
+              "d_beats_change": 0
+            }
+          ],
+          "cycles_geomean_change_pct": 1.8651355617244514,
+          "time_geomean_change_pct": -0.27189525425579397
+        }
+      }
+    }
+  ]
+}

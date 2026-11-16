@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "input_bits_exhaustively_proved": 44,
+  "source_sha256": "2337d8b6400ab77386790c4f21915ea462ba744e3a8e4c0f7ba580c07e29fb6a",
+  "command": [
+    "yosys",
+    "-p",
+    "read_verilog -sv /home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/rv32im-timing-20260928/final-regression/final-address-proof/address_miter.sv; prep -top address_miter; flatten; sat -verify -prove correct 1 -show-inputs -show-outputs"
+  ]
+}

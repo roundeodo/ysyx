@@ -1,0 +1,105 @@
+{
+  "mhz": 720,
+  "scope": "initial cycle screening, some candidates do not qualify at this clock; final comparison uses qualified clocks",
+  "rows": {
+    "B0": {
+      "time_ratio_gm": 1.0,
+      "worst_time_ratio": 1.0,
+      "errors": 41951,
+      "i_beats": 121982,
+      "d_beats": 175388,
+      "queries": 1042975,
+      "source_sha256": "7041a9b921c42463aecec9973cf939f8710ed1d7a33d61c7cbc1df839c96c535"
+    },
+    "H64": {
+      "time_ratio_gm": 1.000081931312953,
+      "worst_time_ratio": 1.0039690255420413,
+      "errors": 39854,
+      "i_beats": 122574,
+      "d_beats": 175388,
+      "queries": 1034822,
+      "source_sha256": "73934107f494f35c05abf6e82c08af58004dd1ee1a53e8343d63c73586366a6e"
+    },
+    "S32": {
+      "time_ratio_gm": 0.9943594374455011,
+      "worst_time_ratio": 1.0016971874392386,
+      "errors": 35475,
+      "i_beats": 121758,
+      "d_beats": 175388,
+      "queries": 1017511,
+      "source_sha256": "115dbe618d69db85ed8a9c1ffae8815651226b76ad45262668b5e0e7a8617699"
+    },
+    "S64": {
+      "time_ratio_gm": 0.9945348221380366,
+      "worst_time_ratio": 1.0197404310824607,
+      "errors": 29306,
+      "i_beats": 124286,
+      "d_beats": 175388,
+      "queries": 990434,
+      "source_sha256": "ffbc444dd7bcfe75dcaf4db9dac2f0cef5d21d8fca0842d977ef2d6139776c19"
+    },
+    "A16": {
+      "time_ratio_gm": 0.9996568836064865,
+      "worst_time_ratio": 1.0034269638906566,
+      "errors": 36279,
+      "i_beats": 123278,
+      "d_beats": 175388,
+      "queries": 1020376,
+      "source_sha256": "2b1e76f0b79566bd35340d45bca60b8160a1b9254c1bf814ca737f8ce4472d83"
+    },
+    "A32": {
+      "time_ratio_gm": 0.9818064529087565,
+      "worst_time_ratio": 0.9878200615110979,
+      "errors": 30536,
+      "i_beats": 117958,
+      "d_beats": 175388,
+      "queries": 997186,
+      "source_sha256": "9203fbb50108ebf1c973f42ee0a32a1ad07931e775315f2ec2d3a3f59bcdd673"
+    },
+    "L16": {
+      "time_ratio_gm": 1.0004860672529625,
+      "worst_time_ratio": 1.007650783588319,
+      "errors": 36271,
+      "i_beats": 123854,
+      "d_beats": 175388,
+      "queries": 1020760,
+      "source_sha256": "8fe860ff39836c067fcb0974e0b14296ef2095f3d9bf09d519f434cd456e096a"
+    },
+    "L32": {
+      "time_ratio_gm": 0.9821805631065276,
+      "worst_time_ratio": 0.9870826694334309,
+      "errors": 30324,
+      "i_beats": 118270,
+      "d_beats": 175388,
+      "queries": 996636,
+      "source_sha256": "d1dda85218b5af694c392cc6f2f11370506b70aa2bd766415e3f566975546930"
+    },
+    "R16": {
+      "time_ratio_gm": 0.9998499558633052,
+      "worst_time_ratio": 1.0096606668586219,
+      "errors": 35698,
+      "i_beats": 123374,
+      "d_beats": 175388,
+      "queries": 1019552,
+      "source_sha256": "e00581f0ff2bcaa2ce4818ba172f3f35c62e58359e7c4865ee0f65093cea66ea"
+    },
+    "R32": {
+      "time_ratio_gm": 0.9808157911983176,
+      "worst_time_ratio": 0.9927780042242562,
+      "errors": 29093,
+      "i_beats": 117222,
+      "d_beats": 175388,
+      "queries": 991169,
+      "source_sha256": "82ccfac06f355f0d55f7246312b1e88d33a8a3428df53ffa2fd94ffe12c37c3b"
+    },
+    "B0current": {
+      "time_ratio_gm": 1.0,
+      "worst_time_ratio": 1.0,
+      "errors": 41951,
+      "i_beats": 121982,
+      "d_beats": 175388,
+      "queries": 1042975,
+      "source_sha256": "f5ea8eaad79b8de343488d41dc5f384232d052cbe7747c70fc75c088c78b7c39"
+    }
+  }
+}

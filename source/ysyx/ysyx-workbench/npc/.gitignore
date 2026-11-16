@@ -1,0 +1,26 @@
+*.*
+*
+!*/
+!Makefile
+!*.mk
+!*.[cSh]
+!*.v
+!*.sv
+!*.f
+!tests/formal/*.sby
+!*.cc
+!*.cpp
+!*.py
+!*.md
+!constr/riscv_core.sdc
+!.gitignore
+!README.md
+build/
+/tests/formal/riscv_pipeline_control/
+
+# `result/`只保存可再生成的trace、模型输出、网表和PPA报告。正式结果通过
+# 文档记录命令、commit和摘要，不把大体积生成物提交到源码仓库。
+/result/*
+!/result/performance/
+/result/performance/*
+!/result/performance/README.md

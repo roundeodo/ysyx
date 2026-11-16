@@ -1,0 +1,508 @@
+{
+  "schema": 1,
+  "model": "device-clock-v1",
+  "passed": true,
+  "cases": [
+    {
+      "kind": "apb",
+      "cpu_mhz": 100,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_apb_tb",
+        "-GCPU_MHZ=100",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/apb-100/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_apb_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "npc/tests/rtl/device_clock_apb_tb.sv": "76fa8c66e8b0a75055601ff3f28253fef7d5c04ed380b9b51e7c4ace5d448a66"
+      },
+      "logs": [
+        "apb-100/run.log"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "axi_stress",
+      "cpu_mhz": 100,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_axi_stress_tb",
+        "-GCPU_MHZ=100",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/axi_stress-100/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_axi_stress_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "npc/tests/rtl/device_clock_axi_stress_tb.sv": "62ab6e589728ac7bef3c06cacff77215b4659badcc225d7b1505a0f5870ca4f7"
+      },
+      "logs": [
+        "axi_stress-100/run.log"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "axi",
+      "cpu_mhz": 100,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_axi_tb",
+        "-GCPU_MHZ=100",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/axi-100/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_axi_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v": "009fd1458ec6f69aaa06f8724bc583be169f229de463bdab5d36a976439a8212",
+        "npc/tests/rtl/device_clock_axi_tb.sv": "f169f34975bb305f944b4b03d1bd5e5902c92f18428143f2a6400eb06682e115"
+      },
+      "logs": [
+        "axi-100/run-0.log",
+        "axi-100/run-1.log"
+      ],
+      "passed": true,
+      "shared_sdram": [
+        {
+          "ratio_scaled": 1024,
+          "late_read": 0,
+          "ar_start": 1,
+          "ar_down": 4,
+          "wlast_down": 3,
+          "b_up": 5,
+          "r_down": 6,
+          "r_up": 6
+        },
+        {
+          "ratio_scaled": 1024,
+          "late_read": 1,
+          "ar_start": 6,
+          "ar_down": 6,
+          "wlast_down": 3,
+          "b_up": 5,
+          "r_down": 8,
+          "r_up": 8
+        }
+      ]
+    },
+    {
+      "kind": "sdram",
+      "cpu_mhz": 100,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_sdram_tb",
+        "-GCPU_MHZ=100",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/sdram-100/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/sdram_top_axi.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/sdram.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_core.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_sdram_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "ysyxSoC/perip/sdram/sdram_top_axi.v": "39234f4f44612468db6b57e1d6d43c8a14381a5467e5739ae4d9ddd9a3812e62",
+        "ysyxSoC/perip/sdram/sdram.v": "4e7ff180203dbb2d65a293a477b5ee40248974225f584f809f42291a2084310d",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v": "009fd1458ec6f69aaa06f8724bc583be169f229de463bdab5d36a976439a8212",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi.v": "da768ece243519f44d79c19632d160698b911095750634f1f6cd39bec3237d3e",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_core.v": "c712b6170aee9718a87b9176a930a7b31d5bce6eaf6dc720d43141c666f1ee0f",
+        "npc/tests/rtl/device_clock_sdram_tb.sv": "052f2565c1dc4b834cd9ec6a43124bf605c6a003a1577abc3dac40dad61d9879"
+      },
+      "logs": [
+        "sdram-100/run.log"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "apb",
+      "cpu_mhz": 250,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_apb_tb",
+        "-GCPU_MHZ=250",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/apb-250/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_apb_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "npc/tests/rtl/device_clock_apb_tb.sv": "76fa8c66e8b0a75055601ff3f28253fef7d5c04ed380b9b51e7c4ace5d448a66"
+      },
+      "logs": [
+        "apb-250/run.log"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "axi_stress",
+      "cpu_mhz": 250,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_axi_stress_tb",
+        "-GCPU_MHZ=250",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/axi_stress-250/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_axi_stress_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "npc/tests/rtl/device_clock_axi_stress_tb.sv": "62ab6e589728ac7bef3c06cacff77215b4659badcc225d7b1505a0f5870ca4f7"
+      },
+      "logs": [
+        "axi_stress-250/run.log"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "axi",
+      "cpu_mhz": 250,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_axi_tb",
+        "-GCPU_MHZ=250",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/axi-250/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_axi_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v": "009fd1458ec6f69aaa06f8724bc583be169f229de463bdab5d36a976439a8212",
+        "npc/tests/rtl/device_clock_axi_tb.sv": "f169f34975bb305f944b4b03d1bd5e5902c92f18428143f2a6400eb06682e115"
+      },
+      "logs": [
+        "axi-250/run-0.log",
+        "axi-250/run-1.log"
+      ],
+      "passed": true,
+      "shared_sdram": [
+        {
+          "ratio_scaled": 2560,
+          "late_read": 0,
+          "ar_start": 3,
+          "ar_down": 12,
+          "wlast_down": 9,
+          "b_up": 14,
+          "r_down": 17,
+          "r_up": 17
+        },
+        {
+          "ratio_scaled": 2560,
+          "late_read": 1,
+          "ar_start": 15,
+          "ar_down": 17,
+          "wlast_down": 9,
+          "b_up": 14,
+          "r_down": 22,
+          "r_up": 22
+        }
+      ]
+    },
+    {
+      "kind": "sdram",
+      "cpu_mhz": 250,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_sdram_tb",
+        "-GCPU_MHZ=250",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/sdram-250/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/sdram_top_axi.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/sdram.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_core.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_sdram_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "ysyxSoC/perip/sdram/sdram_top_axi.v": "39234f4f44612468db6b57e1d6d43c8a14381a5467e5739ae4d9ddd9a3812e62",
+        "ysyxSoC/perip/sdram/sdram.v": "4e7ff180203dbb2d65a293a477b5ee40248974225f584f809f42291a2084310d",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v": "009fd1458ec6f69aaa06f8724bc583be169f229de463bdab5d36a976439a8212",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi.v": "da768ece243519f44d79c19632d160698b911095750634f1f6cd39bec3237d3e",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_core.v": "c712b6170aee9718a87b9176a930a7b31d5bce6eaf6dc720d43141c666f1ee0f",
+        "npc/tests/rtl/device_clock_sdram_tb.sv": "052f2565c1dc4b834cd9ec6a43124bf605c6a003a1577abc3dac40dad61d9879"
+      },
+      "logs": [
+        "sdram-250/run.log"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "apb",
+      "cpu_mhz": 720,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_apb_tb",
+        "-GCPU_MHZ=720",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/apb-720/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_apb_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "npc/tests/rtl/device_clock_apb_tb.sv": "76fa8c66e8b0a75055601ff3f28253fef7d5c04ed380b9b51e7c4ace5d448a66"
+      },
+      "logs": [
+        "apb-720/run.log"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "axi_stress",
+      "cpu_mhz": 720,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_axi_stress_tb",
+        "-GCPU_MHZ=720",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/axi_stress-720/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_axi_stress_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "npc/tests/rtl/device_clock_axi_stress_tb.sv": "62ab6e589728ac7bef3c06cacff77215b4659badcc225d7b1505a0f5870ca4f7"
+      },
+      "logs": [
+        "axi_stress-720/run.log"
+      ],
+      "passed": true
+    },
+    {
+      "kind": "axi",
+      "cpu_mhz": 720,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_axi_tb",
+        "-GCPU_MHZ=720",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/axi-720/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_axi_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v": "009fd1458ec6f69aaa06f8724bc583be169f229de463bdab5d36a976439a8212",
+        "npc/tests/rtl/device_clock_axi_tb.sv": "f169f34975bb305f944b4b03d1bd5e5902c92f18428143f2a6400eb06682e115"
+      },
+      "logs": [
+        "axi-720/run-0.log",
+        "axi-720/run-1.log"
+      ],
+      "passed": true,
+      "shared_sdram": [
+        {
+          "ratio_scaled": 7372,
+          "late_read": 0,
+          "ar_start": 8,
+          "ar_down": 35,
+          "wlast_down": 28,
+          "b_up": 43,
+          "r_down": 50,
+          "r_up": 50
+        },
+        {
+          "ratio_scaled": 7372,
+          "late_read": 1,
+          "ar_start": 44,
+          "ar_down": 50,
+          "wlast_down": 28,
+          "b_up": 43,
+          "r_down": 64,
+          "r_up": 64
+        }
+      ]
+    },
+    {
+      "kind": "sdram",
+      "cpu_mhz": 720,
+      "device_mhz": 100,
+      "command": [
+        "verilator",
+        "--binary",
+        "--timing",
+        "--assert",
+        "-Wno-fatal",
+        "-j",
+        "2",
+        "--top-module",
+        "device_clock_sdram_tb",
+        "-GCPU_MHZ=720",
+        "--Mdir",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/device-model-current/sdram-720/obj",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/device_clock.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/axi4_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/amba/apb_delayer.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/sdram_top_axi.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/sdram.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_core.v",
+        "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/tests/rtl/device_clock_sdram_tb.sv"
+      ],
+      "sources": {
+        "ysyxSoC/perip/amba/device_clock.v": "d7c1a05624cbe112953a19bdbd6cc72b3f0b749fcbc20e5ecedabe3a588b5c3c",
+        "ysyxSoC/perip/amba/axi4_delayer.v": "73281b9de6cf00a3b5abe50a2e1a8fd35dba6a3975c692d873edec8ea5385e87",
+        "ysyxSoC/perip/amba/apb_delayer.v": "3007150795b8ae1b5a94b888a538516ed86f024d1fbf44e570969db6a6efd335",
+        "ysyxSoC/perip/sdram/sdram_top_axi.v": "39234f4f44612468db6b57e1d6d43c8a14381a5467e5739ae4d9ddd9a3812e62",
+        "ysyxSoC/perip/sdram/sdram.v": "4e7ff180203dbb2d65a293a477b5ee40248974225f584f809f42291a2084310d",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_pmem.v": "009fd1458ec6f69aaa06f8724bc583be169f229de463bdab5d36a976439a8212",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi.v": "da768ece243519f44d79c19632d160698b911095750634f1f6cd39bec3237d3e",
+        "ysyxSoC/perip/sdram/core_sdram_axi4/sdram_axi_core.v": "c712b6170aee9718a87b9176a930a7b31d5bce6eaf6dc720d43141c666f1ee0f",
+        "npc/tests/rtl/device_clock_sdram_tb.sv": "052f2565c1dc4b834cd9ec6a43124bf605c6a003a1577abc3dac40dad61d9879"
+      },
+      "logs": [
+        "sdram-720/run.log"
+      ],
+      "passed": true
+    }
+  ]
+}

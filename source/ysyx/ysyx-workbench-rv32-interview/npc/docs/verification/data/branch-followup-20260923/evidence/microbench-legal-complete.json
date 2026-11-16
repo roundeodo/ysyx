@@ -1,0 +1,8 @@
+{
+  "mhz": 560,
+  "configs": [
+    "B0current",
+    "G128"
+  ],
+  "host_optimization": "O2 for generated simulator, workload compiler and RTL unchanged"
+}

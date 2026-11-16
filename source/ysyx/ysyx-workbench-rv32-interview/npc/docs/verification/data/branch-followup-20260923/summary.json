@@ -1,0 +1,551 @@
+{
+  "decision": {
+    "development_choice": "B0",
+    "held_accepted": true,
+    "recommendation": "B0",
+    "parameters_retuned_after_holdout": false
+  },
+  "common_mhz": 560,
+  "comparison": [
+    {
+      "name": "B0",
+      "mhz": 720,
+      "area_um2": 101432.982,
+      "common_mhz": 560,
+      "common_time_ratio": 1.0,
+      "own_time_ratio": 1.0,
+      "own_adp_ratio": 1.0,
+      "dev_max_input_ratio": 1.0,
+      "held_time_ratio": 1.0,
+      "held_adp_ratio": 1.0,
+      "held_max_input_ratio": 1.0
+    },
+    {
+      "name": "B64",
+      "mhz": 720,
+      "area_um2": 102828.95,
+      "common_mhz": 560,
+      "common_time_ratio": 0.9985944100004165,
+      "own_time_ratio": 0.9989653822913322,
+      "own_adp_ratio": 1.0127136097346154,
+      "dev_max_input_ratio": 1.0038147919308686,
+      "held_time_ratio": 0.9978506487556841,
+      "held_adp_ratio": 1.0115835347162108,
+      "held_max_input_ratio": 1.0024965571829263
+    },
+    {
+      "name": "B128",
+      "mhz": 560,
+      "area_um2": 103909.442,
+      "common_mhz": 560,
+      "common_time_ratio": 0.9985403961839889,
+      "own_time_ratio": 1.0632284263264407,
+      "own_adp_ratio": 1.089186873142688,
+      "dev_max_input_ratio": 1.100889958527131,
+      "held_time_ratio": 1.0671195501233828,
+      "held_adp_ratio": 1.0931729977199303,
+      "held_max_input_ratio": 1.0997561446676078
+    },
+    {
+      "name": "G64",
+      "mhz": 660,
+      "area_um2": 102401.488,
+      "common_mhz": 560,
+      "common_time_ratio": 1.0134263346075338,
+      "own_time_ratio": 1.035053356555865,
+      "own_adp_ratio": 1.0449362897633745,
+      "dev_max_input_ratio": 1.0609039326373297,
+      "held_time_ratio": 1.035281020734906,
+      "held_adp_ratio": 1.0451661277336126,
+      "held_max_input_ratio": 1.0663919445946068
+    },
+    {
+      "name": "G128",
+      "mhz": 560,
+      "area_um2": 103946.948,
+      "common_mhz": 560,
+      "common_time_ratio": 1.0054476427380141,
+      "own_time_ratio": 1.0705831421816534,
+      "own_adp_ratio": 1.0971170127881378,
+      "dev_max_input_ratio": 1.1266825358769736,
+      "held_time_ratio": 1.0740700538324097,
+      "held_adp_ratio": 1.1006903458095583,
+      "held_max_input_ratio": 1.1245530758275457
+    },
+    {
+      "name": "M64",
+      "mhz": 720,
+      "area_um2": 103039.09,
+      "common_mhz": 560,
+      "common_time_ratio": 1.0086511127605124,
+      "own_time_ratio": 1.009816366689253,
+      "own_adp_ratio": 1.0258059798613328,
+      "dev_max_input_ratio": 1.032866614824367,
+      "held_time_ratio": 1.0075174901206534,
+      "held_adp_ratio": 1.0234707024694996,
+      "held_max_input_ratio": 1.0252836838586816
+    },
+    {
+      "name": "S32",
+      "mhz": 700,
+      "area_um2": 109453.414,
+      "common_mhz": 560,
+      "common_time_ratio": 0.989147636119805,
+      "own_time_ratio": 0.9927773453353131,
+      "own_adp_ratio": 1.0712774843670376,
+      "dev_max_input_ratio": 1.001586577780148,
+      "held_time_ratio": 0.9923099058935132,
+      "held_adp_ratio": 1.0707730839073994,
+      "held_max_input_ratio": 0.998901867688629
+    },
+    {
+      "name": "A32",
+      "mhz": 700,
+      "area_um2": 109291.686,
+      "common_mhz": 560,
+      "common_time_ratio": 0.9794037604079532,
+      "own_time_ratio": 0.9836395432548286,
+      "own_adp_ratio": 1.0598487984765166,
+      "dev_max_input_ratio": 0.9895969234938117,
+      "held_time_ratio": 0.9823685498268216,
+      "held_adp_ratio": 1.0584793325305997,
+      "held_max_input_ratio": 0.9969207876446543
+    },
+    {
+      "name": "R32",
+      "mhz": 700,
+      "area_um2": 109890.452,
+      "common_mhz": 560,
+      "common_time_ratio": 0.9755088622436384,
+      "own_time_ratio": 0.9798252573907164,
+      "own_adp_ratio": 1.0615229710557277,
+      "dev_max_input_ratio": 0.9926892813363373,
+      "held_time_ratio": 0.9752526473653573,
+      "held_adp_ratio": 1.056569097349181,
+      "held_max_input_ratio": 0.9966009720321741
+    }
+  ],
+  "same_infrastructure_control": {
+    "B64": {
+      "area_ratio_vs_default_off_rtl": 1.0119181617812587,
+      "adp_ratio_vs_default_off_rtl": 1.010871213331357
+    },
+    "B128": {
+      "area_ratio_vs_default_off_rtl": 1.0225510572689531,
+      "adp_ratio_vs_default_off_rtl": 1.0872053514585072
+    },
+    "G64": {
+      "area_ratio_vs_default_off_rtl": 1.0077115977613855,
+      "adp_ratio_vs_default_off_rtl": 1.0430352717031959
+    },
+    "G128": {
+      "area_ratio_vs_default_off_rtl": 1.0229201459601804,
+      "adp_ratio_vs_default_off_rtl": 1.0951210640629654
+    },
+    "M64": {
+      "area_ratio_vs_default_off_rtl": 1.0139861055122479,
+      "adp_ratio_vs_default_off_rtl": 1.0239397649417639
+    },
+    "S32": {
+      "area_ratio_vs_default_off_rtl": 1.0771081246629777,
+      "adp_ratio_vs_default_off_rtl": 1.0693285446420084
+    },
+    "A32": {
+      "area_ratio_vs_default_off_rtl": 1.0755165932852035,
+      "adp_ratio_vs_default_off_rtl": 1.0579206505820469
+    },
+    "R32": {
+      "area_ratio_vs_default_off_rtl": 1.0814089240933769,
+      "adp_ratio_vs_default_off_rtl": 1.0595917773944106
+    }
+  },
+  "traffic_at_common_clock": {
+    "B0": {
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "d_transfer_cycles_same": true
+    },
+    "B64": {
+      "i_beats_ratio_gm": 1.000302826224721,
+      "i_beats_families": {
+        "json_bpe": 1.0029466107421903,
+        "quant_loader": 0.9928973822576517,
+        "runtime_graph": 1.008730551957038,
+        "regex_tokenizer": 1.0012297863983042,
+        "ini_config": 0.9957867939871726
+      },
+      "d_transfer_cycles_same": true
+    },
+    "B128": {
+      "i_beats_ratio_gm": 0.9998525500069824,
+      "i_beats_families": {
+        "json_bpe": 1.0029466107421903,
+        "quant_loader": 0.9906646795602885,
+        "runtime_graph": 1.008730551957038,
+        "regex_tokenizer": 1.0012297863983042,
+        "ini_config": 0.9957867939871726
+      },
+      "d_transfer_cycles_same": true
+    },
+    "G64": {
+      "i_beats_ratio_gm": 1.051632941495075,
+      "i_beats_families": {
+        "json_bpe": 1.0255391727968672,
+        "quant_loader": 1.1552364736596172,
+        "runtime_graph": 1.035285695502155,
+        "regex_tokenizer": 1.0041017238063452,
+        "ini_config": 1.0443831000966919
+      },
+      "d_transfer_cycles_same": true
+    },
+    "G128": {
+      "i_beats_ratio_gm": 1.0485125639395625,
+      "i_beats_families": {
+        "json_bpe": 1.0019644071672484,
+        "quant_loader": 1.1687075086707894,
+        "runtime_graph": 1.0202204955539111,
+        "regex_tokenizer": 0.9965030885399031,
+        "ini_config": 1.064479672373358
+      },
+      "d_transfer_cycles_same": true
+    },
+    "M64": {
+      "i_beats_ratio_gm": 1.0324793681080466,
+      "i_beats_families": {
+        "json_bpe": 1.0093320091134717,
+        "quant_loader": 1.0683512470699705,
+        "runtime_graph": 1.0216488649996756,
+        "regex_tokenizer": 1.0457536897632627,
+        "ini_config": 1.0184219235085938
+      },
+      "d_transfer_cycles_same": true
+    },
+    "S32": {
+      "i_beats_ratio_gm": 0.982017811014206,
+      "i_beats_families": {
+        "json_bpe": 0.9926345662759811,
+        "quant_loader": 0.9311234755652531,
+        "runtime_graph": 1.0117575696550996,
+        "regex_tokenizer": 0.9840578453640207,
+        "ini_config": 0.9924372633570432
+      },
+      "d_transfer_cycles_same": true
+    },
+    "A32": {
+      "i_beats_ratio_gm": 0.9548361714544669,
+      "i_beats_families": {
+        "json_bpe": 0.9833045003228524,
+        "quant_loader": 0.8282727233148509,
+        "runtime_graph": 0.9921701710412894,
+        "regex_tokenizer": 0.9822258924518152,
+        "ini_config": 0.9999663437551465
+      },
+      "d_transfer_cycles_same": true
+    },
+    "R32": {
+      "i_beats_ratio_gm": 0.9511036666441944,
+      "i_beats_families": {
+        "json_bpe": 0.995091890413146,
+        "quant_loader": 0.8282727233148509,
+        "runtime_graph": 0.9869166240140392,
+        "regex_tokenizer": 0.9640936145759519,
+        "ini_config": 0.9924372633570432
+      },
+      "d_transfer_cycles_same": true
+    }
+  },
+  "default_integration": {
+    "common_mhz": 660,
+    "own_mhz": 720,
+    "cases_each": 10,
+    "all_results_and_counters_identical": true,
+    "area_change_um2": 184.86999999999534,
+    "same_dff": 8316,
+    "same_data_latches": 8192,
+    "same_clock_gates": 542
+  },
+  "microbench_legal": {
+    "B0current": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 560,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2143617,
+        "retired_instructions": 774639,
+        "ipc": 0.3613700581773703,
+        "timer_ticks": 3828,
+        "timer_seconds": 0.003828,
+        "cycle_seconds": 0.0038278875,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 973395,
+        "retired_instructions": 430313,
+        "ipc": 0.44207438912260694,
+        "timer_ticks": 1740,
+        "timer_seconds": 0.00174,
+        "cycle_seconds": 0.0017382053571428572,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 21772,
+          "retired_instructions": 9707,
+          "ipc": 0.4458478780084512,
+          "timer_ticks": 39,
+          "timer_seconds": 3.9e-05,
+          "cycle_seconds": 3.887857142857143e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 112087,
+          "retired_instructions": 83537,
+          "ipc": 0.7452871430228305,
+          "timer_ticks": 200,
+          "timer_seconds": 0.0002,
+          "cycle_seconds": 0.00020015535714285716,
+          "interrupts": 0
+        },
+        {
+          "cycles": 225401,
+          "retired_instructions": 141943,
+          "ipc": 0.6297354492659749,
+          "timer_ticks": 403,
+          "timer_seconds": 0.000403,
+          "cycle_seconds": 0.0004025017857142857,
+          "interrupts": 0
+        },
+        {
+          "cycles": 120174,
+          "retired_instructions": 85308,
+          "ipc": 0.7098706875031204,
+          "timer_ticks": 214,
+          "timer_seconds": 0.000214,
+          "cycle_seconds": 0.00021459642857142857,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7149,
+          "retired_instructions": 4742,
+          "ipc": 0.663309553783746,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.276607142857143e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 93252,
+          "retired_instructions": 29136,
+          "ipc": 0.31244370093939006,
+          "timer_ticks": 167,
+          "timer_seconds": 0.000167,
+          "cycle_seconds": 0.00016652142857142858,
+          "interrupts": 0
+        },
+        {
+          "cycles": 142302,
+          "retired_instructions": 17979,
+          "ipc": 0.12634397267782604,
+          "timer_ticks": 255,
+          "timer_seconds": 0.000255,
+          "cycle_seconds": 0.0002541107142857143,
+          "interrupts": 0
+        },
+        {
+          "cycles": 68035,
+          "retired_instructions": 14661,
+          "ipc": 0.21549202616300434,
+          "timer_ticks": 122,
+          "timer_seconds": 0.000122,
+          "cycle_seconds": 0.00012149107142857142,
+          "interrupts": 0
+        },
+        {
+          "cycles": 170558,
+          "retired_instructions": 38348,
+          "ipc": 0.2248384713704429,
+          "timer_ticks": 305,
+          "timer_seconds": 0.000305,
+          "cycle_seconds": 0.0003045678571428571,
+          "interrupts": 0
+        },
+        {
+          "cycles": 12665,
+          "retired_instructions": 4952,
+          "ipc": 0.39099881563363603,
+          "timer_ticks": 22,
+          "timer_seconds": 2.2e-05,
+          "cycle_seconds": 2.261607142857143e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2519522,
+        "retired_instructions": 824122,
+        "ipc": 0.32709458381391393,
+        "cycle_seconds": 0.004499146428571428,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 41.755490085997735,
+      "observer_on_off_verified": true,
+      "manifest_sha256": "384581e963bab9ee13d79a50ddc537837da39cd92b2f4e074402359f960dd9bb"
+    },
+    "G128": {
+      "status": "passed",
+      "measurement": "native timer windows, passive retirement counting",
+      "cpu_mhz": 560,
+      "device_mhz": 100,
+      "timer_hz": 1000000,
+      "total": {
+        "cycles": 2121643,
+        "retired_instructions": 774645,
+        "ipc": 0.36511562029992795,
+        "timer_ticks": 3789,
+        "timer_seconds": 0.003789,
+        "cycle_seconds": 0.003788648214285714,
+        "interrupts": 0
+      },
+      "scored": {
+        "cycles": 967794,
+        "retired_instructions": 430313,
+        "ipc": 0.4446328454195831,
+        "timer_ticks": 1730,
+        "timer_seconds": 0.00173,
+        "cycle_seconds": 0.0017282035714285713,
+        "interrupts": 0
+      },
+      "subtests": [
+        {
+          "cycles": 22051,
+          "retired_instructions": 9707,
+          "ipc": 0.44020679334270557,
+          "timer_ticks": 39,
+          "timer_seconds": 3.9e-05,
+          "cycle_seconds": 3.937678571428571e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 109827,
+          "retired_instructions": 83537,
+          "ipc": 0.7606235260910341,
+          "timer_ticks": 196,
+          "timer_seconds": 0.000196,
+          "cycle_seconds": 0.00019611964285714287,
+          "interrupts": 0
+        },
+        {
+          "cycles": 225401,
+          "retired_instructions": 141943,
+          "ipc": 0.6297354492659749,
+          "timer_ticks": 403,
+          "timer_seconds": 0.000403,
+          "cycle_seconds": 0.0004025017857142857,
+          "interrupts": 0
+        },
+        {
+          "cycles": 119121,
+          "retired_instructions": 85308,
+          "ipc": 0.7161457677487597,
+          "timer_ticks": 213,
+          "timer_seconds": 0.000213,
+          "cycle_seconds": 0.00021271607142857142,
+          "interrupts": 0
+        },
+        {
+          "cycles": 7156,
+          "retired_instructions": 4742,
+          "ipc": 0.6626607043040805,
+          "timer_ticks": 13,
+          "timer_seconds": 1.3e-05,
+          "cycle_seconds": 1.2778571428571428e-05,
+          "interrupts": 0
+        },
+        {
+          "cycles": 92744,
+          "retired_instructions": 29136,
+          "ipc": 0.31415509359096006,
+          "timer_ticks": 166,
+          "timer_seconds": 0.000166,
+          "cycle_seconds": 0.00016561428571428572,
+          "interrupts": 0
+        },
+        {
+          "cycles": 141627,
+          "retired_instructions": 17979,
+          "ipc": 0.12694613315257683,
+          "timer_ticks": 253,
+          "timer_seconds": 0.000253,
+          "cycle_seconds": 0.00025290535714285716,
+          "interrupts": 0
+        },
+        {
+          "cycles": 68458,
+          "retired_instructions": 14661,
+          "ipc": 0.2141605071722808,
+          "timer_ticks": 122,
+          "timer_seconds": 0.000122,
+          "cycle_seconds": 0.00012224642857142857,
+          "interrupts": 0
+        },
+        {
+          "cycles": 168738,
+          "retired_instructions": 38348,
+          "ipc": 0.22726356837226944,
+          "timer_ticks": 302,
+          "timer_seconds": 0.000302,
+          "cycle_seconds": 0.00030131785714285713,
+          "interrupts": 0
+        },
+        {
+          "cycles": 12671,
+          "retired_instructions": 4952,
+          "ipc": 0.39081366900797093,
+          "timer_ticks": 23,
+          "timer_seconds": 2.3e-05,
+          "cycle_seconds": 2.2626785714285714e-05,
+          "interrupts": 0
+        }
+      ],
+      "whole_program": {
+        "cycles": 2497358,
+        "retired_instructions": 824134,
+        "ipc": 0.3300023464797598,
+        "cycle_seconds": 0.004459567857142857,
+        "interrupts": 0
+      },
+      "timer_contexts": {
+        "total_begin": 2684362372,
+        "score_begin": 2684362976,
+        "score_end": 2684363008,
+        "total_end": 2684362584
+      },
+      "scale": "test",
+      "host_wall_seconds": 38.83227195800282,
+      "observer_on_off_verified": true,
+      "manifest_sha256": "63051fb32512e1282ea151f86fdf2cba5788bfa97736f401551a1c49e3d3726a"
+    }
+  },
+  "limits": [
+    "RV32I software proxies, not full model inference",
+    "mapped cell/latch area and pre-layout STA, not silicon measurements",
+    "660 MHz G128 and B128 diagnostics are not qualified hardware operating points",
+    "perfect prediction is a simulation diagnostic, not an implementable candidate",
+    "MicroBench test only; train was not rerun",
+    "D traffic counter records transfer cycles, not exact total beats; no power measured"
+  ]
+}

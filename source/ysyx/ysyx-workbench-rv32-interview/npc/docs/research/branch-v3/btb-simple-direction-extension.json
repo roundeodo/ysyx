@@ -1,0 +1,39 @@
+{
+  "B64-BT32-fold": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "bht": 64
+  },
+  "B256-BT32-fold": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "bht": 256
+  },
+  "G256-BT32-fold": {
+    "btb": 32,
+    "btb_ways": 4,
+    "target_index": 2,
+    "target_policy": 2,
+    "target_admission": 2,
+    "bht": 256,
+    "direction_policy": 1,
+    "history_bits": 4
+  },
+  "G256-current": {
+    "bht": 256,
+    "direction_policy": 1,
+    "history_bits": 4
+  },
+  "G256-EARLY": {
+    "bht": 256,
+    "direction_policy": 1,
+    "history_bits": 4,
+    "early": 1
+  }
+}

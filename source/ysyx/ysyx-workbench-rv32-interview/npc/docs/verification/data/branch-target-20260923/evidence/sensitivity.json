@@ -1,0 +1,492 @@
+{
+  "layout-3f00": {
+    "B0": {
+      "time_ratio_gm": 1.0,
+      "adp_ratio": 1.0,
+      "families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0,
+        "json_bpe-dev-257": 1.0,
+        "quant_loader-dev-131": 1.0,
+        "quant_loader-dev-257": 1.0,
+        "runtime_graph-dev-131": 1.0,
+        "runtime_graph-dev-257": 1.0,
+        "regex_tokenizer-dev-131": 1.0,
+        "regex_tokenizer-dev-257": 1.0,
+        "ini_config-dev-131": 1.0,
+        "ini_config-dev-257": 1.0
+      },
+      "max_input_time_ratio": 1.0,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "U16": {
+      "time_ratio_gm": 1.0030433491617916,
+      "adp_ratio": 0.9910889162528658,
+      "families": {
+        "json_bpe": 1.0035134756656854,
+        "quant_loader": 1.0041736560887062,
+        "runtime_graph": 1.000196628750787,
+        "regex_tokenizer": 0.9991294262586068,
+        "ini_config": 1.0082293694894138
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.003354854240711,
+        "json_bpe-dev-257": 1.003672122167288,
+        "quant_loader-dev-131": 1.004226307133799,
+        "quant_loader-dev-257": 1.0041210078040794,
+        "runtime_graph-dev-131": 1.000223234275951,
+        "runtime_graph-dev-257": 1.0001700239333193,
+        "regex_tokenizer-dev-131": 0.9990469437796297,
+        "regex_tokenizer-dev-257": 0.9992119155474334,
+        "ini_config-dev-131": 1.0082734517833152,
+        "ini_config-dev-257": 1.0081852891228156
+      },
+      "max_input_time_ratio": 1.0082734517833152,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "H32": {
+      "time_ratio_gm": 1.007983290332826,
+      "adp_ratio": 1.0531235653196436,
+      "families": {
+        "json_bpe": 0.99698623829375,
+        "quant_loader": 1.0131158181780737,
+        "runtime_graph": 1.0003741856397936,
+        "regex_tokenizer": 1.0288734976651517,
+        "ini_config": 1.000907507690302
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 0.9962011307670959,
+        "json_bpe-dev-257": 0.9977719645647615,
+        "quant_loader-dev-131": 1.0098596579559704,
+        "quant_loader-dev-257": 1.0163824774624064,
+        "runtime_graph-dev-131": 0.9987445881040583,
+        "runtime_graph-dev-257": 1.0020064421017052,
+        "regex_tokenizer-dev-131": 1.0259359603910565,
+        "regex_tokenizer-dev-257": 1.03181944591768,
+        "ini_config-dev-131": 0.9991899071726548,
+        "ini_config-dev-257": 1.0026280607513218
+      },
+      "max_input_time_ratio": 1.03181944591768,
+      "i_beats_ratio_gm": 1.0385733105736805,
+      "i_beats_families": {
+        "json_bpe": 0.9917401973163068,
+        "quant_loader": 1.1588433179202988,
+        "runtime_graph": 1.0057496174339648,
+        "regex_tokenizer": 1.0453633932125812,
+        "ini_config": 1.000013787878764
+      }
+    }
+  },
+  "layout-ff00": {
+    "B0": {
+      "time_ratio_gm": 1.0,
+      "adp_ratio": 1.0,
+      "families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0,
+        "json_bpe-dev-257": 1.0,
+        "quant_loader-dev-131": 1.0,
+        "quant_loader-dev-257": 1.0,
+        "runtime_graph-dev-131": 1.0,
+        "runtime_graph-dev-257": 1.0,
+        "regex_tokenizer-dev-131": 1.0,
+        "regex_tokenizer-dev-257": 1.0,
+        "ini_config-dev-131": 1.0,
+        "ini_config-dev-257": 1.0
+      },
+      "max_input_time_ratio": 1.0,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "U16": {
+      "time_ratio_gm": 1.0029634342522773,
+      "adp_ratio": 0.9910099537821718,
+      "families": {
+        "json_bpe": 1.003064309531115,
+        "quant_loader": 1.0041749064733003,
+        "runtime_graph": 1.000196628750787,
+        "regex_tokenizer": 0.9991774560403558,
+        "ini_config": 1.0082293694894138
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0028733922009836,
+        "json_bpe-dev-257": 1.00325526320624,
+        "quant_loader-dev-131": 1.004226307133799,
+        "quant_loader-dev-257": 1.0041235084437108,
+        "runtime_graph-dev-131": 1.000223234275951,
+        "runtime_graph-dev-257": 1.0001700239333193,
+        "regex_tokenizer-dev-131": 0.9990938920352583,
+        "regex_tokenizer-dev-257": 0.9992610270347292,
+        "ini_config-dev-131": 1.0082734517833152,
+        "ini_config-dev-257": 1.0081852891228156
+      },
+      "max_input_time_ratio": 1.0082734517833152,
+      "i_beats_ratio_gm": 1.0000138945216424,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0000694745388155,
+        "ini_config": 1.0
+      }
+    },
+    "H32": {
+      "time_ratio_gm": 1.0077759995647328,
+      "adp_ratio": 1.0529069914985834,
+      "families": {
+        "json_bpe": 0.9970945143482971,
+        "quant_loader": 1.0131225405444524,
+        "runtime_graph": 1.0002939384141902,
+        "regex_tokenizer": 1.0278991355805744,
+        "ini_config": 1.000791513136477
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 0.9963094597260347,
+        "json_bpe-dev-257": 0.9978801875642643,
+        "quant_loader-dev-131": 1.0098664339004264,
+        "quant_loader-dev-257": 1.0163891458347563,
+        "runtime_graph-dev-131": 0.9992508201629079,
+        "runtime_graph-dev-257": 1.0013381455769492,
+        "regex_tokenizer-dev-131": 1.0253200629358608,
+        "regex_tokenizer-dev-257": 1.0304846955807465,
+        "ini_config-dev-131": 0.9990735447116695,
+        "ini_config-dev-257": 1.0025124357136834
+      },
+      "max_input_time_ratio": 1.0304846955807465,
+      "i_beats_ratio_gm": 1.0383349531470154,
+      "i_beats_families": {
+        "json_bpe": 0.9917401973163068,
+        "quant_loader": 1.1588433179202988,
+        "runtime_graph": 1.0055790779179163,
+        "regex_tokenizer": 1.0443414481161808,
+        "ini_config": 1.000013787878764
+      }
+    }
+  },
+  "fast": {
+    "B0": {
+      "time_ratio_gm": 1.0,
+      "adp_ratio": 1.0,
+      "families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0,
+        "json_bpe-dev-257": 1.0,
+        "quant_loader-dev-131": 1.0,
+        "quant_loader-dev-257": 1.0,
+        "runtime_graph-dev-131": 1.0,
+        "runtime_graph-dev-257": 1.0,
+        "regex_tokenizer-dev-131": 1.0,
+        "regex_tokenizer-dev-257": 1.0,
+        "ini_config-dev-131": 1.0,
+        "ini_config-dev-257": 1.0
+      },
+      "max_input_time_ratio": 1.0,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "U16": {
+      "time_ratio_gm": 1.0101008151329733,
+      "adp_ratio": 0.9980622702028372,
+      "families": {
+        "json_bpe": 1.0107479210474866,
+        "quant_loader": 1.0147502736169756,
+        "runtime_graph": 1.0069470839149524,
+        "regex_tokenizer": 1.003740413136291,
+        "ini_config": 1.0143632703656218
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0106341280998317,
+        "json_bpe-dev-257": 1.0108617268077256,
+        "quant_loader-dev-131": 1.0147501278833337,
+        "quant_loader-dev-257": 1.0147504193506383,
+        "runtime_graph-dev-131": 1.006998992723835,
+        "runtime_graph-dev-257": 1.0068951777818664,
+        "regex_tokenizer-dev-131": 1.0036118641257534,
+        "regex_tokenizer-dev-257": 1.0038689786122061,
+        "ini_config-dev-131": 1.014359802671908,
+        "ini_config-dev-257": 1.01436673807119
+      },
+      "max_input_time_ratio": 1.0147504193506383,
+      "i_beats_ratio_gm": 0.9999001570302213,
+      "i_beats_families": {
+        "json_bpe": 0.9998772396233271,
+        "quant_loader": 0.9998633401891395,
+        "runtime_graph": 0.9999777307645231,
+        "regex_tokenizer": 0.9999917849711911,
+        "ini_config": 0.9997907037414198
+      }
+    },
+    "H32": {
+      "time_ratio_gm": 1.0097325545480484,
+      "adp_ratio": 1.054951166416496,
+      "families": {
+        "json_bpe": 1.0076920726214535,
+        "quant_loader": 1.0172901943226103,
+        "runtime_graph": 1.0037961255916135,
+        "regex_tokenizer": 1.012916568274507,
+        "ini_config": 1.0070241875942538
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0071937563624025,
+        "json_bpe-dev-257": 1.0081906354260102,
+        "quant_loader-dev-131": 1.0161599797586809,
+        "quant_loader-dev-257": 1.018421665957263,
+        "runtime_graph-dev-131": 1.004436754788479,
+        "runtime_graph-dev-257": 1.0031559049876893,
+        "regex_tokenizer-dev-131": 1.0123268791146873,
+        "regex_tokenizer-dev-257": 1.0135066009333606,
+        "ini_config-dev-131": 1.0069837686663117,
+        "ini_config-dev-257": 1.0070646081445553
+      },
+      "max_input_time_ratio": 1.018421665957263,
+      "i_beats_ratio_gm": 1.0355407142261221,
+      "i_beats_families": {
+        "json_bpe": 0.999874345820204,
+        "quant_loader": 1.1545727113969393,
+        "runtime_graph": 1.0039028067033449,
+        "regex_tokenizer": 1.0191707438009596,
+        "ini_config": 1.008162553490686
+      }
+    }
+  },
+  "slow": {
+    "B0": {
+      "time_ratio_gm": 1.0,
+      "adp_ratio": 1.0,
+      "families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0,
+        "json_bpe-dev-257": 1.0,
+        "quant_loader-dev-131": 1.0,
+        "quant_loader-dev-257": 1.0,
+        "runtime_graph-dev-131": 1.0,
+        "runtime_graph-dev-257": 1.0,
+        "regex_tokenizer-dev-131": 1.0,
+        "regex_tokenizer-dev-257": 1.0,
+        "ini_config-dev-131": 1.0,
+        "ini_config-dev-257": 1.0
+      },
+      "max_input_time_ratio": 1.0,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "U16": {
+      "time_ratio_gm": 1.0017556535390062,
+      "adp_ratio": 0.9898165675948378,
+      "families": {
+        "json_bpe": 1.001961760226331,
+        "quant_loader": 1.0008954139223594,
+        "runtime_graph": 1.0004079603522542,
+        "regex_tokenizer": 1.0002886326321137,
+        "ini_config": 1.0052328950103653
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0019129283991666,
+        "json_bpe-dev-257": 1.0020105944334903,
+        "quant_loader-dev-131": 1.0009068658047346,
+        "quant_loader-dev-257": 1.000883962171011,
+        "runtime_graph-dev-131": 1.0004237328607013,
+        "runtime_graph-dev-257": 1.000392188092474,
+        "regex_tokenizer-dev-131": 1.0002731242252574,
+        "regex_tokenizer-dev-257": 1.0003041412794151,
+        "ini_config-dev-131": 1.0052643896190276,
+        "ini_config-dev-257": 1.005201401388419
+      },
+      "max_input_time_ratio": 1.0052643896190276,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "H32": {
+      "time_ratio_gm": 1.007088537305289,
+      "adp_ratio": 1.0521887427809393,
+      "families": {
+        "json_bpe": 1.0008828661419495,
+        "quant_loader": 1.0137383611519946,
+        "runtime_graph": 1.0011475311303684,
+        "regex_tokenizer": 1.0138656348337904,
+        "ini_config": 1.005890357324258
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.000316087082538,
+        "json_bpe-dev-257": 1.001449966338356,
+        "quant_loader-dev-131": 1.0121591999903354,
+        "quant_loader-dev-257": 1.015319986105886,
+        "runtime_graph-dev-131": 1.0019767669393347,
+        "runtime_graph-dev-257": 1.0003189815968223,
+        "regex_tokenizer-dev-131": 1.0130016384262812,
+        "regex_tokenizer-dev-257": 1.0147303681500706,
+        "ini_config-dev-131": 1.005910516989877,
+        "ini_config-dev-257": 1.005870198062663
+      },
+      "max_input_time_ratio": 1.015319986105886,
+      "i_beats_ratio_gm": 1.0356441160102985,
+      "i_beats_families": {
+        "json_bpe": 0.999997105841589,
+        "quant_loader": 1.1547305166509398,
+        "runtime_graph": 1.0039251633492088,
+        "regex_tokenizer": 1.0191791163867623,
+        "ini_config": 1.008373602312901
+      }
+    }
+  },
+  "random": {
+    "B0": {
+      "time_ratio_gm": 1.0,
+      "adp_ratio": 1.0,
+      "families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0,
+        "json_bpe-dev-257": 1.0,
+        "quant_loader-dev-131": 1.0,
+        "quant_loader-dev-257": 1.0,
+        "runtime_graph-dev-131": 1.0,
+        "runtime_graph-dev-257": 1.0,
+        "regex_tokenizer-dev-131": 1.0,
+        "regex_tokenizer-dev-257": 1.0,
+        "ini_config-dev-131": 1.0,
+        "ini_config-dev-257": 1.0
+      },
+      "max_input_time_ratio": 1.0,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "U16": {
+      "time_ratio_gm": 1.0029434860061532,
+      "adp_ratio": 0.9909902432824723,
+      "families": {
+        "json_bpe": 1.0035216536841713,
+        "quant_loader": 1.0041373690109239,
+        "runtime_graph": 1.0004574010084533,
+        "regex_tokenizer": 0.9991613391786246,
+        "ini_config": 1.0074609226271398
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0034156703851485,
+        "json_bpe-dev-257": 1.0036276481774182,
+        "quant_loader-dev-131": 1.0041922712688858,
+        "quant_loader-dev-257": 1.004082469754636,
+        "runtime_graph-dev-131": 1.0003898743016995,
+        "runtime_graph-dev-257": 1.0005249322732863,
+        "regex_tokenizer-dev-131": 0.999161698468463,
+        "regex_tokenizer-dev-257": 0.9991609798889154,
+        "ini_config-dev-131": 1.0075557664926436,
+        "ini_config-dev-257": 1.0073660876895378
+      },
+      "max_input_time_ratio": 1.0075557664926436,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "json_bpe": 1.0,
+        "quant_loader": 1.0,
+        "runtime_graph": 1.0,
+        "regex_tokenizer": 1.0,
+        "ini_config": 1.0
+      }
+    },
+    "H32": {
+      "time_ratio_gm": 1.0059331451618085,
+      "adp_ratio": 1.0509816089870025,
+      "families": {
+        "json_bpe": 1.0014604222205654,
+        "quant_loader": 1.0127251748148913,
+        "runtime_graph": 0.999696733998504,
+        "regex_tokenizer": 1.0110600737683875,
+        "ini_config": 1.0047892051801706
+      },
+      "input_time_ratios": {
+        "json_bpe-dev-131": 1.0007618508657252,
+        "json_bpe-dev-257": 1.0021594812058419,
+        "quant_loader-dev-131": 1.0114442418050136,
+        "quant_loader-dev-257": 1.0140077300490182,
+        "runtime_graph-dev-131": 1.0004173236054257,
+        "runtime_graph-dev-257": 0.9989766634243592,
+        "regex_tokenizer-dev-131": 1.0102593479379713,
+        "regex_tokenizer-dev-257": 1.0118614342495562,
+        "ini_config-dev-131": 1.0046033222591362,
+        "ini_config-dev-257": 1.004975122495338
+      },
+      "max_input_time_ratio": 1.0140077300490182,
+      "i_beats_ratio_gm": 1.0356441160102985,
+      "i_beats_families": {
+        "json_bpe": 0.999997105841589,
+        "quant_loader": 1.1547305166509398,
+        "runtime_graph": 1.0039251633492088,
+        "regex_tokenizer": 1.0191791163867623,
+        "ini_config": 1.008373602312901
+      }
+    }
+  }
+}

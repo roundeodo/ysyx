@@ -1,0 +1,75 @@
+{
+  "scope": "Identifier and whole-block reordering audit; not formal equivalence",
+  "files": [
+    {
+      "path": "tests/rtl/riscv_privileged_tb.sv",
+      "before_sha256": "15cf1efc7ee574d5a531c1055239495b751373218369446995986ea7d9ad5179",
+      "after_sha256": "d8f6dacb41c8db481ef8e6b036b818dfd33a0a4fbd2aa7e860459666257b89cd",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/core/decode/riscv_operand_mux.sv",
+      "before_sha256": "596480900d326e0acb113f8cae94609310d698988ef1e14acddd588a3ded66e2",
+      "after_sha256": "b134b831b78577a847303853b7eaf8be10dfad2276bb2051ba8bde40f0775fe9",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/core/frontend/riscv_btb.sv",
+      "before_sha256": "c42193eabc082fb21794ae1d69fef5709fdf1cc0e213baf501ed4bc8c5820265",
+      "after_sha256": "2c0250ae90fb76c1f809a28ade40b173ba7feeff428e6975f17c98a3d2015eec",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/core/frontend/riscv_icache_replacement.sv",
+      "before_sha256": "f3b908605a8fe097dac6210a77613dda12b9895d2bb67f083feb698a4ad21d34",
+      "after_sha256": "cf471dffeb3c0c71d30ab1aa4247ec66b35a2c4d90b6f13f14afd4d2c4e7771a",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/core/memory/riscv_data_mem.sv",
+      "before_sha256": "54b1c28b76393af5201d36632690317f015166f0867c3420c9b41064d0303cc6",
+      "after_sha256": "976dfff50545f38a48feee3d68a45626c4c62d2a489b050d909d1b62dfaef132",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/core/memory/riscv_lsu.sv",
+      "before_sha256": "6aefb02579d1290f1ea636c7509f8a39aa627cf36b95b18777595bf56c8ec80e",
+      "after_sha256": "c3b0e55600ea80c13b881ff8494071237f92d03efe99816a23da62fd017a7aad",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/core/riscv_core.sv",
+      "before_sha256": "e74f413c8e5b6d3223fa26c9f3eccc1802dbc1ed6892fb714c0e139eba22791a",
+      "after_sha256": "742826180ee22efb5ad0522be5cb2b63e264c8c3b7e5496d8e4de7a67eb64233",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/core/writeback/riscv_csr_file.sv",
+      "before_sha256": "c8d95168f7debfef4b4e80af056312fe10d770ceef377282ff692ed8777b2ad4",
+      "after_sha256": "94e25907aefcbf8a3e5aa04623e1f7bb77c35e9fb2064c6644396488f8aad597",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/system/riscv_axi4_soc_width_converter.sv",
+      "before_sha256": "5d6e9d21a0b2263f77438e227405889ad3804c05ee1e9765d3c2c9f03d5162ce",
+      "after_sha256": "2ce8237cf9375e1e17587395c36a37a74c98be86f02dd28eef8c39e8d049d9ca",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    },
+    {
+      "path": "vsrc/riscv/core/frontend/riscv_icache_data_array.sv",
+      "before_sha256": "e39518af42a0eaa35ba761de060128d812a3f576598db17869f3166e2fb1bf12",
+      "after_sha256": "d515c11e65fe3af5174c88c58c3dbb827fc043ecc319f3681159c0886d69976c",
+      "normalized_token_counts_equal": true,
+      "normalized_process_bodies_equal": true
+    }
+  ]
+}

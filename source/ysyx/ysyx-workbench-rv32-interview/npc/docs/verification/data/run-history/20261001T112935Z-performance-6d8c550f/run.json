@@ -1,0 +1,28 @@
+{
+  "status": "complete",
+  "command": [
+    "npc/scripts/run_microbench_perf.py",
+    "--scale",
+    "test",
+    "--cpu-mhz",
+    "700",
+    "--icache-bytes",
+    "1024",
+    "--icache-ways",
+    "4",
+    "--icache-line",
+    "32",
+    "--icache-policy",
+    "13",
+    "--early-ras",
+    "1",
+    "--host-opt",
+    "1",
+    "--verify-observer",
+    "--keep-artifacts",
+    "--output",
+    "npc/result/branch-v3/native-R0-held"
+  ],
+  "workspace": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/branch-v3/native-R0-held",
+  "retention": "compact reports only; generated binaries, source snapshots and netlists are disposable"
+}

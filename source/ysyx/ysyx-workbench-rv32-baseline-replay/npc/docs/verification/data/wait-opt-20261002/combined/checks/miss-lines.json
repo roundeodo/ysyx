@@ -1,0 +1,44 @@
+[
+  {
+    "line_bytes": 4,
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "NPC_DCACHE_LINE_BYTES=4",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/4",
+      "test-dcache-miss"
+    ],
+    "status": "passed"
+  },
+  {
+    "line_bytes": 16,
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "NPC_DCACHE_LINE_BYTES=16",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/16",
+      "test-dcache-miss"
+    ],
+    "status": "passed"
+  },
+  {
+    "line_bytes": 32,
+    "command": [
+      "make",
+      "-C",
+      "npc",
+      "git_commit=",
+      "NPC_CONFIG=rv32-balanced",
+      "NPC_DCACHE_LINE_BYTES=32",
+      "BUILD_DIR=/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-checks/final/32",
+      "test-dcache-miss"
+    ],
+    "status": "passed"
+  }
+]

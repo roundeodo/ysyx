@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "observer_on_off_exact": true,
+  "decision_sha256": "fbc0f8efbf4819f31ac7298243c26e696c2e53d862b07345c4cbda1f312d908f",
+  "names": [
+    "B0",
+    "R16"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "sha256": "4d8c847edeea3a1012dd8fe486fb339ee10119d7c10024c09852789c8c25e30f",
+  "bytes": 2748056,
+  "members": [
+    "baseline",
+    "candidate-source",
+    "execution-source",
+    "images",
+    "images-reproduction",
+    "baseline-manifest.json",
+    "execution-sources.json",
+    "configurations.json",
+    "toolchain.json",
+    "workspace.diff",
+    "workspace-status.txt",
+    "selection-freeze.json",
+    "workload-check-failures.md"
+  ],
+  "external_dependencies": "toolchain.json; tool binaries and standard-cell library are not embedded"
+}

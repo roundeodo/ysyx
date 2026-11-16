@@ -1,0 +1,298 @@
+ M abstract-machine/Makefile
+ M abstract-machine/am/src/riscv/ysyxsoc/uart.c
+ M abstract-machine/klib/src/int64.c
+ M abstract-machine/scripts/platform/npc.mk
+ M abstract-machine/scripts/platform/ysyxsoc.mk
+ M abstract-machine/scripts/riscv32-npc.mk
+ m am-kernels
+ M nemu/Kconfig
+ M nemu/include/difftest-def.h
+ M nemu/include/memory/paddr.h
+ M nemu/src/cpu/cpu-exec.c
+ M nemu/src/cpu/difftest/ref.c
+ M nemu/src/isa/riscv32/include/isa-def.h
+ M nemu/src/isa/riscv32/init.c
+ M nemu/src/isa/riscv32/inst.c
+ M nemu/src/isa/riscv32/reg.c
+ M nemu/src/isa/riscv32/system/intr.c
+ M nemu/src/memory/Kconfig
+ M nemu/src/memory/paddr.c
+ M nemu/src/monitor/monitor.c
+ M nemu/src/monitor/sdb/expr.c
+ M nemu/src/monitor/sdb/sdb.c
+ M nemu/src/monitor/sdb/watchpoint.c
+ M npc/.gitignore
+ M npc/Makefile
+ D npc/constr/riscv32_npc_axi.sdc
+ M npc/csrc/cpu.cpp
+ M npc/csrc/difftest.cpp
+ M npc/csrc/expr.cpp
+ M npc/csrc/ftrace.cpp
+ M npc/csrc/mem.cpp
+ M npc/csrc/sdb.cpp
+ M npc/csrc/sim_main.cpp
+ M npc/csrc/trace.cpp
+ M npc/csrc/watchpoint.cpp
+ M npc/docs/README.md
+ M npc/docs/architecture/AI_WORKLOAD_MODEL.md
+ M npc/docs/architecture/ARCHITECTURE_PLAN.md
+ M npc/docs/architecture/P2_CONFIGURATION_PLAN.md
+ M npc/docs/architecture/P2_WIDTH_AUDIT.md
+ M npc/docs/development/DEVELOPMENT_PROCESS.md
+ M npc/docs/development/MODULE_DESIGN_RECORD_TEMPLATE.md
+ M npc/docs/development/NAMING_GUIDE.md
+ M npc/docs/interconnect/AXI4_ARCHITECTURE.md
+ M npc/docs/learning/LEARNING_JOURNAL.md
+ M npc/docs/microarchitecture/ICACHE_DESIGN_RECORD.md
+ M npc/docs/microarchitecture/README.md
+ M npc/docs/verification/EXPERIMENT_LOG.md
+ M npc/include/cpu.h
+ M npc/include/difftest.h
+ M npc/include/expr.h
+ M npc/include/ftrace.h
+ M npc/include/mem.h
+ M npc/include/trace.h
+ D npc/result/riscv32_ALU_for_sta-500MHz/riscv32_ALU_for_sta.netlist.v
+ D npc/result/riscv32_npc_axi_lite-300MHz/riscv32_npc_axi_lite.netlist.v
+ D npc/result/riscv32_npc_axi_lite-300MHz/riscv32_npc_axi_lite.v
+ D npc/result/riscv32_npc_axi_lite-300MHz_sta_2026-07-18T19_21_00/riscv32_npc_axi_lite_2026-07-18T19_21_00.v
+ D npc/result/shl4_observe/01_after_proc.v
+ D npc/result/shl4_observe/02_after_techmap.v
+ D npc/result/shl4_observe/03_after_abc_netlist.v
+ D npc/result/top-500MHz/top.netlist.v
+ D npc/result/top-500MHz/top.v
+ M npc/scripts/record_performance.py
+ D npc/vsrc/riscv32/common/riscv32_addr_map_pkg.sv
+ D npc/vsrc/riscv32/common/riscv32_axi4_pkg.sv
+ D npc/vsrc/riscv32/common/riscv32_pkg.sv
+ D npc/vsrc/riscv32/core/frontend/riscv32_fetch_buffer.sv
+ D npc/vsrc/riscv32/core/frontend/riscv32_icache.sv
+ D npc/vsrc/riscv32/core/frontend/riscv32_icache_data_array.sv
+ D npc/vsrc/riscv32/core/frontend/riscv32_icache_miss_unit.sv
+ D npc/vsrc/riscv32/core/frontend/riscv32_icache_refill_axi4_master.sv
+ D npc/vsrc/riscv32/core/frontend/riscv32_icache_tag_array.sv
+ D npc/vsrc/riscv32/core/frontend/riscv32_pma.sv
+ D npc/vsrc/riscv32/core/memory/riscv32_uncached_axi4_master.sv
+ D npc/vsrc/riscv32/core/riscv32_arch_regfile.sv
+ D npc/vsrc/riscv32/core/riscv32_commit.sv
+ D npc/vsrc/riscv32/core/riscv32_completion_mux.sv
+ D npc/vsrc/riscv32/core/riscv32_core.sv
+ D npc/vsrc/riscv32/core/riscv32_csr_file.sv
+ D npc/vsrc/riscv32/core/riscv32_exu.sv
+ D npc/vsrc/riscv32/core/riscv32_idu.sv
+ D npc/vsrc/riscv32/core/riscv32_ifu.sv
+ D npc/vsrc/riscv32/core/riscv32_lsu.sv
+ D npc/vsrc/riscv32/core/riscv32_pmu.sv
+ D npc/vsrc/riscv32/core/riscv32_redirect_arbiter.sv
+ D npc/vsrc/riscv32/core/riscv32_trap_controller.sv
+ D npc/vsrc/riscv32/experiments/bcd7seg.v
+ D npc/vsrc/riscv32/experiments/riscv32_ALU_for_sta.sv
+ D npc/vsrc/riscv32/experiments/shl4_for_sta.sv
+ D npc/vsrc/riscv32/filelist/filelist.f
+ D npc/vsrc/riscv32/filelist/filelist_sta.f
+ D npc/vsrc/riscv32/sim/riscv32_axi4_sim_mem.sv
+ D npc/vsrc/riscv32/sim/riscv32_axi4_uart_sim.sv
+ D npc/vsrc/riscv32/sim/riscv32_sim_performance_monitor.sv
+ D npc/vsrc/riscv32/sim/top.sv
+ D npc/vsrc/riscv32/system/peripheral/riscv32_axi4_clint.sv
+ D npc/vsrc/riscv32/system/riscv32_axi4_address_router.sv
+ D npc/vsrc/riscv32/system/riscv32_axi4_core_merge.sv
+ D npc/vsrc/riscv32/system/riscv32_axi4_error_target.sv
+ D npc/vsrc/riscv32/system/riscv32_npc_axi.sv
+ D npc/vsrc/riscv32/system/riscv32_npc_system.sv
+ m nvboard
+ m yosys-sta
+ m ysyxSoC
+?? abstract-machine/am/src/riscv/ysyxsoc/start-sdram.S
+?? abstract-machine/scripts/riscv32-ysyxsoc-sdram.mk
+?? abstract-machine/scripts/riscv64-npc.mk
+?? abstract-machine/scripts/ysyxsoc-sdram.ld
+?? nemu/configs/riscv32-cachesim_defconfig
+?? nemu/configs/riscv32-ref_defconfig
+?? nemu/configs/riscv64-cachesim_defconfig
+?? nemu/configs/riscv64-ref_defconfig
+?? nemu/include/cpu/branchsim-trace.h
+?? nemu/include/cpu/cachesim-trace.h
+?? nemu/src/cpu/branchsim-trace.c
+?? nemu/src/cpu/cachesim-trace.c
+?? npc/configs/rv64-edge-ai.mk
+?? npc/constr/riscv_core.sdc
+?? npc/csrc/perf_observer.cpp
+?? npc/docs/architecture/RTL_CLEANUP_RECORD.md
+?? npc/docs/architecture/RTL_DESIGN_REVIEW.md
+?? npc/docs/architecture/RTL_MODULE_MAP.md
+?? npc/docs/architecture/RV64_RV32_CURRENT_COMPARISON.md
+?? npc/docs/development/ARTIFACT_POLICY.md
+?? npc/docs/history/2026-09-24-before-bypass/PIPELINE_DESIGN_RECORD.md
+?? npc/docs/microarchitecture/BRANCH_PREDICTION_DESIGN_RECORD.md
+?? npc/docs/microarchitecture/DCACHE_DESIGN_RECORD.md
+?? npc/docs/microarchitecture/EXECUTION_UNITS_DESIGN_RECORD.md
+?? npc/docs/microarchitecture/ICACHE_REPLACEMENT_DESIGN.md
+?? npc/docs/microarchitecture/PIPELINE_DESIGN_RECORD.md
+?? npc/docs/microarchitecture/RESET_TIMING_DESIGN.md
+?? npc/docs/microarchitecture/RV64_BYPASS_MIGRATION_DESIGN.md
+?? npc/docs/microarchitecture/SCOREBOARD_DESIGN_RECORD.md
+?? npc/docs/verification/BUFFER_AREA_REDUCTION_2026-09-25.md
+?? npc/docs/verification/CACHE_DESIGN_SPACE_EXPLORATION.md
+?? npc/docs/verification/DCACHE_STYLE_SYNC_2026-09-25.md
+?? npc/docs/verification/EXU_INTEGRATION_2026-09-26.md
+?? npc/docs/verification/FRONTEND_CONFIGURATION_SYNC_2026-09-24.md
+?? npc/docs/verification/IPC_AUDIT_2026-09-27.md
+?? npc/docs/verification/ISSUE_FU_OPTIMIZATION_2026-09-27.md
+?? npc/docs/verification/RESET_ELECTRICAL_FIX_2026-09-25.md
+?? npc/docs/verification/RTL_READABILITY_2026-10-04.md
+?? npc/docs/verification/RTL_READABILITY_FOLLOWUP_2026-10-04.md
+?? npc/docs/verification/RV64_BYPASS_SYNC_2026-09-24.md
+?? npc/docs/verification/RV64_RV32_AREA_AUDIT_2026-09-25.md
+?? npc/docs/verification/SCOREBOARD_INTEGRATION_2026-09-26.md
+?? npc/docs/verification/SCOREBOARD_WAITS_2026-09-26.md
+?? npc/docs/verification/SOC_TESTING.md
+?? npc/include/npc_config.h
+?? npc/include/perf_observer.h
+?? npc/scripts/build_execution_payload.py
+?? npc/scripts/calibrate_icache_penalty.py
+?? npc/scripts/check_reset_netlist.py
+?? npc/scripts/check_sta_acceptance.py
+?? npc/scripts/clock_buffer_constraints.py
+?? npc/scripts/compare_soc_performance.py
+?? npc/scripts/finish_mapped_sta.py
+?? npc/scripts/qualify_mapped_sta.py
+?? npc/scripts/refine_mapped_buffers.py
+?? npc/scripts/repair_mapped_fanout.py
+?? npc/scripts/resize_mapped_critical_cells.py
+?? npc/scripts/result_workspace.py
+?? npc/scripts/run_microbench_perf.py
+?? npc/scripts/run_synthesis.py
+?? npc/scripts/test_bypass.py
+?? npc/scripts/test_cache_recovery.py
+?? npc/scripts/test_execution_units.py
+?? npc/scripts/test_icache.py
+?? npc/scripts/test_result_workspace.py
+?? npc/scripts/test_soc_timing.py
+?? npc/tests/exception/dirty_victim_trap.S
+?? npc/tests/exception/fence_i_patch.S
+?? npc/tests/exception/riscv_fence_i_tb.sv
+?? npc/tests/exception/riscv_precise_exception_tb.sv
+?? npc/tests/exception/run_precise.py
+?? npc/tests/formal/.gitignore
+?? npc/tests/formal/riscv_pipeline_control.sby
+?? npc/tests/formal/riscv_pipeline_control_formal.sv
+?? npc/tests/performance/run_fu_soc.py
+?? npc/tests/performance/run_scoreboard.py
+?? npc/tests/performance/scoreboard_overlap.S
+?? npc/tests/performance/test_compare_soc_performance.py
+?? npc/tests/rtl/axi4_delayer_tb.sv
+?? npc/tests/rtl/axi4_write_calibration_tb.sv
+?? npc/tests/rtl/riscv_axi4_core_merge_tb.sv
+?? npc/tests/rtl/riscv_axi4_handoff_tb.sv
+?? npc/tests/rtl/riscv_axi4_soc_width_converter_tb.sv
+?? npc/tests/rtl/riscv_config_elaboration_tb.sv
+?? npc/tests/rtl/riscv_dcache_axi_contract_tb.sv
+?? npc/tests/rtl/riscv_dcache_miss_contract_tb.sv
+?? npc/tests/rtl/riscv_dcache_recovery_tb.sv
+?? npc/tests/rtl/riscv_dcache_tb.sv
+?? npc/tests/rtl/riscv_execution_units_driver.cpp
+?? npc/tests/rtl/riscv_execution_units_tb.sv
+?? npc/tests/rtl/riscv_exu_alu_tb.sv
+?? npc/tests/rtl/riscv_fence_i_ctrl_tb.sv
+?? npc/tests/rtl/riscv_fetch_contract_tb.sv
+?? npc/tests/rtl/riscv_icache_contract_tb.sv
+?? npc/tests/rtl/riscv_icache_replacement_tb.sv
+?? npc/tests/rtl/riscv_idu_decode_tb.sv
+?? npc/tests/rtl/riscv_lsu_tb.sv
+?? npc/tests/rtl/riscv_operand_wait_tb.sv
+?? npc/tests/rtl/riscv_pipeline_control_tb.sv
+?? npc/tests/rtl/riscv_predictor_contract_tb.sv
+?? npc/tests/rtl/riscv_privileged_tb.sv
+?? npc/tests/rtl/riscv_scoreboard_core_tb.sv
+?? npc/tests/rtl/riscv_scoreboard_tb.sv
+?? npc/tests/rtl/riscv_uncached_axi4_master_tb.sv
+?? npc/tests/rtl/sdram_axi_transaction_classification_tb.sv
+?? npc/tests/timing/riscv_reset_controller_tb.sv
+?? npc/tests/timing/riscv_system_reset_tb.sv
+?? npc/tests/timing/run.py
+?? npc/tests/timing/test_buffer_refinement.py
+?? npc/tests/timing/test_clock_buffer_constraints.py
+?? npc/tests/timing/test_critical_drive.py
+?? npc/tests/timing/test_mapped_fanout.py
+?? npc/tests/timing/test_sta_acceptance.py
+?? npc/tests/timing/test_synthesis_target.py
+?? npc/tools/branchsim/branchsim.cpp
+?? npc/tools/branchsim/explore.py
+?? npc/tools/branchsim/tests/test_branchsim.py
+?? npc/tools/cachesim/cachesim.cpp
+?? npc/tools/cachesim/explore.py
+?? npc/tools/cachesim/tests/test_cachesim.py
+?? npc/tools/cachesim/tests/test_calibration.py
+?? npc/vsrc/riscv/AGENTS.md
+?? npc/vsrc/riscv/common/riscv_addr_map_pkg.sv
+?? npc/vsrc/riscv/common/riscv_axi4_pkg.sv
+?? npc/vsrc/riscv/common/riscv_config_pkg.sv
+?? npc/vsrc/riscv/common/riscv_pkg.sv
+?? npc/vsrc/riscv/common/riscv_ysyx_soc_axi4_pkg.sv
+?? npc/vsrc/riscv/core/control/riscv_fence_i_ctrl.sv
+?? npc/vsrc/riscv/core/control/riscv_hazard_ctrl.sv
+?? npc/vsrc/riscv/core/control/riscv_redirect_mux.sv
+?? npc/vsrc/riscv/core/control/riscv_trap_ctrl.sv
+?? npc/vsrc/riscv/core/decode/riscv_idu.sv
+?? npc/vsrc/riscv/core/decode/riscv_operand_mux.sv
+?? npc/vsrc/riscv/core/decode/riscv_regfile.sv
+?? npc/vsrc/riscv/core/execute/riscv_alu.sv
+?? npc/vsrc/riscv/core/execute/riscv_branch_unit.sv
+?? npc/vsrc/riscv/core/execute/riscv_divider.sv
+?? npc/vsrc/riscv/core/execute/riscv_ex_result_reg.sv
+?? npc/vsrc/riscv/core/execute/riscv_exu.sv
+?? npc/vsrc/riscv/core/execute/riscv_id_ex_reg.sv
+?? npc/vsrc/riscv/core/execute/riscv_multiplier.sv
+?? npc/vsrc/riscv/core/frontend/riscv_bht.sv
+?? npc/vsrc/riscv/core/frontend/riscv_branch_predictor.sv
+?? npc/vsrc/riscv/core/frontend/riscv_btb.sv
+?? npc/vsrc/riscv/core/frontend/riscv_fetch_buffer.sv
+?? npc/vsrc/riscv/core/frontend/riscv_icache.sv
+?? npc/vsrc/riscv/core/frontend/riscv_icache_axi.sv
+?? npc/vsrc/riscv/core/frontend/riscv_icache_data_array.sv
+?? npc/vsrc/riscv/core/frontend/riscv_icache_miss_unit.sv
+?? npc/vsrc/riscv/core/frontend/riscv_icache_replacement.sv
+?? npc/vsrc/riscv/core/frontend/riscv_icache_tag_array.sv
+?? npc/vsrc/riscv/core/frontend/riscv_ifu.sv
+?? npc/vsrc/riscv/core/frontend/riscv_pma.sv
+?? npc/vsrc/riscv/core/frontend/riscv_ras.sv
+?? npc/vsrc/riscv/core/issue/riscv_issue_ctrl.sv
+?? npc/vsrc/riscv/core/issue/riscv_scoreboard.sv
+?? npc/vsrc/riscv/core/memory/riscv_data_mem.sv
+?? npc/vsrc/riscv/core/memory/riscv_dcache.sv
+?? npc/vsrc/riscv/core/memory/riscv_dcache_axi.sv
+?? npc/vsrc/riscv/core/memory/riscv_dcache_data_array.sv
+?? npc/vsrc/riscv/core/memory/riscv_dcache_miss_unit.sv
+?? npc/vsrc/riscv/core/memory/riscv_dcache_tag_array.sv
+?? npc/vsrc/riscv/core/memory/riscv_lsu.sv
+?? npc/vsrc/riscv/core/memory/riscv_uncached_axi.sv
+?? npc/vsrc/riscv/core/riscv_core.sv
+?? npc/vsrc/riscv/core/writeback/riscv_commit.sv
+?? npc/vsrc/riscv/core/writeback/riscv_completion_mux.sv
+?? npc/vsrc/riscv/core/writeback/riscv_csr_file.sv
+?? npc/vsrc/riscv/core/writeback/riscv_pmu.sv
+?? npc/vsrc/riscv/core/writeback/riscv_wb_reg.sv
+?? npc/vsrc/riscv/experiments/bcd7seg.v
+?? npc/vsrc/riscv/experiments/pipeline/riscv_decode_stage.sv
+?? npc/vsrc/riscv/experiments/pipeline/riscv_frontend_redirect_register.sv
+?? npc/vsrc/riscv/experiments/pipeline/riscv_register_read_stage.sv
+?? npc/vsrc/riscv/experiments/riscv_alu32_for_sta.sv
+?? npc/vsrc/riscv/experiments/shl4_for_sta.sv
+?? npc/vsrc/riscv/filelist/filelist.f
+?? npc/vsrc/riscv/filelist/filelist_sta.f
+?? npc/vsrc/riscv/sim/riscv_axi4_sim_mem.sv
+?? npc/vsrc/riscv/sim/riscv_axi4_uart_sim.sv
+?? npc/vsrc/riscv/sim/riscv_sim_dcache_monitor.sv
+?? npc/vsrc/riscv/sim/riscv_sim_icache_monitor.sv
+?? npc/vsrc/riscv/sim/riscv_sim_perf_monitor.sv
+?? npc/vsrc/riscv/sim/riscv_sim_statistics_pkg.sv
+?? npc/vsrc/riscv/sim/top.sv
+?? npc/vsrc/riscv/system/peripheral/riscv_axi4_clint.sv
+?? npc/vsrc/riscv/system/riscv_axi4_arbiter.sv
+?? npc/vsrc/riscv/system/riscv_axi4_router.sv
+?? npc/vsrc/riscv/system/riscv_axi4_soc_width_converter.sv
+?? npc/vsrc/riscv/system/riscv_core_reset_boundary.sv
+?? npc/vsrc/riscv/system/riscv_npc_axi.sv
+?? npc/vsrc/riscv/system/riscv_npc_system.sv
+?? npc/vsrc/riscv/system/riscv_reset_controller.sv

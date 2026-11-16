@@ -1,0 +1,51 @@
+{
+  "common_mhz": 680,
+  "scope": "performance limitation only, not workload aggregate; area excluded",
+  "results": {
+    "B0": {
+      "time_ratio_gm": 1.0,
+      "adp_ratio": 1.0,
+      "families": {
+        "far_calls": 1.0
+      },
+      "input_time_ratios": {
+        "far_calls-dev": 1.0
+      },
+      "max_input_time_ratio": 1.0,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "far_calls": 1.0
+      }
+    },
+    "U16": {
+      "time_ratio_gm": 2.1076923076923078,
+      "adp_ratio": 2.1076923076923078,
+      "families": {
+        "far_calls": 2.1076923076923078
+      },
+      "input_time_ratios": {
+        "far_calls-dev": 2.1076923076923078
+      },
+      "max_input_time_ratio": 2.1076923076923078,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "far_calls": 1.0
+      }
+    },
+    "H32": {
+      "time_ratio_gm": 1.0,
+      "adp_ratio": 1.0,
+      "families": {
+        "far_calls": 1.0
+      },
+      "input_time_ratios": {
+        "far_calls-dev": 1.0
+      },
+      "max_input_time_ratio": 1.0,
+      "i_beats_ratio_gm": 1.0,
+      "i_beats_families": {
+        "far_calls": 1.0
+      }
+    }
+  }
+}

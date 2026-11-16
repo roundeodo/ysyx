@@ -1,0 +1,21 @@
+{
+  "buffer_count": 96,
+  "maximum_fanout": 16,
+  "structural_equivalence": "passed",
+  "added_registers": 0,
+  "original_loads": {
+    "u_core.u_branch_predictor.u_bht.g_counter_table.training_counter_0_": 512,
+    "u_core.u_branch_predictor.u_bht.g_counter_table.training_counter_1_": 512
+  },
+  "parent": "G512",
+  "threshold_loads": 64,
+  "tree_fanout": 16,
+  "buffer_cell": "BUF_X4",
+  "parent_netlist_sha256": "6ed1dde575dd45b4b1dc3f3a8801c93cba9d619a06c8041a1bfd2291de16f68e",
+  "parent_json_sha256": "9f79f31632f7b3a739c9cea64ccfc31ca4f6fb2851adbf5fb1656deaa4ae3045",
+  "repaired_json_sha256": "e248b36b5199fa3d5444d1e64d41acde8f189e301eaff64ca15de6433a882bfc",
+  "netlist_sha256": "c8badb9831f4fe51ed92f9b2dc6a4060284b0601743a2bad436c7d4fb5a16026",
+  "constraints_sha256": "68490656cf67ddadc8d2ce3347be4872cf968a55161195cf559970612ebe5857",
+  "script_sha256": "e92a72bd1ecf133c45020114b91e3b7ff84e714068505000cb20bef0a0fcff5d",
+  "mapping_note": "Reuse parent mapping; insert only explicit data buffers. Original result is retained."
+}

@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-09-22T00:45:08.872001+00:00",
+  "versions": {
+    "yosys": "Yosys 0.60+70 (git sha1 8101c87fa, clang++ 18.1.8 -fPIC -O3)",
+    "verilator": "Verilator 5.043 devel rev v5.042-244-g4080284e5",
+    "riscv64-linux-gnu-gcc": "riscv64-linux-gnu-gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0",
+    "g++": "g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0",
+    "python3": "Python 3.10.12"
+  },
+  "zlib_build": "1.2.11",
+  "zlib_runtime": "1.2.11",
+  "files": {
+    "/home/yong/tools/oss-cad-suite/bin/yosys": {
+      "sha256": "7c3e3396b38c129dd7485be5a0a0f0da8e495a94c8fd486059e3bea043a588d6",
+      "mtime_ns": 1767236473000000000
+    },
+    "/home/yong/tools/oss-cad-suite/bin/verilator": {
+      "sha256": "6ac75de2af147e085ed043af91a4d9b527daff128c672bbf0279c031534fdccf",
+      "mtime_ns": 1767148641000000000
+    },
+    "/usr/bin/riscv64-linux-gnu-gcc-11": {
+      "sha256": "0c54895c55568be5b5fee49e2426abcc8fb05ca2c121ca5685dea2cbc24a1c13",
+      "mtime_ns": 1685462596000000000
+    },
+    "/usr/bin/x86_64-linux-gnu-g++-11": {
+      "sha256": "2360901d864cf10bfd6296e261cb2c14053552a80377761ab07146ec9ec9a2c0",
+      "mtime_ns": 1766043084000000000
+    },
+    "/usr/bin/python3.10": {
+      "sha256": "a2f33a6e006989270f4340528eb61f8f97366e00a5d1b602ac8672ea44fc56ae",
+      "mtime_ns": 1788171497000000000
+    },
+    "/home/yong/tools/oss-cad-suite/share/yosys/plugins/slang.so": {
+      "sha256": "31ca936f897be1a9e1afcbc424dc28a7d1bf97fdcf326869dfc1b5c7ea9f1e67",
+      "mtime_ns": 1767149838000000000
+    },
+    "/home/yong/tools/oss-cad-suite/libexec/yosys": {
+      "sha256": "40543f958ee015911c3d66071b2fda322a600855a3803cd35e2a9b5ccb3d902d",
+      "mtime_ns": 1767149455000000000
+    },
+    "/home/yong/ysyx/ysyx-workbench/yosys-sta/bin/iEDA": {
+      "sha256": "99bdaf0e96a3a2f3fbb8014e0cd2c13f8973a4e26c92bd45f587bb444f1ca9e3",
+      "mtime_ns": 1751334482000000000
+    },
+    "/home/yong/ysyx/ysyx-workbench/yosys-sta/pdk/nangate45/lib/Nangate45_typ.lib": {
+      "sha256": "2efd0b32eb580e4e60e72fc0575bb3bc69aac907c91d908442e4ae6d7fe55895",
+      "mtime_ns": 1748442456000000000
+    }
+  },
+  "prior_frontend_versions_match": true,
+  "note": "Supplemental tool inventory; original compilation and timing logs remain the evidence for each run"
+}

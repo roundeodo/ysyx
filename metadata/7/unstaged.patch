@@ -1,0 +1,2914 @@
+diff --git a/ex10/Makefile b/ex10/Makefile
+index e8ad1e7..f6b0440 100644
+--- a/ex10/Makefile
++++ b/ex10/Makefile
+@@ -1,2 +1,7 @@
+ CFLAGS=-Wall -g
+ 
++all:
++	gcc $(CFLAGS) ex10.c -o ex10
++
++clean:
++	rm -f ex10
+diff --git a/ex10/ex10.c b/ex10/ex10.c
+index 8f0ff2d..554a520 100644
+--- a/ex10/ex10.c
++++ b/ex10/ex10.c
+@@ -2,54 +2,58 @@
+ 
+ int main(int argc, char *argv[])
+ {
+-    if (argc != 2) {
+-        printf("ERROR: You need one argument.\n");
+-        // this is how you abort a program
+-        return 1;
+-    }
+-
++//    if (argc != 2) {
++//        printf("ERROR: You need one argument.\n");
++//        // this is how you abort a program
++//        return 1;
++//    }
++		for(int j = 1;j < argc; j++){
+     int i = 0;
+-    for (i = 0; argv[1][i] != '\0'; i++) {
+-        char letter = argv[1][i];
+-
++		char letter = argv[j][0];
++    for (i = 0; argv[j][i] != '\0'; i++,letter = argv[j][i]) {
++				if (letter >= 65 && letter <= 90)
++					letter = letter + 32;
++				//printf("letter = %c\n",letter);
+         switch (letter) {
+             case 'a':
+-            case 'A':
++            //case 'A':
+                 printf("%d: 'A'\n", i);
+                 break;
+ 
+             case 'e':
+-            case 'E':
++            //case 'E':
+                 printf("%d: 'E'\n", i);
+                 break;
+ 
+             case 'i':
+-            case 'I':
++            //case 'I':
+                 printf("%d: 'I'\n", i);
+                 break;
+ 
+             case 'o':
+-            case 'O':
++            //case 'O':
+                 printf("%d: 'O'\n", i);
+                 break;
+ 
+             case 'u':
+-            case 'U':
++            //case 'U':
+                 printf("%d: 'U'\n", i);
+                 break;
+ 
+             case 'y':
+-            case 'Y':
++            //rase 'Y':
+                 if (i > 2) {
+                     // it's only sometimes Y
+                     printf("%d: 'Y'\n", i);
+-                }
+                 break;
++                }
++
++
+ 
+             default:
+                 printf("%d: %c is not a vowel\n", i, letter);
+         }
+     }
+-
++		}
+     return 0;
+ }
+diff --git a/ex11/Makefile b/ex11/Makefile
+index e8ad1e7..53f1df6 100644
+--- a/ex11/Makefile
++++ b/ex11/Makefile
+@@ -1,2 +1,8 @@
+ CFLAGS=-Wall -g
+ 
++all:
++	gcc $(CFLAGS) ex11.c -o ex11
++
++clean:
++	rm -f ex11
++
+diff --git a/ex11/ex11.c b/ex11/ex11.c
+index ed70f6d..f349a67 100644
+--- a/ex11/ex11.c
++++ b/ex11/ex11.c
+@@ -1,37 +1,39 @@
+ #include <stdio.h>
+ 
+-int main(int argc, char *argv[])
+-{
+-    int numbers[4] = { 0 };
+-    char name[4] = { 'a', 'a', 'a', 'a' };
+-
++int main(int argc, char *argv[]) {
++    int numbers[4] = {0};
++    char name[4] = {'a', 'a', 'a', 'a'};
++    int *magic_int_ptr = (int *)name;
+     // first, print them out raw
+-    printf("numbers: %d %d %d %d\n",
+-            numbers[0], numbers[1], numbers[2], numbers[3]);
++    printf("numbers: %d %d %d %d\n", numbers[0], numbers[1], numbers[2],
++           numbers[3]);
+ 
+-    printf("name each: %c %c %c %c\n",
+-            name[0], name[1], name[2], name[3]);
++    printf("name each: %c %c %c %c\n", name[0], name[1], name[2], name[3]);
+ 
+     printf("name: %s\n", name);
+ 
++    printf("print the name like a big number: %d\n", *magic_int_ptr);
++
++    printf("the first 'int' in name array: %d\n", magic_int_ptr[1]);
++
+     // setup the numbers
+-    numbers[0] = 1;
+-    numbers[1] = 2;
+-    numbers[2] = 3;
+-    numbers[3] = 4;
++
++    numbers[0] = name[0];
++    numbers[1] = name[1];
++    numbers[2] = name[2];
++    numbers[3] = name[3];
+ 
+     // setup the name
+-    name[0] = 'Z';
++    name[0] = 64;
+     name[1] = 'e';
+     name[2] = 'd';
+     name[3] = 'A';
+ 
+     // then print them out initialized
+-    printf("numbers: %d %d %d %d\n",
+-            numbers[0], numbers[1], numbers[2], numbers[3]);
++    printf("numbers: %d %d %d %d\n", numbers[0], numbers[1], numbers[2],
++           numbers[3]);
+ 
+-    printf("name each: %c %c %c %c\n",
+-            name[0], name[1], name[2], name[3]);
++    printf("name each: %c %c %c %c\n", name[0], name[1], name[2], name[3]);
+ 
+     // print the name like a string
+     printf("name: %s\n", name);
+@@ -41,8 +43,14 @@ int main(int argc, char *argv[])
+ 
+     printf("another: %s\n", another);
+ 
+-    printf("another each: %c %c %c %c\n",
+-            another[0], another[1], another[2], another[3]);
++    printf("another each: %c %c %c %c\n", another[0], another[1], another[2],
++           another[3]);
++
++    int a = 0xaabbccdd;
++    // char a_character [4];
++    char *a_character = "aaaa";
++    *((int *)a_character) = a;
++    printf("charater = %x\n", *((int *)a_character));
+ 
+     return 0;
+ }
+diff --git a/ex12/ex12.c b/ex12/ex12.c
+index ef317a1..3d412d5 100644
+--- a/ex12/ex12.c
++++ b/ex12/ex12.c
+@@ -26,9 +26,18 @@ int main(int argc, char *argv[])
+     printf("The number of chars: %ld\n",
+             sizeof(full_name) / sizeof(char));
+ 
+-    full_name[12] = 'X';
+ 
+-    printf("name=\"%s\" and full_name=\"%s\"\n", name, full_name);
++    full_name[10] = '\0';
++		printf("name=\"%s\" and full_name=\"%s\"\n", name, full_name);
++		printf("full name 10 = %c\n",full_name[10]);
+ 
+-    return 0;
++		areas[0] = 100;
++		printf("area 0 = %d\n",areas[0]);
++		full_name[9] = 'F';
++		printf("full_name[9] = %c\n",full_name[9]);
++		name[1] = 'F';
++		printf("name[1] = %c\n",name[1]);
++		areas[1] = (int)name[1];
++		printf("area[1] = %c\n",areas[1]);
++        return 0;
+ }
+diff --git a/ex13/ex13.c b/ex13/ex13.c
+index f442123..4f2e943 100644
+--- a/ex13/ex13.c
++++ b/ex13/ex13.c
+@@ -2,25 +2,27 @@
+ 
+ int main(int argc, char *argv[])
+ {
+-    int i = 0;
++	int i = 0;
++	char *states[] = {
++		"California", "Oregon",
++		"Washington", "Texas"
++	};
+ 
+-    // go through each string in argv
+-    // why am I skipping argv[0]?
+-    for (i = 0; i < argc; i++) {
+-        printf("arg %d: %s\n", i, argv[i]);
+-    }
++	argv[1]=states[1];
++	states[1]=argv[2];
+ 
+-    // let's make our own array of strings
+-    char *states[] = {
+-        "California", "Oregon",
+-        "Washington", "Texas"
+-    };
++	// go through each string in argv
++	// why am I skipping argv[0]?
++	for (i = 0; i < argc; i++, printf("arg %d: %s\n", i, argv[i])) {
++		;
++	}
+ 
+-    int num_states = 5;
++	// let's make our own array of strings
++	int num_states = 5;
+ 
+-    for (i = 0; i < num_states; i++) {
+-        printf("state %d: %s\n", i, states[i]);
+-    }
++	for (i = 0; i < num_states; i++) {
++		printf("state %d: %s\n", i, states[i]);
++	}
+ 
+-    return 0;
++	return 0;
+ }
+diff --git a/ex14/ex14.c b/ex14/ex14.c
+index ebe733c..4246de3 100644
+--- a/ex14/ex14.c
++++ b/ex14/ex14.c
+@@ -1,41 +1,31 @@
+-#include <stdio.h>
+ #include <ctype.h>
+-
++#include <stdio.h>
++#include <string.h>
+ // forward declarations
+-int can_print_it(char ch);
+-void print_letters(char arg[]);
+-
+-void print_arguments(int argc, char *argv[])
+-{
+-    int i = 0;
+-
+-    for (i = 0; i < argc; i++) {
+-        print_letters(argv[i]);
+-    }
++void print_letters(char arg[], int length);
++
++void print_arguments(int argc, char *argv[]) {
++  int i = 1;
++  int length;
++  for (i = 1; i < argc; i++) {
++    length = strlen(argv[i]);
++    print_letters(argv[i], length);
++  }
+ }
+ 
+-void print_letters(char arg[])
+-{
+-    int i = 0;
+-
+-    for (i = 0; arg[i] != '\0'; i++) {
+-        char ch = arg[i];
++void print_letters(char arg[], int length) {
++  int i = 0;
+ 
+-        if (can_print_it(ch)) {
+-            printf("'%c' == %d ", ch, ch);
+-        }
+-    }
++  for (i = 0; i < length; i++) {
++    char ch = arg[i];
+ 
+-    printf("\n");
+-}
++    printf("'%c' == %d ", ch, ch);
++  }
+ 
+-int can_print_it(char ch)
+-{
+-    return isalpha(ch) || isblank(ch);
++  printf("\n");
+ }
+ 
+-int main(int argc, char *argv[])
+-{
+-    print_arguments(argc+1, argv);
+-    return 0;
++int main(int argc, char *argv[]) {
++  print_arguments(argc, argv);
++  return 0;
+ }
+diff --git a/ex15/ex15.c b/ex15/ex15.c
+index f2bfd98..e86e7ad 100644
+--- a/ex15/ex15.c
++++ b/ex15/ex15.c
+@@ -1,49 +1,66 @@
+ #include <stdio.h>
+ 
+-int main(int argc, char *argv[])
+-{
+-    // create two arrays we care about
+-    int ages[] = { 23, 43, 12, 89, 2 };
+-    char *names[] = {
+-        "Alan", "Frank",
+-        "Mary", "John", "Lisa"
+-    };
+-
+-    // safely get the size of ages
+-    int count = sizeof(ages) / sizeof(int);
+-    int i = 0;
+-
+-    // first way using indexing
+-    for (i = 0; i < count; i++) {
+-        printf("%s has %d years alive.\n", names[i], ages[i]);
+-    }
+-
+-    printf("---\n");
+-
+-    // setup the pointers to the start of the arrays
+-    int *cur_age = (int *)names;
+-    char **cur_name = names;
+-
+-    // second way using pointers
+-    for (i = 0; i < count; i++) {
+-        printf("%s is %d years old.\n",
+-                *(cur_name + i), *(cur_age + i));
+-    }
+-
+-    printf("---\n");
+-
+-    // third way, pointers are just arrays
+-    for (i = 0; i < count; i++) {
+-        printf("%s is %d years old again.\n", cur_name[i], cur_age[i]);
+-    }
+-
+-    printf("---\n");
+-
+-    // fourth way with pointers in a stupid complex way
+-    for (cur_name = names, cur_age = ages;
+-            (cur_age - ages) < count; cur_name++, cur_age++) {
+-        printf("%s lived %d years so far.\n", *cur_name, *cur_age);
+-    }
+-
+-    return 0;
++void print_names_ages(int *ages, char **names, int count) {
++  int i = 0;
++  for (i = 0; i < count; i++) {
++    printf("%s is %d years old\n", names[i], ages[i]);
++  }
++}
++
++int main(int argc, char *argv[]) {
++  // create two arrays we care about
++  int ages_data[] = {23, 43, 12, 89, 2};
++  int *ages = ages_data;
++  char *names[] = {"Alan", "Frank", "Mary", "John", "Lisa"};
++
++  // safely get the size of ages
++  int count = sizeof(ages_data) / sizeof(int);
++  int i = 0;
++
++  // first way using indexing
++  print_names_ages(ages, names, count);
++
++  printf("---\n");
++
++  // setup the pointers to the start of the arrays
++  int *cur_age = ages;
++  char **cur_name = names;
++
++  // second way using pointers
++  for (i = 0; i < count; i++) {
++    printf("%s is %d years old.\n", *(cur_name + i), *(cur_age + i));
++  }
++
++  printf("---\n");
++
++  // third way, pointers are just arrays
++  for (i = 0; i < count; i++) {
++    printf("%s is %d years old again.\n", *(cur_name + i), *(cur_age + i));
++  }
++
++  printf("---\n");
++
++  // fourth way with pointers in a stupid complex way
++  for (cur_name = names, cur_age = ages; (cur_age - ages) < count;
++       cur_name++, cur_age++) {
++    printf("%s lived %d years so far.\n", *cur_name, *cur_age);
++  }
++
++  char **cur_arg = argv;
++  while (cur_arg < (argv + argc)) {
++    printf("arg: %s\n", *cur_arg);
++    cur_arg++;
++  }
++
++  printf("address of ages is %p  %p\n", ages, &ages[0]);
++  printf("value of ages[0] = %d\n", *&ages[0]);
++
++  for (int i = 0; i < count; i++) {
++    printf("the address of pointer %d is %p\n", i, (ages + i));
++  }
++
++  for (int i = 0; i < count; i++) {
++    printf("the address of pointer %d is %p\n", i, (void *)(ages + i));
++  }
++  return 0;
+ }
+diff --git a/ex16/ex16.c b/ex16/ex16.c
+index d3a8fff..0e453c8 100644
+--- a/ex16/ex16.c
++++ b/ex16/ex16.c
+@@ -1,73 +1,68 @@
+-#include <stdio.h>
+ #include <assert.h>
++#include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ 
+ struct Person {
+-    char *name;
+-    int age;
+-    int height;
+-    int weight;
++  char *name;
++  int age;
++  int height;
++  int weight;
+ };
+ 
+-struct Person *Person_create(char *name, int age, int height,
+-        int weight)
+-{
+-    struct Person *who = malloc(sizeof(struct Person));
+-    assert(who != NULL);
++struct Person *Person_create(char *name, int age, int height, int weight) {
++  struct Person *who = malloc(sizeof(struct Person));
++  assert(who != NULL);
+ 
+-    who->name = strdup(name);
+-    who->age = age;
+-    who->height = height;
+-    who->weight = weight;
++  who->name = strdup(name);
++  who->age = age;
++  who->height = height;
++  who->weight = weight;
+ 
+-    return who;
++  return who;
+ }
+ 
+-void Person_destroy(struct Person *who)
+-{
+-    assert(who != NULL);
++void Person_destroy(struct Person *who) {
++  assert(who != NULL);
+ 
+-    free(who->name);
+-    free(who);
++  // free(who->name);
++  free(who);
+ }
+ 
+-void Person_print(struct Person *who)
+-{
+-    printf("Name: %s\n", who->name);
+-    printf("\tAge: %d\n", who->age);
+-    printf("\tHeight: %d\n", who->height);
+-    printf("\tWeight: %d\n", who->weight);
++void Person_print(struct Person *who) {
++  printf("Name: %s\n", who->name);
++  printf("\tAge: %d\n", who->age);
++  printf("\tHeight: %d\n", who->height);
++  printf("\tWeight: %d\n", who->weight);
+ }
+ 
+-int main(int argc, char *argv[])
+-{
+-    // make two people structures
+-    struct Person *joe = Person_create("Joe Alex", 32, 64, 140);
++int main(int argc, char *argv[]) {
++  // make two people structures
++  struct Person *joe = Person_create("Joe Alex", 32, 64, 140);
+ 
+-    struct Person *frank = Person_create("Frank Blank", 20, 72, 180);
++  struct Person *frank = Person_create("Frank Blank", 20, 72, 180);
+ 
+-    // print them out and where they are in memory
+-    printf("Joe is at memory location %p:\n", joe);
+-    Person_print(joe);
++  // print them out and where they are in memory
++  printf("Joe is at memory location %p:\n", joe);
++  Person_print(joe);
+ 
+-    printf("Frank is at memory location %p:\n", frank);
+-    Person_print(frank);
++  printf("Frank is at memory location %p:\n", frank);
++  Person_print(frank);
+ 
+-    // make everyone age 20 years and print them again
+-    joe->age += 20;
+-    joe->height -= 2;
+-    joe->weight += 40;
+-    Person_print(joe);
++  // make everyone age 20 years and print them again
++  joe->age += 20;
++  joe->height -= 2;
++  joe->weight += 40;
++  Person_print(joe);
+ 
+-    frank->age += 20;
+-    frank->weight += 20;
+-    free(frank);
+-    Person_print(frank);
++  frank->age += 20;
++  frank->weight += 20;
++  // free(frank);
++  Person_print(frank);
+ 
+-    // destroy them both so we clean up
+-    Person_destroy(joe);
+-    Person_destroy(frank);
++  // destroy them both so we clean up
++  // Person_destroy(joe);
++  Person_destroy(frank);
+ 
+-    return 0;
++  return 0;
+ }
+diff --git a/ex17/Makefile b/ex17/Makefile
+index e8ad1e7..592bff1 100644
+--- a/ex17/Makefile
++++ b/ex17/Makefile
+@@ -1,2 +1,7 @@
+ CFLAGS=-Wall -g
+ 
++all:
++	gcc $(CFLAGS) ex17.c -o ex17
++
++clean:
++	rm -f db.dat ex17
+diff --git a/ex17/ex17.c b/ex17/ex17.c
+index 3714a8c..1e69940 100644
+--- a/ex17/ex17.c
++++ b/ex17/ex17.c
+@@ -1,213 +1,268 @@
+-#include <stdio.h>
+ #include <assert.h>
+-#include <stdlib.h>
+ #include <errno.h>
++#include <stdio.h>
++#include <stdlib.h>
+ #include <string.h>
+ 
+-#define MAX_DATA 512
+-#define MAX_ROWS 100
+-
+ struct Address {
+-    int id;
+-    int set;
+-    char name[MAX_DATA];
+-    char email[MAX_DATA];
++  int id;
++  int set;
++  char *name;
++  char *email;
+ };
+ 
+ struct Database {
+-    struct Address rows[MAX_ROWS];
++  int max_rows;
++  int max_data;
++  struct Address *rows;
+ };
+ 
+ struct Connection {
+-    FILE *file;
+-    struct Database *db;
++  FILE *file;
++  struct Database *db;
+ };
+ 
+-void die(const char *message)
+-{
+-    if (errno) {
+-        perror(message);
+-    } else {
+-        printf("ERROR: %s\n", message);
++void Database_close(struct Connection *conn) {
++  if (conn) {
++    if (conn->file)
++      fclose(conn->file);
++    if (conn->db) {
++      if (conn->db->rows) {
++        for (int i = 0; i < conn->db->max_rows; i++) {
++          free(conn->db->rows[i].name);
++          free(conn->db->rows[i].email);
++        }
++        free(conn->db->rows);
++      }
++      free(conn->db);
+     }
++    free(conn);
++  }
++}
++
++void die(struct Connection *conn, const char *message) {
++  if (errno) {
++    perror(message);
++  } else {
++    printf("ERROR: %s\n", message);
++  }
+ 
+-    exit(1);
++  if (conn != NULL) {
++    Database_close(conn);
++  }
++
++  exit(1);
+ }
+ 
+-void Address_print(struct Address *addr)
+-{
+-    printf("%d %s %s\n", addr->id, addr->name, addr->email);
++void Address_print(struct Address *addr) {
++  printf("%d %s %s\n", addr->id, addr->name, addr->email);
+ }
+ 
+-void Database_load(struct Connection *conn)
+-{
+-    int rc = fread(conn->db, sizeof(struct Database), 1, conn->file);
+-    if (rc != 1)
+-        die("Failed to load database.");
++void Database_load(struct Connection *conn) {
++  if (fread(&conn->db->max_rows, sizeof(int), 1, conn->file) != 1)
++    die(conn, "Failed to load max_rows.");
++  if (fread(&conn->db->max_data, sizeof(int), 1, conn->file) != 1)
++    die(conn, "Failed to load max_data");
++
++  conn->db->rows = malloc(sizeof(struct Address) * conn->db->max_rows);
++  if (!conn->db->rows)
++    die(conn, "memory error");
++
++  for (int i = 0; i < conn->db->max_rows; i++) {
++    struct Address *cur = &conn->db->rows[i];
++    fread(&cur->id, sizeof(int), 1, conn->file);
++    fread(&cur->set, sizeof(int), 1, conn->file);
++
++    cur->name = malloc(conn->db->max_data);
++    cur->email = malloc(conn->db->max_data);
++    fread(cur->name, conn->db->max_data, 1, conn->file);
++    fread(cur->email, conn->db->max_data, 1, conn->file);
++  }
+ }
+ 
+-struct Connection *Database_open(const char *filename, char mode)
+-{
+-    struct Connection *conn = malloc(sizeof(struct Connection));
+-    if (!conn)
+-        die("Memory error");
++struct Connection *Database_open(const char *filename, char mode) {
++  struct Connection *conn = malloc(sizeof(struct Connection));
++  if (!conn)
++    die(conn, "Memory error");
+ 
+-    conn->db = malloc(sizeof(struct Database));
+-    if (!conn->db)
+-        die("Memory error");
++  conn->db = malloc(sizeof(struct Database));
++  if (!conn->db)
++    die(conn, "Memory error");
+ 
+-    if (mode == 'c') {
+-        conn->file = fopen(filename, "w");
+-    } else {
+-        conn->file = fopen(filename, "r+");
++  if (mode == 'c') {
++    conn->file = fopen(filename, "w");
++  } else {
++    conn->file = fopen(filename, "r+");
+ 
+-        if (conn->file) {
+-            Database_load(conn);
+-        }
++    if (conn->file) {
++      Database_load(conn);
+     }
++  }
+ 
+-    if (!conn->file)
+-        die("Failed to open the file");
++  if (!conn->file)
++    die(conn, "Failed to open the file");
+ 
+-    return conn;
++  return conn;
+ }
+ 
+-void Database_close(struct Connection *conn)
+-{
+-    if (conn) {
+-        if (conn->file)
+-            fclose(conn->file);
+-        if (conn->db)
+-            free(conn->db);
+-        free(conn);
+-    }
+-}
++void Database_write(struct Connection *conn) {
++  rewind(conn->file);
+ 
+-void Database_write(struct Connection *conn)
+-{
+-    rewind(conn->file);
++  fwrite(&conn->db->max_rows, sizeof(int), 1, conn->file);
++  fwrite(&conn->db->max_data, sizeof(int), 1, conn->file);
+ 
+-    int rc = fwrite(conn->db, sizeof(struct Database), 1, conn->file);
+-    if (rc != 1)
+-        die("Failed to write database.");
++  for (int i = 0; i < conn->db->max_rows; i++) {
++    struct Address *cur = &conn->db->rows[i];
++    fwrite(&cur->id, sizeof(int), 1, conn->file);
++    fwrite(&cur->set, sizeof(int), 1, conn->file);
++    fwrite(cur->name, conn->db->max_data, 1, conn->file);
++    fwrite(cur->email, conn->db->max_data, 1, conn->file);
++  }
+ 
+-    rc = fflush(conn->file);
+-    if (rc == -1)
+-        die("Cannot flush database.");
++  fflush(conn->file);
+ }
+ 
+-void Database_create(struct Connection *conn)
+-{
+-    int i = 0;
+-
+-    for (i = 0; i < MAX_ROWS; i++) {
+-        // make a prototype to initialize it
+-        struct Address addr = {.id = i,.set = 0 };
+-        // then just assign it
+-        conn->db->rows[i] = addr;
++void Database_find(struct Connection *conn, const char *keyword) {
++  for (int i = 0; i < conn->db->max_rows; i++) {
++    struct Address *cur = &conn->db->rows[i];
++    if (cur->set &&
++        (strstr(cur->name, keyword) || strstr(cur->email, keyword))) {
++      Address_print(cur);
+     }
++  }
++}
++
++void Database_create(struct Connection *conn, int max_rows, int max_data) {
++  conn->db->max_rows = max_rows;
++  conn->db->max_data = max_data;
++
++  conn->db->rows = malloc(sizeof(struct Address) * max_rows);
++  if (!conn->db->rows)
++    die(conn, "memory error:rows malloc failed");
++
++  for (int i = 0; i < max_rows; i++) {
++    // make a prototype to initialize it
++    struct Address *addr = &conn->db->rows[i];
++    // then just assign it
++    addr->id = i;
++    addr->set = 0;
++    addr->name = malloc(max_data);
++    addr->email = malloc(max_data);
++    memset(addr->name, 0, max_data);
++    memset(addr->email, 0, max_data);
++  }
+ }
+ 
+ void Database_set(struct Connection *conn, int id, const char *name,
+-        const char *email)
+-{
+-    struct Address *addr = &conn->db->rows[id];
+-    if (addr->set)
+-        die("Already set, delete it first");
+-
+-    addr->set = 1;
+-    // WARNING: bug, read the "How To Break It" and fix this
+-    char *res = strncpy(addr->name, name, MAX_DATA);
+-    // demonstrate the strncpy bug
+-    if (!res)
+-        die("Name copy failed");
+-
+-    res = strncpy(addr->email, email, MAX_DATA);
+-    if (!res)
+-        die("Email copy failed");
++                  const char *email) {
++  struct Address *addr = &conn->db->rows[id];
++  if (addr->set)
++    die(conn, "Already set, delete it first");
++
++  addr->set = 1;
++  // WARNING: bug, read the "How To Break It" and fix this
++  int max_data = conn->db->max_data;
++  char *res = strncpy(addr->name, name, max_data);
++  // demonstrate the strncpy bug
++  if (!res)
++    die(conn, "Name copy failed");
++  addr->name[conn->db->max_data - 1] = '\0';
++
++  res = strncpy(addr->email, email, max_data);
++  if (!res)
++    die(conn, "Email copy failed");
++  addr->email[conn->db->max_data - 1] = '\0';
+ }
+ 
+-void Database_get(struct Connection *conn, int id)
+-{
+-    struct Address *addr = &conn->db->rows[id];
++void Database_get(struct Connection *conn, int id) {
++  struct Address *addr = &conn->db->rows[id];
+ 
+-    if (addr->set) {
+-        Address_print(addr);
+-    } else {
+-        die("ID is not set");
+-    }
++  if (addr->set) {
++    Address_print(addr);
++  } else {
++    die(conn, "ID is not set");
++  }
+ }
+ 
+-void Database_delete(struct Connection *conn, int id)
+-{
+-    struct Address addr = {.id = id,.set = 0 };
+-    conn->db->rows[id] = addr;
++void Database_delete(struct Connection *conn, int id) {
++  struct Address *addr = &conn->db->rows[id];
++  addr->set = 0;
++  memset(addr->name, 0, conn->db->max_data);
++  memset(addr->email, 0, conn->db->max_data);
+ }
+ 
+-void Database_list(struct Connection *conn)
+-{
+-    int i = 0;
+-    struct Database *db = conn->db;
++void Database_list(struct Connection *conn) {
+ 
+-    for (i = 0; i < MAX_ROWS; i++) {
+-        struct Address *cur = &db->rows[i];
++  for (int i = 0; i < conn->db->max_rows; i++) {
++    struct Address *cur = &conn->db->rows[i];
+ 
+-        if (cur->set) {
+-            Address_print(cur);
+-        }
++    if (cur->set) {
++      Address_print(cur);
+     }
++  }
+ }
+ 
+-int main(int argc, char *argv[])
+-{
+-    if (argc < 3)
+-        die("USAGE: ex17 <dbfile> <action> [action params]");
+-
+-    char *filename = argv[1];
+-    char action = argv[2][0];
+-    struct Connection *conn = Database_open(filename, action);
+-    int id = 0;
+-
+-    if (argc > 3) id = atoi(argv[3]);
+-    if (id >= MAX_ROWS) die("There's not that many records.");
+-
+-    switch (action) {
+-        case 'c':
+-            Database_create(conn);
+-            Database_write(conn);
+-            break;
+-
+-        case 'g':
+-            if (argc != 4)
+-                die("Need an id to get");
+-
+-            Database_get(conn, id);
+-            break;
+-
+-        case 's':
+-            if (argc != 6)
+-                die("Need id, name, email to set");
+-
+-            Database_set(conn, id, argv[4], argv[5]);
+-            Database_write(conn);
+-            break;
+-
+-        case 'd':
+-            if (argc != 4)
+-                die("Need id to delete");
+-
+-            Database_delete(conn, id);
+-            Database_write(conn);
+-            break;
+-
+-        case 'l':
+-            Database_list(conn);
+-            break;
+-        default:
+-            die("Invalid action: c=create, g=get, s=set, d=del, l=list");
+-    }
+-
+-    Database_close(conn);
+-
+-    return 0;
++int main(int argc, char *argv[]) {
++  if (argc < 3)
++    die(NULL, "USAGE: ex17 <dbfile> <action> [action params]");
++
++  char *filename = argv[1];
++  char action = argv[2][0];
++  struct Connection *conn = Database_open(filename, action);
++  int id = 0;
++
++  if (action != 'c')
++    if (argc > 3)
++      id = atoi(argv[3]);
++  switch (action) {
++  case 'c':
++    if (argc != 5)
++      die(conn, "usage: c <max_row> <max_data>");
++    Database_create(conn, atoi(argv[3]), atoi(argv[4]));
++    Database_write(conn);
++    break;
++
++  case 'g':
++    if (argc != 4)
++      die(conn, "Need an id to get");
++    if (id >= conn->db->max_rows)
++      die(conn, "there's not that many records");
++    Database_get(conn, id);
++    break;
++
++  case 's':
++    if (argc != 6)
++      die(conn, "Need id, name, email to set");
++    if (id >= conn->db->max_rows)
++      die(conn, "there's not that many records");
++    Database_set(conn, id, argv[4], argv[5]);
++    Database_write(conn);
++    break;
++
++  case 'd':
++    if (argc != 4)
++      die(conn, "Need id to delete");
++    if (id >= conn->db->max_rows)
++      die(conn, "there's not that many records");
++
++    Database_delete(conn, id);
++    Database_write(conn);
++    break;
++
++  case 'l':
++    Database_list(conn);
++    break;
++
++  case 'f':
++    if (argc != 4)
++      die(conn, "need a keyword to find");
++    Database_find(conn, argv[3]);
++    break;
++
++  default:
++    die(conn, "Invalid action: c=create, g=get, s=set, d=del, l=list");
++  }
++
++  Database_close(conn);
++  return 0;
+ }
+diff --git a/ex18/Makefile b/ex18/Makefile
+index e8ad1e7..c2acf79 100644
+--- a/ex18/Makefile
++++ b/ex18/Makefile
+@@ -1,2 +1,7 @@
+ CFLAGS=-Wall -g
+ 
++all:
++	gcc $(CFLAGS) ex18.c -o ex18
++
++clean:
++	rm -f ex18
+diff --git a/ex18/ex18.c b/ex18/ex18.c
+index 9de876a..538528d 100644
+--- a/ex18/ex18.c
++++ b/ex18/ex18.c
+@@ -1,149 +1,179 @@
++#include <errno.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <errno.h>
+ #include <string.h>
+ 
+ /** Our old friend die from ex17. */
+-void die(const char *message)
+-{
+-    if (errno) {
+-        perror(message);
+-    } else {
+-        printf("ERROR: %s\n", message);
+-    }
+-
+-    exit(1);
++void die(const char *message) {
++  if (errno) {
++    perror(message);
++  } else {
++    printf("ERROR: %s\n", message);
++  }
++
++  exit(1);
+ }
+ 
+ // a typedef creates a fake type, in this
+ // case for a function pointer
+-typedef int (*compare_cb) (int a, int b);
+-
++typedef int (*compare_cb)(int a, int b);
++typedef int *(*sort_algo)(int *number, int count, compare_cb cmp);
+ /**
+- * A classic bubble sort function that uses the 
+- * compare_cb to do the sorting. 
++ * A classic bubble sort function that uses the
++ * compare_cb to do the sorting.
+  */
+-int *bubble_sort(int *numbers, int count, compare_cb cmp)
+-{
+-    int temp = 0;
+-    int i = 0;
+-    int j = 0;
+-    int *target = malloc(count * sizeof(int));
+-
+-    if (!target)
+-        die("Memory error.");
+-
+-    memcpy(target, numbers, count * sizeof(int));
+-
+-    for (i = 0; i < count; i++) {
+-        for (j = 0; j < count - 1; j++) {
+-            if (cmp(target[j], target[j + 1]) > 0) {
+-                temp = target[j + 1];
+-                target[j + 1] = target[j];
+-                target[j] = temp;
+-            }
+-        }
++int *bubble_sort(int *numbers, int count, compare_cb cmp) {
++  int temp = 0;
++  int i = 0;
++  int j = 0;
++  int *target = malloc(count * sizeof(int));
++
++  if (!target)
++    die("Memory error.");
++
++  memcpy(target, numbers, count * sizeof(int));
++
++  for (i = 0; i < count; i++) {
++    for (j = 0; j < count - 1; j++) {
++      if (cmp(target[j], target[j + 1]) > 0) {
++        temp = target[j + 1];
++        target[j + 1] = target[j];
++        target[j] = temp;
++      }
+     }
++  }
+ 
+-    return target;
++  return target;
+ }
+ 
+-int sorted_order(int a, int b)
+-{
+-    return a - b;
++void quick_sort_recursive(int *target, int low, int high, compare_cb cmp) {
++  if (low < high) {
++    int pivot = target[high];
++    int i = low - 1;
++
++    for (int j = low; j < high; j++) {
++
++      if (cmp(target[j], pivot) <= 0) {
++        i++;
++        int temp = target[i];
++        target[i] = target[j];
++        target[j] = temp;
++      }
++    }
++    int temp = target[i + 1];
++    target[i + 1] = target[high];
++    target[high] = temp;
++
++    int partition_idx = i + 1;
++
++    quick_sort_recursive(target, low, partition_idx - 1, cmp);
++    quick_sort_recursive(target, partition_idx + 1, high, cmp);
++  }
+ }
+ 
+-int reverse_order(int a, int b)
+-{
+-    return b - a;
++int *quick_sort(int *numbers, int count, compare_cb cmp) {
++  int *target = malloc(count * sizeof(int));
++  if (!target)
++    die("Memory error.");
++
++  memcpy(target, numbers, count * sizeof(int));
++
++  quick_sort_recursive(target, 0, count - 1, cmp);
++
++  return target;
+ }
+ 
+-int strange_order(int a, int b)
+-{
+-    if (a == 0 || b == 0) {
+-        return 0;
+-    } else {
+-        return a % b;
+-    }
++int sorted_order(int a, int b) { return a - b; }
++
++int reverse_order(int a, int b) { return b - a; }
++
++int strange_order(int a, int b) {
++  if (a == 0 || b == 0) {
++    return 0;
++  } else {
++    return a % b;
++  }
+ }
+ 
+-/** 
++/**
+  * Used to test that we are sorting things correctly
+  * by doing the sort and printing it out.
+  */
+-void test_sorting(int *numbers, int count, compare_cb cmp)
+-{
+-    int i = 0;
+-    int *sorted = bubble_sort(numbers, count, cmp);
+ 
+-    if (!sorted)
+-        die("Failed to sort as requested.");
++void wrong_function(int a, int b, int c) { return 0; }
+ 
+-    for (i = 0; i < count; i++) {
+-        printf("%d ", sorted[i]);
+-    }
+-    printf("\n");
++void test_sorting(int *numbers, int count, sort_algo algo, compare_cb cmp) {
++  int i = 0;
++  int *sorted = algo(numbers, count, cmp);
++
++  if (!sorted)
++    die("Failed to sort as requested.");
++
++  for (i = 0; i < count; i++) {
++    printf("%d ", sorted[i]);
++  }
++  printf("\n");
+ 
+-    free(sorted);
++  free(sorted);
+ }
+ 
+-void destroy(compare_cb cmp)
+-{
+-    int i = 0;
++void destroy(compare_cb cmp) {
++  int i = 0;
+ 
+-    unsigned char *data = (unsigned char *)cmp;
++  unsigned char *data = (unsigned char *)cmp;
+ 
+-    for(i = 0; i < 1; i++) {
+-        data[i] = i;
+-    }
++  for (i = 0; i < 1; i++) {
++    data[i] = i;
++  }
+ 
+-    printf("\n");
++  printf("\n");
+ }
+ 
+-void dump(compare_cb cmp)
+-{
+-    int i = 0;
++void dump(compare_cb cmp) {
++  int i = 0;
+ 
+-    unsigned char *data = (unsigned char *)cmp;
++  unsigned char *data = (unsigned char *)cmp;
+ 
+-    for(i = 0; i < 25; i++) {
+-        printf("%02x:", data[i]);
+-    }
++  for (i = 0; i < 25; i++) {
++    printf("%02x:", data[i]);
++  }
+ 
+-    printf("\n");
++  printf("\n");
+ }
+ 
++int main(int argc, char *argv[]) {
++  if (argc < 2)
++    die("USAGE: ex18 4 3 1 5 6");
+ 
++  int count = argc - 1;
++  int i = 0;
++  char **inputs = argv + 1;
+ 
+-int main(int argc, char *argv[])
+-{
+-    if (argc < 2) die("USAGE: ex18 4 3 1 5 6");
+-
+-    int count = argc - 1;
+-    int i = 0;
+-    char **inputs = argv + 1;
++  int *numbers = malloc(count * sizeof(int));
++  if (!numbers)
++    die("Memory error.");
+ 
+-    int *numbers = malloc(count * sizeof(int));
+-    if (!numbers) die("Memory error.");
++  for (i = 0; i < count; i++) {
++    numbers[i] = atoi(inputs[i]);
++  }
+ 
+-    for (i = 0; i < count; i++) {
+-        numbers[i] = atoi(inputs[i]);
+-    }
+-
+-    test_sorting(numbers, count, sorted_order);
+-    test_sorting(numbers, count, reverse_order);
+-    test_sorting(numbers, count, strange_order);
++  test_sorting(numbers, count, bubble_sort, sorted_order);
++  test_sorting(numbers, count, bubble_sort, reverse_order);
++  test_sorting(numbers, count, bubble_sort, strange_order);
+ 
+-    free(numbers);
++  test_sorting(numbers, count, quick_sort, sorted_order);
++  test_sorting(numbers, count, quick_sort, reverse_order);
++  test_sorting(numbers, count, quick_sort, strange_order);
+ 
+-    printf("SORTED:");
+-    dump(sorted_order);
++  free(numbers);
+ 
+-    destroy(sorted_order);
++  printf("SORTED:");
++  dump(sorted_order);
+ 
+-    printf("SORTED:");
+-    dump(sorted_order);
++  destroy(sorted_order);
+ 
++  printf("SORTED:");
++  dump(sorted_order);
+ 
+-    return 0;
++  return 0;
+ }
+diff --git a/ex19/Makefile b/ex19/Makefile
+index e8ad1e7..d9f8d1a 100644
+--- a/ex19/Makefile
++++ b/ex19/Makefile
+@@ -1,2 +1,7 @@
+-CFLAGS=-Wall -g
++CFLAGS=-Wall -g -DNDEBUG
+ 
++all:
++	gcc $(CFLAGS) ex19.c -o ex19
++
++clean:
++	rm -f ex19
+diff --git a/ex19/dbg.h b/ex19/dbg.h
+index 9f11809..c03b1e6 100644
+--- a/ex19/dbg.h
++++ b/ex19/dbg.h
+@@ -1,39 +1,52 @@
+ #ifndef __dbg_h__
+ #define __dbg_h__
+ 
+-#include <stdio.h>
+ #include <errno.h>
++#include <stdio.h>
+ #include <string.h>
+ 
+ #ifdef NDEBUG
+ #define debug(M, ...)
+ #else
+-#define debug(M, ...) fprintf(stderr, "DEBUG %s:%d: " M "\n",\
+-        __FILE__, __LINE__, ##__VA_ARGS__)
++#define debug(M, ...)                                                          \
++  fprintf(stderr, "DEBUG %s:%d: " M "\n", __FILE__, __LINE__, ##__VA_ARGS__)
+ #endif
+ 
+ #define clean_errno() (errno == 0 ? "None" : strerror(errno))
+ 
+-#define log_err(M, ...) fprintf(stderr,\
+-        "[ERROR] (%s:%d: errno: %s) " M "\n", __FILE__, __LINE__,\
+-        clean_errno(), ##__VA_ARGS__)
++#define log_err(M, ...)                                                        \
++  fprintf(stderr, "[ERROR] (%s:%d:[FUNC: %s] errno: %s) " M "\n", __FILE__,    \
++          __LINE__, __func__, clean_errno(), ##__VA_ARGS__)
+ 
+-#define log_warn(M, ...) fprintf(stderr,\
+-        "[WARN] (%s:%d: errno: %s) " M "\n",\
+-        __FILE__, __LINE__, clean_errno(), ##__VA_ARGS__)
++#define log_warn(M, ...)                                                       \
++  fprintf(stderr, "[WARN] (%s:%d: errno: %s) " M "\n", __FILE__, __LINE__,     \
++          clean_errno(), ##__VA_ARGS__)
+ 
+-#define log_info(M, ...) fprintf(stderr, "[INFO] (%s:%d) " M "\n",\
+-        __FILE__, __LINE__, ##__VA_ARGS__)
++#define log_info(M, ...)                                                       \
++  fprintf(stderr, "[INFO] (%s:%d:[FUNC: %s]) " M "\n", __FILE__, __LINE__,     \
++          __func__, ##__VA_ARGS__)
+ 
+-#define check(A, M, ...) if(!(A)) {\
+-    log_err(M, ##__VA_ARGS__); errno=0; goto error; }
++#define check(A, M, ...)                                                       \
++  if (!(A)) {                                                                  \
++    log_err(M, ##__VA_ARGS__);                                                 \
++    errno = 0;                                                                 \
++    goto error;                                                                \
++  }
+ 
+-#define sentinel(M, ...)  { log_err(M, ##__VA_ARGS__);\
+-    errno=0; goto error; }
++#define sentinel(M, ...)                                                       \
++  {                                                                            \
++    log_err(M, ##__VA_ARGS__);                                                 \
++    errno = 0;                                                                 \
++    goto error;                                                                \
++  }
+ 
+ #define check_mem(A) check((A), "Out of memory.")
+ 
+-#define check_debug(A, M, ...) if(!(A)) { debug(M, ##__VA_ARGS__);\
+-    errno=0; goto error; }
++#define check_debug(A, M, ...)                                                 \
++  if (!(A)) {                                                                  \
++    debug(M, ##__VA_ARGS__);                                                   \
++    errno = 0;                                                                 \
++    goto error;                                                                \
++  }
+ 
+ #endif
+diff --git a/ex19/ex19.c b/ex19/ex19.c
+index fda5e8d..b14b8a0 100644
+--- a/ex19/ex19.c
++++ b/ex19/ex19.c
+@@ -1,118 +1,111 @@
+ 
+ #include "dbg.h"
+-#include <stdlib.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+-void test_debug()
+-{
+-    // notice you don't need the \n
+-    debug("I have Brown Hair.");
++void test_debug() {
++  // notice you don't need the \n
++  debug("I have Brown Hair.");
+ 
+-    // passing in arguments like printf
+-    debug("I am %d years old.", 37);
++  // passing in arguments like printf
++  debug("I am %d years old.", 37);
+ }
+ 
+-void test_log_err()
+-{
+-    log_err("I believe everything is broken.");
+-    log_err("There are %d problems in %s.", 0, "space");
++void test_log_err() {
++  log_err("I believe everything is broken.");
++  log_err("There are %d problems in %s.", 0, "space");
+ }
+ 
+-void test_log_warn()
+-{
+-    log_warn("You can safely ignore this.");
+-    log_warn("Maybe consider looking at: %s.", "/etc/passwd");
++void test_log_warn() {
++  log_warn("You can safely ignore this.");
++  log_warn("Maybe consider looking at: %s.", "/etc/passwd");
+ }
+ 
+-void test_log_info()
+-{
+-    log_info("Well I did something mundane.");
+-    log_info("It happened %f times today.", 1.3f);
++void test_log_info() {
++  log_info("Well I did something mundane.");
++  log_info("It happened %f times today.", 1.3f);
+ }
+ 
+-int test_check(char *file_name)
+-{
+-    FILE *input = NULL;
+-    char *block = NULL;
++int test_check(char *file_name) {
++  FILE *input = NULL;
++  char *block = NULL;
+ 
+-    block = malloc(100);
+-    check_mem(block);		// should work
++  block = malloc(100);
++  check_mem(block); // should work
+ 
+-    input = fopen(file_name, "r");
+-    check(input, "Failed to open %s.", file_name);
++  input = fopen(file_name, "r");
++  check(input, "Failed to open %s.", file_name);
+ 
+-    free(block);
+-    fclose(input);
+-    return 0;
++  free(block);
++  fclose(input);
++  return 0;
+ 
+ error:
+-    if (block) free(block);
+-    if (input) fclose(input);
+-    return -1;
++  if (block)
++    free(block);
++  if (input)
++    fclose(input);
++  return -1;
+ }
+ 
+-int test_sentinel(int code)
+-{
+-    char *temp = malloc(100);
+-    check_mem(temp);
++int test_sentinel(int code) {
++  char *temp = malloc(100);
++  check_mem(temp);
+ 
+-    switch (code) {
+-        case 1:
+-            log_info("It worked.");
+-            break;
+-        default:
+-            sentinel("I shouldn't run.");
+-    }
++  switch (code) {
++  case 1:
++    log_info("It worked.");
++    break;
++  default:
++    sentinel("I shouldn't run.");
++  }
+ 
+-    free(temp);
+-    return 0;
++  free(temp);
++  return 0;
+ 
+ error:
+-    if (temp)
+-        free(temp);
+-    return -1;
++  if (temp)
++    free(temp);
++  return -1;
+ }
+ 
+-int test_check_mem()
+-{
+-    char *test = NULL;
+-    check_mem(test);
++int test_check_mem() {
++  char *test = NULL;
++  check_mem(test);
+ 
+-    free(test);
+-    return 1;
++  free(test);
++  return 1;
+ 
+ error:
+-    return -1;
++  return -1;
+ }
+ 
+-int test_check_debug()
+-{
+-    int i = 0;
+-    check_debug(i != 0, "Oops, I was 0.");
++int test_check_debug() {
++  int i = 0;
++  check_debug(i != 0, "Oops, I was 0.");
+ 
+-    return 0;
++  return 0;
+ error:
+-    return -1;
++  return -1;
+ }
+ 
+-int main(int argc, char *argv[])
+-{
+-    check(argc == 2, "Need an argument.");
++int main(int argc, char *argv[]) {
++  check(argc == 2, "Need an argument.");
+ 
+-    test_debug();
+-    test_log_err();
+-    test_log_warn();
+-    test_log_info();
++  test_debug();
++  test_log_err();
++  test_log_warn();
++  test_log_info();
+ 
+-    check(test_check("ex20.c") == 0, "failed with ex20.c");
+-    check(test_check(argv[1]) == -1, "failed with argv");
+-    check(test_sentinel(1) == 0, "test_sentinel failed.");
+-    check(test_sentinel(100) == -1, "test_sentinel failed.");
+-    check(test_check_mem() == -1, "test_check_mem failed.");
+-    check(test_check_debug() == -1, "test_check_debug failed.");
++  check(test_check("ex20.c") == 0, "failed with ex20.c");
++  check(test_check(argv[1]) == -1, "failed with argv");
++  check(test_sentinel(1) == 0, "test_sentinel failed.");
++  check(test_sentinel(100) == -1, "test_sentinel failed.");
++  check(test_check_mem() == -1, "test_check_mem failed.");
++  check(test_check_debug() == -1, "test_check_debug failed.");
+ 
+-    return 0;
++  return 0;
+ 
+ error:
+-    return 1;
++  return 1;
+ }
+diff --git a/ex2/Makefile b/ex2/Makefile
+index 818a9e2..2bc5c6f 100644
+--- a/ex2/Makefile
++++ b/ex2/Makefile
+@@ -1,7 +1,13 @@
+ CFLAGS=-Wall -g
++CC=gcc
++
++.PHONY: all clean
+ 
+ all: ex1
+ 
++ex1: ex1.c
++	$(CC) $(CFLAGS) ex1.c -o ex1
++	
+ clean:
+ 	rm -f ex1
+ 
+diff --git a/ex20/Makefile b/ex20/Makefile
+index e8ad1e7..ae57649 100644
+--- a/ex20/Makefile
++++ b/ex20/Makefile
+@@ -1,2 +1,7 @@
+-CFLAGS=-Wall -g
++CFLAGS=-Wall -ggdb
++all:
++	gcc $(CFLAGS) ex20.c -o ex20
++
++clean:
++	rm -f ex20
+ 
+diff --git a/ex20/ex20.c b/ex20/ex20.c
+index f385ffd..31914a8 100644
+--- a/ex20/ex20.c
++++ b/ex20/ex20.c
+@@ -1,136 +1,124 @@
+ #include "dbg.h"
++#include <errno.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+-#include <errno.h>
+ #include <string.h>
+ 
+ /** Our old friend die from ex17. */
+-void die(const char *message)
+-{
+-    if (errno) {
+-        perror(message);
+-    } else {
+-        printf("ERROR: %s\n", message);
+-    }
+-
+-    exit(1);
++void die(const char *message) {
++  if (errno) {
++    perror(message);
++  } else {
++    printf("ERROR: %s\n", message);
++  }
++
++  exit(1);
+ }
+ 
+ // a typedef creates a fake type, in this
+ // case for a function pointer
+-typedef int (*compare_cb) (int a, int b);
++typedef int (*compare_cb)(int a, int b);
+ 
+ /**
+- * A classic bubble sort function that uses the 
+- * compare_cb to do the sorting. 
++ * A classic bubble sort function that uses the
++ * compare_cb to do the sorting.
+  */
+-int *bubble_sort(int *numbers, int count, compare_cb cmp)
+-{
+-    int temp = 0;
+-    int i = 0;
+-    int j = 0;
+-    int *target = malloc(count * sizeof(int));
+-
+-    if (!target)
+-        die("Memory error.");
+-
+-    memcpy(target, numbers, count * sizeof(int));
+-
+-    for (i = 0; i < count; i++) {
+-        for (j = 0; j < count - 1; j++) {
+-            if (cmp(target[j], target[j + 1]) > 0) {
+-                temp = target[j + 1];
+-                target[j + 1] = target[j];
+-                target[j] = temp;
+-            }
+-        }
++int *bubble_sort(int *numbers, int count, compare_cb cmp) {
++  int temp = 0;
++  int i = 0;
++  int j = 0;
++  int *target = malloc(count * sizeof(int));
++
++  if (!target)
++    die("Memory error.");
++
++  memcpy(target, numbers, count * sizeof(int));
++
++  for (i = 0; i < count; i++) {
++    for (j = 0; j < count - 1; j++) {
++      if (cmp(target[j], target[j + 1]) > 0) {
++        temp = target[j + 1];
++        target[j + 1] = target[j];
++        target[j] = temp;
++      }
+     }
++  }
+ 
+-    return target;
++  return target;
+ }
+ 
+-int sorted_order(int a, int b)
+-{
+-    return a - b;
+-}
++int sorted_order(int a, int b) { return a - b; }
+ 
+-int reverse_order(int a, int b)
+-{
+-    return b - a;
+-}
++int reverse_order(int a, int b) { return b - a; }
+ 
+-int strange_order(int a, int b)
+-{
+-    if (a == 0 || b == 0) {
+-        return 0;
+-    } else {
+-        return a % b;
+-    }
++int strange_order(int a, int b) {
++  if (a == 0 || b == 0) {
++    return 0;
++  } else {
++    return a % b;
++  }
+ }
+ 
+-/** 
++/**
+  * Used to test that we are sorting things correctly
+  * by doing the sort and printing it out.
+  */
+-void test_sorting(int *numbers, int count, compare_cb cmp)
+-{
+-    int i = 0;
+-    int *sorted = bubble_sort(numbers, count, cmp);
++void test_sorting(int *numbers, int count, compare_cb cmp) {
++  int i = 0;
++  int *sorted = bubble_sort(numbers, count, cmp);
+ 
+-    if (!sorted)
+-        die("Failed to sort as requested.");
++  if (!sorted)
++    die("Failed to sort as requested.");
+ 
+-    for (i = 0; i < count; i++) {
+-        printf("%d ", sorted[i]);
+-    }
+-    printf("\n");
++  for (i = 0; i < count; i++) {
++    printf("%d ", sorted[i]);
++  }
++  printf("\n");
+ 
+-    free(sorted);
++  free(sorted);
+ }
+ 
++void dump(compare_cb cmp) {
++  int i = 0;
+ 
+-void dump(compare_cb cmp)
+-{
+-    int i = 0;
+-
+-    check(cmp != NULL, "Invalid function ptr to dump.");
+-    unsigned char *data = (unsigned char *)cmp;
++  check(cmp != NULL, "Invalid function ptr to dump.");
++  unsigned char *data = (unsigned char *)cmp;
+ 
+-    for(i = 0; i < 25; i++) {
+-        printf("%02x:", data[i]);
+-    }
++  for (i = 0; i < 25; i++) {
++    printf("%02x:", data[i]);
++  }
+ 
+-    printf("\n");
++  printf("\n");
+ 
+ error:
+-    printf("\n");
++  printf("\n");
+ }
+ 
++int main(int argc, char *argv[]) {
++  if (argc < 2)
++    die("USAGE: ex18 4 3 1 5 6");
+ 
++  int count = argc - 1;
++  int i = 0;
++  char **inputs = argv + 1;
+ 
+-int main(int argc, char *argv[])
+-{
+-    if (argc < 2) die("USAGE: ex18 4 3 1 5 6");
+-
+-    int count = argc - 1;
+-    int i = 0;
+-    char **inputs = argv + 1;
++  int *numbers = malloc(count * sizeof(int));
++  if (!numbers)
++    die("Memory error.");
+ 
+-    int *numbers = malloc(count * sizeof(int));
+-    if (!numbers) die("Memory error.");
++  for (i = 0; i < count; i++) {
++    numbers[i] = atoi(inputs[i]);
++  }
+ 
+-    for (i = 0; i < count; i++) {
+-        numbers[i] = atoi(inputs[i]);
+-    }
+-
+-    test_sorting(numbers, count, sorted_order);
+-    test_sorting(numbers, count, reverse_order);
+-    test_sorting(numbers, count, strange_order);
++  test_sorting(numbers, count, sorted_order);
++  test_sorting(numbers, count, reverse_order);
++  test_sorting(numbers, count, strange_order);
+ 
+-    free(numbers);
++  free(numbers);
+ 
+-    printf("SORTED:");
+-    dump(numbers);
+-
+-    return 0;
++  printf("SORTED:");
++  dump(numbers);
++  char *p = NULL;
++  *p = 1;
++  return 0;
+ }
+diff --git a/ex22/Makefile b/ex22/Makefile
+index e8ad1e7..ae0a31f 100644
+--- a/ex22/Makefile
++++ b/ex22/Makefile
+@@ -1,2 +1,10 @@
+ CFLAGS=-Wall -g
++all:
++	gcc $(CFLAGS) -c ex22_main.c -o ex22_main.o
++	gcc $(CFLAGS) -c ex22.c -o ex22.o
++	gcc $(CFLAGS) ex22_main.o ex22.o -o ex22
++
++
++clean:
++	rm -f ex22 ex22.o ex22_main.o
+ 
+diff --git a/ex22/ex22.c b/ex22/ex22.c
+index fd92a68..7a8220c 100644
+--- a/ex22/ex22.c
++++ b/ex22/ex22.c
+@@ -1,28 +1,23 @@
+-#include <stdio.h>
+-#include "ex22.h"
+ #include "dbg.h"
++#include "ex22.h"
++#include <stdio.h>
+ 
+-int get_age(struct State *state)
+-{
+-    return state->the_age;
+-}
++double *ratio_hacker_ptr = NULL;
++int get_age(struct State *state) { return state->the_age; }
+ 
+-void set_age(struct State *state, int age)
+-{
+-   state->the_age = age; 
+-}
++void set_age(struct State *state, int age) { state->the_age = age; }
+ 
+-double update_ratio(double new_ratio)
+-{
+-    static double ratio = 1.0;
++double update_ratio(double new_ratio) {
++  static double ratio = 1.0;
+ 
+-    double old_ratio = ratio;
+-    ratio = new_ratio;
++  if (ratio_hacker_ptr == NULL)
++    ratio_hacker_ptr = &ratio;
++  double old_ratio = ratio;
++  ratio = new_ratio;
+ 
+-    return old_ratio;
++  return old_ratio;
+ }
+ 
+-void print_size()
+-{
+-    log_info("I think size is: %d", THE_SIZE);
++void print_size(struct State *state) {
++  log_info("I think size is: %d", state->the_size);
+ }
+diff --git a/ex22/ex22.h b/ex22/ex22.h
+index fda4780..41ff7c7 100644
+--- a/ex22/ex22.h
++++ b/ex22/ex22.h
+@@ -2,11 +2,10 @@
+ #define _ex22_h
+ 
+ struct State {
+-    int the_size;
+-    int the_age;
++  int the_size;
++  int the_age;
+ };
+ 
+-
+ // gets and sets an internal static variable in ex22.c
+ int get_age(struct State *state);
+ void set_age(struct State *state, int age);
+@@ -14,6 +13,8 @@ void set_age(struct State *state, int age);
+ // updates a static variable that's inside update_ratio
+ double update_ratio(double ratio);
+ 
+-void print_size();
++void print_size(struct State *state);
++
++extern double *ratio_hacker_ptr;
+ 
+ #endif
+diff --git a/ex22/ex22_main.c b/ex22/ex22_main.c
+index faf1f01..068164c 100644
+--- a/ex22/ex22_main.c
++++ b/ex22/ex22_main.c
+@@ -1,54 +1,80 @@
+-#include "ex22.h"
+ #include "dbg.h"
++#include "ex22.h"
+ 
+ const char *MY_NAME = "Zed A. Shaw";
+ 
+-void scope_demo(int count)
+-{
+-    log_info("count is: %d", count);
++void by_value(int a) {
++  a = 99; 
++}
++
++void by_reference(int *a) {
++  *a = 99; 
++}
++
++void scope_demo(int count) {
++  log_info("count is: %d", count);
+ 
+-    if (count > 10) {
+-        int numbers = 100;	// BAD! BUGS!
++  if (count > 10) {
++    int numbers = 100; // BAD! BUGS!
+ 
+-        log_info("count in this scope is %d", numbers);
+-    }
++    log_info("count in this scope is %d", numbers);
++  }
+ 
+-    log_info("count is at exit: %d", count);
++  log_info("count is at exit: %d", count);
+ 
+-    count = 3000;
++  count = 3000;
+ 
+-    log_info("count after assign: %d", count);
++  log_info("count after assign: %d", count);
++  scope_demo(count + 1);
+ }
+ 
+-int main(int argc, char *argv[])
+-{
+-    // test out THE_AGE accessors
+-    log_info("My name: %s, age: %d", MY_NAME, get_age());
++int main(int argc, char *argv[]) {
++  // test out THE_AGE accessors
++  struct State my_state = {.the_age = 37, .the_size = 1000};
++  struct State *state = &my_state;
++  log_info("My name: %s, age: %d", MY_NAME, get_age(&my_state));
++
++  set_age(&my_state, 100);
++
++  log_info("My age is now: %d", get_age(&my_state));
++
++  // test out THE_SIZE extern
++  log_info("THE_SIZE is: %d", my_state.the_size);
++  print_size(state);
++
++  log_info("THE SIZE is now: %d", my_state.the_size);
++  print_size(state);
++
++  // test the ratio function static
++  log_info("Ratio at first: %f", update_ratio(2.0));
++  log_info("Ratio again: %f", update_ratio(10.0));
++  log_info("Ratio once more: %f", update_ratio(300.0));
+ 
+-    set_age(100);
++  // test the scope demo
++  int count = 4;
++  scope_demo(count);
++  scope_demo(count * 20);
+ 
+-    log_info("My age is now: %d", get_age());
++  log_info("count after calling scope_demo: %d", count);
+ 
+-    // test out THE_SIZE extern
+-    log_info("THE_SIZE is: %d", THE_SIZE);
+-    print_size();
++  log_info("Ratio at first: %f", update_ratio(2.0));
+ 
+-    THE_SIZE = 9;
++  if (ratio_hacker_ptr != NULL) {
++    log_info("Hacking! The internal ratio address is: %p",
++             (void *)ratio_hacker_ptr);
+ 
+-    log_info("THE SIZE is now: %d", THE_SIZE);
+-    print_size();
++    *ratio_hacker_ptr = 999.99;
++    log_info("Successfully hacked the private variable to 999.99!");
++  }
+ 
+-    // test the ratio function static
+-    log_info("Ratio at first: %f", update_ratio(2.0));
+-    log_info("Ratio again: %f", update_ratio(10.0));
+-    log_info("Ratio once more: %f", update_ratio(300.0));
++  log_info("Ratio again (should be 999.99): %f", update_ratio(10.0));
++  int x = 10;
++  by_value(x); 
+ 
+-    // test the scope demo
+-    int count = 4;
+-    scope_demo(count);
+-    scope_demo(count * 20);
++  printf("by value %d\n", x);
++  by_reference(&x); 
+ 
+-    log_info("count after calling scope_demo: %d", count);
++  printf("by reference %d\n", x);
+ 
+-    return 0;
++  return 0;
+ }
+diff --git a/ex24/Makefile b/ex24/Makefile
+index e8ad1e7..9c7e785 100644
+--- a/ex24/Makefile
++++ b/ex24/Makefile
+@@ -1,2 +1,8 @@
+-CFLAGS=-Wall -g
++CFLAGS=-Wall -ggdb
++
++all:
++	gcc $(CFLAGS) ex24.c -o ex24
++
++clean:
++	rm -f ex24
+ 
+diff --git a/ex24/ex24.c b/ex24/ex24.c
+index 26f74ce..cf6fca6 100644
+--- a/ex24/ex24.c
++++ b/ex24/ex24.c
+@@ -1,71 +1,119 @@
+-#include <stdio.h>
+ #include "dbg.h"
+-
++#include <ctype.h>
++#include <stdio.h>
++#include <stdlib.h>
+ #define MAX_DATA 100
+ 
+ typedef enum EyeColor {
+-    BLUE_EYES, GREEN_EYES, BROWN_EYES,
+-    BLACK_EYES, OTHER_EYES
++  BLUE_EYES,
++  GREEN_EYES,
++  BROWN_EYES,
++  BLACK_EYES,
++  OTHER_EYES
+ } EyeColor;
+ 
+-const char *EYE_COLOR_NAMES[] = {
+-    "Blue", "Green", "Brown", "Black", "Other"
+-};
++const char *EYE_COLOR_NAMES[] = {"Blue", "Green", "Brown", "Black", "Other"};
+ 
+ typedef struct Person {
+-    int age;
+-    char first_name[MAX_DATA];
+-    char last_name[MAX_DATA];
+-    EyeColor eyes;
+-    float income;
++  int age;
++  char first_name[MAX_DATA];
++  char last_name[MAX_DATA];
++  EyeColor eyes;
++  float income;
+ } Person;
+ 
+-int main(int argc, char *argv[])
+-{
+-    Person you = {.age = 0 };
+-    int i = 0;
+-    char *in = NULL;
+-
+-    printf("What's your First Name? ");
+-    in = fgets(you.first_name, MAX_DATA - 1, stdin);
+-    check(in != NULL, "Failed to read first name.");
+-
+-    printf("What's your Last Name? ");
+-    in = fgets(you.last_name, MAX_DATA - 1, stdin);
+-    check(in != NULL, "Failed to read last name.");
++void trim(char *str) {
++  if (str == NULL)
++    return;
+ 
+-    printf("How old are you? ");
+-    int rc = fscanf(stdin, "%d", &you.age);
+-    check(rc > 0, "You have to enter a number.");
++  int len = strlen(str);
+ 
+-    printf("What color are your eyes:\n");
+-    for (i = 0; i <= OTHER_EYES; i++) {
+-        printf("%d) %s\n", i + 1, EYE_COLOR_NAMES[i]);
+-    }
+-    printf("> ");
++  while (len > 0 && isspace((unsigned char)str[len - 1])) {
++    str[len - 1] = '\0';
++    len--;
++  }
+ 
+-    int eyes = -1;
+-    rc = fscanf(stdin, "%d", &eyes);
+-    check(rc > 0, "You have to enter a number.");
++  char *start = str;
++  while (*start && isspace((unsigned char)*start)) {
++    start++;
++  }
+ 
+-    you.eyes = eyes - 1;
+-    check(you.eyes <= OTHER_EYES
+-            && you.eyes >= 0, "Do it right, that's not an option.");
+-
+-    printf("How much do you make an hour? ");
+-    rc = fscanf(stdin, "%f", &you.income);
+-    check(rc > 0, "Enter a floating point number.");
+-
+-    printf("----- RESULTS -----\n");
++  if (start != str) {
++    memmove(str, start, strlen(start) + 1);
++  }
++}
+ 
+-    printf("First Name: %s", you.first_name);
+-    printf("Last Name: %s", you.last_name);
+-    printf("Age: %d\n", you.age);
+-    printf("Eyes: %s\n", EYE_COLOR_NAMES[you.eyes]);
+-    printf("Income: %f\n", you.income);
++int read_string(char *out_string, int max_size) {
++  int i = 0;
++  char ch = 0;
++  int rc = 0;
++
++  for (i = 0; i < max_size - 1; i++) {
++    rc = scanf("%c", &ch);
++    if (rc != 1)
++      break;
++    if (ch == '\n')
++      break;
++    out_string[i] = ch;
++  }
++  out_string[i] = '\0';
++  return i;
++}
+ 
+-    return 0;
++int main(int argc, char *argv[]) {
++  Person you = {.age = 0};
++  int i = 0;
++  char *in = NULL;
++  char line_buffer[MAX_DATA];
++  printf("What's your First Name? ");
++  in = fgets(you.first_name, MAX_DATA - 1, stdin);
++  check(in != NULL, "Failed to read first name.");
++  trim(you.first_name);
++
++  printf("What's your Last Name? ");
++  in = fgets(you.last_name, MAX_DATA - 1, stdin);
++  check(in != NULL, "Failed to read l`ast name.");
++  trim(you.last_name);
++  printf("How old are you? ");
++  char *rc = fgets(line_buffer, MAX_DATA - 1, stdin);
++  check(rc != NULL, "input failed");
++  you.age = atoi(line_buffer);
++  check(you.age > 0, "you have to enter a number");
++
++  printf("What color are your eyes:\n");
++  for (i = 0; i <= OTHER_EYES; i++) {
++    printf("%d) %s\n", i + 1, EYE_COLOR_NAMES[i]);
++  }
++  printf("> ");
++
++  int eyes = -1;
++  rc = fgets(line_buffer, MAX_DATA - 1, stdin);
++  check(rc != NULL, "input failed.");
++  eyes = atoi(line_buffer);
++  you.eyes = eyes - 1;
++  check(you.eyes <= OTHER_EYES && you.eyes >= 0,
++        "Do it right, that's not an option.");
++
++  printf("How much do you make an hour? ");
++  rc = fgets(line_buffer, MAX_DATA - 1, stdin);
++  check(rc != NULL, "input failed ");
++  you.income = atof(line_buffer);
++  check(you.income >= 0.0, "enter a floating point number.");
++
++  printf("enter a final comment");
++  char comment[MAX_DATA];
++  read_string(comment, MAX_DATA);
++  printf("Your COMMENT WAS %s\n", comment);
++  printf("----- RESULTS -----\n");
++
++  printf("First Name: %s", you.first_name);
++  printf("Last Name: %s", you.last_name);
++  printf("Age: %d\n", you.age);
++  printf("Eyes: %s\n", EYE_COLOR_NAMES[you.eyes]);
++  printf("Income: %f\n", you.income);
++
++  return 0;
+ error:
+ 
+-    return -1;
++  return -1;
+ }
+diff --git a/ex25/Makefile b/ex25/Makefile
+index e8ad1e7..8093bfe 100644
+--- a/ex25/Makefile
++++ b/ex25/Makefile
+@@ -1,2 +1,9 @@
+ CFLAGS=-Wall -g
+ 
++
++all:
++	gcc $(CFLAGS) ex25.c -o ex25
++
++clean:
++	rm -f ex25
++
+diff --git a/ex25/ex25.c b/ex25/ex25.c
+index 25f729f..0a87eca 100644
+--- a/ex25/ex25.c
++++ b/ex25/ex25.c
+@@ -1,130 +1,164 @@
+ 
+-#include <stdlib.h>
+-#include <stdio.h>
+-#include <stdarg.h>
+ #include "dbg.h"
++#include <stdarg.h>
++#include <stdio.h>
++#include <stdlib.h>
+ 
+ #define MAX_DATA 100
+ 
+-int read_string(char **out_string, int max_buffer)
+-{
+-    *out_string = calloc(1, max_buffer + 1);
+-    check_mem(*out_string);
++int read_string(char **out_string, int max_buffer) {
++  *out_string = calloc(1, max_buffer + 1);
++  check_mem(*out_string);
+ 
+-    char *result = fgets(*out_string, max_buffer, stdin);
+-    check(result != NULL, "Input error.");
++  char *result = fgets(*out_string, max_buffer, stdin);
++  check(result != NULL, "Input error.");
+ 
+-    return 0;
++  return 0;
+ 
+ error:
+-    if (*out_string) free(*out_string);
+-    *out_string = NULL;
+-    return -1;
++  if (*out_string)
++    free(*out_string);
++  *out_string = NULL;
++  return -1;
+ }
+ 
+-int read_int(int *out_int)
+-{
+-    char *input = NULL;
+-    int rc = read_string(&input, MAX_DATA);
+-    check(rc == 0, "Failed to read number.");
++int read_int(int *out_int) {
++  char *input = NULL;
++  int rc = read_string(&input, MAX_DATA);
++  check(rc == 0, "Failed to read number.");
+ 
+-    *out_int = atoi(input);
++  *out_int = atoi(input);
+ 
+-    free(input);
+-    return 0;
++  free(input);
++  return 0;
+ 
+ error:
+-    if (input) free(input);
+-    return -1;
++  if (input)
++    free(input);
++  return -1;
+ }
+ 
+-int read_scan(const char *fmt, ...)
+-{
+-    int i = 0;
+-    int rc = 0;
+-    int *out_int = NULL;
+-    char *out_char = NULL;
+-    char **out_string = NULL;
+-    int max_buffer = 0;
+-
+-    va_list argp;
+-    va_start(argp, fmt);
+-
+-    for (i = 0; fmt[i] != '\0'; i++) {
+-        if (fmt[i] == '%') {
+-            i++;
+-            switch (fmt[i]) {
+-                case '\0':
+-                    sentinel("Invalid format, you ended with %%.");
+-                    break;
+-
+-                case 'd':
+-                    out_int = va_arg(argp, int *);
+-                    rc = read_int(out_int);
+-                    check(rc == 0, "Failed to read int.");
+-                    break;
+-
+-                case 'c':
+-                    out_char = va_arg(argp, char *);
+-                    *out_char = fgetc(stdin);
+-                    break;
+-
+-                case 's':
+-                    max_buffer = va_arg(argp, int);
+-                    out_string = va_arg(argp, char **);
+-                    rc = read_string(out_string, max_buffer);
+-                    check(rc == 0, "Failed to read string.");
+-                    break;
+-
+-                default:
+-                    sentinel("Invalid format.");
+-            }
+-        } else {
+-            fgetc(stdin);
+-        }
+-
+-        check(!feof(stdin) && !ferror(stdin), "Input error.");
++int read_scan(const char *fmt, ...) {
++  int i = 0;
++  int rc = 0;
++  int *out_int = NULL;
++  char *out_char = NULL;
++  char **out_string = NULL;
++  int max_buffer = 0;
++
++  va_list argp; // point at the variable in fmt  this is a pointer for variant list
++  va_start(argp, fmt); // let argp point at the start of fmt
++
++  for (i = 0; fmt[i] != '\0'; i++) {
++    if (fmt[i] == '%') {
++      i++;
++      switch (fmt[i]) {
++      case '\0':
++        sentinel("Invalid format, you ended with %%.");
++        break;
++
++      case 'd':
++        out_int = va_arg(argp, int *);
++        rc = read_int(out_int);
++        check(rc == 0, "Failed to read int.");
++        break;
++
++      case 'c':
++        out_char = va_arg(argp, char *);
++        *out_char = fgetc(stdin);
++        break;
++
++      case 's':
++        max_buffer = va_arg(argp, int);
++        out_string = va_arg(argp, char **);
++        rc = read_string(out_string, max_buffer);
++        check(rc == 0, "Failed to read string.");
++        break;
++
++      default:
++        sentinel("Invalid format.");
++      }
++    } else {
++      fgetc(stdin);
+     }
+ 
+-    va_end(argp);
+-    return 0;
++    check(!feof(stdin) && !ferror(stdin), "Input error.");
++  }
++
++  va_end(argp);
++  return 0;
++
++error:
++  va_end(argp);
++  return -1;
++}
++
++int write_scan(const char *fmt, ...) {
++  int i = 0;
++  va_list argp;
++  va_start(argp, fmt);
++
++  for (i = 0; fmt[i] != '\0'; i++) {
++    if (fmt[i] == '%') {
++      i++;
++      switch (fmt[i]) {
++      case 'd':
++        fprintf(stdout, "%d", va_arg(argp, int));
++        break;
++
++      case 'c':
++        fprintf(stdout, "%c", va_arg(argp, int));
++        break;
++
++      case 's':
++        fprintf(stdout, "%s", va_arg(argp, char *));
++        break;
++
++      default:
++        sentinel("Invalid format in write_scan");
++      }
++    } else {
++      fputc(fmt[i], stdout);
++    }
++  }
++  va_end(argp);
++  return 0;
+ 
+ error:
+-    va_end(argp);
+-    return -1;
++  va_end(argp);
++  return -1;
+ }
+ 
+-int main(int argc, char *argv[])
+-{
+-    char *first_name = NULL;
+-    char initial = ' ';
+-    char *last_name = NULL;
+-    int age = 0;
+-
+-    printf("What's your first name? ");
+-    int rc = read_scan("%s", MAX_DATA, &first_name);
+-    check(rc == 0, "Failed first name.");
+-
+-    printf("What's your initial? ");
+-    rc = read_scan("%c\n", &initial);
+-    check(rc == 0, "Failed initial.");
+-
+-    printf("What's your last name? ");
+-    rc = read_scan("%s", MAX_DATA, &last_name);
+-    check(rc == 0, "Failed last name.");
+-
+-    printf("How old are you? ");
+-    rc = read_scan("%d", &age);
+-
+-    printf("---- RESULTS ----\n");
+-    printf("First Name: %s", first_name);
+-    printf("Initial: '%c'\n", initial);
+-    printf("Last Name: %s", last_name);
+-    printf("Age: %d\n", age);
+-
+-    free(first_name);
+-    free(last_name);
+-    return 0;
++int main(int argc, char *argv[]) {
++  char *first_name = NULL;
++  char initial = ' ';
++  char *last_name = NULL;
++  int age = 0;
++
++  printf("What's your first name? ");
++  int rc = read_scan("%s", MAX_DATA, &first_name);
++  check(rc == 0, "Failed first name.");
++
++  printf("What's your initial? ");
++  rc = read_scan("%c\n", &initial);
++  check(rc == 0, "Failed initial.");
++
++  printf("What's your last name? ");
++  rc = read_scan("%s", MAX_DATA, &last_name);
++  check(rc == 0, "Failed last name.");
++
++  printf("How old are you? ");
++  rc = read_scan("%d", &age);
++
++  write_scan("---- RESULTS ----\n");
++  write_scan("First Name: %s", first_name);
++  write_scan("Initial: '%c'\n", initial);
++  write_scan("Last Name: %s", last_name);
++  write_scan("Age: %d\n", age);
++
++  free(first_name);
++  free(last_name);
++  return 0;
+ error:
+-    return -1;
++  return -1;
+ }
+diff --git a/ex28/c-skeleton/src/libex29.c b/ex28/c-skeleton/src/libex29.c
+deleted file mode 100644
+index c62197c..0000000
+--- a/ex28/c-skeleton/src/libex29.c
++++ /dev/null
+@@ -1,45 +0,0 @@
+-#include <stdio.h>
+-#include <ctype.h>
+-#include "dbg.h"
+-
+-
+-int print_a_message(const char *msg)
+-{
+-    printf("A STRING: %s\n", msg);
+-
+-    return 0;
+-}
+-
+-
+-int uppercase(const char *msg)
+-{
+-    int i = 0;
+-
+-    // BUG: \0 termination problems
+-    for(i = 0; msg[i] != '\0'; i++) {
+-        printf("%c", toupper(msg[i]));
+-    }
+-
+-    printf("\n");
+-
+-    return 0;
+-}
+-
+-int lowercase(const char *msg)
+-{
+-    int i = 0;
+-
+-    // BUG: \0 termination problems
+-    for(i = 0; msg[i] != '\0'; i++) {
+-        printf("%c", tolower(msg[i]));
+-    }
+-
+-    printf("\n");
+-
+-    return 0;
+-}
+-
+-int fail_on_purpose(const char *msg)
+-{
+-    return 1;
+-} 
+diff --git a/ex28/c-skeleton/tests/libex29_tests.c b/ex28/c-skeleton/tests/libex29_tests.c
+deleted file mode 100644
+index f9010c7..0000000
+--- a/ex28/c-skeleton/tests/libex29_tests.c
++++ /dev/null
+@@ -1,73 +0,0 @@
+-#include "minunit.h"
+-#include <dlfcn.h>
+-
+-typedef int (*lib_function) (const char *data);
+-char *lib_file = "build/libYOUR_LIBRARY.so";
+-void *lib = NULL;
+-
+-int check_function(const char *func_to_run, const char *data,
+-        int expected)
+-{
+-    lib_function func = dlsym(lib, func_to_run);
+-    check(func != NULL,
+-            "Did not find %s function in the library %s: %s", func_to_run,
+-            lib_file, dlerror());
+-
+-    int rc = func(data);
+-    check(rc == expected, "Function %s return %d for data: %s",
+-            func_to_run, rc, data);
+-
+-    return 1;
+-error:
+-    return 0;
+-}
+-
+-char *test_dlopen()
+-{
+-    lib = dlopen(lib_file, RTLD_NOW);
+-    mu_assert(lib != NULL, "Failed to open the library to test.");
+-
+-    return NULL;
+-}
+-
+-char *test_functions()
+-{
+-    mu_assert(check_function("print_a_message", "Hello", 0),
+-            "print_a_message failed.");
+-    mu_assert(check_function("uppercase", "Hello", 0),
+-            "uppercase failed.");
+-    mu_assert(check_function("lowercase", "Hello", 0),
+-            "lowercase failed.");
+-
+-    return NULL;
+-}
+-
+-char *test_failures()
+-{
+-    mu_assert(check_function("fail_on_purpose", "Hello", 1),
+-            "fail_on_purpose should fail.");
+-
+-    return NULL;
+-}
+-
+-char *test_dlclose()
+-{
+-    int rc = dlclose(lib);
+-    mu_assert(rc == 0, "Failed to close lib.");
+-
+-    return NULL;
+-}
+-
+-char *all_tests()
+-{
+-    mu_suite_start();
+-
+-    mu_run_test(test_dlopen);
+-    mu_run_test(test_functions);
+-    mu_run_test(test_failures);
+-    mu_run_test(test_dlclose);
+-
+-    return NULL;
+-}
+-
+-RUN_TESTS(all_tests);
+diff --git a/ex29/ex29.c b/ex29/ex29.c
+index 4f30bca..e83c68f 100644
+--- a/ex29/ex29.c
++++ b/ex29/ex29.c
+@@ -1,36 +1,32 @@
+-#include <stdio.h>
+ #include "dbg.h"
+ #include <dlfcn.h>
++#include <stdio.h>
+ 
+-typedef int (*lib_function) (const char *data);
+-
+-int main(int argc, char *argv[])
+-{
+-    int rc = 0;
+-    check(argc == 4, "USAGE: ex29 libex29.so function data");
++typedef int (*lib_function)(const char *data, int len);
+ 
+-    char *lib_file = argv[1];
+-    char *func_to_run = argv[2];
+-    char *data = argv[3];
++int main(int argc, char *argv[]) {
++  int rc = 0;
++  check(argc == 4, "USAGE: ex29 libex29.so function data");
+ 
+-    void *lib = dlopen(lib_file, RTLD_NOW);
+-    check(lib != NULL, "Failed to open the library %s: %s", lib_file,
+-            dlerror());
++  char *lib_file = argv[1];
++  char *func_to_run = argv[2];
++  char *data = argv[3];
+ 
+-    lib_function func = dlsym(lib, func_to_run);
+-    check(func != NULL,
+-            "Did not find %s function in the library %s: %s", func_to_run,
+-            lib_file, dlerror());
++  void *lib = dlopen(lib_file, RTLD_NOW);
++  check(lib != NULL, "Failed to open the library %s: %s", lib_file, dlerror());
+ 
+-    rc = func(data);
+-    check(rc == 0, "Function %s return %d for data: %s", func_to_run,
+-            rc, data);
++  lib_function func = dlsym(lib, func_to_run);
++  check(func != NULL, "Did not find %s function in the library %s: %s",
++        func_to_run, lib_file, dlerror());
++  int len = strlen(data);
++  rc = func(data, len);
++  check(rc == 0, "Function %s return %d for data: %s", func_to_run, rc, data);
+ 
+-    rc = dlclose(lib);
+-    check(rc == 0, "Failed to close %s", lib_file);
++  rc = dlclose(lib);
++  check(rc == 0, "Failed to close %s", lib_file);
+ 
+-    return 0;
++  return 0;
+ 
+ error:
+-    return 1;
++  return 1;
+ }
+diff --git a/ex29/libex29.c b/ex29/libex29.c
+index c62197c..feaf375 100644
+--- a/ex29/libex29.c
++++ b/ex29/libex29.c
+@@ -1,45 +1,37 @@
+-#include <stdio.h>
+-#include <ctype.h>
+ #include "dbg.h"
++#include <ctype.h>
++#include <stdio.h>
+ 
++int print_a_message(const char *msg) {
++  printf("A STRING: %s\n", msg);
+ 
+-int print_a_message(const char *msg)
+-{
+-    printf("A STRING: %s\n", msg);
+-
+-    return 0;
++  return 0;
+ }
+ 
++int uppercase(const char *msg, int len) {
++  int i = 0;
+ 
+-int uppercase(const char *msg)
+-{
+-    int i = 0;
+-
+-    // BUG: \0 termination problems
+-    for(i = 0; msg[i] != '\0'; i++) {
+-        printf("%c", toupper(msg[i]));
+-    }
++  // BUG: \0 termination problems
++  for (i = 0; i < len && msg[i] != '\0'; i++) {
++    printf("%c", toupper(msg[i]));
++  }
+ 
+-    printf("\n");
++  printf("\n");
+ 
+-    return 0;
++  return 0;
+ }
+ 
+-int lowercase(const char *msg)
+-{
+-    int i = 0;
++int lowercase(const char *msg, int len) {
++  int i = 0;
+ 
+-    // BUG: \0 termination problems
+-    for(i = 0; msg[i] != '\0'; i++) {
+-        printf("%c", tolower(msg[i]));
+-    }
++  // BUG: \0 termination problems
++  for (i = 0; msg[i] != '\0' && i < len; i++) {
++    printf("%c", tolower(msg[i]));
++  }
+ 
+-    printf("\n");
++  printf("\n");
+ 
+-    return 0;
++  return 0;
+ }
+ 
+-int fail_on_purpose(const char *msg)
+-{
+-    return 1;
+-} 
++int fail_on_purpose(const char *msg) { return 1; }
+diff --git a/ex3/Makefile b/ex3/Makefile
+index 74b8379..2209433 100644
+--- a/ex3/Makefile
++++ b/ex3/Makefile
+@@ -1,4 +1,7 @@
+-CFLAGS=-Wall -g
++CFLAGS=-Wall -g -fsanitize=address
++
++all:
++	gcc $(CFLAGS) ex3.c -o ex3
+ 
+ clean:
+ 	rm -f ex3
+diff --git a/ex3/ex3.c b/ex3/ex3.c
+index ed9504e..9574b59 100644
+--- a/ex3/ex3.c
++++ b/ex3/ex3.c
+@@ -2,10 +2,10 @@
+ 
+ int main(int argc, char *argv[])
+ {
+-    int age = 100;
++    int age;
+     int height = 72;
+ 
+-    printf("I am %d years old.\n", argv);
++    printf("I am %d years old.\n", age);
+     printf("I am %d inches tall.\n", height);
+ 
+     return 0;
+diff --git a/ex30/ex30.c b/ex30/ex30.c
+deleted file mode 100644
+index de38478..0000000
+--- a/ex30/ex30.c
++++ /dev/null
+@@ -1,38 +0,0 @@
+-#include "minunit.h"
+-
+-char *test_dlopen(int stuff)
+-{
+-    return NULL;
+-}
+-
+-char *test_functions()
+-{
+-
+-    return NULL;
+-}
+-
+-char *test_failures()
+-{
+-
+-    return NULL;
+-}
+-
+-char *test_dlclose()
+-{
+-
+-    return NULL;
+-}
+-
+-char *all_tests()
+-{
+-    mu_suite_start();
+-
+-    mu_run_test(test_dlopen);
+-    mu_run_test(test_functions);
+-    mu_run_test(test_failures);
+-    mu_run_test(test_dlclose);
+-
+-    return NULL;
+-}
+-
+-RUN_TESTS(all_tests);
+diff --git a/ex7/Makefile b/ex7/Makefile
+index e8ad1e7..7046d47 100644
+--- a/ex7/Makefile
++++ b/ex7/Makefile
+@@ -1,2 +1,8 @@
+ CFLAGS=-Wall -g
+ 
++all:
++	gcc $(CFLAGS) ex7.c -o ex7
++
++clean:
++	rm -f ex7
++
+diff --git a/ex7/ex7.c b/ex7/ex7.c
+index 3e6f540..761be93 100644
+--- a/ex7/ex7.c
++++ b/ex7/ex7.c
+@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
+     printf("You have %d bugs at the imaginary rate of %f.\n",
+             bugs, bug_rate);
+ 
+-    long universe_of_defects = 1L * 1024L * 1024L * 1024L;
++    long universe_of_defects = 1L * 1024L * 1024L * 1024L * 1000000000000000000;
+     printf("The entire universe has %ld bugs.\n", universe_of_defects);
+ 
+     double expected_bugs = bugs * bug_rate;
+diff --git a/ex8/ex8.c b/ex8/ex8.c
+index 5b6ce37..1d632fc 100644
+--- a/ex8/ex8.c
++++ b/ex8/ex8.c
+@@ -16,6 +16,5 @@ int main(int argc, char *argv[])
+     } else if (argc > 10) {
+         printf("You have too many arguments. You suck.\n");
+     }
+-
+     return 0;
+ }
+diff --git a/ex9/ex9.c b/ex9/ex9.c
+index 7e1f1f4..0dcf074 100644
+--- a/ex9/ex9.c
++++ b/ex9/ex9.c
+@@ -2,8 +2,8 @@
+ 
+ int main(int argc, char *argv[])
+ {
+-    int i;
+-    while (i < 25) {
++    int i=25;
++    while (i >=0) {
+         printf("%d\n", i);
+         i++;
+     }

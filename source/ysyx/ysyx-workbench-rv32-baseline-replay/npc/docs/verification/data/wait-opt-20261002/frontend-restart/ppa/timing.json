@@ -1,0 +1,902 @@
+[
+  {
+    "mhz": 700,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.586,
+        "fmax_mhz": 496.545
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.311,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 690,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.569,
+        "fmax_mhz": 495.526
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.29,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 680,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.552,
+        "fmax_mhz": 494.481
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.269,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 670,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.535,
+        "fmax_mhz": 493.41
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.247,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 660,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.516,
+        "fmax_mhz": 492.312
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.224,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 650,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.498,
+        "fmax_mhz": 491.184
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.201,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 640,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.479,
+        "fmax_mhz": 490.027
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.177,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 630,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.459,
+        "fmax_mhz": 488.839
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.152,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 620,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.439,
+        "fmax_mhz": 487.618
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.127,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 610,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.417,
+        "fmax_mhz": 486.364
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.1,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 600,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.396,
+        "fmax_mhz": 485.075
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.073,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 590,
+    "passed": false,
+    "violations": 10,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.373,
+        "fmax_mhz": 483.749
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.045,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 580,
+    "passed": false,
+    "violations": 8,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.349,
+        "fmax_mhz": 482.385
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.015,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 570,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.325,
+        "fmax_mhz": 480.982
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.015,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 560,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.3,
+        "fmax_mhz": 479.537
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.046,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 550,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.274,
+        "fmax_mhz": 478.048
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.079,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 540,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.248,
+        "fmax_mhz": 476.514
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.112,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 530,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_217__reg_p:D",
+        "slack_ns": -0.22,
+        "fmax_mhz": 474.933
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.147,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 520,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.19,
+        "fmax_mhz": 473.301
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.184,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 510,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.16,
+        "fmax_mhz": 471.618
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_lsu.state_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.221,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 500,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.128,
+        "fmax_mhz": 469.88
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.258,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 490,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.096,
+        "fmax_mhz": 468.084
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.29,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 480,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.062,
+        "fmax_mhz": 466.229
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.324,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 470,
+    "passed": false,
+    "violations": 5,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": -0.027,
+        "fmax_mhz": 464.31
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.359,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  },
+  {
+    "mhz": 460,
+    "passed": true,
+    "violations": 0,
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.next_pc_predictor_prediction_207__reg_p:D",
+        "slack_ns": 0.01,
+        "fmax_mhz": 462.324
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.u_replacement.g_rrip.rrpv_array_q[5]_4__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.396,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.u_lsu.memory_writeback_135__reg_p:D",
+        "slack_ns": 0.059,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.resolved_execute_result_valid_reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.096,
+        "fmax_mhz": null
+      }
+    },
+    "command": [
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/bin/iEDA",
+      "-script",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/sta/rv32-interrupt-20260906/toolflow/scripts/sta.tcl",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/constraints.sdc",
+      "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/wait-opt-synthesis/current/probe/riscv32_core_reset_boundary.netlist.v",
+      "riscv32_core_reset_boundary",
+      "nangate45"
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "index": [
+    {
+      "dirs": ["npc/vsrc"],
+      "excludeDirs": ["build", "obj_dir"]
+    }
+  ],
+  "indexingThreads": 2
+}

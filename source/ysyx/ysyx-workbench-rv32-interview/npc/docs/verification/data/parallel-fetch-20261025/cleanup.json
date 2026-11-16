@@ -1,0 +1,146 @@
+{
+  "scope": "only generated heavy artifacts from this task; compact reports and exact RTL probes preserved",
+  "removed": [
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/parallel-fetch/sta",
+      "bytes": 374703265
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-observers/branch_v3/obj",
+      "bytes": 153128333
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-observers/frontend_exploration/obj",
+      "bytes": 151435519
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w2-s8-p15/obj",
+      "bytes": 3504125
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w4-s8-p14/obj",
+      "bytes": 3490704
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w2-s8-p13/obj",
+      "bytes": 3326108
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w4-s8-p16/obj",
+      "bytes": 3765610
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w4-s8-p13/obj",
+      "bytes": 3508609
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w2-s8-p14/obj",
+      "bytes": 3317247
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w8-s1-p14/obj",
+      "bytes": 3325141
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w8-s1-p13/obj",
+      "bytes": 3333132
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w8-s1-p15/obj",
+      "bytes": 3499701
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w8-s1-p16/obj",
+      "bytes": 3493245
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w2-s8-p16/obj",
+      "bytes": 3501661
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-check/w4-s8-p15/obj",
+      "bytes": 3768946
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w2-s8-p15/obj",
+      "bytes": 3503677
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w4-s8-p14/obj",
+      "bytes": 3346739
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w2-s8-p13/obj",
+      "bytes": 3323109
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w4-s8-p16/obj",
+      "bytes": 3764714
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w4-s8-p13/obj",
+      "bytes": 3502134
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w2-s8-p14/obj",
+      "bytes": 3245495
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w8-s1-p14/obj",
+      "bytes": 3253307
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w8-s1-p13/obj",
+      "bytes": 3325995
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w8-s1-p15/obj",
+      "bytes": 3499477
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w8-s1-p16/obj",
+      "bytes": 3493021
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w2-s8-p16/obj",
+      "bytes": 3501213
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-rrip-final/w4-s8-p15/obj",
+      "bytes": 3768050
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-replacement-check/p1-c256/obj",
+      "bytes": 3340052
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-replacement-check/p0-c256/obj",
+      "bytes": 3221110
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-replacement-check/p3-c32/obj",
+      "bytes": 3331264
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-replacement-check/p3-c256/obj",
+      "bytes": 3404672
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/parallel-fetch-replacement-check/p2-c256/obj",
+      "bytes": 3340052
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/decode-branch-correctness/core/obj",
+      "bytes": 148632713
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/synthesis/decode-branch-probe/sta",
+      "bytes": 376587613
+    },
+    {
+      "path": "/home/yong/ysyx/ysyx-workbench-rv32-interview/npc/result/decode-branch-correctness/core/obj",
+      "bytes": 148623700
+    }
+  ],
+  "bytes": 1453109453
+}

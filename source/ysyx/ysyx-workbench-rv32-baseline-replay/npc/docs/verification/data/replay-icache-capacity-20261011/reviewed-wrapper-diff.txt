@@ -1,0 +1,74 @@
+--- no-predictor/npc/Makefile
++++ hybrid/npc/Makefile
+@@ -47,9 +47,9 @@
+ endif
+ NPC_ICACHE_REPLACEMENT_POLICY ?= 0
+ NPC_SDRAM_NATIVE_READ_BURST ?= 1
+-# Replay默认关闭预测；设为1恢复BHT/BTB/RAS。
++# Replay 默认启用正式混合预测；设为0同时关闭预测表和早期目标。
+ ifeq ($(NPC_CONFIG),rv32-baseline)
+-NPC_BRANCH_PREDICTOR_ENABLE ?= 0
++NPC_BRANCH_PREDICTOR_ENABLE ?= 1
+ else
+ NPC_BRANCH_PREDICTOR_ENABLE ?= 1
+ endif
+@@ -65,8 +65,8 @@
+ NPC_BRANCH_GLOBAL_HISTORY_BITS ?= 4
+ NPC_RETURN_STACK_ENTRY_COUNT   ?= 4
+ 
+-# 无预设时保持基础预测；rv32-balanced在上方启用已选定的混合方向与早期目标。
+-NPC_BRANCH_STATIC_POLICY ?= 0
++# Replay 接入正式的弱态 BTFNT 和早期直接目标；显式设为0可复现旧策略。
++NPC_BRANCH_STATIC_POLICY ?= 2
+ NPC_BRANCH_TAGE_BASE_ENTRIES ?= 32
+ NPC_BRANCH_TAGE_TAGGED_ENTRIES ?= 16
+ NPC_BRANCH_TAGE_TABLE_COUNT ?= 3
+@@ -78,7 +78,7 @@
+ NPC_BRANCH_SC_ENABLE ?= 0
+ NPC_BRANCH_LOOP_ENABLE ?= 0
+ NPC_BRANCH_EARLY_RAS ?= 0
+-NPC_BRANCH_EARLY_TARGET ?= 0
++NPC_BRANCH_EARLY_TARGET ?= 1
+ # 显式频率同时控制 CLINT 微秒和设备延迟。空值仅用于复现历史计时环境。
+ NPC_DEVICE_TIMING_MODE ?= 1
+ ifeq ($(filter $(NPC_DEVICE_TIMING_MODE),0 1),)
+--- no-predictor/npc/scripts/run_microbench_perf.py
++++ hybrid/npc/scripts/run_microbench_perf.py
+@@ -180,8 +180,8 @@
+     parser.add_argument('--cpu-mhz', type=int, default=820)
+     parser.add_argument('--output', type=Path)
+     parser.add_argument('--keep-artifacts', action='store_true')
+-    parser.add_argument('--predictor-enable', type=int, choices=[0, 1], default=0,
+-                        help='Replay defaults to sequential PC+4; use 1 for original BHT/BTB/RAS')
++    parser.add_argument('--predictor-enable', type=int, choices=[0, 1], default=1,
++                        help='Replay uses the adopted hybrid predictor; 0 also disables early targets')
+     parser.add_argument('--dcache-enable', type=int, choices=[0, 1], default=0,
+                         help='Replay defaults to no D-cache; use 1 for the original snapshot')
+     parser.add_argument('--icache-bytes', type=int, default=256)
+@@ -199,8 +199,8 @@
+     parser.add_argument('--ras-entries', type=int, default=4)
+     parser.add_argument('--direction-policy', type=int, choices=range(6), default=0)
+     parser.add_argument('--history-bits', type=int, default=4)
+-    parser.add_argument('--branch-static', type=int, choices=range(3), default=0)
+-    parser.add_argument('--early-target', type=int, choices=[0, 1], default=0)
++    parser.add_argument('--branch-static', type=int, choices=range(3), default=2)
++    parser.add_argument('--early-target', type=int, choices=[0, 1], default=1)
+     parser.add_argument('--early-ras', type=int, choices=[0, 1], default=0)
+     parser.add_argument('--branch-sc', type=int, choices=[0, 1], default=0)
+     parser.add_argument('--branch-loop', type=int, choices=[0, 1], default=0)
+@@ -215,6 +215,15 @@
+     parser.add_argument('--verify-observer', action='store_true', help='Run identical image on/off and compare audit')
+     parser.add_argument('--resume', type=Path, help='Run an existing prepare-only directory, checking hashes')
+     args = parser.parse_args()
++    if not args.resume:
++        require(args.direction_policy == 0 and args.btb_policy == 0 and
++                args.btb_index == 0 and args.btb_admission == 0 and
++                args.btb_target_bits is None and not args.early_ras and
++                not args.branch_sc and not args.branch_loop and not args.spec_history,
++                'Replay supports legacy BHT/BTB/RAS with BTFNT and direct targets; '
++                'use the interview worktree for experimental predictor policies')
++        require(args.icache_policy == 0,
++                'Replay retains the original I-cache replacement policy0')
+     require(len(args.tage_lengths) in (2, 3), 'Scaled TAGE needs two or three history lengths')
+     require(not args.spec_history or (args.direction_policy == 5 and
+             not args.early_target and not args.early_ras),

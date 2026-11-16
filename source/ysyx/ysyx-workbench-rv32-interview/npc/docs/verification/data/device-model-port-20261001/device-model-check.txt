@@ -1,0 +1,12 @@
+PASS apb CPU=100 MHz device=100 MHz
+PASS axi_stress CPU=100 MHz device=100 MHz
+PASS axi CPU=100 MHz device=100 MHz
+PASS sdram CPU=100 MHz device=100 MHz
+PASS apb CPU=250 MHz device=100 MHz
+PASS axi_stress CPU=250 MHz device=100 MHz
+PASS axi CPU=250 MHz device=100 MHz
+PASS sdram CPU=250 MHz device=100 MHz
+PASS apb CPU=720 MHz device=100 MHz
+PASS axi_stress CPU=720 MHz device=100 MHz
+PASS axi CPU=720 MHz device=100 MHz
+PASS sdram CPU=720 MHz device=100 MHz

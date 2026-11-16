@@ -1,0 +1,8 @@
+make: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc'
+make sta STA_DESIGN=riscv32_core_reset_boundary \
+	STA_SDC_FILE=/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/constr/riscv32_core_reset_boundary.sdc
+make[1]: Entering directory '/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc'
+make[1]: *** No rule to make target '/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/constr/riscv32_core_reset_boundary.sdc', needed by 'sta'.  Stop.
+make[1]: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc'
+make: *** [Makefile:1452: sta-reset] Error 2
+make: Leaving directory '/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc'

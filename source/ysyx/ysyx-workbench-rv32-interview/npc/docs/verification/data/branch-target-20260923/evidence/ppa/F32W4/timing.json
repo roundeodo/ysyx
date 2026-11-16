@@ -1,0 +1,80 @@
+{
+  "800": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_1__reg_p:D",
+        "slack_ns": -0.133,
+        "fmax_mhz": 722.953
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.116,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+        "slack_ns": 0.06,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 10,
+    "passed": false
+  },
+  "720": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_1__reg_p:D",
+        "slack_ns": -0.023,
+        "fmax_mhz": 708.721
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": -0.006,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+        "slack_ns": 0.06,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 6,
+    "passed": false
+  },
+  "700": {
+    "groups": {
+      "data_max": {
+        "endpoint": "u_core.u_icache.g_replacement_experiment.read_victim_1__reg_p:D",
+        "slack_ns": 0.009,
+        "fmax_mhz": 704.756
+      },
+      "gating_max": {
+        "endpoint": "u_core.u_ifu.predictor_fetch_pc_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.026,
+        "fmax_mhz": null
+      },
+      "data_min": {
+        "endpoint": "u_core.next_pc_predictor_lookup_request_epoch_0__reg_p:D",
+        "slack_ns": 0.06,
+        "fmax_mhz": null
+      },
+      "gating_min": {
+        "endpoint": "u_core.u_data_mem.gen_dcache.u_dcache.u_dcache_axi.refill_word_index_q_0__reg_p_CK_CLKGATE_X1_GCK:E",
+        "slack_ns": 0.097,
+        "fmax_mhz": null
+      }
+    },
+    "violations": 0,
+    "passed": true
+  }
+}

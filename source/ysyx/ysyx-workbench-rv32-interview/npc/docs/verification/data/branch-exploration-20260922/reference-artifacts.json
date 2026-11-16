@@ -1,0 +1,41 @@
+{
+  "morsl": {
+    "paper_url": "https://archive.org/download/cbp-ng_proceedings/Koizumi_et_al-paper.pdf",
+    "code_url": "https://archive.org/download/cbp-ng_proceedings/Koizumi_et_al-code.zip",
+    "archive_sha256": "a14b6d251d2b373c5ba64d7e8a9f3473a295b4d09d88c3f044b91317f022ae77",
+    "inspected": [
+      "cbp-ng/predictors/morsl.hpp"
+    ],
+    "execution": "not compiled or run"
+  },
+  "thermometer": {
+    "commit": "af065f183d14bedfade969f59310fac0ecce5a12",
+    "files": [
+      {
+        "path": "btb/srrip_btb/srrip_btb.cc",
+        "url": "https://raw.githubusercontent.com/efeslab/thermometer-artifact/af065f183d14bedfade969f59310fac0ecce5a12/btb/srrip_btb/srrip_btb.cc",
+        "file": "thermometer-srrip_btb.cc",
+        "sha256": "1f3c3771829ed22f8f3426ad36f18957fdc6a6f1c60029c33ed4dbe8971d5400",
+        "bytes": 11330,
+        "status": "downloaded"
+      },
+      {
+        "path": "btb/ghrp_btb/ghrp_btb.cc",
+        "url": "https://raw.githubusercontent.com/efeslab/thermometer-artifact/af065f183d14bedfade969f59310fac0ecce5a12/btb/ghrp_btb/ghrp_btb.cc",
+        "file": "thermometer-ghrp_btb.cc",
+        "sha256": "fd473c46c9072996c5ae219ddced19390d8b74fc8f6c9ea2a60690f95ae74386",
+        "bytes": 19595,
+        "status": "downloaded"
+      },
+      {
+        "path": "btb/hot_warm_cold_btb.template/hot_warm_cold_btb.cc",
+        "url": "https://raw.githubusercontent.com/efeslab/thermometer-artifact/af065f183d14bedfade969f59310fac0ecce5a12/btb/hot_warm_cold_btb.template/hot_warm_cold_btb.cc",
+        "file": "thermometer-hot_warm_cold_btb.template.cc",
+        "sha256": "76998d9182f83a2f48c2c55e204acf3b6c411967baec5a06cdf6dcf0db5a7766",
+        "bytes": 35756,
+        "status": "downloaded"
+      }
+    ],
+    "execution": "source reviewed; datacenter experiment not reproduced; no code copied to RTL"
+  }
+}

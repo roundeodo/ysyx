@@ -1,0 +1,6 @@
+{
+  "candidate": "NSL-BT64",
+  "mhz": 715,
+  "reason": "Development fastest advanced candidate, with larger area than the reporting budget bins; verify the same untouched validation inputs before assigning a latency role",
+  "change": "no parameter or workload modification"
+}

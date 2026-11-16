@@ -1,0 +1,241 @@
+diff --git a/npc/tests/rtl/riscv32_dcache_tb.sv b/npc/tests/rtl/riscv32_dcache_tb.sv
+index 36d7de0..3c776be 100644
+--- a/npc/tests/rtl/riscv32_dcache_tb.sv
++++ b/npc/tests/rtl/riscv32_dcache_tb.sv
+@@ -335,6 +335,73 @@ module riscv32_dcache_tb;
+     @(negedge clk);
+   endtask
+ 
++  // 最后一拍refill/响应与下一lookup交接，覆盖新tag、末字和store字节合并。
++  task automatic check_miss_handoff(input int next_kind, input bit first_store,
++                                    input int response_stalls);
++    phys_addr_t base_addr, first_addr, next_addr;
++    core_data_t expected, held_data;
++    int reads_before;
++    @(negedge clk);
++    rst_ni=0; data_memory_req_valid=0; data_memory_resp_ready=0;
++    repeat(2) @(negedge clk);
++    rst_ni=1;
++    base_addr=phys_addr_t'('h80006000);
++    first_addr=base_addr+phys_addr_t'(DCACHE_LINE_BYTES-DCACHE_WORD_BYTES);
++    case(next_kind)
++      0: next_addr=first_addr;
++      1: next_addr=base_addr;
++      2: next_addr=base_addr+SAME_SET_ADDR_STRIDE;
++      default: next_addr=base_addr+phys_addr_t'(DCACHE_LINE_BYTES);
++    endcase
++    expected=core_data_t'(read_memory_word(axi4_addr_t'(next_addr)));
++    if(first_store && next_addr==first_addr)
++      expected=merge_store_bytes(expected,core_data_t'('ha5317b29),core_byte_strobe_t'(5));
++    reads_before=read_address_handshake_count;
++    data_memory_req='0;
++    data_memory_req.addr=first_addr;
++    data_memory_req.cmd=first_store ? MEM_CMD_STORE : MEM_CMD_LOAD;
++    data_memory_req.size=TEST_WORD_SIZE;
++    data_memory_req.transaction_id=mem_txn_id_t'(7);
++    data_memory_req.write_data=core_data_t'('ha5317b29);
++    data_memory_req.byte_strobe=core_byte_strobe_t'(5);
++    data_memory_req_valid=1; data_memory_resp_ready=response_stalls==0;
++    while(!data_memory_req_ready) @(negedge clk);
++    @(negedge clk);
++    data_memory_req.addr=next_addr; data_memory_req.cmd=MEM_CMD_LOAD;
++    data_memory_req.transaction_id=mem_txn_id_t'(8);
++    while(!data_memory_resp_valid) begin
++      #1;
++      assert(!data_memory_req_ready)
++        else $fatal(1,"miss admitted another lookup before completion");
++      @(negedge clk);
++    end
++    held_data=data_memory_resp.read_data;
++    repeat(response_stalls) begin
++      #1;
++      assert(!data_memory_req_ready && data_memory_resp_valid &&
++             data_memory_resp.transaction_id==mem_txn_id_t'(7) &&
++             data_memory_resp.read_data==held_data)
++        else $fatal(1,"miss handoff lost its stalled old response");
++      @(negedge clk);
++    end
++    data_memory_resp_ready=1;
++    #1;
++    assert(data_memory_req_ready && !data_memory_resp.access_fault &&
++           data_memory_resp.transaction_id==mem_txn_id_t'(7))
++      else $fatal(1,"completed miss inserted a lookup handoff bubble");
++    @(negedge clk); data_memory_req_valid=0;
++    if(next_kind<2)
++      assert(data_memory_resp_valid)
++        else $fatal(1,"newly installed line did not hit immediately after handoff");
++    while(!data_memory_resp_valid) @(negedge clk);
++    assert(data_memory_resp.transaction_id==mem_txn_id_t'(8) &&
++           !data_memory_resp.access_fault && data_memory_resp.read_data==expected)
++      else $fatal(1,"miss handoff returned stale data or wrong identity");
++    @(negedge clk);
++    assert(read_address_handshake_count==reads_before+((next_kind<2) ? 1 : 2))
++      else $fatal(1,"handoff lost the installed tag or duplicated a refill");
++  endtask
++
+   initial begin
+     core_data_t read_data;
+     core_data_t original_a;
+@@ -437,6 +504,12 @@ module riscv32_dcache_tb;
+           else $fatal(1,"clean scan wrote wrong set/way data");
+     clean_cache(1);
+ 
++    for(int next_kind=0;next_kind<4;next_kind++)
++      for(int store=0;store<2;store++) begin
++        check_miss_handoff(next_kind,1'(store),0);
++        check_miss_handoff(next_kind,1'(store),3);
++      end
++    $display("PASS D-cache miss handoff: 16 tag/data/byte-write/response-stall cases");
+     $display("D-cache directed test passed: XLEN=%0d sets=%0d ways=%0d line=%0dB",
+              XLEN, DCACHE_SET_COUNT, DCACHE_WAY_COUNT, DCACHE_LINE_BYTES);
+     $finish;
+diff --git a/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv b/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv
+index 8fec661..106bdda 100644
+--- a/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_dcache.sv
+@@ -147,7 +147,8 @@ module riscv32_dcache
+   // read-during-write行为，因此连续load/store不再为了宏语义固定空转一拍。
+   assign data_memory_req_ready_o =
+       (!lookup_s1_present_q || local_resp_handshake) &&
+-      !miss_transaction_present && !clean_blocks_lookup;
++      (!miss_transaction_present || (miss_resp_valid && miss_resp_ready &&
++       !miss_resp.access_fault)) && !clean_blocks_lookup;
+   assign lookup_req_handshake = data_memory_req_valid_i && data_memory_req_ready_o;
+ 
+   always_comb begin
+@@ -223,42 +224,15 @@ module riscv32_dcache
+   );
+ 
+   logic [DCACHE_WAY_COUNT-1:0] lookup_way_hit_vector;
+-  logic [DCACHE_WAY_COUNT-1:0] lookup_line_dirty_vector;
+   logic                        lookup_hit;
+   dcache_way_index_t           lookup_hit_way_index;
+   core_data_t                  lookup_hit_word_data;
+   dcache_way_index_t           replacement_way_index;
+   logic                        replacement_invalid_way_found;
+ 
+-  // store hit写array的同拍允许下一请求启动同步读。宏的read-during-write语义可能是
+-  // old-data，因此显式保存刚提交的store，并只在紧随其后的S1访问中覆盖对应byte。
+-  // 同set不同tag的下一请求若miss，也必须看到该way已经变dirty，避免替换时漏写回。
+-  logic               store_write_bypass_present_q;
+-  dcache_set_index_t  store_write_bypass_set_index_q;
+-  dcache_way_index_t  store_write_bypass_way_index_q;
+-  dcache_word_index_t store_write_bypass_word_index_q;
+-  core_data_t         store_write_bypass_data_q;
+-  core_byte_strobe_t  store_write_bypass_byte_strobe_q;
+-  logic               store_write_bypass_matches_lookup_line;
+-  logic               store_write_bypass_matches_lookup_word;
+-
+-  assign store_write_bypass_matches_lookup_line =
+-      store_write_bypass_present_q &&
+-      (store_write_bypass_set_index_q == get_set_index(
+-      lookup_s1_q.addr
+-  ));
+-  assign store_write_bypass_matches_lookup_word =
+-      store_write_bypass_matches_lookup_line &&
+-      (store_write_bypass_word_index_q == get_word_index(
+-      lookup_s1_q.addr
+-  ));
+-
++  // 阵列读口已合并同沿写入值；命中路径不再保存第二份store旁路载荷。
+   always_comb begin
+     lookup_way_hit_vector    = '0;
+-    lookup_line_dirty_vector = array_read_line_dirty_vector;
+-    if (store_write_bypass_matches_lookup_line) begin
+-      lookup_line_dirty_vector[store_write_bypass_way_index_q] = 1'b1;
+-    end
+     lookup_hit           = 1'b0;
+     lookup_hit_way_index = '0;
+     lookup_hit_word_data = '0;
+@@ -271,14 +245,6 @@ module riscv32_dcache
+         lookup_hit           = 1'b1;
+         lookup_hit_way_index = dcache_way_index_t'(way_index);
+         lookup_hit_word_data = array_read_word_data_array[way_index];
+-        if (store_write_bypass_matches_lookup_word &&
+-            store_write_bypass_way_index_q == dcache_way_index_t'(way_index)) begin
+-          lookup_hit_word_data = merge_store_bytes(
+-            array_read_word_data_array[way_index],
+-            store_write_bypass_data_q,
+-            store_write_bypass_byte_strobe_q
+-          );
+-        end
+       end
+     end
+   end
+@@ -340,26 +306,11 @@ module riscv32_dcache
+     miss_req.replacement_way_index = replacement_way_index;
+     miss_req.victim_tag            = array_read_tag_array[replacement_way_index];
+     miss_req.victim_present        = array_read_line_present_vector[replacement_way_index];
+-    miss_req.victim_dirty          = lookup_line_dirty_vector[replacement_way_index];
++    miss_req.victim_dirty          = array_read_line_dirty_vector[replacement_way_index];
+     miss_req_valid                 = lookup_s1_present_q && !lookup_hit && !clean_blocks_lookup;
+   end
+   assign miss_req_handshake = miss_req_valid && miss_req_ready;
+ 
+-  always_ff @(posedge clk_i or negedge rst_ni) begin
+-    if (!rst_ni) begin
+-      store_write_bypass_present_q <= 1'b0;
+-    end else if (lookup_req_handshake || !lookup_s1_present_d) begin
+-      store_write_bypass_present_q <= store_hit_write_event && lookup_req_handshake;
+-      if (store_hit_write_event && lookup_req_handshake) begin
+-        store_write_bypass_set_index_q   <= get_set_index(lookup_s1_q.addr);
+-        store_write_bypass_way_index_q   <= lookup_hit_way_index;
+-        store_write_bypass_word_index_q  <= get_word_index(lookup_s1_q.addr);
+-        store_write_bypass_data_q        <= lookup_s1_q.write_data;
+-        store_write_bypass_byte_strobe_q <= lookup_s1_q.byte_strobe;
+-      end
+-    end
+-  end
+-
+   // clean 反馈：输出条件、下一状态、状态更新集中排列。
+   always_comb begin
+     clean_dirty_way_present  = 1'b0;
+diff --git a/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv b/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
+index d74f3e3..916a470 100644
+--- a/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_dcache_data_array.sv
+@@ -33,6 +33,14 @@ module riscv32_dcache_data_array
+       for (int unsigned way_index = 0; way_index < WAY_COUNT; way_index++) begin
+         read_word_data_array_q[way_index] <=
+             data_array_q[way_index][read_word_index_i][read_set_index_i];
++        // 显式定义同址读写为新数据，覆盖store字节合并及最后refill字的交接。
++        if (write_valid_i && write_set_index_i == read_set_index_i &&
++            write_word_index_i == read_word_index_i &&
++            write_way_index_i == dcache_way_index_t'(way_index)) begin
++          read_word_data_array_q[way_index] <= merge_store_bytes(
++              data_array_q[way_index][read_word_index_i][read_set_index_i],
++              write_word_data_i, write_byte_strobe_i);
++        end
+       end
+     end
+   end
+@@ -42,8 +50,7 @@ module riscv32_dcache_data_array
+   end
+ 
+   // 每个byte lane独立写使能，使综合器能够映射到带byte-enable的SRAM或banked array。
+-  // RTL 同沿读写同一字时读到旧值。store 与下一 lookup 的冲突由 D-cache 顶层旁路处理；
+-  // 阵列本身不检测请求相关性，也不复制另一套旁路。
++  // 存储本体的写口不变；上方显式旁路定义读写冲突，不依赖SRAM宏的默认行为。
+   always_ff @(posedge clk_i) begin
+     if (write_valid_i) begin
+       for (int unsigned byte_index = 0; byte_index < CORE_DATA_BYTE_COUNT; byte_index++) begin
+diff --git a/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv b/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
+index 027840a..f5da619 100644
+--- a/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
++++ b/npc/vsrc/riscv32/core/memory/riscv32_dcache_tag_array.sv
+@@ -41,6 +41,15 @@ module riscv32_dcache_tag_array
+             line_present_array_q[way_index][read_set_index_i];
+         read_line_dirty_vector_q[way_index] <=
+             line_dirty_array_q[way_index][read_set_index_i];
++        // 同沿安装或store与下一查询交接：读出寄存器直接采样新元数据。
++        if (metadata_write_valid_i && metadata_write_set_index_i == read_set_index_i &&
++            metadata_write_way_index_i == dcache_way_index_t'(way_index)) begin
++          if (metadata_write_line_present_i)
++            read_tag_array_q[way_index] <= metadata_write_tag_i;
++          read_line_present_vector_q[way_index] <= metadata_write_line_present_i;
++          read_line_dirty_vector_q[way_index] <=
++              metadata_write_line_present_i && metadata_write_line_dirty_i;
++        end
+       end
+     end
+   end

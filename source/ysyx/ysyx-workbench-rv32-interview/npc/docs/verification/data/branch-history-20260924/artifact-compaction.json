@@ -1,0 +1,268 @@
+{
+  "compressed": [
+    {
+      "original": "ppa/T16/synthesis.log",
+      "path": "ppa/T16/synthesis.log.gz",
+      "original_sha256": "401a1a97ee5873d7c54f3831af8516922ad5e4c1aa2228c24752caefb4bc4f59",
+      "sha256": "c41cfa4f20804fbe89bc490af8fdaa102cc116612e3a1ebe174ec19e654ab635",
+      "original_bytes": 95412771
+    },
+    {
+      "original": "ppa/G512/synthesis.log",
+      "path": "ppa/G512/synthesis.log.gz",
+      "original_sha256": "3bc2cfabc92de2883a41f6788c6a809a762559584ae88d362c2da4f0efd3dea0",
+      "sha256": "c5e60ca186f4e4d318bea645c3cf726a404758e07aa1c85786b32102824c22d7",
+      "original_bytes": 99749049
+    },
+    {
+      "original": "ppa/B0/synthesis.log",
+      "path": "ppa/B0/synthesis.log.gz",
+      "original_sha256": "6e91e47b4c378eeb26c7e2ab7a4fc20fd91f75f45d18f4627ebfd88c4b7445a7",
+      "sha256": "8becb4ddf3eb92cb05b40d92bda15f41c250c93edda80b4abe58a05c3b908e1c",
+      "original_bytes": 24635957
+    },
+    {
+      "original": "ppa/B512/synthesis.log",
+      "path": "ppa/B512/synthesis.log.gz",
+      "original_sha256": "ab1b273ccc221935e2650b782707970a73bd88f6edfdc0cd7bf6820cc9a0de95",
+      "sha256": "a5dbf700dcba182ff4729fda6fcfb384d7ff4089bb6cde520e97cccf543e455e",
+      "original_bytes": 100077437
+    },
+    {
+      "original": "ppa/B0I/synthesis.log",
+      "path": "ppa/B0I/synthesis.log.gz",
+      "original_sha256": "fb1fc948455b5f0d6245d60ce7a7c1f69442c448e9d7de089a5523197173442d",
+      "sha256": "bf960c6547b80df304597e43dea3a635572bdadfabd76ba8a26f4e8720091c5c",
+      "original_bytes": 91040305
+    },
+    {
+      "original": "ppa/G256/synthesis.log",
+      "path": "ppa/G256/synthesis.log.gz",
+      "original_sha256": "39da6af44dbe7e40245fa6727b7060d500bc9d2c9a564a33015b56992facac52",
+      "sha256": "d8c3a56a73262e88bf180fd73b7fece50cab9ba954a5a0757adef4bd508e3ba3",
+      "original_bytes": 95465568
+    },
+    {
+      "original": "ppa/T32/synthesis.log",
+      "path": "ppa/T32/synthesis.log.gz",
+      "original_sha256": "ff222a813e0feab661c0d3be58fed9669752bd05032b066d6191633823a1c838",
+      "sha256": "5292cdff8b7916d0df4d6baea00bdae4f6b95a01c2a9f49afd91da4adb7b6273",
+      "original_bytes": 99194831
+    },
+    {
+      "original": "ppa/T16/sta/riscv32_core_reset_boundary-820MHz/yosys.log",
+      "path": "ppa/T16/sta/riscv32_core_reset_boundary-820MHz/yosys.log.gz",
+      "original_sha256": "00729245a0b18527bc9aadbbeb3395675ed379576ab1976d0b815eb3bf3b7600",
+      "sha256": "6ceaf07c5dcb950569e6544d86c0d3824bed6b19d7c69ede383307a73cbb580e",
+      "original_bytes": 94778398
+    },
+    {
+      "original": "ppa/G512/sta/riscv32_core_reset_boundary-820MHz/yosys.log",
+      "path": "ppa/G512/sta/riscv32_core_reset_boundary-820MHz/yosys.log.gz",
+      "original_sha256": "414207583ae436fe7ff02c0ec4f0e50120d873fcaf15c7b8471d50383f44f7fb",
+      "sha256": "1a87bbd24b7df3b78f4dfe3d6974c1c03475199b1a9f92c95864ffec6725ea66",
+      "original_bytes": 99039734
+    },
+    {
+      "original": "ppa/B0/sta/riscv32_core_reset_boundary-820MHz/yosys.log",
+      "path": "ppa/B0/sta/riscv32_core_reset_boundary-820MHz/yosys.log.gz",
+      "original_sha256": "61fe86eb2b29e20eb50aea88bb3264866752c981841e82a052e2964098e6382c",
+      "sha256": "00ccbc06d7227e8f35aa0df1faf55fef3bd7cfa2252250da2f273014720c1970",
+      "original_bytes": 24614554
+    },
+    {
+      "original": "ppa/B512/sta/riscv32_core_reset_boundary-820MHz/yosys.log",
+      "path": "ppa/B512/sta/riscv32_core_reset_boundary-820MHz/yosys.log.gz",
+      "original_sha256": "373c0ef1584be671207b4d8483ab56fc0fe43cee99f0e7e289b6a5d0a745f098",
+      "sha256": "576e82fa00c48f97f5394fd317fd1b6feff8dda82014bb6a7362440b0405f6a2",
+      "original_bytes": 99364834
+    },
+    {
+      "original": "ppa/B0I/sta/riscv32_core_reset_boundary-820MHz/yosys.log",
+      "path": "ppa/B0I/sta/riscv32_core_reset_boundary-820MHz/yosys.log.gz",
+      "original_sha256": "e1c28951dfedea33f33057d2e3325ccce23385fd23ced2e75cba5b3d74a9e0a9",
+      "sha256": "5fd62c6ce7ab7c928c5ffc02b45dce2a81945d18fbde9a836b458cb4c6c8d643",
+      "original_bytes": 90488187
+    },
+    {
+      "original": "ppa/G256/sta/riscv32_core_reset_boundary-820MHz/yosys.log",
+      "path": "ppa/G256/sta/riscv32_core_reset_boundary-820MHz/yosys.log.gz",
+      "original_sha256": "e9c8a511dd66dd0735df8286a2fb24672e32eee3910a7a5dc1e5ea9094a75cf5",
+      "sha256": "1443903ab0a86e753ae2ee752b37c1535254fac66d850028b2cd91df98ce71e3",
+      "original_bytes": 94831949
+    },
+    {
+      "original": "ppa/T32/sta/riscv32_core_reset_boundary-820MHz/yosys.log",
+      "path": "ppa/T32/sta/riscv32_core_reset_boundary-820MHz/yosys.log.gz",
+      "original_sha256": "e2ff999548921ae74d3c5af3fd23d33cd3ca1a913987b599efe20499a6a404f0",
+      "sha256": "bc0c57828d42a7d06f2a5565a7714a325a55fb91b6f0992455a984b16182d104",
+      "original_bytes": 98459534
+    },
+    {
+      "original": "ppa/T16/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json",
+      "path": "ppa/T16/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json.gz",
+      "original_sha256": "b699458bd2c9fe501c25ba4ca1adc119daf4a54cabde1aab9cd9c098eaa99c98",
+      "sha256": "9b9d9f1d3139dce60ec3c2aedb9266f8fe366b3368bcc5d4ee50665e80065792",
+      "original_bytes": 74410278
+    },
+    {
+      "original": "ppa/G512/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json",
+      "path": "ppa/G512/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json.gz",
+      "original_sha256": "3e5f7b8fcf293cc24f151c1df8b382228d254926da843e88e9220b4c93fd560f",
+      "sha256": "b04bcc6d6cce6a93c125335e1d2076a1c6c01568ace5751d06893116bb300cf4",
+      "original_bytes": 75988437
+    },
+    {
+      "original": "ppa/B512/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json",
+      "path": "ppa/B512/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json.gz",
+      "original_sha256": "36eb83c34cc48c60fda18ba361167b384970f5adfa76fd8a2af1b02caab66b1b",
+      "sha256": "40ea68cf13bc232d6149fbcb8bfc6f7ccc15684e66c8a59bbd62531c539fd2b1",
+      "original_bytes": 75857883
+    },
+    {
+      "original": "ppa/B0I/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json",
+      "path": "ppa/B0I/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json.gz",
+      "original_sha256": "f6f2fa9e990008629240b56034aa050a12bf99a04dbead7eb8d72c12c428a986",
+      "sha256": "bdcf77a466a12de33725a9de9edb4009d6ff0de1db4bc0910a18b2a30bfc1a65",
+      "original_bytes": 69967592
+    },
+    {
+      "original": "ppa/G256/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json",
+      "path": "ppa/G256/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json.gz",
+      "original_sha256": "c417fd8ae8d3bd424ed4196e2b517f506a2db02a7ccb08237c6de062d1efd749",
+      "sha256": "2199023dfae5375af9c657b83e33981905964433c59e1ca605c88f2ec67d7bed",
+      "original_bytes": 73242895
+    },
+    {
+      "original": "ppa/T32/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json",
+      "path": "ppa/T32/sta/riscv32_core_reset_boundary-820MHz-buffered/before.json.gz",
+      "original_sha256": "f9c6f439137704cf4d3e8f024bef6cff57e38ce4d75b38606993a3f1ba0a1681",
+      "sha256": "2d0f7c109b33c072709489af6cacb0da11e1b904f080915535f5b033a4ce02ea",
+      "original_bytes": 77986176
+    }
+  ],
+  "removed_duplicates": [
+    {
+      "path": "ppa/B0I/sta/riscv32_core_reset_boundary-720MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/B0I/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "3ce62bb5192462a38f7b358cfb95bdf1fef1cbc632b3432ada9a032552a9106f",
+      "bytes": 27859655
+    },
+    {
+      "path": "ppa/B0I/sta/riscv32_core_reset_boundary-740MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/B0I/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "3ce62bb5192462a38f7b358cfb95bdf1fef1cbc632b3432ada9a032552a9106f",
+      "bytes": 27859655
+    },
+    {
+      "path": "ppa/B512/sta/riscv32_core_reset_boundary-240MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/B512/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "63d3b9d9dfb25e27ef2a2d794c04c7485c94f793c0d17e155fb2a1c445e98ed6",
+      "bytes": 30329698
+    },
+    {
+      "path": "ppa/B512/sta/riscv32_core_reset_boundary-260MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/B512/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "63d3b9d9dfb25e27ef2a2d794c04c7485c94f793c0d17e155fb2a1c445e98ed6",
+      "bytes": 30329698
+    },
+    {
+      "path": "ppa/B512F/sta/riscv32_core_reset_boundary-720MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/B512F/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "45fe43a72babc2a4058d28e9999ab4406ebb4a0869525e975dfdc9bbc4450ace",
+      "bytes": 30300828
+    },
+    {
+      "path": "ppa/B512F/sta/riscv32_core_reset_boundary-740MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/B512F/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "45fe43a72babc2a4058d28e9999ab4406ebb4a0869525e975dfdc9bbc4450ace",
+      "bytes": 30300828
+    },
+    {
+      "path": "ppa/G256/sta/riscv32_core_reset_boundary-620MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G256/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "04d6b1f5601e4a5d813654d26fbebe5b46909986728298d06810032590da1c62",
+      "bytes": 29104794
+    },
+    {
+      "path": "ppa/G256/sta/riscv32_core_reset_boundary-600MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G256/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "04d6b1f5601e4a5d813654d26fbebe5b46909986728298d06810032590da1c62",
+      "bytes": 29104794
+    },
+    {
+      "path": "ppa/G256/sta/riscv32_core_reset_boundary-800MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G256/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "04d6b1f5601e4a5d813654d26fbebe5b46909986728298d06810032590da1c62",
+      "bytes": 29104794
+    },
+    {
+      "path": "ppa/G256F/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G256F/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "e86f103812238391c91ce60601095e920f4f3c86c111c37440bb76b47594adc7",
+      "bytes": 29088604
+    },
+    {
+      "path": "ppa/G256F/sta/riscv32_core_reset_boundary-720MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G256F/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "e86f103812238391c91ce60601095e920f4f3c86c111c37440bb76b47594adc7",
+      "bytes": 29088604
+    },
+    {
+      "path": "ppa/G512/sta/riscv32_core_reset_boundary-220MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G512/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "6ed1dde575dd45b4b1dc3f3a8801c93cba9d619a06c8041a1bfd2291de16f68e",
+      "bytes": 30345682
+    },
+    {
+      "path": "ppa/G512/sta/riscv32_core_reset_boundary-240MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G512/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "6ed1dde575dd45b4b1dc3f3a8801c93cba9d619a06c8041a1bfd2291de16f68e",
+      "bytes": 30345682
+    },
+    {
+      "path": "ppa/G512F/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G512F/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "c8badb9831f4fe51ed92f9b2dc6a4060284b0601743a2bad436c7d4fb5a16026",
+      "bytes": 30316812
+    },
+    {
+      "path": "ppa/G512F/sta/riscv32_core_reset_boundary-720MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/G512F/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "c8badb9831f4fe51ed92f9b2dc6a4060284b0601743a2bad436c7d4fb5a16026",
+      "bytes": 30316812
+    },
+    {
+      "path": "ppa/T16/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/T16/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "fe87bf8800364c2addb87c0c79b9abe7e8d6b01c664760910f298d3b6e0aa3d4",
+      "bytes": 29641557
+    },
+    {
+      "path": "ppa/T16/sta/riscv32_core_reset_boundary-720MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/T16/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "fe87bf8800364c2addb87c0c79b9abe7e8d6b01c664760910f298d3b6e0aa3d4",
+      "bytes": 29641557
+    },
+    {
+      "path": "ppa/T16/sta/riscv32_core_reset_boundary-800MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/T16/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "fe87bf8800364c2addb87c0c79b9abe7e8d6b01c664760910f298d3b6e0aa3d4",
+      "bytes": 29641557
+    },
+    {
+      "path": "ppa/T32/sta/riscv32_core_reset_boundary-700MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/T32/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "9f95f12115b860768d1c4742f8407911dda8e1b483765458eca738f73a9b8539",
+      "bytes": 31308909
+    },
+    {
+      "path": "ppa/T32/sta/riscv32_core_reset_boundary-680MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "identical_retained_path": "ppa/T32/sta/riscv32_core_reset_boundary-820MHz-buffered/riscv32_core_reset_boundary.netlist.v",
+      "sha256": "9f95f12115b860768d1c4742f8407911dda8e1b483765458eca738f73a9b8539",
+      "bytes": 31308909
+    }
+  ],
+  "bytes_released": 2159413292,
+  "status": "completed"
+}

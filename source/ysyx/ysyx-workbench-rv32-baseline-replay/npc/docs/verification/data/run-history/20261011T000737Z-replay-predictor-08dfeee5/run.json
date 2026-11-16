@@ -1,0 +1,8 @@
+{
+  "status": "complete",
+  "command": [
+    "npc/scripts/test_replay_predictor.py"
+  ],
+  "workspace": "/home/yong/ysyx/ysyx-workbench-rv32-baseline-replay/npc/result/verification/replay-predictor",
+  "retention": "compact reports only; generated binaries, source snapshots and netlists are disposable"
+}

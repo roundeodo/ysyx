@@ -1,0 +1,77 @@
+{
+  "frequency_mhz": 700,
+  "scope": "prediction-response",
+  "summary_rows": [
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_237__reg_p:D",
+      "type": "max",
+      "path_delay": "1.202f",
+      "required_ns": 1.389,
+      "slack_ns": 0.187
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_237__reg_p:D",
+      "type": "max",
+      "path_delay": "1.202f",
+      "required_ns": 1.389,
+      "slack_ns": 0.187
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_225__reg_p:D",
+      "type": "max",
+      "path_delay": "1.198f",
+      "required_ns": 1.389,
+      "slack_ns": 0.191
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_221__reg_p:D",
+      "type": "max",
+      "path_delay": "1.198f",
+      "required_ns": 1.389,
+      "slack_ns": 0.191
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_prediction_221__reg_p:D",
+      "type": "max",
+      "path_delay": "1.198f",
+      "required_ns": 1.389,
+      "slack_ns": 0.191
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_1__reg_p:D",
+      "type": "min",
+      "path_delay": "0.096f",
+      "required_ns": 0.002,
+      "slack_ns": 0.094
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_1__reg_p:D",
+      "type": "min",
+      "path_delay": "0.096f",
+      "required_ns": 0.002,
+      "slack_ns": 0.094
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_0__reg_p:D",
+      "type": "min",
+      "path_delay": "0.096f",
+      "required_ns": 0.002,
+      "slack_ns": 0.094
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_0__reg_p:D",
+      "type": "min",
+      "path_delay": "0.096f",
+      "required_ns": 0.002,
+      "slack_ns": 0.094
+    },
+    {
+      "endpoint": "u_core.next_pc_predictor_lookup_response_epoch_1__reg_p:D",
+      "type": "min",
+      "path_delay": "0.116r",
+      "required_ns": 0.01,
+      "slack_ns": 0.106
+    }
+  ],
+  "note": "Endpoint-filtered report; not a whole-core frequency qualification."
+}

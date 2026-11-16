@@ -1,0 +1,232 @@
+{
+  "status": "passed",
+  "ppa_configurations": 11,
+  "rtl_runs": 43,
+  "rtl_cases": 258,
+  "checks": [
+    "frozen selection inputs",
+    "image and simulator hashes",
+    "architectural output and retirement",
+    "IPC and time window",
+    "cycle accounting",
+    "all four timing groups and upper neighbour",
+    "PPA source snapshots"
+  ],
+  "runs": [
+    {
+      "path": "rtl/dev-720/A16/results.json",
+      "sha256": "2b1e76f0b79566bd35340d45bca60b8160a1b9254c1bf814ca737f8ce4472d83",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/A32/results.json",
+      "sha256": "9203fbb50108ebf1c973f42ee0a32a1ad07931e775315f2ec2d3a3f59bcdd673",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/B0/results.json",
+      "sha256": "7041a9b921c42463aecec9973cf939f8710ed1d7a33d61c7cbc1df839c96c535",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/B0current/results.json",
+      "sha256": "f5ea8eaad79b8de343488d41dc5f384232d052cbe7747c70fc75c088c78b7c39",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/H64/results.json",
+      "sha256": "73934107f494f35c05abf6e82c08af58004dd1ee1a53e8343d63c73586366a6e",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/L16/results.json",
+      "sha256": "8fe860ff39836c067fcb0974e0b14296ef2095f3d9bf09d519f434cd456e096a",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/L32/results.json",
+      "sha256": "d1dda85218b5af694c392cc6f2f11370506b70aa2bd766415e3f566975546930",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/R16/results.json",
+      "sha256": "e00581f0ff2bcaa2ce4818ba172f3f35c62e58359e7c4865ee0f65093cea66ea",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/R32/results.json",
+      "sha256": "82ccfac06f355f0d55f7246312b1e88d33a8a3428df53ffa2fd94ffe12c37c3b",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/S32/results.json",
+      "sha256": "115dbe618d69db85ed8a9c1ffae8815651226b76ad45262668b5e0e7a8617699",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-720/S64/results.json",
+      "sha256": "ffbc444dd7bcfe75dcaf4db9dac2f0cef5d21d8fca0842d977ef2d6139776c19",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/A16/results.json",
+      "sha256": "9c23f7968997a0dda564def5c381e7e4313c8687b4c497e659f1c32d5c706a68",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/A32/results.json",
+      "sha256": "eb237a621997dceca25333054e097aa10242217e6b037b1acbedf759358a6e72",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/B0/results.json",
+      "sha256": "3b74fa036323c56b5879aa5995fa83c4c4319f3e884a06b7a779e2b7ad9b4c81",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/H64/results.json",
+      "sha256": "a4a9365b24257269349f848b21aa6310ae5a57a39940edc5068afc4b3b8a1e57",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/L16/results.json",
+      "sha256": "a821419c6932e86186b2b5b01e83bf913a3e21abe48d7e753bc6b9d258c2d235",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/L32/results.json",
+      "sha256": "5de1afd01ade3ffe012cccb58e873c400889dc89ccaa955a3fd069dfe51aea48",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/R16/results.json",
+      "sha256": "3b47dc96c56c1d5095bebfec52a42e70b3f82d8633c48f055cc6a00fc00c7684",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/R32/results.json",
+      "sha256": "5988a2fa32fe899782f6115da5ebb7ae98a62a74b6209d7f3fbd148962c492d6",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/S32/results.json",
+      "sha256": "db91b280ee21518b11e139195cc21548fb9d53275d2f4317cde6e7e64d70b60c",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-common/S64/results.json",
+      "sha256": "8c3c404bbb767a9992f78e2b011fa7b217679625c3565f8fc8a52e90454de9cb",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/A16/results.json",
+      "sha256": "ebdf313422d7e38539f5c5f50a21f5f98cd40ce7112e4d1ef84dce662fa570fb",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/A32/results.json",
+      "sha256": "053c6f45bca3ae79ddee15f109347b6259d0f60785917e5a069b80ea0bc0e669",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/B0/results.json",
+      "sha256": "654b1d27ab5751cd17a764563652371c9d0e86fbb2fd318274c01dbb663e9ca3",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/H64/results.json",
+      "sha256": "73934107f494f35c05abf6e82c08af58004dd1ee1a53e8343d63c73586366a6e",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/L16/results.json",
+      "sha256": "efd2f30146efda127ee1a1af6b66153bdea227fcb807c6eac129229b4ca335f3",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/L32/results.json",
+      "sha256": "e31257ac46e0fbe8374a913c09d5bbe9a31775d2a2d37b0d9c5287abc1082520",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/R16/results.json",
+      "sha256": "7a81a856e5afce13afacc35c07a32a87a3bf929d736906c24ab124b64fdd626a",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/R32/results.json",
+      "sha256": "71ab41607d3fb865aaec39ee67d4ec970c0011a825b64212630ab072348f3a20",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/S32/results.json",
+      "sha256": "39de2da146c83ca92486d79a3ef76234a28df155fb910fef911e713b38969589",
+      "cases": 6
+    },
+    {
+      "path": "rtl/dev-own/S64/results.json",
+      "sha256": "8c3c404bbb767a9992f78e2b011fa7b217679625c3565f8fc8a52e90454de9cb",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-common/B0/results.json",
+      "sha256": "c45352ea955c62116b972e5b3b4d7695f4b400c492d587d645ecef7cefe47dc3",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-common/R16/results.json",
+      "sha256": "8fec7d0a7521c0d25e4cfa33f45b71e8ed0aa970254cf79141ca38b0c5b7da09",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-fast/B0/results.json",
+      "sha256": "6c73a31b181d596b5a7d60c7e69bc9c560cd3ac2d57028235a184c3fbf9b11df",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-fast/R16/results.json",
+      "sha256": "7b82bce2c759c43977a5f5f244d51cd84048cd616e668d2e4fee30d86482167a",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-observer-off/B0/results.json",
+      "sha256": "b07d41c8705929ebb2483ada7e60d64edcb76eb103bb8a567edf5d584df66327",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-observer-off/R16/results.json",
+      "sha256": "4ca73b9c667c83784f49af42d66a160dcfcdef0092233efc57dc3d315b4c9930",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-own/B0/results.json",
+      "sha256": "38f851f1afa3a3f09e17a42b9a18fbb68da31eabeb0d5e66be62554f849c4806",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-own/R16/results.json",
+      "sha256": "c83ad2507ebac09c80452d43244cc7ebd4a7adae2f4614135f32c6663f00f873",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-random/B0/results.json",
+      "sha256": "2f458d262a001074965bd7639fb952d7fb7ddbcfd231391ebe0ed9db0ab07294",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-random/R16/results.json",
+      "sha256": "ed8df284cf97c2df15e362877629ed3bc880be0780c73f6e41fa256c9be706cd",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-slow/B0/results.json",
+      "sha256": "5f15a1cbb33aab702f6ed0d6fcbaf173764444c7cf1b448170d64bbc20580d9a",
+      "cases": 6
+    },
+    {
+      "path": "rtl/held-slow/R16/results.json",
+      "sha256": "7e050a7682947304389a418a0415effd1fe69f0624932dd6006e8931e434c6ca",
+      "cases": 6
+    }
+  ]
+}
